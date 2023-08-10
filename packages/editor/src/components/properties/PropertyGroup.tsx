@@ -30,8 +30,15 @@ import CloseIcon from '@mui/icons-material/Close'
 import './PropertyGroup.css'
 
 // Import the external CSS file
+interface Props {
+  name?: string
+  description?: string
+  onClose?: () => void
+  children?: React.ReactNode
+  rest?: Record<string, unknown>
+}
 
-const PropertyGroup = ({ name, description, children, onClose, ...rest }) => {
+const PropertyGroup = ({ name, description, children, onClose, ...rest }: Props) => {
   return (
     <div className="property-group" {...rest}>
       <div className="property-group-header">

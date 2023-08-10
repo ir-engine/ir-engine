@@ -51,8 +51,10 @@ const useStyles = makeStyles<any, any, any>((theme: any) => {
  *
  * @type {component}
  */
-export const InputGroupContainer = ({ disabled = false, children }) => (
-  <div className={`input-group-container ${disabled ? 'disabled' : ''}`}>{children}</div>
+export const InputGroupContainer = ({ disabled = false, children, ...rest }) => (
+  <div className={`input-group-container ${disabled ? 'disabled' : ''}`} {...rest}>
+    {children}
+  </div>
 )
 /**
  * Used to provide styles for InputGroupContent div.
@@ -125,7 +127,7 @@ export type InputGroupProps = React.PropsWithChildren<
  * @constructor
  */
 export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProps) {
-  const styles = useStyles()
+  const styles = useStyles({})
 
   return (
     <InputGroupContainer disabled={disabled} {...rest}>

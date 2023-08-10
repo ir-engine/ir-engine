@@ -48,18 +48,18 @@ const StyledNodeEditor = {}
 
 /**
  * PropertiesPanelContent used as container element contains content of editor view.
- * @type {Component}
+ * @type {Style}
  */
-const propertiesPanelContentStyle = {
+const propertiesPanelContentStyle: React.CSSProperties = {
   overflowY: 'auto',
   height: '100%'
 }
 /**
  * NoNodeSelectedMessage used to show the message when no selected no is there.
  *
- * @type {Component}
+ * @type {Style}
  */
-const noNodeSelectedMessageStyle = {
+const noNodeSelectedMessageStyle: React.CSSProperties = {
   height: '100%',
   display: 'flex',
   justifyContent: 'center',

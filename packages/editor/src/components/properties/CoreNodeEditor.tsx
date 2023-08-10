@@ -77,7 +77,11 @@ export const CoreNodeEditor = (props) => {
         <NameInputGroup entity={props.entity} key={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (
           <>
-            <InputGroup style={visibleInputGroupStyle} name="Visible" label={t('editor:properties.lbl-visible')}>
+            <InputGroup
+              name="Visible"
+              label={t('editor:properties.lbl-visible')}
+              {...{ style: { visibleInputGroupStyle } }}
+            >
               <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={onChangeVisible} />
             </InputGroup>
           </>

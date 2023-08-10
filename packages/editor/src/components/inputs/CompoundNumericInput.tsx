@@ -43,7 +43,7 @@ export function CompoundNumericInput({
 }: NumericInputProp & { step: number; style?: React.CSSProperties }) {
   const { min, max, step, style } = extras
 
-  const compoundNumericInputStyle = {
+  const compoundNumericInputStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',

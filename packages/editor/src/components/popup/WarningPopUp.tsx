@@ -35,7 +35,7 @@ import PopUp from './PopUp'
  * @param {Object} props
  * @returns {JSX.Element}
  */
-export function ErrorPopup(props) {
+export function WarningPopup(props) {
   if (!props) return null
   return (
     <PopUp

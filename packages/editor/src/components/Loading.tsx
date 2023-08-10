@@ -37,7 +37,7 @@ const styledLoadingStyles = (isFullscreen) => ({
 })
 
 const StyledLoading = ({ isFullscreen, children }) => {
-  const loadingStyles = styledLoadingStyles(isFullscreen)
+  const loadingStyles = styledLoadingStyles(isFullscreen) as React.CSSProperties
   return <div style={loadingStyles}>{children}</div>
 }
 

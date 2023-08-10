@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-const centerStyles = {
+const centerStyles: React.CSSProperties = {
   display: 'flex',
   flex: '1',
   justifyContent: 'center',
   alignItems: 'center'
 }
 
-const Center = ({ as: Component = 'div', ...rest }) => {
+const Center = ({ as: Component = 'div' as keyof JSX.IntrinsicElements, ...rest }) => {
   return (
     <Component style={centerStyles} {...rest}>
       {rest.children}

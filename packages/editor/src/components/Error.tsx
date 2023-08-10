@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-const styledErrorStyles = {
+const styledErrorStyles: React.CSSProperties = {
   display: 'flex',
   flex: 1,
   flexDirection: 'column',

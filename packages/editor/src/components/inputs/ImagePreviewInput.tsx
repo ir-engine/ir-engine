@@ -29,6 +29,7 @@ import { Stack } from '@mui/material'
 
 import ImageInput from './ImageInput'
 import InputGroup from './InputGroup'
+import { StringInputProps } from './StringInput'
 
 const imageContainerStyle = {
   display: 'flex',
@@ -51,7 +52,7 @@ export const ImageContainer = ({ children }) => {
   return <div style={imageContainerStyle}>{children}</div>
 }
 
-export default function ImagePreviewInput({ value, onChange, ...rest }) {
+export default function ImagePreviewInput({ value, onChange, ...rest }: StringInputProps) {
   return (
     <ImageContainer>
       <Stack>

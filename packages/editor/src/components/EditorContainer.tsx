@@ -86,17 +86,14 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
  */
 export const DockContainer = ({ children, dividerAlpha = 0 }) => {
   const dockContainerStyles = {
-    '--dividerAlpha': dividerAlpha // Use the passed dividerAlpha prop or set a default value of 0
+    '--dividerAlpha': dividerAlpha
   }
 
   return (
-    <div className="dock-container" style={dockContainerStyles}>
+    <div className="dock-container" style={dockContainerStyles as React.CSSProperties}>
       {children}
     </div>
   )
-}
-DockContainer.defaultProps = {
-  dividerAlpha: 0
 }
 
 /**

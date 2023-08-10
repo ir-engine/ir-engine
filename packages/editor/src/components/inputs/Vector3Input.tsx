@@ -32,40 +32,36 @@ import LinkOffIcon from '@mui/icons-material/LinkOff'
 
 import Hidden from '../layout/Hidden'
 import NumericInput from './NumericInput'
-import Scrubber from './Scrubber'
 
 // style inheritance
+import Scrubber from './Scrubber'
 import './Vector3Input.css'
 
-export const Vector3InputContainer = ({ children }) => {
+export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }) => {
   return <div className="Vector3InputContainer">{children}</div>
 }
 
-type Vector3ScrubberProps = {
+interface Vector3ScrubberProps {
+  tag?: string
   axis: 'x' | 'y' | 'z'
   value: number
-  onChange: (value: number) => void
-  onPointerUp: any
+  onChange: any
+  onPointerUp?: any
+  children?: any
   className?: string
 }
 
-export const Vector3Scrubber = ({ axis, value, onChange, onPointerUp, className }: Vector3ScrubberProps) => {
+export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
+  props.className = `Vector3Scrubber ${axis}`
+  const content = children ?? axis.toUpperCase() // Generate content conditionally
   return (
-    <div
-      className={`Vector3Scrubber ${axis} ${className}`}
-      onMouseMove={(e) => {
-        if (e.buttons === 1) {
-          onChange(value + e.movementX)
-        }
-      }}
-      onMouseUp={onPointerUp}
-    >
-      {axis}
-    </div>
+    <Scrubber tag={tag} onChange={onChange} value={value} {...props}>
+      {content}
+    </Scrubber>
   )
 }
 
-export const UniformButtonContainer = ({ children }) => {
+export const UniformButtonContainer: React.FC<{ children?: any }> = ({ children }) => {
   return <div className="UniformButtonContainer">{children}</div>
 }
 
@@ -150,7 +146,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber className="x" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
+            <Vector3Scrubber {...rest} value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
           )
         }
       />
@@ -161,7 +157,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber className="y" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
+            <Vector3Scrubber {...rest} value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
           )
         }
       />
@@ -172,7 +168,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber className="z" value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z" />
+            <Vector3Scrubber {...rest} value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z" />
           )
         }
       />

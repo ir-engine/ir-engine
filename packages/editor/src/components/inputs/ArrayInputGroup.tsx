@@ -64,14 +64,14 @@ const onChangeText = (text: string, index: number, values: string[], onChange?: 
   onChange?.(valuesCopy)
 }
 
-const groupContainerStyle = {
+const groupContainerStyle: React.CSSProperties = {
   backgroundColor: 'transparent',
   color: '#9fa4b5',
   whiteSpace: 'pre-wrap',
   padding: '0 8px 8px'
 }
 
-const arrayInputGroupContentStyle = {
+const arrayInputGroupContentStyle: React.CSSProperties = {
   margin: '4px 0px',
   display: 'flex',
   flexWrap: 'wrap',

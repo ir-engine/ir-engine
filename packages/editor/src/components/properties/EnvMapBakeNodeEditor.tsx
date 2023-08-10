@@ -124,7 +124,7 @@ export const EnvMapBakeNodeEditor = (props) => {
 
       const renderProp = element.label
         ? [
-            <div style={titleLabelStyle} key={id + 'title'}>
+            <div style={titleLabelStyle as React.CSSProperties} key={id + 'title'}>
               {element.label}
             </div>
           ]

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { Ref, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import './Input.css'
 
@@ -31,6 +31,18 @@ const inputStyle = {
   display: 'flex',
   width: '100%'
 }
+
+interface StyledNumericInputProps {
+  className?: string
+  onChange?: any
+  value?: string
+}
+
+const StyledNumericInput = React.forwardRef<any, StyledNumericInputProps>(
+  ({ className = '', onChange, ...rest }, ref) => {
+    return <input className={`StyledNumericInput ${className}`} style={inputStyle} {...rest} ref={ref} />
+  }
+)
 
 export interface StringInputProps {
   id?: string
@@ -49,7 +61,7 @@ export interface StringInputProps {
   disabled?: boolean
 }
 
-const StringInput = React.forwardRef<HTMLInputElement, StringInputProps>(({ onChange, ...rest }, ref) => {
+const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, ...rest }, ref) => {
   const { error, canDrop, ...other } = rest
   return (
     <input className="Input" style={inputStyle} onChange={(e) => onChange?.(e.target.value, e)} {...other} ref={ref} />
@@ -72,55 +84,53 @@ const containerStyle = {
   width: '100%'
 }
 
-export const ControlledStringInput = React.forwardRef<HTMLInputElement, StringInputProps>(
-  ({ onChange, value, ...rest }, ref) => {
-    const { error, canDrop, ...other } = rest
-    const inputRef = useRef<HTMLInputElement>()
-    const [tempValue, setTempValue] = useState(value)
+export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
+  const { onChange, value, ...rest } = values
+  const { error, canDrop, ...other } = rest
+  const inputRef = useRef<HTMLInputElement>()
+  const [tempValue, setTempValue] = useState(value)
 
-    const onKeyUp = useCallback((e) => {
-      if (e.key === 'Enter' || e.key === 'Escape') {
-        inputRef.current?.blur()
-      }
-    }, [])
+  const onKeyUp = useCallback((e) => {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      inputRef.current?.blur()
+    }
+  }, [])
 
-    useEffect(() => {
-      setTempValue(value)
-    }, [value])
+  useEffect(() => {
+    setTempValue(value)
+  }, [value])
 
-    const onBlur = useCallback(() => {
-      onChange?.(tempValue)
-    }, [onChange, tempValue])
+  const onBlur = useCallback(() => {
+    onChange?.(tempValue)
+  }, [onChange, tempValue])
 
-    const onChangeValue = useCallback(
-      (e) => {
-        setTempValue(e.target.value)
-      },
-      [setTempValue]
-    )
+  const onChangeValue = useCallback(
+    (e) => {
+      setTempValue(e.target.value)
+    },
+    [setTempValue]
+  )
 
-    const onFocus = useCallback(() => {
-      inputRef.current?.select()
-      if (rest.onFocus) rest.onFocus()
-    }, [rest.onFocus])
+  const onFocus = useCallback(() => {
+    inputRef.current?.select()
+    if (rest.onFocus) rest.onFocus()
+  }, [rest.onFocus])
 
-    return (
-      <div style={containerStyle} ref={ref}>
-        <input
-          ref={inputRef}
-          className="Input"
-          onChange={onChangeValue}
-          onBlur={onBlur}
-          onKeyUp={onKeyUp}
-          value={tempValue || ''}
-          onFocus={onFocus}
-          {...other}
-          style={inputStyle}
-        />
-      </div>
-    )
-  }
-)
+  return (
+    <div style={containerStyle} ref={ref}>
+      <StyledNumericInput
+        ref={inputRef}
+        className="Input"
+        onChange={onChangeValue}
+        onBlur={onBlur}
+        onKeyUp={onKeyUp}
+        value={tempValue || ''}
+        onFocus={onFocus}
+        {...other}
+      />
+    </div>
+  )
+})
 
 ControlledStringInput.displayName = 'ControlledStringInput'
 

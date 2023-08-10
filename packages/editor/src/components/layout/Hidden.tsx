@@ -29,7 +29,7 @@ const hiddenStyles = {
   display: 'none'
 }
 
-const Hidden = ({ as: Component = 'div', ...rest }) => {
+const Hidden = ({ as: Component = 'div' as keyof JSX.IntrinsicElements, ...rest }) => {
   return (
     <Component style={hiddenStyles} {...rest}>
       {rest.children}

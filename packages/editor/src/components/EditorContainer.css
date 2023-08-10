@@ -1,3 +1,7 @@
+:root {
+  --dividerAlpha: 0;
+}
+
 .dock-panel {
   background: transparent;
   pointer-events: auto;
@@ -22,7 +26,7 @@
 }
 .dock-divider {
   pointer-events: auto;
-  background: rgba(1, 1, 1, var(--dividerAlpha));
+  background: rgba(1, 1, 1, var(--dividerAlpha ,0));
 }
 
 .dock {

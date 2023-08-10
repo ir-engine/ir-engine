@@ -32,10 +32,16 @@ import './Button.css'
  *
  * @type {Component}
  */
-export const Button = ({ type = 'button', onClick, children, className = '' }) => {
+export const Button = ({
+  type = 'button' as 'button' | 'submit' | 'reset',
+  onClick,
+  children,
+  className = '',
+  ...rest
+}) => {
   const buttonClass = `button ${className}`
   return (
-    <button type={type} className={buttonClass} onClick={onClick}>
+    <button type={type} className={buttonClass} onClick={onClick} {...rest}>
       {children}
     </button>
   )
@@ -45,10 +51,16 @@ export const Button = ({ type = 'button', onClick, children, className = '' }) =
  *
  * @type {Component}
  */
-export const MediumButton = ({ type = 'button', onClick, children, className = 'button' }) => {
+export const MediumButton = ({
+  type = 'button' as 'button' | 'submit' | 'reset',
+  onClick,
+  children,
+  className = 'button',
+  ...rest
+}) => {
   const buttonClass = `medium-button ${className}`
   return (
-    <button type={type} className={buttonClass} onClick={onClick}>
+    <button type={type} className={buttonClass} onClick={onClick} {...rest}>
       {children}
     </button>
   )
@@ -58,10 +70,16 @@ export const MediumButton = ({ type = 'button', onClick, children, className = '
  *
  * @type {Component}
  */
-export const LargeButton = ({ type = 'button', onClick, children, className = 'button' }) => {
+export const LargeButton = ({
+  type = 'button' as 'button' | 'submit' | 'reset',
+  onClick,
+  children,
+  className = 'button',
+  ...rest
+}) => {
   const buttonClass = `large-button ${className}`
   return (
-    <button type={type} className={buttonClass} onClick={onClick}>
+    <button type={type} className={buttonClass} onClick={onClick} {...rest}>
       {children}
     </button>
   )
@@ -71,10 +89,16 @@ export const LargeButton = ({ type = 'button', onClick, children, className = 'b
  *
  * @type {Component}
  */
-export const SecondaryButton = ({ type = 'button', onClick, children, className = 'button' }) => {
+export const SecondaryButton = ({
+  type = 'button' as 'button' | 'submit' | 'reset',
+  onClick,
+  children,
+  className = 'button',
+  ...rest
+}) => {
   const buttonClass = `secondary-button ${className}`
   return (
-    <button type={type} className={buttonClass} onClick={onClick}>
+    <button type={type} className={buttonClass} onClick={onClick} {...rest}>
       {children}
     </button>
   )
@@ -84,10 +108,16 @@ export const SecondaryButton = ({ type = 'button', onClick, children, className 
  *
  * @type {Component}
  */
-export const MenuButton = ({ type = 'button', onClick, children, className = 'button' }) => {
+export const MenuButton = ({
+  type = 'button' as 'button' | 'submit' | 'reset',
+  onClick,
+  children,
+  className = 'button',
+  ...rest
+}) => {
   const buttonClass = `menu-button ${className}`
   return (
-    <button type={type} className={buttonClass} onClick={onClick}>
+    <button type={type} className={buttonClass} onClick={onClick} {...rest}>
       {children}
     </button>
   )
@@ -97,10 +127,16 @@ export const MenuButton = ({ type = 'button', onClick, children, className = 'bu
  *
  * @type {Component}
  */
-export const PropertiesPanelButton = ({ type = 'button', onClick, children, className = 'button' }) => {
+export const PropertiesPanelButton = ({
+  type = 'button' as 'button' | 'submit' | 'reset',
+  onClick,
+  children,
+  className = 'button',
+  ...rest
+}) => {
   const buttonClass = `properties-panel-button ${className}`
   return (
-    <button type={type} className={buttonClass} onClick={onClick}>
+    <button type={type} className={buttonClass} onClick={onClick} {...rest}>
       {children}
     </button>
   )

@@ -109,7 +109,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
   }
 
   return (
-    <InputGroup style={styledNameInputGroupStyle} name="Name" label={t('editor:properties.name.lbl-name')}>
+    <InputGroup {...{ style: { styledNameInputGroupStyle } }} name="Name" label={t('editor:properties.name.lbl-name')}>
       <StringInput
         value={tempName}
         onChange={setTempName}
