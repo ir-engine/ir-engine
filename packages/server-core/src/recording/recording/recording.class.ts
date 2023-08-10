@@ -36,6 +36,7 @@ import {
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
+import { checkScope } from '../../hooks/verify-scope'
 import { NotFoundException } from '../../util/exceptions/exception'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -63,6 +64,15 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       paginate?: PaginationOptions | false
     }
   ) {
+    if (params && params.user && params.query) {
+      const admin = await checkScope(params.user, this.app, 'admin', 'admin')
+      if (admin && params.query.action === 'admin') {
+        delete params.query.action
+        // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
+        return super._find(params) as Promise<Paginated<T>>
+      }
+    }
+
     return super._find({
       query: {
         userId: params?.user?.id
