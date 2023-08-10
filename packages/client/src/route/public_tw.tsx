@@ -28,7 +28,6 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -55,7 +54,6 @@ function PublicRouter() {
 
   useEffect(() => {
     addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(ProjectServiceReceptor)
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
@@ -67,7 +65,6 @@ function PublicRouter() {
 
     return () => {
       removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(ProjectServiceReceptor)
     }
   }, [])
 

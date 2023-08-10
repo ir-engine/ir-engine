@@ -27,7 +27,6 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
@@ -48,11 +47,9 @@ function RouterComp({ route }: { route: string }) {
 
   useEffect(() => {
     addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(ProjectServiceReceptor)
     AuthService.doLoginAuto()
     return () => {
       removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(ProjectServiceReceptor)
     }
   }, [])
 

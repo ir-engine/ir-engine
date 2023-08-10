@@ -47,8 +47,6 @@ export type CustomRoute = {
 
 /**
  * getCustomRoutes used to get the routes created by the user.
- *
- * @return {Promise}
  */
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
   const routes = (await Engine.instance.api.service(routePath).find({ query: { paginate: false } })) as RouteType[]

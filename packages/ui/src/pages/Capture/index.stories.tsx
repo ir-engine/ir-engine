@@ -35,11 +35,7 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import {
-  ProjectService,
-  ProjectServiceReceptor,
-  ProjectState
-} from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { RecordingServiceSystem } from '@etherealengine/client-core/src/recording/RecordingService'
@@ -153,7 +149,6 @@ const decorators = [
 
     useEffect(() => {
       addActionReceptor(LocationServiceReceptor)
-      addActionReceptor(ProjectServiceReceptor)
 
       // Oauth callbacks may be running when a guest identity-provider has been deleted.
       // This would normally cause doLoginAuto to make a guest user, which we do not want.
@@ -174,7 +169,6 @@ const decorators = [
       return () => {
         // removeActionReceptor(RouterServiceReceptor)
         removeActionReceptor(LocationServiceReceptor)
-        removeActionReceptor(ProjectServiceReceptor)
       }
     }, [])
 
