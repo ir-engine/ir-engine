@@ -32,9 +32,9 @@ import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { NotAuthenticated } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
-import { NotAuthenticated } from '@feathersjs/errors'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface GithubRepoAccessWebhookParams extends RootParams {}
