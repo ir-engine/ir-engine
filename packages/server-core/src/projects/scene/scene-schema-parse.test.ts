@@ -28,13 +28,13 @@ import _ from 'lodash'
 
 import config from '@etherealengine/common/src/config'
 
-import { createDefaultStorageProvider, getStorageProvider } from '../../media/storageprovider/storageprovider'
 import {
-  cleanSceneDataCacheURLs,
-  parseSceneDataCacheURLs,
+  cleanStorageProviderURLs,
+  parseStorageProviderURLs,
   sceneCorsPathIdentifier,
   sceneRelativePathIdentifier
-} from './scene-parser'
+} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { createDefaultStorageProvider } from '../../media/storageprovider/storageprovider'
 
 describe('Scene Helper Functions', () => {
   describe('should replace cache domain', () => {
@@ -57,12 +57,12 @@ describe('Scene Helper Functions', () => {
     }
 
     it('should parse saved data', async function () {
-      const parsedData = parseSceneDataCacheURLs(_.cloneDeep(savedMockData) as any, storageProvider.cacheDomain)
+      const parsedData = parseStorageProviderURLs(_.cloneDeep(savedMockData))
       assert.deepStrictEqual(parsedMockData, parsedData)
     })
 
     it('should unparse parsed data', async function () {
-      const unparsedData = cleanSceneDataCacheURLs(_.cloneDeep(parsedMockData) as any, storageProvider.cacheDomain)
+      const unparsedData = cleanStorageProviderURLs(_.cloneDeep(parsedMockData))
       assert.deepStrictEqual(savedMockData, unparsedData)
     })
   })
@@ -79,14 +79,12 @@ describe('Scene Helper Functions', () => {
     }
 
     it('should parse saved data', async function () {
-      const storageProvider = getStorageProvider()
-      const parsedData = parseSceneDataCacheURLs(_.cloneDeep(savedMockData) as any, storageProvider.cacheDomain)
+      const parsedData = parseStorageProviderURLs(_.cloneDeep(savedMockData))
       assert.deepStrictEqual(parsedMockData, parsedData)
     })
 
     it('should unparse parsed data', async function () {
-      const storageProvider = getStorageProvider()
-      const unparsedData = cleanSceneDataCacheURLs(_.cloneDeep(parsedMockData) as any, storageProvider.cacheDomain)
+      const unparsedData = cleanStorageProviderURLs(_.cloneDeep(parsedMockData))
       assert.deepStrictEqual(savedMockData, unparsedData)
     })
   })

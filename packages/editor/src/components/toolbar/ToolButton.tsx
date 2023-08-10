@@ -57,7 +57,6 @@ interface ToolButtonProp {
 
 export function ToolButton({ id, icon: Icon, onClick, isSelected, tooltip }: ToolButtonProp) {
   const toolButtonClassNames = ['toolButton', isSelected ? 'selected' : ''].join(' ')
-
   return (
     <InfoTooltip title={tooltip!} placement="bottom">
       <button id={id as string} className={toolButtonClassNames} onClick={onClick}>

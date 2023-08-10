@@ -23,19 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
-import { AvatarColumn, avatarColumns, AvatarData } from '../../common/variables/avatar'
-import { AdminAvatarService, AdminAvatarState, AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
+import { AvatarColumn, AvatarData, avatarColumns } from '../../common/variables/avatar'
 import styles from '../../styles/admin.module.scss'
 import AvatarDrawer, { AvatarDrawerMode } from './AvatarDrawer'
 
@@ -46,12 +45,10 @@ interface Props {
   setSelectedAvatarIds: any
 }
 
+const AVATAR_PAGE_LIMIT = 100
+
 const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarIds }: Props) => {
   const { t } = useTranslation()
-  const user = useHookstate(getMutableState(AuthState).user).value
-  const adminAvatarState = useHookstate(getMutableState(AdminAvatarState))
-  const adminAvatars = adminAvatarState.avatars
-  const adminAvatarCount = adminAvatarState.total
 
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(AVATAR_PAGE_LIMIT)
@@ -63,25 +60,22 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   const openAvatarDrawer = useHookstate(false)
   const avatarData = useHookstate<AvatarType | null>(null)
 
-  const handlePageChange = (event: unknown, newPage: number) => {
-    AdminAvatarService.fetchAdminAvatars(newPage, search, sortField.value, fieldOrder.value)
-    page.set(newPage)
-  }
-
-  useEffect(() => {
-    if (adminAvatarState.fetched.value) {
-      AdminAvatarService.fetchAdminAvatars(page.value, search, sortField.value, fieldOrder.value)
+  const adminAvatarQuery = useFind('avatar', {
+    query: {
+      admin: true,
+      $limit: rowsPerPage.value,
+      $skip: page.value * rowsPerPage.value,
+      search: search,
+      $sort: {
+        [sortField.value]: fieldOrder.value === 'asc' ? 1 : -1
+      }
     }
-  }, [fieldOrder.value])
+  })
 
-  useEffect(() => {
-    AdminAvatarService.fetchAdminAvatars(0, search, sortField.value, fieldOrder.value)
-  }, [user?.id, search, adminAvatarState.updateNeeded.value])
+  const adminAvatarRemove = useMutation('avatar').remove
 
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(parseInt(event.target.value, 10))
-    page.set(0)
-  }
+  const adminAvatars = adminAvatarQuery.data
+  const adminAvatarCount = adminAvatarQuery.data.length
 
   const toggleSelection = (id: string) => {
     if (selectedAvatarIds.has(id)) {
@@ -147,16 +141,16 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   }
 
   const submitRemoveAvatar = async () => {
-    await AdminAvatarService.removeAdminAvatar(avatarId.value)
+    adminAvatarRemove(avatarId.value)
     openConfirm.set(false)
   }
 
-  const rows = adminAvatars.get({ noproxy: true }).map((el) => {
+  const rows = adminAvatars.map((el) => {
     return createData(el)
   })
 
-  let allSelected: boolean | undefined = undefined
-  if (adminAvatars.value.length === selectedAvatarIds.size) {
+  let allSelected: boolean | null = null
+  if (adminAvatars.length === selectedAvatarIds.size) {
     allSelected = true
   } else if (selectedAvatarIds.size === 0) {
     allSelected = false
@@ -169,11 +163,11 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
         <Checkbox
           className={styles.checkbox}
           checked={allSelected === true}
-          indeterminate={allSelected === undefined}
+          indeterminate={allSelected === null}
           onChange={(_event, checked) => {
-            if (checked || allSelected === undefined) {
+            if (checked || allSelected === null) {
               const set = new Set<string>()
-              adminAvatars.value.map((item) => set.add(item.id))
+              adminAvatars.map((item) => set.add(item.id))
               setSelectedAvatarIds(set)
             } else {
               setSelectedAvatarIds(new Set<string>())
@@ -198,9 +192,9 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
         column={columns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={adminAvatarCount.value}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
+        count={adminAvatarCount}
+        handlePageChange={page.set}
+        handleRowsPerPageChange={(event) => rowsPerPage.set(parseInt(event.target.value, 10))}
       />
 
       <ConfirmDialog

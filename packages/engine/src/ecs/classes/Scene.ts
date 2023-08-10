@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Color, Texture } from 'three'
 
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { defineState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { Engine } from './Engine'
 import { UndefinedEntity } from './Entity'
 
 export const SceneState = defineState({
@@ -41,6 +42,12 @@ export const SceneState = defineState({
   })
 })
 
+export const SceneServices = {
+  fetchCurrentScene: async (projectName: string, sceneName: string) => {
+    const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
+    getMutableState(SceneState).sceneData.set(sceneData.data)
+  }
+}
 // export const
 
 // export const getActiveSceneEntity = () => {

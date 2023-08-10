@@ -41,7 +41,7 @@ import { NotificationService } from '../../../../common/services/NotificationSer
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
 import { AvatarUIContextMenuState } from '../../../../systems/ui/UserMenuView'
-import { getUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -91,6 +91,8 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
     NotificationService.dispatchNotify('Mute Pressed', { variant: 'info' })
   }
 
+  const userThumbnail = useUserAvatarThumbnail(userId)
+
   return (
     <Menu
       open
@@ -105,7 +107,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
     >
       {userId && (
         <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
-          <Avatar imageSrc={getUserAvatarThumbnail(userId)} size={150} sx={{ margin: '0 auto' }} />
+          <Avatar imageSrc={userThumbnail} size={150} sx={{ margin: '0 auto' }} />
 
           <Text variant="h6" align="center" mt={2} mb={1}>
             {userName}

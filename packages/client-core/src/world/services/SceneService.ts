@@ -32,12 +32,6 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { LocationState } from '../../social/services/LocationService'
 
 export const SceneService = {
-  fetchCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
-    getMutableState(SceneState).sceneData.set(sceneData.data)
-    return sceneData
-  },
-
   useAPIListeners: () => {
     useEffect(() => {
       const sceneUpdatedListener = async () => {

@@ -98,6 +98,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   })}` as QueryHash
 
   const fetch = () => {
+    if (method === 'get' && !args[0]) return
     state[serviceName][queryId].merge({
       status: 'pending',
       error: ''
@@ -122,6 +123,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   useRealtime(serviceName, fetch)
 
   useEffect(() => {
+    if (method === 'get' && !args[0]) return
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
     if (!state.get(NO_PROXY)[serviceName][queryId]) {
       state[serviceName].merge({
@@ -134,11 +136,11 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
       })
       fetch()
     }
-  }, [serviceName, method, args])
+  }, [serviceName, method, ...args])
 
   const query = state[serviceName]?.[queryId]
   const queryObj = state.get(NO_PROXY)[serviceName]?.[queryId]
-  const data = queryObj?.response as Awaited<ReturnType<ServiceTypes[S][M]>>
+  const data = queryObj?.response as Awaited<ReturnType<ServiceTypes[S][M]>> | undefined
   const error = queryObj?.error
   const status = queryObj?.status
 
@@ -153,7 +155,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   )
 }
 
-export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string, params: Params = {}) => {
+export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string | undefined, params: Params = {}) => {
   return useQuery(serviceName, 'get', id, params)
 }
 
@@ -161,9 +163,11 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
   const response = useQuery(serviceName, 'find', params)
 
   const data = response?.data ? (Array.isArray(response.data) ? response.data : response.data.data) : []
+  const total: number | undefined = response?.data && !Array.isArray(response.data) ? response.data.total : undefined
 
   return {
     ...response,
+    total,
     data: data as ArrayOrPaginatedType<(typeof response)['data']>
   }
 }
@@ -199,9 +203,6 @@ type RemoveMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['rem
  * of calling these operations needs to be handled
  * by the caller. as you create/update/patch/remove
  * entities using this helper, the entities cache gets updated
- *
- * @param serviceName
- * @returns {create, update, patch, remove, status, data, error}
  */
 export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
   const state = useHookstate({
@@ -269,8 +270,6 @@ export function hashObject(obj) {
   return hash
 }
 
-const refCounting = {} as Record<keyof ServiceTypes, number> // <serviceName, <id, refCount>>
-
 /**
  * An internal hook that will listen to realtime updates to a service
  * and update the cache as changes happen.
@@ -279,24 +278,16 @@ export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void
   useEffect(() => {
     const service = Engine.instance.api.service(serviceName)
 
-    refCounting[serviceName] = refCounting[serviceName] || 0
-
-    refCounting[serviceName] += 1
-    if (refCounting[serviceName] === 1) {
-      service.on('created', refetch)
-      service.on('updated', refetch)
-      service.on('patched', refetch)
-      service.on('removed', refetch)
-    }
+    service.on('created', refetch)
+    service.on('updated', refetch)
+    service.on('patched', refetch)
+    service.on('removed', refetch)
 
     return () => {
-      refCounting[serviceName] -= 1
-      if (refCounting[serviceName] === 0) {
-        service.off('created', refetch)
-        service.off('updated', refetch)
-        service.off('patched', refetch)
-        service.off('removed', refetch)
-      }
+      service.off('created', refetch)
+      service.off('updated', refetch)
+      service.off('patched', refetch)
+      service.off('removed', refetch)
     }
   }, [serviceName])
 }

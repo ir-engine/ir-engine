@@ -30,6 +30,7 @@ import fetch from 'node-fetch'
 import path from 'path/posix'
 
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
@@ -49,7 +50,8 @@ export class Archiver implements Partial<ServiceMethods<any>> {
   async setup(app: Application, path: string) {}
 
   async get(directory: string, params?: UserParams): Promise<string> {
-    if (directory[0] === '/') directory = directory.slice(1)
+    if (directory.at(0) === '/') directory = directory.slice(1)
+    if (directory.at(-1) === '/') directory = directory.slice(0, -1)
     if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
       return Promise.reject(new Error('Cannot archive non-project directories'))
     }
@@ -61,6 +63,8 @@ export class Archiver implements Partial<ServiceMethods<any>> {
     delete params.query.storageProviderName
 
     const storageProvider = getStorageProvider(storageProviderName)
+
+    logger.info(`Archiving ${directory} using ${storageProviderName}`)
 
     let result = await storageProvider.listFolderContent(directory)
 
@@ -81,19 +85,25 @@ export class Archiver implements Partial<ServiceMethods<any>> {
         return Promise.reject(new Error(r.statusText))
       })
 
+      logger.info(`Added ${result[i].key} to archive`)
+
       const dir = result[i].key.substring(result[i].key.indexOf('/') + 1)
       zip.file(dir, blobPromise)
     }
 
     const generated = await zip.generateAsync({ type: 'blob', streamFiles: true })
 
-    const zipOutputDirectory = `'temp'${directory.substring(directory.lastIndexOf('/'))}.zip`
+    const zipOutputDirectory = `temp${directory.substring(directory.lastIndexOf('/'))}.zip`
+
+    logger.info(`Uploading ${zipOutputDirectory} to storage provider`)
 
     await storageProvider.putObject({
       Key: zipOutputDirectory,
       Body: Buffer.from(await generated.arrayBuffer()),
       ContentType: 'archive/zip'
     })
+
+    logger.info(`Archived ${directory} to ${zipOutputDirectory}`)
 
     return zipOutputDirectory
   }

@@ -30,8 +30,8 @@ import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { CreateEditUser, UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { ScopeTypeData, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -43,16 +43,14 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthState } from '../../../user/services/AuthService'
+import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminAvatarService, AdminAvatarState } from '../../services/AvatarService'
-import { AdminScopeTypeService, AdminScopeTypeState } from '../../services/ScopeTypeService'
-import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 export enum UserDrawerMode {
@@ -85,25 +83,25 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
 
-  const user = useHookstate(getMutableState(AuthState).user)
-  const avatars = useHookstate(getMutableState(AdminAvatarState).avatars)
-  const scopeTypes = useHookstate(getMutableState(AdminScopeTypeState).scopeTypes)
+  const avatars = useFind('avatar', {
+    query: {
+      admin: true
+    }
+  }).data
+  const scopeTypes = useFind(scopeTypePath).data
+  const userMutation = useMutation('user')
 
-  const hasWriteAccess = user.scopes.get({ noproxy: true })?.find((item) => item.type === 'user:write')
+  const hasWriteAccess = userHasAccess('user:write')
   const viewMode = mode === UserDrawerMode.ViewEdit && !editMode.value
 
-  const scopeMenu: AutoCompleteData[] = scopeTypes.value.map((el) => {
-    return {
-      type: el.type
-    }
-  })
+  const scopeMenu: AutoCompleteData[] = scopeTypes.map((el) => ({
+    type: el.type
+  }))
 
-  const avatarMenu: InputMenuItem[] = avatars.get({ noproxy: true }).map((el) => {
-    return {
-      label: el.name,
-      value: el.id
-    }
-  })
+  const avatarMenu: InputMenuItem[] = avatars.map((el) => ({
+    label: el.name,
+    value: el.id
+  }))
 
   const nonGuestLinkedIP = selectedUser?.identity_providers?.filter((ip) => ip.type !== 'guest')
   const discordIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'discord')
@@ -125,7 +123,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       }
     }
 
-    const avatarExists = avatars.get({ noproxy: true }).find((item) => item.id === selectedUser.avatarId)
+    const avatarExists = avatars.find((item) => item.id === selectedUser.avatarId)
     if (!avatarExists) {
       avatarMenu.push({
         value: selectedUser.avatarId!,
@@ -133,11 +131,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       })
     }
   }
-
-  useEffect(() => {
-    AdminAvatarService.fetchAdminAvatars()
-    AdminScopeTypeService.getScopeTypeService()
-  }, [])
 
   useEffect(() => {
     loadSelectedUser()
@@ -172,12 +165,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     state.merge({ scopes: scope })
   }
 
-  const handleSelectAllScopes = () =>
-    handleChangeScopeType(
-      scopeTypes.value.map((el) => {
-        return { type: el.type }
-      })
-    )
+  const handleSelectAllScopes = () => handleChangeScopeType(scopeTypes.map((el) => ({ type: el.type })))
 
   const handleClearAllScopes = () => handleChangeScopeType([])
 
@@ -207,9 +195,9 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
     if (validateForm(state.value, state.formErrors.value)) {
       if (mode === UserDrawerMode.Create) {
-        await AdminUserService.createUser(data)
+        await userMutation.create(data)
       } else if (selectedUser) {
-        AdminUserService.patchUser(selectedUser.id, data)
+        await userMutation.patch(selectedUser.id, data)
         editMode.set(false)
       }
 

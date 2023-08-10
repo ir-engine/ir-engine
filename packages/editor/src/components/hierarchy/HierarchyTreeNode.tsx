@@ -164,7 +164,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     const isObj3D = !node.entityNode && node.obj3d
     if (isObj3D) return
-    const obj3d = node.obj3d!
     let parentNode: Entity | null = null
     let beforeNode: Entity | null = null
 
@@ -211,17 +210,16 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
         if (item.type === ItemTypes.Prefab) {
           const createdEntity = addSceneComponentElement(item, parentNode, beforeNode!)
-          EditorControlFunctions.reparentObject([createdEntity], parentNode, beforeNode)
+          EditorControlFunctions.reparentObject([createdEntity], beforeNode, parentNode)
           return
         }
       }
-      if (parentNode) {
-        EditorControlFunctions.reparentObject(
-          Array.isArray(item.value) ? item.value : [item.value],
-          parentNode,
-          beforeNode
-        )
-      }
+
+      EditorControlFunctions.reparentObject(
+        Array.isArray(item.value) ? item.value : [item.value],
+        beforeNode,
+        parentNode === null ? undefined : parentNode
+      )
     }
   }
 
@@ -292,7 +290,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const collectNodeMenuProps = useCallback(() => node, [node])
   const editors =
     typeof node.entityNode === 'number' && entityExists(node.entityNode as Entity)
       ? getAllComponents(node.entityNode as Entity)
