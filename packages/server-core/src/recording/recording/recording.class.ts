@@ -60,24 +60,35 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
   }
 
   async find(
-    params?: RecordingParams & {
+    params: RecordingParams & {
       paginate?: PaginationOptions | false
     }
   ) {
+    let isAdmin = false
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin && params.query.action === 'admin') {
         delete params.query.action
         // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
-        return super._find(params) as Promise<Paginated<T>>
+        isAdmin = true
       }
     }
 
-    return super._find({
-      query: {
-        userId: params?.user?.id
-      }
-    }) as Promise<Paginated<T>>
+    const paramsWithoutExtras = {
+      ...params,
+      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+      query: params.query ? JSON.parse(JSON.stringify(params.query)) : {}
+    }
+
+    // Remove recording username sort
+    if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query?.$sort['user']) {
+      delete paramsWithoutExtras.query.$sort['user']
+    }
+
+    if (isAdmin) {
+      return super._find(paramsWithoutExtras) as Promise<Paginated<T>>
+    }
+    return super._find({ ...params, query: { userId: params?.user?.id } }) as Promise<Paginated<T>>
   }
 
   async create(data: RecordingData, params?: RecordingParams) {

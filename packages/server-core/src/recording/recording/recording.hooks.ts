@@ -35,6 +35,8 @@ import {
   recordingSchema,
   recordingSchemaType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+
+import { HookContext, NextFunction } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -53,9 +55,46 @@ const recordingDataValidator = getValidator(recordingDataSchema, dataValidator)
 const recordingPatchValidator = getValidator(recordingPatchSchema, dataValidator)
 const recordingQueryValidator = getValidator(recordingQuerySchema, queryValidator)
 
+const applyUserNameSort = async (context: HookContext, next: NextFunction) => {
+  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
+
+  const hasUserNameSort = context.params.query && context.params.query.$sort && context.params.query.$sort['user']
+
+  if (hasUserNameSort) {
+    const { dispatch } = context
+    const data = dispatch.data ? dispatch.data : dispatch
+
+    data.sort((a, b) => {
+      let fa = a['user'],
+        fb = b['user']
+
+      if (typeof fa === 'string') {
+        fa = fa.toLowerCase()
+        fb = fb.toLowerCase()
+      }
+
+      if (fa < fb) {
+        return -1
+      }
+      if (fa > fb) {
+        return 1
+      }
+      return 0
+    })
+
+    if (context.params.query.$sort['user'] === 1) {
+      data.reverse()
+    }
+  }
+}
+
 export default {
   around: {
-    all: [schemaHooks.resolveExternal(recordingExternalResolver), schemaHooks.resolveResult(recordingResolver)]
+    all: [
+      applyUserNameSort,
+      schemaHooks.resolveExternal(recordingExternalResolver),
+      schemaHooks.resolveResult(recordingResolver)
+    ]
   },
 
   before: {
