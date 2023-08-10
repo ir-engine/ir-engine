@@ -31,10 +31,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { addActionReceptor, defineActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
-import {
-  LocationInstanceConnectionService,
-  LocationInstanceConnectionServiceReceptor
-} from '../common/services/LocationInstanceConnectionService'
+import { LocationInstanceConnectionService } from '../common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
   MediaInstanceConnectionServiceReceptor,
@@ -165,13 +162,11 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    addActionReceptor(LocationInstanceConnectionServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
 
     return () => {
       // todo replace with subsystems
-      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
       removeActionReceptor(MediaInstanceConnectionServiceReceptor)
       removeActionReceptor(FriendServiceReceptor)
     }

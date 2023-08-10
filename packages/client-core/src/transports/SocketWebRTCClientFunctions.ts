@@ -80,7 +80,6 @@ import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctio
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import {
-  LocationInstanceConnectionAction,
   LocationInstanceConnectionService,
   LocationInstanceState
 } from '../common/services/LocationInstanceConnectionService'
@@ -146,7 +145,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
       !locationInstanceConnectionState.instances[instanceId]?.connected?.value &&
       !locationInstanceConnectionState.instances[instanceId]?.connecting?.value
     ) {
-      dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
+      getMutableState(LocationInstanceState).instances[instanceId].set(none)
       LocationInstanceConnectionService.provisionServer(
         currentLocation.id.value,
         instanceId || undefined,
@@ -400,7 +399,11 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   logger.info('Connecting to instance type: %o', { topic: network.topic, hostId: network.hostId })
 
   if (isWorldConnection) {
-    dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
+    getMutableState(LocationInstanceState).instances[network.hostId].merge({
+      connected: true,
+      connecting: false,
+      readyToConnect: false
+    })
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
   } else {
     dispatchAction(MediaInstanceConnectionAction.serverConnected({ instanceId: network.hostId }))
@@ -1475,7 +1478,7 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       NetworkPeerFunctions.destroyAllPeers(network)
       removeNetwork(network)
       getMutableState(NetworkState).hostIds.world.set(none)
-      dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
+      getMutableState(LocationInstanceState).instances[network.hostId].set(none)
       dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
       // if world has a media server connection
       if (Engine.instance.mediaNetwork) {

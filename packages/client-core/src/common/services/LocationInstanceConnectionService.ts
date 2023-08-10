@@ -30,26 +30,13 @@ import { useEffect } from 'react'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import logger from '@etherealengine/common/src/logger'
-import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
-import {
-  defineAction,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  useState
-} from '@etherealengine/hyperflux'
+import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import { defineState, dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
+import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
 import { API } from '../../API'
-import {
-  connectToNetwork,
-  initializeNetwork,
-  leaveNetwork,
-  SocketWebRTCClientNetwork
-} from '../../transports/SocketWebRTCClientFunctions'
+import { connectToNetwork, leaveNetwork, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
 
@@ -65,7 +52,6 @@ type InstanceState = {
   connecting: boolean
 }
 
-//State
 export const LocationInstanceState = defineState({
   name: 'LocationInstanceState',
   initial: () => ({
@@ -85,51 +71,38 @@ export function useWorldInstance() {
   return worldHostId.value ? worldInstanceState[worldHostId.value] : null
 }
 
-export const LocationInstanceConnectionServiceReceptor = (action) => {
+export const changeActiveConnectionHostId = (currentInstanceId: UserId, newInstanceId: UserId) => {
   const s = getMutableState(LocationInstanceState)
-  matches(action)
-    .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      getMutableState(NetworkState).hostIds.world.set(action.instanceId)
-      addNetwork(initializeNetwork(action.instanceId, NetworkTopics.world))
-      return s.instances.merge({
-        [action.instanceId]: {
-          ipAddress: action.ipAddress,
-          port: action.port,
-          locationId: action.locationId,
-          sceneId: action.sceneId,
-          roomCode: action.roomCode,
-          provisioned: true,
-          readyToConnect: true,
-          connected: false,
-          connecting: false
-        }
-      })
-    })
-    .when(LocationInstanceConnectionAction.connecting.matches, (action) => {
-      return s.instances[action.instanceId].connecting.set(true)
-    })
-    .when(LocationInstanceConnectionAction.instanceServerConnected.matches, (action) => {
-      return s.instances[action.instanceId].merge({
-        connected: true,
-        connecting: false,
-        readyToConnect: false
-      })
-    })
-    .when(LocationInstanceConnectionAction.disconnect.matches, (action) => {
-      return s.instances[action.instanceId].set(none)
-    })
-    .when(LocationInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
-      const currentNetworkState = s.instances[action.currentInstanceId].get({ noproxy: true })
-      const networkState = getMutableState(NetworkState)
-      const currentNework = getState(NetworkState).networks[action.currentInstanceId]
-      updateNetworkID(currentNework as SocketWebRTCClientNetwork, action.newInstanceId)
-      networkState.hostIds.world.set(action.newInstanceId as UserId)
-      s.instances.merge({ [action.newInstanceId]: currentNetworkState })
-      s.instances[action.currentInstanceId].set(none)
-    })
+  const currentNetworkState = s.instances[currentInstanceId].get({ noproxy: true })
+  const networkState = getMutableState(NetworkState)
+  const currentNework = getState(NetworkState).networks[currentInstanceId]
+  updateNetworkID(currentNework as SocketWebRTCClientNetwork, newInstanceId)
+  networkState.hostIds.world.set(newInstanceId as UserId)
+  s.instances.merge({ [newInstanceId]: currentNetworkState })
+  s.instances[currentInstanceId].set(none)
 }
 
-//Service
+export const provisionLocationInstanceServer = (
+  provisionResult: InstanceServerProvisionResult,
+  locationId: string | null,
+  sceneId: string | null
+) => {
+  getMutableState(NetworkState).hostIds.world.set(provisionResult.id as UserId)
+  getMutableState(LocationInstanceState).instances.merge({
+    [provisionResult.id]: {
+      ipAddress: provisionResult.ipAddress,
+      port: provisionResult.port,
+      locationId,
+      sceneId,
+      roomCode: provisionResult.roomCode,
+      provisioned: true,
+      readyToConnect: true,
+      connected: false,
+      connecting: false
+    }
+  })
+}
+
 export const LocationInstanceConnectionService = {
   provisionServer: async (
     locationId?: string,
@@ -162,16 +135,7 @@ export const LocationInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatchAction(
-        LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserId,
-          ipAddress: provisionResult.ipAddress,
-          port: provisionResult.port,
-          roomCode: provisionResult.roomCode,
-          locationId: locationId,
-          sceneId: sceneId
-        })
-      )
+      provisionLocationInstanceServer(provisionResult, locationId!, sceneId!)
     } else {
       dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId ?? '' }))
     }
@@ -204,16 +168,7 @@ export const LocationInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatchAction(
-        LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserId,
-          ipAddress: provisionResult.ipAddress,
-          port: provisionResult.port,
-          roomCode: provisionResult.roomCode,
-          locationId: locationId,
-          sceneId: sceneId
-        })
-      )
+      provisionLocationInstanceServer(provisionResult, locationId!, sceneId!)
     } else {
       console.warn('Failed to connect to expected existing instance')
     }
@@ -247,22 +202,13 @@ export const LocationInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatchAction(
-        LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserId,
-          ipAddress: provisionResult.ipAddress,
-          port: provisionResult.port,
-          roomCode: provisionResult.roomCode,
-          locationId: locationId,
-          sceneId: sceneId
-        })
-      )
+      provisionLocationInstanceServer(provisionResult, locationId!, sceneId!)
     } else {
       console.warn('Failed to connect to expected existing instance')
     }
   },
   connectToServer: async (instanceId: string) => {
-    dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
+    getMutableState(LocationInstanceState).instances[instanceId].connecting.set(true)
     const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, transport: network }, 'Connect To World Server')
     if (network.primus) {
@@ -274,17 +220,9 @@ export const LocationInstanceConnectionService = {
   useAPIListeners: () => {
     useEffect(() => {
       const instanceProvisionCreatedListener = (params) => {
-        if (params.locationId != null)
-          dispatchAction(
-            LocationInstanceConnectionAction.serverProvisioned({
-              instanceId: params.instanceId,
-              ipAddress: params.ipAddress,
-              port: params.port,
-              roomCode: params.roomCode,
-              locationId: params.locationId,
-              sceneId: params.sceneId
-            })
-          )
+        if (params.locationId != null) {
+          provisionLocationInstanceServer(params, params.locationId, params.sceneId)
+        }
       }
 
       API.instance.client.service('instance-provision').on('created', instanceProvisionCreatedListener)
@@ -294,39 +232,4 @@ export const LocationInstanceConnectionService = {
       }
     }, [])
   }
-}
-
-//Action
-
-export class LocationInstanceConnectionAction {
-  static serverProvisioned = defineAction({
-    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_PROVISIONED' as const,
-    instanceId: matchesUserId,
-    ipAddress: matches.string,
-    port: matches.string,
-    roomCode: matches.string,
-    locationId: matches.any as Validator<unknown, string | null>,
-    sceneId: matches.any as Validator<unknown, string | null>
-  })
-
-  static connecting = defineAction({
-    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTING' as const,
-    instanceId: matches.string
-  })
-
-  static instanceServerConnected = defineAction({
-    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTED' as const,
-    instanceId: matches.string
-  })
-
-  static disconnect = defineAction({
-    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_DISCONNECT' as const,
-    instanceId: matches.string
-  })
-
-  static changeActiveConnectionHostId = defineAction({
-    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CHANGE_HOST_ID' as const,
-    currentInstanceId: matchesUserId,
-    newInstanceId: matchesUserId
-  })
 }
