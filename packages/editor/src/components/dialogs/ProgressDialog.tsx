@@ -53,8 +53,8 @@ interface Props {
   children?: any
   cancelLabel?: string
   confirmLabel?: string
-  onCancel?: Function
-  onConfirm?: Function
+  onCancel?: any
+  onConfirm?: any
 }
 
 export function ProgressDialog(props: Props) {
