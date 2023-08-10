@@ -26,11 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 
 import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
 
+import NumericInput from '../inputs/NumericInput'
+import { Vector3Scrubber } from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
@@ -43,10 +45,27 @@ import { EditorComponentType } from './Util'
 
 export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const component = useOptionalComponent(props.entity, SplineTrackComponent)
+  const component = useComponent(props.entity, SplineTrackComponent)
+  const velocity = component.velocity.value
+
+  const onChange = () => {}
+  const onRelease = () => {}
+  const processChange = (value) => {
+    component.velocity.set(value)
+  }
+
   return (
     <NodeEditor description={t('editor:properties.splinetrack.description')} {...props}>
-      <div>[TODO edit speed]</div>
+      <NumericInput
+        value={velocity}
+        onChange={onChange}
+        onCommit={onRelease}
+        prefix={
+          <Vector3Scrubber tag="div" value={velocity} onChange={processChange} onPointerUp={onRelease} axis="velocity">
+            Velocity
+          </Vector3Scrubber>
+        }
+      />
     </NodeEditor>
   )
 }
