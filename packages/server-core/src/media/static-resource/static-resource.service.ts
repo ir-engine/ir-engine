@@ -37,9 +37,6 @@ import hooks from './static-resource.hooks'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     [staticResourcePath]: StaticResourceService
-  }
-
-  interface ServiceTypes {
     'static-resource-filters': {
       get: (data?: any, params?: any) => ReturnType<typeof getFilters>
     }
