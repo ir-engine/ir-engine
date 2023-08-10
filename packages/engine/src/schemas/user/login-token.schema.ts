@@ -29,7 +29,7 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const loginTokenPath = 'login-token'
 
-export const loginTokenMethods = [] as const
+export const loginTokenMethods = ['create'] as const
 
 // Main data model schema
 export const loginTokenSchema = Type.Object(

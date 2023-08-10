@@ -30,7 +30,6 @@ import crypto from 'crypto'
 import moment from 'moment'
 import config from '../../appconfig'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   LoginTokenData,
   LoginTokenPatch,
@@ -40,11 +39,10 @@ import {
 
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
+import { toDateTimeSql } from '../../util/get-datetime-sql'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LoginTokenParams extends RootParams<LoginTokenQuery> {
-  user?: UserInterface
-}
+export interface LoginTokenParams extends RootParams<LoginTokenQuery> {}
 
 /**
  * A class for LoginToken service
@@ -63,13 +61,8 @@ export class LoginTokenService<T = LoginTokenType, ServiceParams extends Params 
     this.app = app
   }
   async create(data: LoginTokenData, params?: LoginTokenParams) {
-    const { identityProviderId } = data
     const token = crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
-    const tokenData: any = {
-      identityProviderId: identityProviderId,
-      token: token,
-      expiresAt: moment().utc().add(2, 'days').toDate()
-    }
-    return (await super._create({ ...tokenData }, {})) as T
+
+    return await super._create({ ...data, token, expiresAt: toDateTimeSql(moment().utc().add(2, 'days').toDate()) })
   }
 }
