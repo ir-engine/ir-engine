@@ -44,6 +44,7 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -52,6 +53,8 @@ import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
 import styles from '../../styles/admin.module.scss'
+
+const SCOPE_PAGE_LIMIT = 100
 
 export enum UserDrawerMode {
   Create,
@@ -83,12 +86,16 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
 
-  const avatars = useFind('avatar', {
+  const avatars = useFind(avatarPath, {
     query: {
       admin: true
     }
   }).data
-  const scopeTypes = useFind(scopeTypePath).data
+  const scopeTypes = useFind(scopeTypePath, {
+    query: {
+      $limit: SCOPE_PAGE_LIMIT
+    }
+  }).data
   const userMutation = useMutation('user')
 
   const hasWriteAccess = userHasAccess('user:write')
