@@ -34,7 +34,7 @@ import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
-import { UnauthorizedException } from '../../util/exceptions/exception'
+import { NotAuthenticated } from '@feathersjs/errors'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface GithubRepoAccessWebhookParams extends RootParams {}
@@ -63,7 +63,7 @@ export class GithubRepoAccessWebhookService<
       const hmac = crypto.createHmac(SIG_HASH_ALGORITHM, secret)
       const digest = Buffer.from(SIG_HASH_ALGORITHM + '=' + hmac.update(JSON.stringify(data)).digest('hex'), 'utf8')
       if (sig.length !== digest.length || !crypto.timingSafeEqual(digest, sig)) {
-        throw new UnauthorizedException('Invalid secret')
+        throw new NotAuthenticated('Invalid secret')
       }
       const { blocked_user, member, membership } = data
       const ghUser = member

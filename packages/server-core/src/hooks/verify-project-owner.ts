@@ -23,18 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { BadRequest, Forbidden, NotAuthenticated } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../declarations'
-import { UnauthenticatedException } from '../util/exceptions/exception'
 
 export default () => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
     const loggedInUser = context.params.user as UserType
-    if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
+    if (!loggedInUser) throw new NotAuthenticated('No logged in user')
     if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
     const app = context.app
     const projectId =

@@ -29,10 +29,10 @@ import { Op } from 'sequelize'
 
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
+import { Forbidden, NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import verifyScope from '../../hooks/verify-scope'
-import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export class StaticResource extends Service<StaticResourceInterface> {
@@ -97,13 +97,13 @@ export class StaticResource extends Service<StaticResourceInterface> {
     const resource = await super.get(id)
 
     if (!resource) {
-      throw new NotFoundException('Unable to find specified resource id.')
+      throw new NotFound('Unable to find specified resource id.')
     }
 
     if (!resource.userId) {
       if (params?.provider) await verifyScope('admin', 'admin')({ app: this.app, params } as any)
     } else if (params?.provider && resource.userId !== params?.user?.id)
-      throw new UnauthenticatedException('You are not the creator of this resource')
+      throw new Forbidden('You are not the creator of this resource')
 
     if (resource.key) {
       const storageProvider = getStorageProvider(params?.query?.storageProviderName)

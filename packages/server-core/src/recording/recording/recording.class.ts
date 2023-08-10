@@ -31,10 +31,10 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Forbidden, NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
-import { NotFoundException, UnauthorizedException } from '../../util/exceptions/exception'
 
 export type RecordingDataType = RecordingResult
 
@@ -111,11 +111,11 @@ export class Recording<T = RecordingDataType> extends Service<T> {
       if (admin) {
         const recording = super.get(id)
         if (!recording) {
-          throw new NotFoundException('Unable to find recording with this id')
+          throw new NotFound('Unable to find recording with this id')
         }
         return super.remove(id)
       }
     }
-    throw new UnauthorizedException('This action can only be performed by admins')
+    throw new Forbidden('This action can only be performed by admins')
   }
 }
