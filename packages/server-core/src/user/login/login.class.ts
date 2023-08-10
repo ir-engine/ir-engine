@@ -26,7 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import moment from 'moment'
 
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
@@ -71,11 +73,13 @@ export class Login implements ServiceMethods<Data> {
    */
   async get(id: Id, params?: Params): Promise<any> {
     try {
-      const result = await this.app.service('login-token').Model.findOne({
-        where: {
+      const knexClient: Knex = this.app.get('knexClient')
+      const result = await knexClient
+        .from(loginTokenPath)
+        .where({
           token: id
-        }
-      })
+        })
+        .first()
       if (result == null) {
         logger.info('Invalid login token')
         return {
@@ -100,7 +104,7 @@ export class Login implements ServiceMethods<Data> {
       const token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
-      await this.app.service('login-token').remove(result.id)
+      await this.app.service(loginTokenPath)._remove(result.id)
       await this.app.service('user').patch(identityProvider.userId, {
         isGuest: false
       })

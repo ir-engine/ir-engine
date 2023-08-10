@@ -23,47 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// See http://docs.sequelizejs.com/en/latest/docs/models-definition/
-// for more of what you can do here.
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { LoginTokenInterface } from '@etherealengine/common/src/dbmodels/LoginToken'
+import { loginTokenMethods, loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 
 import { Application } from '../../../declarations'
+import { LoginTokenService } from './login-token.class'
+import loginTokenDocs from './login-token.docs'
+import hooks from './login-token.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const loginToken = sequelizeClient.define<Model<LoginTokenInterface>>(
-    'login_token',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      token: {
-        type: DataTypes.STRING
-      },
-      expiresAt: {
-        type: DataTypes.DATE
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [loginTokenPath]: LoginTokenService
+  }
+}
 
-  // eslint-disable-next-line no-unused-vars
-  ;(loginToken as any).associate = (models: any): void => {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    ;(loginToken as any).belongsTo(models.identity_provider)
+export default (app: Application): void => {
+  const options = {
+    name: loginTokenPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  return loginToken
+  app.use(loginTokenPath, new LoginTokenService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: loginTokenMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: loginTokenDocs
+  })
+
+  const service = app.service(loginTokenPath)
+  service.hooks(hooks)
 }

@@ -41,3 +41,9 @@ export interface IdentityProviderInterface {
   userId: UserId
   oauthToken?: string
 }
+
+export interface LoginTokenInterface {
+  id: string
+  token: string
+  expiresAt: Date
+}

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import { IdentityProviderInterface, LoginTokenInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
 import { Application } from '../../../declarations'
 
@@ -81,8 +81,45 @@ export default (app: Application) => {
 
   ;(identityProvider as any).associate = (models: any): void => {
     ;(identityProvider as any).belongsTo(models.user, { required: true, onDelete: 'cascade' })
-    ;(identityProvider as any).hasMany(models.login_token)
+    ;(identityProvider as any).hasMany(createLoginTokenModel(app))
   }
 
   return identityProvider
+}
+
+export const createLoginTokenModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const loginToken = sequelizeClient.define<Model<LoginTokenInterface>>(
+    'login_token',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      token: {
+        type: DataTypes.STRING
+      },
+      expiresAt: {
+        type: DataTypes.DATE
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  // eslint-disable-next-line no-unused-vars
+  ;(loginToken as any).associate = (models: any): void => {
+    // Define associations here
+    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+    ;(loginToken as any).belongsTo(models.identity_provider)
+  }
+
+  return loginToken
 }
