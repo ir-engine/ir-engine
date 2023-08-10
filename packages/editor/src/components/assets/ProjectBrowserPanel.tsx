@@ -29,6 +29,7 @@ import React from 'react'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 
+import { DockContainer } from '../EditorContainer'
 import './ProjectBrowserPanel.css'
 
 /**
@@ -75,13 +76,13 @@ export default function ProjectBrowserPanel() {
 
   return (
     <>
-      <div id="filePanel" className="projectDockContainerStyles">
+      <DockContainer id="filePanel" dividerAlpha={0.3}>
         <DockLayout
           defaultLayout={defaultLayout}
           style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
           onLayoutChange={onLayoutChangedCallback}
         />
-      </div>
+      </DockContainer>
     </>
   )
 }

@@ -51,6 +51,8 @@ import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
+import './EditorContainer.css'
+import { AppContext } from './Search/context'
 import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
@@ -73,7 +75,6 @@ import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
 import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import { PropertiesPanelTitle } from './properties/PropertiesPanelTitle'
-import { AppContext } from './Search/context'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
@@ -84,13 +85,13 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
  *
  * @type {type}
  */
-export const DockContainer = ({ children, dividerAlpha = 0 }) => {
+export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
     '--dividerAlpha': dividerAlpha
   }
 
   return (
-    <div className="dock-container" style={dockContainerStyles as React.CSSProperties}>
+    <div id={id} className="dock-container" style={dockContainerStyles as React.CSSProperties}>
       {children}
     </div>
   )
