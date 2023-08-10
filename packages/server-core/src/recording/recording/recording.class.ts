@@ -30,7 +30,7 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 
 import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import { NotAuthenticated, NotFound } from '@feathersjs/errors'
+import { Forbidden, NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
@@ -99,6 +99,6 @@ export class Recording<T = RecordingDataType> extends Service<T> {
         return super.remove(id)
       }
     }
-    throw new NotAuthenticated('This action can only be performed by admins')
+    throw new Forbidden('This action can only be performed by admins')
   }
 }

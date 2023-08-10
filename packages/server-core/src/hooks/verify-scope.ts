@@ -34,7 +34,7 @@ export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
     const loggedInUser = context.params.user as UserInterface
-    if (!loggedInUser || !loggedInUser.id) throw new Forbidden('No logged in user')
+    if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
     const scopes = await context.app.service('scope').Model.findAll({
       where: {
         userId: loggedInUser.id
@@ -49,8 +49,8 @@ export default (currentType: string, scopeToVerify: string) => {
       return result
     }, [])
     if (!currentScopes.includes(scopeToVerify)) {
-      if (scopeToVerify === 'admin') throw new NotAuthenticated('Must be admin to perform this action')
-      else throw new NotAuthenticated(`Unauthorized ${scopeToVerify} action on ${currentType}`)
+      if (scopeToVerify === 'admin') throw new Forbidden('Must be admin to perform this action')
+      else throw new Forbidden(`Unauthorized ${scopeToVerify} action on ${currentType}`)
     }
     return context
   }
