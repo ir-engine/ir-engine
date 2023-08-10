@@ -29,13 +29,12 @@ import { HookContext } from '@feathersjs/feathers'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../declarations'
-import { UnauthenticatedException } from '../util/exceptions/exception'
 
 export default () => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
     const loggedInUser = context.params.user as UserInterface
-    if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
+    if (!loggedInUser) throw new Forbidden('No logged in user')
     if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
     const app = context.app
     const projectId =

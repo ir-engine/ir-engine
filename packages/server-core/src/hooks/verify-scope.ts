@@ -27,14 +27,14 @@ import { HookContext } from '@feathersjs/feathers'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
+import { Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { Application } from '../../declarations'
-import { NotFoundException, UnauthenticatedException, UnauthorizedException } from '../util/exceptions/exception'
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
     const loggedInUser = context.params.user as UserInterface
-    if (!loggedInUser || !loggedInUser.id) throw new UnauthenticatedException('No logged in user')
+    if (!loggedInUser || !loggedInUser.id) throw new Forbidden('No logged in user')
     const scopes = await context.app.service('scope').Model.findAll({
       where: {
         userId: loggedInUser.id
@@ -42,15 +42,15 @@ export default (currentType: string, scopeToVerify: string) => {
       raw: true,
       nest: true
     })
-    if (!scopes) throw new NotFoundException('No scope available for the current user.')
+    if (!scopes) throw new NotFound('No scope available for the current user.')
 
     const currentScopes = scopes.reduce((result, sc) => {
       if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
       return result
     }, [])
     if (!currentScopes.includes(scopeToVerify)) {
-      if (scopeToVerify === 'admin') throw new UnauthorizedException('Must be admin to perform this action')
-      else throw new UnauthorizedException(`Unauthorized ${scopeToVerify} action on ${currentType}`)
+      if (scopeToVerify === 'admin') throw new NotAuthenticated('Must be admin to perform this action')
+      else throw new NotAuthenticated(`Unauthorized ${scopeToVerify} action on ${currentType}`)
     }
     return context
   }
@@ -64,7 +64,7 @@ export const checkScope = async (user: UserInterface, app: Application, currentT
     raw: true,
     nest: true
   })
-  if (!scopes) throw new NotFoundException('No scope available for the current user.')
+  if (!scopes) throw new NotFound('No scope available for the current user.')
 
   const currentScopes = scopes.reduce((result, sc) => {
     if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])

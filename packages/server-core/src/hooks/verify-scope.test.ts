@@ -30,9 +30,9 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { NotAuthenticated } from '@feathersjs/errors'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
-import { UnauthorizedException } from '../util/exceptions/exception'
 import verifyScope from './verify-scope'
 
 const mockUserHookContext = (user: UserInterface, app: Application) => {
@@ -77,7 +77,7 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    assert.rejects(() => verifyLocationReadScope(hookContext), UnauthorizedException)
+    assert.rejects(() => verifyLocationReadScope(hookContext), NotAuthenticated)
 
     // cleanup
     await app.service('user').remove(user.id!)
