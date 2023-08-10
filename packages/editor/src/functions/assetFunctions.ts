@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Object3D } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
@@ -103,8 +102,11 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
 
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
-  const { type: pathType } = await API.instance.client.service('file-browser').find({ query: { key: resourcePath } })
-  pathType !== 'UNDEFINED' && (await FileBrowserService.deleteContent(resourcePath))
+  const { type: pathType } = await API.instance.client.service('file-browser').get(resourcePath)
+
+  if (pathType !== 'UNDEFINED') {
+    await Engine.instance.api.service('file-browser').remove(resourcePath)
+  }
 }
 
 export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {

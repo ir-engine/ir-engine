@@ -64,11 +64,16 @@ describe('file browser service', () => {
     assert.ok(service, 'Registered the service')
   })
 
-  it('find service', () => {
-    assert.doesNotThrow(async () => await app.service('file-browser').find())
+  it('get service', () => {
+    assert.doesNotThrow(async () => await app.service('file-browser').get(''))
   })
 
-  it('gets directory content list', async () => {
+  it('should have "total" in find method', async () => {
+    const item = await app.service('user').find()
+    assert.ok('total' in item)
+  })
+
+  it('finds directory content list', async () => {
     const dirName = 'Get_Dir_Content_Test_' + Math.round(Math.random() * 100)
     const dirStoragePath = path.join(STORAGE_PATH, dirName)
 
@@ -83,11 +88,11 @@ describe('file browser service', () => {
     ]
     fileNames.forEach((n) => fs.writeFileSync(path.join(dirStoragePath, n), 'Hello world'))
 
-    let result = await app.service('file-browser').get(path.join(TEST_PROJECT, dirName))
+    let result = await app.service('file-browser').find({ query: { directory: path.join(TEST_PROJECT, dirName) } })
     result.data.forEach((r, i) => assert(r && r.key === path.join(TEST_PROJECT, dirName, fileNames[i])))
 
     // If name starts with '/'
-    result = await app.service('file-browser').get('/' + path.join(TEST_PROJECT, dirName))
+    result = await app.service('file-browser').find({ query: { directory: '/' + path.join(TEST_PROJECT, dirName) } })
     result.data.forEach((r, i) => assert(r && r.key === path.join(TEST_PROJECT, dirName, fileNames[i])))
 
     fs.rmSync(dirStoragePath, { force: true, recursive: true })

@@ -46,7 +46,7 @@ export default function ImageConvertPanel({
   openConvert: State<boolean>
   fileProperties: State<any>
   convertProperties: State<ImageConvertParms>
-  onRefreshDirectory: () => Promise<void>
+  onRefreshDirectory: () => void
 }) {
   function convertImage() {
     const props = fileProperties.value

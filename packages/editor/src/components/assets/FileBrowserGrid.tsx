@@ -28,7 +28,6 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { StateMethods } from '@etherealengine/hyperflux'
@@ -40,6 +39,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
@@ -111,7 +111,6 @@ type FileBrowserItemType = {
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
-  refreshDirectory: () => Promise<void>
 }
 
 export function FileBrowserItem({
@@ -127,8 +126,7 @@ export function FileBrowserItem({
   onClick,
   dropItemsOnPanel,
   moveContent,
-  isFilesLoading,
-  refreshDirectory
+  isFilesLoading
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -201,15 +199,13 @@ export function FileBrowserItem({
     if (isFilesLoading.value) return
     isFilesLoading.set(true)
 
-    await FileBrowserService.moveContent(
-      currentContent.current.item.fullName,
-      currentContent.current.item.fullName,
-      currentContent.current.item.path,
-      item.isFolder ? item.path + item.fullName : item.path,
-      currentContent.current.isCopy
-    )
-
-    await refreshDirectory()
+    await Engine.instance.api.service('file-browser').update(null, {
+      oldName: currentContent.current.item.fullName,
+      newName: currentContent.current.item.fullName,
+      oldPath: currentContent.current.item.path,
+      newPath: item.isFolder ? item.path + item.fullName : item.path,
+      isCopy: currentContent.current.isCopy
+    })
   }
 
   const viewAssetProperties = () => {

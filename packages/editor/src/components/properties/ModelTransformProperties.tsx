@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
-import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   DefaultModelTransformParameters,
   ModelTransformParameters
@@ -190,7 +189,7 @@ export default function ModelTransformProperties({
       })
       transformHistory.set([modelSrc, ...transformHistory.value])
       const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
-      await FileBrowserService.fetchFiles(directoryToRefresh)
+      await Engine.instance.api.service('file-browser').find({ query: { directory: directoryToRefresh } })
       onChangeModel(nuPath)
       transforming.set(false)
     },

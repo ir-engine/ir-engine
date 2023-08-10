@@ -67,7 +67,7 @@ export default function CompressionPanel({
 }: {
   openCompress: State<boolean>
   fileProperties: State<FileType>
-  onRefreshDirectory: () => Promise<void>
+  onRefreshDirectory: () => void
 }) {
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
@@ -116,7 +116,7 @@ export default function CompressionPanel({
       path,
       contentType: file.type
     }).promise
-    await onRefreshDirectory()
+    onRefreshDirectory()
 
     compressionLoading.set(false)
     openCompress.set(false)
@@ -127,7 +127,7 @@ export default function CompressionPanel({
     const props = fileProperties.value
     compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
     const compressedPath = await API.instance.client.service('ktx2-encode').create(compressProperties.value)
-    await onRefreshDirectory()
+    onRefreshDirectory()
     openCompress.set(false)
   }
 
