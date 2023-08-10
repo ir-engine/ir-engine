@@ -36,6 +36,7 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -55,7 +56,7 @@ const INFINITY = 'INFINITY'
 const INSTANCE_USERS_PAGE_LIMIT = 10
 
 const useUsersInInstance = (instanceId: string) => {
-  const instanceAttendances = useFind('instance-attendance', {
+  const instanceAttendances = useFind(instanceAttendancePath, {
     query: {
       instanceId
     }

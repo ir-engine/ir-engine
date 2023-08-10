@@ -68,9 +68,10 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
   const adminUserQuery = useFind('user', {
     query: {
       search,
+      action: 'admin',
+      isGuest: skipGuests ? false : undefined,
       $sort: { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 },
-      $skip: page.value * rowsPerPage.value,
-      isGuest: !skipGuests
+      $skip: page.value * rowsPerPage.value
     }
   })
   const removeUser = useMutation('user').remove
