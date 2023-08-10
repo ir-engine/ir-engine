@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
@@ -39,25 +38,6 @@ export const AppThemeState = defineState({
     customThemeName: null as string | null
   })
 })
-
-export const AppThemeServiceReceptor = (action) => {
-  const s = getMutableState(AppThemeState)
-  matches(action).when(AppThemeActions.setCustomTheme.matches, (action) => {
-    return s.merge({
-      customTheme: action.theme,
-      customThemeName: action.themeName,
-      mode: action.themeName ? 'custom' : 'auto'
-    })
-  })
-}
-
-export class AppThemeActions {
-  static setCustomTheme = defineAction({
-    type: 'ee.client.AppTheme.setCustomTheme' as const,
-    theme: matches.object.optional() as Validator<unknown, ClientThemeOptionsType>,
-    themeName: matches.string.optional()
-  })
-}
 
 export const AppThemeFunctions = {
   setTheme: (theme?: ClientThemeOptionsType, themeName?: string) => {
