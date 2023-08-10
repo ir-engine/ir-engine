@@ -22,7 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
@@ -35,27 +35,51 @@ import {
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
-
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import {
+  staticResourceDataResolver,
+  staticResourceExternalResolver,
+  staticResourcePatchResolver,
+  staticResourceQueryResolver,
+  staticResourceResolver
+} from './static-resource.resolvers'
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const staticResourceValidator = getValidator(staticResourceSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const staticResourceDataValidator = getValidator(staticResourceDataSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const staticResourcePatchValidator = getValidator(staticResourcePatchSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const staticResourceQueryValidator = getValidator(staticResourceQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(staticResourceExternalResolver),
+      schemaHooks.resolveResult(staticResourceResolver)
+    ]
+  },
+
   before: {
-    all: [],
+    all: [
+      () => schemaHooks.validateQuery(staticResourceQueryValidator),
+      schemaHooks.resolveQuery(staticResourceQueryResolver)
+    ],
     find: [collectAnalytics()],
     get: [disallow('external')],
-    create: [authenticate(), verifyScope('admin', 'admin')],
+    create: [
+      authenticate(),
+      verifyScope('admin', 'admin'),
+      () => schemaHooks.validateData(staticResourceDataValidator),
+      schemaHooks.resolveData(staticResourceDataResolver)
+    ],
     update: [authenticate(), verifyScope('admin', 'admin')],
-    patch: [authenticate(), verifyScope('admin', 'admin')],
+    patch: [
+      authenticate(),
+      verifyScope('admin', 'admin'),
+      () => schemaHooks.validateData(staticResourcePatchValidator),
+      schemaHooks.resolveData(staticResourcePatchResolver)
+    ],
     remove: [
       authenticate(),
       // iff(isProvider('external'), verifyScope('admin', 'admin') as any),
