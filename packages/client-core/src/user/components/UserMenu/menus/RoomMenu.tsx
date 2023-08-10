@@ -31,10 +31,12 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { InstanceService } from '@etherealengine/client-core/src/common/services/InstanceService'
 import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import { Paginated } from '@feathersjs/client'
 
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -87,12 +89,14 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
       return false
     }
 
-    const rooms = await InstanceService.checkRoom(roomCode)
-    if (!rooms) {
+    const { data: roomData } = (await Engine.instance.api
+      .service('instance')
+      .find({ query: { roomCode, ended: false, locationId: { $ne: null } } })) as Paginated<Instance>
+    if (!roomData[0]) {
       setError(t('user:roomMenu.invalidRoomCode'))
       return
     }
-    RouterService.navigate(`/location/${location ? location : locationName}?roomCode=${rooms.roomCode}`)
+    RouterService.navigate(`/location/${location ? location : locationName}?roomCode=${roomData[0].roomCode}`)
     requestXRSession()
   }
 
