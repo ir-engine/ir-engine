@@ -23,41 +23,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  staticResourceMethods,
+  staticResourcePath
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { StaticResource } from './static-resource.class'
+import { StaticResourceService } from './static-resource.class'
 import staticResourceDocs from './static-resource.docs'
 import hooks from './static-resource.hooks'
-import createModel from './static-resource.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'static-resource': StaticResource
-    'static-resource-filters': { get: (data?: any, params?: any) => ReturnType<typeof getFilters> }
+    [staticResourcePath]: StaticResourceService
+  }
+
+  interface ServiceTypes {
+    'static-resource-filters': {
+      get: (data?: any, params?: any) => ReturnType<typeof getFilters>
+    }
   }
 }
 
-export default (app: Application) => {
+const getFilters = async (app: Application) => {
+  const mimeTypes = await app.service('static-resource').Model.findAll({
+    attributes: ['mimeType'],
+    group: ['mimeType']
+  })
+
+  return {
+    mimeTypes: mimeTypes.map((el) => el.mimeType)
+  }
+}
+
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: staticResourcePath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new StaticResource(options, app)
-  event.docs = staticResourceDocs
+  app.use(staticResourcePath, new StaticResourceService(options), {
+    // A list of all methods this service exposes externally
+    methods: staticResourceMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: staticResourceDocs
+  })
 
-  app.use('static-resource', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('static-resource')
-
+  const service = app.service(staticResourcePath)
   service.hooks(hooks)
 
   app.use('static-resource-filters', {
@@ -71,15 +87,4 @@ export default (app: Application) => {
       get: [authenticate(), verifyScope('admin', 'admin')]
     }
   })
-}
-
-const getFilters = async (app: Application) => {
-  const mimeTypes = await app.service('static-resource').Model.findAll({
-    attributes: ['mimeType'],
-    group: ['mimeType']
-  })
-
-  return {
-    mimeTypes: mimeTypes.map((el) => el.mimeType)
-  }
 }
