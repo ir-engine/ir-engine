@@ -60,7 +60,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
   }
 
   async find(
-    params: RecordingParams & {
+    params?: RecordingParams & {
       paginate?: PaginationOptions | false
     }
   ) {
@@ -77,7 +77,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
     const paramsWithoutExtras = {
       ...params,
       // Explicitly cloned sort object because otherwise it was affecting default params object as well.
-      query: params.query ? JSON.parse(JSON.stringify(params.query)) : {}
+      query: params?.query ? JSON.parse(JSON.stringify(params?.query)) : {}
     }
 
     // Remove recording username sort
@@ -88,7 +88,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
     if (isAdmin) {
       return super._find(paramsWithoutExtras) as Promise<Paginated<T>>
     }
-    return super._find({ ...params, query: { userId: params?.user?.id } }) as Promise<Paginated<T>>
+    return super._find({ ...paramsWithoutExtras, query: { userId: params?.user?.id } }) as Promise<Paginated<T>>
   }
 
   async create(data: RecordingData, params?: RecordingParams) {
