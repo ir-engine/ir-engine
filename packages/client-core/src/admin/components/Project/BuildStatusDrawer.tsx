@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { BuildStatusType, buildStatusPath } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -67,7 +67,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const fieldOrder = useHookstate('desc')
   const sortField = useHookstate('id')
 
-  const buildStatusesQuery = useFind('build-status', {
+  const buildStatusesQuery = useFind(buildStatusPath, {
     query: { $limit: rowsPerPage.value, $skip: page.value * rowsPerPage.value, $sort: { id: -1 } }
   })
 
