@@ -42,7 +42,7 @@ export default (currentType: string, scopeToVerify: string) => {
       raw: true,
       nest: true
     })
-    if (!scopes) throw new NotFound('No scope available for the current user.')
+    if (!scopes || scopes.length === 0) throw new NotFound('No scope available for the current user.')
 
     const currentScopes = scopes.reduce((result, sc) => {
       if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
