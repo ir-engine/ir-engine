@@ -51,6 +51,8 @@ const LOCATION_PAGE_LIMIT = 100
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
 const LocationTable = ({ className, search }: Props) => {
+  const { t } = useTranslation()
+
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(LOCATION_PAGE_LIMIT)
   const openConfirm = useHookstate(false)
@@ -61,11 +63,9 @@ const LocationTable = ({ className, search }: Props) => {
   const openLocationDrawer = useHookstate(false)
   const locationAdmin = useHookstate<LocationType | undefined>(undefined)
 
-  const { t } = useTranslation()
-
   const adminLocations = useFind(locationPath, {
     query: {
-      $sort: {},
+      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
       $skip: page.value * rowsPerPage.value,
       $limit: rowsPerPage.value,
       adminnedLocations: true,
