@@ -23,18 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
 import TableComponent from '../../common/Table'
 import { InviteColumn, inviteColumns } from '../../common/variables/invite'
-import { AdminInviteService, AdminInviteState } from '../../services/InviteService'
 import styles from '../../styles/admin.module.scss'
 import UpdateInviteModal from './UpdateInviteModal'
 
@@ -56,6 +56,7 @@ const defaultInvite = {
 }
 
 const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props) => {
+  const { t } = useTranslation()
   const page = useHookstate(0)
   const openConfirm = useHookstate(false)
   const inviteId = useHookstate('')
@@ -64,25 +65,27 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('id')
   const updateModalOpen = useHookstate(false)
-  const inviteState = useHookstate(getMutableState(AdminInviteState))
-  const { t } = useTranslation()
-  const invites = inviteState.invites.get({ noproxy: true })
-  const inviteCount = inviteState.total.value
+
+  const orderBy = fieldOrder.value === 'desc' ? -1 : 1
+  const $sort = sortField.value ? { [sortField.value === 'type' ? 'inviteType' : sortField.value]: orderBy } : {}
+  const invitesQuery = useFind('invite', {
+    query: {
+      search,
+      $sort,
+      $skip: page.value * rowsPerPage.value,
+      $limit: rowsPerPage.value
+    }
+  })
+  const removeInvite = useMutation('invite').remove
 
   const deleteInvite = () => {
-    AdminInviteService.removeInvite(inviteId.value)
+    removeInvite(inviteId.value)
     openConfirm.set(false)
   }
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    AdminInviteService.fetchAdminInvites(search, newPage, sortField.value, fieldOrder.value)
     page.set(newPage)
   }
-
-  useEffect(() => {
-    if (inviteState.updateNeeded.value === true)
-      AdminInviteService.fetchAdminInvites(search, page.value, sortField.value, fieldOrder.value)
-  }, [search, inviteState.updateNeeded.value, page.value, sortField.value, fieldOrder.value])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     rowsPerPage.set(parseInt(event.target.value, 10))
@@ -146,10 +149,10 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
     }
   }
 
-  const rows = invites.map((el) => createData(el))
+  const rows = invitesQuery.data.map((el) => createData(el))
 
   let allSelected: boolean | undefined = undefined
-  if (invites.length === selectedInviteIds.size) {
+  if (invitesQuery.data.length === selectedInviteIds.size) {
     allSelected = true
   } else if (selectedInviteIds.size === 0) {
     allSelected = false
@@ -166,7 +169,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
           onChange={(_event, checked) => {
             if (checked || allSelected === undefined) {
               const set = new Set<string>()
-              invites.map((item) => set.add(item.id))
+              invitesQuery.data.map((item) => set.add(item.id))
               setSelectedInviteIds(set)
             } else {
               setSelectedInviteIds(new Set<string>())
@@ -191,7 +194,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
         column={columns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={inviteCount}
+        count={invitesQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

@@ -81,7 +81,7 @@ export const getInstalledRoutes = () => {
         }
       })
     )
-    return { data }
+    return data
   }
 }
 
@@ -90,7 +90,7 @@ export const activateRoute = (routeService: RouteService) => {
     const activatedRoutes = (await routeService.find({
       paginate: false
     })) as RouteType[]
-    const installedRoutes = (await getInstalledRoutes()()).data
+    const installedRoutes = await getInstalledRoutes()()
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
       if (routeToActivate) {

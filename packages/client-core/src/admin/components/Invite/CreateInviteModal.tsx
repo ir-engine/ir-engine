@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import classNames from 'classnames'
 import dayjs, { Dayjs } from 'dayjs'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
@@ -52,10 +52,7 @@ import { locationPath } from '@etherealengine/engine/src/schemas/social/location
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
-import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminInviteService } from '../../services/InviteService'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
-import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -72,6 +69,7 @@ const INVITE_TYPE_TAB_MAP = {
 }
 
 const CreateInviteModal = ({ open, onClose }: Props) => {
+  const { t } = useTranslation()
   const inviteTypeTab = useHookstate(0)
   const textValue = useHookstate('')
   const makeAdmin = useHookstate(false)
@@ -85,24 +83,17 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const timed = useHookstate(false)
   const startTime = useHookstate<Dayjs>(dayjs(null))
   const endTime = useHookstate<Dayjs>(dayjs(null))
-  const { t } = useTranslation()
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
-  const adminUserState = useHookstate(getMutableState(AdminUserState))
-  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
+
+  const adminInstances = useFind('instance').data
+  const adminUsers = useFind('user', { query: { isGuest: false } }).data
   const adminLocations = useFind(locationPath).data
-  const adminInstances = adminInstanceState.instances
-  const adminUsers = adminUserState.users
+
+  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
     ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-
-  useEffect(() => {
-    AdminInstanceService.fetchAdminInstances()
-    AdminUserService.setSkipGuests(true)
-    AdminUserService.fetchUsersAsAdmin()
-  }, [])
 
   const handleChangeInviteTypeTab = (event: React.SyntheticEvent, newValue: number) => {
     inviteTypeTab.set(newValue)
@@ -121,17 +112,15 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
 
   const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
     return {
-      value: `${el.id.value}`,
-      label: `${el.id.value} (${el.location.name.value})`
+      value: `${el.id}`,
+      label: `${el.id} (${el.location.name})`
     }
   })
 
-  const userMenu: InputMenuItem[] = adminUsers.map((el) => {
-    return {
-      value: `${el.inviteCode.value}`,
-      label: `${el.name.value} (${el.inviteCode.value})`
-    }
-  })
+  const userMenu: InputMenuItem[] = adminUsers.map((el) => ({
+    value: `${el.inviteCode}`,
+    label: `${el.name} (${el.inviteCode})`
+  }))
 
   const spawnPointMenu: InputMenuItem[] = spawnPoints.map(([id, value]) => {
     const transform = value.components.find((component) => component.name === 'transform')
@@ -163,9 +152,9 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
 
   const handleInstanceChange = (e) => {
     instanceId.set(e.target.value)
-    const instance = adminInstances.find((instance) => instance.id.value === e.target.value)
+    const instance = adminInstances.find((instance) => instance.id === e.target.value)
     if (instance) {
-      const location = adminLocations.find((location) => location.id === instance.locationId.value)
+      const location = adminLocations.find((location) => location.id === instance.locationId)
       if (location) {
         const sceneName = location.sceneId.split('/')
         AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
@@ -228,7 +217,6 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
       }
     })
-    setTimeout(() => AdminInviteService.fetchAdminInvites(), 500)
     onClose()
   }
 
