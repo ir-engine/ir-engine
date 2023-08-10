@@ -65,7 +65,7 @@ const LocationTable = ({ className, search }: Props) => {
 
   const adminLocations = useFind(locationPath, {
     query: {
-      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
+      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
       $skip: page.value * rowsPerPage.value,
       $limit: rowsPerPage.value,
       adminnedLocations: true,
