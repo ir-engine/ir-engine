@@ -45,7 +45,7 @@ import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 
-import { AppAction } from '../../common/services/AppService'
+import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -214,6 +214,7 @@ export const InstanceChat = ({
   const unreadMessages = useHookstate(false)
   const messageContainerVisible = useHookstate(false)
   const messageRefInput = useRef<HTMLInputElement>()
+  const appState = useHookstate(getMutableState(AppState))
 
   const { handleComposingMessageChange, packageMessage, composingMessage, messages } = useChatHooks({
     chatWindowOpen: chatWindowOpen.value,
@@ -263,9 +264,11 @@ export const InstanceChat = ({
   }, [chatState.messageCreated.value])
 
   const hideOtherMenus = () => {
-    dispatchAction(AppAction.showTopShelf({ show: false }))
-    dispatchAction(AppAction.showBottomShelf({ show: false }))
-    dispatchAction(AppAction.showTouchPad({ show: false }))
+    appState.set({
+      showTopShelf: false,
+      showBottomShelf: false,
+      showTouchPad: false
+    })
   }
 
   const toggleChatWindow = () => {
@@ -342,7 +345,7 @@ export const InstanceChat = ({
         onClick={() => {
           chatWindowOpen.set(false)
           unreadMessages.set(false)
-          dispatchAction(AppAction.showTouchPad({ show: true }))
+          appState.showTouchPad.set(true)
         }}
         className={styles.backdrop + ' ' + (!chatWindowOpen.value ? styles.hideBackDrop : '')}
       ></div>
@@ -427,11 +430,7 @@ export const InstanceChat = ({
                 {!chatWindowOpen.value ? (
                   <MessageButton />
                 ) : (
-                  <CloseButton
-                    onClick={() => {
-                      dispatchAction(AppAction.showTouchPad({ show: true }))
-                    }}
-                  />
+                  <CloseButton onClick={() => appState.showTouchPad.set(true)} />
                 )}
               </Fab>
             </Badge>
