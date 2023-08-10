@@ -39,13 +39,11 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminBotService } from '../../services/BotsService'
-import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -55,6 +53,7 @@ interface Props {
 }
 
 const UpdateBot = ({ open, bot, onClose }: Props) => {
+  const { t } = useTranslation()
   const state = useHookstate({
     name: '',
     description: '',
@@ -67,12 +66,15 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     location: ''
   })
   const currentInstance = useHookstate<Instance[]>([])
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
+
+  const instanceQuery = useFind('instance')
+  const instancesData = instanceQuery.data
+
   const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
-  const instanceData = adminInstanceState.instances
+
+  const updateBot = useMutation('bot').update
   const user = useHookstate(getMutableState(AuthState).user)
-  const { t } = useTranslation()
 
   useEffect(() => {
     if (bot) {
@@ -118,7 +120,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     state.merge({ [name]: value })
   }
 
-  const data: Instance[] = instanceData.get({ noproxy: true }).map((element) => {
+  const data: Instance[] = instancesData.map((element) => {
     return element
   })
 
@@ -131,7 +133,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
       currentInstance.set([])
       state.merge({ instance: '' })
     }
-  }, [state.location.value, adminInstanceState.instances.value.length])
+  }, [state.location.value, instancesData])
 
   const handleUpdate = () => {
     const data: CreateBotAsAdmin = {
@@ -149,17 +151,13 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     })
 
     if (validateForm(state.value, formErrors.value) && bot) {
-      AdminBotService.updateBotAsAdmin(bot.id, data)
+      updateBot(bot.id, data)
       state.set({ name: '', description: '', instance: '', location: '' })
       currentInstance.set([])
       onClose()
     } else {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
-  }
-
-  const fetchAdminInstances = () => {
-    AdminInstanceService.fetchAdminInstances()
   }
 
   return (
@@ -211,7 +209,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             onChange={handleInputChange}
             endControl={
               <IconButton
-                onClick={fetchAdminInstances}
+                onClick={instanceQuery.refetch}
                 icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
               />
             }

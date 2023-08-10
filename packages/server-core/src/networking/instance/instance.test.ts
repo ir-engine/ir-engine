@@ -104,6 +104,14 @@ describe('instance.test', () => {
     assert.equal(instances.data[0].id, testInstance.id)
   })
 
+  it('should have "total" in find method', async () => {
+    const item = await app.service('instance').find({
+      action: 'admin'
+    } as any)
+
+    assert.ok('total' in item)
+  })
+
   it('should find active instances', async () => {
     const activeInstances = await app
       .service('instances-active')

@@ -23,21 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
-import { channelColumns, ChannelData, ChannelPropsTable } from '../../common/variables/channel'
-import { AdminChannelService, AdminChannelState, CHANNEL_PAGE_LIMIT } from '../../services/ChannelService'
+import { ChannelData, ChannelPropsTable, channelColumns } from '../../common/variables/channel'
 import styles from '../../styles/admin.module.scss'
 import ChannelDrawer, { ChannelDrawerMode } from './ChannelDrawer'
+
+const CHANNEL_PAGE_LIMIT = 100
 
 const ChannelTable = ({ className, search }: ChannelPropsTable) => {
   const { t } = useTranslation()
@@ -50,29 +51,23 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
   const openChannelDrawer = useHookstate(false)
   const channelAdmin = useHookstate<Channel | undefined>(undefined)
 
-  const user = useHookstate(getMutableState(AuthState).user)
-  const adminChannelState = useHookstate(getMutableState(AdminChannelState))
-  const adminChannelData = adminChannelState.channels?.get({ noproxy: true }) || []
-  const adminChannelCount = adminChannelState.total.value
-
-  useEffect(() => {
-    AdminChannelService.fetchAdminChannel(search, page.value, sortField.value, fieldOrder.value)
-  }, [user?.id?.value, adminChannelState.updateNeeded.value, search])
+  const channelsQuery = useFind('channel', {
+    query: {
+      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
+      $skip: page.value * rowsPerPage.value,
+      $limit: rowsPerPage.value,
+      action: 'admin',
+      search: search
+    }
+  })
+  const removeChannel = useMutation('channel').remove
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    AdminChannelService.fetchAdminChannel(search, page.value, sortField.value, fieldOrder.value)
     page.set(newPage)
   }
 
-  useEffect(() => {
-    if (adminChannelState.fetched.value) {
-      AdminChannelService.fetchAdminChannel(search, page.value, sortField.value, fieldOrder.value)
-    }
-  }, [fieldOrder.value])
-
   const submitRemoveChannel = async () => {
-    await AdminChannelService.removeChannel(channelId.value)
-    openConfirm.set(false)
+    await removeChannel(channelId.value).then(() => openConfirm.set(false))
   }
 
   const handleOpenChannelDrawer = (open: boolean, channel: any) => {
@@ -114,7 +109,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
     page.set(0)
   }
 
-  const rows = adminChannelData?.map((el: Channel) => {
+  const rows = channelsQuery.data.map((el: Channel) => {
     return createData(el, el.id!, el.name)
   })
 
@@ -129,7 +124,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
         column={channelColumns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={adminChannelCount}
+        count={channelsQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
