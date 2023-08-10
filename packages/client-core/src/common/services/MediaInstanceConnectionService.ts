@@ -28,21 +28,13 @@ import { useEffect } from 'react'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
-import {
-  defineAction,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  State,
-  useState
-} from '@etherealengine/hyperflux'
+import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { defineState, dispatchAction, getMutableState, getState, State, useState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
 import { LocationState } from '../../social/services/LocationService'
 import {
   connectToNetwork,
@@ -68,7 +60,6 @@ type InstanceState = {
   connecting: boolean
 }
 
-//State
 export const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
@@ -90,62 +81,28 @@ export function useMediaInstance() {
   return mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null
 }
 
-export const MediaInstanceConnectionServiceReceptor = (action) => {
-  const s = getMutableState(MediaInstanceState)
-  matches(action)
-    .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
-      getMutableState(NetworkState).hostIds.media.set(action.instanceId)
-      const existingNetwork = getState(NetworkState).networks[action.instanceId]
-      if (!existingNetwork) {
-        addNetwork(initializeNetwork(action.instanceId, NetworkTopics.media))
-        return s.instances[action.instanceId].set({
-          ipAddress: action.ipAddress,
-          port: action.port,
-          channelId: action.channelId,
-          roomCode: action.roomCode,
-          videoEnabled: false,
-          provisioned: true,
-          readyToConnect: true,
-          connected: false,
-          connecting: false
-        })
-      }
-      return s
+export const provisisionMediaInstanceServer = (
+  provisionResult: InstanceServerProvisionResult,
+  channelId?: ChannelID
+) => {
+  getMutableState(NetworkState).hostIds.media.set(provisionResult.id as UserId)
+  const existingNetwork = getState(NetworkState).networks[provisionResult.id]
+  if (!existingNetwork) {
+    addNetwork(initializeNetwork(provisionResult.id as UserId, NetworkTopics.media))
+    getMutableState(MediaInstanceState).instances[provisionResult.id].set({
+      ipAddress: provisionResult.id,
+      port: provisionResult.port,
+      channelId: channelId,
+      roomCode: provisionResult.roomCode,
+      videoEnabled: false,
+      provisioned: true,
+      readyToConnect: true,
+      connected: false,
+      connecting: false
     })
-    .when(MediaInstanceConnectionAction.serverConnecting.matches, (action) => {
-      return s.instances[action.instanceId].connecting.set(true)
-    })
-    .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
-      s.joiningNewMediaChannel.set(false)
-      return s.instances[action.instanceId].merge({
-        connected: true,
-        connecting: false,
-        readyToConnect: false
-      })
-    })
-    .when(MediaInstanceConnectionAction.enableVideo.matches, (action) => {
-      return s.instances[action.instanceId].merge({
-        videoEnabled: action.enableVideo
-      })
-    })
-    .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
-      return s.instances[action.instanceId].set(none)
-    })
-    .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
-      const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
-      const networkState = getMutableState(NetworkState)
-      const currentNework = getState(NetworkState).networks[action.currentInstanceId]
-      updateNetworkID(currentNework as SocketWebRTCClientNetwork, action.newInstanceId)
-      networkState.hostIds.media.set(action.newInstanceId as UserId)
-      s.instances.merge({ [action.newInstanceId]: currentNetwork })
-      s.instances[action.currentInstanceId].set(none)
-    })
-    .when(MediaInstanceConnectionAction.joiningNewMediaChannel.matches, () => {
-      return s.joiningNewMediaChannel.set(true)
-    })
+  }
 }
 
-//Service
 export const MediaInstanceConnectionService = {
   provisionServer: async (channelId?: ChannelID, createPrivateRoom = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
@@ -158,24 +115,17 @@ export const MediaInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatchAction(
-        MediaInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserId,
-          ipAddress: provisionResult.ipAddress,
-          port: provisionResult.port,
-          roomCode: provisionResult.roomCode,
-          channelId: channelId
-        })
-      )
+      provisisionMediaInstanceServer(provisionResult, channelId)
     } else {
       dispatchAction(NetworkConnectionService.actions.noMediaServersAvailable({ instanceId: channelId! ?? '' }))
     }
   },
   connectToServer: async (instanceId: string, channelId: ChannelID) => {
-    dispatchAction(MediaInstanceConnectionAction.serverConnecting({ instanceId }))
+    const mediaInstanceState = getMutableState(MediaInstanceState)
+    mediaInstanceState.instances[instanceId].connecting.set(true)
     const authState = getState(AuthState)
     const user = authState.user
-    const { ipAddress, port } = getState(MediaInstanceState).instances[instanceId]
+    const { ipAddress, port } = mediaInstanceState.instances[instanceId]
 
     const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, network }, 'Connect To Media Server.')
@@ -186,37 +136,25 @@ export const MediaInstanceConnectionService = {
 
     const locationState = getState(LocationState)
     const currentLocation = locationState.currentLocation.location
+    mediaInstanceState.instances[instanceId].merge({
+      videoEnabled:
+        currentLocation?.locationSetting?.videoEnabled === true ||
+        !(
+          currentLocation?.locationSetting?.locationType === 'showroom' &&
+          user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id) == null
+        )
+    })
 
-    dispatchAction(
-      MediaInstanceConnectionAction.enableVideo({
-        instanceId,
-        enableVideo:
-          currentLocation?.locationSetting?.videoEnabled === true ||
-          !(
-            currentLocation?.locationSetting?.locationType === 'showroom' &&
-            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id) == null
-          )
-      })
-    )
-
-    await connectToNetwork(network, { port, ipAddress, channelId })
+    await connectToNetwork(network, { port: port.value, ipAddress: ipAddress.value, channelId })
   },
   resetServer: (instanceId: string) => {
-    dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
+    getMutableState(MediaInstanceState).instances[instanceId].set(none)
   },
   useAPIListeners: () => {
     useEffect(() => {
       const listener = (params) => {
         if (params.channelId != null) {
-          dispatchAction(
-            MediaInstanceConnectionAction.serverProvisioned({
-              instanceId: params.instanceId,
-              ipAddress: params.ipAddress,
-              port: params.port,
-              roomCode: params.roomCode,
-              channelId: params.channelId
-            })
-          )
+          provisisionMediaInstanceServer(params, params.channelId)
         }
       }
       Engine.instance.api.service('instance-provision').on('created', listener)
@@ -226,49 +164,6 @@ export const MediaInstanceConnectionService = {
     }, [])
   },
   setJoining: (joining: boolean) => {
-    dispatchAction(MediaInstanceConnectionAction.joiningNewMediaChannel({}))
+    getMutableState(MediaInstanceState).joiningNewMediaChannel.set(true)
   }
-}
-
-//Action
-export class MediaInstanceConnectionAction {
-  static serverProvisioned = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_PROVISIONED' as const,
-    instanceId: matchesUserId,
-    ipAddress: matches.string,
-    port: matches.string,
-    roomCode: matches.string,
-    channelId: matches.string.optional() as Validator<unknown, ChannelID | undefined>
-  })
-
-  static serverConnecting = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CONNECTING' as const,
-    instanceId: matches.string
-  })
-
-  static enableVideo = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_VIDEO_ENABLED' as const,
-    instanceId: matches.string,
-    enableVideo: matches.boolean
-  })
-
-  static serverConnected = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CONNECTED' as const,
-    instanceId: matches.string
-  })
-
-  static disconnect = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_DISCONNECT' as const,
-    instanceId: matches.string
-  })
-
-  static joiningNewMediaChannel = defineAction({
-    type: 'ee.client.MediaInstanceConnection.JOINING_NEW_MEDIA_CHANNEL' as const
-  })
-
-  static changeActiveConnectionHostId = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CHANGE_HOST_ID' as const,
-    currentInstanceId: matchesUserId,
-    newInstanceId: matchesUserId
-  })
 }

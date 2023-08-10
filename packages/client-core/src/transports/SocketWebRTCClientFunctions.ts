@@ -83,11 +83,7 @@ import {
   LocationInstanceConnectionService,
   LocationInstanceState
 } from '../common/services/LocationInstanceConnectionService'
-import {
-  MediaInstanceConnectionAction,
-  MediaInstanceConnectionService,
-  MediaInstanceState
-} from '../common/services/MediaInstanceConnectionService'
+import { MediaInstanceConnectionService, MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import {
   startFaceTracking,
@@ -156,7 +152,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
     const mediaInstanceConnectionState = getMutableState(MediaInstanceState)
     const instanceId = getState(NetworkState).hostIds.media ?? ''
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
-      dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
+      getMutableState(MediaInstanceState).instances[instanceId].set(none)
       const authState = getMutableState(AuthState)
       const selfUser = authState.user
       const chatState = getMutableState(ChannelState)
@@ -406,7 +402,13 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     })
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
   } else {
-    dispatchAction(MediaInstanceConnectionAction.serverConnected({ instanceId: network.hostId }))
+    const mediaInstanceState = getMutableState(MediaInstanceState)
+    mediaInstanceState.joiningNewMediaChannel.set(false)
+    mediaInstanceState.instances[network.hostId].merge({
+      connected: true,
+      connecting: false,
+      readyToConnect: false
+    })
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
   }
 
@@ -1473,7 +1475,7 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       clearPeerMediaChannels()
       removeNetwork(network)
       getMutableState(NetworkState).hostIds.media.set(none)
-      dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
+      getMutableState(MediaInstanceState).instances[network.hostId].set(none)
     } else {
       NetworkPeerFunctions.destroyAllPeers(network)
       removeNetwork(network)

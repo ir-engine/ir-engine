@@ -32,11 +32,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { addActionReceptor, defineActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { LocationInstanceConnectionService } from '../common/services/LocationInstanceConnectionService'
-import {
-  MediaInstanceConnectionService,
-  MediaInstanceConnectionServiceReceptor,
-  MediaInstanceState
-} from '../common/services/MediaInstanceConnectionService'
+import { MediaInstanceConnectionService, MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerConsumers } from '../media/PeerMedia'
@@ -162,12 +158,10 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    addActionReceptor(MediaInstanceConnectionServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
 
     return () => {
       // todo replace with subsystems
-      removeActionReceptor(MediaInstanceConnectionServiceReceptor)
       removeActionReceptor(FriendServiceReceptor)
     }
   }, [])
