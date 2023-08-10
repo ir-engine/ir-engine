@@ -90,7 +90,7 @@ export default (app: Application) => {
 export const createLoginTokenModel = (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const loginToken = sequelizeClient.define<Model<LoginTokenInterface>>(
-    'login_token',
+    'login-token',
     {
       id: {
         type: DataTypes.UUID,
