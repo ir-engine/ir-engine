@@ -23,30 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ChannelUser from './channel-user/channel-user.service'
-import Channel from './channel/channel.service'
-import InviteCodeLookup from './invite-code-lookup/invite-code-lookup'
-import InviteType from './invite-type/invite-type'
-import Invite from './invite/invite.service'
-import LocationAdmin from './location-admin/location-admin'
-import LocationAuthorizedUser from './location-authorized-user/location-authorized-user'
-import LocationBan from './location-ban/location-ban'
-import LocationSetting from './location-setting/location-setting'
-import LocationType from './location-type/location-type'
-import Location from './location/location'
-import Message from './message/message.service'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [
-  ChannelUser,
-  InviteType,
-  Channel,
-  Location,
-  Invite,
-  InviteCodeLookup,
-  Message,
-  LocationType,
-  LocationSetting,
-  LocationBan,
-  LocationAdmin,
-  LocationAuthorizedUser
-]
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Invite code lookup service description',
+    securities: ['all']
+  }
+})

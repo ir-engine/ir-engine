@@ -117,17 +117,6 @@ describe('user service', () => {
     assert.ok('total' in item)
   })
 
-  it('should find users by action invite-code-lookup', async () => {
-    const item = await app.service(userPath).find({
-      query: {
-        action: 'invite-code-lookup'
-      },
-      isInternal: true
-    })
-
-    assert.ok(item, 'user items is found')
-  })
-
   it('should patch users', async () => {
     for (const user of users) {
       const newName = v1()

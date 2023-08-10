@@ -23,30 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ChannelUser from './channel-user/channel-user.service'
-import Channel from './channel/channel.service'
-import InviteCodeLookup from './invite-code-lookup/invite-code-lookup'
-import InviteType from './invite-type/invite-type'
-import Invite from './invite/invite.service'
-import LocationAdmin from './location-admin/location-admin'
-import LocationAuthorizedUser from './location-authorized-user/location-authorized-user'
-import LocationBan from './location-ban/location-ban'
-import LocationSetting from './location-setting/location-setting'
-import LocationType from './location-type/location-type'
-import Location from './location/location'
-import Message from './message/message.service'
+import {
+  inviteCodeLookupMethods,
+  inviteCodeLookupPath
+} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 
-export default [
-  ChannelUser,
-  InviteType,
-  Channel,
-  Location,
-  Invite,
-  InviteCodeLookup,
-  Message,
-  LocationType,
-  LocationSetting,
-  LocationBan,
-  LocationAdmin,
-  LocationAuthorizedUser
-]
+import { Application } from '../../../declarations'
+import { InviteCodeLookupService } from './invite-code-lookup.class'
+import inviteCodeLookupDocs from './invite-code-lookup.docs'
+import hooks from './invite-code-lookup.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [inviteCodeLookupPath]: InviteCodeLookupService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    id: 'type',
+    name: inviteCodeLookupPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(inviteCodeLookupPath, new InviteCodeLookupService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: inviteCodeLookupMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: inviteCodeLookupDocs
+  })
+
+  const service = app.service(inviteCodeLookupPath)
+  service.hooks(hooks)
+}

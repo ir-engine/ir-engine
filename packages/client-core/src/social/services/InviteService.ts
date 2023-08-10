@@ -37,7 +37,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Invite, SendInvite } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -158,18 +158,17 @@ export const InviteService = {
         return
       } else {
         try {
-          const userResult = (await Engine.instance.api.service(userPath).find({
+          const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
             query: {
-              action: 'invite-code-lookup',
               inviteCode: data.inviteCode
             }
-          })) as Paginated<UserType>
+          })
 
-          if (userResult.total === 0) {
+          if (inviteCodeLookups.length === 0) {
             NotificationService.dispatchNotify(`No user has the invite code ${data.inviteCode}`, { variant: 'error' })
             return
           }
-          data.inviteeId = userResult.data[0].id
+          data.inviteeId = inviteCodeLookups[0].id
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }

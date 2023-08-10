@@ -55,7 +55,8 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -278,21 +279,18 @@ const getUserSpawnFromInvite = async (
   iteration = 0
 ) => {
   if (inviteCode) {
-    const app = Engine.instance.api as Application
-    const result = await app.service(userPath).find({
+    const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
       query: {
-        action: 'invite-code-lookup',
-        inviteCode: inviteCode
+        inviteCode
       }
     })
 
-    const users = result.data
-    if (users.length > 0) {
-      const inviterUser = users[0]
+    if (inviteCodeLookups.length > 0) {
+      const inviterUser = inviteCodeLookups[0]
       const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []
       const userInstanceAttendance = user.instanceAttendance || []
       let bothOnSameInstance = false
-      for (let instanceAttendance of inviterUserInstanceAttendance) {
+      for (const instanceAttendance of inviterUserInstanceAttendance) {
         if (
           !instanceAttendance.isChannel &&
           userInstanceAttendance.find(

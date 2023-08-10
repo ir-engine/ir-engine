@@ -30,7 +30,6 @@ import { KnexAdapter } from '@feathersjs/knex'
 import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { Forbidden } from '@feathersjs/errors'
 import { Op } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -66,16 +65,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
    *
    */
   async find(params: UserParams) {
-    const { action, search } = params.query || {}
-
-    if (action === 'admin' && !params.isInternal) {
-      const loggedInUser = params!.user!
-
-      if (!loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
-        throw new Forbidden('Must be system admin to execute this action')
-      else if (!loggedInUser?.scopes.find((scope) => scope.type === 'user:read'))
-        throw new Forbidden('Must be system admin with user:read scope to execute this action')
-    }
+    const { search } = params.query || {}
 
     if (search) {
       const searchedIdentityProviders = await this.app.service('identity-provider').Model.findAll({

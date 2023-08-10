@@ -23,18 +23,44 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
+
+import { Application } from '../../../declarations'
+
+import {
+  InviteCodeLookupQuery,
+  InviteCodeLookupType
+} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import crypto from 'crypto'
+import { RootParams } from '../../api/root-params'
 
-const getFreeInviteCode = async (app): Promise<string> => {
-  const code = crypto.randomBytes(4).toString('hex')
-  const users = await app.service(userPath)._find({
-    query: {
-      inviteCode: code
-    },
-    isInternal: true
-  })
-  return users.total === 0 ? code : await getFreeInviteCode(app)
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InviteCodeLookupParams extends RootParams<InviteCodeLookupQuery> {}
+
+// export class InviteCodeLookupService extends KnexAdapter<InviteCodeLookupParams> {
+export class InviteCodeLookupService extends KnexAdapter<InviteCodeLookupType, InviteCodeLookupParams> {
+  app: Application
+
+  constructor(options: KnexAdapterOptions, app: Application) {
+    super(options)
+    this.app = app
+  }
+
+  async find(params?: InviteCodeLookupParams) {
+    const inviteCode = params?.query?.inviteCode
+
+    if (inviteCode) {
+      const users = await this.app.service(userPath)._find({
+        query: {
+          inviteCode
+        },
+        paginate: false
+      })
+
+      return users.map((user) => ({ id: user.id }) as InviteCodeLookupType)
+    }
+
+    return []
+  }
 }
-
-export default getFreeInviteCode

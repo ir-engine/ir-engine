@@ -169,7 +169,7 @@ export default {
       () => schemaHooks.validateQuery(userQueryValidator),
       schemaHooks.resolveQuery(userQueryResolver)
     ],
-    find: [],
+    find: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'))],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
