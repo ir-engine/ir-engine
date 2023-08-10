@@ -522,16 +522,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </DialogTitle>
           <Grid container spacing={3} style={{ width: '100%', margin: '0' }}>
             <Grid item xs={4} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-              <Typography className={styles.primatyText}>
+              <Typography className={styles.primaryText}>
                 {t('editor:layout.filebrowser.fileProperties.name')}
               </Typography>
-              <Typography className={styles.primatyText}>
+              <Typography className={styles.primaryText}>
                 {t('editor:layout.filebrowser.fileProperties.type')}
               </Typography>
-              <Typography className={styles.primatyText}>
+              <Typography className={styles.primaryText}>
                 {t('editor:layout.filebrowser.fileProperties.size')}
               </Typography>
-              <Typography className={styles.primatyText}>
+              <Typography className={styles.primayText}>
                 {t('editor:layout.filebrowser.fileProperties.url')}
               </Typography>
             </Grid>
