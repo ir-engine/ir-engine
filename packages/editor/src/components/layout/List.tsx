@@ -24,51 +24,55 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
-export const ListItem = (styled as any).li`
-  display: flex;
-  flex-direction: row;
-  outline: none;
-  overflow: hidden;
-  user-select: none;
-  min-height: 24px;
-  padding: 0 4px;
-  align-items: center;
-  color: var(--textColor);
-  background-color: ${(props) =>
-    props.selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--dropdownMenuBackground)'};
-
-  :nth-child(odd) {
-    background-color: ${(props) =>
-      props.selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--dropdownMenuBackground)'};
+const listItemStyles = (selected) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  outline: 'none',
+  overflow: 'hidden',
+  userSelect: 'none',
+  minHeight: '24px',
+  padding: '0 4px',
+  alignItems: 'center',
+  color: 'var(--textColor)',
+  backgroundColor: selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--dropdownMenuBackground)',
+  '&:nthChild(odd)': {
+    backgroundColor: selected ? 'var(--dropdownMenuHoverBackground)' : 'var(--dropdownMenuBackground)'
+  },
+  '&:hover, &:focus': {
+    backgroundColor: selected ? 'var(--blueHover)' : 'var(--dropdownMenuHoverBackground)',
+    color: 'var(--textColor)'
+  },
+  '&:active': {
+    backgroundColor: 'var(--bluePressed)',
+    color: 'var(--textColor)'
   }
+})
 
-  :hover,
-  :focus {
-    background-color: ${(props) => (props.selected ? 'var(--blueHover)' : 'var(--dropdownMenuHoverBackground)')};
-    color: var(--textColor);
-  }
+const listItemActiveStyles = {
+  backgroundColor: 'var(--bluePressed)',
+  color: 'var(--textColor)'
+}
 
-  :active {
-    background-color: var(--bluePressed);
-    color: var(--textColor);
-  }
-`
+const listItemIconStyles = {
+  width: '12px',
+  height: '12px',
+  marginRight: '4px'
+}
 
-const ListItemIcon = (styled as any).div`
-  width: 12px;
-  height: 12px;
-  margin-right: 4px;
-`
+export function ListItem({ children, ...rest }) {
+  const { selected } = rest
+  return (
+    <li style={listItemStyles(selected) as React.CSSProperties} {...rest}>
+      {children}
+    </li>
+  )
+}
 
-/**
- *
- * @param {any} iconComponent
- * @param {any} children
- * @param {any} rest
- * @returns
- */
+export function ListItemIcon({ as: IconComponent }) {
+  return <div style={listItemIconStyles}>{IconComponent && <IconComponent />}</div>
+}
+
 export function IconListItem({ iconComponent, children, ...rest }) {
   return (
     <ListItem {...rest}>
@@ -78,7 +82,6 @@ export function IconListItem({ iconComponent, children, ...rest }) {
   )
 }
 
-export const List = (styled as any).ul`
-  height: 100%;
-  overflow-y: auto;
-`
+export function List({ children }) {
+  return <ul style={{ height: '100%', overflowY: 'auto' }}>{children}</ul>
+}
