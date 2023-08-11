@@ -28,6 +28,7 @@ import { HookContext } from '@feathersjs/feathers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
@@ -54,10 +55,11 @@ export default (writeAccess) => {
       else throw new BadRequest('Invalid Project name')
     }
     if (!projectId) projectId = params.id || context.id
-    const projectPermissionResult = await (app.service('project-permission') as any).Model.findOne({
-      where: {
+    const projectPermissionResult = await app.service(projectPermissionPath).find({
+      query: {
         projectId: projectId,
-        userId: loggedInUser.id
+        userId: loggedInUser.id,
+        $limit: 1
       }
     })
     if (projectPermissionResult == null) {

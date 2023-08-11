@@ -26,6 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden, NotAuthenticated } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../declarations'
 
@@ -41,12 +45,13 @@ export default () => {
         ? context.id
         : context.id && typeof context.id === 'string'
         ? (
-            await app.service('project-permission').Model.findOne({
-              where: {
-                id: context.id
+            (await app.service(projectPermissionPath).find({
+              query: {
+                id: context.id,
+                $limit: 1
               }
-            })
-          ).projectId
+            })) as any as ProjectPermissionType[]
+          )[0].projectId
         : context.data.id || context.data.projectId
     const project = await app.service('project').Model.findOne({
       where: {
@@ -54,14 +59,15 @@ export default () => {
       }
     })
     if (!project) throw new BadRequest('Invalid project ID')
-    const projectPermission = await app.service('project-permission').Model.findOne({
-      where: {
+    const projectPermission = (await app.service(projectPermissionPath).find({
+      query: {
         userId: loggedInUser.id,
-        projectId: projectId
+        projectId: projectId,
+        $limit: 1
       }
-    })
+    })) as any as ProjectPermissionType[]
 
-    if (!projectPermission || projectPermission.type !== 'owner')
+    if (!projectPermission || projectPermission[0].type !== 'owner')
       throw new Forbidden('You are not an owner of this project')
 
     return context

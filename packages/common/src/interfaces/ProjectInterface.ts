@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { IPackageJson } from 'package-json-type'
 
-import { ProjectPermissionInterface } from './ProjectPermissionInterface'
+import { ProjectPermissionType } from './../../../engine/src/schemas/projects/project-permission.schema'
 
 export type ProjectUpdateType = 'none' | 'commit' | 'tag'
 
@@ -47,7 +47,7 @@ export interface ProjectInterface {
   updateSchedule?: string
   updateUserId?: string
   hasWriteAccess?: boolean
-  project_permissions?: ProjectPermissionInterface[]
+  project_permissions?: ProjectPermissionType[]
   commitSHA?: string
   commitDate?: Date
 }

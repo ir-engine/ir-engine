@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -48,7 +49,7 @@ export default {
     create: [
       (context: HookContext) => {
         return context.params?.user?.id
-          ? context.app.service('project-permission').create({
+          ? context.app.service(projectPermissionPath).create({
               userId: context.params.user.id,
               projectId: context.result.id,
               type: 'owner'

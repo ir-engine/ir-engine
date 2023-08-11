@@ -48,7 +48,9 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -495,7 +497,7 @@ export class Project extends Service {
     returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
     if (!existingProjectResult) {
-      await this.app.service('project-permission').create({
+      await this.app.service(projectPermissionPath).create({
         projectId: returned.id,
         userId
       })
@@ -682,11 +684,12 @@ export class Project extends Service {
 
       // Get all of the projects that this user has permissions for, then calculate push status by whether the user
       // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
-      const projectPermissions = (await this.app.service('project-permission').Model.findAll({
-        where: { userId: params.user!.id },
-        include: [{ model: this.app.service('project').Model }],
-        paginate: false
-      })) as any
+      const knexClient: Knex = this.app.get('knexClient')
+      const projectPermissions = await knexClient
+        .from(projectPermissionPath)
+        .join('project', 'project.id', `${projectPermissionPath}.projectId`)
+        .where({ userId: params.user!.id })
+
       const allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repoAccess = githubIdentityProvider
         ? ((await this.app.service(githubRepoAccessPath).find({
@@ -745,7 +748,7 @@ export class Project extends Service {
       if (!params.sequelize) params.sequelize = { raw: false }
       if (!params.sequelize.include) params.sequelize.include = []
       params.sequelize.include.push({
-        model: this.app.service('project-permission').Model
+        model: this.app.service(projectPermissionPath).Model
       })
     }
     params = {

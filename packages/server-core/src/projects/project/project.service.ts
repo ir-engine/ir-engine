@@ -34,6 +34,10 @@ import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -361,11 +365,11 @@ export default (app: Application): void => {
   service.publish('patched', async (data: UserType) => {
     try {
       let targetIds: string[] = []
-      const projectOwners = await app.service('project-permission').Model.findAll({
-        where: {
+      const projectOwners = (await app.service(projectPermissionPath).find({
+        query: {
           projectId: data.id
         }
-      })
+      })) as any as ProjectPermissionType[]
       targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
 
       //TODO: We should replace `as any as AdminScope[]` with `as AdminScope[]` once scope service is migrated to feathers 5.
