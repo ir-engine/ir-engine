@@ -582,7 +582,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
             $topic: network.topic
           })
         )
-        await mediaStreamState.camVideoProducer.value?.close()
         await configureMediaTransports(network, ['video'])
         await createCamVideoProducer(network)
       }
@@ -595,7 +594,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
             $topic: network.topic
           })
         )
-        await mediaStreamState.camAudioProducer.value?.close()
         await configureMediaTransports(network, ['audio'])
         await createCamAudioProducer(network)
       }
@@ -1084,7 +1082,6 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
             $topic: network.topic
           })
         )
-        await mediaStreamState.camVideoProducer.value?.close()
       }
 
       if (mediaStreamState.camAudioProducer.value) {
@@ -1094,8 +1091,6 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
             $topic: network.topic
           })
         )
-
-        await mediaStreamState.camAudioProducer.value?.close()
       }
 
       if (mediaStreamState.screenVideoProducer.value) {
@@ -1105,7 +1100,6 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
             $topic: network.topic
           })
         )
-        await mediaStreamState.screenVideoProducer.value?.close()
       }
       if (mediaStreamState.screenAudioProducer.value) {
         dispatchAction(
@@ -1114,7 +1108,6 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
             $topic: network.topic
           })
         )
-        await mediaStreamState.screenAudioProducer.value?.close()
       }
 
       if (options?.endConsumers === true) {
@@ -1229,7 +1222,7 @@ export const receiveConsumerHandler = async (
   if (!existingConsumer) {
     networkState.consumers.merge([consumer])
     // okay, we're ready. let's ask the peer to send us media
-    if (!consumer.producerPaused) resumeConsumer(network, consumer)
+    if (!paused) resumeConsumer(network, consumer)
     else pauseConsumer(network, consumer)
   } else if (existingConsumer.track?.muted) {
     dispatchAction(
@@ -1242,7 +1235,7 @@ export const receiveConsumerHandler = async (
     )
     networkState.consumers.merge([consumer])
     // okay, we're ready. let's ask the peer to send us media
-    if (!consumer.producerPaused) {
+    if (!paused) {
       resumeConsumer(network, consumer)
     } else {
       pauseConsumer(network, consumer)
