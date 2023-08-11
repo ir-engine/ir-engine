@@ -91,10 +91,10 @@ interface DataChannelFrame<T> {
 export const activeRecordings = new Map<string, ActiveRecording>()
 export const activePlaybacks = new Map<string, ActivePlayback>()
 
-export const dispatchError = (error: string, targetUser: UserId) => {
+export const dispatchError = (error: string, targetPeer: PeerID) => {
   const app = Engine.instance.api as Application
   logger.error('Recording Error: ' + error)
-  dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
+  dispatchAction(ECSRecordingActions.error({ error, $to: targetPeer, $topic: getServerNetwork(app).topic }))
 }
 
 export const uploadRecordingStaticResource = async (props: {
@@ -138,15 +138,15 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const app = Engine.instance.api as Application
 
   const recording = await app.service('recording').get(action.recordingID)
-  if (!recording) return dispatchError('Recording not found', action.$from)
+  if (!recording) return dispatchError('Recording not found', action.$peer)
 
   const user = await app.service('user').get(recording.userId)
-  if (!user) return dispatchError('Invalid user', action.$from)
+  if (!user) return dispatchError('Invalid user', action.$peer)
 
   const userID = user.id
 
   const hasScopes = await checkScope(user, app, 'recording', 'write')
-  if (!hasScopes) return dispatchError('User does not have record:write scope', userID)
+  if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
 
   const storageProvider = getStorageProvider()
 
@@ -156,7 +156,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       isDirectory: true
     })
   } catch (error) {
-    return dispatchError('Could not create recording folder' + error.message, userID)
+    return dispatchError('Could not create recording folder' + error.message, action.$peer)
   }
 
   const dataChannelsRecording = new Map<DataChannelType, DataChannelFrame<any>[]>()
@@ -251,7 +251,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   dispatchAction(
     ECSRecordingActions.recordingStarted({
       recordingID: recording.id,
-      $to: userID,
+      $to: action.$peer,
       $topic: getServerNetwork(app).topic
     })
   )
@@ -261,12 +261,12 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   const app = Engine.instance.api as Application
 
   const activeRecording = activeRecordings.get(action.recordingID)
-  if (!activeRecording) return dispatchError('Recording not found', action.$from)
+  if (!activeRecording) return dispatchError('Recording not found', action.$peer)
 
   const user = await app.service('user').get(activeRecording.userID)
 
   const hasScopes = await checkScope(user, app, 'recording', 'write')
-  if (!hasScopes) return dispatchError('User does not have record:write scope', user.id)
+  if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
 
   app.service('recording').patch(action.recordingID, { ended: true }, { isInternal: true })
 
@@ -307,16 +307,16 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const isClone = !action.targetUser
 
   const user = await app.service('user').get(recording.userId)
-  if (!user) return dispatchError('User not found', recording.userId)
+  if (!user) return dispatchError('User not found', action.$peer)
 
   if (!isClone && Array.from(activePlaybacks.values()).find((rec) => rec.userID === action.targetUser)) {
-    return dispatchError('User already has an active playback', action.targetUser!)
+    return dispatchError('User already has an active playback', action.$peer)
   }
 
   const hasScopes = await checkScope(user, app, 'recording', 'read')
-  if (!hasScopes) return dispatchError('User does not have record:read scope', recording.userId)
+  if (!hasScopes) return dispatchError('User does not have record:read scope', action.$peer)
 
-  if (!recording.resources?.length) return dispatchError('Recording has no resources', recording.userId)
+  if (!recording.resources?.length) return dispatchError('Recording has no resources', action.$peer)
 
   const schema = JSON.parse(recording.schema) as RecordingSchema
 

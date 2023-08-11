@@ -79,8 +79,7 @@ export const sendActionsAsHost = (network: Network) => {
         outgoing[network.topic].queue.splice(idx, 1)
       }
       if (!action.$to) continue
-      const toUserId = network.peers.get(peerID)?.userId
-      if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
+      if (action.$to === 'all' || (action.$to === 'others' && peerID !== action.$peer) || action.$to === peerID) {
         arr.push(action)
       }
     }

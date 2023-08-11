@@ -97,7 +97,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       getMutableState(NetworkState).hostIds.media.set(action.instanceId)
       const existingNetwork = getState(NetworkState).networks[action.instanceId]
       if (!existingNetwork) {
-        addNetwork(initializeNetwork(action.instanceId, NetworkTopics.media))
+        addNetwork(initializeNetwork(action.instanceId, action.instanceId, NetworkTopics.media))
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,

@@ -162,12 +162,12 @@ function clearCachedActionsOfTypeForUser(userId: UserId, actionShape: Validator<
   }
 }
 
-function getCachedActionsForUser(toUserId: UserId) {
+function getCachedActionsForPeer(toPeerID: PeerID) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
   for (const action of Engine.instance.store.actions.cached as Array<ReturnType<typeof AvatarNetworkAction.spawn>>) {
-    if (action.$from === toUserId) continue
-    if (action.$to === 'all' || action.$to === toUserId) cachedActions.push({ ...action, $stack: undefined! })
+    if (action.$peer === toPeerID) continue
+    if (action.$to === 'all' || action.$to === toPeerID) cachedActions.push({ ...action, $stack: undefined! })
   }
 
   return cachedActions
@@ -180,5 +180,5 @@ export const NetworkPeerFunctions = {
   clearCachedActionsForUser,
   clearActionsHistoryForUser,
   clearCachedActionsOfTypeForUser,
-  getCachedActionsForUser
+  getCachedActionsForPeer
 }

@@ -47,7 +47,7 @@ export type Action = {
 
 export type ActionReceptor = (action: ResolvedActionType) => void
 
-export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
+export type ActionRecipients = PeerID | PeerID[] | 'all' | 'others'
 
 export type ActionCacheOptions =
   | boolean
@@ -93,6 +93,7 @@ export type ActionOptions = {
   $time?: number | undefined
 
   $topic?: Topic
+  $network?: string | undefined // TODO make a type for NetworkID
 
   /**
    * Specifies how this action should be cached for newly joining clients.

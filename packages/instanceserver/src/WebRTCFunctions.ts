@@ -613,7 +613,7 @@ export async function handleRequestProducer(
         requestID,
         error: 'Invalid transport ID.',
         $topic: network.topic,
-        $to: userId
+        $to: peerID
       })
     )
   }
@@ -674,7 +674,7 @@ export async function handleRequestProducer(
         requestID,
         error: 'Error with sendTrack: ' + err,
         $topic: network.topic,
-        $to: userId
+        $to: peerID
       })
     )
   }
@@ -724,8 +724,7 @@ export const handleRequestConsumer = async (
         MediaConsumerActions.closeConsumer({
           consumerID: consumer.id,
           $topic: network.topic,
-          // $to: peerID
-          $to: network.peers.get(peerID)!.userId
+          $to: peerID
         })
       )
     })
@@ -735,8 +734,7 @@ export const handleRequestConsumer = async (
         MediaConsumerActions.closeConsumer({
           consumerID: consumer.id,
           $topic: network.topic,
-          // $to: peerID
-          $to: network.peers.get(peerID)!.userId
+          $to: peerID
         })
       )
     })
@@ -770,8 +768,7 @@ export const handleRequestConsumer = async (
         consumerType: consumer.type,
         paused: consumer.producerPaused,
         $topic: network.topic,
-        // $to: peerID
-        $to: network.peers.get(peerID)!.userId
+        $to: peerID
       })
     )
   } catch (err) {
