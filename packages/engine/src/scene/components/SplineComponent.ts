@@ -45,9 +45,6 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
-// an idea of a bundle that packages up all the related concerns on a spline point
-// @todo there may need to be a concept of an engine mode versus editor mode where no gizmos are manufactured
-
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
 const helperGeometry = new BoxGeometry(0.1, 0.1, 0.1)

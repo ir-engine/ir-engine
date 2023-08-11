@@ -48,35 +48,59 @@ import { EditorComponentType } from './Util'
 export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const component = useComponent(props.entity, SplineTrackComponent)
-  const velocity = component.velocity.value
+  const velocity = component.velocity
+  const alpha = component.velocity
 
   // @todo allow these to be passed in or remove this capability
   const onChange = () => {}
   const onRelease = () => {}
 
-  const processChange = (value) => {
+  const setAlpha = (value) => {
+    component.alpha.set(value)
+  }
+
+  const setRunning = (value) => {
+    component.disableRunning.set(component.disableRunning.value ? false : true)
+  }
+
+  const setVelocity = (value) => {
     component.velocity.set(value)
   }
 
-  const toggleRoll = () => {
+  const setRoll = () => {
     component.disableRoll.set(component.disableRoll.value ? false : true)
   }
 
   return (
     <NodeEditor description={t('editor:properties.splinetrack.description')} {...props}>
       <InputGroup name="Toggle Roll" label={t('editor:properties.splinetrack.lbl-roll')}>
-        <BooleanInput value={component.disableRoll.value} onChange={toggleRoll} />
+        <BooleanInput value={component.disableRoll.value} onChange={setRoll} />
+      </InputGroup>
+      <InputGroup name="Toggle Running" label={t('editor:properties.splinetrack.lbl-running')}>
+        <BooleanInput value={component.disableRunning.value} onChange={setRunning} />
+      </InputGroup>
+      <InputGroup name="Alpha" label={t('editor:properties.splinetrack.lbl-alpha')}>
+        <NumericInput
+          value={alpha.value}
+          onChange={setVelocity}
+          onCommit={onRelease}
+          prefix={
+            <Vector3Scrubber tag="div" value={alpha.value} onChange={setVelocity} onPointerUp={onRelease} axis="alpha">
+              Velocity
+            </Vector3Scrubber>
+          }
+        />
       </InputGroup>
       <InputGroup name="Velocity" label={t('editor:properties.splinetrack.lbl-velocity')}>
         <NumericInput
-          value={velocity}
-          onChange={processChange}
+          value={velocity.value}
+          onChange={setVelocity}
           onCommit={onRelease}
           prefix={
             <Vector3Scrubber
               tag="div"
-              value={velocity}
-              onChange={processChange}
+              value={velocity.value}
+              onChange={setVelocity}
               onPointerUp={onRelease}
               axis="velocity"
             >

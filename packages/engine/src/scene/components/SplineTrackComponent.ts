@@ -45,18 +45,26 @@ export const SplineTrackComponent = defineComponent({
     return {
       alpha: 0.01,
       velocity: 1.0,
-      disableRoll: false
+      disableRoll: false,
+      disableRunning: false
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     json.velocity && component.velocity.set(json.velocity)
+    json.alpha && component.alpha.set(json.alpha)
     json.disableRoll && component.disableRoll.set(json.disableRoll)
+    json.disableRunning && component.disableRunning.set(json.disableRunning)
   },
 
   toJSON: (entity, component) => {
-    return { velocity: component.velocity.value, disableRoll: component.disableRoll.value }
+    return {
+      velocity: component.velocity.value,
+      alpha: component.alpha.value,
+      disableRoll: component.disableRoll.value,
+      disableRunning: component.disableRunning.value
+    }
   },
 
   onRemove: (entity, component) => {},
@@ -64,8 +72,6 @@ export const SplineTrackComponent = defineComponent({
   reactor: function (props) {
     const entity = useEntityContext()
     const component = useComponent(entity, SplineTrackComponent)
-
-    console.log('SplineTrackComponent starting...')
 
     useExecute(
       () => {
@@ -90,7 +96,9 @@ export const SplineTrackComponent = defineComponent({
           component.alpha.set(0)
           return
         }
-        component.alpha.set(alpha + 0.01 * component.velocity.value)
+        if (!component.disableRunning) {
+          component.alpha.set(alpha + 0.01 * component.velocity.value)
+        }
         const p1 = elements[index].position
         const p2 = elements[index + 1].position
         const q1 = elements[index].quaternion
