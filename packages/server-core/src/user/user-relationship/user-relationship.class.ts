@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Id, Params } from '@feathersjs/feathers'
 
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   UserRelationshipData,
   UserRelationshipID,
@@ -147,11 +147,11 @@ export class UserRelationshipService<
     let whereParams: UserRelationshipPatch
 
     try {
-      await this.app.service('user').get(id)
+      await this.app.service(userPath).get(id)
       //The ID resolves to a userId, in which case patch the relation joining that user to the requesting one
       whereParams = {
         userId: params.user!.id,
-        relatedUserId: id as UserId
+        relatedUserId: id as UserID
       }
     } catch (err) {
       //The ID does not resolve to a user, in which case it's the ID of the user-relationship object, so patch it
@@ -194,7 +194,7 @@ export class UserRelationshipService<
     return response.data.length > 0 ? response.data[0] : undefined
   }
 
-  async remove(id: UserId, params?: UserRelationshipParams) {
+  async remove(id: UserID, params?: UserRelationshipParams) {
     if (!params) params = {}
 
     const loggedInUserEntity = config.authentication.entity
@@ -203,7 +203,7 @@ export class UserRelationshipService<
     const userId = authUser.userId
 
     //If the ID provided is not a user ID, as it's expected to be, it'll throw a 404
-    await this.app.service('user').get(id)
+    await this.app.service(userPath).get(id)
 
     await super._remove(null, {
       query: {

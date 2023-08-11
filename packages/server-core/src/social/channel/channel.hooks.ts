@@ -48,13 +48,7 @@ export default {
       addAssociations({
         models: [
           {
-            model: 'message',
-            include: [
-              {
-                model: 'user',
-                as: 'sender'
-              }
-            ]
+            model: 'message'
           },
           {
             model: 'instance'
@@ -83,21 +77,10 @@ export default {
       addAssociations({
         models: [
           {
-            model: 'channel-user',
-            include: [
-              {
-                model: 'user'
-              }
-            ]
+            model: 'channel-user'
           },
           {
-            model: 'message',
-            include: [
-              {
-                model: 'user',
-                as: 'sender'
-              }
-            ]
+            model: 'message'
           },
           {
             model: 'instance'

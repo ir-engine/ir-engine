@@ -25,20 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { ChannelID, ChannelUser as ChannelUserInterface } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelUser as ChannelUserInterface } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 
 export type ChannelUserDataType = ChannelUserInterface
 
 export type RemoveParams = Params<{
-  userId: UserId
+  userId: UserID
   channelId: ChannelID
 }> & {
-  user?: UserInterface // loggedInUser
+  user?: UserType // loggedInUser
   isInternal?: boolean
 }
 

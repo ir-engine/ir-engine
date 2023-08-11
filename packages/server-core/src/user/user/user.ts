@@ -23,46 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserID, UserType, userMethods, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import _ from 'lodash'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-
 import {
-  instanceAttendancePath,
-  InstanceAttendanceType
+  InstanceAttendanceType,
+  instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { User } from './user.class'
+import config from '../../appconfig'
+
+import { UserService } from './user.class'
 import userDocs from './user.docs'
 import hooks from './user.hooks'
-import createModel from './user.model'
 
 declare module '@etherealengine/common/declarations' {
-  /**
-   * Interface for users input
-   */
   interface ServiceTypes {
-    user: User
+    [userPath]: UserService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: userPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new User(options, app)
-  event.docs = userDocs
+  app.use(userPath, new UserService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: userMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: userDocs
+  })
 
-  app.use('user', event)
-
-  const service = app.service('user')
-
+  const service = app.service(userPath)
   service.hooks(hooks)
 
   // when seeding db, no need to patch users
@@ -72,9 +71,7 @@ export default (app: Application): void => {
    * This method find all users
    * @returns users
    */
-
-  // @ts-ignore
-  service.publish('patched', async (data: UserInterface, params): Promise<any> => {
+  service.publish('patched', async (data: UserType, context) => {
     try {
       let targetIds = [data.id!]
       const updatePromises: any[] = []
@@ -90,25 +87,21 @@ export default (app: Application): void => {
       const knexClient: Knex = app.get('knexClient')
 
       const layerUsers = await knexClient
-        .from('user')
-        .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, '=', 'user.id')
+        .from(userPath)
+        .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
         .whereIn(
           `${instanceAttendancePath}.instanceId`,
           instances.map((instance) => instance.instanceId)
         )
-        .whereNot('user.id', data.id)
+        .whereNot(`${userPath}.id`, data.id)
         .select()
         .options({ nestTables: true })
 
-      targetIds = targetIds.concat(layerUsers.map((user) => user.user.id))
+      targetIds = targetIds.concat(layerUsers.map((item) => item.user.id))
 
       await Promise.all(updatePromises)
       targetIds = _.uniq(targetIds)
-      return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send(data)
-        })
-      )
+      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

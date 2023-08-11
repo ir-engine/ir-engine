@@ -30,6 +30,7 @@ import { locationPath } from '@etherealengine/engine/src/schemas/social/location
 
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
@@ -150,13 +151,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
           inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
         }
       } else if (invite.inviteeId != null) {
-        const invitee = await this.app.service('user').get(invite.inviteeId)
+        const invitee = await this.app.service(userPath).get(invite.inviteeId)
 
-        if (invitee == null || invitee.identity_providers == null || invitee.identity_providers.length === 0) {
+        if (invitee == null || invitee.identityProviders == null || invitee.identityProviders.length === 0) {
           throw new BadRequest('Invalid invitee ID')
         }
 
-        inviteeIdentityProvider = invitee.identity_providers[0]
+        inviteeIdentityProvider = invitee.identityProviders[0]
       }
 
       if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
@@ -176,7 +177,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.inviteType === 'friend') {
-        const inviter = await this.app.service('user').Model.findOne({ where: { id: invite.userId } })
+        const inviter = await this.app.service(userPath)._get(invite.userId)
 
         if (inviter == null) {
           await this.app.service('invite').remove(invite.id)

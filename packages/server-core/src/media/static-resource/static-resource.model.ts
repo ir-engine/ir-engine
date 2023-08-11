@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { StaticResourceInterface } from '@etherealengine/common/src/dbmodels/StaticResource'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 import generateShortId from '../../util/generate-short-id'
 
 export default (app: Application) => {
@@ -95,7 +96,7 @@ export default (app: Application) => {
   )
 
   ;(staticResource as any).associate = (models: any): void => {
-    ;(staticResource as any).belongsTo(models.user)
+    ;(staticResource as any).belongsTo(createUserModel(app))
   }
 
   return staticResource

@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import { Relationship } from '@etherealengine/common/src/interfaces/Relationship'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Relationship } from '@etherealengine/engine/src/schemas/interfaces/Relationship'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -44,11 +44,11 @@ export const FriendState = defineState({
   name: 'FriendState',
   initial: () => ({
     relationships: {
-      blocked: [] as Array<UserInterface>,
-      blocking: [] as Array<UserInterface>,
-      friend: [] as Array<UserInterface>,
-      requested: [] as Array<UserInterface>,
-      pending: [] as Array<UserInterface>
+      blocked: [] as Array<UserType>,
+      blocking: [] as Array<UserType>,
+      friend: [] as Array<UserType>,
+      requested: [] as Array<UserType>,
+      pending: [] as Array<UserType>
     },
     isFetching: false,
     updateNeeded: true
@@ -77,7 +77,7 @@ export const FriendServiceReceptor = (action) => {
 
 //Service
 export const FriendService = {
-  getUserRelationship: async (userId: string) => {
+  getUserRelationship: async (userId: UserID) => {
     try {
       dispatchAction(FriendAction.fetchingFriendsAction({}))
 
@@ -91,10 +91,10 @@ export const FriendService = {
       logger.error(err)
     }
   },
-  requestFriend: (userId: string, relatedUserId: string) => {
+  requestFriend: (userId: UserID, relatedUserId: UserID) => {
     return createRelation(userId, relatedUserId, 'requested')
   },
-  acceptFriend: async (userId: string, relatedUserId: string) => {
+  acceptFriend: async (userId: UserID, relatedUserId: UserID) => {
     try {
       await Engine.instance.api.service(userRelationshipPath).patch(relatedUserId, {
         userRelationshipType: 'friend'
@@ -105,16 +105,16 @@ export const FriendService = {
       logger.error(err)
     }
   },
-  declineFriend: (userId: string, relatedUserId: string) => {
+  declineFriend: (userId: UserID, relatedUserId: UserID) => {
     return removeRelation(userId, relatedUserId)
   },
-  unfriend: (userId: string, relatedUserId: string) => {
+  unfriend: (userId: UserID, relatedUserId: UserID) => {
     return removeRelation(userId, relatedUserId)
   },
-  blockUser: async (userId: string, relatedUserId: string) => {
+  blockUser: async (userId: UserID, relatedUserId: UserID) => {
     return createRelation(userId, relatedUserId, 'blocking')
   },
-  unblockUser: (userId: string, relatedUserId: string) => {
+  unblockUser: (userId: UserID, relatedUserId: UserID) => {
     return removeRelation(userId, relatedUserId)
   },
   useAPIListeners: () => {
@@ -157,7 +157,7 @@ export const FriendService = {
   }
 }
 
-async function createRelation(userId: string, relatedUserId: string, type: 'requested' | 'blocking') {
+async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requested' | 'blocking') {
   try {
     await Engine.instance.api.service(userRelationshipPath).create({
       relatedUserId,
@@ -170,7 +170,7 @@ async function createRelation(userId: string, relatedUserId: string, type: 'requ
   }
 }
 
-async function removeRelation(userId: string, relatedUserId: string) {
+async function removeRelation(userId: UserID, relatedUserId: UserID) {
   try {
     await Engine.instance.api.service(userRelationshipPath).remove(relatedUserId)
 

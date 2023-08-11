@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { NotFound } from '@feathersjs/errors'
 import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter, KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex/lib'
+import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex/lib'
 
 import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
 import {
@@ -35,11 +35,11 @@ import {
 import config from '@etherealengine/server-core/src/appconfig'
 
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import { emulate_getTicketsAssignment } from '../emulate'
 
-export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTicketAssignmentQuery> {
-  userId?: string
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface MatchTicketAssignmentParams extends RootParams<MatchTicketAssignmentQuery> {}
 
 /**
  * A class for MatchTicketAssignment service

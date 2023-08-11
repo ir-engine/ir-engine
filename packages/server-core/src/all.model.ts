@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// TODO: Remove this file after feathers 5 migration
+
 import { DataTypes, Model, Sequelize } from 'sequelize'
 import { HookReturn } from 'sequelize/types/hooks'
 
@@ -40,13 +42,13 @@ import {
   UserRelationshipInterface
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
-import { Application } from '../../../declarations'
-import { createInstanceAuthorizedUserModel } from '../../networking/instance/instance.model'
+import { Application } from '../declarations'
+import { createInstanceAuthorizedUserModel } from './networking/instance/instance.model'
 
 /**
  * This model contain users information
  */
-export default (app: Application) => {
+export const createUserModel = (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const User = sequelizeClient.define<Model<UserInterface>>(
     'user',
@@ -88,7 +90,7 @@ export default (app: Application) => {
   ;(User as any).associate = (models: any): void => {
     ;(User as any).hasMany(createInstanceAttendanceModel(app), { as: 'instanceAttendance' })
     ;(User as any).hasOne(models.user_settings)
-    ;(User as any).belongsToMany(models.user, {
+    ;(User as any).belongsToMany(createUserModel(app), {
       as: 'relatedUser',
       through: createUserRelationshipModel(app)
     })
@@ -138,7 +140,9 @@ export const createUserApiKeyModel = (app: Application) => {
   )
 
   ;(UserApiKey as any).associate = (models: any): void => {
-    ;(UserApiKey as any).belongsTo(models.user, { foreignKey: { allowNull: false, onDelete: 'cascade', unique: true } })
+    ;(UserApiKey as any).belongsTo(createUserModel(app), {
+      foreignKey: { allowNull: false, onDelete: 'cascade', unique: true }
+    })
   }
 
   return UserApiKey
@@ -191,7 +195,7 @@ export const createAvatarModel = (app: Application) => {
   )
 
   ;(Avatar as any).associate = (models: any): void => {
-    ;(Avatar as any).hasMany(models.user)
+    ;(Avatar as any).hasMany(createUserModel(app))
   }
 
   return Avatar
@@ -250,7 +254,7 @@ export const createLocationModel = (app: Application) => {
     ;(location as any).hasMany(models.instance)
     ;(location as any).hasMany(createLocationAdminModel(app))
     // (location as any).belongsTo(models.scene, { foreignKey: 'sceneId' }); // scene
-    ;(location as any).belongsToMany(models.user, { through: 'location-admin' })
+    ;(location as any).belongsToMany(createUserModel(app), { through: 'location-admin' })
     ;(location as any).hasOne(createLocationSettingsModel(app), { onDelete: 'cascade' })
     ;(location as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
@@ -365,7 +369,7 @@ export const createLocationBanModel = (app: Application) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ;(locationBan as any).associate = function (models: any): void {
     ;(locationBan as any).belongsTo(createLocationModel(app))
-    ;(locationBan as any).belongsTo(models.user)
+    ;(locationBan as any).belongsTo(createUserModel(app))
   }
 
   return locationBan
@@ -398,7 +402,7 @@ export const createLocationAuthorizedUserModel = (app: Application) => {
       foreignKey: { allowNull: true },
       onDelete: 'cascade'
     })
-    ;(locationAuthorizedUser as any).belongsTo(models.user, {
+    ;(locationAuthorizedUser as any).belongsTo(createUserModel(app), {
       required: true,
       foreignKey: { allowNull: true },
       onDelete: 'cascade'
@@ -430,7 +434,7 @@ export const createLocationAdminModel = (app: Application) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ;(locationAdmin as any).associate = function (models: any): void {
     ;(locationAdmin as any).belongsTo(createLocationModel(app), { required: true, allowNull: false })
-    ;(locationAdmin as any).belongsTo(models.user, { required: true, allowNull: false })
+    ;(locationAdmin as any).belongsTo(createUserModel(app), { required: true, allowNull: false })
   }
 
   return locationAdmin
@@ -468,7 +472,7 @@ export const createInstanceAttendanceModel = (app: Application) => {
   )
   ;(instanceAttendance as any).associate = (models: any): void => {
     ;(instanceAttendance as any).belongsTo(models.instance)
-    ;(instanceAttendance as any).belongsTo(models.user)
+    ;(instanceAttendance as any).belongsTo(createUserModel(app))
   }
   return instanceAttendance
 }
@@ -501,8 +505,8 @@ export const createUserRelationshipModel = (app: Application) => {
   )
 
   ;(userRelationship as any).associate = (models: any): void => {
-    ;(userRelationship as any).belongsTo(models.user, { as: 'user', constraints: false })
-    ;(userRelationship as any).belongsTo(models.user, { as: 'relatedUser', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'user', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'relatedUser', constraints: false })
     ;(userRelationship as any).belongsTo(models.user_relationship_type, { foreignKey: 'type' })
   }
 

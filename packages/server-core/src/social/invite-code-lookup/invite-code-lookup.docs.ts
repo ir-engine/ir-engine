@@ -23,28 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-const accessControls = {
-  admin: {
-    listScope: 'all',
-    createScope: 'all',
-    readScope: 'all',
-    updateScope: 'all',
-    deleteScope: 'all'
-  },
-  user: {
-    listScope: 'all',
-    createScope: 'self',
-    readScope: 'all',
-    updateScope: 'self',
-    deleteScope: 'self'
-  },
-  guest: {
-    listScope: 'all',
-    createScope: 'none',
-    readScope: 'all',
-    updateScope: 'none',
-    deleteScope: 'none'
-  }
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default accessControls
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Invite code lookup service description',
+    securities: ['all']
+  }
+})

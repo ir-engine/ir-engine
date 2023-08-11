@@ -55,7 +55,12 @@ export async function up(knex: Knex): Promise<void> {
   }
 
   if (!tableExists && !oldNamedTableExists) {
-    await knex.schema.createTable(instanceAuthorizedUserPath, (table) => {
+    // Added transaction here in order to ensure both below queries run on same pool.
+    // https://github.com/knex/knex/issues/218#issuecomment-56686210
+    const trx = await knex.transaction()
+    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+    await trx.schema.createTable(instanceAuthorizedUserPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
@@ -73,6 +78,10 @@ export async function up(knex: Knex): Promise<void> {
         indexName: 'instance_authorized_user_instanceId_userId_unique'
       })
     })
+
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+
+    await trx.commit()
   }
 }
 

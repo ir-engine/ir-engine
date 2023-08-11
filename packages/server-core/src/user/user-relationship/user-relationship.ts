@@ -29,6 +29,7 @@ import {
   userRelationshipPath
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserRelationshipService } from './user-relationship.class'
@@ -69,16 +70,12 @@ export default (app: Application): void => {
         }
       })
       if (data.userRelationshipType === 'requested' && inverseRelationship.data.length > 0) {
-        if (!data.user) data.user = await app.service('user').get(data.userId)
-        if (!data.relatedUser) data.relatedUser = await app.service('user').get(data.relatedUserId)
+        if (!data.user) data.user = await app.service(userPath).get(data.userId)
+        if (!data.relatedUser) data.relatedUser = await app.service(userPath).get(data.relatedUserId)
 
         const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        return await Promise.all(
-          targetIds.map((userId: string) => {
-            return app.channel(`userIds/${userId}`).send(data)
-          })
-        )
+        return await Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
       }
     } catch (err) {
       logger.error(err)
@@ -95,16 +92,12 @@ export default (app: Application): void => {
         }
       })
       if (data.userRelationshipType === 'friend' && inverseRelationship.data.length > 0) {
-        if (!data.user) data.user = await app.service('user').get(data.userId)
-        if (!data.relatedUser) data.relatedUser = await app.service('user').get(data.relatedUserId)
+        if (!data.user) data.user = await app.service(userPath).get(data.userId)
+        if (!data.relatedUser) data.relatedUser = await app.service(userPath).get(data.relatedUserId)
 
         const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        return await Promise.all(
-          targetIds.map((userId: string) => {
-            return app.channel(`userIds/${userId}`).send(data)
-          })
-        )
+        return await Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
       }
     } catch (err) {
       logger.error(err)
@@ -117,11 +110,7 @@ export default (app: Application): void => {
       console.log('relationship removed data', data)
       const targetIds = [data.userId, data.relatedUserId]
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return await Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send(data)
-        })
-      )
+      return await Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

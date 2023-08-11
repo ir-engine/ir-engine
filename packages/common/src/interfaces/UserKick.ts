@@ -23,22 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HttpException } from './httpException'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-export class UnauthorizedException extends HttpException {
-  constructor(message: string) {
-    super(message, 401)
-  }
+export interface UserKick {
+  id: string
+  duration: Date
+  userId: UserID
+  instanceId: string
 }
 
-export class NotFoundException extends HttpException {
-  constructor(message: string) {
-    super(message, 404)
-  }
-}
-
-export class UnauthenticatedException extends HttpException {
-  constructor(message: string) {
-    super(message, 403)
-  }
-}
+export type CreateUserKick = Omit<UserKick, 'id'>

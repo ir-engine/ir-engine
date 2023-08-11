@@ -42,7 +42,7 @@ import SettingIcon from './assets/setting.svg'
  */
 export const ChatSection = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
-  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userID)
 
   const [checked, setChecked] = useState<boolean>(false)
 

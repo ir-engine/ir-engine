@@ -41,7 +41,7 @@ import UserKick from './user-kick/user-kick.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
 import UserRelationship from './user-relationship/user-relationship'
 import UserSettings from './user-settings/user-settings.service'
-import User from './user/user.service'
+import User from './user/user'
 
 export default [
   UserApiKey,
