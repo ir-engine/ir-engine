@@ -30,9 +30,10 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
 
 export type ProjectPermissionsDataType = ProjectPermissionInterface
 
@@ -110,14 +111,14 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
         : {
             id: data.userId
           }
-      const user = await this.app.service('user').Model.findOne({
-        where: searchParam
+      const users = await this.app.service(userPath)._find({
+        query: searchParam
       })
-      if (!user) throw new BadRequest('Invalid user ID and/or user invite code')
+      if (users.data.length === 0) throw new BadRequest('Invalid user ID and/or user invite code')
       const existing = (await super.find({
         query: {
           projectId: data.projectId,
-          userId: user.id
+          userId: users.data[0].id
         }
       })) as Paginated<T>
       if (existing.total > 0) return existing.data[0]
@@ -127,7 +128,6 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
         }
       })
       if (!project) throw new BadRequest('Invalid project ID')
-      if (!user) throw new BadRequest('Invalid user ID')
       const existingPermissionsCount = await super.Model.count({
         where: {
           projectId: data.projectId
@@ -135,11 +135,11 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
       })
       return super.create({
         projectId: data.projectId,
-        userId: user.id,
+        userId: users.data[0].id,
         type:
           data.type === 'owner' ||
           existingPermissionsCount === 0 ||
-          (selfUser.scopes?.find((scope) => scope.type === 'admin:admin') && selfUser.id === user.id)
+          (selfUser.scopes?.find((scope) => scope.type === 'admin:admin') && selfUser.id === users.data[0].id)
             ? 'owner'
             : 'user'
       })

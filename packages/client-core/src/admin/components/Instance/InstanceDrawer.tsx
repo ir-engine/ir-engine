@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -38,6 +37,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -63,7 +63,7 @@ const useUsersInInstance = (instanceId: string) => {
   })
 
   const userIds = instanceAttendances.data.map((d: any) => d.userId)
-  return useFind('user', {
+  return useFind(userPath, {
     query: {
       id: {
         $in: userIds
@@ -75,7 +75,7 @@ const useUsersInInstance = (instanceId: string) => {
 const useKickUser = () => {
   const createUserKick = useMutation('user-kick').create
 
-  return (kickData: { userId: UserInterface['id']; instanceId: Instance['id']; duration: string }) => {
+  return (kickData: { userId: UserID; instanceId: Instance['id']; duration: string }) => {
     const duration = new Date()
     if (kickData.duration === 'INFINITY') {
       duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years
@@ -96,7 +96,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
 
   const openKickDialog = useHookstate(false)
   const kickData = useHookstate({
-    userId: '' as UserInterface['id'],
+    userId: '' as UserID,
     instanceId: '',
     duration: '8'
   })
@@ -104,7 +104,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
   const instanceUsersQuery = useUsersInInstance(selectedInstance?.id ?? '')
   const kickUser = useKickUser()
 
-  const createData = (id: UserInterface['id'], name: UserInterface['name']) => ({
+  const createData = (id: UserID, name: string) => ({
     id,
     name,
     action: (

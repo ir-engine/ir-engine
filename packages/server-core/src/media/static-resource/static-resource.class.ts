@@ -31,8 +31,8 @@ import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/S
 
 import { Forbidden, NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import verifyScope from '../../hooks/verify-scope'
-import { UserParams } from '../../user/user/user.class'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export class StaticResource extends Service<StaticResourceInterface> {

@@ -36,7 +36,6 @@ import { Examples, LoadModal } from './modals/LoadModal'
 import { SaveModal } from './modals/SaveModal'
 
 export type CustomControlsProps = {
-  graphRef: any
   playing: boolean
   togglePlay: () => void
   onSaveGraph: (value: GraphJSON) => void
@@ -46,18 +45,14 @@ export type CustomControlsProps = {
 }
 
 export const CustomControls: React.FC<CustomControlsProps> = ({
-  graphRef,
   playing,
   togglePlay,
-  onSaveGraph,
   setBehaviorGraph,
   examples,
   specJson
 }: {
-  graphRef: React.MutableRefObject<GraphJSON>
   playing: boolean
   togglePlay: () => void
-  onSaveGraph: (value: GraphJSON) => void
   setBehaviorGraph: (value: GraphJSON) => void
   examples: Examples
   specJson: NodeSpecJSON[] | undefined
@@ -80,7 +75,6 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
         <ControlButton
           title="Save"
           onClick={() => {
-            onSaveGraph(graphRef.current)
             setSaveModalOpen(true)
           }}
         >

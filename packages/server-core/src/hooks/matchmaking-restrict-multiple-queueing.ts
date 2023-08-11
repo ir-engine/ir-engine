@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 /**
  * prevent user to join new search game more then once at time
@@ -35,7 +35,7 @@ import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/ma
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, params } = context
-    const loggedInUser = params.user as UserInterface
+    const loggedInUser = params.user as UserType
     const matchUserResult = await app.service(matchUserPath).find({
       query: {
         userId: loggedInUser.id,

@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserInterface } from '../interfaces/User'
-import { UserId } from '../interfaces/UserId'
+// TODO: Move it to channel schema once moved to feathers 5 and all dependencies on common packages are removed.
+
+import { OpaqueType } from '../interfaces/OpaqueType'
+
+export type ChannelID = OpaqueType<'ChannelID'> & string
 
 export interface ChannelInterface {
   id: string
   name: string
-  users: UserInterface[]
-  userIds: UserId[]
   instanceId: string
 }

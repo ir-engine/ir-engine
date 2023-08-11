@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { Application } from '../../declarations'
@@ -33,7 +33,7 @@ import { Application } from '../../declarations'
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
-    const loggedInUser = context.params.user as UserInterface
+    const loggedInUser = context.params.user as UserType
     if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
     const scopes = await context.app.service('scope').Model.findAll({
       where: {
@@ -56,7 +56,7 @@ export default (currentType: string, scopeToVerify: string) => {
   }
 }
 
-export const checkScope = async (user: UserInterface, app: Application, currentType: string, scopeToVerify: string) => {
+export const checkScope = async (user: UserType, app: Application, currentType: string, scopeToVerify: string) => {
   const scopes = await app.service('scope').Model.findAll({
     where: {
       userId: user.id

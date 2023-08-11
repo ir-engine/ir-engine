@@ -29,36 +29,53 @@ import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invi
 import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
-import addAssociations from '../../hooks/add-associations'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+
+// TODO: Populating Invite's user property here manually. Once invite service is moved to feathers 5. This should be part of its resolver.
+const populateUsers = async (context: HookContext) => {
+  const { result } = context
+
+  const data = result.data ? result.data : result
+
+  const userIds = data.filter((item) => item.userId).map((item) => item.userId)
+
+  if (userIds.length > 0) {
+    //@ts-ignore
+    const users = (await context.app.service(userPath)._find({
+      query: {
+        id: {
+          $in: userIds
+        }
+      },
+      paginate: false
+    })) as any as UserType[]
+
+    for (const invite of data) {
+      if (invite.userId && !invite.user) {
+        invite.user = users.find((user) => user.id === invite.userId)
+      }
+    }
+  }
+}
+
+// TODO: Populating Invite's user property here manually. Once invite service is moved to feathers 5. This should be part of its resolver.
+const populateUser = async (context: HookContext) => {
+  const { result } = context
+
+  if (result.userId && !result.user) {
+    //@ts-ignore
+    result.user = (await context.app.service(userPath)._get(result.userId)) as UserType
+  }
+}
 
 export default {
   before: {
     all: [],
-    find: [
-      authenticate(),
-      attachOwnerIdInQuery('userId'),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'user'
-          }
-        ]
-      })
-    ],
-    get: [
-      iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'user'
-          }
-        ]
-      })
-    ],
+    find: [authenticate(), attachOwnerIdInQuery('userId')],
+    get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any)],
     create: [authenticate(), attachOwnerIdInBody('userId')],
     update: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
     patch: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
@@ -67,8 +84,8 @@ export default {
 
   after: {
     all: [],
-    find: [],
-    get: [],
+    find: [populateUsers],
+    get: [populateUser],
     create: [],
     update: [],
     patch: [],
