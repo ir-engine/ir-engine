@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
 import { KnexService } from '@feathersjs/knex'
 
 import {
@@ -33,9 +32,10 @@ import {
   BuildStatusQuery,
   BuildStatusType
 } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface BuildStatusParams extends KnexAdapterParams<BuildStatusQuery> {}
+export interface BuildStatusParams extends RootParams<BuildStatusQuery> {}
 
 export class BuildStatusService<
   T = BuildStatusType,

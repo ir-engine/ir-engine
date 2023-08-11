@@ -32,12 +32,12 @@ import {
   PHONE_REGEX,
   USER_ID_REGEX
 } from '@etherealengine/common/src/constants/IdConstants'
-import { Invite, SendInvite } from '@etherealengine/common/src/interfaces/Invite'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Invite, SendInvite } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -158,18 +158,17 @@ export const InviteService = {
         return
       } else {
         try {
-          const userResult = (await Engine.instance.api.service('user').find({
+          const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
             query: {
-              action: 'invite-code-lookup',
               inviteCode: data.inviteCode
             }
-          })) as Paginated<UserInterface>
+          })
 
-          if (userResult.total === 0) {
+          if (inviteCodeLookups.length === 0) {
             NotificationService.dispatchNotify(`No user has the invite code ${data.inviteCode}`, { variant: 'error' })
             return
           }
-          data.inviteeId = userResult.data[0].id
+          data.inviteeId = inviteCodeLookups[0].id
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }
@@ -232,7 +231,7 @@ export const InviteService = {
     const inviteState = getState(InviteState)
     const skip = inviteState.receivedInvites.skip
     const limit = inviteState.receivedInvites.limit
-    let sortData = {}
+    const sortData = {}
     if (sortField.length > 0) {
       if (sortField === 'type') {
         sortData['inviteType'] = orderBy === 'desc' ? -1 : 1
@@ -276,7 +275,7 @@ export const InviteService = {
     const inviteState = getState(InviteState)
     const skip = inviteState.sentInvites.skip
     const limit = inviteState.sentInvites.limit
-    let sortData = {}
+    const sortData = {}
     if (sortField.length > 0) {
       if (sortField === 'type') {
         sortData['inviteType'] = orderBy === 'desc' ? -1 : 1

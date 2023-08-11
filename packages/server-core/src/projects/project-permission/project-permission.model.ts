@@ -29,6 +29,7 @@ import { ProjectPermissionInterface } from '@etherealengine/common/src/dbmodels/
 
 import { ProjectPermissionTypeData } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -52,7 +53,11 @@ export default (app: Application) => {
   )
 
   ;(ProjectPermission as any).associate = (models: any): void => {
-    ;(ProjectPermission as any).belongsTo(models.user, { foreignKey: 'userId', allowNull: false, onDelete: 'cascade' })
+    ;(ProjectPermission as any).belongsTo(createUserModel(app), {
+      foreignKey: 'userId',
+      allowNull: false,
+      onDelete: 'cascade'
+    })
     ;(ProjectPermission as any).belongsTo(models.project, {
       foreignKey: 'projectId',
       allowNull: false,

@@ -23,13 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserInterface } from './User'
+import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '../user/user.schema'
 
-export interface Relationship {
-  userId: string
-  friend: UserInterface[]
-  requested: UserInterface[]
-  pending: UserInterface[]
-  blocking: UserInterface[]
-  blocked: UserInterface[]
+export interface AdminScope {
+  id: string
+  createdAt: string
+  updatedAt: string
+  userId?: UserID
+  type: string
+  scopeType?: ScopeTypeType
+  user?: UserType
 }

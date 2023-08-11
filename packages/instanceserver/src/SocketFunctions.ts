@@ -25,14 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { AuthError } from '@etherealengine/common/src/enums/AuthError'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import {
   authorizeUserToJoinServer,
@@ -45,19 +44,10 @@ import {
 } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 import {
-  handleWebRtcCloseConsumer,
-  handleWebRtcCloseProducer,
   handleWebRtcConsumeData,
   handleWebRtcConsumerSetLayers,
   handleWebRtcInitializeRouter,
-  handleWebRtcPauseConsumer,
-  handleWebRtcPauseProducer,
   handleWebRtcProduceData,
-  handleWebRtcReceiveTrack,
-  handleWebRtcRequestCurrentProducers,
-  handleWebRtcResumeConsumer,
-  handleWebRtcResumeProducer,
-  handleWebRtcSendTrack,
   handleWebRtcTransportClose,
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
@@ -114,16 +104,16 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         return
       }
 
-      let userId: UserId
-      let user: UserInterface
+      let userId: UserID
+      let user: UserType
 
       try {
         const authResult = await app.service('authentication').strategies.jwt.authenticate!(
           { accessToken: accessToken },
           {}
         )
-        userId = authResult['identity-provider'].userId as UserId
-        user = await app.service('user').get(userId)
+        userId = authResult['identity-provider'].userId as UserID
+        user = await app.service(userPath).get(userId)
 
         if (!user) {
           authTask.status = 'fail'
@@ -191,35 +181,8 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
           case MessageTypes.WebRTCTransportClose.toString():
             handleWebRtcTransportClose(network, spark, peerID, data, id)
             break
-          case MessageTypes.WebRTCCloseProducer.toString():
-            handleWebRtcCloseProducer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCSendTrack.toString():
-            handleWebRtcSendTrack(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCReceiveTrack.toString():
-            handleWebRtcReceiveTrack(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCPauseConsumer.toString():
-            handleWebRtcPauseConsumer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCResumeConsumer.toString():
-            handleWebRtcResumeConsumer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCCloseConsumer.toString():
-            handleWebRtcCloseConsumer(network, spark, peerID, data, id)
-            break
           case MessageTypes.WebRTCConsumerSetLayers.toString():
             handleWebRtcConsumerSetLayers(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCResumeProducer.toString():
-            handleWebRtcResumeProducer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCPauseProducer.toString():
-            handleWebRtcPauseProducer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCRequestCurrentProducers.toString():
-            handleWebRtcRequestCurrentProducers(network, spark, peerID, data, id)
             break
           case MessageTypes.InitializeRouter.toString():
             handleWebRtcInitializeRouter(network, spark, peerID, data, id)

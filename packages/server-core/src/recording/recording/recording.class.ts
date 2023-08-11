@@ -34,10 +34,10 @@ import {
   RecordingQuery,
   RecordingType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
-import { NotFoundException } from '../../util/exceptions/exception'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RecordingParams extends RootParams<RecordingQuery> {}
@@ -101,7 +101,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
   async remove(id: RecordingID) {
     const recording = super._get(id)
     if (!recording) {
-      throw new NotFoundException('Unable to find recording with this id')
+      throw new NotFound('Unable to find recording with this id')
     }
     return super._remove(id)
   }

@@ -39,7 +39,7 @@ import {
 } from '../../../../../ecs/functions/ComponentFunctions'
 
 export const getComponentFromRegistry = makeFunctionNodeDefinition({
-  typeName: 'engine/getComponentfromRegistry',
+  typeName: 'engine/component/getComponentfromRegistry',
   category: NodeCategory.Query,
   label: 'Get Component',
   in: {
@@ -60,7 +60,7 @@ export const getComponentFromRegistry = makeFunctionNodeDefinition({
 })
 
 export const getComponentFromEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/getComponentfromEntity',
+  typeName: 'engine/component/getComponentfromEntity',
   category: NodeCategory.Query,
   label: 'Get Component in entity',
   in: {
@@ -80,13 +80,12 @@ export const getComponentFromEntity = makeFunctionNodeDefinition({
     const componentName: string = read('componentName')
     const component = ComponentMap.get(componentName)!
     const componentType = getComponent(entity, component)
-    configuration['entity'] = entity
     write('component', componentType)
   }
 })
 
 export const addComponent = makeFlowNodeDefinition({
-  typeName: 'engine/addComponent',
+  typeName: 'engine/component/addComponent',
   category: NodeCategory.Action,
   label: 'Add Component',
   in: {
@@ -114,7 +113,7 @@ export const addComponent = makeFlowNodeDefinition({
 })
 
 export const deleteComponent = makeFlowNodeDefinition({
-  typeName: 'engine/deleteComponent',
+  typeName: 'engine/component/deleteComponent',
   category: NodeCategory.Action,
   label: 'Delete Component',
   in: {

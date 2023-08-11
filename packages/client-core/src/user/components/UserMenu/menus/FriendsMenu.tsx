@@ -29,32 +29,32 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
-import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
 import { AvatarMenus } from '../../../../systems/AvatarUISystem'
 import { AvatarUIContextMenuService } from '../../../../systems/ui/UserMenuView'
+import { UserMenus } from '../../../UserUISystem'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../services/AuthService'
-import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 type TabsType = 'friends' | 'blocked' | 'find' | 'messages'
 
@@ -63,7 +63,7 @@ interface Props {
 }
 
 interface DisplayedUserInterface {
-  id: string
+  id: UserID
   name: string
   relationType?: 'friend' | 'requested' | 'blocking' | 'pending' | 'blocked'
 }
@@ -72,7 +72,7 @@ const getChannelName = (channel: Channel) => {
   return (
     channel.name ||
     channel.channel_users
-      .filter((channelUser) => channelUser.user?.id !== Engine.instance.userId)
+      .filter((channelUser) => channelUser.user?.id !== Engine.instance.userID)
       .map((channelUser) => channelUser.user?.name)
       .filter(Boolean)
       .join(', ')
@@ -115,7 +115,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }
 
   const handleProfile = (user: DisplayedUserInterface) => {
-    AvatarUIContextMenuService.setId(user.id as UserId)
+    AvatarUIContextMenuService.setId(user.id as UserID)
     PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, {
       onBack: () => PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: selectedTab.value })
     })
@@ -132,7 +132,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
       if (channelWithFriend) {
         PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: channelWithFriend.id })
       } else {
-        ChannelService.createChannel([id as UserId]).then((channel) => {
+        ChannelService.createChannel([id as UserID]).then((channel) => {
           if (channel) PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: channel.id })
         })
       }
@@ -147,7 +147,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   } else if (selectedTab.value === 'messages') {
     displayList.push(
       ...privateChannels.map((channel) => ({
-        id: channel.id,
+        id: channel.id.toString() as UserID,
         name: getChannelName(channel),
         relationType: 'friend' as const
       }))
@@ -186,7 +186,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
 
   const Friend = (props: { user: DisplayedUserInterface }) => {
     const { user } = props
-    const thumbnail = useUserAvatarThumbnail(user.id as UserId)
+    const thumbnail = useUserAvatarThumbnail(user.id as UserID)
     return (
       <Box key={user.id} display="flex" alignItems="center" m={2} gap={1.5}>
         <Avatar alt={user.name} imageSrc={thumbnail} size={50} />
@@ -235,12 +235,12 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
           <IconButton
             icon={
               <Icon
-                type={channelState.targetChannelId.value === user.id ? 'CallEnd' : 'Call'}
+                type={channelState.targetChannelId.value === user.id.toString() ? 'CallEnd' : 'Call'}
                 sx={{ height: 30, width: 30 }}
               />
             }
             title={t('user:friends.call')}
-            onClick={() => startMediaCall(user.id as ChannelID)}
+            onClick={() => startMediaCall(user.id.toString() as ChannelID)}
           />
         ) : (
           <IconButton

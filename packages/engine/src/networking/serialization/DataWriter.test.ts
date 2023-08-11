@@ -28,7 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
@@ -368,7 +368,7 @@ describe('DataWriter', () => {
     const writeView = createViewCursor()
     const entity = createEntity()
     const networkId = 999 as NetworkId
-    const userId = '0' as UserId
+    const userId = '0' as UserID
     const peerID = 'peer id' as PeerID
     const ownerIndex = 0
 
@@ -457,7 +457,7 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = ('userId-' + entity) as unknown as UserId & PeerID
+      const userId = ('userId-' + entity) as unknown as UserID & PeerID
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
@@ -551,7 +551,7 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = ('userId-' + entity) as unknown as UserId & PeerID
+      const userId = ('userId-' + entity) as unknown as UserID & PeerID
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
@@ -572,7 +572,7 @@ describe('DataWriter', () => {
       network.userIDToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(network, Engine.instance.userId, Engine.instance.peerID, entities)
+    const packet = write(network, Engine.instance.userID, Engine.instance.peerID, entities)
 
     const expectedBytes =
       3 * Uint32Array.BYTES_PER_ELEMENT +

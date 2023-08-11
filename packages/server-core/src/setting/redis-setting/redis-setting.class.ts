@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
 import { KnexService } from '@feathersjs/knex'
 
 import {
@@ -33,9 +32,10 @@ import {
   RedisSettingQuery,
   RedisSettingType
 } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RedisSettingParams extends KnexAdapterParams<RedisSettingQuery> {}
+export interface RedisSettingParams extends RootParams<RedisSettingQuery> {}
 
 export class RedisSettingService<
   T = RedisSettingType,

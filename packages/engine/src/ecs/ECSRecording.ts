@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import { Validator, matches, matchesUserId } from '../common/functions/MatchesUtils'
@@ -41,13 +41,13 @@ export const startRecording = (args: { recordingID: RecordingID }) => {
   dispatchAction({
     ...action,
     $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
+    $to: Engine.instance.worldNetwork.hostPeerID
   })
 
   dispatchAction({
     ...action,
     $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
+    $to: Engine.instance.mediaNetwork.hostPeerID
   })
 }
 
@@ -58,17 +58,17 @@ export const stopRecording = (args: { recordingID: RecordingID }) => {
   dispatchAction({
     ...recording,
     $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
+    $to: Engine.instance.worldNetwork.hostPeerID
   })
   // todo - check that video actually needs to be stopped
   dispatchAction({
     ...recording,
     $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
+    $to: Engine.instance.mediaNetwork.hostPeerID
   })
 }
 
-export const startPlayback = (args: { recordingID: RecordingID; targetUser?: UserId }) => {
+export const startPlayback = (args: { recordingID: RecordingID; targetUser?: UserID }) => {
   const { recordingID, targetUser } = args
   const action = ECSRecordingActions.startPlayback({
     recordingID,
@@ -78,13 +78,13 @@ export const startPlayback = (args: { recordingID: RecordingID; targetUser?: Use
   dispatchAction({
     ...action,
     $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
+    $to: Engine.instance.worldNetwork.hostPeerID
   })
 
   dispatchAction({
     ...action,
     $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
+    $to: Engine.instance.mediaNetwork.hostPeerID
   })
 }
 
@@ -97,13 +97,13 @@ export const stopPlayback = (args: { recordingID: RecordingID }) => {
   dispatchAction({
     ...action,
     $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
+    $to: Engine.instance.worldNetwork.hostPeerID
   })
 
   dispatchAction({
     ...action,
     $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
+    $to: Engine.instance.mediaNetwork.hostPeerID
   })
 }
 

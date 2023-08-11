@@ -23,21 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID, ChannelUser } from './ChannelUser'
-
-export type Channel = {
-  id: ChannelID
-  name: string
-  instanceId: string | null
-  createdAt: string
-  updatedAt: string
-  updateNeeded: boolean
-  limit: 5
-  skip: 0
-  total: 0
-  channel_users: ChannelUser[]
-}
-
-export interface PatchChannel {
-  name: string
+export interface UserSetting {
+  id: string
+  themeModes: Record<string, string>
 }

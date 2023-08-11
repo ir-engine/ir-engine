@@ -144,6 +144,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [videoElement, audioElement, harkListener?.value])
 
   useEffect(() => {
+    let unmounted = false
+    let newHark
     if (audioElement != null) {
       audioElement.id = `${peerID}_audio`
       audioElement.autoplay = true
@@ -158,11 +160,13 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
         const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
         audioTrackClones.set(updateAudioTrackClones)
         audioElement.srcObject = new MediaStream([newAudioTrack])
-        const newHark = hark(audioElement.srcObject, { play: false })
+        newHark = hark(audioElement.srcObject, { play: false })
         newHark.on('speaking', () => {
+          if (unmounted) return
           soundIndicatorOn.set(true)
         })
         newHark.on('stopped_speaking', () => {
+          if (unmounted) return
           soundIndicatorOn.set(false)
         })
         harkListener.set(newHark)
@@ -172,7 +176,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
     return () => {
       audioTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
-      if (harkListener?.value) (harkListener.value as any).stop()
+      unmounted = true
+      if (newHark) newHark.stop()
     }
   }, [audioTrackId.value])
 
@@ -258,10 +263,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       toggleScreenshareVideoPaused()
     } else {
       if (!videoStreamPaused) {
-        await pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
         peerMediaChannelState.videoStreamPaused.set(true)
       } else {
-        await resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
         peerMediaChannelState.videoStreamPaused.set(false)
       }
     }
@@ -276,10 +281,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       toggleScreenshareAudioPaused()
     } else {
       if (!audioStreamPaused) {
-        await pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
         peerMediaChannelState.audioStreamPaused.set(true)
       } else {
-        await resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
         peerMediaChannelState.audioStreamPaused.set(false)
       }
     }
@@ -290,10 +295,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     const audioStreamProducer = audioStream as ConsumerExtension
     if (!audioProducerGlobalMute) {
-      await globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
+      globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
       peerMediaChannelState.audioProducerGlobalMute.set(true)
     } else if (audioProducerGlobalMute) {
-      await globalUnmuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
+      globalUnmuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
       peerMediaChannelState.audioProducerGlobalMute.set(false)
     }
   }

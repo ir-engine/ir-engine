@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { LocationInstanceConnectionAction } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import logger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export type ActiveInstance = {
@@ -73,7 +73,7 @@ export const EditorActiveInstanceService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatchAction(
         LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserId,
+          instanceId: provisionResult.id as UserID,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           roomCode: provisionResult.roomCode,

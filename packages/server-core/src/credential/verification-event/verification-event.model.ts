@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { VerificationEventInterface } from '@etherealengine/common/src/dbmodels/VerificationEvent'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 /**
  * Verification Event model
@@ -68,7 +69,7 @@ export default (app: Application) => {
   )
 
   ;(VerificationEvent as any).associate = (models: any): void => {
-    ;(VerificationEvent as any).belongsTo(models.user)
+    ;(VerificationEvent as any).belongsTo(createUserModel(app))
   }
 
   return VerificationEvent

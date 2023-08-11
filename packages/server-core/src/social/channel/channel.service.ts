@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import '@feathersjs/transport-commons'
 
-import { Channel as Channelinterface } from '@etherealengine/common/src/interfaces/Channel'
+import { Channel as Channelinterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { Channel } from './channel.class'
 import channelDocs from './channel.docs'
@@ -52,11 +53,7 @@ export const onCRUD =
       return channelUser.userId
     })
 
-    return Promise.all(
-      userIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send(data)
-      })
-    )
+    return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
   }
 
 export default (app: Application) => {

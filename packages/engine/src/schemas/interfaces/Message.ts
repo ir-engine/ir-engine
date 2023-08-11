@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from './ChannelUser'
-import { UserInterface } from './User'
-import { UserId } from './UserId'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '../user/user.schema'
 
 export type Message = {
   id: string
-  senderId: UserId
+  senderId: UserID
   channelId: ChannelID
   text: string
   isNotification: boolean
   createdAt: string
   updatedAt: string
-  sender: UserInterface
+  sender: UserType
 }

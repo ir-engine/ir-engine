@@ -29,7 +29,6 @@ import { PassThrough } from 'stream'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -60,6 +59,7 @@ import { updatePeers } from '@etherealengine/engine/src/networking/systems/Outgo
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -68,16 +68,16 @@ import { createOutgoingDataProducer } from './WebRTCFunctions'
 const logger = multiLogger.child({ component: 'instanceserver:recording' })
 
 interface ActiveRecording {
-  userID: UserId
+  userID: UserID
   serializer?: ECSSerializer
   dataChannelRecorder?: any // todo
   mediaChannelRecorder?: Awaited<ReturnType<typeof startMediaRecording>>
 }
 
 interface ActivePlayback {
-  userID: UserId
+  userID: UserID
   deserializer?: ECSDeserializer
-  entitiesSpawned: (EntityUUID | UserId)[]
+  entitiesSpawned: (EntityUUID | UserID)[]
   peerIDs?: PeerID[]
   mediaPlayback?: any // todo
 }
@@ -90,10 +90,10 @@ interface DataChannelFrame<T> {
 export const activeRecordings = new Map<string, ActiveRecording>()
 export const activePlaybacks = new Map<string, ActivePlayback>()
 
-export const dispatchError = (error: string, targetUser: UserId) => {
+export const dispatchError = (error: string, targetPeer: PeerID) => {
   const app = Engine.instance.api as Application
   logger.error('Recording Error: ' + error)
-  dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
+  dispatchAction(ECSRecordingActions.error({ error, $to: targetPeer, $topic: getServerNetwork(app).topic }))
 }
 
 export const uploadRecordingStaticResource = async (props: {
@@ -145,13 +145,13 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     schema = JSON.parse(schema)
   }
 
-  const user = await app.service('user').get(recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
   if (!user) return dispatchError('Invalid user', action.$from)
 
   const userID = user.id
 
   const hasScopes = await checkScope(user, app, 'recording', 'write')
-  if (!hasScopes) return dispatchError('User does not have record:write scope', userID)
+  if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
 
   const storageProvider = getStorageProvider()
 
@@ -161,7 +161,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       isDirectory: true
     })
   } catch (error) {
-    return dispatchError('Could not create recording folder' + error.message, userID)
+    return dispatchError('Could not create recording folder' + error.message, action.$peer)
   }
 
   const dataChannelsRecording = new Map<DataChannelType, DataChannelFrame<any>[]>()
@@ -254,7 +254,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   dispatchAction(
     ECSRecordingActions.recordingStarted({
       recordingID: recording.id,
-      $to: userID,
+      $to: action.$peer,
       $topic: getServerNetwork(app).topic
     })
   )
@@ -264,12 +264,12 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   const app = Engine.instance.api as Application
 
   const activeRecording = activeRecordings.get(action.recordingID)
-  if (!activeRecording) return dispatchError('Recording not found', action.$from)
+  if (!activeRecording) return dispatchError('Recording not found', action.$peer)
 
-  const user = await app.service('user').get(activeRecording.userID)
+  const user = await app.service(userPath).get(activeRecording.userID)
 
   const hasScopes = await checkScope(user, app, 'recording', 'write')
-  if (!hasScopes) return dispatchError('User does not have record:write scope', user.id)
+  if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
 
   app.service(recordingPath).patch(action.recordingID, { ended: true }, { isInternal: true })
 
@@ -319,17 +319,17 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const isClone = !action.targetUser
 
-  const user = await app.service('user').get(recording.userId)
-  if (!user) return dispatchError('User not found', recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
+  if (!user) return dispatchError('User not found', action.$peer)
 
   if (!isClone && Array.from(activePlaybacks.values()).find((rec) => rec.userID === action.targetUser)) {
-    return dispatchError('User already has an active playback', action.targetUser!)
+    return dispatchError('User already has an active playback', action.$peer)
   }
 
   const hasScopes = await checkScope(user, app, 'recording', 'read')
-  if (!hasScopes) return dispatchError('User does not have record:read scope', recording.userId)
+  if (!hasScopes) return dispatchError('User does not have record:read scope', action.$peer)
 
-  if (!recording.resources?.length) return dispatchError('Recording has no resources', recording.userId)
+  if (!recording.resources?.length) return dispatchError('Recording has no resources', action.$peer)
 
   const activePlayback = {
     userID: action.targetUser
@@ -366,7 +366,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const network = getServerNetwork(app) as SocketWebRTCServerNetwork
 
-  const entitiesSpawned = [] as (EntityUUID | UserId)[]
+  const entitiesSpawned = [] as (EntityUUID | UserID)[]
 
   activePlayback.deserializer = ECSSerialization.createDeserializer({
     chunks: entityChunks,
@@ -381,7 +381,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
           const entityID = isClone ? ((uuid + '_' + recording.id) as EntityUUID) : uuid
           entityChunks[chunkIndex].entities[i] = entityID
           app
-            .service('user')
+            .service(userPath)
             .get(uuid)
             .then((user) => {
               const peerIDs = Object.keys(schema.peers) as PeerID[]
@@ -417,7 +417,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                 dispatchAction(
                   AvatarNetworkAction.setAvatarID({
                     $from: entityID,
-                    avatarID: user.avatar.id,
+                    avatarID: user.avatar.id!,
                     entityUUID: entityID
                   })
                 )
@@ -465,7 +465,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
     schema = JSON.parse(schema)
   }
 
-  const user = await app.service('user').get(recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
 
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) throw new Error('User does not have record:read scope')
@@ -484,7 +484,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
   playbackStopped(user.id, recording.id)
 }
 
-const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
+const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
   const app = Engine.instance.api as Application
 
   const activePlayback = activePlaybacks.get(recordingID)!
@@ -523,12 +523,12 @@ const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
 }
 
 export const dataChannelToReplay = new Map<
-  UserId,
+  UserID,
   Map<DataChannelType, { startTime: number; frames: DataChannelFrame<any>[] }>
 >()
 
 export const setDataChannelChunkToReplay = (
-  userId: UserId,
+  userId: UserID,
   dataChannel: DataChannelType,
   frames: DataChannelFrame<any>[]
 ) => {
@@ -540,7 +540,7 @@ export const setDataChannelChunkToReplay = (
   userMap.set(dataChannel, { startTime: Date.now(), frames })
 }
 
-export const removeDataChannelToReplay = (userId: UserId) => {
+export const removeDataChannelToReplay = (userId: UserID) => {
   if (!dataChannelToReplay.has(userId)) {
     return
   }

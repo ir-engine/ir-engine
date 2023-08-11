@@ -84,11 +84,11 @@ const startDataProducer = async () => {
 export const startPlayback = async (recordingID: RecordingID, twin = true) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
-    await closeDataProducer(network, mocapDataChannelType)
+    closeDataProducer(network, mocapDataChannelType)
   }
   ECSRecordingFunctions.startPlayback({
     recordingID,
-    targetUser: twin ? undefined : Engine.instance.userId
+    targetUser: twin ? undefined : Engine.instance.userID
   })
 }
 
