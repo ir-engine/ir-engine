@@ -60,20 +60,20 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
   }
 
   async find(params?: RecordingParams) {
-    let isAdmin = false
-    if (params && params.user && params.query) {
-      const admin = await checkScope(params.user, this.app, 'admin', 'admin')
-      if (admin && params.query.action === 'admin') {
-        delete params.query.action
-        // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
-        isAdmin = true
-      }
-    }
-
     let paramsWithoutExtras = {
       ...params,
       // Explicitly cloned sort object because otherwise it was affecting default params object as well.
       query: params?.query ? JSON.parse(JSON.stringify(params?.query)) : {}
+    }
+    paramsWithoutExtras = { ...paramsWithoutExtras, query: { userId: params?.user?.id } }
+
+    if (params && params.user && params.query) {
+      const admin = await checkScope(params.user, this.app, 'admin', 'admin')
+      if (admin && params.query.action === 'admin') {
+        // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
+        delete paramsWithoutExtras.query.action
+        delete paramsWithoutExtras.query.userId
+      }
     }
 
     // Remove recording username sort
@@ -81,9 +81,6 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       delete paramsWithoutExtras.query.$sort['user']
     }
 
-    if (!isAdmin) {
-      paramsWithoutExtras = { ...paramsWithoutExtras, query: { userId: params?.user?.id } }
-    }
     return super._find(paramsWithoutExtras)
   }
 
