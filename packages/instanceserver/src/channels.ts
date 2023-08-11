@@ -487,21 +487,6 @@ const handleUserDisconnect = async (
     logger.info('Failed to patch instance user count, likely because it was destroyed.')
   }
 
-  const userPatch = {} as any
-
-  // Patch the user's (channel)instanceId to null if they're leaving this instance.
-  // But, don't change their (channel)instanceId if it's already something else.
-  const userPatchResult = await app
-    .service(userPath)
-    .patch(null, userPatch, {
-      query: {
-        id: user.id
-      }
-    })
-    .catch((err) => {
-      logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
-    })
-  logger.info('Patched disconnecting user to %o', userPatchResult)
   await app.service(instanceAttendancePath).patch(
     null,
     {
