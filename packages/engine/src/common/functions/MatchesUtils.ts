@@ -29,7 +29,7 @@ import { Validator, matches } from 'ts-matches'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { Entity } from '../../ecs/classes/Entity'
 
@@ -69,13 +69,13 @@ const matchesQuatShape = matches.some(
 
 const matchesVector3 = matches.guard((v): v is Vector3 => matchesVec3Shape.test(v))
 const matchesQuaternion = matches.guard((v): v is Quaternion => matchesQuatShape.test(v))
-const matchesUserId = matches.string as Validator<unknown, UserId>
+const matchesUserId = matches.string as Validator<unknown, UserID>
 const matchesPeerID = matches.string as Validator<unknown, PeerID>
 const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
 const matchesEntity = matches.number as Validator<unknown, Entity>
 const matchesEntityUUID = matches.string as Validator<unknown, EntityUUID>
 
-const matchesActionFromUser = (userId: UserId) => {
+const matchesActionFromUser = (userId: UserID) => {
   return matches.shape({ $from: matches.literal(userId) })
 }
 

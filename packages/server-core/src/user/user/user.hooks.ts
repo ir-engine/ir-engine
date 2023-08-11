@@ -23,23 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  UserType,
+  userDataSchema,
+  userPatchSchema,
+  userQuerySchema,
+  userSchema,
+  userScopeSchema
+} from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
+
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
-
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import logger from '../../ServerLogger'
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  userDataResolver,
+  userExternalResolver,
+  userPatchResolver,
+  userQueryResolver,
+  userResolver
+} from './user.resolvers'
 
 const addInstanceAttendanceLocation = () => {
+  // TODO: Remove this once instance-attendance & instance service is moved to feathers 5.
   return async (context: HookContext): Promise<HookContext> => {
     const { result } = context
 
     for (const attendance of result.instanceAttendance || []) {
+      if (attendance.instanceId) attendance.instance = await context.app.service('instance').get(attendance.instanceId)
       if (attendance.instance && attendance.instance.locationId) {
         attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
       }
@@ -53,7 +70,7 @@ const restrictUserPatch = (context: HookContext) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
-  const loggedInUser = context.params.user as UserInterface
+  const loggedInUser = context.params.user as UserType
   if (
     loggedInUser.scopes &&
     loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
@@ -78,7 +95,7 @@ const restrictUserRemove = (context: HookContext) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
-  const loggedInUser = context.params.user as UserInterface
+  const loggedInUser = context.params.user as UserType
   if (
     loggedInUser.scopes &&
     loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
@@ -92,17 +109,18 @@ const restrictUserRemove = (context: HookContext) => {
   return context
 }
 
+// TODO: Remove this when user-settings service is moved to feathers 5.
 const parseAllUserSettings = () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { result } = context
 
     for (const index in result.data) {
-      if (result.data[index].user_setting && result.data[index].user_setting.themeModes) {
-        let themeModes = JSON.parse(result.data[index].user_setting.themeModes)
+      if (result.data[index].userSetting && result.data[index].userSetting.themeModes) {
+        let themeModes = JSON.parse(result.data[index].userSetting.themeModes)
 
         if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
 
-        result.data[index].user_setting.themeModes = themeModes
+        result.data[index].userSetting.themeModes = themeModes
       }
     }
 
@@ -110,184 +128,30 @@ const parseAllUserSettings = () => {
   }
 }
 
+// TODO: Remove this when user-settings service is moved to feathers 5.
 const parseUserSettings = () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { result } = context
 
-    if (result.user_setting && result.user_setting.themeModes) {
-      let themeModes = JSON.parse(result.user_setting.themeModes)
+    if (result.userSetting && result.userSetting.themeModes) {
+      let themeModes = JSON.parse(result.userSetting.themeModes)
 
       if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
 
-      result.user_setting.themeModes = themeModes
+      result.userSetting.themeModes = themeModes
     }
 
     return context
   }
 }
 
-const addAvatarResources = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { app, result } = context
-
-    // if (!result.data) console.log('result.avatar', result, result.avatar, result.avatar?.dataValues, result.dataValues, result.dataValues?.avatar?.dataValues,)
-
-    if (result.dataValues?.avatar) {
-      if (result.dataValues?.avatar.modelResourceId)
-        try {
-          result.dataValues.avatar.modelResource = await app
-            .service('static-resource')
-            .get(result.dataValues.avatar.modelResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.dataValues?.avatar.dataValues?.modelResourceId)
-        try {
-          result.dataValues.avatar.dataValues.modelResource = await app
-            .service('static-resource')
-            .get(result.dataValues.avatar.dataValues.modelResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.dataValues?.avatar.thumbnailResourceId)
-        try {
-          result.dataValues.avatar.thumbnailResource = await app
-            .service('static-resource')
-            .get(result.dataValues.avatar.thumbnailResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.dataValues?.avatar.dataValues?.thumbnailResourceId)
-        try {
-          result.dataValues.avatar.dataValues.thumbnailResource = await app
-            .service('static-resource')
-            .get(result.dataValues.avatar.dataValues.thumbnailResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-    } else if (result.avatar) {
-      if (result.avatar.modelResourceId)
-        try {
-          result.avatar.modelResource = await app.service('static-resource').get(result.avatar.modelResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.avatar.dataValues?.modelResourceId)
-        try {
-          result.avatar.dataValues.modelResource = await app
-            .service('static-resource')
-            .get(result.avatar.dataValues.modelResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.avatar.thumbnailResourceId)
-        try {
-          result.avatar.thumbnailResource = await app.service('static-resource').get(result.avatar.thumbnailResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.avatar.dataValues?.thumbnailResourceId)
-        try {
-          result.avatar.dataValues.thumbnailResource = await app
-            .service('static-resource')
-            .get(result.avatar.dataValues.thumbnailResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-    }
-
-    // if (result.data) {
-    //   const mappedUsers = result.data.map(user => {
-    //     return new Promise(async (resolve, reject) => {
-    //       if (user.avatar) {
-    //         if (user.avatar.modelResourceId)
-    //           try {
-    //             user.avatar.modelResource = await app.service('static-resource').get(user.avatar.modelResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         if (user.avatar.dataValues?.modelResourceId)
-    //           try {
-    //             user.avatar.dataValues.modelResource = await app
-    //                 .service('static-resource')
-    //                 .get(user.avatar.dataValues.modelResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         if (user.avatar.thumbnailResourceId)
-    //           try {
-    //             user.avatar.thumbnailResource = await app.service('static-resource').get(user.avatar.thumbnailResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         if (user.avatar.dataValues?.thumbnailResourceId)
-    //           try {
-    //             user.avatar.dataValues.thumbnailResource = await app
-    //                 .service('static-resource')
-    //                 .get(user.avatar.dataValues.thumbnailResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //       }
-    //       if (user.dataValues.avatar) {
-    //         if (user.dataValues.avatar.modelResourceId)
-    //           try {
-    //             user.dataValues.avatar.modelResource = await app.service('static-resource').get(user.dataValues.avatar.modelResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         try {
-    //           console.log('POPULATING MUTLI DATAVALUES MODELRESOURCE')
-    //           user.dataValues.avatar.dataValues.modelResource = await app
-    //               .service('static-resource')
-    //               .get(user.dataValues.avatar.dataValues.modelResourceId)
-    //           console.log('DONE POPULATED MUTLI DATAVALUES MODELRESOURCE', user, user.dataValues.avatar.dataValues)
-    //           resolve(user)
-    //         } catch (err) {
-    //           logger.error('error getting avatar model %o', err)
-    //           reject(err)
-    //         }
-    //         if (user.dataValues.avatar.thumbnailResourceId)
-    //           try {
-    //             user.dataValues.avatar.thumbnailResource = await app.service('static-resource').get(user.dataValues.avatar.thumbnailResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         if (user.dataValues.avatar.dataValues?.thumbnailResourceId)
-    //           try {
-    //             user.dataValues.avatar.dataValues.thumbnailResource = await app
-    //                 .service('static-resource')
-    //                 .get(user.dataValues.avatar.dataValues.thumbnailResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //       }
-    //     })
-    //   })
-    //   console.log('promises', mappedUsers)
-    //   await Promise.all(mappedUsers)
-    //   result.data = mappedUsers
-    // }
-
-    // if (!result.data) console.log('Returned result.avatar', result, result.avatar, result.avatar?.dataValues, result.dataValues?.avatar?.dataValues)
-    // if (result.data && result.total > 0) console.log('nested user', result.data[0].avatar.dataValues)
-    return context
-  }
-}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userScopeValidator = getValidator(userScopeSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userValidator = getValidator(userSchema, dataValidator)
+const userDataValidator = getValidator(userDataSchema, dataValidator)
+const userPatchValidator = getValidator(userPatchSchema, dataValidator)
+const userQueryValidator = getValidator(userQuerySchema, queryValidator)
 
 /**
  * This module used to declare and identify database relation
@@ -295,168 +159,46 @@ const addAvatarResources = () => {
  */
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(userExternalResolver), schemaHooks.resolveResult(userResolver)]
+  },
+
   before: {
-    all: [authenticate()],
-    find: [
-      addAssociations({
-        models: [
-          {
-            model: 'identity-provider'
-          },
-          {
-            model: 'user-api-key'
-          },
-          // {
-          //   model: 'subscription'
-          // },
-          {
-            model: 'location-admin'
-          },
-          {
-            model: 'location-ban',
-            as: 'locationBans'
-          },
-          {
-            model: 'user-settings'
-          },
-          {
-            model: 'instance-attendance',
-            as: 'instanceAttendance',
-            where: {
-              ended: false
-            },
-            required: false,
-            include: [
-              {
-                model: 'instance',
-                as: 'instance'
-                // include: [
-                //   {
-                //     model: 'location',
-                //     as: 'location'
-                //   }
-                // ]
-              }
-            ]
-          },
-          {
-            model: 'scope'
-          },
-          {
-            model: 'avatar'
-          }
-        ]
-      })
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(userQueryValidator),
+      schemaHooks.resolveQuery(userQueryResolver)
     ],
-    get: [
-      addAssociations({
-        models: [
-          {
-            model: 'identity-provider'
-          },
-          {
-            model: 'user-api-key'
-          },
-          // {
-          //   model: 'subscription'
-          // },
-          {
-            model: 'location-admin'
-          },
-          {
-            model: 'location-ban',
-            as: 'locationBans'
-          },
-          {
-            model: 'user-settings'
-          },
-          {
-            model: 'scope'
-          },
-          {
-            model: 'avatar'
-          }
-        ]
-      }),
-      iff(
-        (context: HookContext) => context.params.user?.id === context.arguments[0],
-        addAssociations({
-          models: [
-            {
-              model: 'instance-attendance',
-              as: 'instanceAttendance',
-              where: { ended: false },
-              required: false,
-              include: [
-                {
-                  model: 'instance',
-                  as: 'instance'
-                  // include: [
-                  //   {
-                  //     model: 'location',
-                  //     as: 'location'
-                  //   }
-                  // ]
-                }
-              ]
-            }
-          ]
-        })
-      )
+    find: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'))],
+    get: [],
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
+      () => schemaHooks.validateData(userDataValidator),
+      schemaHooks.resolveData(userDataResolver)
     ],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))],
     patch: [
-      iff(isProvider('external'), restrictUserPatch as any),
-      addAssociations({
-        models: [
-          {
-            model: 'identity-provider'
-          },
-          {
-            model: 'user-api-key'
-          },
-          // {
-          //   model: 'subscription'
-          // },
-          {
-            model: 'location-admin'
-          },
-          {
-            model: 'location-ban',
-            as: 'locationBans'
-          },
-          {
-            model: 'user-settings'
-          },
-          {
-            model: 'scope'
-          },
-          {
-            model: 'avatar'
-          }
-        ]
-      }),
+      iff(isProvider('external'), restrictUserPatch),
+      () => schemaHooks.validateData(userPatchValidator),
+      schemaHooks.resolveData(userPatchResolver),
       addScopeToUser()
     ],
-    remove: [iff(isProvider('external'), restrictUserRemove as any)]
+    remove: [iff(isProvider('external'), restrictUserRemove)]
   },
 
   after: {
     all: [],
     find: [
       parseAllUserSettings(),
-      addAvatarResources(),
       addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
     ],
     get: [
       parseUserSettings(),
-      addAvatarResources(),
       addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
     ],
-    create: [parseUserSettings(), addAvatarResources()],
-    update: [parseUserSettings(), addAvatarResources()],
-    patch: [parseUserSettings(), addAvatarResources()],
+    create: [parseUserSettings()],
+    update: [parseUserSettings()],
+    patch: [parseUserSettings()],
     remove: []
   },
 

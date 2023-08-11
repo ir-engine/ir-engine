@@ -28,7 +28,7 @@ import React from 'react'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -51,7 +51,7 @@ import { PopupMenuServices } from '../PopupMenuService'
 const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Element => {
   const { t } = useTranslation()
 
-  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userID)
 
   const { data: messages } = useFind('message', {
     query: {
@@ -187,7 +187,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
           }}
         >
           {messages.map((message, index) => {
-            if (message.sender?.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
+            if (message.sender?.id === Engine.instance.userID) return <SelfMessage key={index} message={message} />
             else return <OtherMessage key={index} message={message} />
           })}
         </div>

@@ -42,6 +42,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
 import AvatarDrawer, { AvatarDrawerMode } from './AvatarDrawer'
@@ -77,7 +78,7 @@ const Avatar = () => {
     setSearch(e.target.value)
   }
 
-  const adminAvatarRemove = useMutation('avatar').remove
+  const adminAvatarRemove = useMutation(avatarPath).remove
 
   const handleDeleteAll = () => {
     Promise.all(Array.from(selectedAvatarIds).map((id) => adminAvatarRemove(id)))

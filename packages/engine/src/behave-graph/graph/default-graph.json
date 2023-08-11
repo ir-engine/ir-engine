@@ -9,14 +9,6 @@
       }
     },
     {
-      "id": "9e884518-d0c9-4042-8683-cabc04cad206",
-      "type": "lifecycle/onEnd",
-      "metadata": {
-        "positionX": "12.013491429820647",
-        "positionY": "-165.21324875171092"
-      }
-    },
-    {
       "id": "0",
       "type": "lifecycle/onStart",
       "metadata": {

@@ -44,6 +44,7 @@ const BehaveFlow = () => {
   const graphState = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
   const forceUpdate = useForceUpdate()
   const registry = getState(BehaveGraphSystemState).registry
+
   useEffect(() => {
     forceUpdate()
   }, [selectionState.objectChangeCounter])
@@ -54,7 +55,7 @@ const BehaveFlow = () => {
         <div style={{ width, height }}>
           {validEntity && (
             <Flow
-              initialGraph={graphState?.value?.graph ?? {}}
+              initialGraph={graphState?.value?.graph}
               examples={{}}
               registry={registry}
               onChangeGraph={(newGraph) => {

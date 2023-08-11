@@ -98,7 +98,7 @@ describe('route.test', () => {
     updateXREngineConfigForTest(testProject, testRoute)
 
     const installedRoutes = await app.service('routes-installed').find()
-    const route = installedRoutes.data.find((route) => route.project === testProject)
+    const route = installedRoutes.find((route) => route.project === testProject)
 
     assert.ok(route)
     assert.equal(route.project, testProject)

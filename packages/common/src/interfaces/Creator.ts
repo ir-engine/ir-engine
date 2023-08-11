@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+
 export interface CreatorShort {
   id: string
-  userId?: string
+  userId?: UserID
   avatar?: string
   newAvatar?: string
   name: string

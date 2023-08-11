@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from './UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export type RelationshipType = 'friend' | 'requested' | 'pending' | 'blocked' | 'blocking'
 export type UserRelationship = {
   id: string
   createdAt: string
   updatedAt: string
-  userId: UserId
+  userId: UserID
   userRelationshipType: RelationshipType
-  relatedUserId: UserId
+  relatedUserId: UserID
 }

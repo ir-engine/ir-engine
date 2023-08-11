@@ -29,14 +29,13 @@ import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
-import { instanceColumns, InstanceData } from '../../common/variables/instance'
-import { AdminInstanceService, AdminInstanceState, INSTANCE_PAGE_LIMIT } from '../../services/InstanceService'
+import { InstanceData, instanceColumns } from '../../common/variables/instance'
 import styles from '../../styles/admin.module.scss'
 import InstanceDrawer from './InstanceDrawer'
 
@@ -45,13 +44,10 @@ interface Props {
   search: string
 }
 
-/**
- * JSX used to display table of instance
- *
- * @param props
- * @returns DOM Element
- */
+const INSTANCE_PAGE_LIMIT = 100
+
 const InstanceTable = ({ className, search }: Props) => {
+  const { t } = useTranslation()
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(INSTANCE_PAGE_LIMIT)
   const refetch = useHookstate(false)
@@ -62,25 +58,24 @@ const InstanceTable = ({ className, search }: Props) => {
   const sortField = useHookstate('createdAt')
   const instanceAdmin = useHookstate<Instance | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)
-  const { t } = useTranslation()
 
-  const user = useHookstate(getMutableState(AuthState).user)
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
-  const adminInstances = adminInstanceState
+  const instancesQuery = useFind('instance', {
+    query: {
+      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
+      $skip: page.value * rowsPerPage.value,
+      $limit: rowsPerPage.value,
+      action: 'admin',
+      search
+    }
+  })
+  const removeInstance = useMutation('instance').remove
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    AdminInstanceService.fetchAdminInstances(search, newPage, sortField.value, fieldOrder.value)
     page.set(newPage)
   }
 
-  useEffect(() => {
-    if (adminInstanceState.fetched.value) {
-      AdminInstanceService.fetchAdminInstances(search, page.value, sortField.value, fieldOrder.value)
-    }
-  }, [fieldOrder.value])
-
   const submitRemoveInstance = async () => {
-    await AdminInstanceService.removeInstance(instanceId.value)
+    await removeInstance(instanceId.value)
     openConfirm.set(false)
   }
 
@@ -119,14 +114,6 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }, [])
 
-  useEffect(() => {
-    if (!isMounted.current) return
-    if ((user.id.value && adminInstances.updateNeeded.value) || refetch.value) {
-      AdminInstanceService.fetchAdminInstances(search, page.value, sortField.value, fieldOrder.value)
-    }
-    refetch.set(false)
-  }, [user, adminInstanceState.updateNeeded.value, refetch.value])
-
   const createData = (
     el: Instance,
     id: string,
@@ -164,7 +151,7 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = adminInstances.instances.value.map((el: Instance) =>
+  const rows = instancesQuery.data.map((el: Instance) =>
     createData(
       { ...el },
       el.id,
@@ -187,7 +174,7 @@ const InstanceTable = ({ className, search }: Props) => {
         column={instanceColumns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={adminInstances.total.value}
+        count={instancesQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

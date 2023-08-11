@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
 import { KnexService } from '@feathersjs/knex'
 
 import {
@@ -33,9 +32,10 @@ import {
   RecordingResourceQuery,
   RecordingResourceType
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RecordingResourceParams extends KnexAdapterParams<RecordingResourceQuery> {}
+export interface RecordingResourceParams extends RootParams<RecordingResourceQuery> {}
 
 export class RecordingResourceService<
   T = RecordingResourceType,

@@ -38,9 +38,9 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { Resizable } from 're-resizable'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
@@ -61,7 +61,7 @@ export const getChannelName = (channel: Channel) => {
   return (
     channel.name ||
     channel.channel_users
-      .filter((channelUser) => channelUser.user?.id !== Engine.instance.userId)
+      .filter((channelUser) => channelUser.user?.id !== Engine.instance.userID)
       .map((channelUser) => channelUser.user?.name)
       .filter(Boolean)
       .join(', ')
@@ -69,7 +69,7 @@ export const getChannelName = (channel: Channel) => {
 }
 
 export const MessageList = (props: { channelID: ChannelID }) => {
-  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userID)
 
   const { data: messages } = useFind('message', {
     query: {
@@ -185,7 +185,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
         style={{ height: height }}
       >
         {messages.map((message, index) => {
-          if (message.sender?.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
+          if (message.sender?.id === Engine.instance.userID) return <SelfMessage key={index} message={message} />
           else return <OtherMessage key={index} message={message} />
         })}
       </div>

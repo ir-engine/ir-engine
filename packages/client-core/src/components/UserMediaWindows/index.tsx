@@ -27,8 +27,8 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
@@ -59,13 +59,13 @@ export const useMediaWindows = () => {
   ][]
 
   const selfPeerID = Engine.instance.peerID
-  const selfUserID = Engine.instance.userId
+  const selfUserID = Engine.instance.userID
 
   const camActive = (cam: PeerMediaStreamInterface) =>
     (cam.videoStream && !cam.videoProducerPaused && !cam.videoStreamPaused) ||
     (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused)
 
-  const userPeers: Array<[UserId, PeerID[]]> = mediaNetworkConnected
+  const userPeers: Array<[UserID, PeerID[]]> = mediaNetworkConnected
     ? Array.from(mediaNetwork.users.entries())
     : [[selfUserID, [selfPeerID]]]
 
@@ -147,7 +147,7 @@ export const UserMediaWindowsWidget = () => {
   windows.push(...screens, ...cams)
 
   const selfPeerID = Engine.instance.peerID
-  const selfUserID = Engine.instance.userId
+  const selfUserID = Engine.instance.userID
   const mediaNetwork = Engine.instance.mediaNetwork
 
   // if window doesnt exist for self, add it
