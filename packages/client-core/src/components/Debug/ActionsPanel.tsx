@@ -54,10 +54,14 @@ function ActionsPanel() {
     <>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsHistory')}</h1>
+        <JSONTree data={Engine.instance.store.actions.history} shouldExpandNodeInitially={() => false} />
+      </div>
+      <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.actionsHistoryGrouped')}</h1>
         <JSONTree data={arrayToObject(Engine.instance.store.actions.history)} shouldExpandNodeInitially={() => false} />
       </div>
       <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.actionsCached')}</h1>
+        <h1>{t('common:debug.actionsCachedGrouped')}</h1>
         <JSONTree data={arrayToObject(Engine.instance.store.actions.cached)} shouldExpandNodeInitially={() => false} />
       </div>
     </>
