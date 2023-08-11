@@ -38,23 +38,23 @@ export async function up(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  let tableExists = await knex.schema.hasTable(recordingResourcePath)
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(recordingResourcePath)
 
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await knex.schema.dropTable(recordingResourcePath)
-    await knex.schema.renameTable(oldTableName, recordingResourcePath)
+    if (tableExists) await trx.schema.dropTable(recordingResourcePath)
+    await trx.schema.renameTable(oldTableName, recordingResourcePath)
   }
 
-  tableExists = await knex.schema.hasTable(recordingResourcePath)
+  tableExists = await trx.schema.hasTable(recordingResourcePath)
 
   if (tableExists) {
-    const hasIdColum = await knex.schema.hasColumn(recordingResourcePath, 'id')
-    const hasRecordingIdColumn = await knex.schema.hasColumn(recordingResourcePath, 'recordingId')
-    const hasStaticResourcesIdColumn = await knex.schema.hasColumn(recordingResourcePath, 'staticResourceId')
+    const hasIdColum = await trx.schema.hasColumn(recordingResourcePath, 'id')
+    const hasRecordingIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'recordingId')
+    const hasStaticResourcesIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'staticResourceId')
     if (!(hasRecordingIdColumn && hasIdColum && hasStaticResourcesIdColumn)) {
-      await knex.schema.dropTable(recordingResourcePath)
+      await trx.schema.dropTable(recordingResourcePath)
       tableExists = false
     }
   }

@@ -31,23 +31,14 @@ import type { Knex } from 'knex'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'recording'
-
-  // Added transaction here in order to ensure both below queries run on same pool.
-  // https://github.com/knex/knex/issues/218#issuecomment-56686210
-  const trx = await knex.transaction()
-  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
-
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
   const tableExists = await knex.schema.hasTable(recordingPath)
 
-  if (oldNamedTableExists) {
-    // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await knex.schema.dropTable(recordingPath)
-    await knex.schema.renameTable(oldTableName, recordingPath)
-  }
+  if (tableExists === false) {
+    // Added transaction here in order to ensure both below queries run on same pool.
+    // https://github.com/knex/knex/issues/218#issuecomment-56686210
+    const trx = await knex.transaction()
+    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  if (!tableExists && !oldNamedTableExists) {
     await trx.schema.createTable(recordingPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()

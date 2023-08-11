@@ -307,7 +307,7 @@ const RecordingPlayback = () => {
             if (!resource.key.endsWith('.webm') && !resource.key.endsWith('.mp4')) return null
             return (
               <video
-                key={resource.sid}
+                key={resource.id}
                 style={{ maxWidth: '100px', width: '100px', height: 'auto' }}
                 src={resource.url}
                 autoPlay={true}

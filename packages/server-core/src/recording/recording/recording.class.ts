@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Paginated, PaginationOptions, Params } from '@feathersjs/feathers'
+import type { Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
@@ -59,11 +59,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
     return await super._get(id, params)
   }
 
-  async find(
-    params?: RecordingParams & {
-      paginate?: PaginationOptions | false
-    }
-  ) {
+  async find(params?: RecordingParams) {
     let isAdmin = false
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
@@ -74,7 +70,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       }
     }
 
-    const paramsWithoutExtras = {
+    let paramsWithoutExtras = {
       ...params,
       // Explicitly cloned sort object because otherwise it was affecting default params object as well.
       query: params?.query ? JSON.parse(JSON.stringify(params?.query)) : {}
@@ -85,10 +81,10 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       delete paramsWithoutExtras.query.$sort['user']
     }
 
-    if (isAdmin) {
-      return super._find(paramsWithoutExtras) as Promise<Paginated<T>>
+    if (!isAdmin) {
+      paramsWithoutExtras = { ...paramsWithoutExtras, query: { userId: params?.user?.id } }
     }
-    return super._find({ ...paramsWithoutExtras, query: { userId: params?.user?.id } }) as Promise<Paginated<T>>
+    return super._find(paramsWithoutExtras)
   }
 
   async create(data: RecordingData, params?: RecordingParams) {

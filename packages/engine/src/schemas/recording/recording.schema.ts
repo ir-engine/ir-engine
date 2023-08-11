@@ -26,7 +26,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
-import { staticResourceDataSchema } from '../media/static-resource.schema'
+import { staticResourceSchema } from '../media/static-resource.schema'
 
 export const recordingPath = 'recording'
 
@@ -54,7 +54,7 @@ export const recordingSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    resources: Type.Array(Type.Ref(staticResourceDataSchema)),
+    resources: Type.Array(Type.Ref(staticResourceSchema)),
     userName: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

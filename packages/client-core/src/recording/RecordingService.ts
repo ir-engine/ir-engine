@@ -116,7 +116,7 @@ export const RecordingFunctions = {
         if (peerSchema.length) schema.peers[peerID] = peerSchema
       })
 
-      const recording = (await Engine.instance.api.service(recordingPath).create({ schema: schema })) as RecordingType
+      const recording = await Engine.instance.api.service(recordingPath).create({ schema: schema })
       return recording.id
     } catch (err) {
       console.error(err)

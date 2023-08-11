@@ -36,13 +36,13 @@ import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { RecordingType, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  selectedRecordingId: RecordingType['id'] | undefined
+  selectedRecordingId: RecordingID | undefined
   onClose: () => void
 }
 
