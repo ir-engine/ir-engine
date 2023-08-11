@@ -86,8 +86,8 @@ export const initializeNetwork = async (app: Application, hostId: UserID, topic:
     routers,
     transport,
     outgoingDataTransport,
-    outgoingDataProducers: {} as { [key: DataChannelType]: DataProducer },
-    mediasoupTransports: [] as WebRTCTransportExtension[],
+    outgoingDataProducers: {} as Record<DataChannelType, DataProducer>,
+    mediasoupTransports: {} as Record<string, WebRTCTransportExtension>,
     transportsConnectPending: [] as Promise<void>[],
     producers: [] as ProducerExtension[],
     consumers: [] as ConsumerExtension[]

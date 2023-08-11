@@ -27,6 +27,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
@@ -80,14 +81,16 @@ export type MediaStreamAppData = {
   mediaTag: MediaTagType
   peerID: PeerID
   direction: TransportDirection
-  channelId: string
+  channelId: ChannelID
   clientDirection?: 'recv' | 'send'
 }
 
 export type PeerMediaType = {
+  /** @deprecated - use ProducersConsumerState instead */
   paused: boolean
-  producerId: string
+  /** @deprecated - use ProducersConsumerState instead */
   globalMute: boolean
+  producerId: string
   encodings: Array<{
     mimeType: 'video/rtx' | 'video/vp8' | 'video/h264' | 'video/vp9' | 'audio/opus' | 'audio/pcmu' | 'audio/pcma'
     payloadType: number
@@ -95,7 +98,7 @@ export type PeerMediaType = {
     parameters: any
     rtcpFeedback: any[]
   }>
-  channelId: string
+  channelId: ChannelID
 }
 
 export type TransportDirection = 'send' | 'receive'

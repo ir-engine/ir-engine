@@ -44,19 +44,10 @@ import {
 } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 import {
-  handleWebRtcCloseConsumer,
-  handleWebRtcCloseProducer,
   handleWebRtcConsumeData,
   handleWebRtcConsumerSetLayers,
   handleWebRtcInitializeRouter,
-  handleWebRtcPauseConsumer,
-  handleWebRtcPauseProducer,
   handleWebRtcProduceData,
-  handleWebRtcReceiveTrack,
-  handleWebRtcRequestCurrentProducers,
-  handleWebRtcResumeConsumer,
-  handleWebRtcResumeProducer,
-  handleWebRtcSendTrack,
   handleWebRtcTransportClose,
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
@@ -190,35 +181,8 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
           case MessageTypes.WebRTCTransportClose.toString():
             handleWebRtcTransportClose(network, spark, peerID, data, id)
             break
-          case MessageTypes.WebRTCCloseProducer.toString():
-            handleWebRtcCloseProducer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCSendTrack.toString():
-            handleWebRtcSendTrack(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCReceiveTrack.toString():
-            handleWebRtcReceiveTrack(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCPauseConsumer.toString():
-            handleWebRtcPauseConsumer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCResumeConsumer.toString():
-            handleWebRtcResumeConsumer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCCloseConsumer.toString():
-            handleWebRtcCloseConsumer(network, spark, peerID, data, id)
-            break
           case MessageTypes.WebRTCConsumerSetLayers.toString():
             handleWebRtcConsumerSetLayers(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCResumeProducer.toString():
-            handleWebRtcResumeProducer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCPauseProducer.toString():
-            handleWebRtcPauseProducer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCRequestCurrentProducers.toString():
-            handleWebRtcRequestCurrentProducers(network, spark, peerID, data, id)
             break
           case MessageTypes.InitializeRouter.toString():
             handleWebRtcInitializeRouter(network, spark, peerID, data, id)
