@@ -23,23 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
-import { KnexService } from '@feathersjs/knex'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import {
-  UserKickData,
-  UserKickPatch,
-  UserKickQuery,
-  UserKickType
-} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import { UserKickID, UserKickQuery, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserKickParams extends KnexAdapterParams<UserKickQuery> {}
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export class UserKickService<T = UserKickType, ServiceParams extends Params = UserKickParams> extends KnexService<
-  UserKickType,
-  UserKickData,
-  UserKickParams,
-  UserKickPatch
-> {}
+export const userKickResolver = resolve<UserKickType, HookContext>({})
+
+export const userKickExternalResolver = resolve<UserKickType, HookContext>({})
+
+export const userKickDataResolver = resolve<UserKickType, HookContext>({
+  id: async () => {
+    return v4() as UserKickID
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userKickPatchResolver = resolve<UserKickType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const userKickQueryResolver = resolve<UserKickQuery, HookContext>({})

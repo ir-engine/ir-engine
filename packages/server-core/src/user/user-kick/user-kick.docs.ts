@@ -23,23 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
-import { KnexService } from '@feathersjs/knex'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 import {
-  UserKickData,
-  UserKickPatch,
-  UserKickQuery,
-  UserKickType
+  userKickDataSchema,
+  userKickPatchSchema,
+  userKickQuerySchema,
+  userKickSchema
 } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserKickParams extends KnexAdapterParams<UserKickQuery> {}
-
-export class UserKickService<T = UserKickType, ServiceParams extends Params = UserKickParams> extends KnexService<
-  UserKickType,
-  UserKickData,
-  UserKickParams,
-  UserKickPatch
-> {}
+export default createSwaggerServiceOptions({
+  schemas: {
+    userKickDataSchema,
+    userKickPatchSchema,
+    userKickQuerySchema,
+    userKickSchema
+  },
+  docs: {
+    description: 'User kick service description',
+    securities: ['all']
+  }
+})
