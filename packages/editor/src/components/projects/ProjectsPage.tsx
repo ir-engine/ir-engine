@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
@@ -64,6 +63,8 @@ import {
 } from '@mui/material'
 
 import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { getProjects } from '../../functions/projectFunctions'
 import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
@@ -164,6 +165,8 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
 }
 
 const ProjectsPage = () => {
+  const { t } = useTranslation()
+
   const installedProjects = useHookstate<ProjectInterface[]>([]) // constant projects initialized with an empty array.
   const officialProjects = useHookstate<ProjectInterface[]>([])
   const communityProjects = useHookstate<ProjectInterface[]>([])
@@ -186,13 +189,15 @@ const ProjectsPage = () => {
   const hasProjectWriteAccess = activeProject.value?.hasWriteAccess || isAdmin
 
   const authState = useHookstate(getMutableState(AuthState))
-  const projectState = useHookstate(getMutableState(ProjectState))
   const authUser = authState.authUser
   const user = authState.user
 
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
-  const { t } = useTranslation()
+  const projectPermissionMutation = useMutation('project-permission')
+  const githubRepoAccessRefreshQuery = useFind(githubRepoAccessRefreshPath)
+  const projectMutation = useMutation('project')
+  const patchProjectGithubPushMutation = useMutation('project-github-push').patch
 
   const fetchInstalledProjects = async () => {
     loading.set(true)
@@ -249,7 +254,7 @@ const ProjectsPage = () => {
   }, [installedProjects])
 
   const refreshGithubRepoAccess = () => {
-    ProjectService.refreshGithubRepoAccess()
+    githubRepoAccessRefreshQuery.refetch()
     fetchInstalledProjects()
   }
 
@@ -277,22 +282,22 @@ const ProjectsPage = () => {
   }
 
   const onCreateProject = async (name) => {
-    await ProjectService.createProject(name)
+    await projectMutation.create({ name })
     await fetchInstalledProjects()
   }
 
   const onCreatePermission = async (userInviteCode: string, projectId: string) => {
-    await ProjectService.createPermission(userInviteCode, projectId)
+    await projectPermissionMutation.create({ inviteCode: userInviteCode, projectId })
     await fetchInstalledProjects()
   }
 
   const onPatchPermission = async (id: string, type: string) => {
-    await ProjectService.patchPermission(id, type)
+    await projectPermissionMutation.patch(id, { type })
     await fetchInstalledProjects()
   }
 
   const onRemovePermission = async (id: string) => {
-    await ProjectService.removePermission(id)
+    await projectPermissionMutation.remove(id)
     await fetchInstalledProjects()
   }
 
@@ -310,7 +315,7 @@ const ProjectsPage = () => {
     if (activeProject.value) {
       try {
         const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
-        await ProjectService.removeProject(proj.id)
+        await projectMutation.remove(proj.id)
         await fetchInstalledProjects()
       } catch (err) {
         logger.error(err)
@@ -324,7 +329,7 @@ const ProjectsPage = () => {
   const pushProject = async (id: string) => {
     uploadingProject.set(true)
     try {
-      await ProjectService.pushProject(id)
+      await patchProjectGithubPushMutation(id, {})
       await fetchInstalledProjects()
     } catch (err) {
       logger.error(err)
@@ -503,10 +508,10 @@ const ProjectsPage = () => {
                   type="button"
                   variant="contained"
                   color="primary"
-                  disabled={projectState.refreshingGithubRepoAccess.value}
+                  disabled={githubRepoAccessRefreshQuery.data}
                   onClick={() => refreshGithubRepoAccess()}
                 >
-                  {projectState.refreshingGithubRepoAccess.value ? (
+                  {githubRepoAccessRefreshQuery.data ? (
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
                       {t('admin:components.project.refreshingGithubRepoAccess')}

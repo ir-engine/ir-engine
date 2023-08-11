@@ -469,7 +469,7 @@ export const checkProjectDestinationMatch = async (app: Application, params: Pro
         ]
       }
     })
-    if (projectExists.data.length > 0)
+    if (projectExists.length > 0)
       return {
         sourceProjectMatchesDestination: false,
         error: 'projectExists',

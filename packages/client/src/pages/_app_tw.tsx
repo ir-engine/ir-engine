@@ -33,13 +33,12 @@ import {
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 
-import { API } from '@etherealengine/client-core/src/API'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
@@ -65,7 +64,6 @@ const AppPage = () => {
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useHookstate(getMutableState(ProjectState))
 
   const initApp = useCallback(() => {
     initGA()
@@ -100,11 +98,10 @@ const AppPage = () => {
   // }, [])
 
   useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) {
-      ProjectService.fetchProjects()
+    if (selfUser?.id.value) {
       if (!fetchedProjectComponents) {
         setFetchedProjectComponents(true)
-        API.instance.client
+        Engine.instance.api
           .service('projects')
           .find()
           .then((projects) => {
@@ -114,7 +111,7 @@ const AppPage = () => {
           })
       }
     }
-  }, [selfUser, projectState.updateNeeded.value])
+  }, [selfUser])
 
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value

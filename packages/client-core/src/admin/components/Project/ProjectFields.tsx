@@ -48,7 +48,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { ProjectService } from '../../../common/services/ProjectService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
@@ -106,7 +106,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     try {
       ProjectUpdateService.resetSourceState(project, { resetSourceURL: false })
       ProjectUpdateService.setBranchProcessing(project, true)
-      const branchResponse = (await ProjectService.fetchProjectBranches(e.target.value)) as any
+      const branchResponse = (await Engine.instance.api.service('project-branches').get(e.target.value)) as any
       ProjectUpdateService.setBranchProcessing(project, false)
       if (branchResponse.error) {
         ProjectUpdateService.setShowBranchSelector(project, false)
@@ -141,9 +141,10 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         ProjectUpdateService.resetDestinationState(project, { resetDestinationURL: false })
         ProjectUpdateService.setDestinationValid(project, false)
         ProjectUpdateService.setDestinationProcessing(project, true)
-        const destinationResponse = await ProjectService.checkDestinationURLValid({
-          url: e.target.value,
-          inputProjectURL: inputProject?.repositoryPath
+        const destinationResponse = await Engine.instance.api.service('project-destination-check').get(e.target.value, {
+          query: {
+            inputProjectURL: inputProject?.repositoryPath
+          }
         })
         ProjectUpdateService.setDestinationProcessing(project, false)
         if (destinationResponse.error) {
@@ -181,15 +182,17 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       ProjectUpdateService.resetSourceState(project, { resetSourceURL: false, resetBranch: false })
       ProjectUpdateService.setSelectedBranch(project, e.target.value)
       ProjectUpdateService.setCommitsProcessing(project, true)
-      const projectResponse = (await ProjectService.fetchProjectCommits(
-        projectUpdateStatus.value.sourceURL,
-        e.target.value
-      )) as any
+      const projectResponse = await Engine.instance.api
+        .service('project-commits')
+        .get(projectUpdateStatus.value.sourceURL, {
+          query: {
+            branchName: e.target.value
+          }
+        })
+
       ProjectUpdateService.setCommitsProcessing(project, false)
-      if (projectResponse.error) {
-        ProjectUpdateService.setShowCommitSelector(project, false)
-        ProjectUpdateService.setBranchError(project, projectResponse.text)
-      } else {
+
+      if (Array.isArray(projectResponse)) {
         ProjectUpdateService.setShowCommitSelector(project, true)
         ProjectUpdateService.setCommitData(project, projectResponse)
 
@@ -202,6 +205,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
             handleCommitChange({ target: { value: project.commitSHA, commitData: projectResponse } })
           }
         }
+      } else {
+        ProjectUpdateService.setShowCommitSelector(project, false)
+        ProjectUpdateService.setBranchError(project, projectResponse.text)
       }
     } catch (err) {
       ProjectUpdateService.setCommitsProcessing(project, false)
@@ -232,16 +238,19 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     const valueRegex = new RegExp(`^${value}`, 'g')
     let matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
     if (!matchingCommit) {
-      const commitResponse = (await ProjectService.checkUnfetchedCommit({
-        url: projectUpdateStatus.value.sourceURL,
-        selectedSHA
-      })) as any
+      const commitResponse = await Engine.instance.api
+        .service('project-check-unfetched-commit')
+        .get(projectUpdateStatus.value.sourceURL, {
+          query: {
+            selectedSHA
+          }
+        })
       if (commitResponse.error) {
         ProjectUpdateService.setCommitError(project, commitResponse.text)
         ProjectUpdateService.setSourceProjectName(project, '')
         return
       } else {
-        ProjectUpdateService.mergeCommitData(project, commitResponse)
+        ProjectUpdateService.mergeCommitData(project, commitResponse as ProjectCommitInterface)
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(null)
@@ -291,28 +300,33 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       !projectUpdateStatus?.value?.sourceVsDestinationChecked
     ) {
       ProjectUpdateService.setSourceVsDestinationProcessing(project, true)
-      ProjectService.checkSourceMatchesDestination({
-        sourceURL: projectUpdateStatus.value.sourceURL || '',
-        selectedSHA: projectUpdateStatus.value.selectedSHA || '',
-        destinationURL: projectUpdateStatus.value.destinationURL || '',
-        existingProject: existingProject || false
-      }).then((res) => {
-        ProjectUpdateService.setSourceVsDestinationChecked(project, true)
-        ProjectUpdateService.setSourceVsDestinationProcessing(project, false)
-        if (res.error || res.message) {
-          ProjectUpdateService.setProjectName(project, '')
-          ProjectUpdateService.setSubmitDisabled(project, true)
-          ProjectUpdateService.setSourceProjectMatchesDestination(project, false)
-          ProjectUpdateService.setSourceVsDestinationError(project, res.text)
-          ProjectUpdateService.setSourceValid(project, false)
-        } else {
-          ProjectUpdateService.setProjectName(project, res.projectName)
-          ProjectUpdateService.setSubmitDisabled(project, !res.sourceProjectMatchesDestination)
-          ProjectUpdateService.setSourceProjectMatchesDestination(project, res.sourceProjectMatchesDestination)
-          ProjectUpdateService.setSourceVsDestinationError(project, '')
-          ProjectUpdateService.setSourceValid(project, true)
-        }
-      })
+      Engine.instance.api
+        .service('project-check-source-destination-match')
+        .find({
+          query: {
+            sourceURL: projectUpdateStatus.value.sourceURL || '',
+            selectedSHA: projectUpdateStatus.value.selectedSHA || '',
+            destinationURL: projectUpdateStatus.value.destinationURL || '',
+            existingProject: existingProject || false
+          }
+        })
+        .then((res) => {
+          ProjectUpdateService.setSourceVsDestinationChecked(project, true)
+          ProjectUpdateService.setSourceVsDestinationProcessing(project, false)
+          if (res.error || res.message) {
+            ProjectUpdateService.setProjectName(project, '')
+            ProjectUpdateService.setSubmitDisabled(project, true)
+            ProjectUpdateService.setSourceProjectMatchesDestination(project, false)
+            ProjectUpdateService.setSourceVsDestinationError(project, res.text)
+            ProjectUpdateService.setSourceValid(project, false)
+          } else {
+            ProjectUpdateService.setProjectName(project, res.projectName)
+            ProjectUpdateService.setSubmitDisabled(project, !res.sourceProjectMatchesDestination)
+            ProjectUpdateService.setSourceProjectMatchesDestination(project, res.sourceProjectMatchesDestination)
+            ProjectUpdateService.setSourceVsDestinationError(project, '')
+            ProjectUpdateService.setSourceValid(project, true)
+          }
+        })
     } else {
       if (!projectUpdateStatus?.value?.sourceVsDestinationChecked && !(existingProject && changeDestination)) {
         ProjectUpdateService.setSourceVsDestinationProcessing(project, false)

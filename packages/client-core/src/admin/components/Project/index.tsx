@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -33,7 +35,6 @@ import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../styles/admin.module.scss'
 import BuildStatusDrawer from './BuildStatusDrawer'
@@ -46,44 +47,34 @@ const Projects = () => {
 
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
-  const projectState = useHookstate(getMutableState(ProjectState))
-  const builderTags = projectState.builderTags.value
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
+
+  const projectsQuery = useFind('project')
+  const builderTags = useFind('project-builder-tags').data
+  const projectBuildStatusQuery = useGet('project-build', undefined)
+  const projectRebuilding = !projectBuildStatusQuery.data?.failed && !projectBuildStatusQuery.data?.succeeded
+  const builderInfoData = useGet('builder-info', undefined).data
+  const githubRepoAccessRefreshQuery = useFind(githubRepoAccessRefreshPath)
 
   const projectDrawerOpen = useHookstate(false)
   const updateDrawerOpen = useHookstate(false)
   const buildStatusDrawerOpen = useHookstate(false)
   const isFirstRun = useHookstate(true)
 
-  const refreshGithubRepoAccess = () => {
-    ProjectService.refreshGithubRepoAccess()
-  }
-
-  useEffect(() => {
-    ProjectService.checkReloadStatus()
-  }, [])
-
-  useEffect(() => {
-    if (user?.scopes?.value?.find((scope) => scope.type === 'projects:read')) {
-      ProjectService.fetchBuilderTags()
-      ProjectService.getBuilderInfo()
-    }
-  }, [user])
-
   useEffect(() => {
     let interval
 
     isFirstRun.set(false)
 
-    if (projectState.rebuilding.value) {
-      interval = setInterval(ProjectService.checkReloadStatus, 10000)
+    if (projectRebuilding) {
+      interval = setInterval(() => projectBuildStatusQuery.refetch(), 10000)
     } else {
       clearInterval(interval)
-      ProjectService.fetchProjects()
+      projectsQuery.refetch()
     }
 
     return () => clearInterval(interval)
-  }, [projectState.rebuilding.value])
+  }, [projectRebuilding])
 
   return (
     <div>
@@ -107,10 +98,12 @@ const Projects = () => {
             color="primary"
             onClick={() => updateDrawerOpen.set(true)}
           >
-            {projectState.rebuilding.value ? (
+            {projectRebuilding ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
-                {isFirstRun.value ? t('admin:components.project.checking') : t('admin:components.project.rebuilding')}
+                {projectBuildStatusQuery.status === 'pending'
+                  ? t('admin:components.project.checking')
+                  : t('admin:components.project.rebuilding')}
               </Box>
             ) : (
               t('admin:components.project.updateAndRebuild')
@@ -128,9 +121,9 @@ const Projects = () => {
             {t('admin:components.project.buildStatus')}
             <div
               className={`${styles.containerCircle} ${
-                projectState.succeeded.value === true
+                projectBuildStatusQuery.data?.succeeded
                   ? styles.containerGreen
-                  : projectState.failed.value === true
+                  : projectBuildStatusQuery.data?.failed
                   ? styles.containerRed
                   : styles.containerYellow
               }`}
@@ -140,18 +133,18 @@ const Projects = () => {
       </Grid>
 
       <div className={styles.engineInfo}>
-        <Chip label={`Current Engine Version: ${projectState.builderInfo.engineVersion.value}`} />
-        <Chip label={`Current Engine Commit: ${projectState.builderInfo.engineCommit.value}`} />
+        <Chip label={`Current Engine Version: ${builderInfoData?.engineVersion}`} />
+        <Chip label={`Current Engine Commit: ${builderInfoData?.engineCommit}`} />
         {githubProvider != null && (
           <Button
             className={styles.refreshGHBtn}
             type="button"
             variant="contained"
             color="primary"
-            disabled={projectState.refreshingGithubRepoAccess.value}
-            onClick={() => refreshGithubRepoAccess()}
+            disabled={githubRepoAccessRefreshQuery.data}
+            onClick={() => githubRepoAccessRefreshQuery.refetch()}
           >
-            {projectState.refreshingGithubRepoAccess.value ? (
+            {githubRepoAccessRefreshQuery.data ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
                 {t('admin:components.project.refreshingGithubRepoAccess')}
@@ -177,7 +170,5 @@ const Projects = () => {
     </div>
   )
 }
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default Projects

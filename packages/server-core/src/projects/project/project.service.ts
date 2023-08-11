@@ -70,7 +70,7 @@ declare module '@etherealengine/common/declarations' {
     }
     project: Project
     'project-build': {
-      find: ReturnType<typeof projectBuildFind>
+      get: ReturnType<typeof projectBuildGet>
       patch: ReturnType<typeof projectBuildPatch>
     }
     'project-invalidate': {
@@ -112,7 +112,7 @@ export const getProjectsList = async () => {
     .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
 }
 
-export const projectBuildFind = (app: Application) => async () => {
+export const projectBuildGet = (app: Application) => async () => {
   return await checkBuilderService(app)
 }
 
@@ -248,13 +248,13 @@ export default (app: Application): void => {
   })
 
   app.use('project-build', {
-    find: projectBuildFind(app),
+    get: projectBuildGet(app),
     patch: projectBuildPatch(app)
   })
 
   app.service('project-build').hooks({
     before: {
-      find: [authenticate(), verifyScope('admin', 'admin')],
+      get: [authenticate(), verifyScope('admin', 'admin')],
       patch: [authenticate(), verifyScope('admin', 'admin')]
     }
   })

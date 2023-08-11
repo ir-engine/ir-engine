@@ -35,8 +35,8 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { useFind, useMutation, useRealtime } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { PROJECT_PAGE_LIMIT, ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import { userIsAdmin } from '../../../user/userHasAccess'
 import TableComponent from '../../common/Table'
@@ -45,6 +45,8 @@ import styles from '../../styles/admin.module.scss'
 import ProjectDrawer from './ProjectDrawer'
 import ProjectFilesDrawer from './ProjectFilesDrawer'
 import UserPermissionDrawer from './UserPermissionDrawer'
+
+const PROJECT_PAGE_LIMIT = 100
 
 const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
@@ -78,11 +80,15 @@ const ProjectTable = ({ className }: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
   const [changeDestination, setChangeDestination] = useState(false)
 
-  const projectState = useHookstate(getMutableState(ProjectState))
-  const adminProjects = projectState.projects
-  const adminProjectCount = adminProjects.value.length
+  const projectsQuery = useFind('project', { query: { allowed: true } })
+  const adminProjects = projectsQuery.data
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
+  const projectMutation = useMutation('project')
+  const projectGitHubPushPatch = useMutation('project-github-push').patch
+  const projectInvalidatePatch = useMutation('project-invalidate').patch
+
+  useRealtime('project-invalidate', () => projectsQuery.refetch())
 
   const projectRef = useRef(project)
 
@@ -91,18 +97,16 @@ const ProjectTable = ({ className }: Props) => {
     _setProject(project)
   }
 
-  ProjectService.useAPIListeners()
-
   useEffect(() => {
-    if (project) setProject(adminProjects.get({ noproxy: true }).find((proj) => proj.name === project.name)!)
+    if (project) setProject(adminProjects.find((proj) => proj.name === project.name)!)
   }, [adminProjects])
 
   const handleRemoveProject = async () => {
     try {
       if (projectRef.current) {
-        const projectToRemove = adminProjects.get({ noproxy: true }).find((p) => p.name === projectRef.current?.name)!
+        const projectToRemove = adminProjects.find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
-          await ProjectService.removeProject(projectToRemove.id)
+          await projectMutation.remove(projectToRemove.id)
           handleCloseConfirmation()
         } else {
           throw new Error('Failed to find the project')
@@ -119,7 +123,7 @@ const ProjectTable = ({ className }: Props) => {
         if (!projectRef.current.repositoryPath && projectRef.current.name !== 'default-project') return
 
         setProcessing(true)
-        await ProjectService.pushProject(projectRef.current.id)
+        await projectGitHubPushPatch(projectRef.current.id, {})
         setProcessing(false)
 
         handleCloseConfirmation()
@@ -133,7 +137,7 @@ const ProjectTable = ({ className }: Props) => {
   const handleInvalidateCache = async () => {
     try {
       setProcessing(true)
-      await ProjectService.invalidateProjectCache(projectRef.current!.name)
+      await projectInvalidatePatch({ projectName: projectRef.current!.name })
       setProcessing(false)
 
       handleCloseConfirmation()
@@ -364,7 +368,7 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
-  const rows = adminProjects.value?.map((el) => {
+  const rows = adminProjects?.map((el) => {
     return createData(el, el.name)
   })
 
@@ -376,7 +380,7 @@ const ProjectTable = ({ className }: Props) => {
         column={projectsColumns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminProjectCount}
+        count={adminProjects.length}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

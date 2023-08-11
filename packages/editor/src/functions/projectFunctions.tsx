@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { API } from '@etherealengine/client-core/src/API'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -38,7 +38,7 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  */
 export const getProjects = async (): Promise<ProjectInterface[]> => {
   try {
-    const { data } = await API.instance.client.service('project').find({
+    const data = await Engine.instance.api.service('project').find({
       query: { allowed: true }
     })
     return data

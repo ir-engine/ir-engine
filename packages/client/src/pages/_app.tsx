@@ -33,7 +33,6 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { theme } from '@etherealengine/client-core/src/theme'
@@ -62,7 +61,6 @@ const AppPage = ({ route }: { route: string }) => {
   const selfUser = authState.user
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useHookstate(getMutableState(ProjectState))
 
   const initApp = useCallback(() => {
     initGA()
@@ -97,8 +95,7 @@ const AppPage = ({ route }: { route: string }) => {
   // }, [])
 
   useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) {
-      ProjectService.fetchProjects()
+    if (selfUser?.id.value) {
       if (!fetchedProjectComponents) {
         setFetchedProjectComponents(true)
         Engine.instance.api
@@ -111,7 +108,7 @@ const AppPage = ({ route }: { route: string }) => {
           })
       }
     }
-  }, [selfUser, projectState.updateNeeded.value])
+  }, [selfUser])
 
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value

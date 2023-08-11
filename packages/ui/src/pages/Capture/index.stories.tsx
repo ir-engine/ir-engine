@@ -35,7 +35,6 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { RecordingServiceSystem } from '@etherealengine/client-core/src/recording/RecordingService'
@@ -100,7 +99,6 @@ const decorators = [
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [projectComponents, setProjectComponents] = useState<Array<any>>([])
     const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-    const projectState = useHookstate(getMutableState(ProjectState))
 
     useEffect(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,8 +120,7 @@ const decorators = [
     }, [])
 
     useEffect(() => {
-      if (selfUser?.id.value && projectState.updateNeeded.value) {
-        ProjectService.fetchProjects()
+      if (selfUser?.id.value) {
         if (!fetchedProjectComponents) {
           setFetchedProjectComponents(true)
           // @ts-ignore
@@ -141,7 +138,7 @@ const decorators = [
             })
         }
       }
-    }, [selfUser, projectState.updateNeeded.value])
+    }, [selfUser])
 
     useEffect(() => {
       Engine.instance.userId = selfUser.id.value

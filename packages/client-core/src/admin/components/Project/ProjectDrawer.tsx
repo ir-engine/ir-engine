@@ -37,8 +37,8 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 
+import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { ProjectService } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
@@ -72,24 +72,29 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
         }
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
+  const projectMutation = useMutation('project')
 
   const handleSubmit = async () => {
     try {
       if (existingProject && changeDestination) {
-        if (inputProject) await ProjectService.setRepositoryPath(inputProject.id, projectUpdateStatus.destinationURL)
+        if (inputProject)
+          await projectMutation.patch(inputProject.id, {
+            repositoryPath: projectUpdateStatus.destinationURL,
+            needsRebuild: true
+          })
         handleClose()
       } else if (projectUpdateStatus.sourceURL) {
         processing.set(true)
-        await ProjectService.uploadProject(
-          projectUpdateStatus.sourceURL,
-          projectUpdateStatus.destinationURL,
-          projectUpdateStatus.projectName,
-          true,
-          projectUpdateStatus.selectedSHA,
-          projectUpdateStatus.selectedBranch,
-          projectUpdateStatus.updateType,
-          projectUpdateStatus.updateSchedule
-        )
+        await projectMutation.update({
+          sourceURL: projectUpdateStatus.sourceURL,
+          destinationURL: projectUpdateStatus.destinationURL,
+          name: projectUpdateStatus.projectName,
+          reset: true,
+          commitSHA: projectUpdateStatus.selectedSHA,
+          sourceBranch: projectUpdateStatus.selectedBranch,
+          updateType: projectUpdateStatus.updateType,
+          updateSchedule: projectUpdateStatus.updateSchedule
+        })
         processing.set(false)
         handleClose()
       }

@@ -44,9 +44,8 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useGet, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
@@ -68,9 +67,9 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const processing = useHookstate(false)
   const helmSetting = useFind(helmSettingPath).data.at(0)
 
-  const adminProjectState = useHookstate(getMutableState(ProjectState))
-  const adminProjects = adminProjectState.projects
-  const engineCommit = adminProjectState.builderInfo.engineCommit
+  const adminProjects = useFind('project').data
+  const engineCommit = useGet('builder-info', undefined).data?.engineCommit
+  const projectBuildPatch = useMutation('project-build').patch
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState))
 
@@ -78,7 +77,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     error.set('')
     selectedTag.set('')
     updateProjects.set(false)
-    adminProjects.get({ noproxy: true }).forEach((adminProject) => {
+    adminProjects.forEach((adminProject) => {
       if (projectsToUpdate.get({ noproxy: true }).get(adminProject.name))
         ProjectUpdateService.clearProjectUpdate(adminProject)
     })
@@ -101,7 +100,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     })
     return {
       value: el.tag,
-      label: `Commit ${el.commitSHA?.slice(0, 8)} -- ${el.tag === engineCommit.value ? '(Current) ' : ''}Version ${
+      label: `Commit ${el.commitSHA?.slice(0, 8)} -- ${el.tag === engineCommit ? '(Current) ' : ''}Version ${
         el.engineVersion
       } -- Pushed ${pushedDate}`
     }
@@ -109,21 +108,24 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
 
   const handleSubmit = async () => {
     processing.set(true)
-    await ProjectService.updateEngine(
+    await projectBuildPatch(
       selectedTag.value,
-      updateProjects.value,
-      Object.keys(projectUpdateStatus.value).map((name) => {
-        return {
-          name: projectUpdateStatus[name].projectName.value,
-          sourceURL: projectUpdateStatus[name].sourceURL.value,
-          destinationURL: projectUpdateStatus[name].destinationURL.value,
-          reset: true,
-          commitSHA: projectUpdateStatus[name].selectedSHA.value,
-          sourceBranch: projectUpdateStatus[name].selectedBranch.value,
-          updateType: projectUpdateStatus[name].updateType.value || ('none' as ProjectUpdateType),
-          updateSchedule: projectUpdateStatus[name].updateSchedule.value || DefaultUpdateSchedule
-        }
-      })
+      {
+        updateProjects: updateProjects.value,
+        projectsToUpdate: Object.keys(projectUpdateStatus.value).map((name) => {
+          return {
+            name: projectUpdateStatus[name].projectName.value,
+            sourceURL: projectUpdateStatus[name].sourceURL.value,
+            destinationURL: projectUpdateStatus[name].destinationURL.value,
+            reset: true,
+            commitSHA: projectUpdateStatus[name].selectedSHA.value,
+            sourceBranch: projectUpdateStatus[name].selectedBranch.value,
+            updateType: projectUpdateStatus[name].updateType.value || ('none' as ProjectUpdateType),
+            updateSchedule: projectUpdateStatus[name].updateSchedule.value || DefaultUpdateSchedule
+          }
+        })
+      },
+      null!
     )
     processing.set(false)
     handleClose()
@@ -152,9 +154,9 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   }, [selectedTag?.value, projectUpdateStatus])
 
   useEffect(() => {
-    const matchingTag = builderTags.find((tag) => tag.tag === engineCommit.value)
-    if (open && engineCommit.value && matchingTag && selectedTag.value.length === 0) selectedTag.set(engineCommit.value)
-  }, [open, engineCommit.value, builderTags])
+    const matchingTag = builderTags.find((tag) => tag.tag === engineCommit)
+    if (open && engineCommit && matchingTag && selectedTag.value.length === 0) selectedTag.set(engineCommit)
+  }, [open, engineCommit, builderTags])
 
   return (
     <DrawerView open={open} onClose={handleClose}>
@@ -205,8 +207,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
             </div>
             <div className={styles.projectSelector}>
               {adminProjects
-                .get({ noproxy: true })
-                ?.filter((project) => project.name !== 'default-project' && project.repositoryPath?.length > 0)
+                .filter((project) => project.name !== 'default-project' && project.repositoryPath?.length > 0)
                 .map((project) => (
                   <div key={project.id} className={styles.projectUpdateContainer}>
                     <FormControlLabel

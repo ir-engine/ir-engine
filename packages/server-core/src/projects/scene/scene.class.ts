@@ -111,7 +111,7 @@ export class Scene implements ServiceMethods<any> {
     const projects = await this.app.service('project').find(params)
 
     const scenes: SceneData[] = []
-    for (const project of projects.data) {
+    for (const project of projects) {
       const { data } = await this.app
         .service('scene-data')
         .get({ projectName: project.name, metadataOnly: true, internal: true }, params!)

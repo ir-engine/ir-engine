@@ -42,8 +42,8 @@ import ListItem from '@etherealengine/ui/src/primitives/mui/ListItem'
 import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 import Switch from '@etherealengine/ui/src/primitives/mui/Switch'
 
+import { useFind, useMutation, useRealtime } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
@@ -65,6 +65,11 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
       ? 'owner'
       : 'user'
 
+  const projectsQuery = useFind('project')
+  useRealtime('project-permission', () => projectsQuery.refetch())
+
+  const projectPermissionMutation = useMutation('project-permission')
+
   const handleChange = (e) => {
     const { value } = e.target
     setError(value ? '' : t('admin:components.project.inviteCodeRequired'))
@@ -78,8 +83,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
     }
 
     try {
-      await ProjectService.createPermission(userInviteCode, project.id)
-      await ProjectService.fetchProjects()
+      await projectPermissionMutation.create({ inviteCode: userInviteCode, projectId: project.id })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -89,8 +93,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
 
   const handleRemovePermission = async (id: string) => {
     try {
-      await ProjectService.removePermission(id)
-      await ProjectService.fetchProjects()
+      await projectPermissionMutation.remove(id)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -98,8 +101,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
 
   const handlePatchPermission = async (permission: ProjectPermissionInterface) => {
     try {
-      await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
-      await ProjectService.fetchProjects()
+      await projectPermissionMutation.patch(permission.id, { type: permission.type === 'owner' ? 'user' : 'owner' })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

@@ -43,7 +43,7 @@ export class ProjectSetting implements ServiceMethods<Data> {
 
   async find(params?: Params): Promise<[{ key: string; value: string }]> {
     const result = await this.app.service('project').find(params)
-    return result?.data[0]?.settings ? JSON.parse(result.data[0].settings) : []
+    return result?.[0]?.settings ? JSON.parse(result[0].settings) : []
   }
 
   async patch(id: Id, data: { settings: string }, params?: Params): Promise<any> {

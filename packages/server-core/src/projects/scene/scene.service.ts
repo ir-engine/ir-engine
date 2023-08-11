@@ -125,7 +125,7 @@ export const getAllScenes = (app: Application) => {
   return async function (params: SceneParams): Promise<{ data: SceneData[] }> {
     const projects = await app.service('project').find(params)
     const scenes = await Promise.all(
-      projects.data.map(
+      projects.map(
         (project) =>
           new Promise<SceneData[]>(async (resolve) => {
             const projectScenes = (

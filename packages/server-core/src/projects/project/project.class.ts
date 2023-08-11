@@ -667,9 +667,8 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params?: UserParams): Promise<{ data: ProjectInterface[]; errors: any[] }> {
+  async find(params?: UserParams): Promise<ProjectInterface[]> {
     let projectPushIds: string[] = []
-    const errors = [] as any
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
@@ -787,9 +786,6 @@ export class Project extends Service {
       }
     })
 
-    return {
-      data,
-      errors
-    }
+    return data
   }
 }

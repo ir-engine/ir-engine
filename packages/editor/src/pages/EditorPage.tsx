@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { startClientSystems } from '@etherealengine/client-core/src/world/startClientSystems'
@@ -41,6 +40,7 @@ import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfo
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import EditorContainer from '../components/EditorContainer'
 import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
 import { EditorAction, EditorState } from '../services/EditorServices'
@@ -64,7 +64,6 @@ const editorSystems = () => {
 
 export const EditorPage = () => {
   const params = useParams()
-  const projectState = useHookstate(getMutableState(ProjectState))
   const editorState = useHookstate(getMutableState(EditorState))
   const isEditor = useHookstate(getMutableState(EngineState).isEditor)
   const authState = useHookstate(getMutableState(AuthState))
@@ -73,6 +72,7 @@ export const EditorPage = () => {
   const [isAuthenticated, setAuthenticated] = useState(false)
   const [clientInitialized, setClientInitialized] = useState(false)
   const [engineReady, setEngineReady] = useState(true)
+  const projectsData = useFind('project').data
 
   useEffect(() => {
     // TODO: This is a hack to prevent the editor from loading the engine twice
@@ -111,9 +111,9 @@ export const EditorPage = () => {
   }, [params])
 
   useEffect(() => {
-    if (clientInitialized || projectState.projects.value.length <= 0) return
+    if (clientInitialized || projectsData.length <= 0) return
     setClientInitialized(true)
-  }, [projectState.projects.value])
+  }, [projectsData])
 
   return (
     <>{clientInitialized && editorState.projectName.value && isAuthenticated && engineReady && <EditorContainer />}</>
