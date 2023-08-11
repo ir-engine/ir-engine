@@ -239,7 +239,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
   await setupIPs()
-  const network = await initializeNetwork(app, hostId, topic)
+  const network = await initializeNetwork(app, hostId, hostId, topic)
 
   addNetwork(network)
 
