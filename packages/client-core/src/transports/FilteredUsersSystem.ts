@@ -42,6 +42,7 @@ export const FilteredUsersState = defineState({
 
 export const FilteredUsersService = {
   updateNearbyLayerUsers: () => {
+    if (!Engine.instance.worldNetwork) return
     const mediaState = getMutableState(FilteredUsersState)
     const selfUserId = getMutableState(AuthState).user.id.value
     const peers = Engine.instance.worldNetwork.peers ? Array.from(Engine.instance.worldNetwork.peers.values()) : []
@@ -55,10 +56,9 @@ export const FilteredUsersService = {
 
 export const updateNearbyAvatars = () => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  if (!network) return
 
   FilteredUsersService.updateNearbyLayerUsers()
-
-  if (!network) return
 
   const channelConnectionState = getState(MediaInstanceState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
