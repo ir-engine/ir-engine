@@ -40,7 +40,6 @@
     "@hookstate/core": "4.0.0-rc21",
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",
-    "@mui/styles": "5.11.13",
     "behave-graph": "^0.9.10",
     "i18next": "21.6.16",
     "lodash": "4.17.21",
