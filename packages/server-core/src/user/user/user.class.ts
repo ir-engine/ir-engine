@@ -143,7 +143,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
     delete dataWithoutExtras.scopes
 
-    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType
+    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType | UserType[]
 
     await this._afterPatch(this.app, result)
 
@@ -163,8 +163,6 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
   }
 
   _afterCreate = async (app: Application, result: UserType) => {
-    if (Array.isArray(result)) result = result[0] // Added this check as when a user leaves a location then this is an arry.
-
     try {
       await app.service('user-settings').create({
         userId: result.id
@@ -193,15 +191,15 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
     }
   }
 
-  _afterPatch = async (app: Application, result: UserType) => {
-    if (Array.isArray(result)) result = result[0] // Added this check as when a user leaves a location then this is an arry.
-
+  _afterPatch = async (app: Application, results: UserType | UserType[]) => {
     try {
-      if (result && !result.isGuest && result.inviteCode == null) {
-        const code = await getFreeInviteCode(app)
-        await this._patch(result.id!, {
-          inviteCode: code
-        })
+      for (const result of Array.isArray(results) ? results : [results]) {
+        if (result && !result.isGuest && result.inviteCode == null) {
+          const code = await getFreeInviteCode(app)
+          await this._patch(result.id!, {
+            inviteCode: code
+          })
+        }
       }
     } catch (err) {
       logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)
