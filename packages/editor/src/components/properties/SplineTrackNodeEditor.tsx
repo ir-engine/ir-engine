@@ -31,6 +31,8 @@ import { SplineTrackComponent } from '@etherealengine/engine/src/scene/component
 
 import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
 
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
 import { Vector3Scrubber } from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
@@ -48,27 +50,41 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   const component = useComponent(props.entity, SplineTrackComponent)
   const velocity = component.velocity.value
 
-  // these could be exposed to outside parties by being passed in
+  // @todo allow these to be passed in or remove this capability
   const onChange = () => {}
   const onRelease = () => {}
 
   const processChange = (value) => {
     component.velocity.set(value)
-    //if(onChange)onChange()
+  }
+
+  const toggleRoll = () => {
+    component.disableRoll.set(component.disableRoll.value ? false : true)
   }
 
   return (
     <NodeEditor description={t('editor:properties.splinetrack.description')} {...props}>
-      <NumericInput
-        value={velocity}
-        onChange={processChange}
-        onCommit={onRelease}
-        prefix={
-          <Vector3Scrubber tag="div" value={velocity} onChange={processChange} onPointerUp={onRelease} axis="velocity">
-            Velocity
-          </Vector3Scrubber>
-        }
-      />
+      <InputGroup name="Toggle Roll" label={t('editor:properties.splinetrack.lbl-roll')}>
+        <BooleanInput value={component.disableRoll.value} onChange={toggleRoll} />
+      </InputGroup>
+      <InputGroup name="Velocity" label={t('editor:properties.splinetrack.lbl-velocity')}>
+        <NumericInput
+          value={velocity}
+          onChange={processChange}
+          onCommit={onRelease}
+          prefix={
+            <Vector3Scrubber
+              tag="div"
+              value={velocity}
+              onChange={processChange}
+              onPointerUp={onRelease}
+              axis="velocity"
+            >
+              Velocity
+            </Vector3Scrubber>
+          }
+        />
+      </InputGroup>
     </NodeEditor>
   )
 }

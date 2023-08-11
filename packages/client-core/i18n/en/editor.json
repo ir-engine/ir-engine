@@ -665,7 +665,8 @@
     "splinetrack": {
       "name": "SplineTrack",
       "description": "Have an entity follow a Spline",
-      "lbl-speed": "Adjust overall speed"
+      "lbl-velocity": "Adjust overall velocity",
+      "lbl-roll": "Disable or Enable roll"
     },
     "systemnode": {
       "description": "Attach script.",

@@ -44,17 +44,19 @@ export const SplineTrackComponent = defineComponent({
   onInit: (entity) => {
     return {
       alpha: 0.01,
-      velocity: 1,
-      disableRoll: true
+      velocity: 1.0,
+      disableRoll: false
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
+    json.velocity && component.velocity.set(json.velocity)
+    json.disableRoll && component.disableRoll.set(json.disableRoll)
   },
 
   toJSON: (entity, component) => {
-    return {}
+    return { velocity: component.velocity.value, disableRoll: component.disableRoll.value }
   },
 
   onRemove: (entity, component) => {},
@@ -97,10 +99,12 @@ export const SplineTrackComponent = defineComponent({
         // @todo replace naive lerp with a spline division based calculation
         if (local) {
           local.position.lerpVectors(p1, p2, alpha - index) //.add(transform.position).y -= 1
-          local.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
+          if (!component.disableRoll.value)
+            local.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
         } else {
           transform.position.lerpVectors(p1, p2, alpha - index) //.add(transform.position).y -= 1
-          transform.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
+          if (!component.disableRoll.value)
+            transform.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
         }
       },
       { with: PresentationSystemGroup }
