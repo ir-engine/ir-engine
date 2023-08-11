@@ -23,12 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserInterface } from '../dbmodels/UserInterface'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export interface ProjectPermissionInterface {
-  id: string
-  projectId: string
-  userId: string
-  type: string
-  user: UserInterface
-}
+import {
+  ProjectPermissionQuery,
+  ProjectPermissionType
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const projectPermissionResolver = resolve<ProjectPermissionType, HookContext>({})
+
+export const projectPermissionExternalResolver = resolve<ProjectPermissionType, HookContext>({})
+
+export const projectPermissionDataResolver = resolve<ProjectPermissionType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const projectPermissionPatchResolver = resolve<ProjectPermissionType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const projectPermissionQueryResolver = resolve<ProjectPermissionQuery, HookContext>({})
