@@ -135,13 +135,13 @@ const handleFailedConnection = (locationConnectionFailed) => {
   console.log('handleFailedConnection', locationConnectionFailed)
   if (locationConnectionFailed) {
     const currentLocation = getMutableState(LocationState).currentLocation.location
-    const locationInstanceConnectionState = getMutableState(LocationInstanceState)
+    const locationInstanceConnectionState = getState(LocationInstanceState)
     const instanceId = getState(NetworkState).hostIds.world ?? ''
     if (
-      !locationInstanceConnectionState.instances[instanceId]?.connected?.value &&
-      !locationInstanceConnectionState.instances[instanceId]?.connecting?.value
+      !locationInstanceConnectionState.instances[instanceId]?.connected &&
+      !locationInstanceConnectionState.instances[instanceId]?.connecting
     ) {
-      getMutableState(LocationInstanceState).instances[instanceId].set(none)
+      LocationInstanceConnectionService.resetServer(instanceId)
       LocationInstanceConnectionService.provisionServer(
         currentLocation.id.value,
         instanceId || undefined,
@@ -149,10 +149,10 @@ const handleFailedConnection = (locationConnectionFailed) => {
       )
     }
   } else {
-    const mediaInstanceConnectionState = getMutableState(MediaInstanceState)
+    const mediaInstanceConnectionState = getState(MediaInstanceState)
     const instanceId = getState(NetworkState).hostIds.media ?? ''
-    if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
-      getMutableState(MediaInstanceState).instances[instanceId].set(none)
+    if (!mediaInstanceConnectionState.instances[instanceId]?.connected) {
+      MediaInstanceConnectionService.resetServer(instanceId)
       const authState = getMutableState(AuthState)
       const selfUser = authState.user
       const chatState = getMutableState(ChannelState)
@@ -165,9 +165,6 @@ const handleFailedConnection = (locationConnectionFailed) => {
   }
   return
 }
-
-// close() {
-// }
 
 export const closeNetwork = async (network: SocketWebRTCClientNetwork) => {
   network.recvTransport?.close()
@@ -395,20 +392,10 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   logger.info('Connecting to instance type: %o', { topic: network.topic, hostId: network.hostId })
 
   if (isWorldConnection) {
-    getMutableState(LocationInstanceState).instances[network.hostId].merge({
-      connected: true,
-      connecting: false,
-      readyToConnect: false
-    })
+    LocationInstanceConnectionService.setServerConnected(network.hostId)
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
   } else {
-    const mediaInstanceState = getMutableState(MediaInstanceState)
-    mediaInstanceState.joiningNewMediaChannel.set(false)
-    mediaInstanceState.instances[network.hostId].merge({
-      connected: true,
-      connecting: false,
-      readyToConnect: false
-    })
+    MediaInstanceConnectionService.setServerConnected(network.hostId)
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
   }
 
@@ -1475,12 +1462,12 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       clearPeerMediaChannels()
       removeNetwork(network)
       getMutableState(NetworkState).hostIds.media.set(none)
-      getMutableState(MediaInstanceState).instances[network.hostId].set(none)
+      MediaInstanceConnectionService.resetServer(network.hostId)
     } else {
       NetworkPeerFunctions.destroyAllPeers(network)
       removeNetwork(network)
       getMutableState(NetworkState).hostIds.world.set(none)
-      getMutableState(LocationInstanceState).instances[network.hostId].set(none)
+      LocationInstanceConnectionService.resetServer(network.hostId)
       dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
       // if world has a media server connection
       if (Engine.instance.mediaNetwork) {

@@ -100,7 +100,6 @@ export const MediaInstanceConnectionService = {
       })
     }
   },
-
   provisionServer: async (channelId?: ChannelID, createPrivateRoom = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const token = getState(AuthState).authUser.accessToken
@@ -144,8 +143,20 @@ export const MediaInstanceConnectionService = {
 
     await connectToNetwork(network, { port: port.value, ipAddress: ipAddress.value, channelId })
   },
+  setServerConnected: (instanceId: string) => {
+    const mediaInstanceState = getMutableState(MediaInstanceState)
+    mediaInstanceState.joiningNewMediaChannel.set(false)
+    mediaInstanceState.instances[instanceId].merge({
+      connected: true,
+      connecting: false,
+      readyToConnect: false
+    })
+  },
   resetServer: (instanceId: string) => {
     getMutableState(MediaInstanceState).instances[instanceId].set(none)
+  },
+  setJoining: (joining: boolean) => {
+    getMutableState(MediaInstanceState).joiningNewMediaChannel.set(true)
   },
   useAPIListeners: () => {
     useEffect(() => {
@@ -159,8 +170,5 @@ export const MediaInstanceConnectionService = {
         Engine.instance.api.service('instance-provision').off('created', listener)
       }
     }, [])
-  },
-  setJoining: (joining: boolean) => {
-    getMutableState(MediaInstanceState).joiningNewMediaChannel.set(true)
   }
 }

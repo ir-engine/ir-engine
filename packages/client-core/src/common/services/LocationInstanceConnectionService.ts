@@ -100,7 +100,6 @@ export const LocationInstanceConnectionService = {
       }
     })
   },
-
   provisionServer: async (
     locationId?: string,
     instanceId?: string,
@@ -213,6 +212,16 @@ export const LocationInstanceConnectionService = {
     }
     const { ipAddress, port, locationId, roomCode } = getState(LocationInstanceState).instances[instanceId]
     await connectToNetwork(network, { port, ipAddress, locationId, roomCode })
+  },
+  setServerConnected: (instanceId: string) => {
+    getMutableState(LocationInstanceState).instances[instanceId].merge({
+      connected: true,
+      connecting: false,
+      readyToConnect: false
+    })
+  },
+  resetServer: (instanceId: string) => {
+    getMutableState(LocationInstanceState).instances[instanceId].set(none)
   },
   useAPIListeners: () => {
     useEffect(() => {
