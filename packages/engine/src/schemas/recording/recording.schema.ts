@@ -22,7 +22,7 @@ Ethereal Engine. All Rights Reserved.
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
@@ -51,7 +51,7 @@ export const recordingSchema = Type.Object(
     }),
     ended: Type.Boolean(),
     schema: Type.Ref(recordingSchemaType),
-    userId: TypedString<UserId>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     resources: Type.Array(Type.Ref(staticResourceDataSchema)),

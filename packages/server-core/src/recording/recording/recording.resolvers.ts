@@ -37,6 +37,7 @@ import {
   RecordingSchemaType,
   RecordingType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingType => {
@@ -68,7 +69,7 @@ export const recordingResolver = resolve<RecordingType, HookContext>({
     return recordingResource
   }),
   userName: virtual(async (recording, context) => {
-    const user = await context.app.service('user')._get(recording.userId)
+    const user = await context.app.service(userPath)._get(recording.userId)
 
     return user.name
   })

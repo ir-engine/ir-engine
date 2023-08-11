@@ -137,7 +137,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const app = Engine.instance.api as Application
 
   const recording = await app.service(recordingPath).get(action.recordingID)
-  if (!recording) return dispatchError('Recording not found', action.$from)
+  if (!recording) return dispatchError('Recording not found', action.$peer)
 
   let schema = recording.schema
 
@@ -146,7 +146,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   }
 
   const user = await app.service(userPath).get(recording.userId)
-  if (!user) return dispatchError('Invalid user', action.$from)
+  if (!user) return dispatchError('Invalid user', action.$peer)
 
   const userID = user.id
 
