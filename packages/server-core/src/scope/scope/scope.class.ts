@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminScope as AdminScopeInterface } from '@etherealengine/common/src/interfaces/AdminScope'
+import { AdminScope as AdminScopeInterface } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 
+import { ScopeTypeType, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { createScopeTypeModel } from './scope.model'
+import { UserParams } from '../../api/root-params'
 
 export type AdminScopeDataType = AdminScopeInterface
 
@@ -42,31 +44,38 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<Paginated<T>> {
+  async find(params?: UserParams): Promise<Paginated<T>> {
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
-    const scope = await (this.app.service('scope') as any).Model.findAndCountAll({
-      offset: skip,
-      limit: limit,
-      include: [
-        {
-          model: createScopeTypeModel(this.app),
-          required: false
-        },
-        {
-          model: (this.app.service('user') as any).Model,
-          required: false
+
+    const scopes = (await super.find(params)) as any
+
+    const data = scopes.data ?? scopes
+    // TODO: Move following to scope resolver's
+    const scopeTypes = (await this.app.service(scopeTypePath)._find({
+      query: {
+        type: {
+          $in: data.map((item) => item.type)
         }
-      ],
-      raw: true,
-      nest: true
-    })
-    return {
-      skip: skip,
-      limit: limit,
-      total: scope.count,
-      data: scope.rows
+      },
+      paginate: false
+    })) as any as ScopeTypeType[]
+
+    const users = (await this.app.service(userPath)._find({
+      query: {
+        id: {
+          $in: data.map((item) => item.userId)
+        }
+      },
+      paginate: false
+    })) as any as UserType[]
+
+    for (const scope of scopes) {
+      scope.user = users.find((item) => item.id === scope.userId)
+      scope.scopeType = scopeTypes.find((item) => item.type === scope.type)
     }
+
+    return scopes
   }
 
   async create(data): Promise<T | T[]> {

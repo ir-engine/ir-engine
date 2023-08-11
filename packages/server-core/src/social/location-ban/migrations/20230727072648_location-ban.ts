@@ -34,15 +34,32 @@ import { locationBanPath } from '@etherealengine/engine/src/schemas/social/locat
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'location_ban'
 
+  let tableExists = await knex.schema.hasTable(locationBanPath)
   const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
   if (oldNamedTableExists) {
+    if (tableExists) await knex.schema.dropTable(locationBanPath)
     await knex.schema.renameTable(oldTableName, locationBanPath)
   }
 
-  const tableExists = await knex.schema.hasTable(locationBanPath)
+  tableExists = await knex.schema.hasTable(locationBanPath)
+
+  if (tableExists) {
+    const hasIdColum = await knex.schema.hasColumn(locationBanPath, 'id')
+    const hasLocationIdColumn = await knex.schema.hasColumn(locationBanPath, 'locationId')
+    const hasUserIdColumn = await knex.schema.hasColumn(locationBanPath, 'userId')
+    if (!(hasLocationIdColumn && hasIdColum && hasUserIdColumn)) {
+      await knex.schema.dropTable(locationBanPath)
+      tableExists = false
+    }
+  }
 
   if (tableExists === false) {
-    await knex.schema.createTable(locationBanPath, (table) => {
+    // Added transaction here in order to ensure both below queries run on same pool.
+    // https://github.com/knex/knex/issues/218#issuecomment-56686210
+    const trx = await knex.transaction()
+    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+    await trx.schema.createTable(locationBanPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
@@ -55,6 +72,10 @@ export async function up(knex: Knex): Promise<void> {
       table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
       table.foreign('locationId').references('id').inTable('location').onDelete('SET NULL').onUpdate('CASCADE')
     })
+
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+
+    await trx.commit()
   }
 }
 

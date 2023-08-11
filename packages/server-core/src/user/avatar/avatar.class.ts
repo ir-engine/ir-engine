@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter, type KnexAdapterOptions, type KnexAdapterParams } from '@feathersjs/knex'
+import { KnexAdapter, type KnexAdapterOptions } from '@feathersjs/knex'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import {
   AvatarData,
@@ -36,15 +35,14 @@ import {
   AvatarType
 } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { checkScope } from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
+import { RootParams } from '../../api/root-params'
+import { checkScope } from '../../hooks/verify-scope'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AvatarParams extends KnexAdapterParams<AvatarQuery> {
-  user?: UserInterface
-  isInternal?: boolean
-}
+export interface AvatarParams extends RootParams<AvatarQuery> {}
 
 /**
  * A class for Avatar service
@@ -155,12 +153,13 @@ export class AvatarService<T = AvatarType, ServiceParams extends Params = Avatar
     //avatars to use
     if (id && avatars.length > 0) {
       const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
-      await this.app.service('user').Model.update(
+      await this.app.service(userPath)._patch(
+        null,
         {
           avatarId: randomReplacementAvatar.id
         },
         {
-          where: {
+          query: {
             avatarId: id
           }
         }

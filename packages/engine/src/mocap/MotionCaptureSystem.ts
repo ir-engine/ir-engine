@@ -128,13 +128,13 @@ const execute = () => {
     }
   }
 
-  const userPeers = network?.users?.get(Engine.instance.userId)
+  const userPeers = network?.users?.get(Engine.instance.userID)
 
   // Stop mocap by removing entities if data doesnt exist
   if (isClient && !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID))) {
-    const headUUID = (Engine.instance.userId + motionCaptureHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + motionCaptureLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + motionCaptureRightHandSuffix) as EntityUUID
+    const headUUID = (Engine.instance.userID + motionCaptureHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userID + motionCaptureLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userID + motionCaptureRightHandSuffix) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]

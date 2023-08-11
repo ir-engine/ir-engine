@@ -84,7 +84,6 @@ export type EffectMapType = (typeof EffectMap)[keyof typeof EffectMap]
 
 export type EffectProps = {
   isActive: boolean
-  blendFunction?: BlendFunction
 }
 
 export type FXAAEffectProps = EffectProps
@@ -112,6 +111,7 @@ export type OutlineEffectProps = EffectProps & {
 
 export type SSAOEffectProps = EffectProps & {
   distanceScaling: boolean
+  blendFunction: BlendFunction
   depthAwareUpsampling: boolean
   samples: number
   rings: number
@@ -150,12 +150,14 @@ const defaultSSROptions = {
 export type SSREffectProps = EffectProps & typeof defaultSSROptions
 
 export type DepthOfFieldEffectProps = EffectProps & {
+  blendFunction: BlendFunction
   focusDistance: number
   focalLength: number
   bokehScale: number
 }
 
 export type BloomEffectProps = EffectProps & {
+  blendFunction: BlendFunction
   kernelSize: number
   luminanceThreshold: number
   luminanceSmoothing: number
@@ -163,6 +165,7 @@ export type BloomEffectProps = EffectProps & {
 }
 
 export type ToneMappingEffectProps = EffectProps & {
+  blendFunction: BlendFunction
   adaptive: boolean
   resolution: number
   middleGrey: number

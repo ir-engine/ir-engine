@@ -29,6 +29,7 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import Paginated from '../../types/PageObject'
@@ -140,7 +141,7 @@ export class Magiclink implements ServiceMethods<Data> {
         throw new BadRequest('Invalid subscription')
       }
 
-      const subscriptionUser = await this.app.service('user').get(subscription.data[0].userId)
+      const subscriptionUser = await this.app.service(userPath).get(subscription.data[0].userId)
 
       username = subscriptionUser.name
     }

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from './UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export interface IdentityProvider {
   id: number
@@ -31,7 +31,7 @@ export interface IdentityProvider {
   accountIdentifier?: string
   type: string
   isVerified: boolean
-  userId: UserId
+  userId: UserID
 }
 
 export const IdentityProviderSeed: IdentityProvider = {
@@ -39,5 +39,5 @@ export const IdentityProviderSeed: IdentityProvider = {
   token: '',
   type: '',
   isVerified: false,
-  userId: '' as UserId
+  userId: '' as UserID
 }
