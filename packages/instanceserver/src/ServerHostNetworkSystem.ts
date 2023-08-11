@@ -28,13 +28,19 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 
+import { DataProducerActions } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { defineActionQueue } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { handleConsumerSetLayers, handleRequestConsumer, handleRequestProducer } from './WebRTCFunctions'
+import {
+  handleConsumerSetLayers,
+  handleProduceData,
+  handleRequestConsumer,
+  handleRequestProducer
+} from './WebRTCFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
   for (const [peerID, client] of network.peers) {
@@ -49,24 +55,27 @@ export async function validateNetworkObjects(network: SocketWebRTCServerNetwork)
 const requestConsumerActionQueue = defineActionQueue(MediaConsumerActions.requestConsumer.matches)
 const consumerLayersActionQueue = defineActionQueue(MediaConsumerActions.consumerLayers.matches)
 const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
+const dataRequestProducerActionQueue = defineActionQueue(DataProducerActions.requestProducer.matches)
 
 const execute = () => {
   const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
-  if (mediaNetwork) {
-    for (const action of requestConsumerActionQueue()) {
-      handleRequestConsumer(mediaNetwork, action)
-    }
-    for (const action of consumerLayersActionQueue()) {
-      handleConsumerSetLayers(mediaNetwork, action)
-    }
-    for (const action of requestProducerActionQueue()) {
-      handleRequestProducer(mediaNetwork, action)
-    }
+  for (const action of requestConsumerActionQueue()) {
+    handleRequestConsumer(mediaNetwork, action)
+  }
+  for (const action of consumerLayersActionQueue()) {
+    handleConsumerSetLayers(mediaNetwork, action)
+  }
+  for (const action of requestProducerActionQueue()) {
+    handleRequestProducer(mediaNetwork, action)
   }
 
   const worldNetwork = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
   if (worldNetwork) {
     if (worldNetwork.isHosting) validateNetworkObjects(worldNetwork)
+  }
+
+  for (const action of dataRequestProducerActionQueue()) {
+    handleProduceData(worldNetwork, action)
   }
 }
 
