@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   defineAction,
   defineState,
@@ -43,6 +42,7 @@ import { Validator, matches, matchesPeerID } from '../../common/functions/Matche
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { UserID } from '../../schemas/user/user.schema'
 import { MediaStreamAppData, NetworkState } from '../NetworkState'
 
 export class MediaProducerActions {
@@ -127,7 +127,7 @@ export const MediaProducerConsumerState = defineState({
   name: 'ee.engine.network.MediaProducerConsumerState',
 
   initial: {} as Record<
-    UserId, // NetworkID
+    UserID, // NetworkID
     {
       producers: {
         [producerID: string]: {
@@ -261,7 +261,7 @@ const execute = () => {
   receiveActions(MediaProducerConsumerState)
 }
 
-export const NetworkProducer = (props: { networkID: UserId; producerID: string }) => {
+export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
   const { networkID, producerID } = props
   const producerState = useHookstate(getMutableState(MediaProducerConsumerState)[networkID].producers[producerID])
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
@@ -337,7 +337,7 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
   return <></>
 }
 
-export const NetworkConsumer = (props: { networkID: UserId; consumerID: string }) => {
+export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }) => {
   const { networkID, consumerID } = props
   const consumerState = useHookstate(getMutableState(MediaProducerConsumerState)[networkID].consumers[consumerID])
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
@@ -379,7 +379,7 @@ export const NetworkConsumer = (props: { networkID: UserId; consumerID: string }
   return <></>
 }
 
-const NetworkProducers = (props: { networkID: UserId }) => {
+const NetworkProducers = (props: { networkID: UserID }) => {
   const { networkID } = props
   const producers = useHookstate(getMutableState(MediaProducerConsumerState)[networkID].producers)
 
@@ -392,7 +392,7 @@ const NetworkProducers = (props: { networkID: UserId }) => {
   )
 }
 
-const NetworkConsumers = (props: { networkID: UserId }) => {
+const NetworkConsumers = (props: { networkID: UserID }) => {
   const { networkID } = props
   const consumers = useHookstate(getMutableState(MediaProducerConsumerState)[networkID].consumers)
 
@@ -409,10 +409,10 @@ const reactor = () => {
   const networkIDs = useHookstate(getMutableState(MediaProducerConsumerState))
   return (
     <>
-      {Object.keys(networkIDs.value).map((hostId: UserId) => (
+      {Object.keys(networkIDs.value).map((hostId: UserID) => (
         <NetworkProducers key={hostId + 'producer'} networkID={hostId} />
       ))}
-      {Object.keys(networkIDs.value).map((hostId: UserId) => (
+      {Object.keys(networkIDs.value).map((hostId: UserID) => (
         <NetworkConsumers key={hostId + 'consumer'} networkID={hostId} />
       ))}
     </>

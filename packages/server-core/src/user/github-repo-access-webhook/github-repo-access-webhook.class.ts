@@ -24,21 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 import crypto from 'crypto'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotAuthenticated } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessWebhookParams extends KnexAdapterParams {
-  user: UserInterface
-}
+export interface GithubRepoAccessWebhookParams extends RootParams {}
 
 /**
  * A class for Github Repo Access Webhook service
@@ -82,7 +81,7 @@ export class GithubRepoAccessWebhookService<
         }
       })
       if (!githubIdentityProvider) return ''
-      const user = await this.app.service('user').get(githubIdentityProvider.userId)
+      const user = await this.app.service(userPath).get(githubIdentityProvider.userId)
       // GitHub's API doesn't always reflect changes to user repo permissions right when a webhook is sent.
       // 10 seconds should be more than enough time for the changes to propagate.
       setTimeout(() => {

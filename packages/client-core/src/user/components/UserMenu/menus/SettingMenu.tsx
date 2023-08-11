@@ -109,7 +109,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
-  const userSettings = selfUser.user_setting.value
+  const userSettings = selfUser.userSetting.value
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')

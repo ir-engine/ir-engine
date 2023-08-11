@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { CreateUserKick, UserKick as UserKickInterface } from '@etherealengine/common/src/interfaces/User'
+import { CreateUserKick, UserKick as UserKickInterface } from '@etherealengine/common/src/interfaces/UserKick'
 
 import { Application } from '../../../declarations'
 

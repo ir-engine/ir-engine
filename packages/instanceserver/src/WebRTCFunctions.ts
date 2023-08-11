@@ -41,7 +41,7 @@ import {
 import os from 'os'
 import { Spark } from 'primus'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { dataChannelRegistry, MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'

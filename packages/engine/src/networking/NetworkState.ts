@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
@@ -38,12 +38,12 @@ export const NetworkState = defineState({
   name: 'NetworkState',
   initial: {
     hostIds: {
-      media: null as UserId | null,
-      world: null as UserId | null
+      media: null as UserID | null,
+      world: null as UserID | null
     },
     // todo - move to Network.schemas
     networkSchema: {} as { [key: string]: SerializationSchema },
-    networks: {} as { [key: UserId]: Network },
+    networks: {} as { [key: UserID]: Network },
     config: {
       /** Allow connections to a world instance server */
       world: false,
@@ -135,7 +135,7 @@ export const removeDataChannelHandler = (dataChannelType: DataChannelType, handl
   }
 }
 
-export const updateNetworkID = (network: Network, newHostId: UserId) => {
+export const updateNetworkID = (network: Network, newHostId: UserID) => {
   const state = getMutableState(NetworkState)
   state.networks[network.hostId].set(none)
   state.networks[newHostId].set(network)

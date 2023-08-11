@@ -23,18 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelInterface } from '../dbmodels/Channel'
-import { OpaqueType } from './OpaqueType'
-import { UserInterface } from './User'
-import { UserId } from './UserId'
+// TODO: Once moved to feathers 5. Remove this interfaces folder
 
-export type ChannelID = OpaqueType<'ChannelID'> & string
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '../user/user.schema'
 
-export type ChannelUser = {
-  id: string
-  isOwner: boolean
-  userId: UserId
-  user?: UserInterface
-  channelId: ChannelID
-  channel?: ChannelInterface
+/* @deprecated */
+export interface Relationship {
+  userId: UserID
+  friend: UserType[]
+  requested: UserType[]
+  pending: UserType[]
+  blocking: UserType[]
+  blocked: UserType[]
 }
