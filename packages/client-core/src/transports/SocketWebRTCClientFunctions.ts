@@ -83,7 +83,7 @@ import {
   removeActionReceptor
 } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
