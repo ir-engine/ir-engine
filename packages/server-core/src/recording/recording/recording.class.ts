@@ -71,8 +71,8 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin && params.query.action === 'admin') {
         // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
-        delete paramsWithoutExtras.query.action
-        delete paramsWithoutExtras.query.userId
+        if (paramsWithoutExtras.query?.userId || paramsWithoutExtras.query?.userId === '')
+          delete paramsWithoutExtras.query.userId
       }
     }
 
@@ -80,6 +80,10 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
     if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query?.$sort['user']) {
       delete paramsWithoutExtras.query.$sort['user']
     }
+
+    // Remove extra params
+    if (paramsWithoutExtras.query?.action || paramsWithoutExtras.query?.action === '')
+      delete paramsWithoutExtras.query.action
 
     return super._find(paramsWithoutExtras)
   }
