@@ -634,7 +634,9 @@ export const AuthService = {
   },
 
   async updateUsername(userId: UserID, name: string) {
-    const { name: updatedName } = await Engine.instance.api.service(userPath).patch(userId, { name: name })
+    const { name: updatedName } = (await Engine.instance.api
+      .service(userPath)
+      .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
   },

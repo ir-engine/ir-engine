@@ -32,7 +32,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { uploadToFeathersService } from '../../util/upload'
 import { AuthState } from './AuthService'
 
@@ -142,7 +142,7 @@ export const AvatarService = {
   },
 
   async updateUserAvatarId(userId: UserID, avatarId: string) {
-    const res = await Engine.instance.api.service(userPath).patch(userId, { avatarId: avatarId })
+    const res = (await Engine.instance.api.service(userPath).patch(userId, { avatarId: avatarId })) as UserType
     getMutableState(AuthState).user.avatarId.set(res.avatarId!)
     dispatchAction(
       AvatarNetworkAction.setAvatarID({
