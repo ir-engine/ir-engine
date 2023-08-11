@@ -28,7 +28,13 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 
+import {
+  MediaConsumerActions,
+  MediaProducerActions
+} from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
+import { handleRequestConsumer, handleRequestProducer } from './WebRTCFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
   for (const [peerID, client] of network.peers) {
@@ -40,10 +46,24 @@ export async function validateNetworkObjects(network: SocketWebRTCServerNetwork)
   }
 }
 
+const requestConsumerActionQueue = defineActionQueue(MediaConsumerActions.requestConsumer.matches)
+const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
+
 const execute = () => {
-  const network = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
-  if (!network) return
-  if (Engine.instance.worldNetwork.isHosting) validateNetworkObjects(network)
+  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
+  if (mediaNetwork) {
+    for (const action of requestConsumerActionQueue()) {
+      handleRequestConsumer(mediaNetwork, action)
+    }
+    for (const action of requestProducerActionQueue()) {
+      handleRequestProducer(mediaNetwork, action)
+    }
+  }
+
+  const worldNetwork = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
+  if (worldNetwork) {
+    if (worldNetwork.isHosting) validateNetworkObjects(worldNetwork)
+  }
 }
 
 export const ServerHostNetworkSystem = defineSystem({
