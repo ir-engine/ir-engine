@@ -81,29 +81,26 @@ export function useMediaInstance() {
   return mediaHostId.value ? mediaInstanceState[mediaHostId.value] : null
 }
 
-export const provisisionMediaInstanceServer = (
-  provisionResult: InstanceServerProvisionResult,
-  channelId?: ChannelID
-) => {
-  getMutableState(NetworkState).hostIds.media.set(provisionResult.id as UserId)
-  const existingNetwork = getState(NetworkState).networks[provisionResult.id]
-  if (!existingNetwork) {
-    addNetwork(initializeNetwork(provisionResult.id as UserId, NetworkTopics.media))
-    getMutableState(MediaInstanceState).instances[provisionResult.id].set({
-      ipAddress: provisionResult.id,
-      port: provisionResult.port,
-      channelId: channelId,
-      roomCode: provisionResult.roomCode,
-      videoEnabled: false,
-      provisioned: true,
-      readyToConnect: true,
-      connected: false,
-      connecting: false
-    })
-  }
-}
-
 export const MediaInstanceConnectionService = {
+  provision: (provisionResult: InstanceServerProvisionResult, channelId?: ChannelID) => {
+    getMutableState(NetworkState).hostIds.media.set(provisionResult.id as UserId)
+    const existingNetwork = getState(NetworkState).networks[provisionResult.id]
+    if (!existingNetwork) {
+      addNetwork(initializeNetwork(provisionResult.id as UserId, NetworkTopics.media))
+      getMutableState(MediaInstanceState).instances[provisionResult.id].set({
+        ipAddress: provisionResult.id,
+        port: provisionResult.port,
+        channelId: channelId,
+        roomCode: provisionResult.roomCode,
+        videoEnabled: false,
+        provisioned: true,
+        readyToConnect: true,
+        connected: false,
+        connecting: false
+      })
+    }
+  },
+
   provisionServer: async (channelId?: ChannelID, createPrivateRoom = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const token = getState(AuthState).authUser.accessToken
@@ -115,7 +112,7 @@ export const MediaInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      provisisionMediaInstanceServer(provisionResult, channelId)
+      MediaInstanceConnectionService.provision(provisionResult, channelId)
     } else {
       dispatchAction(NetworkConnectionService.actions.noMediaServersAvailable({ instanceId: channelId! ?? '' }))
     }
@@ -154,7 +151,7 @@ export const MediaInstanceConnectionService = {
     useEffect(() => {
       const listener = (params) => {
         if (params.channelId != null) {
-          provisisionMediaInstanceServer(params, params.channelId)
+          MediaInstanceConnectionService.provision(params, params.channelId)
         }
       }
       Engine.instance.api.service('instance-provision').on('created', listener)

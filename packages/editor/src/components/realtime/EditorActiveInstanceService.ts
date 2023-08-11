@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { provisionLocationInstanceServer } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LocationInstanceConnectionService } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import logger from '@etherealengine/common/src/logger'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -70,7 +70,7 @@ export const EditorActiveInstanceService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      provisionLocationInstanceServer(provisionResult, locationId!, sceneId!)
+      LocationInstanceConnectionService.provision(provisionResult, locationId!, sceneId!)
     }
   },
   getActiveInstances: async (sceneId: string) => {

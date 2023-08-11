@@ -30,7 +30,7 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { changeActiveConnectionHostId } from '../../common/services/LocationInstanceConnectionService'
+import { LocationInstanceConnectionService } from '../../common/services/LocationInstanceConnectionService'
 import { AuthState } from '../services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:userPatched' })
@@ -52,7 +52,7 @@ export const userPatched = (params) => {
     const currentInstanceId = patchedUser.instanceAttendance?.find((attendance) => !attendance.isChannel)
       ?.instanceId as UserId
     if (worldHostID && currentInstanceId && worldHostID !== currentInstanceId) {
-      changeActiveConnectionHostId(worldHostID, currentInstanceId)
+      LocationInstanceConnectionService.changeActiveConnection(worldHostID, currentInstanceId)
     }
   }
 }

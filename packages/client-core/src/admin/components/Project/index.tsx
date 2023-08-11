@@ -42,11 +42,12 @@ import ProjectTable from './ProjectTable'
 import UpdateDrawer from './UpdateDrawer'
 
 const Projects = () => {
+  const { t } = useTranslation()
+
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
   const projectState = useHookstate(getMutableState(ProjectState))
   const builderTags = projectState.builderTags.value
-  const { t } = useTranslation()
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
   const projectDrawerOpen = useHookstate(false)

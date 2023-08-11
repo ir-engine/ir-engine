@@ -306,7 +306,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const handleConfirmClose = () => {
     contentToDeletePath.set('')
-
     openConfirm.set(false)
   }
 
@@ -439,7 +438,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   return (
-    <div className={styles.fileBrowserRoot}>
+    <div
+      className={styles.fileBrowserRoot}
+      id="file-browser-panel" // id required for root element for react-dnd drop zone
+    >
       <div
         style={{
           display: 'flex',
