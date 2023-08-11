@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/common/components/AutoComplete'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { CreateEditUser, UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { ScopeTypeData, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -45,6 +44,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { UserData, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -64,7 +64,7 @@ export enum UserDrawerMode {
 interface Props {
   open: boolean
   mode: UserDrawerMode
-  selectedUser?: UserInterface
+  selectedUser?: UserType
   onClose: () => void
 }
 
@@ -96,7 +96,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       $limit: SCOPE_PAGE_LIMIT
     }
   }).data
-  const userMutation = useMutation('user')
+  const userMutation = useMutation(userPath)
 
   const hasWriteAccess = userHasAccess('user:write')
   const viewMode = mode === UserDrawerMode.ViewEdit && !editMode.value
@@ -110,15 +110,15 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     value: el.id
   }))
 
-  const nonGuestLinkedIP = selectedUser?.identity_providers?.filter((ip) => ip.type !== 'guest')
-  const discordIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'discord')
-  const googleIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'google')
-  const facebookIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'facebook')
-  const twitterIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'twitter')
-  const linkedinIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'linkedin')
-  const githubIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'github')
-  const emailIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'email')
-  const smsIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'sms')
+  const nonGuestLinkedIP = selectedUser?.identityProviders?.filter((ip) => ip.type !== 'guest')
+  const discordIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'discord')
+  const googleIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'google')
+  const facebookIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'facebook')
+  const twitterIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'twitter')
+  const linkedinIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'linkedin')
+  const githubIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'github')
+  const emailIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'email')
+  const smsIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'sms')
 
   if (selectedUser) {
     for (const scope of selectedUser.scopes || []) {
@@ -188,7 +188,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }
 
   const handleSubmit = async () => {
-    const data: CreateEditUser = {
+    const data: UserData = {
       name: state.name.value,
       avatarId: state.avatar.value,
       isGuest: state.isGuest.value,

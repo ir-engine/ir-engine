@@ -30,7 +30,6 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { RecordingResult, RecordingSchema } from '@etherealengine/common/src/interfaces/Recording'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -61,6 +60,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -69,16 +69,16 @@ import { createOutgoingDataProducer } from './WebRTCFunctions'
 const logger = multiLogger.child({ component: 'instanceserver:recording' })
 
 interface ActiveRecording {
-  userID: UserId
+  userID: UserID
   serializer?: ECSSerializer
   dataChannelRecorder?: any // todo
   mediaChannelRecorder?: Awaited<ReturnType<typeof startMediaRecording>>
 }
 
 interface ActivePlayback {
-  userID: UserId
+  userID: UserID
   deserializer?: ECSDeserializer
-  entitiesSpawned: (EntityUUID | UserId)[]
+  entitiesSpawned: (EntityUUID | UserID)[]
   peerIDs?: PeerID[]
   mediaPlayback?: any // todo
 }
@@ -140,7 +140,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const recording = await app.service('recording').get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$peer)
 
-  const user = await app.service('user').get(recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
   if (!user) return dispatchError('Invalid user', action.$peer)
 
   const userID = user.id
@@ -263,7 +263,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   const activeRecording = activeRecordings.get(action.recordingID)
   if (!activeRecording) return dispatchError('Recording not found', action.$peer)
 
-  const user = await app.service('user').get(activeRecording.userID)
+  const user = await app.service(userPath).get(activeRecording.userID)
 
   const hasScopes = await checkScope(user, app, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
@@ -306,7 +306,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const isClone = !action.targetUser
 
-  const user = await app.service('user').get(recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
   if (!user) return dispatchError('User not found', action.$peer)
 
   if (!isClone && Array.from(activePlaybacks.values()).find((rec) => rec.userID === action.targetUser)) {
@@ -355,7 +355,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const network = getServerNetwork(app) as SocketWebRTCServerNetwork
 
-  const entitiesSpawned = [] as (EntityUUID | UserId)[]
+  const entitiesSpawned = [] as (EntityUUID | UserID)[]
 
   activePlayback.deserializer = ECSSerialization.createDeserializer({
     chunks: entityChunks,
@@ -370,7 +370,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
           const entityID = isClone ? ((uuid + '_' + recording.id) as EntityUUID) : uuid
           entityChunks[chunkIndex].entities[i] = entityID
           app
-            .service('user')
+            .service(userPath)
             .get(uuid)
             .then((user) => {
               const peerIDs = Object.keys(schema.peers) as PeerID[]
@@ -406,7 +406,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                 dispatchAction(
                   AvatarNetworkAction.setAvatarID({
                     $from: entityID,
-                    avatarID: user.avatar.id,
+                    avatarID: user.avatar.id!,
                     entityUUID: entityID
                   })
                 )
@@ -448,7 +448,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
 
   const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
 
-  const user = await app.service('user').get(recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
 
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) throw new Error('User does not have record:read scope')
@@ -467,7 +467,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
   playbackStopped(user.id, recording.id)
 }
 
-const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
+const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
   const app = Engine.instance.api as Application
 
   const activePlayback = activePlaybacks.get(recordingID)!
@@ -506,12 +506,12 @@ const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
 }
 
 export const dataChannelToReplay = new Map<
-  UserId,
+  UserID,
   Map<DataChannelType, { startTime: number; frames: DataChannelFrame<any>[] }>
 >()
 
 export const setDataChannelChunkToReplay = (
-  userId: UserId,
+  userId: UserID,
   dataChannel: DataChannelType,
   frames: DataChannelFrame<any>[]
 ) => {
@@ -523,7 +523,7 @@ export const setDataChannelChunkToReplay = (
   userMap.set(dataChannel, { startTime: Date.now(), frames })
 }
 
-export const removeDataChannelToReplay = (userId: UserId) => {
+export const removeDataChannelToReplay = (userId: UserID) => {
   if (!dataChannelToReplay.has(userId)) {
     return
   }

@@ -29,6 +29,7 @@ import { RecordingInterface } from '@etherealengine/common/src/dbmodels/Recordin
 
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -51,7 +52,7 @@ export default (app: Application) => {
   })
 
   ;(Recording as any).associate = (models: any): void => {
-    ;(Recording as any).belongsTo(models.user, {
+    ;(Recording as any).belongsTo(createUserModel(app), {
       foreignKey: 'userId',
       as: 'user',
       allowNull: false,

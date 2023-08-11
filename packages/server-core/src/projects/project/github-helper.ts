@@ -31,7 +31,6 @@ import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   AudioFileTypes,
   ImageFileTypes,
@@ -39,11 +38,12 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { ProjectParams } from './project.class'
@@ -164,7 +164,7 @@ export const getRepo = async (owner: string, repo: string, token: string): Promi
 export const pushProjectToGithub = async (
   app: Application,
   project: ProjectInterface,
-  user: UserInterface,
+  user: UserType,
   reset = false,
   commitSHA?: string,
   storageProviderName?: string

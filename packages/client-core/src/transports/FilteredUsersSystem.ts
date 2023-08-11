@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -36,7 +36,7 @@ import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 export const FilteredUsersState = defineState({
   name: 'FilteredUsersState',
   initial: () => ({
-    nearbyLayerUsers: [] as UserId[]
+    nearbyLayerUsers: [] as UserID[]
   })
 })
 
@@ -49,7 +49,7 @@ export const FilteredUsersService = {
     const worldUserIds = peers
       ? peers.filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId).map((peer) => peer.userId)
       : []
-    const nearbyUsers = getNearbyUsers(Engine.instance.userId, worldUserIds)
+    const nearbyUsers = getNearbyUsers(Engine.instance.userID, worldUserIds)
     mediaState.nearbyLayerUsers.set(nearbyUsers)
   }
 }

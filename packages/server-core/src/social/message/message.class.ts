@@ -26,20 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
-import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
 
 export interface MessageParams extends UserParams {
   'identity-provider': {
-    userId: UserId
+    userId: UserID
   }
 }
 
@@ -60,25 +59,6 @@ export class Message<T = MessageDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: MessageParams): Promise<T[]> {
-    const data = await this.Model.findAll({
-      where: {
-        channelID: params?.query?.channelId
-      },
-      skip: params?.query?.skip ?? 0,
-      limit: params?.query?.limit ?? 100,
-      order: params?.query?.order ?? [['createdAt', 'ASC']],
-      include: [
-        {
-          model: this.app.service('user').Model,
-          as: 'sender'
-        }
-      ]
-    })
-
-    return data as T[]
-  }
-
   /**
    * A function which is used to create a message
    *
@@ -90,7 +70,7 @@ export class Message<T = MessageDataType> extends Service<T> {
   async create(data: CreateMessageDataType, params?: MessageParams): Promise<T> {
     let channel: Channel | null = null
     let userIdList: any[] = []
-    const loggedInUser = params!.user as UserInterface
+    const loggedInUser = params!.user as UserType
     const userId = loggedInUser?.id
     const givenChannelId = data.channelId
     const instanceId = data.instanceId
@@ -118,15 +98,14 @@ export class Message<T = MessageDataType> extends Service<T> {
         const knexClient: Knex = this.app.get('knexClient')
 
         const instanceUsers = await knexClient
-          .from('user')
-          .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, 'user.id')
+          .from(userPath)
+          .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, `${userPath}.id`)
           .where(`${instanceAttendancePath}.instanceId`, instanceId)
           .limit(1000)
           .select()
           .options({ nestTables: true })
-        userIdList = instanceUsers.map((instanceUser) => {
-          return instanceUser.user.id
-        })
+
+        userIdList = instanceUsers.map((instanceUser) => instanceUser.user.id)
       }
     }
     if (!channel) throw new BadRequest('Could not find or create channel')

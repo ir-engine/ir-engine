@@ -23,21 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID, ChannelUser } from './ChannelUser'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export type Channel = {
-  id: ChannelID
-  name: string
-  instanceId: string | null
-  createdAt: string
-  updatedAt: string
-  updateNeeded: boolean
-  limit: 5
-  skip: 0
-  total: 0
-  channel_users: ChannelUser[]
-}
-
-export interface PatchChannel {
-  name: string
-}
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Invite code lookup service description',
+    securities: ['all']
+  }
+})

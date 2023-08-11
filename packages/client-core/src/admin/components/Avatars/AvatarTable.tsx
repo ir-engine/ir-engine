@@ -72,7 +72,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
     }
   })
 
-  const adminAvatarRemove = useMutation('avatar').remove
+  const adminAvatarRemove = useMutation(avatarPath).remove
 
   const adminAvatars = adminAvatarQuery.data
   const adminAvatarCount = adminAvatarQuery.data.length

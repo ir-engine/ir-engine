@@ -27,9 +27,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
+import { InviteInterface } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
@@ -52,7 +54,7 @@ const defaultInvite = {
   deleteOnUse: true,
   createdAt: new Date().toJSON(),
   updatedAt: new Date().toJSON(),
-  userId: ''
+  userId: '' as UserID
 }
 
 const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props) => {

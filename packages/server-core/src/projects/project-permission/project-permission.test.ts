@@ -29,10 +29,10 @@ import assert from 'assert'
 import path from 'path'
 
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -60,32 +60,44 @@ const cleanup = async (app: Application) => {
 
 describe('project-permission.test', () => {
   let app: Application
-  let user1: UserInterface
-  let user2: UserInterface
-  let user3: UserInterface
-  let user4: UserInterface
+  let user1: UserType
+  let user2: UserType
+  let user3: UserType
+  let user4: UserType
   let project1, project1Permission1, project1Permission2, project1Permission4
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
 
-    user1 = (await app.service('user').create({
+    user1 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
-      isGuest: false
-    })) as UserInterface
-    user2 = (await app.service('user').create({
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
+    user2 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
-      isGuest: false
-    })) as UserInterface
-    user3 = (await app.service('user').create({
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
+    user3 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
-      isGuest: false
-    })) as UserInterface
-    user4 = (await app.service('user').create({
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
+    user4 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
-      isGuest: false
-    })) as UserInterface
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
       query: {
         userId: user1.id

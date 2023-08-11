@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 
 export const instanceAttendancePath = 'instance-attendance'
 
@@ -40,12 +42,13 @@ export const instanceAttendanceSchema = Type.Object(
     sceneId: Type.String(),
     isChannel: Type.Boolean(),
     ended: Type.Boolean(),
-    userId: Type.String({
-      format: 'uuid'
-    }),
     instanceId: Type.String({
       format: 'uuid'
     }),
+    userId: TypedString<UserID, 'uuid'>({
+      format: 'uuid'
+    }),
+    instance: Type.Any(), // TODO: Replace any with instance schema once instance service is moved to feathers 5.
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -56,7 +59,7 @@ export type InstanceAttendanceType = Static<typeof instanceAttendanceSchema>
 // Schema for creating new entries
 export const instanceAttendanceDataSchema = Type.Pick(
   instanceAttendanceSchema,
-  ['sceneId', 'isChannel', 'ended', 'userId', 'instanceId'],
+  ['sceneId', 'isChannel', 'ended', 'instanceId', 'userId'],
   {
     $id: 'InstanceAttendanceData'
   }
@@ -75,8 +78,8 @@ export const instanceAttendanceQueryProperties = Type.Pick(instanceAttendanceSch
   'sceneId',
   'isChannel',
   'ended',
-  'userId',
-  'instanceId'
+  'instanceId',
+  'userId'
 ])
 export const instanceAttendanceQuerySchema = Type.Intersect(
   [
