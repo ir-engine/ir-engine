@@ -23,19 +23,62 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  projectPermissionDataSchema,
+  projectPermissionPatchSchema,
+  projectPermissionQuerySchema,
+  projectPermissionSchema
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
 
+import {
+  projectPermissionDataResolver,
+  projectPermissionExternalResolver,
+  projectPermissionPatchResolver,
+  projectPermissionQueryResolver,
+  projectPermissionResolver
+} from './project-permission.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const projectPermissionValidator = getValidator(projectPermissionSchema, dataValidator)
+const projectPermissionDataValidator = getValidator(projectPermissionDataSchema, dataValidator)
+const projectPermissionPatchValidator = getValidator(projectPermissionPatchSchema, dataValidator)
+const projectPermissionQueryValidator = getValidator(projectPermissionQuerySchema, queryValidator)
+
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(projectPermissionExternalResolver),
+      schemaHooks.resolveResult(projectPermissionResolver)
+    ]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(projectPermissionQueryValidator),
+      schemaHooks.resolveQuery(projectPermissionQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), verifyProjectOwner() as any)],
+    create: [
+      iff(isProvider('external'), verifyProjectOwner() as any),
+      () => schemaHooks.validateData(projectPermissionDataValidator),
+      schemaHooks.resolveData(projectPermissionDataResolver)
+    ],
     update: [disallow()],
-    patch: [iff(isProvider('external'), verifyProjectOwner() as any)],
+    patch: [
+      iff(isProvider('external'), verifyProjectOwner() as any),
+      () => schemaHooks.validateData(projectPermissionPatchValidator),
+      schemaHooks.resolveData(projectPermissionPatchResolver)
+    ],
     remove: [iff(isProvider('external'), verifyProjectOwner() as any)]
   },
 
