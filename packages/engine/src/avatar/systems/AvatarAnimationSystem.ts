@@ -86,6 +86,7 @@ import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSource
 import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { useIkOverride } from '../functions/avatarFunctions'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -259,9 +260,11 @@ const execute = () => {
       console.warn('Could not find entity for networkId', action.$from, action.networkId)
       continue
     }
-
     setComponent(entity, NameComponent, action.$from + '_' + action.name)
     setComponent(entity, AvatarIKTargetComponent)
+
+    setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: true })
+    useIkOverride(UUIDComponent.entitiesByUUID[action.$from])
 
     const helper = new AxesHelper(0.5)
     setObjectLayers(helper, ObjectLayers.Gizmos)
@@ -293,9 +296,9 @@ const execute = () => {
 
     if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ entityUUID: headUUID, name: 'head' }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(XRAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'lefthand' }))
+      dispatchAction(XRAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand' }))
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(XRAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'righthand' }))
+      dispatchAction(XRAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand' }))
   }
 
   /**
@@ -396,7 +399,7 @@ const execute = () => {
     const animationState = getState(AnimationState)
     const avatarComponent = getComponent(entity, AvatarComponent)
 
-    if (animationState.useDynamicAnimation) {
+    if (animationState.useDynamicAnimation || rigComponent.ikOverride) {
       if (!animationState.ikTargetsAnimations) continue
       if (!rig.hips?.node) continue
 
@@ -430,11 +433,11 @@ const execute = () => {
         const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
         const ikTransform = getComponent(ikEntity, TransformComponent)
         const hipsForward = new Vector3(0, 0, 1)
-
         switch (ikTargetName) {
           case 'leftHand':
             worldSpaceTargets.leftHandTarget.position.copy(ikTransform.position)
             worldSpaceTargets.leftHandTarget.rotation.copy(ikTransform.rotation)
+            console.log()
             break
           case 'rightHand':
             worldSpaceTargets.rightHandTarget.position.copy(ikTransform.position)

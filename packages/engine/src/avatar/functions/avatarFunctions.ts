@@ -161,14 +161,20 @@ export const createIKAnimator = async (entity: Entity) => {
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
   if (!manager.ikTargetsAnimations.value || !manager.value) {
-    //load ik or fk depending on animation manager useDynamicAnimation value
-    const path = manager.value.useDynamicAnimation ? 'vrm_mocap_targets.glb' : 'locomotion_pack.glb'
-    const asset = await AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/${path}`)
-    console.log(`${config.client.fileServer}/projects/default-project/assets/${path}`, asset)
-    const glb = asset as GLTF
-    if (manager.value.useDynamicAnimation) manager.ikTargetsAnimations.set(glb.animations)
-    else manager.fkAnimations.set(glb)
-    return glb.animations
+    //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
+    const ikPath = 'vrm_mocap_targets.glb'
+    const fkPath = 'locomotion_pack.glb'
+    const fkAsset = (await AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/${fkPath}`
+    )) as GLTF
+    const ikAsset = (await AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/${ikPath}`
+    )) as GLTF
+
+    manager.ikTargetsAnimations.set(ikAsset.animations)
+    manager.fkAnimations.set(fkAsset)
+
+    return manager.useDynamicAnimation ? fkAsset.animations : ikAsset.animations
   }
   return [new AnimationClip()]
 }
@@ -233,6 +239,13 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
  */
 export function makeDefaultSkinnedMesh() {
   return makeSkinnedMeshFromBoneData(defaultBonesData)
+}
+
+export const useIkOverride = (entity: Entity, useDynamicAnimation: boolean = false) => {
+  setComponent(entity, AnimationComponent, {
+    animations: getState(AnimationState).ikTargetsAnimations!,
+    mixer: new AnimationMixer(getComponent(entity, AvatarRigComponent).targets)
+  })
 }
 
 /**
