@@ -145,7 +145,7 @@ export const createIKAnimator = async (entity: Entity) => {
   const avatar = getComponent(entity, AvatarComponent)
 
   if (!manager.useDynamicAnimation) {
-    for (let i = 0; i < animations.length; i++) {
+    for (let i = 0; i < animations!.length; i++) {
       animations[i] = retargetMixamoAnimation(animations[i], manager.fkAnimations?.scene!, rigComponent.vrm, 'glb')
       console.log(animations[i])
     }
@@ -160,7 +160,7 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.ikTargetsAnimations.value || !manager.value) {
+  if (!manager.ikTargetsAnimations.value || !manager.fkAnimations.value) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const ikPath = 'vrm_mocap_targets.glb'
     const fkPath = 'locomotion_pack.glb'
@@ -173,10 +173,12 @@ export const getAnimations = async () => {
 
     manager.ikTargetsAnimations.set(ikAsset.animations)
     manager.fkAnimations.set(fkAsset)
-
-    return manager.useDynamicAnimation ? fkAsset.animations : ikAsset.animations
   }
-  return [new AnimationClip()]
+  return (
+    (!manager.useDynamicAnimation
+      ? cloneDeep(manager.ikTargetsAnimations.value)
+      : cloneDeep(manager.fkAnimations.value?.animations)) ?? [new AnimationClip()]
+  )
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
