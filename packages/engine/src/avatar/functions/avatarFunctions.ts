@@ -244,6 +244,7 @@ export function makeDefaultSkinnedMesh() {
 }
 
 export const useIkOverride = (entity: Entity, useDynamicAnimation: boolean = false) => {
+  getComponent(entity, AnimationComponent).mixer.stopAllAction()
   setComponent(entity, AnimationComponent, {
     animations: getState(AnimationState).ikTargetsAnimations!,
     mixer: new AnimationMixer(getComponent(entity, AvatarRigComponent).targets)
