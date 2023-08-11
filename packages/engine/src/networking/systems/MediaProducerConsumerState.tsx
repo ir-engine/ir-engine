@@ -111,6 +111,12 @@ export class MediaConsumerActions {
     paused: matches.boolean
   })
 
+  static consumerLayers = defineAction({
+    type: 'ee.engine.network.MEDIA_CONSUMER_LAYERS',
+    consumerID: matches.string,
+    layer: matches.number
+  })
+
   static closeConsumer = defineAction({
     type: 'ee.engine.network.MEDIA_CLOSED_CONSUMER',
     consumerID: matches.string
