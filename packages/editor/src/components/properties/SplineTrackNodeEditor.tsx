@@ -48,17 +48,20 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   const component = useComponent(props.entity, SplineTrackComponent)
   const velocity = component.velocity.value
 
+  // these could be exposed to outside parties by being passed in
   const onChange = () => {}
   const onRelease = () => {}
+
   const processChange = (value) => {
     component.velocity.set(value)
+    //if(onChange)onChange()
   }
 
   return (
     <NodeEditor description={t('editor:properties.splinetrack.description')} {...props}>
       <NumericInput
         value={velocity}
-        onChange={onChange}
+        onChange={processChange}
         onCommit={onRelease}
         prefix={
           <Vector3Scrubber tag="div" value={velocity} onChange={processChange} onPointerUp={onRelease} axis="velocity">
