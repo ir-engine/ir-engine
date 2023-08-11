@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from './OpaqueType'
-
-export type UserId = OpaqueType<'userId'> & string
+export interface UserSetting {
+  id: string
+  themeModes: string
+}

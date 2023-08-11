@@ -43,6 +43,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { debounce } from 'lodash'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
@@ -70,7 +71,7 @@ const AvatarMenu = () => {
   }).data
   const currentAvatar = avatarsData.find((item) => item.id === selectedAvatarId.value)
 
-  const updateUserAvatarId = useMutation('user').patch
+  const updateUserAvatarId = useMutation(userPath).patch
 
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
 

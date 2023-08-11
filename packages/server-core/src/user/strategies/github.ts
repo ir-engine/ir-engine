@@ -27,11 +27,11 @@ import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -72,11 +72,13 @@ export class GithubStrategy extends CustomOAuthStrategy {
     if (!entity.userId) {
       const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
       const code = await getFreeInviteCode(this.app)
-      const newUser = (await this.app.service('user').create({
+      const newUser = await this.app.service(userPath).create({
+        name: '',
         isGuest: false,
         inviteCode: code,
-        avatarId: avatars[random(avatars.total - 1)].id
-      })) as UserInterface
+        avatarId: avatars[random(avatars.total - 1)].id,
+        scopes: []
+      })
       entity.userId = newUser.id
       await this.app.service('identity-provider').patch(entity.id, {
         userId: newUser.id,
@@ -88,10 +90,10 @@ export class GithubStrategy extends CustomOAuthStrategy {
       })
     }
     const identityProvider = authResult['identity-provider']
-    const user = await this.app.service('user').get(entity.userId)
+    const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
-      await this.app.service('user').patch(entity.userId, {
+      await this.app.service(userPath).patch(entity.userId, {
         isGuest: false
       })
     const apiKey = (await this.app.service(userApiKeyPath).find({
@@ -105,7 +107,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
       await this.app.service('identity-provider').remove(identityProvider.id)
-      await this.app.service('user').remove(identityProvider.userId)
+      await this.app.service(userPath).remove(identityProvider.userId)
       await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
       return super.updateEntity(entity, profile, params)
     }

@@ -23,33 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * @Object which declare permission of user based
- * on their role
- */
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { ChannelUser } from './ChannelUser'
+import { Message } from './Message'
 
-const accessControls = {
-  admin: {
-    listScope: 'all',
-    createScope: 'all',
-    readScope: 'all',
-    updateScope: 'all',
-    deleteScope: 'all'
-  },
-  user: {
-    listScope: 'all',
-    createScope: 'none',
-    readScope: 'all',
-    updateScope: 'none',
-    deleteScope: 'none'
-  },
-  guest: {
-    listScope: 'all',
-    createScope: 'none',
-    readScope: 'all',
-    updateScope: 'none',
-    deleteScope: 'none'
-  }
+export type Channel = {
+  id: ChannelID
+  name: string
+  instanceId: string | null
+  createdAt: string
+  updatedAt: string
+  updateNeeded: boolean
+  limit: 5
+  skip: 0
+  total: 0
+  channel_users: ChannelUser[]
+  messages: Message[]
 }
 
-export default accessControls
+export interface PatchChannel {
+  name: string
+}

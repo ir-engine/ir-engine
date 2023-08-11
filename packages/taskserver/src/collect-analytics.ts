@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { Knex } from 'knex'
@@ -51,16 +52,16 @@ export default (app): void => {
     const knexClient: Knex = app.get('knexClient')
 
     const instanceUsers = await knexClient
-      .from('user')
-      .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, 'user.id')
+      .from(userPath)
+      .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, `${userPath}.id`)
       .where(`${instanceAttendancePath}.ended`, false)
       .andWhere(`${instanceAttendancePath}.isChannel`, false)
       .select()
       .options({ nestTables: true })
 
     const channelUsers = await knexClient
-      .from('user')
-      .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, 'user.id')
+      .from(userPath)
+      .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, `${userPath}.id`)
       .where(`${instanceAttendancePath}.ended`, false)
       .andWhere(`${instanceAttendancePath}.isChannel`, true)
       .select()

@@ -23,22 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HttpException } from './httpException'
+import {
+  inviteCodeLookupMethods,
+  inviteCodeLookupPath
+} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 
-export class UnauthorizedException extends HttpException {
-  constructor(message: string) {
-    super(message, 401)
+import { Application } from '../../../declarations'
+import { InviteCodeLookupService } from './invite-code-lookup.class'
+import inviteCodeLookupDocs from './invite-code-lookup.docs'
+import hooks from './invite-code-lookup.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [inviteCodeLookupPath]: InviteCodeLookupService
   }
 }
 
-export class NotFoundException extends HttpException {
-  constructor(message: string) {
-    super(message, 404)
+export default (app: Application): void => {
+  const options = {
+    id: 'type',
+    name: inviteCodeLookupPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
-}
 
-export class UnauthenticatedException extends HttpException {
-  constructor(message: string) {
-    super(message, 403)
-  }
+  app.use(inviteCodeLookupPath, new InviteCodeLookupService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: inviteCodeLookupMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: inviteCodeLookupDocs
+  })
+
+  const service = app.service(inviteCodeLookupPath)
+  service.hooks(hooks)
 }

@@ -30,6 +30,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { InviteInterface, InviteTypeInterface } from '@etherealengine/common/src/dbmodels/Invite'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -91,8 +92,8 @@ export default (app: Application) => {
 
   // eslint-disable-next-line no-unused-vars
   ;(invite as any).associate = (models: any): void => {
-    ;(invite as any).belongsTo(models.user, { as: 'user' })
-    ;(invite as any).belongsTo(models.user, { as: 'invitee' })
+    ;(invite as any).belongsTo(createUserModel(app), { as: 'user' })
+    ;(invite as any).belongsTo(createUserModel(app), { as: 'invitee' })
     ;(invite as any).belongsTo(createInviteTypeModel(app), { foreignKey: 'inviteType', required: true })
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/

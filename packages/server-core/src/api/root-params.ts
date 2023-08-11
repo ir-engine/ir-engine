@@ -23,28 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-const accessControls = {
-  admin: {
-    listScope: 'all',
-    createScope: 'all',
-    readScope: 'all',
-    updateScope: 'all',
-    deleteScope: 'all'
-  },
-  user: {
-    listScope: 'all',
-    createScope: 'self',
-    readScope: 'all',
-    updateScope: 'self',
-    deleteScope: 'self'
-  },
-  guest: {
-    listScope: 'all',
-    createScope: 'none',
-    readScope: 'all',
-    updateScope: 'none',
-    deleteScope: 'none'
-  }
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AdapterQuery } from '@feathersjs/adapter-commons'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
+
+export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
+  user?: UserType
+  isInternal?: boolean
 }
 
-export default accessControls
+/* @deprecated */
+export interface UserParams extends Params {
+  user?: UserType
+  paginate?: false
+  isInternal?: boolean
+  sequelize?: any
+}
