@@ -263,7 +263,7 @@ const execute = () => {
     setComponent(entity, NameComponent, action.$from + '_' + action.name)
     setComponent(entity, AvatarIKTargetComponent)
 
-    setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: true })
+    setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: 'xr' })
     useIkOverride(UUIDComponent.entitiesByUUID[action.$from])
 
     const helper = new AxesHelper(0.5)
@@ -399,7 +399,7 @@ const execute = () => {
     const animationState = getState(AnimationState)
     const avatarComponent = getComponent(entity, AvatarComponent)
 
-    if (animationState.useDynamicAnimation || rigComponent.ikOverride) {
+    if (animationState.useDynamicAnimation || rigComponent.ikOverride != '') {
       if (!animationState.ikTargetsAnimations) continue
       if (!rig.hips?.node) continue
 
@@ -444,27 +444,30 @@ const execute = () => {
             worldSpaceTargets.rightHandTarget.rotation.copy(ikTransform.rotation)
             break
           case 'head':
-            if (xrState.sessionActive) {
-              worldSpaceTargets.hipsTarget.position.copy(
-                _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
-              )
+            /* temporarily comment out regressive condition intended for mocap support
+            if (rigComponent.ikOverride == 'xr') { */
+            worldSpaceTargets.hipsTarget.position.copy(
+              _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
+            )
 
-              //offset target forward to account for hips being behind the head
-              hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
-              hipsForward.multiplyScalar(0.125)
-              worldSpaceTargets.hipsTarget.position.sub(hipsForward)
+            //offset target forward to account for hips being behind the head
+            hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
+            hipsForward.multiplyScalar(0.125)
+            worldSpaceTargets.hipsTarget.position.sub(hipsForward)
 
-              //calculate head look direction and apply to head bone
-              //look direction should be set outside of the xr switch
-              rig.head.node.quaternion.copy(
-                _quat.multiplyQuaternions(
-                  rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
-                  ikTransform.rotation
-                )
+            //calculate head look direction and apply to head bone
+            //look direction should be set outside of the xr switch
+            rig.head.node.quaternion.copy(
+              _quat.multiplyQuaternions(
+                rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
+                ikTransform.rotation
               )
-            } else {
+            )
+            /*} 
+            else {
               worldSpaceTargets.headTarget.position.copy(ikTransform.position)
             }
+            */
             break
           case 'hips':
             worldSpaceTargets.hipsTarget.position.copy(ikTransform.position)

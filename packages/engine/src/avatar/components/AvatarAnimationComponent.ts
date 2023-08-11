@@ -144,7 +144,7 @@ export const AvatarRigComponent = defineComponent({
 
       ikOffsetsMap: new Map<string, Vector3>(),
       rootOffset: new Vector3(),
-      ikOverride: false
+      ikOverride: '' as 'xr' | 'mocap' | ''
     }
   },
 
@@ -158,7 +158,7 @@ export const AvatarRigComponent = defineComponent({
     if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
     if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
-    if (matches.boolean.test(json.ikOverride)) component.ikOverride.set(json.ikOverride)
+    if (matches.string.test(json.ikOverride)) component.ikOverride.set(json.ikOverride)
   },
 
   onRemove: (entity, component) => {
@@ -217,8 +217,6 @@ export const AvatarRigComponent = defineComponent({
         (!getState(AnimationState).useDynamicAnimation && !rigComponent.ikOverride.value)
       )
         return
-
-      console.log(animComponent)
 
       const bindTracks = AnimationClip.findByName(getState(AnimationState).ikTargetsAnimations!, 'BindPose').tracks
       if (!bindTracks) return
