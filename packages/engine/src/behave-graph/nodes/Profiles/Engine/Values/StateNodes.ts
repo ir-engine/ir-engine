@@ -28,7 +28,7 @@ import { Engine } from '../../../../../ecs/classes/Engine'
 import { EEScene } from '../Abstractions/Drivers/eeScene'
 
 export const getPropertyFromState = makeFunctionNodeDefinition({
-  typeName: 'engine/getPropertyFromState',
+  typeName: 'engine/state/getPropertyFromState',
   category: NodeCategory.Query,
   label: 'Get Property',
   in: {

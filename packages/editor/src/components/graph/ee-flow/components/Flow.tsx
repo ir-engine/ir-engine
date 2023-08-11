@@ -29,6 +29,7 @@ import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
+import _ from 'lodash'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useNodeSpecJson } from '../hooks/useNodeSpecJson.js'
@@ -76,17 +77,16 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     registry
   })
 
-  const graphJsonRef = useRef(graphJson ?? graph) // used to save the updated graph when component unmounts
+  const debouncedOnChangeGraph = _.debounce(() => {
+    onChangeGraph(graphJson ?? graph)
+  }, 1000)
 
   useEffect(() => {
-    graphJsonRef.current = graphJson ?? graphJsonRef.current //the json wont be undefined so we just keep existing value
-  }, [graphJson])
-
-  useEffect(() => {
+    debouncedOnChangeGraph()
     return () => {
-      onChangeGraph(graphJsonRef.current) // save the updated graph in component
+      debouncedOnChangeGraph.cancel()
     }
-  }, [])
+  }, [graphJson])
 
   return (
     <ReactFlow
@@ -107,7 +107,6 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       onPaneContextMenu={handlePaneContextMenu}
     >
       <CustomControls
-        graphRef={graphJsonRef}
         playing={playing}
         togglePlay={togglePlay}
         onSaveGraph={onChangeGraph}
