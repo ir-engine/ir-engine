@@ -27,9 +27,9 @@ import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'

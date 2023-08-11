@@ -28,11 +28,11 @@ import { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { SocketWebRTCClientNetwork, endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'

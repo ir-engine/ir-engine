@@ -42,7 +42,6 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
@@ -55,6 +54,7 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserKick } from '@etherealengine/common/src/interfaces/UserKick'
+import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'

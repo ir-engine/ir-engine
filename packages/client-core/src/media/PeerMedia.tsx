@@ -35,8 +35,8 @@ import {
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { MediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {
@@ -49,7 +49,7 @@ import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunct
 /**
  * Sets media stream state for a peer
  */
-const PeerMedia = (props: { consumerID: string; networkID: UserId }) => {
+const PeerMedia = (props: { consumerID: string; networkID: UserID }) => {
   const consumerState = useHookstate(
     getMutableState(MediaProducerConsumerState)[props.networkID].consumers[props.consumerID]
   )
@@ -163,7 +163,7 @@ export const PeerMediaChannels = () => {
   return null
 }
 
-const NetworkConsumers = (props: { networkID: UserId }) => {
+const NetworkConsumers = (props: { networkID: UserID }) => {
   const { networkID } = props
   const consumers = useHookstate(getMutableState(MediaProducerConsumerState)[networkID].consumers)
   return (
@@ -182,7 +182,7 @@ export const PeerMediaConsumers = () => {
     <>
       <PeerMediaChannels key={'PeerMediaChannels'} />
       {selfPeerMediaChannelState.value && <SelfMedia key={'SelfMedia'} />}
-      {networkIDs.keys.map((hostId: UserId) => (
+      {networkIDs.keys.map((hostId: UserID) => (
         <NetworkConsumers key={hostId} networkID={hostId} />
       ))}
     </>

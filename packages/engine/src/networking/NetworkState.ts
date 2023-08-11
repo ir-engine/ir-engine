@@ -27,7 +27,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
