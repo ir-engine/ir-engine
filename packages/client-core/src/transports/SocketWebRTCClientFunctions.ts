@@ -1316,15 +1316,19 @@ export function globalUnmuteProducer(network: SocketWebRTCClientNetwork, produce
   )
 }
 
-export async function setPreferredConsumerLayer(
+export function setPreferredConsumerLayer(
   network: SocketWebRTCClientNetwork,
   consumer: ConsumerExtension,
   layer: number
 ) {
-  await promisedRequest(network, MessageTypes.WebRTCConsumerSetLayers.toString(), {
-    consumerId: consumer.id,
-    spatialLayer: layer
-  })
+  dispatchAction(
+    MediaConsumerActions.consumerLayers({
+      consumerID: consumer.id,
+      layer,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
 }
 
 export const toggleFaceTracking = async () => {

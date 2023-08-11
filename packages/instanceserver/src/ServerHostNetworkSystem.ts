@@ -34,7 +34,7 @@ import {
 } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { defineActionQueue } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { handleRequestConsumer, handleRequestProducer } from './WebRTCFunctions'
+import { handleConsumerSetLayers, handleRequestConsumer, handleRequestProducer } from './WebRTCFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
   for (const [peerID, client] of network.peers) {
@@ -47,6 +47,7 @@ export async function validateNetworkObjects(network: SocketWebRTCServerNetwork)
 }
 
 const requestConsumerActionQueue = defineActionQueue(MediaConsumerActions.requestConsumer.matches)
+const consumerLayersActionQueue = defineActionQueue(MediaConsumerActions.consumerLayers.matches)
 const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
 
 const execute = () => {
@@ -54,6 +55,9 @@ const execute = () => {
   if (mediaNetwork) {
     for (const action of requestConsumerActionQueue()) {
       handleRequestConsumer(mediaNetwork, action)
+    }
+    for (const action of consumerLayersActionQueue()) {
+      handleConsumerSetLayers(mediaNetwork, action)
     }
     for (const action of requestProducerActionQueue()) {
       handleRequestProducer(mediaNetwork, action)
