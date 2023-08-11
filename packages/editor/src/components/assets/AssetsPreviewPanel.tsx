@@ -23,9 +23,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import React, { useImperativeHandle, useState } from 'react'
-import styled from 'styled-components'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
@@ -40,12 +38,12 @@ import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
 import { VideoPreviewPanel } from './AssetPreviewPanels/VideoPreviewPanel'
 
-const AssetHeading = (styled as any).div`
-  text-align: center;
-  font-size: 0.9rem;
-  padding-bottom: 10px;
-  color: #f1f1f1;
-`
+const assetHeadingStyles = {
+  textAlign: 'center',
+  fontSize: '0.9rem',
+  paddingBottom: '10px',
+  color: '#f1f1f1'
+}
 
 interface Props {
   hideHeading?: boolean
@@ -60,7 +58,6 @@ export type AssetSelectionChangePropsType = {
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
  */
-
 export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref) => {
   useImperativeHandle(ref, () => ({ onSelectionChanged }))
   const [previewPanel, usePreviewPanel] = useState({
@@ -163,7 +160,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
 
   return (
     <>
-      {!hideHeading && <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>}
+      {!hideHeading && <div style={assetHeadingStyles as React.CSSProperties}>{previewPanel.resourceProps.name}</div>}
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>
   )
