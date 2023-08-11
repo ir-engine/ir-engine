@@ -31,7 +31,7 @@ import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/s
 import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
@@ -130,8 +130,8 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
           const instanceAttendance = await knexClient
             .from(instanceAttendancePath)
             .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
-            .join('user', `${instanceAttendancePath}.userId`, '=', `${'user'}.id`)
-            .join(`user_relationship`, `${'user'}.id`, '=', `${`user_relationship`}.userId`)
+            .join(userPath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
+            .join(`user_relationship`, `${userPath}.id`, '=', `${`user_relationship`}.userId`)
             .where(`${instanceAttendancePath}.ended`, '=', false)
             .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
             .andWhere(`${'instance'}.id`, '=', instance.id)

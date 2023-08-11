@@ -49,6 +49,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
@@ -85,7 +86,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const endTime = useHookstate<Dayjs>(dayjs(null))
 
   const adminInstances = useFind('instance').data
-  const adminUsers = useFind('user', { query: { isGuest: false } }).data
+  const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
   const adminLocations = useFind(locationPath).data
 
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))

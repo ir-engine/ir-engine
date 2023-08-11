@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { random } from 'lodash'
-import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
 import { isDev } from '@etherealengine/common/src/config'
@@ -161,9 +160,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       userId = uuidv1()
     }
 
-    const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
     const userService = this.app.service(userPath)
-    const User = sequelizeClient.model('user')
 
     // check if there is a user with userId
     let foundUser
@@ -183,11 +180,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         },
         params
       )) as T & { accessToken?: string }
-    }
-
-    // create with user association
-    params.sequelize = {
-      include: [User]
     }
 
     const code = await getFreeInviteCode(this.app)
@@ -260,6 +252,12 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         .service('authentication')
         .createAccessToken({}, { subject: result.id.toString() })
     }
+
+    // TODO: Move this to hooks once move to feathers 5.
+    if (result.userId) {
+      result.user = await this.app.service(userPath)._get(result.userId)
+    }
+
     return result
   }
 

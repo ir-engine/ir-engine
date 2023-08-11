@@ -34,7 +34,7 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -65,7 +65,7 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
 
-  const adminUserQuery = useFind('user', {
+  const adminUserQuery = useFind(userPath, {
     query: {
       search,
       isGuest: skipGuests ? false : undefined,
@@ -73,7 +73,7 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
       $skip: page.value * rowsPerPage.value
     }
   })
-  const removeUser = useMutation('user').remove
+  const removeUser = useMutation(userPath).remove
 
   const handlePageChange = (event: unknown, newPage: number) => {
     page.set(newPage)

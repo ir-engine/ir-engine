@@ -218,7 +218,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
               include: [
                 /** @todo - couldn't figure out how to include active users */
                 // {
-                //   model: this.app.service('user').Model,
+                //   model: this.app.service(userPath).Model,
                 // },
               ]
             },

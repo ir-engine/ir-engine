@@ -37,7 +37,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -63,7 +63,7 @@ const useUsersInInstance = (instanceId: string) => {
   })
 
   const userIds = instanceAttendances.data.map((d: any) => d.userId)
-  return useFind('user', {
+  return useFind(userPath, {
     query: {
       id: {
         $in: userIds

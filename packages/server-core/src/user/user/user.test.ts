@@ -110,7 +110,7 @@ describe('user service', () => {
   })
 
   it('should have "total" in find method', async () => {
-    const item = await app.service('user').find({
+    const item = await app.service(userPath).find({
       isInternal: true
     })
 

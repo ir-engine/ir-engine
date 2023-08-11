@@ -44,7 +44,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { UserData, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -96,7 +96,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       $limit: SCOPE_PAGE_LIMIT
     }
   }).data
-  const userMutation = useMutation('user')
+  const userMutation = useMutation(userPath)
 
   const hasWriteAccess = userHasAccess('user:write')
   const viewMode = mode === UserDrawerMode.ViewEdit && !editMode.value
