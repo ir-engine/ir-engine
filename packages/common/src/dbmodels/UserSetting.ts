@@ -23,12 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export class HttpException extends Error {
-  statusCode: number
-  message: string
-
-  constructor(message, statusCode = 500) {
-    super(message)
-    this.statusCode = statusCode
-  }
+export interface UserSetting {
+  id: string
+  themeModes: string
 }

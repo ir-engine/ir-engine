@@ -33,6 +33,8 @@ import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
+import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -56,10 +58,16 @@ describe.skip('matchmaking match-instance service', () => {
   const tier = 'bronze'
 
   const commonlocationSetting = {
+    id: '',
     locationType: 'public',
     videoEnabled: false,
-    audioEnabled: false
-  }
+    audioEnabled: false,
+    screenSharingEnabled: false,
+    faceStreamingEnabled: false,
+    locationId: '',
+    createdAt: '',
+    updatedAt: ''
+  } as LocationSettingType
 
   let location
 
@@ -94,26 +102,26 @@ describe.skip('matchmaking match-instance service', () => {
       }
     })
 
-    location = await app.service(locationPath).create(
-      {
-        name: `game-${gameMode}`,
-        slugifiedName: `game-${gameMode}`,
-        maxUsersPerInstance: 30,
-        sceneId: `test/game-${gameMode}`,
-        locationSetting: commonlocationSetting,
-        isLobby: false,
-        isFeatured: false
-      } as any,
-      {}
-    )
+    location = await app.service(locationPath).create({
+      name: `game-${gameMode}`,
+      slugifiedName: `game-${gameMode}`,
+      maxUsersPerInstance: 30,
+      sceneId: `test/game-${gameMode}`,
+      locationSetting: commonlocationSetting,
+      isLobby: false,
+      isFeatured: false
+    })
 
     const usersPromises: Promise<any>[] = []
     const ticketsPromises: Promise<any>[] = []
     connections.forEach((connection) => {
       for (let i = 0; i < ticketsNumber; i++) {
-        const userPromise = app.service('user').create({
+        const userPromise = app.service(userPath).create({
           name: 'Test #' + Math.random(),
-          isGuest: true
+          isGuest: true,
+          avatarId: '',
+          inviteCode: '',
+          scopes: []
         })
         usersPromises.push(userPromise)
 
@@ -160,7 +168,7 @@ describe.skip('matchmaking match-instance service', () => {
     tickets.length = 0
 
     users.map((user) => {
-      cleanupPromises.push(app.service('user').remove(user.id))
+      cleanupPromises.push(app.service(userPath).remove(user.id))
     })
     users.length = 0
 

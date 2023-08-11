@@ -57,8 +57,8 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const { avatarSpawnPose, avatarID, name } = props
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID, name)
   const worldState = getMutableState(WorldState)
-  const entityUUID = Engine.instance.userId as string as EntityUUID
-  worldState.userNames[Engine.instance.userId].set(name)
+  const entityUUID = Engine.instance.userID as string as EntityUUID
+  worldState.userNames[Engine.instance.userID].set(name)
   dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, entityUUID }))
   dispatchAction(AvatarNetworkAction.setAvatarID({ avatarID, entityUUID }))
 }

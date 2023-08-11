@@ -31,7 +31,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
+import { InviteInterface } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -50,6 +50,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -88,7 +89,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
 
   const adminInstances = useFind('instance').data
   const adminLocations = useFind(locationPath).data
-  const adminUsers = useFind('user', { query: { isGuest: false } }).data
+  const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
 
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value

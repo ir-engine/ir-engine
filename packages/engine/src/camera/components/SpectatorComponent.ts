@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
@@ -32,7 +32,7 @@ export const SpectatorComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      userId: '' as UserId
+      userId: '' as UserID
     }
   },
 

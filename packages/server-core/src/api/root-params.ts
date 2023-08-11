@@ -23,19 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AdapterQuery } from '@feathersjs/adapter-commons'
 import { Params } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
-  user?: UserInterface
+  user?: UserType
   isInternal?: boolean
 }
 
 /* @deprecated */
 export interface UserParams extends Params {
-  user?: UserInterface
+  user?: UserType
   paginate?: false
   isInternal?: boolean
   sequelize?: any

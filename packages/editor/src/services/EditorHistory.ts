@@ -140,7 +140,7 @@ const execute = () => {
   }
 
   for (const action of appendSnapshotQueue()) {
-    if (action.$from !== Engine.instance.userId) {
+    if (action.$from !== Engine.instance.userID) {
       const json = action.json
       /**
        * deserialize

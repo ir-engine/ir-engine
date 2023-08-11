@@ -28,7 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, defineState, dispatchAction, none, receiveActions } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -46,7 +46,7 @@ export const EntityNetworkState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      ownerId: UserId
+      ownerId: UserID
       networkId: NetworkId
       peerId: PeerID
       prefab: string
@@ -95,7 +95,7 @@ export const receiveRequestAuthorityOverObject = (
   action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
 ) => {
   // Authority request can only be processed by owner
-  if (Engine.instance.userId !== action.ownerId) return
+  if (Engine.instance.userID !== action.ownerId) return
 
   const ownerId = action.ownerId
   const entity = NetworkObjectComponent.getNetworkObject(ownerId, action.networkId)

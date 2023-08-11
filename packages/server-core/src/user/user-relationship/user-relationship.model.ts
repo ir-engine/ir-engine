@@ -31,6 +31,7 @@ import {
 } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -60,8 +61,8 @@ export default (app: Application) => {
   )
 
   ;(userRelationship as any).associate = (models: any): void => {
-    ;(userRelationship as any).belongsTo(models.user, { as: 'user', constraints: false })
-    ;(userRelationship as any).belongsTo(models.user, { as: 'relatedUser', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'user', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'relatedUser', constraints: false })
     ;(userRelationship as any).belongsTo(createUserRelationshipTypeModel(app), { foreignKey: 'type' })
   }
 

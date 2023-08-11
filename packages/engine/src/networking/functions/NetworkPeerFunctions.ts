@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -44,7 +44,7 @@ function createPeer(
   network: Network,
   peerID: PeerID,
   peerIndex: number,
-  userID: UserId,
+  userID: UserID,
   userIndex: number,
   name: string
 ) {
@@ -134,7 +134,7 @@ const destroyAllPeers = (network: Network) => {
   for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId)
 }
 
-function clearActionsHistoryForUser(userId: UserId) {
+function clearActionsHistoryForUser(userId: UserID) {
   for (const action of Engine.instance.store.actions.history) {
     if (action.$from === userId) {
       Engine.instance.store.actions.knownUUIDs.delete(action.$uuid)
@@ -142,7 +142,7 @@ function clearActionsHistoryForUser(userId: UserId) {
   }
 }
 
-function clearCachedActionsForUser(userId: UserId) {
+function clearCachedActionsForUser(userId: UserID) {
   const cached = Engine.instance.store.actions.cached
   for (const action of [...cached]) {
     if (action.$from === userId) {
@@ -152,7 +152,7 @@ function clearCachedActionsForUser(userId: UserId) {
   }
 }
 
-function clearCachedActionsOfTypeForUser(userId: UserId, actionShape: Validator<unknown, ResolvedActionType>) {
+function clearCachedActionsOfTypeForUser(userId: UserID, actionShape: Validator<unknown, ResolvedActionType>) {
   const cached = Engine.instance.store.actions.cached
   for (const action of [...cached]) {
     if (action.$from === userId && actionShape.test(action)) {
@@ -162,7 +162,7 @@ function clearCachedActionsOfTypeForUser(userId: UserId, actionShape: Validator<
   }
 }
 
-function getCachedActionsForUser(toUserId: UserId) {
+function getCachedActionsForUser(toUserId: UserID) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
   for (const action of Engine.instance.store.actions.cached as Array<ReturnType<typeof AvatarNetworkAction.spawn>>) {
