@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { UserInterface } from '../dbmodels/UserInterface'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export interface ProjectPermissionInterface {
   id: string
   projectId: string
   userId: UserID
   type: string
-  user: UserInterface
+  user: UserType
 }

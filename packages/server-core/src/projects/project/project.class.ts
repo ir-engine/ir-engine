@@ -48,7 +48,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -782,6 +782,12 @@ export class Project extends Service {
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
+
+        // TODO: Following can be moved to project permission hook once its service is moved to feathers 5.
+        for (const permissions of values.project_permissions || []) {
+          if (!permissions.user && permissions.userId)
+            permissions.user = await this.app.service(userPath)._get(permissions.userId)
+        }
       } catch (err) {
         //
       }
