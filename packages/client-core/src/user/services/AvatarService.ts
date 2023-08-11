@@ -27,12 +27,12 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { uploadToFeathersService } from '../../util/upload'
 import { AuthState } from './AuthService'
 
@@ -141,8 +141,8 @@ export const AvatarService = {
     return Engine.instance.api.service('static-resource').remove(id)
   },
 
-  async updateUserAvatarId(userId: UserId, avatarId: string) {
-    const res = await Engine.instance.api.service('user').patch(userId, { avatarId: avatarId })
+  async updateUserAvatarId(userId: UserID, avatarId: string) {
+    const res = await Engine.instance.api.service(userPath).patch(userId, { avatarId: avatarId })
     getMutableState(AuthState).user.avatarId.set(res.avatarId!)
     dispatchAction(
       AvatarNetworkAction.setAvatarID({

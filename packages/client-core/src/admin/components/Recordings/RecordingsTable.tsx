@@ -110,7 +110,7 @@ const RecordingsTable = () => {
     )
   })
 
-  const rows = recordingsQuery.data.map((val) => createData(val, val.id, val['user.name'], val.ended, val.schema))
+  const rows = recordingsQuery.data.map((val) => createData(val, val.id, val.userName || '', val.ended, val.schema))
 
   return (
     <Box>

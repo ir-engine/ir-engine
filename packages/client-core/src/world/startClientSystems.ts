@@ -51,6 +51,7 @@ import { MediaControlSystem } from '@etherealengine/engine/src/interaction/syste
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
+import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
@@ -101,7 +102,17 @@ export const startClientSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ButtonCleanupSystem, PortalSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup], {
-    after: PresentationSystemGroup
-  })
+  startSystems(
+    [
+      ButtonCleanupSystem,
+      PortalSystem,
+      ECSSerializerSystem,
+      PositionalAudioSystem,
+      SceneSystemLoadGroup,
+      MediaProducerConsumerStateSystem
+    ],
+    {
+      after: PresentationSystemGroup
+    }
+  )
 }

@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { MessageInterface } from '@etherealengine/common/src/dbmodels/Message'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -61,7 +62,7 @@ export default (app: Application) => {
 
   ;(message as any).associate = (models: any): any => {
     ;(message as any).belongsTo(models.channel, { allowNull: false })
-    ;(message as any).belongsTo(models.user, { foreignKey: 'senderId', as: 'sender' })
+    ;(message as any).belongsTo(createUserModel(app), { foreignKey: 'senderId', as: 'sender' })
   }
 
   return message

@@ -23,17 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from './ChannelUser'
-import { UserInterface } from './User'
-import { UserId } from './UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-export type Message = {
+export interface UserKick {
   id: string
-  senderId: UserId
-  channelId: ChannelID
-  text: string
-  isNotification: boolean
-  createdAt: string
-  updatedAt: string
-  sender: UserInterface
+  duration: Date
+  userId: UserID
+  instanceId: string
 }
+
+export type CreateUserKick = Omit<UserKick, 'id'>

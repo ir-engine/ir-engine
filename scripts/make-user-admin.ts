@@ -24,11 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-
+import knex from 'knex'
+import { v4 } from 'uuid'
 /* eslint-disable @typescript-eslint/no-var-requires */
-const dotenv = require('dotenv-flow')
-const cli = require('cli')
-const Sequelize = require('sequelize')
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import cli from 'cli'
+import dotenv from 'dotenv-flow'
 
 const { scopeTypeSeed } = require('../packages/server-core/src/scope/scope-type/scope-type.seed')
 
@@ -36,16 +38,6 @@ dotenv.config({
   path: appRootPath.path,
   silent: true
 })
-const db = {
-  username: process.env.MYSQL_USER ?? 'server',
-  password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'etherealengine',
-  host: process.env.MYSQL_HOST ?? '127.0.0.1',
-  port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql'
-}
-
-db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 cli.enable('status')
 
@@ -55,63 +47,45 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const sequelizeClient = new Sequelize({
-      ...db,
-      logging: console.log,
-      define: {
-        freezeTableName: true
+    const knexClient = knex({
+      client: 'mysql',
+      connection: {
+        user: process.env.MYSQL_USER ?? 'server',
+        password: process.env.MYSQL_PASSWORD ?? 'password',
+        host: process.env.MYSQL_HOST ?? '127.0.0.1',
+        port: parseInt(process.env.MYSQL_PORT || '3306'),
+        database: process.env.MYSQL_DATABASE ?? 'etherealengine',
+        charset: 'utf8mb4'
       }
     })
 
-    await sequelizeClient.sync()
-
-    const User = sequelizeClient.define('user', {
-      id: {
-        type: Sequelize.DataTypes.UUID,
-        defaultValue: Sequelize.DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      name: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false
-      },
-      isGuest: {
-        type: Sequelize.DataTypes.BOOLEAN,
-        defaultValue: true,
-        allowNull: false
-      }
-    })
-
-    const Scope = sequelizeClient.define('scope', {
-      id: {
-        type: Sequelize.DataTypes.UUID,
-        defaultValue: Sequelize.DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      userId: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true
-      },
-      type: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false
-      }
-    })
-
-    const userMatch = await User.findOne({
-      where: {
+    const userMatch = await knexClient
+      .from<UserType>(userPath)
+      .where({
         id: options.id
-      }
-    })
+      })
+      .first()
 
     if (userMatch != null) {
-      await userMatch.save()
       for (const { type } of scopeTypeSeed) {
         try {
-          const existingScope = await Scope.findOne({ where: { userId: options.id, type } })
-          if (existingScope == null) await Scope.create({ userId: options.id, type })
+          const existingScope = await knexClient
+            .from<ScopeType>(scopePath)
+            .where({
+              userId: options.id,
+              type
+            })
+            .first()
+          if (existingScope == null) {
+            await knexClient.from<ScopeType>(scopePath).insert({
+              id: v4(),
+              userId: options.id,
+              type,
+              createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
+              updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            })
+            cli.info(`Adding user: ${options.id}, scope: ${type}`)
+          }
         } catch (e) {
           console.log(e)
         }

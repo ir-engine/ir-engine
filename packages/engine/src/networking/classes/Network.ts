@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
@@ -54,7 +54,7 @@ export interface JitterBufferEntry {
 }
 
 /** Interface for the Transport. */
-export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext = {} as Ext) => {
+export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, extension: Ext = {} as Ext) => {
   addOutgoingTopicIfNecessary(topic)
   const network = {
     /** Consumers and producers have separate types on client and server */
@@ -95,13 +95,13 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
     peerIndexCount: 0,
 
     /** Connected users */
-    users: new Map() as Map<UserId, PeerID[]>,
+    users: new Map() as Map<UserID, PeerID[]>,
 
     /** Map of numerical user index to user client IDs */
-    userIndexToUserID: new Map<number, UserId>(),
+    userIndexToUserID: new Map<number, UserID>(),
 
     /** Map of user client IDs to numerical user index */
-    userIDToUserIndex: new Map<UserId, number>(),
+    userIDToUserIndex: new Map<UserID, number>(),
 
     /** Gets the host peer */
     get hostPeerID() {
@@ -117,11 +117,13 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
     userIndexCount: 0,
 
     /**
-     * The UserId of the host
-     * - will either be a user's UserId, or an instance server's InstanceId
+     * The UserID of the host
+     * - will either be a user's UserID, or an instance server's InstanceId
      * @todo rename to hostUserID to differentiate better from hostPeerID
      */
     hostId,
+
+    id,
 
     /**
      * The network is ready for sending messages and data
@@ -143,7 +145,7 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
      * Check if this user is hosting the world.
      */
     get isHosting() {
-      return Engine.instance.userId === network.hostId
+      return Engine.instance.userID === network.hostId
     },
 
     topic

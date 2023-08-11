@@ -23,16 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '../user/user.schema'
 
-import { UserInterface } from './User'
-
-export interface AdminScope {
+export type Message = {
   id: string
+  senderId: UserID
+  channelId: ChannelID
+  text: string
+  isNotification: boolean
   createdAt: string
   updatedAt: string
-  userId?: string
-  type: string
-  scopeType?: ScopeTypeType
-  user?: UserInterface
+  sender: UserType
 }

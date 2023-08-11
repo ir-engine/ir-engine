@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
+import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { Message } from './message.class'
 import messageDocs from './message.docs'
@@ -40,7 +41,7 @@ declare module '@etherealengine/common/declarations' {
 export const onCRUD =
   (app: Application) =>
   async (data: MessageInterface): Promise<any> => {
-    data.sender = await app.service('user').get(data.senderId)
+    data.sender = await app.service(userPath).get(data.senderId)
     const channelUsers = await app.service('channel-user').find({
       query: {
         channelId: data.channelId
@@ -51,11 +52,7 @@ export const onCRUD =
       return channelUser.userId
     })
 
-    return Promise.all(
-      userIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send(data)
-      })
-    )
+    return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
   }
 
 export default (app: Application) => {
