@@ -32,11 +32,12 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { taskServerSettingPath } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const TaskServer = () => {
   const { t } = useTranslation()
-  const settingTaskServer = useFind('task-server-setting').data
+  const settingTaskServer = useFind(taskServerSettingPath).data
 
   return (
     <Box>

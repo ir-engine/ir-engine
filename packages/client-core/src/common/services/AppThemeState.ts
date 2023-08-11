@@ -54,7 +54,7 @@ export const useAppThemeName = (): string => {
 
   if (themeState.mode.value === 'custom' && themeState.customThemeName.value) return themeState.customThemeName.value
 
-  return getCurrentTheme(authState.user?.user_setting?.value?.themeModes)
+  return getCurrentTheme(authState.user?.userSetting?.value?.themeModes)
 }
 
 export const getAppThemeName = (): string => {
@@ -63,7 +63,7 @@ export const getAppThemeName = (): string => {
 
   if (themeState.mode.value === 'custom' && themeState.customThemeName.value) return themeState.customThemeName.value
 
-  return getCurrentTheme(authState.user?.user_setting?.value?.themeModes)
+  return getCurrentTheme(authState.user?.userSetting?.value?.themeModes)
 }
 
 export const getAppTheme = () => {
@@ -71,7 +71,7 @@ export const getAppTheme = () => {
   if (themeState.mode === 'custom' && themeState.customTheme) return themeState.customTheme
 
   const authState = getState(AuthState)
-  const theme = getCurrentTheme(authState.user?.user_setting?.themeModes)
+  const theme = getCurrentTheme(authState.user?.userSetting?.themeModes)
   const clientSettingState = getState(AdminClientSettingsState)
   const themeSettings = clientSettingState?.client?.[0]?.themeSettings
   if (themeSettings) return themeSettings[theme]

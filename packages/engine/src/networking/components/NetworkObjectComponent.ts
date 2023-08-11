@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -58,7 +58,7 @@ export const NetworkObjectComponent = defineComponent({
   onInit: (entity) => {
     return {
       /** The user who is authority over this object. */
-      ownerId: '' as UserId,
+      ownerId: '' as UserID,
       /** The peer who is authority over this object. */
       authorityPeerID: '' as PeerID,
       /** The network id for this object (this id is only unique per owner) */
@@ -94,7 +94,7 @@ export const NetworkObjectComponent = defineComponent({
     }, [networkObject.authorityPeerID])
 
     useEffect(() => {
-      if (networkObject.ownerId.value === Engine.instance.userId) setComponent(entity, NetworkObjectOwnedTag)
+      if (networkObject.ownerId.value === Engine.instance.userID) setComponent(entity, NetworkObjectOwnedTag)
       else removeComponent(entity, NetworkObjectOwnedTag)
     }, [networkObject.ownerId])
 
@@ -105,7 +105,7 @@ export const NetworkObjectComponent = defineComponent({
    * Get the network objects owned by a given user
    * @param ownerId
    */
-  getOwnedNetworkObjects(ownerId: UserId) {
+  getOwnedNetworkObjects(ownerId: UserID) {
     return networkObjectQuery().filter((eid) => getComponent(eid, NetworkObjectComponent).ownerId === ownerId)
   },
 
@@ -113,7 +113,7 @@ export const NetworkObjectComponent = defineComponent({
    * Get a network object by owner and NetworkId
    * @returns
    */
-  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity {
+  getNetworkObject(ownerId: UserID, networkId: NetworkId): Entity {
     return (
       networkObjectQuery().find((eid) => {
         const networkObject = getComponent(eid, NetworkObjectComponent)
@@ -127,7 +127,7 @@ export const NetworkObjectComponent = defineComponent({
    * @param userId
    * @returns
    */
-  getUserAvatarEntity(userId: UserId) {
+  getUserAvatarEntity(userId: UserID) {
     return NetworkObjectComponent.getOwnedNetworkObjectsWithComponent(userId, AvatarComponent).find((eid) => {
       return getComponent(eid, AvatarComponent).primary
     })!
@@ -139,7 +139,7 @@ export const NetworkObjectComponent = defineComponent({
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserID, component: Component<T, S>) {
     return (
       NetworkObjectComponent.getOwnedNetworkObjects(userId).find((eid) => {
         return hasComponent(eid, component)
@@ -153,7 +153,7 @@ export const NetworkObjectComponent = defineComponent({
    * @param component
    * @returns
    */
-  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserID, component: Component<T, S>) {
     return NetworkObjectComponent.getOwnedNetworkObjects(userId).filter((eid) => {
       return hasComponent(eid, component)
     })

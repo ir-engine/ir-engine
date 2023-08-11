@@ -35,6 +35,7 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { LocationAuthorizedUserType } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 import { LocationParams } from './location.class'
 
@@ -117,7 +118,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       ...location.locationAdmin,
       id: v4(),
       locationId: '',
-      userId: '',
+      userId: '' as UserID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     }

@@ -67,7 +67,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
       html.dataset.theme = currentThemeName
       updateTheme()
     }
-  }, [selfUser?.user_setting?.value])
+  }, [selfUser?.userSetting?.value])
 
   useEffect(() => {
     if (clientSetting) {

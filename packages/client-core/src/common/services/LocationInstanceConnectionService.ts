@@ -28,10 +28,10 @@ import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import logger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
@@ -72,20 +72,20 @@ export function useWorldInstance() {
 }
 
 export const LocationInstanceConnectionService = {
-  changeActiveConnection: (currentInstanceId: UserId, newInstanceId: UserId) => {
+  changeActiveConnection: (currentInstanceId: UserID, newInstanceId: UserID) => {
     const locationInstanceState = getMutableState(LocationInstanceState)
     const currentNetworkState = locationInstanceState.instances[currentInstanceId].get({ noproxy: true })
     const networkState = getMutableState(NetworkState)
     const currentNework = getState(NetworkState).networks[currentInstanceId]
 
     updateNetworkID(currentNework as SocketWebRTCClientNetwork, newInstanceId)
-    networkState.hostIds.world.set(newInstanceId as UserId)
+    networkState.hostIds.world.set(newInstanceId as UserID)
 
     locationInstanceState.instances.merge({ [newInstanceId]: currentNetworkState })
     locationInstanceState.instances[currentInstanceId].set(none)
   },
   provision: (provisionResult: InstanceServerProvisionResult, locationId: string | null, sceneId: string | null) => {
-    getMutableState(NetworkState).hostIds.world.set(provisionResult.id as UserId)
+    getMutableState(NetworkState).hostIds.world.set(provisionResult.id as UserID)
     getMutableState(LocationInstanceState).instances.merge({
       [provisionResult.id]: {
         ipAddress: provisionResult.ipAddress,

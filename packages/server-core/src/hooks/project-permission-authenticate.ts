@@ -27,15 +27,15 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
 export default (writeAccess) => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
     if (context.params.isInternal) return context
-    const loggedInUser = params.user as UserInterface
+    const loggedInUser = params.user as UserType
     if (
       (!writeAccess && loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) ||
       context.provider == null

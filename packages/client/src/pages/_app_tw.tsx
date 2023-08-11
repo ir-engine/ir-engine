@@ -114,7 +114,7 @@ const AppPage = () => {
   }, [selfUser])
 
   useEffect(() => {
-    Engine.instance.userId = selfUser.id.value
+    Engine.instance.userID = selfUser.id.value
   }, [selfUser.id])
 
   useEffect(() => {

@@ -30,18 +30,20 @@ import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 
-import { UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
 import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
+import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import { ServerState } from '../../ServerState'
+import { UserParams } from '../../api/root-params'
 import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { ServerState } from '../../ServerState'
-import { UserParams } from '../../user/user/user.class'
 import { pushProjectToGithub } from './github-helper'
 import {
   checkBuilderService,
@@ -356,32 +358,27 @@ export default (app: Application): void => {
 
   service.hooks(hooks)
 
-  service.publish('patched', async (data: UserInterface): Promise<any> => {
+  service.publish('patched', async (data: UserType) => {
     try {
-      let targetIds = []
+      let targetIds: string[] = []
       const projectOwners = await app.service('project-permission').Model.findAll({
         where: {
           projectId: data.id
         }
       })
       targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
-      const admins = await app.service('user').Model.findAll({
-        include: [
-          {
-            model: app.service('scope').Model,
-            where: {
-              type: 'admin:admin'
-            }
-          }
-        ]
-      })
-      targetIds = targetIds.concat(admins.map((admin) => admin.id))
+
+      //TODO: We should replace `as any as AdminScope[]` with `as AdminScope[]` once scope service is migrated to feathers 5.
+      const adminScopes = (await app.service(scopePath).find({
+        query: {
+          type: 'admin:admin'
+        },
+        paginate: false
+      })) as any as AdminScope[]
+
+      targetIds = targetIds.concat(adminScopes.map((admin) => admin.userId!))
       targetIds = _.uniq(targetIds)
-      return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send(data)
-        })
-      )
+      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

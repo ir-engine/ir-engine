@@ -23,11 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Invite } from './Invite'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '../user/user.schema'
 
-export type InviteResult = {
-  data: Invite[]
-  total: number
-  limit: number
-  skip: number
+interface ChannelInterface {
+  id: string
+  name: string
+  users: UserType[]
+  userIds: UserID[]
+  instanceId: string
+}
+
+export type ChannelUser = {
+  id: string
+  isOwner: boolean
+  userId: UserID
+  user?: UserType
+  channelId: ChannelID
+  channel?: ChannelInterface
 }

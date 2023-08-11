@@ -28,7 +28,7 @@ import assert from 'assert'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { applyIncomingActions, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
@@ -57,9 +57,9 @@ describe('NetworkPeerFunctions', () => {
 
   describe('addPeers', () => {
     it('should add peer', () => {
-      const userId = 'user id' as UserId
+      const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
-      Engine.instance.userId = 'another user id' as UserId
+      Engine.instance.userID = 'another user id' as UserID
       Engine.instance.peerID = peerID
       const userName = 'user name'
       const userIndex = 1
@@ -83,9 +83,9 @@ describe('NetworkPeerFunctions', () => {
     })
 
     it('should update peer if it already exists', () => {
-      const userId = 'user id' as UserId
+      const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
-      Engine.instance.userId = 'another user id' as UserId
+      Engine.instance.userID = 'another user id' as UserID
       Engine.instance.peerID = peerID
       const userName = 'user name'
       const userName2 = 'user name 2'
@@ -115,9 +115,9 @@ describe('NetworkPeerFunctions', () => {
 
   describe('removePeer', () => {
     it('should remove peer', () => {
-      const userId = 'user id' as UserId
+      const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
-      Engine.instance.userId = 'another user id' as UserId
+      Engine.instance.userID = 'another user id' as UserID
       Engine.instance.peerID = 'another peer id' as PeerID
       const userName = 'user name'
       const userIndex = 1
@@ -136,9 +136,9 @@ describe('NetworkPeerFunctions', () => {
     })
 
     it('should not remove self peer', () => {
-      const userId = 'user id' as UserId
+      const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
-      Engine.instance.userId = 'another user id' as UserId
+      Engine.instance.userID = 'another user id' as UserID
       Engine.instance.peerID = peerID
       const userName = 'user name'
       const userIndex = 1
@@ -157,15 +157,15 @@ describe('NetworkPeerFunctions', () => {
     })
 
     it('should remove peer and owned network objects', () => {
-      const userId = 'world' as UserId
+      const userId = 'world' as UserID
       const peerID = 'peer id' as PeerID
-      Engine.instance.userId = 'another user id' as UserId
+      Engine.instance.userID = 'another user id' as UserID
       Engine.instance.peerID = 'another peer id' as PeerID
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 5
       const network = Engine.instance.worldNetwork as Network
-      network.hostId = Engine.instance.userId
+      network.hostId = Engine.instance.userID
       getMutableState(NetworkState).hostIds.world.set(userId)
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)

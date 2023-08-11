@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { UserKick } from '@etherealengine/common/src/dbmodels/UserKick'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -61,7 +62,7 @@ export default (app: Application) => {
   )
 
   ;(userKick as any).associate = (models: any): void => {
-    ;(userKick as any).belongsTo(models.user, { as: 'user' })
+    ;(userKick as any).belongsTo(createUserModel(app), { as: 'user' })
     ;(userKick as any).belongsTo(models.instance, { as: 'instance' })
   }
 

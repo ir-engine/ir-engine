@@ -29,7 +29,7 @@ import assert from 'assert'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState, receiveActions } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -72,12 +72,12 @@ describe('EntityNetworkState', () => {
 
   describe('spawnObject', () => {
     it('should spawn object owned by host', () => {
-      const hostUserId = 'world' as UserId
-      const userId = 'user id' as UserId
+      const hostUserId = 'world' as UserID
+      const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.userId = userId
+      Engine.instance.userID = userId
       const network = Engine.instance.worldNetwork as Network
       Engine.instance.peerID = peerID
 
@@ -116,12 +116,12 @@ describe('EntityNetworkState', () => {
     })
 
     it('should spawn object owned by user', async () => {
-      const userId = 'user id' as UserId
-      const hostId = 'host' as UserId
+      const userId = 'user id' as UserID
+      const hostId = 'host' as UserID
       const peerID = 'peer id' as PeerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.userId = userId
+      Engine.instance.userID = userId
 
       const network = Engine.instance.worldNetwork as Network
       Engine.instance.peerID = peerID2
@@ -161,14 +161,14 @@ describe('EntityNetworkState', () => {
     })
 
     it('should spawn avatar owned by other', async () => {
-      const hostUserId = 'world' as UserId
-      const userId = 'user id' as UserId
-      const userId2 = 'second user id' as UserId
+      const hostUserId = 'world' as UserID
+      const userId = 'user id' as UserID
+      const userId2 = 'second user id' as UserID
       const peerID = 'peer id' as PeerID
       const peerID2 = 'peer id 2' as PeerID
       const peerID3 = 'peer id 3' as PeerID
 
-      Engine.instance.userId = userId
+      Engine.instance.userID = userId
       const network = Engine.instance.worldNetwork as Network
       Engine.instance.peerID = peerID
 
@@ -207,10 +207,10 @@ describe('EntityNetworkState', () => {
     })
 
     it('should spawn avatar owned by user', async () => {
-      const userId = 'user id' as UserId
+      const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
 
-      Engine.instance.userId = userId
+      Engine.instance.userID = userId
       const network = Engine.instance.worldNetwork as Network
       Engine.instance.peerID = peerID
 
@@ -220,15 +220,15 @@ describe('EntityNetworkState', () => {
         AvatarNetworkAction.spawn({
           networkId: 42 as NetworkId,
           $peer: peerID,
-          entityUUID: Engine.instance.userId as string as EntityUUID
+          entityUUID: Engine.instance.userID as string as EntityUUID
         })
       )
       applyIncomingActions()
       await act(() => receiveActions(EntityNetworkState))
 
-      const entity = UUIDComponent.entitiesByUUID[Engine.instance.userId as any as EntityUUID]
+      const entity = UUIDComponent.entitiesByUUID[Engine.instance.userID as any as EntityUUID]
 
-      spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
+      spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
       assert.equal(getComponent(entity, NetworkObjectComponent).networkId, 42)
       assert.equal(getComponent(entity, NetworkObjectComponent).authorityPeerID, peerID)
@@ -240,13 +240,13 @@ describe('EntityNetworkState', () => {
 
   describe('transfer authority of object', () => {
     it('should transfer authority of object (and not ownership)', async () => {
-      const hostUserId = 'world' as UserId
+      const hostUserId = 'world' as UserID
       const hostPeerId = 'host peer id' as PeerID
-      const userId = 'user id' as UserId
+      const userId = 'user id' as UserID
       const peerID = 'peer id' as PeerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.userId = userId
+      Engine.instance.userID = userId
       const network = Engine.instance.worldNetwork as Network
       Engine.instance.peerID = peerID
 
@@ -314,13 +314,13 @@ describe('EntityNetworkState', () => {
   })
 
   it('should not transfer authority if it is not the owner', async () => {
-    const hostUserId = 'world' as UserId
+    const hostUserId = 'world' as UserID
     const hostPeerId = 'host peer id' as PeerID
-    const userId = 'user id' as UserId
+    const userId = 'user id' as UserID
     const peerID = 'peer id' as PeerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.userId = userId // user being the action dispatcher
+    Engine.instance.userID = userId // user being the action dispatcher
     const network = Engine.instance.worldNetwork as Network
     Engine.instance.peerID = peerID
 

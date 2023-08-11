@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, dispatchAction, getMutableState, getState, State, useState } from '@etherealengine/hyperflux'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
 import { LocationState } from '../../social/services/LocationService'
 import {
@@ -83,11 +83,12 @@ export function useMediaInstance() {
 
 export const MediaInstanceConnectionService = {
   provision: (provisionResult: InstanceServerProvisionResult, channelId?: ChannelID) => {
-    getMutableState(NetworkState).hostIds.media.set(provisionResult.id as UserId)
-    const existingNetwork = getState(NetworkState).networks[provisionResult.id]
+    const instanceId = provisionResult.id as UserID
+    getMutableState(NetworkState).hostIds.media.set(instanceId)
+    const existingNetwork = getState(NetworkState).networks[instanceId]
     if (!existingNetwork) {
-      addNetwork(initializeNetwork(provisionResult.id as UserId, NetworkTopics.media))
-      getMutableState(MediaInstanceState).instances[provisionResult.id].set({
+      addNetwork(initializeNetwork(instanceId, instanceId, NetworkTopics.media))
+      getMutableState(MediaInstanceState).instances[instanceId].set({
         ipAddress: provisionResult.id,
         port: provisionResult.port,
         channelId: channelId,
