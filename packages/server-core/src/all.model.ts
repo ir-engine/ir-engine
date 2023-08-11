@@ -433,7 +433,7 @@ export const createLocationAdminModel = (app: Application) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ;(locationAdmin as any).associate = function (models: any): void {
     ;(locationAdmin as any).belongsTo(createLocationModel(app), { required: true, allowNull: false })
-    ;(locationAdmin as any).belongsTo(models.user, { required: true, allowNull: false })
+    ;(locationAdmin as any).belongsTo(createUserModel(app), { required: true, allowNull: false })
   }
 
   return locationAdmin
@@ -471,7 +471,7 @@ export const createInstanceAttendanceModel = (app: Application) => {
   )
   ;(instanceAttendance as any).associate = (models: any): void => {
     ;(instanceAttendance as any).belongsTo(models.instance)
-    ;(instanceAttendance as any).belongsTo(models.user)
+    ;(instanceAttendance as any).belongsTo(createUserModel(app))
   }
   return instanceAttendance
 }
