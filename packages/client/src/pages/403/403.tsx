@@ -28,17 +28,15 @@ import { Link } from 'react-router-dom'
 
 import { Button } from '@mui/material'
 
-import { useStyle, useStyles } from './style'
+import styles from './403.module.scss'
 
 const UnauthorisedPage = (props) => {
-  const classes = useStyles()
-  const classx = useStyle()
   return (
-    <div className={classx.paper}>
-      <div className={classes.notFound}>
-        <p className={classes.typo}>{props.message}</p>
+    <div className={styles.paper}>
+      <div className={styles.notFound}>
+        <p className={styles.typo}>{props.message}</p>
         <Link style={{ textDecoration: 'none' }} to="/location/default">
-          <Button className={classes.Btn}>location page</Button>
+          <Button className={styles.Btn}>location page</Button>
         </Link>
       </div>
     </div>

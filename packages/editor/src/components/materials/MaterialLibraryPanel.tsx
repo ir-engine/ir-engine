@@ -38,7 +38,7 @@ import {
   registerMaterial
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Stack } from '@mui/material'
 
@@ -55,11 +55,11 @@ export default function MaterialLibraryPanel() {
   const selectionState = useHookstate(getMutableState(SelectionState))
   const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
-  const nodeChanges = useState(0)
+  const nodeChanges = useHookstate(0)
   const publicPath = getState(EngineState).publicPath
 
   const createSrcs = useCallback(() => Object.values(materialLibrary.sources.value), [materialLibrary.sources])
-  const srcs = useState(createSrcs())
+  const srcs = useHookstate(createSrcs())
   useEffect(srcs.set.bind({}, createSrcs), [materialLibrary.sources])
 
   const collapsedSrcs = useCallback(
@@ -67,43 +67,44 @@ export default function MaterialLibraryPanel() {
     [srcs]
   )
 
-  const collapsedNodes = useState(collapsedSrcs())
-  const createNodes = useCallback((): MaterialLibraryEntryType[] => {
-    const result = srcs.value.flatMap((srcComp) => {
-      const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
-      const isCollapsed = collapsedNodes.value.has(uuid)
-      return [
-        {
-          uuid,
-          type: LibraryEntryType.MATERIAL_SOURCE,
-          entry: srcComp,
-          selected: selectionState.selectedEntities.value.some(
-            (entity) => typeof entity === 'string' && entity === uuid
-          ),
-          active: selectionState.selectedEntities.value.at(-1) === uuid,
-          isCollapsed
-        },
-        ...(isCollapsed
-          ? []
-          : srcComp.entries
-              .filter((uuid) => !!materialLibrary.materials[uuid].value)
-              .map((uuid) => {
-                return {
-                  uuid,
-                  type: LibraryEntryType.MATERIAL,
-                  entry: materialFromId(uuid),
-                  selected: selectionState.selectedEntities.value.some(
-                    (entity) => typeof entity === 'string' && entity === uuid
-                  ),
-                  active: selectionState.selectedEntities.value.at(-1) === uuid
-                }
-              }))
-      ]
-    })
-    return result
-  }, [nodeChanges, srcs, selectionState.selectedEntities])
+  const collapsedNodes = useHookstate(collapsedSrcs())
+  const createNodes = useCallback(
+    (): MaterialLibraryEntryType[] =>
+      srcs.value.flatMap((srcComp) => {
+        const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
+        const isCollapsed = collapsedNodes.value.has(uuid)
+        return [
+          {
+            uuid,
+            type: LibraryEntryType.MATERIAL_SOURCE,
+            entry: srcComp,
+            selected: selectionState.selectedEntities.value.some(
+              (entity) => typeof entity === 'string' && entity === uuid
+            ),
+            active: selectionState.selectedEntities.value.at(-1) === uuid,
+            isCollapsed
+          },
+          ...(isCollapsed
+            ? []
+            : srcComp.entries
+                .filter((uuid) => !!materialLibrary.materials[uuid].value)
+                .map((uuid) => {
+                  return {
+                    uuid,
+                    type: LibraryEntryType.MATERIAL,
+                    entry: materialFromId(uuid),
+                    selected: selectionState.selectedEntities.value.some(
+                      (entity) => typeof entity === 'string' && entity === uuid
+                    ),
+                    active: selectionState.selectedEntities.value.at(-1) === uuid
+                  }
+                }))
+        ]
+      }),
+    [nodeChanges, srcs, selectionState.selectedEntities]
+  )
 
-  const nodes = useState(createNodes())
+  const nodes = useHookstate(createNodes())
 
   const onClick = useCallback((e: MouseEvent, node: MaterialLibraryEntryType) => {
     if (!editorState.lockPropertiesPanel.get()) {

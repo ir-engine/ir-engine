@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { removeMaterialPlugin } from '@etherealengine/engine/src/renderer/materials/functions/MaterialPluginFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, getState, none, State, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
 
@@ -53,15 +53,15 @@ import PaginatedList from '../layout/PaginatedList'
 
 export default function MaterialEditor({ material, ...rest }: { material: Material }) {
   if (material === undefined) return <></>
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
+  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const materialComponent = materialLibrary.materials[material.uuid]
   const prototypeComponent = materialLibrary.prototypes[materialComponent.prototype.value]
-  const loadingData = useState(false)
+  const loadingData = useHookstate(false)
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
     value: prototype.prototypeId
   }))
-  const thumbnails = useState<Record<string, string>>({})
+  const thumbnails = useHookstate<Record<string, string>>({})
 
   const createThumbnails = useCallback(async () => {
     const result = {} as Record<string, string>
@@ -114,7 +114,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
     checkThumbs()
   }, [materialComponent.parameters])
 
-  const selectedPlugin = useState('vegetation')
+  const selectedPlugin = useHookstate('vegetation')
 
   return (
     <div {...rest}>

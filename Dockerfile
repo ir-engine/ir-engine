@@ -31,7 +31,7 @@ COPY patches/ ./patches/
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps
+RUN npm install --loglevel notice
 
 COPY . .
 

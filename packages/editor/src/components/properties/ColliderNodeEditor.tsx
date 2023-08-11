@@ -43,7 +43,7 @@ import {
 } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { useState } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import PanToolIcon from '@mui/icons-material/PanTool'
 
@@ -79,7 +79,7 @@ const callbackQuery = defineQuery([CallbackComponent])
 
 export const ColliderNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const targets = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
+  const targets = useHookstate<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
 
   const colliderComponent = useComponent(props.entity, ColliderComponent)
 

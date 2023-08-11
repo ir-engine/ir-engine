@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { dispatchAction, getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import Box from '@mui/material/Box'
 
@@ -44,7 +44,7 @@ import Dialog from './Dialog'
 export function SaveSceneDialog({ onConfirm, onCancel }) {
   const { t } = useTranslation()
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-  const state = useState({
+  const state = useHookstate({
     isGenerateThumbnailsEnabled: editorHelperState.isGenerateThumbnailsEnabled.value
   })
 

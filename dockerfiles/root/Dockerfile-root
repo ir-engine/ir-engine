@@ -18,4 +18,4 @@ COPY packages/xrui/package.json ./packages/xrui/
 COPY project-package-jsons ./
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps
+RUN npm install --loglevel notice

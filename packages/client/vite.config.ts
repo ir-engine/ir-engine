@@ -33,8 +33,6 @@ import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import OptimizationPersist from 'vite-plugin-optimize-persist'
-import PkgConfig from 'vite-plugin-package-config'
 
 import manifest from './manifest.default.json'
 import PWA from './pwa.config'
@@ -279,8 +277,6 @@ export default defineConfig(async () => {
       }
     },
     plugins: [
-      PkgConfig(), // must be in front of optimizationPersist
-      OptimizationPersist(),
       nodePolyfills(),
       mediapipe_workaround(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,

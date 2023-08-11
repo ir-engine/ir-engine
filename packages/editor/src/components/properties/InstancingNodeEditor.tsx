@@ -51,7 +51,7 @@ import {
   MESH_PROPERTIES_DEFAULT_VALUES
 } from '@etherealengine/engine/src/scene/functions/loaders/InstancingFunctions'
 import getFirstMesh from '@etherealengine/engine/src/scene/util/getFirstMesh'
-import { State, useState } from '@etherealengine/hyperflux'
+import { State, useHookstate } from '@etherealengine/hyperflux'
 
 import AcUnitIcon from '@mui/icons-material/AcUnit'
 
@@ -68,7 +68,7 @@ import { EditorComponentType, traverseScene } from './Util'
 
 export const InstancingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entityState = useState(props.entity)
+  const entityState = useHookstate(props.entity)
   const entity = entityState.value
   const scatterState = useComponent(entity, InstancingComponent)
   const scatter = scatterState.value
@@ -121,7 +121,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
     return surfaces
   }
 
-  const surfaces = useState(initialSurfaces())
+  const surfaces = useHookstate(initialSurfaces())
 
   const onRestage = () => {
     scatterState.state.set(ScatterState.UNSTAGING)

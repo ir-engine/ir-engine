@@ -45,7 +45,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
@@ -141,19 +141,17 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const anchorPosition = useHookstate<undefined | PopoverPosition>(undefined)
 
   const open = Boolean(anchorEl.value)
-  const isLoading = useState(true)
-  const selectedDirectory = useState(
+  const isLoading = useHookstate(true)
+  const selectedDirectory = useHookstate(
     `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
   )
-  const fileProperties = useState<any>(null)
-
-  const openProperties = useState(false)
-  const openCompress = useState(false)
-  const openConvert = useState(false)
-  const convertProperties = useState<ImageConvertParms>(ImageConvertDefaultParms)
-
-  const openConfirm = useState(false)
-  const contentToDeletePath = useState('')
+  const fileProperties = useHookstate<any>(null)
+  const openProperties = useHookstate(false)
+  const openCompress = useHookstate(false)
+  const openConvert = useHookstate(false)
+  const convertProperties = useHookstate<ImageConvertParms>(ImageConvertDefaultParms)
+  const openConfirm = useHookstate(false)
+  const contentToDeletePath = useHookstate('')
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value

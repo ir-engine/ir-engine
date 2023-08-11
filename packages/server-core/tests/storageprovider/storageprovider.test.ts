@@ -102,7 +102,7 @@ describe('storageprovider', () => {
       })
       let res
       try {
-        res = await fetch(signedUrl.url + signedUrl.fields.Key, { agent: httpAgent })
+        res = await fetch(signedUrl.url + signedUrl.fields.key, { agent: httpAgent })
       } catch (err) {
         console.log(err)
       }

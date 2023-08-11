@@ -28,6 +28,6 @@ Ethereal Engine. All Rights Reserved.
 module.exports = {
   presets: [
     ["@babel/preset-react",
-    'enzyme-adapter-react-16', '@babel/preset-env', {targets: {node: 'current'}}]
+    '@cfaester/enzyme-adapter-react-18', '@babel/preset-env', {targets: {node: 'current'}}]
   ],
 };
