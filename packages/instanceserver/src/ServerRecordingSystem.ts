@@ -39,12 +39,7 @@ import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengin
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
-import {
-  addDataChannelHandler,
-  dataChannelRegistry,
-  NetworkState,
-  removeDataChannelHandler
-} from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
 import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -57,6 +52,11 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import {
+  addDataChannelHandler,
+  DataChannelRegistryState,
+  removeDataChannelHandler
+} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
@@ -231,7 +231,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
     const dataChannelSchema = Object.values(schema.peers)
       .flat()
-      .filter((component: DataChannelType) => dataChannelRegistry.has(component))
+      .filter((component: DataChannelType) => !!getState(DataChannelRegistryState)[component])
       .filter(Boolean) as DataChannelType[]
 
     for (const dataChannel of dataChannelSchema) {
@@ -289,7 +289,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   if (activeRecording.dataChannelRecorder) {
     const dataChannelSchema = Object.values(schema.peers)
       .flat()
-      .filter((component: DataChannelType) => dataChannelRegistry.has(component))
+      .filter((component: DataChannelType) => !!getState(DataChannelRegistryState)[component])
       .filter(Boolean) as DataChannelType[]
 
     for (const dataChannel of dataChannelSchema) {

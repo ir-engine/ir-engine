@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
-import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
+import { DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -52,7 +52,6 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
@@ -219,8 +218,6 @@ export const handleConnectingPeer = async (
     media: {} as any,
     consumerLayers: {},
     stats: {},
-    incomingDataConsumers: new Map<DataChannelType, DataConsumer>(),
-    outgoingDataConsumers: new Map<DataChannelType, DataConsumer>(),
     dataProducers: new Map<string, DataProducer>()
   })
 

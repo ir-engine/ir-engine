@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import {
   defineAction,
   defineState,
@@ -41,6 +41,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
 import { NetworkState } from '../NetworkState'
+import { Network } from '../classes/Network'
 
 export class DataProducerActions {
   static requestProducer = defineAction({
@@ -82,9 +83,7 @@ export class DataConsumerActions {
   static requestConsumer = defineAction({
     type: 'ee.engine.network.DATA_REQUEST_CONSUMER',
     peerID: matchesPeerID,
-    dataTag: matches.string as Validator<unknown, DataChannelType>,
-    rtpCapabilities: matches.object,
-    channelID: matches.string as Validator<unknown, ChannelID>
+    channelType: matches.string as Validator<unknown, DataChannelType>
   })
 
   static consumerCreated = defineAction({
@@ -196,6 +195,33 @@ export const DataProducerConsumerState = defineState({
   ]
 })
 
+type RegistryFunction = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => void
+
+export const DataChannelRegistryState = defineState({
+  name: 'ee.engine.network.DataChannelRegistryState',
+  initial: {} as Record<DataChannelType, RegistryFunction[]>
+})
+
+export const addDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
+  if (!getState(DataChannelRegistryState)[dataChannelType]) {
+    getMutableState(DataChannelRegistryState).merge({ [dataChannelType]: [] })
+  }
+  getState(DataChannelRegistryState)[dataChannelType].push(handler)
+}
+
+export const removeDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
+  if (!getState(DataChannelRegistryState)[dataChannelType]) return
+
+  const index = getState(DataChannelRegistryState)[dataChannelType].indexOf(handler)
+  if (index === -1) return
+
+  getState(DataChannelRegistryState)[dataChannelType].splice(index, 1)
+
+  if (getState(DataChannelRegistryState)[dataChannelType].length === 0) {
+    getMutableState(DataChannelRegistryState)[dataChannelType].set(none)
+  }
+}
+
 const execute = () => {
   receiveActions(DataProducerConsumerState)
 }
@@ -241,25 +267,16 @@ export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }
   return <></>
 }
 
-const NetworkProducers = (props: { networkID: UserID }) => {
+const NetworkReactor = (props: { networkID: UserID }) => {
   const { networkID } = props
   const producers = useHookstate(getMutableState(DataProducerConsumerState)[networkID].producers)
+  const consumers = useHookstate(getMutableState(DataProducerConsumerState)[networkID].consumers)
 
   return (
     <>
       {Object.keys(producers.value).map((producerID: string) => (
         <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
       ))}
-    </>
-  )
-}
-
-const NetworkConsumers = (props: { networkID: UserID }) => {
-  const { networkID } = props
-  const consumers = useHookstate(getMutableState(DataProducerConsumerState)[networkID].consumers)
-
-  return (
-    <>
       {Object.keys(consumers.value).map((consumerID: string) => (
         <NetworkConsumer key={consumerID} consumerID={consumerID} networkID={networkID} />
       ))}
@@ -272,10 +289,7 @@ const reactor = () => {
   return (
     <>
       {Object.keys(networkIDs.value).map((hostId: UserID) => (
-        <NetworkProducers key={hostId + 'producer'} networkID={hostId} />
-      ))}
-      {Object.keys(networkIDs.value).map((hostId: UserID) => (
-        <NetworkConsumers key={hostId + 'consumer'} networkID={hostId} />
+        <NetworkReactor key={hostId} networkID={hostId} />
       ))}
     </>
   )

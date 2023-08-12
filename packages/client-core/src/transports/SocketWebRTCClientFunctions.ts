@@ -51,7 +51,6 @@ import {
   MediaStreamAppData,
   MediaTagType,
   NetworkState,
-  dataChannelRegistry,
   removeNetwork,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
@@ -86,7 +85,10 @@ import {
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { DataProducerActions } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+import {
+  DataChannelRegistryState,
+  DataProducerActions
+} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import {
   MediaConsumerActions,
   MediaProducerActions
@@ -508,7 +510,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     network.dataConsumers.set(options.id as DataChannelType, dataConsumer)
     dataConsumer.on('message', (message: any) => {
       try {
-        const dataChannelFunctions = dataChannelRegistry.get(dataConsumer.label as DataChannelType)
+        const dataChannelFunctions = getState(DataChannelRegistryState)[dataConsumer.label as DataChannelType]
         if (dataChannelFunctions) {
           for (const func of dataChannelFunctions)
             func(network, dataConsumer.label as DataChannelType, network.hostPeerID, message) // assmume for now data is coming from the host
@@ -699,12 +701,17 @@ export async function createDataConsumer(
   network: SocketWebRTCClientNetwork,
   dataChannelType: DataChannelType
 ): Promise<void> {
-  console.log('createDataConsumer', dataChannelType)
   if (network.dataConsumers.has(dataChannelType)) return console.log('aready has consumer')
   const response = await promisedRequest(network, MessageTypes.WebRTCConsumeData.toString(), {
     label: dataChannelType
   })
   console.log({ response })
+  // dispatchAction(DataConsumerActions.requestConsumer({
+  //   $network: network.hostId,
+  //   $topic: network.topic,
+  //   peerID: Engine.instance.peerID,
+  //   channelType: dataChannelType
+  // }))
 }
 
 export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {

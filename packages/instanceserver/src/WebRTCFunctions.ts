@@ -43,7 +43,7 @@ import { Spark } from 'primus'
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { dataChannelRegistry, MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
@@ -52,7 +52,10 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { DataProducerActions } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+import {
+  DataChannelRegistryState,
+  DataProducerActions
+} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import {
   MediaConsumerActions,
   MediaProducerActions
@@ -176,9 +179,9 @@ export const handleWebRtcConsumeData = async (
   const userId = getUserIdFromPeerID(network, peerID)!
   logger.info('Data Consumer being created on server by client: ' + userId)
 
-  if (peer.outgoingDataConsumers!.has(label)) {
-    return logger.info('Data consumer already exists for label: ' + label)
-  }
+  // if (peer.outgoingDataConsumers!.has(label)) {
+  //   return logger.info('Data consumer already exists for label: ' + label)
+  // }
 
   const newTransport = peer.recvTransport as Transport
   if (!newTransport) {
@@ -194,7 +197,7 @@ export const handleWebRtcConsumeData = async (
 
     dataConsumer.on('dataproducerclose', () => {
       dataConsumer.close()
-      if (network.peers.has(peerID)) network.peers.get(peerID)!.outgoingDataConsumers!.delete(label)
+      // if (network.peers.has(peerID)) network.peers.get(peerID)!.outgoingDataConsumers!.delete(label)
     })
 
     const peer = network.peers.get(peerID)
@@ -209,7 +212,7 @@ export const handleWebRtcConsumeData = async (
       return
     }
 
-    peer.outgoingDataConsumers!.set(label, dataConsumer)
+    // peer.outgoingDataConsumers!.set(label, dataConsumer)
 
     // Data consumers are all consuming the single producer that outputs from the server's message queue
     spark.write({
@@ -327,9 +330,9 @@ export async function createInternalDataConsumer(
       ordered: false
     })
     consumer.on('message', (message) => {
-      const dataChannelFunctions = dataChannelRegistry.get(dataProducer.label as DataChannelType)
-      if (dataChannelFunctions) {
-        for (const func of dataChannelFunctions) func(network, dataProducer.label as DataChannelType, peerID, message)
+      const DataChannelFunctions = getState(DataChannelRegistryState)[dataProducer.label as DataChannelType]
+      if (DataChannelFunctions) {
+        for (const func of DataChannelFunctions) func(network, dataProducer.label as DataChannelType, peerID, message)
       }
     })
     return consumer
@@ -448,7 +451,7 @@ export async function handleProduceData(
       return
     }
 
-    if (typeof label !== 'string' || !dataChannelRegistry.has(label)) {
+    if (typeof label !== 'string' || !getState(DataChannelRegistryState)[label]) {
       const errorMessage = 'Invalid data producer label (i.e. channel name) provided:' + label
       logger.error(errorMessage)
       return dispatchAction(
@@ -556,7 +559,7 @@ export async function handleProduceData(
         })
       )
     }
-    network.peers.get(peerID)!.incomingDataConsumers!.set(label, internalConsumer)
+    // network.peers.get(peerID)!.incomingDataConsumers!.set(label, internalConsumer)
     // Possibly do stuff with appData here
     logger.info('Sending dataproducer id to client: ' + dataProducer.id)
     return dispatchAction(

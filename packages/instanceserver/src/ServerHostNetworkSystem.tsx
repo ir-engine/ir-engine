@@ -22,7 +22,6 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
@@ -79,7 +78,45 @@ const execute = () => {
   }
 }
 
+// export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
+//   const { networkID, dataChannelType } = props
+
+//   useEffect(() => {
+//     const network = getState(NetworkState).networks[networkID] as SocketWebRTCServerNetwork
+//     createOutgoingDataProducer(network, dataChannelType)
+
+//     return () => {
+//       // todo - cleanup
+//     }
+//   }, [])
+
+//   return null
+// }
+
+// const NetworkReactor = (props: { networkID: UserID }) => {
+//   const { networkID } = props
+//   const dataChannelRegistry = useHookstate(getMutableState(DataChannelRegistryState))
+//   return (
+//     <>
+//       {dataChannelRegistry.keys.map((dataChannelType) => (
+//         <DataChannel key={dataChannelType} networkID={networkID} dataChannelType={dataChannelType as DataChannelType} />
+//       ))}
+//     </>
+//   )
+// }
+
+// export const reactor = () => {
+//   const networkIDs = useHookstate(getMutableState(DataProducerConsumerState))
+//   return (
+//     <>
+//       {Object.keys(networkIDs.value).map((hostId: UserID) => (
+//         <NetworkReactor key={hostId} networkID={hostId} />
+//       ))}
+//     </>
+//   )
+// }
 export const ServerHostNetworkSystem = defineSystem({
   uuid: 'ee.engine.ServerHostNetworkSystem',
   execute
+  // reactor
 })

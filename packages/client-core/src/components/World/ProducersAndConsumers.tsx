@@ -26,12 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dataChannelRegistry, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { useWorldInstance } from '../../common/services/LocationInstanceConnectionService'
 import {
   createDataConsumer,
@@ -39,14 +41,16 @@ import {
   SocketWebRTCClientNetwork
 } from '../../transports/SocketWebRTCClientFunctions'
 
-export const DataChannel = ({ dataChannelType }: { dataChannelType: DataChannelType }) => {
+export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
+  const { networkID, dataChannelType } = props
   const currentLocationInstanceConnection = useWorldInstance()
+  // replace connectedToWorld with nework specific state
   const connectedToWorld = useHookstate(getMutableState(EngineState).connectedWorld)
 
   useEffect(() => {
     if (!currentLocationInstanceConnection?.connected?.value || !connectedToWorld.value) return
 
-    const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+    const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
     createDataProducer(network, dataChannelType)
     createDataConsumer(network, dataChannelType)
 
@@ -58,12 +62,26 @@ export const DataChannel = ({ dataChannelType }: { dataChannelType: DataChannelT
   return null
 }
 
-export const DataChannels = () => {
-  useHookstate(getMutableState(NetworkState))
+const NetworkReactor = (props: { networkID: UserID }) => {
+  const { networkID } = props
+  const dataChannelRegistry = useHookstate(getMutableState(DataChannelRegistryState))
   return (
     <>
-      {Array.from(dataChannelRegistry.keys()).map((dataChannelType) => (
-        <DataChannel key={dataChannelType} dataChannelType={dataChannelType as DataChannelType} />
+      {dataChannelRegistry.keys.map((dataChannelType) => (
+        <DataChannel key={dataChannelType} networkID={networkID} dataChannelType={dataChannelType as DataChannelType} />
+      ))}
+    </>
+  )
+}
+
+export const DataChannels = () => {
+  const networkIDs = Object.entries(useHookstate(getMutableState(NetworkState).networks).value)
+    .filter(([networkID, network]) => network.topic === NetworkTopics.world)
+    .map(([networkID, network]) => networkID)
+  return (
+    <>
+      {networkIDs.map((hostId: UserID) => (
+        <NetworkReactor key={hostId} networkID={hostId} />
       ))}
     </>
   )
