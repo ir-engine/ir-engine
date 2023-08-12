@@ -30,7 +30,6 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 
 import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -52,6 +51,8 @@ import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
+import './EditorContainer.css'
+import { AppContext } from './Search/context'
 import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
@@ -74,78 +75,26 @@ import MaterialLibraryPanel from './materials/MaterialLibraryPanel'
 import { MaterialLibraryPanelTitle } from './materials/MaterialLibraryPanelTitle'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import { PropertiesPanelTitle } from './properties/PropertiesPanelTitle'
-import { AppContext } from './Search/context'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
 const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
 /**
- *Styled component used as dock container.
+ *component used as dock container.
  *
  * @type {type}
  */
-export const DockContainer = (styled as any).div`
-  .dock-panel {
-    background: transparent;
-    pointer-events: auto;
-    border: none;
+export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
+  const dockContainerStyles = {
+    '--dividerAlpha': dividerAlpha
   }
-  .dock-panel:first-child {
-    position: relative;
-    z-index: 99;
-  }
-  .dock-panel[data-dockid='+5'] {
-    pointer-events: none;
-  }
-  .dock-panel[data-dockid='+5'] .dock-bar {
-    display: none;
-  }
-  .dock-panel[data-dockid='+5'] .dock {
-    background: transparent;
-  }
-  .dock-divider {
-    pointer-events: auto;
-    background: rgba(1, 1, 1, ${(props) => props.dividerAlpha});
-  }
-  .dock {
-    border-radius: 4px;
-    background: var(--dockBackground);
-  }
-  .dock-top .dock-bar {
-    font-size: 12px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-    background: transparent;
-  }
-  .dock-tab {
-    background: transparent;
-    border-bottom: none;
-  }
-  .dock-tab:hover,
-  .dock-tab-active,
-  .dock-tab-active:hover {
-    border-bottom: 1px solid #ddd;
-  }
-  .dock-tab:hover div,
-  .dock-tab:hover svg {
-    color: var(--textColor);
-  }
-  .dock-tab > div {
-    padding: 2px 12px;
-  }
-  .dock-tab-active {
-    color: var(--textColor);
-  }
-  .dock-ink-bar {
-    background-color: var(--textColor);
-  }
-  .dock-panel-max-btn:before {
-    border-color: var(--iconButtonColor);
-  }
-`
 
-DockContainer.defaultProps = {
-  dividerAlpha: 0
+  return (
+    <div id={id} className="dock-container" style={dockContainerStyles as React.CSSProperties}>
+      {children}
+    </div>
+  )
 }
 
 /**

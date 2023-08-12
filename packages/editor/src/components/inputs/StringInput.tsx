@@ -24,35 +24,49 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
 
-import Input from './Input'
+import './Input.css'
 
-const StyledStringInput = (styled as any)(Input)`
-  display: flex;
-  width: 100%;
-`
+const inputStyle = {
+  display: 'flex',
+  width: '100%'
+}
+
+interface StyledNumericInputProps {
+  className?: string
+  onChange?: any
+  value?: string
+}
+
+const StyledNumericInput = React.forwardRef<any, StyledNumericInputProps>(
+  ({ className = '', onChange, ...rest }, ref) => {
+    return <input className={`StyledNumericInput ${className}`} style={inputStyle} {...rest} ref={ref} />
+  }
+)
 
 export interface StringInputProps {
   id?: string
   value?: string
-  onChange?: (value: string, e?: any) => void
+  onChange?: any
   required?: boolean
   pattern?: string
   title?: string
   error?: boolean
   canDrop?: boolean
-  onFocus?: () => void
-  onBlur?: () => void
-  onKeyUp?: (e: KeyboardEvent) => void
+  onFocus?: any
+  onBlur?: any
+  onKeyUp?: any
   type?: string
   placeholder?: string
   disabled?: boolean
 }
 
-const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, ...rest }, ref) => (
-  <StyledStringInput onChange={(e) => onChange?.(e.target.value, e)} {...rest} ref={ref} />
-))
+const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, ...rest }, ref) => {
+  const { error, canDrop, ...other } = rest
+  return (
+    <input className="Input" style={inputStyle} onChange={(e) => onChange?.(e.target.value, e)} {...other} ref={ref} />
+  )
+})
 
 StringInput.displayName = 'StringInput'
 StringInput.defaultProps = {
@@ -65,20 +79,20 @@ StringInput.defaultProps = {
 
 export default StringInput
 
-const DropContainer = (styled as any).div`
-  display: flex;
-  width: 100%;
-`
+const containerStyle = {
+  display: 'flex',
+  width: '100%'
+}
 
 export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
   const { onChange, value, ...rest } = values
+  const { error, canDrop, ...other } = rest
   const inputRef = useRef<HTMLInputElement>()
-
   const [tempValue, setTempValue] = useState(value)
 
   const onKeyUp = useCallback((e) => {
     if (e.key === 'Enter' || e.key === 'Escape') {
-      ;(inputRef as any).current.blur()
+      inputRef.current?.blur()
     }
   }, [])
 
@@ -87,7 +101,7 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
   }, [value])
 
   const onBlur = useCallback(() => {
-    onChange?.(tempValue!)
+    onChange?.(tempValue)
   }, [onChange, tempValue])
 
   const onChangeValue = useCallback(
@@ -102,26 +116,27 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
     if (rest.onFocus) rest.onFocus()
   }, [rest.onFocus])
 
-  ControlledStringInput.defaultProps = {
-    value: '',
-    onChange: () => {},
-    type: 'text',
-    required: false
-  }
-
   return (
-    <DropContainer ref={ref}>
-      <StyledStringInput
+    <div style={containerStyle} ref={ref}>
+      <StyledNumericInput
         ref={inputRef}
+        className="Input"
         onChange={onChangeValue}
         onBlur={onBlur}
         onKeyUp={onKeyUp}
-        value={tempValue}
+        value={tempValue || ''}
         onFocus={onFocus}
-        {...rest}
+        {...other}
       />
-    </DropContainer>
+    </div>
   )
 })
 
 ControlledStringInput.displayName = 'ControlledStringInput'
+
+ControlledStringInput.defaultProps = {
+  value: '',
+  onChange: () => {},
+  type: 'text',
+  required: false
+}
