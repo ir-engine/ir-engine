@@ -96,7 +96,7 @@ export const SplineTrackComponent = defineComponent({
           component.alpha.set(0)
           return
         }
-        if (!component.disableRunning) {
+        if (!component.disableRunning.value) {
           component.alpha.set(alpha + 0.01 * component.velocity.value)
         }
         const p1 = elements[index].position
