@@ -144,6 +144,8 @@ export const createIKAnimator = async (entity: Entity) => {
   const manager = getState(AnimationState)
   const avatar = getComponent(entity, AvatarComponent)
 
+  console.log(rigComponent.vrm)
+
   if (!manager.useDynamicAnimation) {
     for (let i = 0; i < animations!.length; i++) {
       animations[i] = retargetMixamoAnimation(animations[i], manager.fkAnimations?.scene!, rigComponent.vrm, 'glb')
@@ -151,7 +153,6 @@ export const createIKAnimator = async (entity: Entity) => {
     }
   }
 
-  //Using set component here allows us to react to animations
   setComponent(entity, AnimationComponent, {
     animations: clone(animations),
     mixer: new AnimationMixer(getState(AnimationState).useDynamicAnimation ? rigComponent.targets : avatar.model!)
