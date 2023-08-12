@@ -39,6 +39,7 @@ import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engin
 import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
@@ -47,6 +48,9 @@ const startCaptureSystems = () => {
   startSystem(MotionCaptureSystem, { with: InputSystemGroup })
   startSystem(MediaSystem, { before: PresentationSystemGroup })
   startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
+  startSystems([MediaProducerConsumerStateSystem], {
+    after: PresentationSystemGroup
+  })
 }
 
 export const initializeEngineForRecorder = async () => {
