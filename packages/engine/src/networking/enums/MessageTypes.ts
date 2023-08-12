@@ -46,7 +46,7 @@ export enum MessageTypes {
   // WebRTCMuteOtherProducer = 18,
   // WebRTCUnmuteOtherProducer = 19,
   // WebRTCConsumerSetLayers = 20,
-  WebRTCConsumeData = 21,
+  // WebRTCConsumeData = 21,
   // WebRTCProduceData = 22,
   // ReliableMessage = 23,
   // WebRTCCreateProducer = 24,

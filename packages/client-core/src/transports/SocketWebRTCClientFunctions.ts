@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
-  DataConsumer,
-  DataConsumerOptions,
   DataProducer,
   DtlsParameters,
   MediaKind,
@@ -86,7 +84,7 @@ import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
-  DataChannelRegistryState,
+  DataConsumerActions,
   DataProducerActions
 } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import {
@@ -235,8 +233,6 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
     /** List of data producer nodes. */
     dataProducers: new Map<DataChannelType, DataProducer>(),
 
-    /** List of data consumer nodes. */
-    dataConsumers: new Map<DataChannelType, DataConsumer>(),
     heartbeat: null! as NodeJS.Timer, // is there an equivalent browser type for this?
 
     producers: [] as ProducerExtension[],
@@ -497,34 +493,6 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 }
 
 export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
-  async function consumeDataHandler(options: DataConsumerOptions) {
-    console.log('consumerDataHandler', options)
-    const dataConsumer = await network.recvTransport.consumeData({
-      ...options,
-      // this is unused, but for whatever reason mediasoup will throw an error if it's not defined
-      dataProducerId: ''
-    })
-
-    // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
-    dataConsumer.binaryType = 'arraybuffer'
-    network.dataConsumers.set(options.id as DataChannelType, dataConsumer)
-    dataConsumer.on('message', (message: any) => {
-      try {
-        const dataChannelFunctions = getState(DataChannelRegistryState)[dataConsumer.label as DataChannelType]
-        if (dataChannelFunctions) {
-          for (const func of dataChannelFunctions)
-            func(network, dataConsumer.label as DataChannelType, network.hostPeerID, message) // assmume for now data is coming from the host
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }) // Handle message received
-    dataConsumer.on('close', () => {
-      dataConsumer.close()
-      network.dataConsumers.delete(options.id as DataChannelType)
-    })
-  }
-
   function kickHandler(message) {
     leaveNetwork(network, true)
     dispatchAction(NetworkConnectionService.actions.worldInstanceKicked({ message }))
@@ -546,7 +514,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   }
 
   async function consumeDataAndKickHandler(message) {
-    if (message.type === MessageTypes.WebRTCConsumeData.toString()) consumeDataHandler(message.data)
     if (message.type === MessageTypes.Kick.toString()) kickHandler(message.data)
   }
 
@@ -573,6 +540,8 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   const mediaStreamState = getMutableState(MediaStreamState)
 
   async function reconnectHandler() {
+    network.primus.removeListener('reconnected', reconnectHandler)
+    network.primus.removeListener('disconnection', disconnectHandler)
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
     network.reconnecting = false
     await onConnectToInstance(network)
@@ -603,8 +572,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
         await createCamAudioProducer(network)
       }
     }
-    network.primus.removeListener('reconnected', reconnectHandler)
-    network.primus.removeListener('disconnection', disconnectHandler)
     if (mediaStreamState.screenVideoProducer.value) {
       dispatchAction(
         MediaProducerActions.closeProducer({
@@ -695,23 +662,19 @@ export function closeDataProducer(network: SocketWebRTCClientNetwork, dataChanne
 /**
  *
  * @param network
- * @param dataChannelType
+ * @param dataChannel
  */
 export async function createDataConsumer(
   network: SocketWebRTCClientNetwork,
-  dataChannelType: DataChannelType
+  dataChannel: DataChannelType
 ): Promise<void> {
-  if (network.dataConsumers.has(dataChannelType)) return console.log('aready has consumer')
-  const response = await promisedRequest(network, MessageTypes.WebRTCConsumeData.toString(), {
-    label: dataChannelType
-  })
-  console.log({ response })
-  // dispatchAction(DataConsumerActions.requestConsumer({
-  //   $network: network.hostId,
-  //   $topic: network.topic,
-  //   peerID: Engine.instance.peerID,
-  //   channelType: dataChannelType
-  // }))
+  dispatchAction(
+    DataConsumerActions.requestConsumer({
+      $network: network.hostId,
+      $topic: network.topic,
+      dataChannel
+    })
+  )
 }
 
 export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {
@@ -861,7 +824,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
             requestID,
             transportId: transportOptions.id,
             sctpStreamParameters,
-            label,
+            dataChannel: label,
             protocol,
             appData,
             $network: network.id,

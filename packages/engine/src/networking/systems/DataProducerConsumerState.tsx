@@ -50,7 +50,7 @@ export class DataProducerActions {
     transportId: matches.string,
     protocol: matches.string,
     sctpStreamParameters: matches.object as Validator<unknown, any>,
-    label: matches.string as Validator<unknown, DataChannelType>,
+    dataChannel: matches.string as Validator<unknown, DataChannelType>,
     appData: matches.object as Validator<unknown, any>
   })
 
@@ -67,7 +67,7 @@ export class DataProducerActions {
     transportId: matches.string,
     protocol: matches.string,
     sctpStreamParameters: matches.object as Validator<unknown, any>,
-    label: matches.string as Validator<unknown, DataChannelType>,
+    dataChannel: matches.string as Validator<unknown, DataChannelType>,
     appData: matches.object as Validator<unknown, any>,
     $cache: true
   })
@@ -82,8 +82,7 @@ export class DataProducerActions {
 export class DataConsumerActions {
   static requestConsumer = defineAction({
     type: 'ee.engine.network.DATA_REQUEST_CONSUMER',
-    peerID: matchesPeerID,
-    channelType: matches.string as Validator<unknown, DataChannelType>
+    dataChannel: matches.string as Validator<unknown, DataChannelType>
   })
 
   static consumerCreated = defineAction({
@@ -91,7 +90,7 @@ export class DataConsumerActions {
     consumerID: matches.string,
     peerID: matchesPeerID,
     producerID: matches.string,
-    label: matches.string,
+    dataChannel: matches.string as Validator<unknown, DataChannelType>,
     sctpStreamParameters: matches.object,
     appData: matches.object as Validator<unknown, any>,
     protocol: matches.string
@@ -114,13 +113,13 @@ export const DataProducerConsumerState = defineState({
           transportId: string
           protocol: string
           sctpStreamParameters: any
-          label: string
+          dataChannel: DataChannelType
           appData: any
         }
       }
       consumers: {
         [consumerID: string]: {
-          label: string
+          dataChannel: DataChannelType
           sctpStreamParameters: any
           appData: any
           protocol: string
@@ -143,7 +142,7 @@ export const DataProducerConsumerState = defineState({
             transportId: action.transportId,
             protocol: action.protocol,
             sctpStreamParameters: action.sctpStreamParameters as any,
-            label: action.label,
+            dataChannel: action.dataChannel,
             appData: action.appData as any
           }
         })
@@ -171,7 +170,7 @@ export const DataProducerConsumerState = defineState({
         }
         state[hostId].consumers.merge({
           [action.consumerID]: {
-            label: action.label,
+            dataChannel: action.dataChannel,
             sctpStreamParameters: action.sctpStreamParameters as any,
             appData: action.appData as any,
             protocol: action.protocol
