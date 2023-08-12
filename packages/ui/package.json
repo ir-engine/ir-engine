@@ -82,7 +82,6 @@
     "@types/node": "18.15.5",
     "@types/react": "18.0.28",
     "@types/react-router-dom": "5.3.3",
-    "@types/styled-components": "5.1.26",
     "@types/three": "0.153.0",
     "babel-jest": "^29.4.1",
     "babel-loader": "^8.3.0",

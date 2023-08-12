@@ -36,7 +36,6 @@ import {
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
-import { theme } from '@etherealengine/client-core/src/theme'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
@@ -45,7 +44,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
-import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
+import { StyledEngineProvider, Theme } from '@mui/material/styles'
 
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from '../themes/themeContext'
@@ -121,24 +120,22 @@ const AppPage = ({ route }: { route: string }) => {
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <SnackbarProvider
-              ref={notistackRef as any}
-              maxSnack={7}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              action={defaultAction}
-            >
-              <GlobalStyle />
-              <div style={{ pointerEvents: 'auto' }}>
-                <InviteToast />
-                <Debug />
-              </div>
-              <RouterComp route={route} />
-              {projectComponents.map((Component, i) => (
-                <Component key={i} />
-              ))}
-            </SnackbarProvider>
-          </ThemeProvider>
+          <SnackbarProvider
+            ref={notistackRef as any}
+            maxSnack={7}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            action={defaultAction}
+          >
+            <GlobalStyle />
+            <div style={{ pointerEvents: 'auto' }}>
+              <InviteToast />
+              <Debug />
+            </div>
+            <RouterComp route={route} />
+            {projectComponents.map((Component, i) => (
+              <Component key={i} />
+            ))}
+          </SnackbarProvider>
         </StyledEngineProvider>
       </ThemeContextProvider>
     </>
