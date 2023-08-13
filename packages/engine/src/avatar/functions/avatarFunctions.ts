@@ -73,9 +73,9 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
-  const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as VRM
+  const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
 
-  ;(vrm as any).userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
+  if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
   return vrm as VRM
 }

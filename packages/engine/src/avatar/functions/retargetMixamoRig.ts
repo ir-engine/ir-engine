@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM } from '@pixiv/three-vrm'
+import { cloneDeep } from 'lodash'
 import {
   AnimationClip,
   Euler,
@@ -36,25 +37,37 @@ import {
 } from 'three'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 
-const offset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+const hipsOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+const rightArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0, -Math.PI * 0.1))
+const leftArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0, Math.PI * 0.1))
 
 /**
  * Retargets mixamo animation to a VRM rig,
  * based upon https://github.com/pixiv/three-vrm/blob/dev/packages/three-vrm-core/examples/humanoidAnimation/loadMixamoAnimation.js
  *
  */
-export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D, vrm: VRM, type: 'fbx' | 'glb') {
+export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object3D, vrm: VRM, type: 'fbx' | 'glb') {
   const tracks = [] as KeyframeTrack[] // KeyframeTracks compatible with VRM will be added here
 
   const restRotationInverse = new Quaternion()
   const parentRestWorldRotation = new Quaternion()
   const _quatA = new Quaternion()
   const _vec3 = new Vector3()
-  // Adjust with reference to hips height.
-  // Additional logic present to handle transform differences between FBX and GLB
-  const hips = mixamoRig.getObjectByName('mixamorigHips')
 
-  hips?.quaternion.copy(offset)
+  const mixamoRig = cloneDeep(mixamoScene)
+
+  // Adjust with reference to hips height.
+  // Additional logic present to handle known transform differences
+  const hips = mixamoRig.getObjectByName('mixamorigHips')!
+  const rightArm = mixamoRig.getObjectByName('mixamorigRightArm')!
+  const leftArm = mixamoRig.getObjectByName('mixamorigLeftArm')!
+
+  const userData = (vrm as any).userData
+  if (userData.flipped) hips.quaternion.copy(hipsOffset)
+  if (userData.isReadyPlayerMe) {
+    rightArm.quaternion.copy(rightArmOffset)
+    leftArm.quaternion.copy(leftArmOffset)
+  }
 
   const motionHipsHeight = hips!.position.y
   const vrmHipsY = vrm.humanoid.getNormalizedBoneNode('hips')!.getWorldPosition(_vec3).y
