@@ -116,9 +116,23 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [
-    querySyntax(staticResourceQueryProperties),
+    querySyntax(staticResourceQueryProperties, {
+      key: {
+        $like: Type.String()
+      },
+      mimeType: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        search: Type.Optional(Type.String()),
+        mimeTypes: Type.Optional(Type.Array(Type.String())),
+        storageProviderName: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

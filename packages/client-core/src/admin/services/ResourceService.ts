@@ -30,6 +30,8 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
 
@@ -69,7 +71,7 @@ export const ResourceService = {
   },
   removeResource: async (id: string) => {
     try {
-      await Engine.instance.api.service('static-resource').remove(id)
+      await Engine.instance.api.service(staticResourcePath).remove(id)
 
       await ResourceService.getResourceFilters()
       getMutableState(AdminResourceState).merge({ updateNeeded: true })
@@ -77,13 +79,13 @@ export const ResourceService = {
       logger.error(err)
     }
   },
-  fetchAdminResources: async (skip = 0, search: string | null = null, sortField = 'key', orderBy = 'asc') => {
+  fetchAdminResources: async (skip = 0, search: string | undefined = undefined, sortField = 'key', orderBy = 'asc') => {
     const $sort = sortField.length ? { [sortField]: orderBy === 'desc' ? 0 : 1 } : {}
     const adminResourceState = getMutableState(AdminResourceState)
     const limit = adminResourceState.limit.value
     const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
 
-    const resources = await Engine.instance.api.service('static-resource').find({
+    const resources = (await Engine.instance.api.service(staticResourcePath).find({
       query: {
         $sort,
         $limit: limit,
@@ -91,7 +93,7 @@ export const ResourceService = {
         search: search,
         mimeTypes: selectedMimeTypes
       }
-    })
+    })) as Paginated<StaticResourceType>
 
     getMutableState(AdminResourceState).merge({
       resources: resources.data,

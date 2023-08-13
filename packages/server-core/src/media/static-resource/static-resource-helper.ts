@@ -32,12 +32,12 @@ import path from 'path'
 import probe from 'probe-image-size'
 import { Readable } from 'stream'
 
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -150,13 +150,15 @@ export const addAssetFromProject = async (
 
   const key = getKeyForAsset(mainURL, project, isFromProject)
 
-  const existingResource = (await app.service('static-resource').Model.findOne({
-    where: {
+  const existingResource = await app.service(staticResourcePath).find({
+    query: {
       hash,
       project,
-      mimeType
-    }
-  })) as StaticResourceInterface
+      mimeType,
+      $limit: 1
+    },
+    paginate: false
+  })
 
   if (existingResource) return existingResource
 

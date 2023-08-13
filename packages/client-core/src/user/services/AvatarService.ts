@@ -32,6 +32,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { uploadToFeathersService } from '../../util/upload'
 import { AuthState } from './AuthService'
@@ -138,7 +139,7 @@ export const AvatarService = {
   },
 
   async removeStaticResource(id: string) {
-    return Engine.instance.api.service('static-resource').remove(id)
+    return Engine.instance.api.service(staticResourcePath).remove(id)
   },
 
   async updateUserAvatarId(userId: UserID, avatarId: string) {

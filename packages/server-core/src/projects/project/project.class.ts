@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Params } from '@feathersjs/feathers'
+import { Id, Paginated, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
@@ -48,6 +48,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -626,23 +627,23 @@ export class Project extends Service {
       })
     )
 
-    const staticResourceItems = await (this.app.service('static-resource') as any).Model.findAll({
-      where: {
-        [Op.and]: [
+    const staticResourceItems = (await this.app.service(staticResourcePath).find({
+      query: {
+        $and: [
           {
             project: name
           },
           {
             project: {
-              [Op.ne]: null
+              $ne: null
             }
           }
         ]
       }
-    })
-    staticResourceItems.length &&
-      staticResourceItems.forEach(async (staticResource) => {
-        await this.app.service('static-resource').remove(staticResource.dataValues.id)
+    })) as Paginated<StaticResourceType>
+    staticResourceItems.data.length &&
+      staticResourceItems.data.forEach(async (staticResource) => {
+        await this.app.service(staticResourcePath).remove(staticResource.id)
       })
 
     await removeProjectUpdateJob(this.app, name)
