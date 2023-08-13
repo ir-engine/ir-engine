@@ -50,6 +50,7 @@ export const PropertiesPanelTitle = () => {
         <div className={styles.dockableTabButtons}>
           {editorState.advancedMode.value && (
             <button
+              style={{ margin: 0 }}
               onClick={() => {
                 const currentEntity = selectionState.selectedEntities.value[0]
                 const currentState = editorState.lockPropertiesPanel.value

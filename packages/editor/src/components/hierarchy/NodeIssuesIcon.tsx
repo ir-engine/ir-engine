@@ -71,8 +71,8 @@ export function NodeIssuesIcon({ node }) {
   const renderInfo = useCallback(() => {
     return (
       <div style={issuesTooltipContainerStyles as React.CSSProperties}>
-        <h6>{t('editor:hierarchy.isseus')}</h6>
-        <ul>
+        <h6 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('editor:hierarchy.isseus')}</h6>
+        <ul style={{ listStyle: 'none' }}>
           {node.map((issue, i) => {
             return (
               <li key={i}>

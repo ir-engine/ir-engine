@@ -29,7 +29,8 @@ import './Input.css'
 
 const inputStyle = {
   display: 'flex',
-  width: '100%'
+  width: '100%',
+  margin: 0
 }
 
 interface StyledNumericInputProps {

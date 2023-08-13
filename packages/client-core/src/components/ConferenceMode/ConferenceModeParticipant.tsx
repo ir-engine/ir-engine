@@ -85,7 +85,16 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
         })}
       >
         {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
-          <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />
+          <img
+            style={{
+              height: 'auto',
+              maxWidth: '100%'
+            }}
+            src={avatarThumbnail}
+            alt=""
+            crossOrigin="anonymous"
+            draggable={false}
+          />
         )}
         <span key={peerID + '-video-container'} id={peerID + '-video-container'} />
       </div>

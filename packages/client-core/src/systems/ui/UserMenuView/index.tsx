@@ -96,7 +96,16 @@ const AvatarContextMenu = () => {
       <style>{styleString}</style>
       {user?.userId && (
         <div className="rootContainer">
-          <img className="ownerImage" src={userThumbnail} alt="" crossOrigin="anonymous" />
+          <img
+            style={{
+              height: 'auto',
+              maxWidth: '100%'
+            }}
+            className="ownerImage"
+            src={userThumbnail}
+            alt=""
+            crossOrigin="anonymous"
+          />
           <div className="buttonContainer">
             <section className="buttonSection">
               {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (

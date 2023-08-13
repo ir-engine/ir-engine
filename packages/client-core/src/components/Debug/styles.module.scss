@@ -46,7 +46,8 @@
   flex-shrink: 0;
   height: 30px;
   border-radius: 3px;
-
+  margin:0;
+  
   &:hover,
   &:focus-visible {
     opacity: 0.8;

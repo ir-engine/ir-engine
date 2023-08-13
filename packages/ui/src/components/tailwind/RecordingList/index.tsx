@@ -29,26 +29,30 @@ import React from 'react'
 const RecordingsList = ({ startPlayback, stopPlayback, recordingState }) => {
   return (
     <div className="w-full aspect-video overflow-hidden">
-      <table className="table w-full">
+      <table className="table w-full border-collapse border-separate border">
         {/* head */}
         <thead>
           <tr>
-            <th>Recording</th>
-            <th>Actions</th>
+            <th style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
+              Recording
+            </th>
+            <th style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
           {recordingState.recordings.value.map((recording) => (
             <tr key={recording.id}>
-              <td>
+              <td style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
                 <div className="bg-grey">{recording.id}</div>
               </td>
-              <td>
+              <td style={{ padding: 0, textAlign: 'left' }} className="p-0 text-left">
                 <div key={recording.id} className="">
                   {/* a button to play back the recording */}
                   {recordingState.playback.value === recording.id ? (
                     <button
-                      className="btn btn-ghost"
+                      className="m-0 btn btn-ghost"
                       onClick={() => {
                         stopPlayback({
                           recordingID: recording.id
@@ -59,10 +63,13 @@ const RecordingsList = ({ startPlayback, stopPlayback, recordingState }) => {
                     </button>
                   ) : (
                     <>
-                      <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
+                      <button className="m-0 btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
                         <PlayIcon className="block min-w-6 min-h-6" />
                       </button>
-                      <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id, true)}>
+                      <button
+                        style={{ margin: 0, pointerEvents: 'all' }}
+                        onClick={() => startPlayback(recording.id, true)}
+                      >
                         <PlusCircleIcon className="block min-w-6 min-h-6" />
                       </button>
                     </>

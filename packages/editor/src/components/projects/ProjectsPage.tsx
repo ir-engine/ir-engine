@@ -156,7 +156,7 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
         <IconButton aria-label="menu" disableRipple>
           <ArrowRightRounded />
         </IconButton>
-        <h3>{props.summary}</h3>
+        <h3 style={{ fontSize: '100%', fontWeight: 'normal' }}>{props.summary}</h3>
       </AccordionSummary>
       <AccordionDetails classes={{ root: styles.expansionDetail }}>{props.children}</AccordionDetails>
     </Accordion>
@@ -455,7 +455,7 @@ const ProjectsPage = () => {
       <div className={styles.projectPageContainer}>
         <div className={styles.projectGridContainer}>
           <div className={styles.projectGridHeader}>
-            <h2>{t(`editor.projects.title`)}</h2>
+            <h2 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t(`editor.projects.title`)}</h2>
             <Paper component="form" classes={{ root: styles.searchInputRoot }}>
               <IconButton aria-label="menu" disableRipple onClick={openFilterMenu}>
                 <FilterList />
@@ -554,8 +554,8 @@ const ProjectsPage = () => {
         </div>
         {installedProjects.value.length < 2 && !loading ? (
           <div className={styles.welcomeContainer}>
-            <h1>{t('editor.projects.welcomeMsg')}</h1>
-            <h2>{t('editor.projects.description')}</h2>
+            <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('editor.projects.welcomeMsg')}</h1>
+            <h2 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('editor.projects.description')}</h2>
             <MediumButton onClick={openTutorial}>{t('editor.projects.lbl-startTutorial')}</MediumButton>
           </div>
         ) : null}

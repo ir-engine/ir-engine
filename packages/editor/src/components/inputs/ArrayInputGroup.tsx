@@ -83,7 +83,8 @@ const labelStyle = {
 }
 
 const inputStyle = {
-  maxWidth: '66.66666%'
+  maxWidth: '66.66666%',
+  margin: 0
 }
 
 const divStyle = {

@@ -34,7 +34,9 @@ const leftContentStyles = {
 }
 
 const imgStyles = {
-  borderRadius: '6px'
+  borderRadius: '6px',
+  height: 'auto',
+  maxWidth: '100%'
 }
 
 const rightContentStyles = {

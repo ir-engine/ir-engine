@@ -364,7 +364,7 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
         </CollapsibleBlock>
       )}
       <div className={styles.propertyContainer}>
-        <h1>userData</h1>
+        <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>userData</h1>
         <ReactJson
           style={{ height: '100%', overflow: 'auto' }}
           onEdit={(edit) => {

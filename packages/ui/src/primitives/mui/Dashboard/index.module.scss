@@ -147,6 +147,9 @@
   padding: 24px;
   background-color: var(--mainBackground);
   height: calc(100vh - 50px);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .contentWidthDrawerOpen {

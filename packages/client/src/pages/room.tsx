@@ -58,7 +58,16 @@ export const RoomPage = (): any => {
       </div>
       <nav className="navbar">
         <div className="logo-section">
-          {clientSetting?.appTitle && <object className="lander-logo" data={clientSetting.appTitle} />}
+          {clientSetting?.appTitle && (
+            <object
+              style={{
+                height: 'auto',
+                maxWidth: '100%'
+              }}
+              className="lander-logo"
+              data={clientSetting.appTitle}
+            />
+          )}
           <div className="logo-bottom">
             {clientSetting?.appSubtitle && <span className="white-txt">{clientSetting.appSubtitle}</span>}
           </div>

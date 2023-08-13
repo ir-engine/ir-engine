@@ -55,67 +55,166 @@ export const useEmoteMenuHooks = () => {
 
   let [items, setItems] = useState([
     {
-      body: <img src="/static/Wave.svg" alt="Wave" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Wave.svg"
+          alt="Wave"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.WAVE)
       }
     },
     {
-      body: <img src="/static/clap1.svg" alt="Clap" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/clap1.svg"
+          alt="Clap"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.CLAP)
       }
     },
     {
-      body: <img src="/static/Dance1.svg" alt="Dance 1" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance1.svg"
+          alt="Dance 1"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DANCE1)
       }
     },
     {
-      body: <img src="/static/Dance2.svg" alt="Dance 2" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance2.svg"
+          alt="Dance 2"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DANCE2)
       }
     },
     {
-      body: <img src="/static/Dance3.svg" alt="Dance 3" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance3.svg"
+          alt="Dance 3"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DANCE3)
       }
     },
     {
-      body: <img src="/static/Dance4.svg" alt="Dance 4" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Dance4.svg"
+          alt="Dance 4"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DANCE4)
       }
     },
     {
-      body: <img src="/static/Kiss.svg" alt="Kiss" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Kiss.svg"
+          alt="Kiss"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.KISS)
       }
     },
     {
-      body: <img src="/static/Cry.svg" alt="Cry" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Cry.svg"
+          alt="Cry"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.CRY)
       }
     },
     {
-      body: <img src="/static/Laugh.svg" alt="Laugh" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Laugh.svg"
+          alt="Laugh"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.LAUGH)
       }
     },
     {
-      body: <img src="/static/Defeat.svg" alt="Defeat" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/Defeat.svg"
+          alt="Defeat"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.DEFEAT)
       }
     },
     {
-      body: <img src="/static/restart.svg" alt="Reset" />,
+      body: (
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src="/static/restart.svg"
+          alt="Reset"
+        />
+      ),
       containerProps: {
         onClick: () => runAnimation(AvatarStates.LOCOMOTION)
       }

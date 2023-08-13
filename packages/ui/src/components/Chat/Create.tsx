@@ -88,7 +88,7 @@ export const Create = () => {
         <div className="w-[368px] h-[100%] bg-[#15171B] ml-[-108px]">
           <div className="w-[350px] flex flex-wrap justify-start ml-5 mt-4 my-4 gap-[9px] ">
             <button
-              className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[87px] h-6 ${
+              className={`m-0 cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[87px] h-6 ${
                 activeButton === 1 ? 'bg-[#935CFF] text-white border-[#935CFF]' : 'text-[#A0A0B2] border-[#595C60]'
               }`}
               onClick={() => handleButtonClick(1)}
@@ -99,7 +99,7 @@ export const Create = () => {
               </div>
             </button>
             <button
-              className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[86px] h-6 ${
+              className={`m-0 cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[86px] h-6 ${
                 activeButton === 2 ? 'bg-[#935CFF] text-white border-[#935CFF]' : 'text-[#A0A0B2] border-[#595C60]'
               }`}
               onClick={() => handleButtonClick(2)}
@@ -110,7 +110,7 @@ export const Create = () => {
               </div>
             </button>
             <button
-              className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[111px] h-6 ${
+              className={`m-0 cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 w-[111px] h-6 ${
                 activeButton === 3 ? 'bg-[#935CFF] text-white border-[#935CFF]' : 'text-[#A0A0B2] border-[#595C60]'
               }`}
               onClick={() => handleButtonClick(3)}
@@ -127,13 +127,13 @@ export const Create = () => {
                   <div className="w-[305px] h-[40px] mt-[2px] ml-[0.5px] mr-[0.5px]">
                     <input
                       type="text"
-                      className="rounded-[5px] focus:outline-none focus:border-[#15171B] border-[#15171B] border-2 text-[#ffff] bg-[#15171B] p-[9.5px] w-full font-normal "
+                      className="m-0 rounded-[5px] focus:outline-none focus:border-[#15171B] border-[#15171B] border-2 text-[#ffff] bg-[#15171B] p-[9.5px] w-full font-normal "
                       placeholder="Your@domain.com"
                     />
                   </div>
                 </div>
               </div>
-              <div className="w-[305px] flex justify-end mt-5  items-center">
+              <div className="m-0 w-[305px] flex justify-end mt-5  items-center">
                 <button className="cursor-pointer rounded-[20px] p-0 bg-[#935CFF] w-[60px] h-6">
                   <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
                     Send

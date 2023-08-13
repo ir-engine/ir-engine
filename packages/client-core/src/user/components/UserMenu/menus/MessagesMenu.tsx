@@ -83,7 +83,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
           </p>
         </div>
         <img
-          style={{ borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
+          style={{ maxWidth: '100%', borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
           alt=""
           src={userThumbnail}
         />
@@ -98,7 +98,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
       <div style={{ display: 'flex', flexWrap: 'wrap', marginLeft: systemMessage ? 'auto' : '', marginRight: 'auto' }}>
         {!systemMessage && (
           <img
-            style={{ borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
+            style={{ maxWidth: '100%', borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
             alt=""
             src={userThumbnail}
           />
@@ -139,7 +139,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
           endIcon={<Icon type="Send" />}
           startIcon={
             <img
-              style={{ borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
+              style={{ maxWidth: '100%', borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
               alt=""
               src={userThumbnail}
             />

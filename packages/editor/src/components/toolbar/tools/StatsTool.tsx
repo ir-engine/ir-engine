@@ -64,12 +64,12 @@ const StatsTool = () => {
       </div>
       {isVisible && (
         <div className={styles.statsContainer}>
-          <h3>{t('editor:viewport.state.header')}</h3>
+          <h3 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('editor:viewport.state.header')}</h3>
           {info && (
-            <ul>
+            <ul style={{ listStyle: 'none' }}>
               <li>
                 {t('editor:viewport.state.memory')}
-                <ul>
+                <ul style={{ listStyle: 'none' }}>
                   <li>
                     {t('editor:viewport.state.geometries')}: {info.geometries}
                   </li>
@@ -80,7 +80,7 @@ const StatsTool = () => {
               </li>
               <li>
                 {t('editor:viewport.state.render')}:
-                <ul>
+                <ul style={{ listStyle: 'none' }}>
                   <li>
                     {t('editor:viewport.state.FPS')}: {Math.round(info.fps)}
                   </li>

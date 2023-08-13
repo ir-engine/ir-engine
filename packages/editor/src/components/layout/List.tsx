@@ -83,5 +83,5 @@ export function IconListItem({ iconComponent, children, ...rest }) {
 }
 
 export function List({ children }) {
-  return <ul style={{ height: '100%', overflowY: 'auto' }}>{children}</ul>
+  return <ul style={{ listStyle: 'none', height: '100%', overflowY: 'auto' }}>{children}</ul>
 }

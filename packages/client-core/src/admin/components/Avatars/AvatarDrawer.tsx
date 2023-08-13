@@ -553,7 +553,14 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
           className={styles.preview}
           style={{ width: '100px', height: '100px', position: 'relative', marginBottom: 15 }}
         >
-          <img src={thumbnailSrc} crossOrigin="anonymous" />
+          <img
+            style={{
+              height: 'auto',
+              maxWidth: '100%'
+            }}
+            src={thumbnailSrc}
+            crossOrigin="anonymous"
+          />
           {((state.source.value === 'file' && !state.thumbnailFile.value) ||
             (state.source.value === 'url' && !state.thumbnailUrl.value)) && (
             <Typography

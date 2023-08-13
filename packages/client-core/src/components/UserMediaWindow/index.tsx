@@ -665,11 +665,21 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
       xr-layer="true"
     >
       {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
-        <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} xr-layer="true" />
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          src={avatarThumbnail}
+          alt=""
+          crossOrigin="anonymous"
+          draggable={false}
+          xr-layer="true"
+        />
       ) : (
         <video
           xr-layer="true"
-          style={{ maxWidth: '100px' }}
+          style={{ height: 'auto', maxWidth: '100px' }}
           ref={ref}
           key={peerID + '-video-container'}
           id={peerID + '-video-container-xrui'}
@@ -689,7 +699,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
         xr-layer="true"
       >
         {username}
-        <button style={{}} onClick={toggleAudio} xr-layer="true">
+        <button style={{ margin: 0 }} onClick={toggleAudio} xr-layer="true">
           <Icon
             xr-layer="true"
             type={isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'}

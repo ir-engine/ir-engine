@@ -77,7 +77,7 @@ export const StatsPanel = (props: { show: boolean }) => {
 
   return (
     <div className={styles.statsContainer}>
-      <h1>{t('common:debug.stats')}</h1>
+      <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('common:debug.stats')}</h1>
       <div ref={statsRef} className={styles.statsBlock} />
       <button
         onClick={toggleStats}
@@ -87,10 +87,10 @@ export const StatsPanel = (props: { show: boolean }) => {
         {renderInfoState.visible.value ? 'Hide' : 'Show'}
       </button>
       {info && (
-        <ul>
+        <ul style={{ listStyle: 'none' }}>
           <li>
             {t('editor:viewport.state.memory')}
-            <ul>
+            <ul style={{ listStyle: 'none' }}>
               <li>
                 {t('editor:viewport.state.geometries')}: {info.geometries}
               </li>
@@ -101,7 +101,7 @@ export const StatsPanel = (props: { show: boolean }) => {
           </li>
           <li>
             {t('editor:viewport.state.render')}:
-            <ul>
+            <ul style={{ listStyle: 'none' }}>
               <li>
                 {t('editor:viewport.state.FPS')}: {Math.round(info.fps)}
               </li>

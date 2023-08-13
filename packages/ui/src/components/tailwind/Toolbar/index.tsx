@@ -232,13 +232,13 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
           />
         </div>
         <div className="dropdown dropdown-top dropdown-end">
-          <ul className="dropdown-content menu bg-base-100 p-2 rounded-box w-80">
+          <ul className="list-none dropdown-content menu bg-base-100 p-2 rounded-box w-80">
             <li>
               <label className="label cursor-pointer">
                 <span className="label-text whitespace-nowrap">Mirror Video</span>
                 <input
                   type="checkbox"
-                  className="toggle"
+                  className="m-0 toggle"
                   defaultChecked={isVideoFlipped}
                   onChange={(e) => {
                     flipVideo(e.target.checked)
@@ -251,7 +251,7 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
                 <span className="label-text whitespace-nowrap">Draw Body</span>
                 <input
                   type="checkbox"
-                  className="toggle"
+                  className="m-0 toggle"
                   defaultChecked={isDrawingBody}
                   onChange={(e) => {
                     drawBody(e.target.checked)
@@ -264,7 +264,7 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
                 <span className="label-text whitespace-nowrap">Draw Hands</span>
                 <input
                   type="checkbox"
-                  className="toggle"
+                  className="m-0 toggle"
                   defaultChecked={isDrawingHands}
                   onChange={(e) => {
                     drawHands(e.target.checked)
@@ -277,7 +277,7 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
                 <span className="label-text whitespace-nowrap">Draw Face</span>
                 <input
                   type="checkbox"
-                  className="toggle"
+                  className="m-0 toggle"
                   defaultChecked={isDrawingFace}
                   onChange={(e) => {
                     drawFace(e.target.checked)

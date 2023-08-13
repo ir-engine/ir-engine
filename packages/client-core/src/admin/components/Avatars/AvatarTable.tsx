@@ -108,7 +108,11 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
       owner: el.userId,
       thumbnail: (
         <img
-          style={{ maxHeight: '50px' }}
+          style={{
+            maxHeight: '50px',
+            height: 'auto',
+            maxWidth: '100%'
+          }}
           crossOrigin="anonymous"
           src={el.thumbnailResource?.url + '?' + new Date().getTime()}
           alt=""

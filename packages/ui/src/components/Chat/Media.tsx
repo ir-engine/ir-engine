@@ -68,14 +68,14 @@ export const Media = () => {
             {DownloadImages.map((item) => {
               return (
                 <img
-                  className="rounded-8xs w-[120px] h-[84.94px] object-cover"
+                  className="max-w-full rounded-8xs w-[120px] h-[84.94px] object-cover"
                   alt=""
                   src={item.image}
                   key={item.image}
                 />
               )
             })}
-            <button className="cursor-pointer bg-[transparent] w-[120px] h-[84.94px]">
+            <button className="m-0 cursor-pointer bg-[transparent] w-[120px] h-[84.94px]">
               <div className="w-[120px] h-[84.94px] rounded bg-[#5B598B] flex flex-col shadow-[0px_0px_4px_rgba(0,_0,_0,_0.1)]">
                 <p className="text-[18px] font-semibold font-segoe-ui mt-3 my-[-10px] text-[#EEEEEE] text-center">
                   120
@@ -99,15 +99,15 @@ export const Media = () => {
                       </div>
                     </div>
                   </div>
-                  <button>
-                    <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src={item.image} />
+                  <button className="m-0">
+                    <img className="max-w-full w-6 h-6 mt-[6px] overflow-hidden" alt="" src={item.image} />
                   </button>
                 </div>
               )
             })}
           </div>
           <div className="w-[330px] flex justify-center items-center mt-4">
-            <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8">
+            <button className="m-0 cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8">
               <div className="text-align-last:center rounded-2xl text-[16px] text-sm font-segoe-ui text-white">
                 View more
               </div>

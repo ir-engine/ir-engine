@@ -39,7 +39,7 @@ export const AdvancedModeTool = () => {
     <div className={styles.toolbarInputGroup}>
       <InfoTooltip title={t('editor:toolbar.info-advanced')} placement="bottom">
         <button
-          style={{ width: 'auto' }}
+          style={{ width: 'auto', margin: 0 }}
           className={styles.toolButton + ' ' + (editorState.advancedMode.value ? styles.selected : '')}
           onClick={() => dispatchAction(EditorAction.setAdvancedMode({ advanced: !editorState.advancedMode.value }))}
         >

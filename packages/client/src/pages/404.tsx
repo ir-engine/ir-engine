@@ -36,7 +36,7 @@ export const Custom404 = (): any => {
   })
   return (
     <Fragment>
-      <h1>{t('404.msg')}</h1>
+      <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('404.msg')}</h1>
     </Fragment>
   )
 }

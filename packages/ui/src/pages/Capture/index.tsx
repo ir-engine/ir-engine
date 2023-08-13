@@ -341,10 +341,10 @@ const CaptureDashboard = () => {
           <div className="w-100 bg-base-100">
             <div tabIndex={0} className="collapse collapse-open">
               <div className="collapse-title w-full h-[50px]">
-                <h1>Pose Options</h1>
+                <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>Pose Options</h1>
               </div>
               <div className="collapse-content w-full h-auto">
-                <ul className="text-base-content w-full h-auto">
+                <ul className="list-none text-base-content w-full h-auto">
                   <li>
                     <label className="label">
                       <span className="label-text">Model Complexity: {poseOptions.modelComplexity.value}</span>
@@ -355,7 +355,7 @@ const CaptureDashboard = () => {
                       max="2"
                       step="1"
                       value={poseOptions.modelComplexity.value}
-                      className="range w-full"
+                      className="m-0 range w-full"
                       onChange={(e) => {
                         poseOptions.modelComplexity.set(parseInt(e.currentTarget.value) as 0 | 1 | 2)
                       }}
@@ -373,7 +373,7 @@ const CaptureDashboard = () => {
                       max="1.0"
                       step="0.1"
                       value={poseOptions.minDetectionConfidence.value}
-                      className="w-full range"
+                      className="m-0 w-full range"
                       onChange={(e) => {
                         poseOptions.minDetectionConfidence.set(parseFloat(e.currentTarget.value))
                       }}
@@ -391,7 +391,7 @@ const CaptureDashboard = () => {
                       max="1.0"
                       step="0.1"
                       value={poseOptions.minTrackingConfidence.value}
-                      className="w-full range"
+                      className="m-0 w-full range"
                       onChange={(e) => {
                         poseOptions.minTrackingConfidence.set(parseFloat(e.currentTarget.value))
                       }}
@@ -402,7 +402,7 @@ const CaptureDashboard = () => {
                       <span className="label-text">Smooth Landmarks</span>
                       <input
                         type="checkbox"
-                        className="toggle toggle-primary"
+                        className="m-0 toggle toggle-primary"
                         defaultChecked={poseOptions.smoothLandmarks?.value}
                         onChange={(e) => {
                           poseOptions.smoothLandmarks.set(e.currentTarget.checked)
@@ -415,7 +415,7 @@ const CaptureDashboard = () => {
                       <span className="label-text">Enable Segmentation</span>
                       <input
                         type="checkbox"
-                        className="toggle toggle-primary"
+                        className="m-0 toggle toggle-primary"
                         defaultChecked={poseOptions.enableSegmentation?.value}
                         onChange={(e) => {
                           poseOptions.enableSegmentation.set(e.currentTarget.checked)
@@ -428,7 +428,7 @@ const CaptureDashboard = () => {
                       <span className="label-text">Smooth Segmentation</span>
                       <input
                         type="checkbox"
-                        className="toggle toggle-primary"
+                        className="m-0 toggle toggle-primary"
                         defaultChecked={poseOptions.smoothSegmentation?.value}
                         onChange={(e) => {
                           poseOptions.smoothSegmentation.set(e.currentTarget.checked)
@@ -460,9 +460,11 @@ const CaptureDashboard = () => {
                   onClick={() => {
                     if (mediaConnection?.connected?.value) toggleWebcamPaused()
                   }}
-                  className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0"
+                  className="m-0 absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0"
                 >
-                  <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
+                  <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>
+                    {mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}
+                  </h1>
                 </button>
               ) : null}
             </div>

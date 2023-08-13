@@ -1,3 +1,14 @@
+/* this is basically style for the editor page*/
+/* we can drill down furthur if needed*/
+body {
+  font-family: var(--lato);
+  font-size: 12px;
+  color: var(--textColor);
+  background-color: var(--background);
+  scrollbar-color: #282c31 #5d646c;
+}
+
+
 .dock-panel {
   background: transparent;
   pointer-events: auto;

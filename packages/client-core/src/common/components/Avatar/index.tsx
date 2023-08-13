@@ -107,7 +107,15 @@ const Avatar = ({
         className={`${commonStyles.preview} ${styles.avatarThumbnail} ${className}`}
         sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
       >
-        <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
+        <img
+          style={{
+            height: 'auto',
+            maxWidth: '100%'
+          }}
+          alt={alt}
+          src={imageSrc}
+          crossOrigin="anonymous"
+        />
         {!imageSrc && (
           <Text className={commonStyles.previewText} variant="body2">
             {t('admin:components.avatar.thumbnailPreview')}
@@ -123,7 +131,15 @@ const Avatar = ({
       id={id}
       sx={{ width: `${size}px`, height: `${size}px`, ...sx }}
     >
-      <img alt={alt} src={imageSrc} crossOrigin="anonymous" />
+      <img
+        style={{
+          height: 'auto',
+          maxWidth: '100%'
+        }}
+        alt={alt}
+        src={imageSrc}
+        crossOrigin="anonymous"
+      />
       {showChangeButton && (
         <IconButton
           disableRipple

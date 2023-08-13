@@ -130,6 +130,7 @@
     position: relative;
     background-color: var(--toolbar);
     border-radius: 4px;
+    margin:0;
 
     &:hover {
       background-color: var(--iconButtonHoverColor);

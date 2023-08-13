@@ -55,6 +55,8 @@
   background-color: var(--mainBackground);
   pointer-events: auto;
   max-height: 100%;
+  flex-direction: column;
+  flex: 1;
 }
 
 .projectPageContainer {
@@ -610,10 +612,6 @@
 
 [class*="MuiDrawer-modal"] {
   z-index: 1400;
-}
-
-#menu-projectURL {
-  z-index: 1500;
 }
 
 .refreshGHBtn {

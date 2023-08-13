@@ -29,7 +29,9 @@ const imageStyles = {
   display: 'block',
   marginLeft: 'auto',
   marginRight: 'auto',
-  maxHeight: '100%'
+  maxHeight: '100%',
+  height: 'auto',
+  maxWidth: '100%'
 }
 
 /**
