@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  StaticResourceType,
   staticResourceMethods,
   staticResourcePath
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
@@ -44,10 +45,11 @@ declare module '@etherealengine/common/declarations' {
 }
 
 const getFilters = async (app: Application) => {
-  const mimeTypes = await app.service('static-resource').Model.findAll({
-    attributes: ['mimeType'],
-    group: ['mimeType']
-  })
+  const mimeTypes = (await app.service(staticResourcePath).find({
+    query: {
+      $select: ['mimeType']
+    }
+  })) as StaticResourceType[]
 
   return {
     mimeTypes: mimeTypes.map((el) => el.mimeType)
@@ -62,7 +64,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(staticResourcePath, new StaticResourceService(options), {
+  app.use(staticResourcePath, new StaticResourceService(options, app), {
     // A list of all methods this service exposes externally
     methods: staticResourceMethods,
     // You can add additional custom events to be sent to clients here

@@ -23,78 +23,81 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
-
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-
+import {
+  StaticResourceData,
+  StaticResourcePatch,
+  StaticResourceQuery,
+  StaticResourceType
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Forbidden, NotFound } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
-export class StaticResource extends Service<StaticResourceInterface> {
-  app: Application
-  public docs: any
+export interface StaticResourceParams extends RootParams<StaticResourceQuery> {}
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+export class StaticResourceService<
+  T = StaticResourceType,
+  ServiceParams extends Params = StaticResourceParams
+> extends KnexAdapter<StaticResourceType, StaticResourceData, StaticResourceParams, StaticResourcePatch> {
+  app: Application
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
   // gets the static resource from the database, including the variants
-  async get(id: string, params?: Params): Promise<StaticResourceInterface> {
-    return super.Model.findOne({
-      where: { id }
-    })
+  async get(id: string, params?: StaticResourceParams) {
+    return super._get(id, params)
   }
 
-  async find(params?: Params): Promise<Paginated<StaticResourceInterface>> {
+  async create(data: StaticResourceData, params?: StaticResourceParams) {
+    return super._create(data, params)
+  }
+
+  async find(params?: StaticResourceParams) {
     const search = params?.query?.search ?? ''
     const key = params?.query?.key ?? ''
-    const mimeTypes = params?.query?.mimeTypes && params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : null
+    const mimeTypes =
+      params?.query?.mimeTypes && params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : undefined
 
-    const sort = params?.query?.$sort
-    const order: any[] = []
-    if (sort != null) {
-      Object.keys(sort).forEach((name, val) => {
-        order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
-      })
-    }
-    const limit = params?.query?.$limit ?? 10
-    const skip = params?.query?.$skip ?? 0
-    const result = await super.Model.findAndCountAll({
-      limit: limit,
-      offset: skip,
-      select: params?.query?.$select,
-      order: order,
-      where: {
-        key: {
-          [Op.or]: {
-            [Op.like]: `%${search}%`,
-            [Op.eq]: key
+    const result = await super._find({
+      ...params,
+      query: {
+        $or: [
+          {
+            key: {
+              $like: `%${search}%`
+            }
+          },
+          {
+            key: key
+          },
+          {
+            mimeType: {
+              $in: mimeTypes
+            }
           }
-        },
-        mimeType: {
-          [Op.or]: mimeTypes
-        }
-      },
-      raw: true,
-      nest: true
+        ]
+      }
     })
 
-    return {
-      data: result.rows,
-      total: result.count,
-      skip: skip,
-      limit: limit
+    if (params && params.query?.$limit === 1) {
+      return result[0]
     }
+    return result
   }
 
-  async remove(id: string, params?: UserParams): Promise<StaticResourceInterface> {
-    const resource = await super.get(id)
+  async patch(id: string, data: StaticResourcePatch, params?: StaticResourceParams) {
+    return await super._patch(id, data, params)
+  }
+
+  async remove(id: string, params?: StaticResourceParams) {
+    const resource = await super._get(id)
 
     if (!resource) {
       throw new NotFound('Unable to find specified resource id.')
@@ -109,6 +112,6 @@ export class StaticResource extends Service<StaticResourceInterface> {
       const storageProvider = getStorageProvider(params?.query?.storageProviderName)
       await storageProvider.deleteResources([resource.key])
     }
-    return (await super.remove(id)) as StaticResourceInterface
+    return await super._remove(id)
   }
 }
