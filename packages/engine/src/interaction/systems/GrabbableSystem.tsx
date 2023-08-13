@@ -275,7 +275,7 @@ export const grabEntity = (grabberEntity: Entity, grabbedEntity: Entity, attachm
         networkId: networkComponent.networkId,
         ownerId: networkComponent.ownerId,
         newAuthority: Engine.instance.peerID,
-        $to: Engine.instance.worldNetwork.peers.get(networkComponent.authorityPeerID)?.userId
+        $to: networkComponent.authorityPeerID
       })
     )
   }

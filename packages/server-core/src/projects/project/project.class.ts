@@ -37,27 +37,27 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import {
-  githubRepoAccessPath,
-  GithubRepoAccessType
+  GithubRepoAccessType,
+  githubRepoAccessPath
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
+import { UserParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
-import logger from '../../ServerLogger'
-import { ServerState } from '../../ServerState'
-import { UserParams } from '../../user/user/user.class'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
@@ -93,7 +93,7 @@ export type ProjectQueryParams = {
 }
 
 export type ProjectParams = {
-  user: UserInterface
+  user: UserType
 } & Params<ProjectQueryParams>
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
@@ -745,8 +745,7 @@ export class Project extends Service {
       if (!params.sequelize) params.sequelize = { raw: false }
       if (!params.sequelize.include) params.sequelize.include = []
       params.sequelize.include.push({
-        model: this.app.service('project-permission').Model,
-        include: [this.app.service('user').Model]
+        model: this.app.service('project-permission').Model
       })
     }
     params = {
@@ -770,10 +769,11 @@ export class Project extends Service {
     }
 
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
-    data.forEach((item) => {
+    for (const item of data) {
       const values = (item as any).dataValues
         ? ((item as any).dataValues as ProjectInterface)
         : (item as ProjectInterface)
+
       try {
         const packageJson = getProjectPackageJson(values.name)
         const config = getProjectConfig(values.name)
@@ -782,10 +782,16 @@ export class Project extends Service {
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
+
+        // TODO: Following can be moved to project permission hook once its service is moved to feathers 5.
+        for (const permissions of values.project_permissions || []) {
+          if (!permissions.user && permissions.userId)
+            permissions.user = await this.app.service(userPath)._get(permissions.userId)
+        }
       } catch (err) {
         //
       }
-    })
+    }
 
     return {
       data,

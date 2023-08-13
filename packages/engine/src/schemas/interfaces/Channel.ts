@@ -23,13 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserInterface } from './User'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { ChannelUser } from './ChannelUser'
+import { Message } from './Message'
 
-export interface Relationship {
-  userId: string
-  friend: UserInterface[]
-  requested: UserInterface[]
-  pending: UserInterface[]
-  blocking: UserInterface[]
-  blocked: UserInterface[]
+export type Channel = {
+  id: ChannelID
+  name: string
+  instanceId: string | null
+  createdAt: string
+  updatedAt: string
+  updateNeeded: boolean
+  limit: 5
+  skip: 0
+  total: 0
+  channel_users: ChannelUser[]
+  messages: Message[]
+}
+
+export interface PatchChannel {
+  name: string
 }

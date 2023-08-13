@@ -28,9 +28,9 @@ import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { HyperFlux } from './StoreFunctions'
 
@@ -47,7 +47,7 @@ export type Action = {
 
 export type ActionReceptor = (action: ResolvedActionType) => void
 
-export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
+export type ActionRecipients = PeerID | PeerID[] | 'all' | 'others'
 
 export type ActionCacheOptions =
   | boolean
@@ -78,7 +78,7 @@ export type ActionOptions = {
   /**
    * The id of the sender
    */
-  $from?: UserId
+  $from?: UserID
 
   /**
    * The intended recipients
@@ -93,6 +93,7 @@ export type ActionOptions = {
   $time?: number | undefined
 
   $topic?: Topic
+  $network?: string | undefined // TODO make a type for NetworkID
 
   /**
    * Specifies how this action should be cached for newly joining clients.
@@ -290,7 +291,7 @@ const dispatchAction = <A extends Action>(action: A) => {
   const storeId = HyperFlux.store.getDispatchId()
   const agentId = HyperFlux.store.getPeerId()
 
-  action.$from = action.$from ?? (storeId as UserId)
+  action.$from = action.$from ?? (storeId as UserID)
   action.$peer = action.$peer ?? (agentId as PeerID)
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? HyperFlux.store.getDispatchTime() + HyperFlux.store.defaultDispatchDelay()

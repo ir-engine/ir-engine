@@ -24,153 +24,109 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback } from 'react'
-import styled from 'styled-components'
 
 import { Button, SecondaryButton } from '../inputs/Button'
 
-/**
- * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.
- *
- * @type {Styled component}
- */
-const DialogContainer = styled.form`
-  display: flex;
-  flex-direction: column;
-  border-radius: 4px;
-  background-color: #282c31;
-  max-width: 800px;
-  min-width: 250px;
-  min-height: 150px;
-  max-height: 80vh;
-`
-
-/**
- * DialogHeader used for providing styles to header text.
- *
- * @type {Styled component}
- */
-const DialogHeader = (styled as any).div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 0 8px;
-  font-size: 12px;
-  overflow: hidden;
-  height: 32px;
-  background: black;
-  border-top-left-radius: inherit;
-  border-top-right-radius: inherit;
-  color: white;
-
-  > * {
-    display: flex;
-    align-items: center;
-  }
-`
-
-/**
- * DialogContent used to provide styles for dialog body content.
- *
- * @type {Styled component}
- */
-export const DialogContent = (styled as any).div`
-  color: var(--textColor);
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  /* This forces firefox to give the contents a proper height. */
-  overflow: hidden;
-  padding: 8px;
-  min-height: 100px;
-
-  h1 {
-    font-size: 2em;
-    color: var(--textColor);
-    margin-bottom: 16px;
-  }
-
-  p {
-    margin-bottom: 12px;
-    line-height: 1.5em;
-  }
-`
-
-/**
- * DialogBottomNav used to provide styles for bottom nav of Dialog component.
- *
- * @type {Styled component}
- */
-const DialogBottomNav = (styled as any).div`
-  display: flex;
-  padding: 8px;
-  margin: auto;
-  margin-bottom: 10px;
-
-  a {
-    color: var(--textColor);
-  }
-
-  button {
-    min-width: 84px;
-  }
-
-  & > * {
-    margin: 0 8px;
-  }
-`
-
-/**
- * declaring props for Dialog component.
- *
- * @type {Props}
- */
-interface Props {
-  tag?
-  title?
-  bottomNav?
-  children?
-  cancelLabel?
-  confirmLabel?
-  onCancel?
-  onConfirm?
+const dialogContainerStyles = {
+  display: 'flex',
+  flexDirection: 'column',
+  borderRadius: '4px',
+  backgroundColor: '#282c31',
+  maxWidth: '800px',
+  minWidth: '250px',
+  minHeight: '150px',
+  maxHeight: '80vh'
 }
 
+const dialogHeaderStyles = {
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  padding: '0 8px',
+  fontSize: '12px',
+  overflow: 'hidden',
+  height: '32px',
+  background: 'black',
+  borderTopLeftRadius: 'inherit',
+  borderTopRightRadius: 'inherit',
+  color: 'white'
+}
+
+const dialogContentStyles = {
+  color: 'var(--textColor)',
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'row',
+  overflow: 'hidden',
+  padding: '8px',
+  minHeight: '100px'
+}
+
+const dialogBottomNavStyles = {
+  display: 'flex',
+  padding: '8px',
+  margin: 'auto',
+  marginBottom: '10px'
+}
+
+const buttonStyles = {
+  minWidth: '84px'
+}
+
+const DialogForm = ({ tag, onSubmit, children }) => {
+  return tag ? React.createElement(tag, { onSubmit }, children) : <form onSubmit={onSubmit}>{children}</form>
+}
 /**
  * Dialog used to render view for Dialog which contains form.
  *
  * @param  {Props}
  * @constructor
  */
-const Dialog = ({ tag, bottomNav, children, cancelLabel, confirmLabel, onCancel, onConfirm }: Props) => {
+interface Props {
+  tag?: any
+  title?: string
+  bottomNav?: any
+  children?: any
+  cancelLabel?: string
+  confirmLabel?: string
+  onCancel?: any
+  onConfirm?: any
+}
+
+const Dialog = (props: Props) => {
   // callback function used to handle form submit
   const onSubmitForm = useCallback(
     (e) => {
       e.preventDefault()
 
-      if (onConfirm) {
-        onConfirm(e)
+      if (props.onConfirm) {
+        props.onConfirm(e)
       }
     },
-    [onConfirm]
+    [props.onConfirm]
   )
-  const button = (
-    <Button type="submit" onClick={tag === 'form' ? null : onConfirm}>
-      {confirmLabel}
-    </Button>
-  )
-
   // returning view for Dialog component
   return (
-    <DialogContainer as={tag} onSubmit={onSubmitForm}>
-      <DialogContent>{children}</DialogContent>
-      {(onConfirm || onCancel || bottomNav) && (
-        <DialogBottomNav>
-          {bottomNav}
-          {onCancel && <SecondaryButton onClick={onCancel}>{cancelLabel || 'Cancel'}</SecondaryButton>}
-          {onConfirm && button}
-        </DialogBottomNav>
-      )}
-    </DialogContainer>
+    <DialogForm tag={props.tag} onSubmit={onSubmitForm}>
+      <div style={dialogContainerStyles as React.CSSProperties}>
+        <div style={dialogContentStyles as React.CSSProperties}>{props.children}</div>
+        {(props.onConfirm || props.onCancel || props.bottomNav) && (
+          <div style={dialogBottomNavStyles}>
+            {props.bottomNav}
+            {props.onCancel && (
+              <SecondaryButton onClick={props.onCancel} style={buttonStyles}>
+                {props.cancelLabel || 'Cancel'}
+              </SecondaryButton>
+            )}
+            {props.onConfirm && (
+              <Button type="submit" onClick={props.tag === 'form' ? null : props.onConfirm} style={buttonStyles}>
+                {props.confirmLabel}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    </DialogForm>
   )
 }
 

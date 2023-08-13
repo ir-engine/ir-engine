@@ -23,11 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Invite } from './Invite'
+import React from 'react'
 
-export type InviteResult = {
-  data: Invite[]
-  total: number
-  limit: number
-  skip: number
+import { ErrorSharp } from '@mui/icons-material'
+
+import PopUp from './PopUp'
+
+/**
+ * ErrorPopup is used to render error message.
+ *
+ * @param {Object} props
+ * @returns {JSX.Element}
+ */
+export function ErrorPopup(props) {
+  if (!props) return null
+  return <PopUp className="error-pop-up-container" iconClassName="error-pop-up-icon-box" icon={ErrorSharp} {...props} />
 }
+
+export default ErrorPopup

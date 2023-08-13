@@ -23,6 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from './OpaqueType'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export type UserId = OpaqueType<'userId'> & string
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Invite code lookup service description',
+    securities: ['all']
+  }
+})

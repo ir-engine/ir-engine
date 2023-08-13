@@ -23,33 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * @Object which declare permission of user based
- * on their role
- */
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '../user/user.schema'
 
-const accessControls = {
-  admin: {
-    listScope: 'all',
-    createScope: 'all',
-    readScope: 'all',
-    updateScope: 'all',
-    deleteScope: 'all'
-  },
-  user: {
-    listScope: 'all',
-    createScope: 'none',
-    readScope: 'all',
-    updateScope: 'none',
-    deleteScope: 'none'
-  },
-  guest: {
-    listScope: 'all',
-    createScope: 'none',
-    readScope: 'all',
-    updateScope: 'none',
-    deleteScope: 'none'
-  }
+interface ChannelInterface {
+  id: string
+  name: string
+  users: UserType[]
+  userIds: UserID[]
+  instanceId: string
 }
 
-export default accessControls
+export type ChannelUser = {
+  id: string
+  isOwner: boolean
+  userId: UserID
+  user?: UserType
+  channelId: ChannelID
+  channel?: ChannelInterface
+}

@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
+import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -48,7 +48,7 @@ export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & {
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
 export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
-export const initializeNetwork = async (app: Application, hostId: UserId, topic: Topic) => {
+export const initializeNetwork = async (app: Application, id: string, hostId: UserID, topic: Topic) => {
   const { workers, routers } = await startWebRTC()
 
   const outgoingDataTransport = await routers.instance[0].createDirectTransport()
@@ -81,13 +81,13 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
     }
   }
 
-  const network = createNetwork(hostId, topic, {
+  const network = createNetwork(id, hostId, topic, {
     workers,
     routers,
     transport,
     outgoingDataTransport,
-    outgoingDataProducers: {} as { [key: DataChannelType]: DataProducer },
-    mediasoupTransports: [] as WebRTCTransportExtension[],
+    outgoingDataProducers: {} as Record<DataChannelType, DataProducer>,
+    mediasoupTransports: {} as Record<string, WebRTCTransportExtension>,
     transportsConnectPending: [] as Promise<void>[],
     producers: [] as ProducerExtension[],
     consumers: [] as ConsumerExtension[]

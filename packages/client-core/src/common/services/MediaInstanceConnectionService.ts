@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   defineAction,
   defineState,
@@ -42,7 +42,7 @@ import {
   useState
 } from '@etherealengine/hyperflux'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { LocationState } from '../../social/services/LocationService'
 import {
   connectToNetwork,
@@ -97,7 +97,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       getMutableState(NetworkState).hostIds.media.set(action.instanceId)
       const existingNetwork = getState(NetworkState).networks[action.instanceId]
       if (!existingNetwork) {
-        addNetwork(initializeNetwork(action.instanceId, NetworkTopics.media))
+        addNetwork(initializeNetwork(action.instanceId, action.instanceId, NetworkTopics.media))
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
@@ -136,7 +136,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       const networkState = getMutableState(NetworkState)
       const currentNework = getState(NetworkState).networks[action.currentInstanceId]
       updateNetworkID(currentNework as SocketWebRTCClientNetwork, action.newInstanceId)
-      networkState.hostIds.media.set(action.newInstanceId as UserId)
+      networkState.hostIds.media.set(action.newInstanceId as UserID)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })
@@ -160,7 +160,7 @@ export const MediaInstanceConnectionService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatchAction(
         MediaInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserId,
+          instanceId: provisionResult.id as UserID,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           roomCode: provisionResult.roomCode,

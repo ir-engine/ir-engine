@@ -27,6 +27,7 @@ import * as authentication from '@feathersjs/authentication'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'
 import { Application } from './../../declarations'
@@ -53,17 +54,7 @@ export default () => {
           token: token
         }
       })) as Paginated<UserApiKeyType>
-      if (key.data.length > 0)
-        user = await context.app.service('user').Model.findOne({
-          include: [
-            {
-              model: context.app.service('scope').Model
-            }
-          ],
-          where: {
-            id: key.data[0].userId
-          }
-        })
+      if (key.data.length > 0) user = await context.app.service(userPath).get(key.data[0].userId)
     }
     if (user) {
       context.params.user = user
@@ -72,16 +63,7 @@ export default () => {
     context = await authenticate('jwt')(context as any)
     // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
     if (context.params[config.authentication.entity]?.userId)
-      context.params.user = await context.app.service('user').Model.findOne({
-        include: [
-          {
-            model: context.app.service('scope').Model
-          }
-        ],
-        where: {
-          id: context.params[config.authentication.entity].userId
-        }
-      })
+      context.params.user = await context.app.service(userPath).get(context.params[config.authentication.entity].userId)
     return context
   }
 }

@@ -80,7 +80,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoading: false, sceneLoaded: true }))
     .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
     .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
-    .when(EngineActions.connectToWorld.matches, (action) => s.connectedWorld.set(action.connectedWorld))
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
@@ -99,11 +98,6 @@ export class EngineActions {
   static initializeEngine = defineAction({
     type: 'xre.engine.Engine.INITIALIZED_ENGINE' as const,
     initialised: matches.boolean
-  })
-
-  static connectToWorld = defineAction({
-    type: 'xre.engine.Engine.CONNECT_TO_WORLD' as const,
-    connectedWorld: matches.boolean
   })
 
   static joinedWorld = defineAction({

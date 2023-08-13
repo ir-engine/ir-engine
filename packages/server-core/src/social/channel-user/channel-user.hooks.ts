@@ -28,6 +28,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
@@ -48,14 +49,14 @@ export default {
     get: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, result } = context
-        result.user = await app.service('user').get(result.userId)
+        result.user = await app.service(userPath).get(result.userId)
         return context
       }
     ],
     create: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, result, params } = context
-        const user = await app.service('user').get(result.userId, { ...params, query: {} })
+        const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
         await app.service('message').create(
           {
             channelId: result.channelId,
@@ -76,7 +77,7 @@ export default {
     remove: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, params, result } = context
-        const user = await app.service('user').get(result.userId, { ...params, query: {} })
+        const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
         await app.service('message').create({
           channelId: result.channelId,
           text: `${user.name} left the channel`,

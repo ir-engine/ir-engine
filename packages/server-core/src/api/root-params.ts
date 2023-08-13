@@ -23,12 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export class HttpException extends Error {
-  statusCode: number
-  message: string
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AdapterQuery } from '@feathersjs/adapter-commons'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
-  constructor(message, statusCode = 500) {
-    super(message)
-    this.statusCode = statusCode
-  }
+export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
+  user?: UserType
+  isInternal?: boolean
+}
+
+/* @deprecated */
+export interface UserParams extends Params {
+  user?: UserType
+  paginate?: false
+  isInternal?: boolean
+  sequelize?: any
 }

@@ -24,10 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { NullableId, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   UserApiKeyData,
   UserApiKeyPatch,
@@ -36,11 +35,10 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserApiKeyParams extends KnexAdapterParams<UserApiKeyQuery> {
-  user?: UserInterface
-}
+export interface UserApiKeyParams extends RootParams<UserApiKeyQuery> {}
 
 /**
  * A class for UserApiKey service

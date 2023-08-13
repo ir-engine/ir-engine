@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BoxGeometry, BoxHelper, Mesh, Scene } from 'three'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -46,7 +46,7 @@ export const SpawnPointComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      permissionedUsers: [] as UserId[],
+      permissionedUsers: [] as UserID[],
       helper: null as Scene | null,
       helperBox: null as BoxHelper | null
     }

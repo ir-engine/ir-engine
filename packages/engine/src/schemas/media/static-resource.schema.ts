@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
@@ -43,7 +43,7 @@ export const staticResourceSchema = Type.Object(
     key: Type.String(),
     metadata: Type.Any(),
     mimeType: Type.String(),
-    userId: TypedString<UserId>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     hash: Type.String(),

@@ -35,7 +35,7 @@ import {
   createLocationBanModel,
   createLocationModel,
   createUserApiKeyModel
-} from '../user/user/user.model'
+} from '../all.model'
 
 const getMigratedModels = (app: Application) => {
   return {
