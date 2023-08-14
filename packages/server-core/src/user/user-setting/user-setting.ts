@@ -23,47 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { UserSetting } from '@etherealengine/common/src/dbmodels/UserSetting'
+import { userSettingMethods, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 
 import { Application } from '../../../declarations'
-import { createUserModel } from '../../all.model'
+import { UserSettingService } from './user-setting.class'
+import userSettingDocs from './user-setting.docs'
+import hooks from './user-setting.hooks'
 
-/**
- *
- * Model for database entity
- * this model contain users setting
- */
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [userSettingPath]: UserSettingService
+  }
+}
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const UserSettings = sequelizeClient.define<Model<UserSetting>>(
-    'user_settings',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      themeModes: {
-        type: DataTypes.JSON,
-        allowNull: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-
-  ;(UserSettings as any).associate = (models: any): void => {
-    ;(UserSettings as any).belongsTo(createUserModel(app), { primaryKey: true, required: true, allowNull: false })
+export default (app: Application): void => {
+  const options = {
+    name: userSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexUser'),
+    multi: true
   }
 
-  return UserSettings
+  app.use(userSettingPath, new UserSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: userSettingMethods,
+    // You can add additional custom events to be sent to client here
+    events: [],
+    docs: userSettingDocs
+  })
+
+  const service = app.service(userSettingPath)
+  service.hooks(hooks)
 }

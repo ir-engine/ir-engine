@@ -86,3 +86,8 @@ export interface LocationAuthorizedUserInterface {
 export interface LocationAdminInterface {
   id: string
 }
+
+export interface UserSetting {
+  id: string
+  themeModes: string
+}

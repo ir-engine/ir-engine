@@ -31,7 +31,6 @@ import { v1 } from 'uuid'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
-import { UserSetting } from '@etherealengine/common/src/interfaces/UserSetting'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
@@ -39,6 +38,12 @@ import { defineState, getMutableState, getState, syncStateWithLocalStorage } fro
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import {
+  UserSettingID,
+  UserSettingPatch,
+  UserSettingType,
+  userSettingPath
+} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -73,8 +78,11 @@ export const UserSeed: UserType = {
     updatedAt: ''
   },
   userSetting: {
-    id: '',
-    themeModes: {}
+    id: '' as UserSettingID,
+    themeModes: {},
+    userId: '' as UserID,
+    createdAt: '',
+    updatedAt: ''
   },
   scopes: [],
   identityProviders: [],
@@ -203,11 +211,11 @@ export const AuthService = {
       const user = await client.service(userPath).get(userId)
       if (!user.userSetting) {
         const settingsRes = (await client
-          .service('user-settings')
-          .find({ query: { userId: userId } })) as Paginated<UserSetting>
+          .service(userSettingPath)
+          .find({ query: { userId: userId } })) as Paginated<UserSettingType>
 
         if (settingsRes.total === 0) {
-          user.userSetting = (await client.service('user-settings').create({ userId: userId })) as UserSetting
+          user.userSetting = await client.service(userSettingPath).create({ userId: userId })
         } else {
           user.userSetting = settingsRes.data[0]
         }
@@ -618,8 +626,8 @@ export const AuthService = {
     AuthService.loadUserData(userId)
   },
 
-  async updateUserSettings(id: any, data: any) {
-    const response = (await Engine.instance.api.service('user-settings').patch(id, data)) as UserSetting
+  async updateUserSettings(id: UserSettingID, data: UserSettingPatch) {
+    const response = await Engine.instance.api.service(userSettingPath).patch(id, data)
     getMutableState(AuthState).user.userSetting.merge(response)
   },
 

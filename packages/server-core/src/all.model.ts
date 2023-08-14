@@ -38,7 +38,8 @@ import {
   LocationSettingsInterface,
   LocationTypeInterface,
   UserApiKeyInterface,
-  UserInterface
+  UserInterface,
+  UserSetting
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../declarations'
@@ -474,4 +475,36 @@ export const createInstanceAttendanceModel = (app: Application) => {
     ;(instanceAttendance as any).belongsTo(createUserModel(app))
   }
   return instanceAttendance
+}
+
+export const createUserSettingModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const UserSettings = sequelizeClient.define<Model<UserSetting>>(
+    'user-setting',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      themeModes: {
+        type: DataTypes.JSON,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(UserSettings as any).associate = (models: any): void => {
+    ;(UserSettings as any).belongsTo(createUserModel(app), { primaryKey: true, required: true, allowNull: false })
+  }
+
+  return UserSettings
 }

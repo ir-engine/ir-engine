@@ -23,28 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'user-settings': {
-      type: 'object',
-      properties: {
-        themeModes: {
-          type: 'json'
-        }
-      }
-    },
-    'user-settings_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/user-settings' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  userSettingDataSchema,
+  userSettingPatchSchema,
+  userSettingQuerySchema,
+  userSettingSchema
+} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    userSettingDataSchema,
+    userSettingPatchSchema,
+    userSettingQuerySchema,
+    userSettingSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'User setting service description',
+    securities: ['all']
   }
-}
+})
