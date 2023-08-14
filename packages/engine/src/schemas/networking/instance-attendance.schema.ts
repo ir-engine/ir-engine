@@ -45,7 +45,7 @@ export const instanceAttendanceSchema = Type.Object(
     instanceId: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     instance: Type.Any(), // TODO: Replace any with instance schema once instance service is moved to feathers 5.
