@@ -126,7 +126,7 @@ export const checkAppOrgStatus = async (organization, token) => {
   return orgs.find((org) => org.login.toLowerCase() === organization.toLowerCase())
 }
 
-export const getUserRepos = async (token: string): Promise<any[]> => {
+export const getUserRepos = async (token?: string): Promise<any[]> => {
   let page = 1
   let end = false
   let repos = []
