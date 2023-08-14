@@ -39,11 +39,11 @@ export type UserSettingID = OpaqueType<'UserSettingID'> & string
 // Main data model schema
 export const userSettingSchema = Type.Object(
   {
-    id: TypedString<UserSettingID, 'uuid'>({
+    id: TypedString<UserSettingID>({
       format: 'uuid'
     }),
     themeModes: Type.Record(Type.String(), Type.String()),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
