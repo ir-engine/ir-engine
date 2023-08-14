@@ -63,11 +63,14 @@ const ensureUserSettingsOwner = () => {
 const ensureUserThemeModes = () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, result } = context
-    const clientSetting = await app.service(clientSettingPath).find()
-    if (clientSetting && clientSetting.data.length > 0) {
-      result.themeModes = clientSetting.data[0].themeModes
-      result.themeModes = await app.service(userSettingPath).patch(result.id, result)
+    const clientSettings = await app.service(clientSettingPath).find()
+    if (clientSettings && clientSettings.data.length > 0) {
+      result.themeModes = clientSettings.data[0].themeModes
+
+      // @ts-ignore
+      await app.service(userSettingPath)._patch(result.id, result)
     }
+
     return context
   }
 }
