@@ -39,7 +39,7 @@ export const locationAdminSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     locationId: Type.String({

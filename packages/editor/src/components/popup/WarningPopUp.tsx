@@ -23,31 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `instance-provision` service on path `/instance-provision`
-import { Application } from '../../../declarations'
-import { Recording } from './recording.class'
-import recordingDocs from './recording.docs'
-import hooks from './recording.hooks'
-import createModel from './recording.model'
+import React from 'react'
 
-// Add this service to the service type index
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    recording: Recording
-  }
+import { WarningSharp } from '@mui/icons-material'
+
+import PopUp from './PopUp'
+
+/**
+ * ErrorPopup is used to render error message.
+ *
+ * @param {Object} props
+ * @returns {JSX.Element}
+ */
+export function WarningPopup(props) {
+  if (!props) return null
+  return (
+    <PopUp
+      className="warning-pop-up-container"
+      iconClassName="warning-pop-up-icon-box"
+      icon={WarningSharp}
+      {...props}
+    />
+  )
 }
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  const event = new Recording(options, app)
-  event.docs = recordingDocs
-  app.use('recording', event)
-
-  const service = app.service('recording')
-  service.hooks(hooks)
-}
+export default WarningPopup

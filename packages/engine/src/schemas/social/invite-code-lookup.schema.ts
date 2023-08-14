@@ -37,7 +37,7 @@ export const inviteCodeLookupMethods = ['find'] as const
 // Main data model schema
 export const inviteCodeLookupSchema = Type.Object(
   {
-    id: TypedString<UserID, 'uuid'>({
+    id: TypedString<UserID>({
       format: 'uuid'
     }),
     inviteCode: Type.String(),

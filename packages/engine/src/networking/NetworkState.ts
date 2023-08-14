@@ -32,8 +32,6 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 
-type RegistryFunction = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => void
-
 export const NetworkState = defineState({
   name: 'NetworkState',
   initial: {
@@ -58,8 +56,6 @@ export const NetworkState = defineState({
     }
   }
 })
-
-export const dataChannelRegistry = new Map<DataChannelType, RegistryFunction[]>()
 
 export const webcamVideoDataChannelType = 'ee.core.webcamVideo.dataChannel' as DataChannelType
 export const webcamAudioDataChannelType = 'ee.core.webcamAudio.dataChannel' as DataChannelType
@@ -113,26 +109,6 @@ export const updateNetwork = (network: Network) => {
 
 export const removeNetwork = (network: Network) => {
   getMutableState(NetworkState).networks[network.hostId].set(none)
-}
-
-export const addDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
-  if (!dataChannelRegistry.has(dataChannelType)) {
-    dataChannelRegistry.set(dataChannelType, [])
-  }
-  dataChannelRegistry.get(dataChannelType)!.push(handler)
-}
-
-export const removeDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
-  if (!dataChannelRegistry.has(dataChannelType)) return
-
-  const index = dataChannelRegistry.get(dataChannelType)!.indexOf(handler)
-  if (index === -1) return
-
-  dataChannelRegistry.get(dataChannelType)!.splice(index, 1)
-
-  if (dataChannelRegistry.get(dataChannelType)!.length === 0) {
-    dataChannelRegistry.delete(dataChannelType)
-  }
 }
 
 export const updateNetworkID = (network: Network, newHostId: UserID) => {

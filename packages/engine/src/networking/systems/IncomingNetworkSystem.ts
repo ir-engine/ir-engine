@@ -32,9 +32,9 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { addDataChannelHandler, removeDataChannelHandler } from '../NetworkState'
 import { JitterBufferEntry, Network } from '../classes/Network'
 import { readDataPacket } from '../serialization/DataReader'
+import { addDataChannelHandler, removeDataChannelHandler } from './DataProducerConsumerState'
 
 const toArrayBuffer = (buf) => {
   const ab = new ArrayBuffer(buf.length)

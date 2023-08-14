@@ -23,24 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { DataChannelType } from './DataChannelType'
-import { PeerID } from './PeerID'
-import { RecordingID } from './RecordingID'
-import { StaticResourceInterface } from './StaticResourceInterface'
+import React from 'react'
 
-export interface RecordingResult {
-  id: RecordingID
-  userId: UserID
-  ended: boolean
-  createdAt: string
-  updatedAt: string
-  schema: string // stringified RecordingSchema
-  userName?: string
-  resources?: Array<StaticResourceInterface>
+import { ErrorSharp } from '@mui/icons-material'
+
+import PopUp from './PopUp'
+
+/**
+ * ErrorPopup is used to render error message.
+ *
+ * @param {Object} props
+ * @returns {JSX.Element}
+ */
+export function ErrorPopup(props) {
+  if (!props) return null
+  return <PopUp className="error-pop-up-container" iconClassName="error-pop-up-icon-box" icon={ErrorSharp} {...props} />
 }
 
-export type RecordingSchema = {
-  user: string[]
-  peers: Record<PeerID, DataChannelType[]>
-}
+export default ErrorPopup

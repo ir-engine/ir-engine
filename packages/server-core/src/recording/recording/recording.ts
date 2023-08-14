@@ -23,6 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from './OpaqueType'
+import { recordingMethods, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { Application } from '../../../declarations'
+import { RecordingService } from './recording.class'
+import recordingDocs from './recording.docs'
+import hooks from './recording.hooks'
 
-export type RecordingID = OpaqueType<'RecordingID'> & string
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [recordingPath]: RecordingService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: recordingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(recordingPath, new RecordingService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: recordingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: recordingDocs
+  })
+
+  const service = app.service(recordingPath)
+  service.hooks(hooks)
+}

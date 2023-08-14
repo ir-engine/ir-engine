@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { BehaveGraphSystemState } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
+import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getMutableComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -43,7 +43,7 @@ const BehaveFlow = () => {
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
   const graphState = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
   const forceUpdate = useForceUpdate()
-  const registry = getState(BehaveGraphSystemState).registry
+  const registry = getState(BehaveGraphState).registry
 
   useEffect(() => {
     forceUpdate()
