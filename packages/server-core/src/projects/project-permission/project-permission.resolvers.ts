@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -33,9 +33,17 @@ import {
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export const projectPermissionResolver = resolve<ProjectPermissionType, HookContext>({})
+export const projectPermissionResolver = resolve<ProjectPermissionType, HookContext>({
+  user: virtual(async (projectPermission, context) => {
+    if (projectPermission.userId) {
+      const user = await context.app.service(userPath)._get(projectPermission.userId)
+      return user
+    }
+  })
+})
 
 export const projectPermissionExternalResolver = resolve<ProjectPermissionType, HookContext>({})
 

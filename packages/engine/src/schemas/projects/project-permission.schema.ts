@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
+import { userSchema } from '../user/user.schema'
 
 export const projectPermissionPath = 'project-permission'
 
@@ -44,6 +45,7 @@ export const projectPermissionSchema = Type.Object(
       format: 'uuid'
     }),
     type: Type.String(),
+    user: Type.Ref(userSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -52,7 +54,7 @@ export const projectPermissionSchema = Type.Object(
 export type ProjectPermissionType = Static<typeof projectPermissionSchema>
 
 // Schema for creating new entries
-export const projectPermissionDataSchema = Type.Pick(projectPermissionSchema, ['projectId', 'userId', 'type'], {
+export const projectPermissionDataSchema = Type.Partial(projectPermissionSchema, {
   $id: 'ProjectPermissionData'
 })
 export type ProjectPermissionData = Static<typeof projectPermissionDataSchema>
