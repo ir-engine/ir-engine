@@ -83,3 +83,19 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   fall.setEffectiveWeight(fallWeight)
   idle.setEffectiveWeight(idleWeight)
 }
+
+export const getRootSpeed = (clip: AnimationClip) => {
+  //calculate the speed of the root motion of the clip
+  const tracks = clip.tracks
+  const rootTrack = tracks[0]
+  if (!rootTrack) return 0
+  const startPos = new Vector3(rootTrack.values[0], rootTrack.values[1], rootTrack.values[2])
+  const endPos = new Vector3(
+    rootTrack.values[rootTrack.values.length - 3],
+    rootTrack.values[rootTrack.values.length - 2],
+    rootTrack.values[rootTrack.values.length - 1]
+  )
+  const speed = new Vector3().subVectors(endPos, startPos).length() / clip.duration
+  console.log(speed)
+  return speed
+}

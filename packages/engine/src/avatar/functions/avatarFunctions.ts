@@ -56,12 +56,14 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
+import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
+import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { resizeAvatar } from './resizeAvatar'
 import { retargetMixamoAnimation } from './retargetMixamoRig'
 
@@ -172,6 +174,9 @@ export const getAnimations = async () => {
       `${config.client.fileServer}/projects/default-project/assets/${ikPath}`
     )) as GLTF
 
+    const movement = getState(AvatarMovementSettingsState)
+    movement.runSpeed = getRootSpeed(fkAsset.animations[4]) * 0.01
+    movement.walkSpeed = getRootSpeed(fkAsset.animations[6]) * 0.01
     manager.ikTargetsAnimations.set(ikAsset.animations)
     manager.fkAnimations.set(fkAsset)
   }
