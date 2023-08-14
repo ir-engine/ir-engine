@@ -156,7 +156,7 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
     paginate: false
   })) as StaticResourceType[] | null
 
-  if (existingResource && existingResource[0]) return existingResource[0]
+  if (existingResource && existingResource.length > 0) return existingResource[0]
 
   const key = args.path ?? `/temp/${hash}`
   return await addAssetAsStaticResource(app, args.file, {

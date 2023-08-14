@@ -160,7 +160,7 @@ export const addAssetFromProject = async (
     paginate: false
   })) as StaticResourceType[]
 
-  if (existingResource[0]) return existingResource[0]
+  if (existingResource.length > 0) return existingResource[0]
 
   const forceDownload = isFromProject ? false : download
 
