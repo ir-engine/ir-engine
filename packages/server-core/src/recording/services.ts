@@ -24,6 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import RecordingResource from './recording-resource/recording-resource'
-import Recording from './recording/recording.service'
+import Recording from './recording/recording'
 
 export default [Recording, RecordingResource]

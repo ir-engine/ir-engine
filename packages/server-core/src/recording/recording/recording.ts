@@ -23,24 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { DataChannelType } from './DataChannelType'
-import { PeerID } from './PeerID'
-import { RecordingID } from './RecordingID'
-import { StaticResourceInterface } from './StaticResourceInterface'
+import { recordingMethods, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { Application } from '../../../declarations'
+import { RecordingService } from './recording.class'
+import recordingDocs from './recording.docs'
+import hooks from './recording.hooks'
 
-export interface RecordingResult {
-  id: RecordingID
-  userId: UserID
-  ended: boolean
-  createdAt: string
-  updatedAt: string
-  schema: string // stringified RecordingSchema
-  userName?: string
-  resources?: Array<StaticResourceInterface>
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [recordingPath]: RecordingService
+  }
 }
 
-export type RecordingSchema = {
-  user: string[]
-  peers: Record<PeerID, DataChannelType[]>
+export default (app: Application): void => {
+  const options = {
+    name: recordingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(recordingPath, new RecordingService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: recordingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: recordingDocs
+  })
+
+  const service = app.service(recordingPath)
+  service.hooks(hooks)
 }
