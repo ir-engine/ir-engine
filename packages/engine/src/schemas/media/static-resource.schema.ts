@@ -68,27 +68,7 @@ export type StaticResourceDatabaseType = Omit<StaticResourceType, 'metadata' | '
 }
 
 // Schema for creating new entries
-export const staticResourceDataSchema = Type.Pick(
-  staticResourceSchema,
-  [
-    'sid',
-    'key',
-    'metadata',
-    'mimeType',
-    'userId',
-    'hash',
-    'project',
-    'driver',
-    'attribution',
-    'licensing',
-    'tags',
-    'url',
-    'stats'
-  ],
-  {
-    $id: 'StaticResourceData'
-  }
-)
+export const staticResourceDataSchema = Type.Partial(staticResourceSchema, { $id: 'StaticResourceData' })
 export type StaticResourceData = Static<typeof staticResourceDataSchema>
 
 // Schema for updating existing entries

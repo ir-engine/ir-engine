@@ -56,7 +56,10 @@ export class StaticResourceService<
   }
 
   async create(data: StaticResourceData, params?: StaticResourceParams) {
-    return super._create(data, params)
+    return super._create({
+      ...data,
+      userId: params?.user?.id
+    })
   }
 
   async find(params?: StaticResourceParams) {
@@ -65,7 +68,7 @@ export class StaticResourceService<
     const mimeTypes =
       params?.query?.mimeTypes && params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : undefined
 
-    const result = await super._find({
+    return await super._find({
       ...params,
       query: {
         $or: [
@@ -85,11 +88,6 @@ export class StaticResourceService<
         ]
       }
     })
-
-    if (params && params.query?.$limit === 1) {
-      return result[0]
-    }
-    return result
   }
 
   async patch(id: string, data: StaticResourcePatch, params?: StaticResourceParams) {

@@ -29,7 +29,6 @@ import { PassThrough } from 'stream'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { RecordingResult, RecordingSchema } from '@etherealengine/common/src/interfaces/Recording'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -59,6 +58,7 @@ import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/co
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
@@ -116,7 +116,7 @@ export const uploadRecordingStaticResource = async (props: {
   const provider = getStorageProvider()
   const url = getCachedURL(props.key, provider.cacheDomain)
 
-  const staticResource = (await app.service('static-resource').create(
+  const staticResource = await app.service(staticResourcePath).create(
     {
       hash: props.hash,
       key: props.key,
@@ -124,7 +124,7 @@ export const uploadRecordingStaticResource = async (props: {
       mimeType: props.mimeType
     },
     { isInternal: true }
-  )) as StaticResourceInterface
+  )
 
   await app.service(recordingResourcePath).create({
     staticResourceId: staticResource.id,

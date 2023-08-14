@@ -37,7 +37,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -150,7 +150,7 @@ export const addAssetFromProject = async (
 
   const key = getKeyForAsset(mainURL, project, isFromProject)
 
-  const existingResource = await app.service(staticResourcePath).find({
+  const existingResource = (await app.service(staticResourcePath).find({
     query: {
       hash,
       project,
@@ -158,9 +158,9 @@ export const addAssetFromProject = async (
       $limit: 1
     },
     paginate: false
-  })
+  })) as StaticResourceType[]
 
-  if (existingResource) return existingResource
+  if (existingResource[0]) return existingResource[0]
 
   const forceDownload = isFromProject ? false : download
 

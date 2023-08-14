@@ -28,9 +28,7 @@ import Multer from '@koa/multer'
 import { createHash } from 'crypto'
 import fs from 'fs'
 import path from 'path'
-import { Op } from 'sequelize'
 
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import {
   AdminAssetUploadArgumentsType,
   AssetUploadType,
@@ -40,6 +38,7 @@ import {
 import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
@@ -146,16 +145,18 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
   })
 
   const whereQuery = {
-    hash
+    hash,
+    $limit: 1
   } as any
   if (args.project) whereQuery.project = args.project
 
   /** @todo - if adding variants that already exist, we only return the first one */
-  const existingResource = (await app.service('static-resource').Model.findOne({
-    where: whereQuery
-  })) as StaticResourceInterface | null
+  const existingResource = (await app.service(staticResourcePath).find({
+    query: whereQuery,
+    paginate: false
+  })) as StaticResourceType[] | null
 
-  if (existingResource) return existingResource
+  if (existingResource && existingResource[0]) return existingResource[0]
 
   const key = args.path ?? `/temp/${hash}`
   return await addAssetAsStaticResource(app, args.file, {
@@ -217,7 +218,7 @@ export const addAssetAsStaticResource = async (
   app: Application,
   file: UploadFile,
   args: AdminAssetUploadArgumentsType
-): Promise<StaticResourceInterface> => {
+): Promise<StaticResourceType> => {
   console.log('addAssetAsStaticResource', file, args)
   const provider = getStorageProvider()
 
@@ -227,18 +228,20 @@ export const addAssetAsStaticResource = async (
   const primaryKey = isExternalURL ? args.path : processFileName(path.join(args.path, file.originalname))
   const url = isExternalURL ? args.path : getCachedURL(primaryKey, provider.cacheDomain)
 
-  const whereArgs = {
-    [Op.or]: [{ url }, { id: args.id ?? '' }]
+  const whereQuery = {
+    $limit: 1,
+    $or: [{ url: url }, { id: args.id || '' }]
   } as any
-  if (args.project) whereArgs.project = args.project
-  const existingAsset = (await app.service('static-resource').Model.findOne({
-    where: whereArgs
-  })) as StaticResourceInterface
+  if (args.project) whereQuery.project = args.project
+  const existingAsset = (await app.service(staticResourcePath).find({
+    query: whereQuery,
+    paginate: false
+  })) as StaticResourceType[]
 
   const stats = await getStats(file.buffer, file.mimetype)
 
   const hash = args.hash || createStaticResourceHash(file.buffer, { name: args.name, assetURL: url })
-  const body: Partial<StaticResourceInterface> = {
+  const body: Partial<StaticResourceType> = {
     hash,
     url,
     key: primaryKey,
@@ -254,17 +257,15 @@ export const addAssetAsStaticResource = async (
 
   let resourceId = ''
 
-  if (existingAsset) {
-    await app.service('static-resource').patch(existingAsset.id, body, { isInternal: true })
-    resourceId = existingAsset.id
+  if (existingAsset[0]) {
+    await app.service(staticResourcePath).patch(existingAsset[0].id, body, { isInternal: true })
+    resourceId = existingAsset[0].id
   } else {
-    const resource = (await app
-      .service('static-resource')
-      .create(body, { isInternal: true })) as StaticResourceInterface
+    const resource = await app.service(staticResourcePath).create(body, { isInternal: true })
     resourceId = resource.id
   }
 
-  return app.service('static-resource').get(resourceId)
+  return app.service(staticResourcePath).get(resourceId)
 }
 
 export default (app: Application): void => {

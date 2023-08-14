@@ -27,10 +27,15 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
+import { Knex } from 'knex'
 import Sequelize, { DataTypes } from 'sequelize'
 
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import {
+  StaticResourceDatabaseType,
+  staticResourcePath
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 
 dotenv.config({
   path: appRootPath.path,
@@ -107,18 +112,14 @@ cli.main(async () => {
 
     console.log('static resources', staticResources)
 
+    const trx = await (app.get('knexClient') as Knex).transaction()
+
     for (const resource of staticResources) {
       if (resource.LOD0_url && resource.url == null)
-        await app.service('static-resource').Model.update(
-          {
-            url: resource.LOD0_url
-          },
-          {
-            where: {
-              id: resource.id
-            }
-          }
-        )
+        await trx
+          .from<StaticResourceDatabaseType>(staticResourcePath)
+          .update({ url: resource.LOD0_url })
+          .where({ id: resource.id })
     }
     cli.ok(`All static resources updated`)
 
