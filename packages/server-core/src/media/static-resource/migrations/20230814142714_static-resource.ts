@@ -46,9 +46,9 @@ export async function up(knex: Knex): Promise<void> {
   tableExists = await trx.schema.hasTable(staticResourcePath)
 
   if (tableExists) {
-    const hasIdColum = await trx.schema.hasColumn(staticResourcePath, 'id')
+    const hasIdColumn = await trx.schema.hasColumn(staticResourcePath, 'id')
     const hasUserIdColumn = await trx.schema.hasColumn(staticResourcePath, 'userId')
-    if (!(hasUserIdColumn && hasIdColum)) {
+    if (!(hasUserIdColumn && hasIdColumn)) {
       await trx.schema.dropTable(staticResourcePath)
       tableExists = false
     }
