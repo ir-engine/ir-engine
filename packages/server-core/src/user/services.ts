@@ -32,7 +32,7 @@ import GithubRepoAccessRefresh from './github-repo-access-refresh/github-repo-ac
 import GithubRepoAccessWebhook from './github-repo-access-webhook/github-repo-access-webhook'
 import GithubRepoAccess from './github-repo-access/github-repo-access'
 import IdentityProvider from './identity-provider/identity-provider.service'
-import LoginToken from './login-token/login-token.service'
+import LoginToken from './login-token/login-token'
 import Login from './login/login.service'
 import MagicLink from './magic-link/magic-link.service'
 import SMS from './sms/sms.service'
