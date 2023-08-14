@@ -65,19 +65,19 @@ export default {
       schemaHooks.resolveQuery(recordingResourceQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
-    get: [iff(isProvider('external'), verifyScope('recording', 'read') as any)],
+    get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(recordingResourceDataValidator),
       schemaHooks.resolveData(recordingResourceDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
     patch: [
-      iff(isProvider('external'), verifyScope('recording', 'write') as any),
+      iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingResourcePatchValidator),
       schemaHooks.resolveData(recordingResourcePatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('recording', 'write') as any)]
+    remove: [iff(isProvider('external'), verifyScope('recording', 'write'))]
   },
 
   after: {

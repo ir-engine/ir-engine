@@ -33,9 +33,9 @@ import { RecordingFunctions, RecordingState } from '../../recording/RecordingSer
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { RecordingType, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -282,7 +282,7 @@ export const RecordingTimer = () => {
 
 const RecordingPlayback = () => {
   const recordingState = useHookstate(getMutableState(RecordingState))
-  const recording = useGet('recording', recordingState.playback.value!)
+  const recording = useGet(recordingPath, recordingState.playback.value!)
 
   useEffect(() => {
     if (!recordingState.playback.value)
@@ -321,7 +321,7 @@ const RecordingPlayback = () => {
 }
 
 const RecordingsList = () => {
-  const recording = useFind('recording')
+  const recording = useFind(recordingPath)
 
   useEffect(() => {
     RecordingFunctions.getRecordings()
@@ -331,7 +331,7 @@ const RecordingsList = () => {
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   )
 
-  const RenderRecording = (props: { recording: RecordingResult }) => {
+  const RenderRecording = (props: { recording: RecordingType }) => {
     const { recording } = props
     const time = new Date(recording.createdAt).toLocaleTimeString()
     const duration = (new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime()) / 1000
