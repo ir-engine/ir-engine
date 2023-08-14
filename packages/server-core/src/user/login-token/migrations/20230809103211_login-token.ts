@@ -23,15 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import type { Knex } from 'knex'
+
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'recording_resource'
+  const oldTableName = 'login_token'
 
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
@@ -39,56 +40,37 @@ export async function up(knex: Knex): Promise<void> {
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
   const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
-  let tableExists = await trx.schema.hasTable(recordingResourcePath)
-
+  let tableExists = await trx.schema.hasTable(loginTokenPath)
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await trx.schema.dropTable(recordingResourcePath)
-    await trx.schema.renameTable(oldTableName, recordingResourcePath)
+    if (tableExists) await trx.schema.dropTable(loginTokenPath)
+    await trx.schema.renameTable(oldTableName, loginTokenPath)
   }
 
-  tableExists = await trx.schema.hasTable(recordingResourcePath)
-
-  if (tableExists) {
-    const hasIdColum = await trx.schema.hasColumn(recordingResourcePath, 'id')
-    const hasRecordingIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'recordingId')
-    const hasStaticResourcesIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'staticResourceId')
-    if (!(hasRecordingIdColumn && hasIdColum && hasStaticResourcesIdColumn)) {
-      await trx.schema.dropTable(recordingResourcePath)
-      tableExists = false
-    }
-  }
+  tableExists = await trx.schema.hasTable(loginTokenPath)
 
   if (!tableExists && !oldNamedTableExists) {
-    await trx.schema.createTable(recordingResourcePath, (table) => {
+    await trx.schema.createTable(loginTokenPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
+      table.string('token', 255).defaultTo(null)
       //@ts-ignore
-      table.uuid('recordingId').collate('utf8mb4_bin').nullable()
-      //@ts-ignore
-      table.uuid('staticResourceId').collate('utf8mb4_bin').nullable().index()
+      table.uuid('identityProviderId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.dateTime('expiresAt').defaultTo(null)
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      // Foreign keys
-      table.unique(['recordingId', 'staticResourceId'], {
-        indexName: 'recording_resource_recordingId_staticResourceId_unique'
-      })
-
-      table.foreign('recordingId').references('id').inTable('recording').onDelete('CASCADE').onUpdate('CASCADE')
-
       table
-        .foreign('staticResourceId')
+        .foreign('identityProviderId')
         .references('id')
-        .inTable('static_resource')
-        .onDelete('CASCADE')
+        .inTable('identity-provider')
+        .onDelete('SET NULL')
         .onUpdate('CASCADE')
     })
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
@@ -96,9 +78,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(recordingResourcePath)
+  const tableExists = await knex.schema.hasTable(loginTokenPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(recordingResourcePath)
+    await knex.schema.dropTable(loginTokenPath)
   }
 }

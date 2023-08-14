@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import type { Knex } from 'knex'
 
 /**
@@ -31,7 +31,7 @@ import type { Knex } from 'knex'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'recording_resource'
+  const oldTableName = 'user_kick'
 
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
@@ -39,56 +39,34 @@ export async function up(knex: Knex): Promise<void> {
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
   const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
-  let tableExists = await trx.schema.hasTable(recordingResourcePath)
-
+  let tableExists = await trx.schema.hasTable(userKickPath)
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await trx.schema.dropTable(recordingResourcePath)
-    await trx.schema.renameTable(oldTableName, recordingResourcePath)
+    if (tableExists) await trx.schema.dropTable(userKickPath)
+    await trx.schema.renameTable(oldTableName, userKickPath)
   }
 
-  tableExists = await trx.schema.hasTable(recordingResourcePath)
+  tableExists = await trx.schema.hasTable(userKickPath)
 
-  if (tableExists) {
-    const hasIdColum = await trx.schema.hasColumn(recordingResourcePath, 'id')
-    const hasRecordingIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'recordingId')
-    const hasStaticResourcesIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'staticResourceId')
-    if (!(hasRecordingIdColumn && hasIdColum && hasStaticResourcesIdColumn)) {
-      await trx.schema.dropTable(recordingResourcePath)
-      tableExists = false
-    }
-  }
-
-  if (!tableExists && !oldNamedTableExists) {
-    await trx.schema.createTable(recordingResourcePath, (table) => {
+  if (tableExists === false) {
+    await trx.schema.createTable(userKickPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
-      table.uuid('recordingId').collate('utf8mb4_bin').nullable()
+      table.uuid('userId').collate('utf8mb4_bin').nullable().index()
       //@ts-ignore
-      table.uuid('staticResourceId').collate('utf8mb4_bin').nullable().index()
+      table.uuid('instanceId').collate('utf8mb4_bin').nullable().index()
+      table.dateTime('duration').notNullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      // Foreign keys
-      table.unique(['recordingId', 'staticResourceId'], {
-        indexName: 'recording_resource_recordingId_staticResourceId_unique'
-      })
-
-      table.foreign('recordingId').references('id').inTable('recording').onDelete('CASCADE').onUpdate('CASCADE')
-
-      table
-        .foreign('staticResourceId')
-        .references('id')
-        .inTable('static_resource')
-        .onDelete('CASCADE')
-        .onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('instanceId').references('id').inTable('instance').onDelete('SET NULL').onUpdate('CASCADE')
     })
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
@@ -96,9 +74,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(recordingResourcePath)
+  const tableExists = await knex.schema.hasTable(userKickPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(recordingResourcePath)
+    await knex.schema.dropTable(userKickPath)
   }
 }

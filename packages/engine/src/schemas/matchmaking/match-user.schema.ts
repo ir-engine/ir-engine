@@ -44,7 +44,7 @@ export const matchUserSchema = Type.Object(
     }),
     gameMode: Type.String(),
     connection: Type.String(),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),

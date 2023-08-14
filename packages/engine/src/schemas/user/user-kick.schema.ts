@@ -24,54 +24,58 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { UserID } from './user.schema'
 
-export const userApiKeyPath = 'user-api-key'
+export const userKickPath = 'user-kick'
 
-export const userApiKeyMethods = ['find', 'create', 'patch', 'remove'] as const
+export const userKickMethods = ['find', 'create'] as const
+
+export type UserKickID = OpaqueType<'UserKickID'> & string
 
 // Main data model schema
-export const userApiKeySchema = Type.Object(
+export const userKickSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<UserKickID>({
       format: 'uuid'
     }),
-    token: Type.String({
-      format: 'uuid'
-    }),
+    duration: Type.String({ format: 'date-time' }),
     userId: TypedString<UserID>({
+      format: 'uuid'
+    }),
+    instanceId: Type.String({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'UserApiKey', additionalProperties: false }
+  { $id: 'UserKick', additionalProperties: false }
 )
-export type UserApiKeyType = Static<typeof userApiKeySchema>
+export type UserKickType = Static<typeof userKickSchema>
 
 // Schema for creating new entries
-export const userApiKeyDataSchema = Type.Partial(userApiKeySchema, {
-  $id: 'UserApiKeyData'
+export const userKickDataSchema = Type.Pick(userKickSchema, ['duration', 'userId', 'instanceId'], {
+  $id: 'UserKickData'
 })
-export type UserApiKeyData = Static<typeof userApiKeyDataSchema>
+export type UserKickData = Static<typeof userKickDataSchema>
 
 // Schema for updating existing entries
-export const userApiKeyPatchSchema = Type.Partial(userApiKeySchema, {
-  $id: 'UserApiKeyPatch'
+export const userKickPatchSchema = Type.Partial(userKickSchema, {
+  $id: 'UserKickPatch'
 })
-export type UserApiKeyPatch = Static<typeof userApiKeyPatchSchema>
+export type UserKickPatch = Static<typeof userKickPatchSchema>
 
 // Schema for allowed query properties
-export const userApiKeyQueryProperties = Type.Pick(userApiKeySchema, ['id', 'token', 'userId'])
-export const userApiKeyQuerySchema = Type.Intersect(
+export const userKickQueryProperties = Type.Pick(userKickSchema, ['id', 'duration', 'userId', 'instanceId'])
+export const userKickQuerySchema = Type.Intersect(
   [
-    querySyntax(userApiKeyQueryProperties),
+    querySyntax(userKickQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type UserApiKeyQuery = Static<typeof userApiKeyQuerySchema>
+export type UserKickQuery = Static<typeof userKickQuerySchema>

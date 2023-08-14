@@ -38,8 +38,7 @@ import { localConfig } from '@etherealengine/server-core/src/config'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { RecordingSchema } from '@etherealengine/common/src/interfaces/Recording'
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
+import { RecordingID, RecordingSchemaType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { startFFMPEG } from './FFMPEG'
 import { uploadRecordingStaticResource } from './ServerRecordingSystem'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -199,7 +198,7 @@ export const startMediaRecordingPair = async (
 
 // todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
 
-export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchema['peers']) => {
+export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchemaType['peers']) => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
 
   const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>
