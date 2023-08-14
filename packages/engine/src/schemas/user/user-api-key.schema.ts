@@ -42,7 +42,7 @@ export const userApiKeySchema = Type.Object(
     token: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),

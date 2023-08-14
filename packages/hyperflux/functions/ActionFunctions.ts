@@ -92,7 +92,15 @@ export type ActionOptions = {
    */
   $time?: number | undefined
 
+  /**
+   * The network type for which to send this action to
+   */
   $topic?: Topic
+
+  /**
+   * Optionally specify the network to send this action to.
+   * Specifying this will not send the action to other networks, even as a cached action.
+   */
   $network?: string | undefined // TODO make a type for NetworkID
 
   /**
