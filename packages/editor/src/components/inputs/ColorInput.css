@@ -1,0 +1,33 @@
+.ColorInputContainer {
+  display: flex;
+  position: relative;
+  width: 100%;
+  max-width: 100px;
+}
+
+.ColorInputContainer .StyledColorInput {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.StyledColorInput:focus-visible { 
+  outline: none; 
+}
+
+.ColorPreview {
+  width: 32px;
+  height: auto;
+  border-radius: 2px;
+  padding: 6px;
+  margin-right: 8px;
+}
+
+.ColorText {
+  padding-top: 2px;
+}
+
+.ColorInputPopover {
+  box-shadow: var(--shadow30);
+  margin-bottom: 3px;
+}

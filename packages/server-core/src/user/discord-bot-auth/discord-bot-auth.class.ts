@@ -30,6 +30,7 @@ import fetch from 'node-fetch'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
@@ -61,7 +62,7 @@ export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
         }
       })) as Paginated<IdentityProviderInterface>
       if (ipResult.total > 0) {
-        return this.app.service('user').get(ipResult.data[0].userId)
+        return this.app.service(userPath).get(ipResult.data[0].userId)
       } else {
         const ipCreation = await this.app.service('identity-provider').create(
           {
@@ -72,7 +73,7 @@ export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
             bot: true
           }
         )
-        return this.app.service('user').get(ipCreation.userId)
+        return this.app.service(userPath).get(ipCreation.userId)
       }
     } catch (err) {
       logger.error(err)

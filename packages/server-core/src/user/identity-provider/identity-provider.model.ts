@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { IdentityProviderInterface, LoginTokenInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -80,7 +81,7 @@ export default (app: Application) => {
   )
 
   ;(identityProvider as any).associate = (models: any): void => {
-    ;(identityProvider as any).belongsTo(models.user, { required: true, onDelete: 'cascade' })
+    ;(identityProvider as any).belongsTo(createUserModel(app), { required: true, onDelete: 'cascade' })
     ;(identityProvider as any).hasMany(createLoginTokenModel(app))
   }
 

@@ -23,16 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import React from 'react'
 
-import { UserInterface } from './User'
+import { WarningSharp } from '@mui/icons-material'
 
-export interface AdminScope {
-  id: string
-  createdAt: string
-  updatedAt: string
-  userId?: string
-  type: string
-  scopeType?: ScopeTypeType
-  user?: UserInterface
+import PopUp from './PopUp'
+
+/**
+ * ErrorPopup is used to render error message.
+ *
+ * @param {Object} props
+ * @returns {JSX.Element}
+ */
+export function WarningPopup(props) {
+  if (!props) return null
+  return (
+    <PopUp
+      className="warning-pop-up-container"
+      iconClassName="warning-pop-up-icon-box"
+      icon={WarningSharp}
+      {...props}
+    />
+  )
 }
+
+export default WarningPopup

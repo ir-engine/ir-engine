@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
 import { KnexService } from '@feathersjs/knex'
 
 import {
@@ -33,9 +32,10 @@ import {
   InviteTypeQuery,
   InviteTypeType
 } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InviteTypeParams extends KnexAdapterParams<InviteTypeQuery> {}
+export interface InviteTypeParams extends RootParams<InviteTypeQuery> {}
 
 export class InviteTypeService<T = InviteTypeType, ServiceParams extends Params = InviteTypeParams> extends KnexService<
   InviteTypeType,

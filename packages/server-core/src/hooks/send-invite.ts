@@ -29,17 +29,18 @@ import * as path from 'path'
 import * as pug from 'pug'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../declarations'
-import config from '../appconfig'
 import logger from '../ServerLogger'
+import { UserParams } from '../api/root-params'
+import config from '../appconfig'
 import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
-import { UserParams } from '../user/user/user.class'
 
 export type InviteDataType = InviteType
 
@@ -59,7 +60,7 @@ async function generateEmail(
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
   if (inviteType === 'channel') {
-    const channel = await app.service('channel').get(targetObjectId!)
+    const channel = await app.service('channel').get(targetObjectId! as ChannelID)
     channelName = channel.name
   }
 
@@ -104,7 +105,7 @@ async function generateSMS(
   let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   if (inviteType === 'channel') {
-    const channel = await app.service('channel').get(targetObjectId!)
+    const channel = await app.service('channel').get(targetObjectId! as ChannelID)
     channelName = channel.name
   }
 
@@ -148,7 +149,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
     const inviteType = result.inviteType
     const targetObjectId = result.targetObjectId
 
-    const authUser = params.user as UserInterface
+    const authUser = params.user as UserType
 
     if (result.identityProviderType === 'email') {
       await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)

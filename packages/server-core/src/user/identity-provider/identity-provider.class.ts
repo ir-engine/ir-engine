@@ -26,19 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { random } from 'lodash'
-import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { UserParams } from '../user/user.class'
 
 interface IdentityProviderParams extends UserParams {
   bot?: boolean
@@ -74,7 +75,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         {}
       )
       if (authResult[appConfig.authentication.entity]?.userId) {
-        user = await this.app.service('user').get(authResult[appConfig.authentication.entity]?.userId)
+        user = await this.app.service(userPath).get(authResult[appConfig.authentication.entity]?.userId)
       }
     }
     if (
@@ -159,9 +160,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       userId = uuidv1()
     }
 
-    const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
-    const userService = this.app.service('user')
-    const User = sequelizeClient.model('user')
+    const userService = this.app.service(userPath)
 
     // check if there is a user with userId
     let foundUser
@@ -183,30 +182,21 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       )) as T & { accessToken?: string }
     }
 
-    // create with user association
-    params.sequelize = {
-      include: [User]
-    }
-
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
-    const adminCount = await this.app.service('user').Model.count({
-      include: [
-        {
-          model: this.app.service('scope').Model,
-          where: {
-            type: 'admin:admin'
-          }
-        }
-      ]
-    })
+    const adminCount = (await this.app.service(scopePath)._find({
+      query: {
+        type: 'admin:admin'
+      }
+    })) as Paginated<AdminScope>
+
     const avatars = (await this.app
       .service(avatarPath)
       .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarType>
 
     let isGuest = type === 'guest'
 
-    if (adminCount === 0) {
+    if (adminCount.data.length === 0) {
       // in dev mode make the first guest an admin
       // otherwise make the first logged in user an admin
       if (isDev || !isGuest) {
@@ -216,22 +206,23 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     let result
     try {
+      await this.app.service(userPath).create({
+        id: userId,
+        isGuest,
+        inviteCode: type === 'guest' ? '' : code,
+        avatarId: avatars.data[random(avatars.data.length - 1)].id
+      })
       result = await super.create(
         {
           ...data,
           ...identityProvider,
-          user: {
-            id: userId,
-            isGuest,
-            inviteCode: type === 'guest' ? null : code,
-            avatarId: avatars.data[random(avatars.data.length - 1)].id
-          }
+          userId
         },
         params
       )
     } catch (err) {
       console.error(err)
-      await this.app.service('user').remove(userId)
+      await this.app.service(userPath).remove(userId)
       throw err
     }
     // DRC
@@ -261,11 +252,17 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         .service('authentication')
         .createAccessToken({}, { subject: result.id.toString() })
     }
+
+    // TODO: Move this to hooks once move to feathers 5.
+    if (result.userId) {
+      result.user = await this.app.service(userPath)._get(result.userId)
+    }
+
     return result
   }
 
   async find(params?: UserParams): Promise<T[] | Paginated<T>> {
-    const loggedInUser = params!.user as UserInterface
+    const loggedInUser = params!.user as UserType
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)
   }

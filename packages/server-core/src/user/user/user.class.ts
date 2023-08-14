@@ -23,122 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
-import { NullableId, Params } from '@feathersjs/feathers'
-import { Paginated } from '@feathersjs/feathers/lib'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
+import { Id, NullableId, Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 
-import { CreateEditUser, UserInterface, UserScope } from '@etherealengine/common/src/interfaces/User'
-import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { Op } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { RootParams } from '../../api/root-params'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
-export interface UserParams extends Params {
-  user?: UserInterface
-  paginate?: false
-  isInternal?: boolean
-  sequelize?: any
-}
-
-export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[] | ScopeTypeType[]) => {
-  await app.service('user-settings').create({
-    userId: result.id
-  })
-
-  if (scopes && scopes.length > 0) {
-    const data = scopes.map((el) => {
-      return {
-        type: el.type,
-        userId: result.id
-      }
-    })
-    app.service('scope').create(data)
-  }
-
-  if (Array.isArray(result)) result = result[0]
-  console.log(result)
-  if (!result?.isGuest)
-    await app.service(userApiKeyPath).create({
-      userId: result.id
-    })
-  if (!result?.isGuest && result?.inviteCode == null) {
-    const code = await getFreeInviteCode(app)
-    await app.service('user').patch(result.id, {
-      inviteCode: code
-    })
-  }
-}
-
-export const afterPatch = async (app: Application, result: UserInterface) => {
-  try {
-    if (Array.isArray(result)) result = result[0]
-    if (result && !result.isGuest && result.inviteCode == null) {
-      const code = await getFreeInviteCode(app)
-      await app.service('user').patch(result.id, {
-        inviteCode: code
-      })
-    }
-  } catch (err) {
-    logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)
-  }
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UserParams extends RootParams<UserQuery> {}
 
 /**
- * This class used to find user
- * and returns founded users
+ * A class for User service
  */
-export class User extends Service<UserInterface> {
-  app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+export class UserService<T = UserType, ServiceParams extends Params = UserParams> extends KnexAdapter<
+  UserType,
+  UserData,
+  UserParams,
+  UserPatch
+> {
+  app: Application
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
+  }
+
+  async get(id: Id, params?: UserParams) {
+    return super._get(id, params)
   }
 
   /**
    * @function find it is used to find specific users
    *
-   * @param params user id
-   * @returns {@Array} of found users
    */
+  async find(params: UserParams) {
+    const { search } = params.query || {}
 
-  async find(params?: UserParams): Promise<UserInterface[] | Paginated<UserInterface>> {
-    if (!params) params = {}
-    if (!params.query) params.query = {}
-    const { action, $skip, $limit, search, ...query } = params.query!
-
-    delete query.search
-
-    const loggedInUser = params!.user as any
-
-    if (action === 'admin') {
-      delete params.query.action
-      delete params.query.search
-      if (!params.isInternal && !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
-        throw new Forbidden('Must be system admin to execute this action')
-
-      const searchedUser = await this.app.service('user').Model.findAll({
-        where: {
-          [Op.or]: [
-            {
-              id: {
-                [Op.like]: `%${search}%`
-              }
-            },
-            {
-              name: {
-                [Op.like]: `%${search}%`
-              }
-            }
-          ]
-        },
-        raw: true
-      })
+    if (search) {
       const searchedIdentityProviders = await this.app.service('identity-provider').Model.findAll({
         where: {
           accountIdentifier: {
@@ -148,65 +77,76 @@ export class User extends Service<UserInterface> {
         raw: true
       })
 
-      if (search) {
-        const userIds = searchedUser.map((user) => user.id)
-        const ipUserIds = searchedIdentityProviders.map((ip) => ip.userId)
-
-        params.query.id = {
-          $in: [...userIds, ...ipUserIds]
-        }
-      }
-
-      const order: any[] = []
-      const { $sort } = params?.query ?? {}
-      if ($sort != null)
-        Object.keys($sort).forEach((name) => {
-          if (name === 'location') {
-            order.push(['instance', 'location', 'name', $sort[name] === 0 ? 'DESC' : 'ASC'])
-          } else {
-            order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+      params.query = {
+        ...params.query,
+        $or: [
+          {
+            id: {
+              $like: `%${search}%`
+            }
+          },
+          {
+            name: {
+              $like: `%${search}%`
+            }
+          },
+          {
+            id: {
+              $in: searchedIdentityProviders.map((ip) => ip.userId)
+            }
           }
-        })
-
-      if (order.length > 0) {
-        params.sequelize.order = order
+        ]
       }
-
-      delete params?.query?.$sort
-      return super.find(params)
-    } else if (action === 'invite-code-lookup') {
-      delete params.query.action
-      return super.find(params)
-    } else {
-      if (
-        loggedInUser?.scopes &&
-        !(
-          loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin') &&
-          loggedInUser?.scopes.find((scope) => scope.type === 'user:read')
-        ) &&
-        !params.isInternal
-      )
-        throw new Forbidden('Must be system admin with user:read scope to execute this action')
-      return await super.find(params)
     }
+
+    const paramsWithoutExtras = {
+      ...params,
+      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+      query: params.query ? JSON.parse(JSON.stringify(params.query)) : {}
+    }
+
+    // Remove extra params
+    if (paramsWithoutExtras.query?.action || paramsWithoutExtras.query?.action === '')
+      delete paramsWithoutExtras.query.action
+    if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
+      delete paramsWithoutExtras.query.search
+
+    // Remove account identifier sort
+    if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query.$sort.accountIdentifier) {
+      delete paramsWithoutExtras.query.$sort.accountIdentifier
+    }
+
+    return super._find(paramsWithoutExtras)
   }
 
-  async create(data: Partial<CreateEditUser>, params?: Params): Promise<UserInterface | UserInterface[]> {
-    data.inviteCode = Math.random().toString(36).slice(2)
-    const result = (await super.create(data, params)) as UserInterface
-    try {
-      await afterCreate(this.app, result, data.scopes)
-    } catch (err) {
-      console.error(err)
-      logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
-      return null!
+  async create(data: UserData, params?: UserParams) {
+    if (!data.inviteCode) {
+      data.inviteCode = Math.random().toString(36).slice(2)
     }
+
+    const dataWithoutExtras = { ...data } as any
+
+    delete dataWithoutExtras.scopes
+    if (!dataWithoutExtras.avatarId) delete dataWithoutExtras.avatarId
+
+    const result = await super._create(dataWithoutExtras, params)
+
+    if (data.scopes) result.scopes = [...data.scopes]
+
+    await this._afterCreate(this.app, result)
+
     return result
   }
 
-  async patch(id: NullableId, data: any, params?: Params): Promise<UserInterface> {
-    const result = (await super.patch(id, data, params)) as UserInterface
-    await afterPatch(this.app, result)
+  async patch(id: NullableId, data: UserPatch, params?: UserParams) {
+    const dataWithoutExtras = { ...data } as any
+
+    delete dataWithoutExtras.scopes
+
+    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType | UserType[]
+
+    await this._afterPatch(this.app, result)
+
     return result
   }
 
@@ -214,11 +154,55 @@ export class User extends Service<UserInterface> {
     if (id) {
       await this.app.service(userApiKeyPath).remove(null, {
         query: {
-          userId: id.toString()
+          userId: id as UserID
         }
       })
     }
 
-    return super.remove(id, params)
+    return await super._remove(id, params)
+  }
+
+  _afterCreate = async (app: Application, result: UserType) => {
+    try {
+      await app.service('user-settings').create({
+        userId: result.id
+      })
+
+      if (result.scopes && result.scopes.length > 0) {
+        const data = result.scopes.map((el) => {
+          return {
+            type: el.type,
+            userId: result.id
+          }
+        })
+
+        await app.service('scope').create(data)
+      }
+
+      if (result && !result.isGuest) {
+        await app.service(userApiKeyPath).create({
+          userId: result.id
+        })
+      }
+
+      await this._afterPatch(app, result)
+    } catch (err) {
+      logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
+    }
+  }
+
+  _afterPatch = async (app: Application, results: UserType | UserType[]) => {
+    try {
+      for (const result of Array.isArray(results) ? results : [results]) {
+        if (result && !result.isGuest && result.inviteCode == null) {
+          const code = await getFreeInviteCode(app)
+          await this._patch(result.id!, {
+            inviteCode: code
+          })
+        }
+      }
+    } catch (err) {
+      logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)
+    }
   }
 }

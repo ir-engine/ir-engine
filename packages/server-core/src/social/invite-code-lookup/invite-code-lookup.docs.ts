@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export class HttpException extends Error {
-  statusCode: number
-  message: string
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-  constructor(message, statusCode = 500) {
-    super(message)
-    this.statusCode = statusCode
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Invite code lookup service description',
+    securities: ['all']
   }
-}
+})

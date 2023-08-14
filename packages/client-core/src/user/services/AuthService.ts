@@ -31,7 +31,7 @@ import { v1 } from 'uuid'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
-import { UserSeed, UserSetting, resolveUser, resolveWalletUser } from '@etherealengine/common/src/interfaces/User'
+import { UserSetting } from '@etherealengine/common/src/interfaces/UserSetting'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
@@ -39,6 +39,7 @@ import { defineState, getMutableState, getState, syncStateWithLocalStorage } fro
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
@@ -46,6 +47,54 @@ import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
+
+export const UserSeed: UserType = {
+  id: '' as UserID,
+  name: '',
+  isGuest: true,
+  avatarId: '',
+  avatar: {
+    id: '',
+    name: '',
+    isPublic: true,
+    userId: '' as UserID,
+    modelResourceId: '',
+    thumbnailResourceId: '',
+    identifierName: '',
+    project: '',
+    createdAt: '',
+    updatedAt: ''
+  },
+  apiKey: {
+    id: '',
+    token: '',
+    userId: '' as UserID,
+    createdAt: '',
+    updatedAt: ''
+  },
+  userSetting: {
+    id: '',
+    themeModes: {}
+  },
+  scopes: [],
+  identityProviders: [],
+  locationAdmins: [],
+  locationBans: [],
+  instanceAttendance: [],
+  createdAt: '',
+  updatedAt: ''
+}
+
+const resolveWalletUser = (credentials: any): UserType => {
+  return {
+    ...UserSeed,
+    name: credentials.user.displayName,
+    isGuest: true,
+    avatarId: credentials.user.id,
+    // avatarUrl: credentials.user.icon,
+    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserID }
+  }
+}
 
 export const AuthState = defineState({
   name: 'AuthState',
@@ -148,22 +197,21 @@ export const AuthService = {
     }
   },
 
-  async loadUserData(userId: string) {
+  async loadUserData(userId: UserID) {
     try {
       const client = API.instance.client
-      const res: any = await client.service('user').get(userId)
-      if (!res.user_setting) {
+      const user = await client.service(userPath).get(userId)
+      if (!user.userSetting) {
         const settingsRes = (await client
           .service('user-settings')
           .find({ query: { userId: userId } })) as Paginated<UserSetting>
 
         if (settingsRes.total === 0) {
-          res.user_setting = await client.service('user-settings').create({ userId: userId })
+          user.userSetting = (await client.service('user-settings').create({ userId: userId })) as UserSetting
         } else {
-          res.user_setting = settingsRes.data[0]
+          user.userSetting = settingsRes.data[0]
         }
       }
-      const user = resolveUser(res)
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
@@ -481,7 +529,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionByPassword(form: EmailLoginForm, userId: string) {
+  async addConnectionByPassword(form: EmailLoginForm, userId: UserID) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -501,7 +549,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionByEmail(email: string, userId: string) {
+  async addConnectionByEmail(email: string, userId: UserID) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
@@ -521,7 +569,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionBySms(phone: string, userId: string) {
+  async addConnectionBySms(phone: string, userId: UserID) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -549,12 +597,12 @@ export const AuthService = {
 
   async addConnectionByOauth(
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
-    userId: string
+    userId: UserID
   ) {
     window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
 
-  async removeConnection(identityProviderId: number, userId: string) {
+  async removeConnection(identityProviderId: number, userId: UserID) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
       await Engine.instance.api.service('identity-provider').remove(identityProviderId)
@@ -566,17 +614,17 @@ export const AuthService = {
     }
   },
 
-  refreshConnections(userId: string) {
+  refreshConnections(userId: UserID) {
     AuthService.loadUserData(userId)
   },
 
   async updateUserSettings(id: any, data: any) {
     const response = (await Engine.instance.api.service('user-settings').patch(id, data)) as UserSetting
-    getMutableState(AuthState).user.user_setting.merge(response)
+    getMutableState(AuthState).user.userSetting.merge(response)
   },
 
-  async removeUser(userId: string) {
-    await Engine.instance.api.service('user').remove(userId)
+  async removeUser(userId: UserID) {
+    await Engine.instance.api.service(userPath).remove(userId)
     AuthService.logoutUser()
   },
 
@@ -585,31 +633,33 @@ export const AuthService = {
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: string, name: string) {
-    const { name: updatedName } = await Engine.instance.api.service('user').patch(userId, { name: name })
+  async updateUsername(userId: UserID, name: string) {
+    const { name: updatedName } = (await Engine.instance.api
+      .service(userPath)
+      .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
   },
 
   useAPIListeners: () => {
     useEffect(() => {
-      const userPatchedListener = (params) => userPatched(params)
+      const userPatchedListener = (user: UserType) => userPatched(user)
       const locationBanCreatedListener = async (params) => {
         const selfUser = getState(AuthState).user
         const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
         if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           const userId = selfUser.id ?? ''
-          const user = resolveUser(await Engine.instance.api.service('user').get(userId))
+          const user = await Engine.instance.api.service(userPath).get(userId)
           getMutableState(AuthState).merge({ user })
         }
       }
 
-      Engine.instance.api.service('user').on('patched', userPatchedListener)
+      Engine.instance.api.service(userPath).on('patched', userPatchedListener)
       Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
-        Engine.instance.api.service('user').off('patched', userPatchedListener)
+        Engine.instance.api.service(userPath).off('patched', userPatchedListener)
         Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])

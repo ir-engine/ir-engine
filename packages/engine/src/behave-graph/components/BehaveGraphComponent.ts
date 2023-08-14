@@ -36,7 +36,7 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useGraphRunner } from '../functions/useGraphRunner'
 import { useRegistry } from '../functions/useRegistry'
 import DefaultGraph from '../graph/default-graph.json'
-import { BehaveGraphSystemState } from '../systems/BehaveGraphSystem'
+import { BehaveGraphState } from '../state/BehaveGraphState'
 
 export type GraphDomainID = OpaqueType<'GraphDomainID'> & string
 
@@ -49,7 +49,7 @@ export const BehaveGraphComponent = defineComponent({
     const domain = 'ECS' as GraphDomainID
     const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
     const registry = useRegistry()
-    const systemState = getState(BehaveGraphSystemState)
+    const systemState = getState(BehaveGraphState)
     systemState.domains[domain]?.register(registry)
     systemState.registry = registry
     return {
@@ -90,7 +90,7 @@ export const BehaveGraphComponent = defineComponent({
     const entity = useEntityContext()
     const graphComponent = useComponent(entity, BehaveGraphComponent)
     const [graphJson, setGraphJson] = useState<GraphJSON>(graphComponent.graph.value)
-    const [registry, setRegistry] = useState<IRegistry>(getState(BehaveGraphSystemState).registry)
+    const [registry, setRegistry] = useState<IRegistry>(getState(BehaveGraphState).registry)
     const canPlay = graphComponent.run && !graphComponent.disabled
     useEffect(() => {
       if (graphComponent.disabled.value) {
