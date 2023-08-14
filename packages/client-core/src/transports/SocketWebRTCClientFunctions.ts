@@ -197,7 +197,7 @@ export const closeNetwork = async (network: SocketWebRTCClientNetwork) => {
   network.primus = null!
 }
 
-export const initializeNetwork = (hostId: UserID, topic: Topic) => {
+export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
   const mediasoupDevice = new mediasoupClient.Device(
     getMutableState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
   )
@@ -222,7 +222,7 @@ export const initializeNetwork = (hostId: UserID, topic: Topic) => {
     }
   } as TransportInterface
 
-  const network = createNetwork(hostId, topic, {
+  const network = createNetwork(id, hostId, topic, {
     mediasoupDevice,
     transport,
     reconnecting: false,
@@ -801,7 +801,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
             paused,
             appData,
             $topic: network.topic,
-            $to: network.hostId
+            $to: network.hostPeerID
           })
         )
 
@@ -1193,7 +1193,7 @@ export async function subscribeToTrack(
       rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
       channelID: channelId,
       $topic: network.topic,
-      $to: network.hostId
+      $to: network.hostPeerID
     })
   )
 }
@@ -1229,8 +1229,7 @@ export const receiveConsumerHandler = async (
       MediaConsumerActions.closeConsumer({
         consumerID: existingConsumer.id,
         $topic: network.topic,
-        // $to: peerID
-        $to: network.peers.get(peerID)!.userId
+        $to: peerID
       })
     )
     networkState.consumers.merge([consumer])
@@ -1245,8 +1244,7 @@ export const receiveConsumerHandler = async (
       MediaConsumerActions.closeConsumer({
         consumerID: consumer.id,
         $topic: network.topic,
-        // $to: peerID
-        $to: network.peers.get(peerID)!.userId
+        $to: peerID
       })
     )
   }
@@ -1258,7 +1256,7 @@ export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: Cons
       consumerID: consumer.id,
       paused: true,
       $topic: network.topic,
-      $to: network.hostId
+      $to: network.hostPeerID
     })
   )
 }
@@ -1269,7 +1267,7 @@ export function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: Con
       consumerID: consumer.id,
       paused: false,
       $topic: network.topic,
-      $to: network.hostId
+      $to: network.hostPeerID
     })
   )
 }
@@ -1318,15 +1316,19 @@ export function globalUnmuteProducer(network: SocketWebRTCClientNetwork, produce
   )
 }
 
-export async function setPreferredConsumerLayer(
+export function setPreferredConsumerLayer(
   network: SocketWebRTCClientNetwork,
   consumer: ConsumerExtension,
   layer: number
 ) {
-  await promisedRequest(network, MessageTypes.WebRTCConsumerSetLayers.toString(), {
-    consumerId: consumer.id,
-    spatialLayer: layer
-  })
+  dispatchAction(
+    MediaConsumerActions.consumerLayers({
+      consumerID: consumer.id,
+      layer,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
 }
 
 export const toggleFaceTracking = async () => {

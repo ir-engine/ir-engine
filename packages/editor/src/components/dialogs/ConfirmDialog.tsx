@@ -24,46 +24,36 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
 import Dialog from './Dialog'
-
-// export function ConfirmDialog(props: Props) {
-//   return <Dialog {...props}>{props?.message}</Dialog>
-// }
-// ConfirmDialog.defaultProps = {
-//   title: 'Confirm',
-//   message: 'Confirm action?'
-// }
-// export default ConfirmDialog
 
 /**
  * ProgressContainer used as a wrapper element for the ProgressMessage and ProgressBar components.
  *
- * @type {Styled component}
+ * @type {Object}
  */
-const ConfirmContainer = (styled as any).div`
-  color: var(--textColor);
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  /* This forces firefox to give the contents a proper height. */
-  overflow: hidden;
-  padding: 8px;
-`
+const confirmContainerStyle = {
+  color: 'var(--textColor)',
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+  /* This forces Firefox to give the contents a proper height. */
+  overflow: 'hidden',
+  padding: '8px'
+}
 
 /**
  * ProgressMessage used to provide styles to the message content on ProgressDialog.
  *
- * @type {styled component}
+ * @type {Object}
  */
-const ConfirmMessage = (styled as any).div`
-  padding-bottom: 24px;
-  white-space: pre;
-`
+const confirmMessageStyle = {
+  paddingBottom: '24px',
+  whiteSpace: 'pre'
+}
 
 /**
- * ProgressDialog component used to render view.
+ * ConfirmDialog component used to render view.
  *
  * @param       {string} message    [content to be shown on the ProgressDialog]
  * @param       {function} onConfirm
@@ -74,12 +64,12 @@ const ConfirmMessage = (styled as any).div`
  */
 export function ConfirmDialog(props) {
   console.log(props)
-  // if (!props) return console.warn('hmm no props here buddy', props)
+  // if (!props) return console.warn('hmm no props here buddy', props);
   return (
     <Dialog onCancel={props.cancelable ? props.onCancel : null} {...props}>
-      <ConfirmContainer>
-        <ConfirmMessage>{props.message}</ConfirmMessage>
-      </ConfirmContainer>
+      <div style={confirmContainerStyle as React.CSSProperties}>
+        <div style={confirmMessageStyle as React.CSSProperties}>{props.message}</div>
+      </div>
     </Dialog>
   )
 }

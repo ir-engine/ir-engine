@@ -251,7 +251,7 @@ export async function handleJoinWorld(
 ) {
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId).map((action) => {
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
     return _.cloneDeep(action)
   })
 
@@ -352,6 +352,7 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark:
     ew Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
     a.$from = networkPeer.userId
+    a.$network = network.hostId // TODO replace with network.id
     dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))

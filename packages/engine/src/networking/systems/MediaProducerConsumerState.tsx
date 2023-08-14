@@ -111,6 +111,12 @@ export class MediaConsumerActions {
     paused: matches.boolean
   })
 
+  static consumerLayers = defineAction({
+    type: 'ee.engine.network.MEDIA_CONSUMER_LAYERS',
+    consumerID: matches.string,
+    layer: matches.number
+  })
+
   static closeConsumer = defineAction({
     type: 'ee.engine.network.MEDIA_CLOSED_CONSUMER',
     consumerID: matches.string
@@ -282,7 +288,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
           rtpCapabilities: (network as any).mediasoupDevice.rtpCapabilities,
           channelID,
           $topic: network.topic,
-          $to: network.hostId
+          $to: network.hostPeerID
         })
       )
     }

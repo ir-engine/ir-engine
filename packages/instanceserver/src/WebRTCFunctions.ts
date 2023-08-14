@@ -613,7 +613,7 @@ export async function handleRequestProducer(
         requestID,
         error: 'Invalid transport ID.',
         $topic: network.topic,
-        $to: userId
+        $to: peerID
       })
     )
   }
@@ -674,7 +674,7 @@ export async function handleRequestProducer(
         requestID,
         error: 'Error with sendTrack: ' + err,
         $topic: network.topic,
-        $to: userId
+        $to: peerID
       })
     )
   }
@@ -724,8 +724,7 @@ export const handleRequestConsumer = async (
         MediaConsumerActions.closeConsumer({
           consumerID: consumer.id,
           $topic: network.topic,
-          // $to: peerID
-          $to: network.peers.get(peerID)!.userId
+          $to: peerID
         })
       )
     })
@@ -735,8 +734,7 @@ export const handleRequestConsumer = async (
         MediaConsumerActions.closeConsumer({
           consumerID: consumer.id,
           $topic: network.topic,
-          // $to: peerID
-          $to: network.peers.get(peerID)!.userId
+          $to: peerID
         })
       )
     })
@@ -770,8 +768,7 @@ export const handleRequestConsumer = async (
         consumerType: consumer.type,
         paused: consumer.producerPaused,
         $topic: network.topic,
-        // $to: peerID
-        $to: network.peers.get(peerID)!.userId
+        $to: peerID
       })
     )
   } catch (err) {
@@ -779,32 +776,19 @@ export const handleRequestConsumer = async (
   }
 }
 
-export async function handleWebRtcConsumerSetLayers(
+export async function handleConsumerSetLayers(
   network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data,
-  messageId: string
+  action: typeof MediaConsumerActions.consumerLayers.matches._TYPE
 ): Promise<any> {
-  const { consumerId, spatialLayer } = data
-  const consumer = network.consumers.find((c) => c.id === consumerId)!
-  if (!consumer)
-    return spark.write({
-      type: MessageTypes.WebRTCConsumerSetLayers.toString(),
-      data: { layersSet: false },
-      id: messageId
-    })
-  logger.info('consumer-set-layers: %o, %o', spatialLayer, consumer.appData)
+  const { consumerID, layer } = action
+  const consumer = network.consumers.find((c) => c.id === consumerID)!
+  if (!consumer) return logger.warn('consumer-set-layers: consumer not found ' + action.consumerID)
+  logger.info('consumer-set-layers: %o, %o', layer, consumer.appData)
   try {
-    await consumer.setPreferredLayers({ spatialLayer })
-    spark.write({ type: MessageTypes.WebRTCConsumerSetLayers.toString(), data: { layersSet: true }, id: messageId })
+    await consumer.setPreferredLayers({ spatialLayer: layer })
   } catch (err) {
     logger.warn(err)
-    return spark.write({
-      type: MessageTypes.WebRTCConsumerSetLayers.toString(),
-      data: { layersSet: false },
-      id: messageId
-    })
+    logger.warn('consumer-set-layers: failed to set preferred layers ' + action.consumerID)
   }
 }
 

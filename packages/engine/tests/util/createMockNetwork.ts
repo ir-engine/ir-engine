@@ -32,5 +32,5 @@ import { addNetwork, NetworkState } from '../../src/networking/NetworkState'
 export const createMockNetwork = (networkType = NetworkTopics.world) => {
   if (networkType === NetworkTopics.world) getMutableState(NetworkState).hostIds.world.set(networkType as any as UserID)
   else getMutableState(NetworkState).hostIds.media.set(networkType as any as UserID)
-  addNetwork(createNetwork(networkType as any as UserID, networkType))
+  addNetwork(createNetwork(networkType, networkType as any as UserID, networkType))
 }
