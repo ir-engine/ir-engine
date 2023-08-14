@@ -53,9 +53,9 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserKick } from '@etherealengine/common/src/interfaces/UserKick'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { userKickPath, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
@@ -711,7 +711,7 @@ export default (app: Application): void => {
     createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
 
-  const kickCreatedListener = async (data: UserKick) => {
+  const kickCreatedListener = async (data: UserKickType) => {
     // TODO: only run for instanceserver
     if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
 
@@ -728,7 +728,7 @@ export default (app: Application): void => {
     peer.spark.write({ type: MessageTypes.Kick.toString(), data: '' })
   }
 
-  app.service('user-kick').on('created', kickCreatedListener)
+  app.service(userKickPath).on('created', kickCreatedListener)
 
   logger.info('registered kickCreatedListener')
 
