@@ -89,7 +89,7 @@ export const createUserModel = (app: Application) => {
 
   ;(User as any).associate = (models: any): void => {
     ;(User as any).hasMany(createInstanceAttendanceModel(app), { as: 'instanceAttendance' })
-    ;(User as any).hasOne(models.user_settings)
+    ;(User as any).hasOne(createUserSettingModel(app))
     ;(User as any).belongsToMany(createUserModel(app), {
       as: 'relatedUser',
       through: models.user_relationship
