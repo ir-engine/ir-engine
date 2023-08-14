@@ -74,13 +74,12 @@ export const userResolver = resolve<UserType, HookContext>({
     return apiKey.length > 0 ? apiKey[0] : undefined
   }),
   identityProviders: virtual(async (user, context) => {
-    //TODO: We should replace `as any as IdentityProviderType[]` with `as IdentityProviderType[]` once identity-provider service is migrated to feathers 5.
     const identityProviders = (await context.app.service(identityProviderPath).find({
       query: {
         userId: user.id
       },
       paginate: false
-    })) as any as IdentityProviderType[]
+    })) as IdentityProviderType[]
 
     return identityProviders
   }),

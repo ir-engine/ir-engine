@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Params } from '@feathersjs/feathers'
+import { Id, Paginated, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
@@ -48,7 +48,10 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -415,15 +418,17 @@ export class Project extends Service {
 
     const userId = params!.user?.id || project.updateUserId
 
-    const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+    const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
       query: {
         userId: userId,
         type: 'github',
         $limit: 1
       }
-    })
+    })) as Paginated<IdentityProviderType>
 
-    let repoPath = await getAuthenticatedRepo(githubIdentityProvider[0].oauthToken, data.sourceURL)
+    if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
+
+    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.sourceURL)
     if (!repoPath) repoPath = data.sourceURL //public repo
 
     const gitCloner = useGit(projectLocalDirectory)
@@ -545,29 +550,30 @@ export class Project extends Service {
       const repoPath = data.repositoryPath
       const user = params!.user!
 
-      const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+      const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
         query: {
           userId: user.id,
           type: 'github',
           $limit: 1
         }
-      })
+      })) as Paginated<IdentityProviderType>
 
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
-      if (!githubIdentityProvider) throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
+      if (githubIdentityProvider.data.length === 0)
+        throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
       const split = githubPathRegexExec[2].split('/')
       const org = split[0]
       const repo = split[1].replace('.git', '')
-      const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider[0].oauthToken)
+      const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
       if (!appOrgAccess)
         throw new Forbidden(
           `The organization ${org} needs to install the GitHub OAuth app ${config.authentication.oauth.github.key} in order to push code to its repositories`
         )
-      const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider[0].oauthToken)
+      const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.data[0].oauthToken)
       if (repoWriteStatus !== 200) {
         if (repoWriteStatus === 404) {
-          const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider[0].oauthToken)
+          const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider.data[0].oauthToken)
           if (orgWriteStatus !== 200) throw new Forbidden('You do not have write access to that organization')
         } else {
           throw new Forbidden('You do not have write access to that repo')
@@ -679,13 +685,13 @@ export class Project extends Service {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
 
-      const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+      const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
         query: {
           userId: params.user!.id,
           type: 'github',
           $limit: 1
         }
-      })
+      })) as Paginated<IdentityProviderType>
 
       // Get all of the projects that this user has permissions for, then calculate push status by whether the user
       // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
@@ -695,14 +701,15 @@ export class Project extends Service {
         paginate: false
       })) as any
       const allowedProjects = await projectPermissions.map((permission) => permission.project)
-      const repoAccess = githubIdentityProvider
-        ? ((await this.app.service(githubRepoAccessPath).find({
-            query: {
-              identityProviderId: githubIdentityProvider[0].id
-            },
-            paginate: false
-          })) as any as GithubRepoAccessType[])
-        : []
+      const repoAccess =
+        githubIdentityProvider.data.length > 0
+          ? ((await this.app.service(githubRepoAccessPath).find({
+              query: {
+                identityProviderId: githubIdentityProvider.data[0].id
+              },
+              paginate: false
+            })) as any as GithubRepoAccessType[])
+          : []
       const pushRepoPaths = repoAccess.filter((repo) => repo.hasWriteAccess).map((item) => item.repo.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
       allowedProjectGithubRepos = await Promise.all(

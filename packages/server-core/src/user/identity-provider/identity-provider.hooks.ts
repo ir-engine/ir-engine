@@ -36,8 +36,8 @@ import {
   identityProviderSchema
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
-import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 
 import authenticate from '../../hooks/authenticate'
 
@@ -53,15 +53,16 @@ const checkIdentityProvider = (): any => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.id) {
       // If trying to CRUD a specific identity-provider, throw 404 if the user doesn't own it
-      const thisIdentityProvider = await context.app.service(identityProviderPath).find({
+      const thisIdentityProvider = (await context.app.service(identityProviderPath).find({
         query: {
           id: context.id,
           $limit: 1
         }
-      })
+      })) as Paginated<IdentityProviderType>
       if (
         context.params[identityProviderPath] &&
-        context.params[identityProviderPath].userId !== thisIdentityProvider.userId
+        thisIdentityProvider.data.length > 0 &&
+        context.params[identityProviderPath].userId !== thisIdentityProvider.data[0].userId
       )
         throw new NotFound()
     } else {
@@ -88,15 +89,17 @@ const checkOnlyIdentityProvider = () => {
         id: context.id,
         $limit: 1
       }
-    })) as IdentityProviderType
+    })) as Paginated<IdentityProviderType>
+
+    if (thisIdentityProvider.data.length === 0) throw new Forbidden('You do not have any identity provider')
 
     // we only want to disallow removing the last identity provider if it is not a guest
     // since the guest user will be destroyed once they log in
-    if (thisIdentityProvider[0].type === 'guest') return context
+    if (thisIdentityProvider.data[0].type === 'guest') return context
 
     const providers = await context.app
       .service(identityProviderPath)
-      .find({ query: { userId: thisIdentityProvider.userId } })
+      .find({ query: { userId: thisIdentityProvider.data[0].userId } })
 
     if (providers.total <= 1) {
       throw new MethodNotAllowed('Cannot remove the only provider')

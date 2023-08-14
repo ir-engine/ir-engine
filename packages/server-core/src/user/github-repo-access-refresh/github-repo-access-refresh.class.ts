@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
@@ -32,7 +32,10 @@ import {
   GithubRepoAccessType
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import {
+  identityProviderPath,
+  IdentityProviderType
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 import { getUserRepos } from '../../projects/project/github-helper'
@@ -57,23 +60,23 @@ export class GithubRepoAccessRefreshService<
 
   async find(params?: GithubRepoAccessRefreshParams) {
     try {
-      const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+      const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
         query: {
           userId: params?.user!.id,
           type: 'github',
           $limit: 1
         }
-      })
+      })) as Paginated<IdentityProviderType>
 
-      if (githubIdentityProvider) {
+      if (githubIdentityProvider.data.length > 0) {
         const existingGithubRepoAccesses = (await this.app.service(githubRepoAccessPath).find({
           query: {
-            identityProviderId: githubIdentityProvider[0].id
+            identityProviderId: githubIdentityProvider.data[0].id
           },
           paginate: false
         })) as any as GithubRepoAccessType[]
 
-        const githubRepos = await getUserRepos(githubIdentityProvider[0].oauthToken)
+        const githubRepos = await getUserRepos(githubIdentityProvider.data[0].oauthToken!)
         await Promise.all(
           githubRepos.map(async (repo) => {
             const matchingAccess = existingGithubRepoAccesses.find((access) => access.repo === repo.html_url)
@@ -81,7 +84,7 @@ export class GithubRepoAccessRefreshService<
             if (!matchingAccess)
               await this.app.service(githubRepoAccessPath).create({
                 repo: repo.html_url,
-                identityProviderId: githubIdentityProvider[0].id,
+                identityProviderId: githubIdentityProvider.data[0].id,
                 hasWriteAccess
               })
             else
