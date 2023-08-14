@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RecordingResult, RecordingSchema } from '@etherealengine/common/src/interfaces/Recording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -35,8 +34,13 @@ import {
 import { defineState, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
+import {
+  RecordingID,
+  recordingPath,
+  RecordingSchemaType,
+  RecordingType
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { NotificationService } from '../common/services/NotificationService'
 
 export const RecordingState = defineState({
@@ -45,7 +49,7 @@ export const RecordingState = defineState({
   initial: {
     started: false,
     recordingID: null as RecordingID | null,
-    recordings: [] as RecordingResult[],
+    recordings: [] as RecordingType[],
     playback: null as RecordingID | null,
     startedAt: null as number | null
   },
@@ -100,7 +104,7 @@ export const RecordingFunctions = {
       const schema = {
         user: userSchema,
         peers: {}
-      } as RecordingSchema
+      } as RecordingSchemaType
 
       if (peerSchema.user.Avatar) schema
 
@@ -112,9 +116,7 @@ export const RecordingFunctions = {
         if (peerSchema.length) schema.peers[peerID] = peerSchema
       })
 
-      const recording = (await Engine.instance.api.service('recording').create({
-        schema: JSON.stringify(schema)
-      })) as RecordingResult
+      const recording = await Engine.instance.api.service(recordingPath).create({ schema: schema })
       return recording.id
     } catch (err) {
       console.error(err)
@@ -126,7 +128,7 @@ export const RecordingFunctions = {
     //)?.data as RecordingResult[]
 
     return await Engine.instance.api
-      .service('recording')
+      .service(recordingPath)
       .find()
       .then(
         (res) => {

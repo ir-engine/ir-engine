@@ -70,9 +70,6 @@ export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, ext
     /** List of data producer nodes. */
     dataProducers: new Map<string, any>(),
 
-    /** List of data consumer nodes. */
-    dataConsumers: new Map<string, any>(),
-
     /** Buffer holding all incoming Messages. */
     incomingMessageQueueUnreliableIDs: new RingBuffer<PeerID>(100),
 

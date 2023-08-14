@@ -27,13 +27,11 @@ import detect from 'detect-port'
 import { createWorker } from 'mediasoup'
 import {
   DataConsumer,
-  DataConsumerOptions,
   DataProducer,
   DataProducerOptions,
   Router,
   RtpCodecCapability,
   RtpParameters,
-  SctpStreamParameters,
   Transport,
   WebRtcServer,
   Worker
@@ -44,7 +42,7 @@ import { Spark } from 'primus'
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { dataChannelRegistry, MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
@@ -53,6 +51,11 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import {
+  DataChannelRegistryState,
+  DataConsumerActions,
+  DataProducerActions
+} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import {
   MediaConsumerActions,
   MediaProducerActions
@@ -153,40 +156,32 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
   network.outgoingDataProducers[dataChannel] = outgoingDataProducer
 }
 
-export const handleWebRtcConsumeData = async (
+export const handleConsumeData = async (
   network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data: {
-    label: DataChannelType
-  },
-  messageId?: string
+  action: typeof DataConsumerActions.requestConsumer.matches._TYPE
 ) => {
-  logger.info('handleWebRtcConsumeData %o', data)
+  const { $peer: peerID, dataChannel } = action
+
   const peer = network.peers.get(peerID)!
   if (!peer) {
     logger.warn('No peer found for peerID: ' + peerID)
-    spark.write({ type: MessageTypes.WebRTCConsumeData.toString(), data: { error: 'peer ID not found' } })
     return
   }
-
-  const { label } = data
-  await createOutgoingDataProducer(network, label)
 
   const userId = getUserIdFromPeerID(network, peerID)!
   logger.info('Data Consumer being created on server by client: ' + userId)
 
-  if (peer.outgoingDataConsumers!.has(label)) {
-    return logger.info('Data consumer already exists for label: ' + label)
+  if (peer.outgoingDataConsumers!.has(dataChannel)) {
+    return logger.info('Data consumer already exists for dataChannel: ' + dataChannel)
   }
 
   const newTransport = peer.recvTransport as Transport
   if (!newTransport) {
-    return spark.write({ type: MessageTypes.WebRTCConsumeData.toString(), data: { error: 'transport did not exist' } })
+    return logger.warn('No recv transport found for peer: ' + peerID)
   }
 
   try {
-    const outgoingDataProducer = network.outgoingDataProducers[label]
+    const outgoingDataProducer = network.outgoingDataProducers[dataChannel]
     const dataConsumer = await newTransport.consumeData({
       dataProducerId: outgoingDataProducer.id,
       appData: { peerID, transportId: newTransport.id }
@@ -194,44 +189,36 @@ export const handleWebRtcConsumeData = async (
 
     dataConsumer.on('dataproducerclose', () => {
       dataConsumer.close()
-      if (network.peers.has(peerID)) network.peers.get(peerID)!.outgoingDataConsumers!.delete(label)
+      if (network.peers.has(peerID)) network.peers.get(peerID)!.outgoingDataConsumers!.delete(dataChannel)
     })
 
     const peer = network.peers.get(peerID)
 
     logger.info('Setting data consumer to network state.')
     if (!peer) {
-      spark.write({
-        type: MessageTypes.WebRTCConsumeData.toString(),
-        id: messageId,
-        data: { error: 'client no longer exists' }
-      })
-      return
+      return logger.warn('No peer found for peerID: ' + peerID)
     }
 
-    peer.outgoingDataConsumers!.set(label, dataConsumer)
+    peer.outgoingDataConsumers!.set(dataChannel, dataConsumer)
 
     // Data consumers are all consuming the single producer that outputs from the server's message queue
-    spark.write({
-      type: MessageTypes.WebRTCConsumeData.toString(),
-      id: messageId,
-      data: {
-        dataProducerId: '',
-        sctpStreamParameters: dataConsumer.sctpStreamParameters,
-        label: dataConsumer.label,
-        id: dataConsumer.id,
-        appData: dataConsumer.appData,
-        protocol: 'raw'
-      } as DataConsumerOptions
-    })
+    dispatchAction(
+      DataConsumerActions.consumerCreated({
+        consumerID: dataConsumer.id,
+        peerID,
+        producerID: outgoingDataProducer.id,
+        dataChannel,
+        sctpStreamParameters: dataConsumer.sctpStreamParameters as any,
+        appData: dataConsumer.appData as any,
+        protocol: dataConsumer.protocol,
+        $to: peerID,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
   } catch (err) {
     logger.error(err, `Consume data error: ${err.message}.`)
     logger.info('Transport that could not be consumed: %o', newTransport)
-    spark.write({
-      type: MessageTypes.WebRTCConsumeData.toString(),
-      id: messageId,
-      data: { error: 'transport did not exist' }
-    })
   }
 }
 
@@ -265,7 +252,8 @@ export function closeProducer(network: SocketWebRTCServerNetwork, producer: Prod
   dispatchAction(
     MediaProducerActions.closeProducer({
       producerID: producer.id,
-      $topic: network.topic
+      $topic: network.topic,
+      $network: network.id
     })
   )
 }
@@ -326,9 +314,9 @@ export async function createInternalDataConsumer(
       ordered: false
     })
     consumer.on('message', (message) => {
-      const dataChannelFunctions = dataChannelRegistry.get(dataProducer.label as DataChannelType)
-      if (dataChannelFunctions) {
-        for (const func of dataChannelFunctions) func(network, dataProducer.label as DataChannelType, peerID, message)
+      const DataChannelFunctions = getState(DataChannelRegistryState)[dataProducer.label as DataChannelType]
+      if (DataChannelFunctions) {
+        for (const func of DataChannelFunctions) func(network, dataProducer.label as DataChannelType, peerID, message)
       }
     })
     return consumer
@@ -433,19 +421,13 @@ export async function handleWebRtcTransportCreate(
  * - Sends the producer to all other peers in the network
  * - Sends the producer to the client that created it
  */
-export async function handleWebRtcProduceData(
+export async function handleProduceData(
   network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data: {
-    transportId: string
-    sctpStreamParameters: SctpStreamParameters
-    protocol: string
-    label: DataChannelType
-    appData: any
-  },
-  messageId?: string
+  action: typeof DataProducerActions.requestProducer.matches._TYPE
 ): Promise<any> {
+  console.log('handleProduceData', action)
+  const { $peer: peerID, transportId, sctpStreamParameters, dataChannel: label, protocol, appData, requestID } = action
+
   try {
     const userId = getUserIdFromPeerID(network, peerID)
     if (!userId) {
@@ -453,41 +435,52 @@ export async function handleWebRtcProduceData(
       return
     }
 
-    if (typeof data.label !== 'string' || !dataChannelRegistry.has(data.label)) {
-      const errorMessage = 'Invalid data producer label (i.e. channel name) provided:' + data.label
+    if (typeof label !== 'string' || !getState(DataChannelRegistryState)[label]) {
+      const errorMessage = 'Invalid data producer label (i.e. channel name) provided:' + label
       logger.error(errorMessage)
-      return spark.write({
-        type: MessageTypes.WebRTCProduceData.toString(),
-        data: { error: errorMessage },
-        id: messageId
-      })
+      return dispatchAction(
+        DataProducerActions.requestProducerError({
+          requestID,
+          error: errorMessage,
+          $network: action.$network,
+          $topic: action.$topic,
+          $to: peerID
+        })
+      )
     }
 
     if (!network.peers.has(peerID)) {
       const errorMessage = `Client no longer exists for userId "${userId}".`
       logger.error(errorMessage)
-      return spark.write({
-        type: MessageTypes.WebRTCProduceData.toString(),
-        data: { error: errorMessage },
-        id: messageId
-      })
+      return dispatchAction(
+        DataProducerActions.requestProducerError({
+          requestID,
+          error: errorMessage,
+          $network: action.$network,
+          $topic: action.$topic,
+          $to: peerID
+        })
+      )
     }
 
-    logger.info(`peerID "${peerID}", Data channel "${data.label}" %o: `, data)
-    const transport = network.mediasoupTransports[data.transportId]
+    logger.info(`peerID "${peerID}", Data channel "${label}" %o: `, action)
+    const transport = network.mediasoupTransports[transportId]
     if (!transport) {
       logger.error('Invalid transport.')
-      return spark.write({
-        type: MessageTypes.WebRTCProduceData.toString(),
-        data: { error: 'Invalid transport.' },
-        id: messageId
-      })
+      return dispatchAction(
+        DataProducerActions.requestProducerError({
+          requestID,
+          error: 'Invalid transport',
+          $network: action.$network,
+          $topic: action.$topic,
+          $to: peerID
+        })
+      )
     }
 
-    const { transportId, sctpStreamParameters, label, protocol, appData } = data
     const options: DataProducerOptions = {
-      label,
-      protocol,
+      label: label ?? undefined,
+      protocol: protocol ?? undefined,
       sctpStreamParameters,
       appData: { ...(appData || {}), peerID, transportId }
     }
@@ -498,11 +491,15 @@ export async function handleWebRtcProduceData(
     logger.info(`User ${userId} producing data on ${label}`)
     if (!network.peers.has(peerID)) {
       logger.error('Client no longer exists.')
-      return spark.write({
-        type: MessageTypes.WebRTCProduceData.toString(),
-        data: { error: 'Client no longer exists.' },
-        id: messageId
-      })
+      return dispatchAction(
+        DataProducerActions.requestProducerError({
+          requestID,
+          error: 'Client no longer exists',
+          $network: action.$network,
+          $topic: action.$topic,
+          $to: peerID
+        })
+      )
     }
 
     network.peers.get(peerID)!.dataProducers!.set(dataProducer.id, dataProducer)
@@ -524,31 +521,56 @@ export async function handleWebRtcProduceData(
     const internalConsumer = await createInternalDataConsumer(network, dataProducer, peerID)
     if (!internalConsumer) {
       logger.error('Invalid data producer.')
-      return spark.write({
-        type: MessageTypes.WebRTCProduceData.toString(),
-        data: { error: 'Invalid data producer.' },
-        id: messageId
-      })
+      return dispatchAction(
+        DataProducerActions.requestProducerError({
+          requestID,
+          error: 'Invalid data producer',
+          $network: action.$network,
+          $topic: action.$topic,
+          $to: peerID
+        })
+      )
     }
     if (!network.peers.has(peerID)) {
       logger.error('Client no longer exists.')
-      return spark.write({
-        type: MessageTypes.WebRTCProduceData.toString(),
-        data: { error: 'Client no longer exists.' },
-        id: messageId
-      })
+      return dispatchAction(
+        DataProducerActions.requestProducerError({
+          requestID,
+          error: 'Client no longer exists',
+          $network: action.$network,
+          $topic: action.$topic,
+          $to: peerID
+        })
+      )
     }
-    network.peers.get(peerID)!.incomingDataConsumers!.set(label, internalConsumer)
+    // network.peers.get(peerID)!.incomingDataConsumers!.set(label, internalConsumer)
     // Possibly do stuff with appData here
     logger.info('Sending dataproducer id to client: ' + dataProducer.id)
-    return spark.write({
-      type: MessageTypes.WebRTCProduceData.toString(),
-      data: { id: dataProducer.id },
-      id: messageId
-    })
+    return dispatchAction(
+      DataProducerActions.producerCreated({
+        requestID,
+        transportId,
+        producerID: dataProducer.id,
+        dataChannel: label,
+        protocol,
+        sctpStreamParameters,
+        appData,
+        $network: action.$network,
+        $topic: action.$topic,
+        $to: peerID
+      })
+    )
   } catch (err) {
     logger.error(err)
-    spark.write({ type: MessageTypes.WebRTCProduceData.toString(), data: { error: err }, id: messageId })
+    return dispatchAction(
+      DataProducerActions.requestProducerError({
+        requestID,
+        error: err.message,
+        $network: action.$network,
+        $topic: action.$topic,
+        $to: peerID
+      })
+    )
   }
 }
 
@@ -612,7 +634,7 @@ export async function handleRequestProducer(
       MediaProducerActions.requestProducerError({
         requestID,
         error: 'Invalid transport ID.',
-        $topic: network.topic,
+        $network: action.$network,
         $to: peerID
       })
     )
@@ -664,7 +686,8 @@ export async function handleRequestProducer(
         mediaTag: appData.mediaTag,
         producerID: producer.id,
         channelID: appData.channelId,
-        $topic: network.topic
+        $network: action.$network,
+        $topic: action.$topic
       })
     )
   } catch (err) {
@@ -673,7 +696,8 @@ export async function handleRequestProducer(
       MediaProducerActions.requestProducerError({
         requestID,
         error: 'Error with sendTrack: ' + err,
-        $topic: network.topic,
+        $network: action.$network,
+        $topic: action.$topic,
         $to: peerID
       })
     )
@@ -723,7 +747,8 @@ export const handleRequestConsumer = async (
       dispatchAction(
         MediaConsumerActions.closeConsumer({
           consumerID: consumer.id,
-          $topic: network.topic,
+          $network: action.$network,
+          $topic: action.$topic,
           $to: peerID
         })
       )
@@ -733,7 +758,8 @@ export const handleRequestConsumer = async (
       dispatchAction(
         MediaConsumerActions.closeConsumer({
           consumerID: consumer.id,
-          $topic: network.topic,
+          $network: action.$network,
+          $topic: action.$topic,
           $to: peerID
         })
       )
@@ -767,7 +793,8 @@ export const handleRequestConsumer = async (
         rtpParameters: consumer.rtpParameters,
         consumerType: consumer.type,
         paused: consumer.producerPaused,
-        $topic: network.topic,
+        $network: action.$network,
+        $topic: action.$topic,
         $to: peerID
       })
     )
