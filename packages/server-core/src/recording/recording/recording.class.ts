@@ -65,7 +65,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       // Explicitly cloned sort object because otherwise it was affecting default params object as well.
       query: params?.query ? JSON.parse(JSON.stringify(params?.query)) : {}
     }
-    paramsWithoutExtras = { ...paramsWithoutExtras, query: { userId: params?.user?.id } }
+    paramsWithoutExtras = { ...paramsWithoutExtras, query: { ...paramsWithoutExtras.query, userId: params?.user?.id } }
 
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
