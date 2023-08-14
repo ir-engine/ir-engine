@@ -46,6 +46,11 @@ export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingTyp
   // was serialized multiple times, therefore we need to parse it twice.
   if (typeof themeModes === 'string') {
     themeModes = JSON.parse(themeModes)
+
+    // There are some old records in our database that requires further parsing.
+    if (typeof themeModes === 'string') {
+      themeModes = JSON.parse(themeModes)
+    }
   }
 
   return {
