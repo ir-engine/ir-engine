@@ -40,7 +40,7 @@ export default (app: Application): void => {
   const options = {
     name: userSettingPath,
     paginate: app.get('paginate'),
-    Model: app.get('knexUser'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
