@@ -31,7 +31,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'

@@ -58,7 +58,7 @@ import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/netwo
 import {
   identityProviderPath,
   IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'

@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'

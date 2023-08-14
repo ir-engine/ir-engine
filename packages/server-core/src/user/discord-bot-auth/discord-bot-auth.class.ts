@@ -31,7 +31,7 @@ import fetch from 'node-fetch'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'

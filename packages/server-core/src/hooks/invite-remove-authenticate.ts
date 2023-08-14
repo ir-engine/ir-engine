@@ -29,7 +29,7 @@ import { HookContext, Paginated } from '@feathersjs/feathers'
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 

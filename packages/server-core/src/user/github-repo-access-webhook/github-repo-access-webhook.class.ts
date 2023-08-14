@@ -31,7 +31,7 @@ import crypto from 'crypto'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotAuthenticated } from '@feathersjs/errors'
 import { Knex } from 'knex'

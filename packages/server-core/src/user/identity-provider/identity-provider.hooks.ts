@@ -34,7 +34,7 @@ import {
   identityProviderPath,
   identityProviderQuerySchema,
   identityProviderSchema
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'

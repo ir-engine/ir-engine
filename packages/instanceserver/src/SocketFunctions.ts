@@ -31,7 +31,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import {

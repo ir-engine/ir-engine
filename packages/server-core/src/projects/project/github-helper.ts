@@ -38,7 +38,7 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'

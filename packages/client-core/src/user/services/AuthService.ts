@@ -41,7 +41,7 @@ import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/gener
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AuthenticationResult } from '@feathersjs/authentication'

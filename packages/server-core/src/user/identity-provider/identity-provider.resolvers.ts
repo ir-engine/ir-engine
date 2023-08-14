@@ -30,10 +30,10 @@ import { v4 } from 'uuid'
 import {
   IdentityProviderQuery,
   IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const identityProviderResolver = resolve<IdentityProviderType, HookContext>({})
@@ -45,7 +45,7 @@ export const identityProviderDataResolver = resolve<IdentityProviderType, HookCo
     return v4()
   },
   userId: async (userId) => {
-    return userId || (v4() as UserId)
+    return userId || (v4() as UserID)
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql

@@ -32,7 +32,7 @@ import {
   GithubRepoAccessType
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'

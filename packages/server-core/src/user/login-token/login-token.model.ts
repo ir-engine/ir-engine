@@ -30,7 +30,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { LoginTokenInterface } from '@etherealengine/common/src/dbmodels/LoginToken'
 
 import { Application } from '../../../declarations'
-import { createIdentityProviderModel } from '../user/user.model'
+import { createIdentityProviderModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')

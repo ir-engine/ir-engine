@@ -32,7 +32,7 @@ import {
   IdentityProviderPatch,
   IdentityProviderQuery,
   IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { random } from 'lodash'
 import { v1 as uuidv1 } from 'uuid'

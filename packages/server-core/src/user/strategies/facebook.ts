@@ -29,7 +29,7 @@ import { random } from 'lodash'
 
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'

@@ -40,7 +40,7 @@ import {
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { RootParams } from '../../api/root-params'
 
 export interface GenerateTokenParams extends RootParams<GenerateTokenQuery> {

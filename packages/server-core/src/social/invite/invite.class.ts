@@ -33,7 +33,7 @@ import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfa
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'

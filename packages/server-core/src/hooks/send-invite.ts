@@ -33,7 +33,7 @@ import { locationPath } from '@etherealengine/engine/src/schemas/social/location
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'

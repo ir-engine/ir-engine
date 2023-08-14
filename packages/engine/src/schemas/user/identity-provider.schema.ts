@@ -24,12 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { UserID } from './user.schema'
 
 export const identityProviderPath = 'identity-provider'
+
+export const identityProviderMethods = ['find', 'create'] as const
 
 // Main data model schema
 export const identityProviderSchema = Type.Object(
@@ -40,12 +42,13 @@ export const identityProviderSchema = Type.Object(
     token: Type.String({
       format: 'uuid'
     }),
+    accountIdentifier: Type.Optional(Type.String()),
+    oauthToken: Type.Optional(Type.String()),
     type: Type.String(),
     userId: TypedString<UserID, 'uuid'>({
       format: 'uuid'
     }),
-    accountIdentifier: Type.Optional(Type.String()),
-    oauthToken: Type.Optional(Type.String()),
+    accessToken: Type.Optional(Type.String()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -56,7 +59,7 @@ export type IdentityProviderType = Static<typeof identityProviderSchema>
 // Schema for creating new entries
 export const identityProviderDataSchema = Type.Pick(
   identityProviderSchema,
-  ['token', 'type', 'userId', 'accountIdentifier', 'oauthToken'],
+  ['token', 'accountIdentifier', 'oauthToken', 'type', 'userId'],
   {
     $id: 'IdentityProviderData'
   }
@@ -73,10 +76,10 @@ export type IdentityProviderPatch = Static<typeof identityProviderPatchSchema>
 export const identityProviderQueryProperties = Type.Pick(identityProviderSchema, [
   'id',
   'token',
-  'type',
-  'userId',
   'accountIdentifier',
-  'oauthToken'
+  'oauthToken',
+  'type',
+  'userId'
 ])
 export const identityProviderQuerySchema = Type.Intersect(
   [

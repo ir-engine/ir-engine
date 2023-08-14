@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -54,7 +54,7 @@ describe.skip('invite service', () => {
       {
         type,
         token,
-        userId: '' as UserId
+        userId: '' as UserID
       },
       {}
     )

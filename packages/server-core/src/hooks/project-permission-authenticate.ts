@@ -28,7 +28,7 @@ import { HookContext } from '@feathersjs/feathers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'

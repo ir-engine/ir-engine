@@ -48,7 +48,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'

@@ -29,7 +29,7 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:config' })

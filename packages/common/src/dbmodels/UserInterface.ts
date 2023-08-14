@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '../interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export interface UserInterface {
   id: string
@@ -102,6 +102,6 @@ export interface IdentityProviderInterface {
   resetToken: string
   resetExpires: string
   type: string
-  userId: UserId
+  userId: UserID
   oauthToken?: string
 }

@@ -29,7 +29,7 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

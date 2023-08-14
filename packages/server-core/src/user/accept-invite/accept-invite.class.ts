@@ -32,7 +32,7 @@ import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/s
 import {
   IdentityProviderType,
   identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

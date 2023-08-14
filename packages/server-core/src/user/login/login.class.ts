@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import moment from 'moment'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
