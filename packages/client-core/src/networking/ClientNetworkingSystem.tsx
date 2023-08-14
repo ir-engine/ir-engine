@@ -42,7 +42,6 @@ import {
   MediaInstanceState
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
-import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import { ChannelState } from '../social/services/ChannelService'
 import { FriendServiceReceptor } from '../social/services/FriendService'
@@ -50,6 +49,7 @@ import { LocationState } from '../social/services/LocationService'
 import { WarningUIService } from '../systems/WarningUISystem'
 import { SocketWebRTCClientNetwork, receiveConsumerHandler } from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
+import { DataChannelSystem } from './DataChannelSystem'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
 const noWorldServersAvailableQueue = defineActionQueue(NetworkConnectionService.actions.noWorldServersAvailable.matches)
@@ -184,7 +184,6 @@ const reactor = () => {
 
   return (
     <>
-      <DataChannels />
       <PeerMediaConsumers />
       <InstanceProvisioning />
     </>
@@ -194,5 +193,6 @@ const reactor = () => {
 export const ClientNetworkingSystem = defineSystem({
   uuid: 'ee.client.ClientNetworkingSystem',
   execute,
-  reactor
+  reactor,
+  subSystems: [DataChannelSystem]
 })

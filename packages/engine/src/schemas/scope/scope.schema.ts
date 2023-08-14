@@ -38,7 +38,7 @@ export const scopeSchema = Type.Object(
       format: 'uuid'
     }),
     type: Type.String(),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),

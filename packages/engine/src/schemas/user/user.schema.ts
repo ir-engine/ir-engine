@@ -50,7 +50,7 @@ export type UserID = OpaqueType<'UserID'> & string
 // Main data model schema
 export const userSchema = Type.Object(
   {
-    id: TypedString<UserID, 'uuid'>({
+    id: TypedString<UserID>({
       format: 'uuid'
     }),
     name: Type.String(),
