@@ -43,7 +43,7 @@ export const staticResourceSchema = Type.Object(
     key: Type.String(),
     metadata: Type.Any(),
     mimeType: Type.String(),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     hash: Type.String(),

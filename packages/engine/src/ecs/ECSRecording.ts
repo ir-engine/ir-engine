@@ -29,7 +29,7 @@ import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesUserId } from '../common/functions/MatchesUtils'
 import { NetworkTopics } from '../networking/classes/Network'
 
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
+import { RecordingID } from '../schemas/recording/recording.schema'
 import { Engine } from './classes/Engine'
 
 export const startRecording = (args: { recordingID: RecordingID }) => {

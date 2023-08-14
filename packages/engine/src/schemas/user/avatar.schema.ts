@@ -50,7 +50,7 @@ export const avatarSchema = Type.Object(
       format: 'uuid'
     }),
     isPublic: Type.Boolean(),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     project: Type.String(),
