@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { UserID } from './user.schema'
 
@@ -44,7 +44,18 @@ export const identityProviderSchema = Type.Object(
     }),
     accountIdentifier: Type.Optional(Type.String()),
     oauthToken: Type.Optional(Type.String()),
-    type: Type.String(),
+    type: StringEnum([
+      'email',
+      'sms',
+      'password',
+      'discord',
+      'github',
+      'google',
+      'facebook',
+      'twitter',
+      'linkedin',
+      'auth0'
+    ]),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),

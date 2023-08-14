@@ -30,7 +30,6 @@ import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubCon
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Knex } from 'knex'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
 export default (writeAccess) => {
@@ -63,14 +62,13 @@ export default (writeAccess) => {
       }
     })
     if (projectPermissionResult == null) {
-      const knexClient: Knex = app.get('knexClient')
-      const githubIdentityProvider = await knexClient
-        .from(identityProviderPath)
-        .where({
+      const githubIdentityProvider = await app.service(identityProviderPath).find({
+        query: {
           userId: params.user.id,
-          type: 'github'
-        })
-        .first()
+          type: 'github',
+          $limit: 1
+        }
+      })
 
       if (!githubIdentityProvider) throw new Forbidden('You are not authorized to access this project')
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(projectRepoPath)

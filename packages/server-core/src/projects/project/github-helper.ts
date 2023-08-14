@@ -40,7 +40,6 @@ import {
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
@@ -194,25 +193,23 @@ export const pushProjectToGithub = async (
     )
     const repoPath = project.repositoryPath.toLowerCase()
 
-    const knexClient: Knex = app.get('knexClient')
-
-    const githubIdentityProvider = await knexClient
-      .from(identityProviderPath)
-      .where({
+    const githubIdentityProvider = await app.service(identityProviderPath).find({
+      query: {
         userId: user.id,
-        type: 'github'
-      })
-      .first()
+        type: 'github',
+        $limit: 1
+      }
+    })
 
     const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
     const split = githubPathRegexExec[2].split('/')
     const owner = split[0]
     const repo = split[1].replace('.git', '')
-    const repos = await getUserRepos(githubIdentityProvider.oauthToken)
+    const repos = await getUserRepos(githubIdentityProvider[0].oauthToken)
 
     const octoKit = githubIdentityProvider
-      ? new Octokit({ auth: githubIdentityProvider.oauthToken })
+      ? new Octokit({ auth: githubIdentityProvider[0].oauthToken })
       : await (async () => {
           return getInstallationOctokit(
             repos.find((repo) => {
@@ -384,23 +381,22 @@ export const getGithubOwnerRepo = (url: string) => {
 export const getOctokitForChecking = async (app: Application, url: string, params: ProjectParams) => {
   url = url.toLowerCase()
 
-  const knexClient: Knex = app.get('knexClient')
-  const githubIdentityProvider = await knexClient
-    .from(identityProviderPath)
-    .where({
+  const githubIdentityProvider = await app.service(identityProviderPath).find({
+    query: {
       userId: params!.user.id,
-      type: 'github'
-    })
-    .first()
+      type: 'github',
+      $limit: 1
+    }
+  })
 
   if (!githubIdentityProvider) throw new Forbidden('You must have a connected GitHub account to access public repos')
   const { owner, repo } = getGithubOwnerRepo(url)
-  const octoKit = new Octokit({ auth: githubIdentityProvider.oauthToken })
+  const octoKit = new Octokit({ auth: githubIdentityProvider[0].oauthToken })
   return {
     owner,
     repo,
     octoKit,
-    token: githubIdentityProvider.oauthToken
+    token: githubIdentityProvider[0].oauthToken
   }
 }
 

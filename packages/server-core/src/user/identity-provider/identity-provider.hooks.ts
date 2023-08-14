@@ -41,7 +41,6 @@ import { HookContext } from '@feathersjs/feathers'
 
 import authenticate from '../../hooks/authenticate'
 
-import { Knex } from 'knex'
 import {
   identityProviderDataResolver,
   identityProviderExternalResolver,
@@ -54,8 +53,12 @@ const checkIdentityProvider = (): any => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.id) {
       // If trying to CRUD a specific identity-provider, throw 404 if the user doesn't own it
-      const knexClient: Knex = context.app.get('knexClient')
-      const thisIdentityProvider = await knexClient.from(identityProviderPath).where({ id: context.id }).first()
+      const thisIdentityProvider = await context.app.service(identityProviderPath).find({
+        query: {
+          id: context.id,
+          $limit: 1
+        }
+      })
       if (
         context.params[identityProviderPath] &&
         context.params[identityProviderPath].userId !== thisIdentityProvider.userId
@@ -80,15 +83,16 @@ const checkOnlyIdentityProvider = () => {
       // do not allow to remove identity providers in bulk
       throw new MethodNotAllowed('Cannot remove multiple providers together')
     }
-    const knexClient: Knex = context.app.get('knexClient')
-    const thisIdentityProvider = (await knexClient
-      .from(identityProviderPath)
-      .where({ id: context.id })
-      .first()) as IdentityProviderType
+    const thisIdentityProvider = (await context.app.service(identityProviderPath).find({
+      query: {
+        id: context.id,
+        $limit: 1
+      }
+    })) as IdentityProviderType
 
     // we only want to disallow removing the last identity provider if it is not a guest
     // since the guest user will be destroyed once they log in
-    if (thisIdentityProvider.type === 'guest') return context
+    if (thisIdentityProvider[0].type === 'guest') return context
 
     const providers = await context.app
       .service(identityProviderPath)

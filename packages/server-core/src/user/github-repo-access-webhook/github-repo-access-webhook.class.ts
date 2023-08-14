@@ -34,7 +34,6 @@ import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotAuthenticated } from '@feathersjs/errors'
-import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 
@@ -77,17 +76,16 @@ export class GithubRepoAccessWebhookService<
         : null
       if (!ghUser) return ''
 
-      const knexClient: Knex = this.app.get('knexClient')
-      const githubIdentityProvider = await knexClient
-        .from(identityProviderPath)
-        .where({
+      const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+        query: {
           type: 'github',
-          accountIdentifier: ghUser
-        })
-        .first()
+          accountIdentifier: ghUser,
+          $limit: 1
+        }
+      })
 
       if (!githubIdentityProvider) return ''
-      const user = await this.app.service(userPath).get(githubIdentityProvider.userId)
+      const user = await this.app.service(userPath).get(githubIdentityProvider[0].userId)
       // GitHub's API doesn't always reflect changes to user repo permissions right when a webhook is sent.
       // 10 seconds should be more than enough time for the changes to propagate.
       setTimeout(() => {

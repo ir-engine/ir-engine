@@ -33,7 +33,6 @@ import {
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 import { getUserRepos } from '../../projects/project/github-helper'
@@ -58,24 +57,23 @@ export class GithubRepoAccessRefreshService<
 
   async find(params?: GithubRepoAccessRefreshParams) {
     try {
-      const knexClient: Knex = this.app.get('knexClient')
-      const githubIdentityProvider = await knexClient
-        .from(identityProviderPath)
-        .where({
+      const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+        query: {
           userId: params?.user!.id,
-          type: 'github'
-        })
-        .first()
+          type: 'github',
+          $limit: 1
+        }
+      })
 
       if (githubIdentityProvider) {
         const existingGithubRepoAccesses = (await this.app.service(githubRepoAccessPath).find({
           query: {
-            identityProviderId: githubIdentityProvider.id
+            identityProviderId: githubIdentityProvider[0].id
           },
           paginate: false
         })) as any as GithubRepoAccessType[]
 
-        const githubRepos = await getUserRepos(githubIdentityProvider.oauthToken)
+        const githubRepos = await getUserRepos(githubIdentityProvider[0].oauthToken)
         await Promise.all(
           githubRepos.map(async (repo) => {
             const matchingAccess = existingGithubRepoAccesses.find((access) => access.repo === repo.html_url)
@@ -83,7 +81,7 @@ export class GithubRepoAccessRefreshService<
             if (!matchingAccess)
               await this.app.service(githubRepoAccessPath).create({
                 repo: repo.html_url,
-                identityProviderId: githubIdentityProvider.id,
+                identityProviderId: githubIdentityProvider[0].id,
                 hasWriteAccess
               })
             else

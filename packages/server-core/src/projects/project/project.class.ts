@@ -50,7 +50,6 @@ import templateProjectJson from '@etherealengine/projects/template-project/packa
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -416,16 +415,15 @@ export class Project extends Service {
 
     const userId = params!.user?.id || project.updateUserId
 
-    const knexClient: Knex = this.app.get('knexClient')
-    const githubIdentityProvider = await knexClient
-      .from(identityProviderPath)
-      .where({
+    const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+      query: {
         userId: userId,
-        type: 'github'
-      })
-      .first()
+        type: 'github',
+        $limit: 1
+      }
+    })
 
-    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.sourceURL)
+    let repoPath = await getAuthenticatedRepo(githubIdentityProvider[0].oauthToken, data.sourceURL)
     if (!repoPath) repoPath = data.sourceURL //public repo
 
     const gitCloner = useGit(projectLocalDirectory)
@@ -511,7 +509,7 @@ export class Project extends Service {
       })
 
     if (data.reset) {
-      let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.destinationURL)
+      let repoPath = await getAuthenticatedRepo(githubIdentityProvider[0].oauthToken, data.destinationURL)
       if (!repoPath) repoPath = data.destinationURL //public repo
       await git.addRemote('destination', repoPath)
       await git.raw(['lfs', 'fetch', '--all'])
@@ -547,14 +545,13 @@ export class Project extends Service {
       const repoPath = data.repositoryPath
       const user = params!.user!
 
-      const knexClient: Knex = this.app.get('knexClient')
-      const githubIdentityProvider = await knexClient
-        .from(identityProviderPath)
-        .where({
+      const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+        query: {
           userId: user.id,
-          type: 'github'
-        })
-        .first()
+          type: 'github',
+          $limit: 1
+        }
+      })
 
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
@@ -562,15 +559,15 @@ export class Project extends Service {
       const split = githubPathRegexExec[2].split('/')
       const org = split[0]
       const repo = split[1].replace('.git', '')
-      const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.oauthToken)
+      const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider[0].oauthToken)
       if (!appOrgAccess)
         throw new Forbidden(
           `The organization ${org} needs to install the GitHub OAuth app ${config.authentication.oauth.github.key} in order to push code to its repositories`
         )
-      const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.oauthToken)
+      const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider[0].oauthToken)
       if (repoWriteStatus !== 200) {
         if (repoWriteStatus === 404) {
-          const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider.oauthToken)
+          const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider[0].oauthToken)
           if (orgWriteStatus !== 200) throw new Forbidden('You do not have write access to that organization')
         } else {
           throw new Forbidden('You do not have write access to that repo')
@@ -682,14 +679,13 @@ export class Project extends Service {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
 
-      const knexClient: Knex = this.app.get('knexClient')
-      const githubIdentityProvider = await knexClient
-        .from(identityProviderPath)
-        .where({
+      const githubIdentityProvider = await this.app.service(identityProviderPath).find({
+        query: {
           userId: params.user!.id,
-          type: 'github'
-        })
-        .first()
+          type: 'github',
+          $limit: 1
+        }
+      })
 
       // Get all of the projects that this user has permissions for, then calculate push status by whether the user
       // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
@@ -702,7 +698,7 @@ export class Project extends Service {
       const repoAccess = githubIdentityProvider
         ? ((await this.app.service(githubRepoAccessPath).find({
             query: {
-              identityProviderId: githubIdentityProvider.id
+              identityProviderId: githubIdentityProvider[0].id
             },
             paginate: false
           })) as any as GithubRepoAccessType[])

@@ -650,7 +650,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
       const jwtDecoded = decode(token)!
       const idProvider = await app.service(identityProviderPath)._get(jwtDecoded.sub as string)
       authResult = {
-        identityProviderPath: idProvider
+        [identityProviderPath]: idProvider
       }
     } else throw err
   }
