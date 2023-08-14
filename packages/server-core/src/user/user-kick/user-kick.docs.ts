@@ -23,8 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface LoginTokenInterface {
-  id: string
-  token: string
-  expiresAt: Date
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  userKickDataSchema,
+  userKickPatchSchema,
+  userKickQuerySchema,
+  userKickSchema
+} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    userKickDataSchema,
+    userKickPatchSchema,
+    userKickQuerySchema,
+    userKickSchema
+  },
+  docs: {
+    description: 'User kick service description',
+    securities: ['all']
+  }
+})
