@@ -31,8 +31,8 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
@@ -55,7 +55,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
   const friendState = useHookstate(getMutableState(FriendState))
   const worldState = useHookstate(getMutableState(WorldState))
   const avatarUIContextMenuState = useHookstate(getMutableState(AvatarUIContextMenuState))
-  const userId = avatarUIContextMenuState.id.value as UserId
+  const userId = avatarUIContextMenuState.id.value as UserID
 
   const authState = useHookstate(getMutableState(AuthState))
   const selfId = authState.user.id?.value ?? ''

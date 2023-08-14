@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { UserSetting } from '@etherealengine/common/src/interfaces/User'
+import { UserSetting } from '@etherealengine/common/src/dbmodels/UserSetting'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 /**
  *
@@ -61,7 +62,7 @@ export default (app: Application) => {
   )
 
   ;(UserSettings as any).associate = (models: any): void => {
-    ;(UserSettings as any).belongsTo(models.user, { primaryKey: true, required: true, allowNull: false })
+    ;(UserSettings as any).belongsTo(createUserModel(app), { primaryKey: true, required: true, allowNull: false })
   }
 
   return UserSettings

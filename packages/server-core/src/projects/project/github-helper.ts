@@ -31,7 +31,6 @@ import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   AudioFileTypes,
   ImageFileTypes,
@@ -40,6 +39,7 @@ import {
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -166,7 +166,7 @@ export const getRepo = async (owner: string, repo: string, token: string): Promi
 export const pushProjectToGithub = async (
   app: Application,
   project: ProjectInterface,
-  user: UserInterface,
+  user: UserType,
   reset = false,
   commitSHA?: string,
   storageProviderName?: string

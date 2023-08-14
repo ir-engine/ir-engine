@@ -279,7 +279,7 @@ const execute = () => {
 
 const reactor = () => {
   const themeState = useHookstate(getMutableState(AppThemeState))
-  const themeModes = useHookstate(getMutableState(AuthState).user?.user_setting?.ornull?.themeModes)
+  const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
   const clientSettings = useHookstate(
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )

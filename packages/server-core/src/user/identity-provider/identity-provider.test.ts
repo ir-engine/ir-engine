@@ -28,15 +28,17 @@ import { v1 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-let userId: UserId
+let userId: UserID
 
 describe('identity-provider service', () => {
   let app: Application
@@ -64,7 +66,7 @@ describe('identity-provider service', () => {
       {
         type,
         token,
-        userId: '' as UserId
+        userId: '' as UserID
       },
       {}
     )
@@ -119,11 +121,11 @@ describe('identity-provider service', () => {
   })
 
   it('should find identity providers', async () => {
-    const item = await app.service(identityProviderPath).find({
+    const item = (await app.service(identityProviderPath).find({
       query: {
         userId
       }
-    })
+    })) as Paginated<IdentityProviderType>
 
     assert.ok(item, 'Identity provider item is found')
     assert.equal(item.total, providers.length)
@@ -132,11 +134,11 @@ describe('identity-provider service', () => {
   it('should remove an identity provider by id', async () => {
     await app.service(identityProviderPath)._remove(providers[0].id)
 
-    const item = await app.service(identityProviderPath).find({
+    const item = (await app.service(identityProviderPath).find({
       query: {
         id: providers[0].id
       }
-    })
+    })) as Paginated<IdentityProviderType>
 
     assert.equal(item.total, 0)
   })

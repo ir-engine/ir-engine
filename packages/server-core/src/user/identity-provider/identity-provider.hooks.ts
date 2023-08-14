@@ -50,12 +50,6 @@ import {
   identityProviderResolver
 } from './identity-provider.resolvers'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const identityProviderValidator = getValidator(identityProviderSchema, dataValidator)
-const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)
-const identityProviderPatchValidator = getValidator(identityProviderPatchSchema, dataValidator)
-const identityProviderQueryValidator = getValidator(identityProviderQuerySchema, queryValidator)
-
 const checkIdentityProvider = (): any => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.id) {
@@ -106,6 +100,12 @@ const checkOnlyIdentityProvider = () => {
     return context
   }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const identityProviderValidator = getValidator(identityProviderSchema, dataValidator)
+const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)
+const identityProviderPatchValidator = getValidator(identityProviderPatchSchema, dataValidator)
+const identityProviderQueryValidator = getValidator(identityProviderQuerySchema, queryValidator)
 
 export default {
   around: {

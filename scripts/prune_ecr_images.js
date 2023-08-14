@@ -122,7 +122,7 @@ cli.main(async () => {
     const images = await getAllImages(ecr, options.repoName || 'etherealengine', undefined, [])
     if (!images) return
     const latestImage = images.find(
-      (image) => image.imageTags && image.imageTags.indexOf(`latest_${options.releaseName}`) >= 0
+      (image) => image.imageTags && (image.imageTags.indexOf(`latest_${options.releaseName}`) >= 0 || image.imageTags.indexOf(`latest_${options.releaseName}_cache`) >= 0)
     )
     if (latestImage) {
       const latestImageTime = latestImage.imagePushedAt.getTime()

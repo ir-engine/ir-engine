@@ -24,14 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
-import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
+import { DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -57,6 +55,8 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -148,7 +148,7 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @param userId
  * @returns
  */
-export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserId) => {
+export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserID) => {
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,
@@ -198,7 +198,7 @@ export const handleConnectingPeer = async (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
-  user: UserInterface
+  user: UserType
 ) => {
   const userId = user.id
 
@@ -219,8 +219,8 @@ export const handleConnectingPeer = async (
     media: {} as any,
     consumerLayers: {},
     stats: {},
-    incomingDataConsumers: new Map<DataChannelType, DataConsumer>(),
-    outgoingDataConsumers: new Map<DataChannelType, DataConsumer>(),
+    incomingDataConsumers: new Map<DataChannelType, any>(),
+    outgoingDataConsumers: new Map<DataChannelType, any>(),
     dataProducers: new Map<string, DataProducer>()
   })
 
@@ -246,12 +246,12 @@ export async function handleJoinWorld(
   peerID: PeerID,
   data: JoinWorldRequestData,
   messageId: string,
-  userId: UserId,
-  user: UserInterface
+  userId: UserID,
+  user: UserType
 ) {
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId).map((action) => {
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
     return _.cloneDeep(action)
   })
 
@@ -274,26 +274,23 @@ export async function handleJoinWorld(
 
 const getUserSpawnFromInvite = async (
   network: SocketWebRTCServerNetwork,
-  user: UserInterface,
+  user: UserType,
   inviteCode: string,
   iteration = 0
 ) => {
   if (inviteCode) {
-    const app = Engine.instance.api as Application
-    const result = (await app.service('user').find({
+    const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
       query: {
-        action: 'invite-code-lookup',
-        inviteCode: inviteCode
+        inviteCode
       }
-    })) as any
+    })
 
-    const users = result.data as UserInterface[]
-    if (users.length > 0) {
-      const inviterUser = users[0]
+    if (inviteCodeLookups.length > 0) {
+      const inviterUser = inviteCodeLookups[0]
       const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []
       const userInstanceAttendance = user.instanceAttendance || []
       let bothOnSameInstance = false
-      for (let instanceAttendance of inviterUserInstanceAttendance) {
+      for (const instanceAttendance of inviterUserInstanceAttendance) {
         if (
           !instanceAttendance.isChannel &&
           userInstanceAttendance.find(
@@ -303,7 +300,7 @@ const getUserSpawnFromInvite = async (
           bothOnSameInstance = true
       }
       if (bothOnSameInstance) {
-        const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserId)
+        const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserID)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -314,7 +311,7 @@ const getUserSpawnFromInvite = async (
           return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
         }
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserID)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -355,6 +352,7 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark:
     ew Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
     a.$from = networkPeer.userId
+    a.$network = network.hostId // TODO replace with network.id
     dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
@@ -366,7 +364,7 @@ export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark:
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
-  const userId = getUserIdFromPeerID(network, peerID) as UserId
+  const userId = getUserIdFromPeerID(network, peerID) as UserID
   const disconnectedClient = network.peers.get(peerID)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.

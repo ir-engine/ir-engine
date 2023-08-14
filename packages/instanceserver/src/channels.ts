@@ -30,11 +30,8 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
-import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -54,11 +51,15 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserKick } from '@etherealengine/common/src/interfaces/UserKick'
+import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import {
   identityProviderPath,
   IdentityProviderType
 } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -166,7 +167,7 @@ const initializeInstance = async (
   status: InstanceserverStatus,
   locationId: string,
   channelId: ChannelID,
-  userId?: UserId
+  userId?: UserID
 ) => {
   logger.info('Initializing new instance')
 
@@ -235,13 +236,13 @@ const initializeInstance = async (
 const loadEngine = async (app: Application, sceneId: string) => {
   const instanceServerState = getState(InstanceServerState)
 
-  const hostId = instanceServerState.instance.id as UserId
-  Engine.instance.userId = hostId
+  const hostId = instanceServerState.instance.id as UserID
+  Engine.instance.userID = hostId
   Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
   await setupIPs()
-  const network = await initializeNetwork(app, hostId, topic)
+  const network = await initializeNetwork(app, hostId, hostId, topic)
 
   addNetwork(network)
 
@@ -257,13 +258,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const projects = await getProjectsList()
 
   if (instanceServerState.isMediaInstance) {
-    getMutableState(NetworkState).hostIds.media.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.media.set(hostId as UserID)
     startMediaServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    getMutableState(NetworkState).hostIds.world.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.world.set(hostId as UserID)
 
     const [projectName, sceneName] = sceneId.split('/')
 
@@ -292,7 +293,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
       if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
     }
     app.service('scene').on('updated', sceneUpdatedListener)
-    app.service('user').on('patched', userUpdatedListener)
+    app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
@@ -309,7 +310,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
  * @param userId
  */
 
-const handleUserAttendance = async (app: Application, userId: UserId) => {
+const handleUserAttendance = async (app: Application, userId: UserID) => {
   const instanceServerState = getState(InstanceServerState)
 
   const channel = await app.service('channel').Model.findOne({
@@ -379,7 +380,7 @@ const createOrUpdateInstance = async (
   locationId: string,
   channelId: ChannelID,
   sceneId: string,
-  userId?: UserId
+  userId?: UserID
 ) => {
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
@@ -464,10 +465,10 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
+const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
   const activeClients = getServerNetwork(app).peers
   const activeUsers = [...activeClients].filter(
-    ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
+    ([id, client]) => client.userId !== Engine.instance.userID && client.userId !== userToIgnore.id
   )
   return activeUsers.length
 }
@@ -475,7 +476,7 @@ const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
 const handleUserDisconnect = async (
   app: Application,
   connection: PrimusConnectionType,
-  user: UserInterface,
+  user: UserType,
   instanceId: string
 ) => {
   const instanceServerState = getState(InstanceServerState)
@@ -489,21 +490,6 @@ const handleUserDisconnect = async (
     logger.info('Failed to patch instance user count, likely because it was destroyed.')
   }
 
-  const userPatch = {} as any
-
-  // Patch the user's (channel)instanceId to null if they're leaving this instance.
-  // But, don't change their (channel)instanceId if it's already something else.
-  const userPatchResult = await app
-    .service('user')
-    .patch(null, userPatch, {
-      query: {
-        id: user.id
-      }
-    })
-    .catch((err) => {
-      logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
-    })
-  logger.info('Patched disconnecting user to %o', userPatchResult)
   await app.service(instanceAttendancePath).patch(
     null,
     {
@@ -674,7 +660,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   const identityProvider = authResult[identityProviderPath] as IdentityProviderType
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
-    const user = await app.service('user').get(userId)
+    const user = await app.service(userPath).get(userId)
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)

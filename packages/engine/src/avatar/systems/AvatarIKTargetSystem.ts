@@ -60,9 +60,9 @@ const execute = () => {
   for (const action of sessionChangedQueue()) {
     if (!localClientEntity || xrState.sessionActive) continue
 
-    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
+    const headUUID = (Engine.instance.userID + xrTargetHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userID + xrTargetLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userID + xrTargetRightHandSuffix) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
@@ -95,9 +95,9 @@ const execute = () => {
     const leftHand = !!sources.find((s) => s.handedness === 'left')
     const rightHand = !!sources.find((s) => s.handedness === 'right')
 
-    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
+    const headUUID = (Engine.instance.userID + xrTargetHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userID + xrTargetLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userID + xrTargetRightHandSuffix) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]

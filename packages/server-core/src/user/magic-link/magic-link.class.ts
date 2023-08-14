@@ -30,6 +30,7 @@ import * as path from 'path'
 import * as pug from 'pug'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
@@ -140,7 +141,7 @@ export class Magiclink implements ServiceMethods<Data> {
         throw new BadRequest('Invalid subscription')
       }
 
-      const subscriptionUser = await this.app.service('user').get(subscription.data[0].userId)
+      const subscriptionUser = await this.app.service(userPath).get(subscription.data[0].userId)
 
       username = subscriptionUser.name
     }

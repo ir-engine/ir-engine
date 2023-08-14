@@ -29,7 +29,11 @@ import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/f
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
@@ -130,12 +134,12 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.identityProviderType != null) {
-        const inviteeIdentityProviderResult = await this.app.service(identityProviderPath).find({
+        const inviteeIdentityProviderResult = (await this.app.service(identityProviderPath).find({
           query: {
             type: invite.identityProviderType,
             token: invite.token
           }
-        })
+        })) as Paginated<IdentityProviderType>
 
         if (inviteeIdentityProviderResult.total === 0) {
           inviteeIdentityProvider = await this.app.service(identityProviderPath).create(
@@ -150,13 +154,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
           inviteeIdentityProvider = inviteeIdentityProviderResult.data[0]
         }
       } else if (invite.inviteeId != null) {
-        const invitee = await this.app.service('user').get(invite.inviteeId)
+        const invitee = await this.app.service(userPath).get(invite.inviteeId)
 
-        if (invitee == null || invitee.identity_providers == null || invitee.identity_providers.length === 0) {
+        if (invitee == null || invitee.identityProviders == null || invitee.identityProviders.length === 0) {
           throw new BadRequest('Invalid invitee ID')
         }
 
-        inviteeIdentityProvider = invitee.identity_providers[0]
+        inviteeIdentityProvider = invitee.identityProviders[0]
       }
 
       if (params[identityProviderPath] == null) params[identityProviderPath] = inviteeIdentityProvider
@@ -176,7 +180,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.inviteType === 'friend') {
-        const inviter = await this.app.service('user').Model.findOne({ where: { id: invite.userId } })
+        const inviter = await this.app.service(userPath)._get(invite.userId)
 
         if (inviter == null) {
           await this.app.service('invite').remove(invite.id)

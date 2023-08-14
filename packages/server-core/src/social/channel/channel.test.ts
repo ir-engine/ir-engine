@@ -27,10 +27,11 @@ import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel service', () => {
@@ -55,10 +56,13 @@ describe('channel service', () => {
   })
 
   it('creates and finds channel with userId', async () => {
-    const user = (await app.service('user').create({
+    const user = await app.service(userPath).create({
       name: 'user',
-      isGuest: false
-    })) as UserInterface
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
 
     const channel = await app.service('channel').create(
       {
@@ -102,9 +106,13 @@ describe('channel service', () => {
   })
 
   it('can remove and finds channel with instanceId', async () => {
-    const user = (await app.service('user').create({
-      name: 'user'
-    })) as UserInterface
+    const user = await app.service(userPath).create({
+      name: 'user',
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
 
     const instance = (await app.service('instance').create(
       {},
@@ -145,10 +153,13 @@ describe('channel service', () => {
   })
 
   it('will not create a channel with both userId and instanceId', async () => {
-    const user = (await app.service('user').create({
+    const user = await app.service(userPath).create({
       name: 'user',
-      isGuest: false
-    })) as UserInterface
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
 
     const instance = (await app.service('instance').create(
       {},
@@ -172,10 +183,13 @@ describe('channel service', () => {
   })
 
   it('creates and finds channel with instanceId', async () => {
-    const user = (await app.service('user').create({
+    const user = await app.service(userPath).create({
       name: 'user',
-      isGuest: false
-    })) as UserInterface
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
 
     const instance = (await app.service('instance').create(
       {},

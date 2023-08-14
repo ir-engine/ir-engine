@@ -27,22 +27,24 @@ import type { Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   IdentityProviderData,
   IdentityProviderPatch,
   IdentityProviderQuery,
   IdentityProviderType
 } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
-
-import { Application } from '../../../declarations'
-
 import { Paginated } from '@feathersjs/feathers'
+import { random } from 'lodash'
+import { v1 as uuidv1 } from 'uuid'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { random } from 'lodash'
+import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Application } from '../../../declarations'
+
 import { RootParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
@@ -79,7 +81,7 @@ export class IdentityProviderService<
         {}
       )
       if (authResult[appConfig.authentication.entity]?.userId) {
-        user = await this.app.service('user').get(authResult[appConfig.authentication.entity]?.userId)
+        user = await this.app.service(userPath).get(authResult[appConfig.authentication.entity]?.userId)
       }
     }
     if (
@@ -91,7 +93,7 @@ export class IdentityProviderService<
     )
       type = 'guest' //Non-password/magiclink create requests must always be for guests
 
-    const userId = data.userId || (authResult ? authResult[appConfig.authentication.entity]?.userId : null)
+    let userId = data.userId || (authResult ? authResult[appConfig.authentication.entity]?.userId : null)
     let identityProvider: IdentityProviderData = { ...data }
 
     switch (type) {
@@ -169,7 +171,12 @@ export class IdentityProviderService<
         break
     }
 
-    const userService = this.app.service('user')
+    // if userId is not defined, then generate userId
+    if (!userId) {
+      userId = uuidv1()
+    }
+
+    const userService = this.app.service(userPath)
 
     // check if there is a user with userId
     let foundUser
@@ -192,23 +199,19 @@ export class IdentityProviderService<
 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
-    const adminCount = await this.app.service('user').Model.count({
-      include: [
-        {
-          model: this.app.service('scope').Model,
-          where: {
-            type: 'admin:admin'
-          }
-        }
-      ]
-    })
+    const adminCount = (await this.app.service(scopePath)._find({
+      query: {
+        type: 'admin:admin'
+      }
+    })) as Paginated<AdminScope>
+
     const avatars = (await this.app
       .service(avatarPath)
       .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarType>
 
     const isGuest = type === 'guest'
 
-    if (adminCount === 0) {
+    if (adminCount.data.length === 0) {
       // in dev mode make the first guest an admin
       // otherwise make the first logged in user an admin
       if (isDev || !isGuest) {
@@ -218,12 +221,12 @@ export class IdentityProviderService<
 
     let result: IdentityProviderType
     try {
-      const newUser = (await this.app.service('user')._create({
+      const newUser = (await this.app.service(userPath).create({
         id: userId,
         isGuest,
-        inviteCode: type === 'guest' ? null : code,
+        inviteCode: type === 'guest' ? '' : code,
         avatarId: avatars.data[random(avatars.data.length - 1)].id
-      })) as UserInterface
+      })) as UserType
 
       result = await super._create(
         {
@@ -234,7 +237,7 @@ export class IdentityProviderService<
       )
     } catch (err) {
       console.error(err)
-      await this.app.service('user').remove(userId)
+      await this.app.service(userPath).remove(userId)
       throw err
     }
     // DRC
@@ -264,11 +267,12 @@ export class IdentityProviderService<
         .service('authentication')
         .createAccessToken({}, { subject: result.id.toString() })
     }
+
     return result
   }
 
   async find(params?: IdentityProviderParams) {
-    const loggedInUser = params!.user as UserInterface
+    const loggedInUser = params!.user as UserType
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super._find(params)
   }

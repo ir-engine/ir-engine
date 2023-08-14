@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -39,7 +39,7 @@ export default () => {
     let inviteIdentityProviderUser
     // Getting logged in user and attaching owner of user
     const { id, params, app } = context
-    const loggedInUser = params.user as UserInterface
+    const loggedInUser = params.user as UserType
     const invite = await app.service('invite').get(id!)
     if (invite == null) {
       throw new BadRequest('Invalid invite ID')

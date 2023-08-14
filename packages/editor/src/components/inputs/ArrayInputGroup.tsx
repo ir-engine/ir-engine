@@ -24,11 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
-
-import FileBrowserInput from './FileBrowserInput'
-import { InputGroupContent, InputGroupVerticalContainer, InputGroupVerticalContent } from './InputGroup'
-import StringInput, { ControlledStringInput } from './StringInput'
 
 export interface ArrayInputGroupProp {
   name?: string
@@ -46,13 +41,12 @@ export interface ArrayInputGroupState {
   values: string[]
 }
 
-const onChangeSize = (textSize: string, values: string[], onChange?: (values: string[]) => void) => {
+const onChangeSize = (textSize: string, values: string[], onChange?: any) => {
   // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
   let valuesCopy = [...values] as string[]
   let preCount = valuesCopy.length
-  console.log('onChangeSize', textSize, values, onChange)
   const count = parseInt(textSize)
-  if (count == undefined || preCount == count) return
+  if (isNaN(count) || preCount === count) return
   if (preCount > count) {
     valuesCopy.splice(count)
   } else {
@@ -63,44 +57,40 @@ const onChangeSize = (textSize: string, values: string[], onChange?: (values: st
   onChange?.(valuesCopy)
 }
 
-const onChangeText = (text: string, index: number, values: string[], onChange?: (values: string[]) => void) => {
+const onChangeText = (text: string, index: number, values: string[], onChange?: any) => {
   // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
   const valuesCopy = [...values]
   valuesCopy[index] = text
   onChange?.(valuesCopy)
 }
 
-const GroupContainer = styled.label`
-  background-color: $transparent;
-  color: #9fa4b5;
-  white-space: pre-wrap;
-  padding: 0 8px 8px;
-`
+const groupContainerStyle: React.CSSProperties = {
+  backgroundColor: 'transparent',
+  color: '#9fa4b5',
+  whiteSpace: 'pre-wrap',
+  padding: '0 8px 8px'
+}
 
-const ArrayInputGroupContent = (styled as any)(InputGroupContent)`
-  margin: 4px 0px;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  & > label {
-    max-width: 33.33333% !important;
-  }
-  & > input {
-    max-width: 66.66666% !important;
-  }
-  & > div {
-    max-width: 66.66666% !important;
-  }
-`
+const arrayInputGroupContentStyle: React.CSSProperties = {
+  margin: '4px 0px',
+  display: 'flex',
+  flexWrap: 'wrap',
+  flexDirection: 'row'
+}
 
-export function ArrayInputGroup({
+const labelStyle = {
+  maxWidth: '33.33333%'
+}
+
+const inputStyle = {
+  maxWidth: '66.66666%'
+}
+
+const divStyle = {
+  maxWidth: '66.66666%'
+}
+
+const ArrayInputGroup = ({
   isStringInput,
   prefix,
   label,
@@ -108,54 +98,54 @@ export function ArrayInputGroup({
   onChange,
   acceptFileTypes,
   itemType
-}: ArrayInputGroupProp) {
+}: ArrayInputGroupProp) => {
   let count = 0
   if (values && values.length) count = values.length
+
   return (
-    <GroupContainer>
-      <InputGroupVerticalContainer>
-        <label style={{ color: '#9FA4B5' }}>{label}:</label>
-        <InputGroupVerticalContent>
-          <ArrayInputGroupContent>
-            <label> Size: </label>
-            <ControlledStringInput
-              value={'' + count}
-              onChange={(text) => {
-                onChangeSize(text, values, onChange)
-              }}
-            />
-          </ArrayInputGroupContent>
-          {values &&
-            values.map(function (value, index) {
-              return (
-                <ArrayInputGroupContent key={index} style={{ margin: '4px 0px' }}>
-                  <label>
-                    {' '}
-                    {prefix} {index + 1}:{' '}
-                  </label>
-                  {isStringInput ? (
-                    <StringInput
-                      value={value}
-                      onChange={(text) => {
-                        onChangeText(text, index, values, onChange)
-                      }}
-                    />
-                  ) : (
-                    <FileBrowserInput
-                      value={value}
-                      acceptFileTypes={acceptFileTypes}
-                      acceptDropItems={itemType || []}
-                      onChange={(text) => {
-                        onChangeText(text, index, values, onChange)
-                      }}
-                    />
-                  )}
-                </ArrayInputGroupContent>
-              )
-            })}
-        </InputGroupVerticalContent>
-      </InputGroupVerticalContainer>
-    </GroupContainer>
+    <div style={groupContainerStyle}>
+      <div style={arrayInputGroupContentStyle}>
+        <label style={{ ...labelStyle, color: '#9FA4B5' }}>{label}:</label>
+        <div style={divStyle}>
+          <label> Size: </label>
+          <input
+            style={inputStyle}
+            value={'' + count}
+            onChange={(e) => {
+              onChangeSize(e.target.value, values, onChange)
+            }}
+          />
+        </div>
+        {values &&
+          values.map(function (value, index) {
+            return (
+              <div key={index} style={{ ...arrayInputGroupContentStyle, margin: '4px 0px' }}>
+                <label>
+                  {' '}
+                  {prefix} {index + 1}:{' '}
+                </label>
+                {isStringInput ? (
+                  <input
+                    style={inputStyle}
+                    value={value}
+                    onChange={(e) => {
+                      onChangeText(e.target.value, index, values, onChange)
+                    }}
+                  />
+                ) : (
+                  <input
+                    style={inputStyle}
+                    value={value}
+                    onChange={(e) => {
+                      onChangeText(e.target.value, index, values, onChange)
+                    }}
+                  />
+                )}
+              </div>
+            )
+          })}
+      </div>
+    </div>
   )
 }
 
