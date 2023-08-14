@@ -341,8 +341,8 @@ export const AuthService = {
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
         const newToken = await Engine.instance.api.service(generateTokenPath).create({
-          type: otherIp?.type,
-          token: otherIp?.token
+          type: otherIp!.type,
+          token: otherIp!.token
         })
 
         if (newToken) {

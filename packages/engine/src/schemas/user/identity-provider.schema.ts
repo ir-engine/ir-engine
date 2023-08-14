@@ -80,7 +80,11 @@ export const identityProviderQueryProperties = Type.Pick(identityProviderSchema,
 ])
 export const identityProviderQuerySchema = Type.Intersect(
   [
-    querySyntax(identityProviderQueryProperties),
+    querySyntax(identityProviderQueryProperties, {
+      accountIdentifier: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
