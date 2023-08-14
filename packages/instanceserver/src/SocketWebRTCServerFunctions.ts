@@ -48,7 +48,7 @@ export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & {
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
 export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
-export const initializeNetwork = async (app: Application, hostId: UserID, topic: Topic) => {
+export const initializeNetwork = async (app: Application, id: string, hostId: UserID, topic: Topic) => {
   const { workers, routers } = await startWebRTC()
 
   const outgoingDataTransport = await routers.instance[0].createDirectTransport()
@@ -81,7 +81,7 @@ export const initializeNetwork = async (app: Application, hostId: UserID, topic:
     }
   }
 
-  const network = createNetwork(hostId, topic, {
+  const network = createNetwork(id, hostId, topic, {
     workers,
     routers,
     transport,

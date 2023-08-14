@@ -235,7 +235,7 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
 
       const networkState = getMutableState(NetworkState)
       networkState.hostIds.world.set(userId)
-      addNetwork(createNetwork(userId, NetworkTopics.world))
+      addNetwork(createNetwork(userId, userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(

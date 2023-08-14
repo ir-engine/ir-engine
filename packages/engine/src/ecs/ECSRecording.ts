@@ -41,13 +41,13 @@ export const startRecording = (args: { recordingID: RecordingID }) => {
   dispatchAction({
     ...action,
     $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
+    $to: Engine.instance.worldNetwork.hostPeerID
   })
 
   dispatchAction({
     ...action,
     $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
+    $to: Engine.instance.mediaNetwork.hostPeerID
   })
 }
 
@@ -58,13 +58,13 @@ export const stopRecording = (args: { recordingID: RecordingID }) => {
   dispatchAction({
     ...recording,
     $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
+    $to: Engine.instance.worldNetwork.hostPeerID
   })
   // todo - check that video actually needs to be stopped
   dispatchAction({
     ...recording,
     $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
+    $to: Engine.instance.mediaNetwork.hostPeerID
   })
 }
 
@@ -78,13 +78,13 @@ export const startPlayback = (args: { recordingID: RecordingID; targetUser?: Use
   dispatchAction({
     ...action,
     $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
+    $to: Engine.instance.worldNetwork.hostPeerID
   })
 
   dispatchAction({
     ...action,
     $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
+    $to: Engine.instance.mediaNetwork.hostPeerID
   })
 }
 
@@ -97,13 +97,13 @@ export const stopPlayback = (args: { recordingID: RecordingID }) => {
   dispatchAction({
     ...action,
     $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostId
+    $to: Engine.instance.worldNetwork.hostPeerID
   })
 
   dispatchAction({
     ...action,
     $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostId
+    $to: Engine.instance.mediaNetwork.hostPeerID
   })
 }
 

@@ -54,7 +54,7 @@ export interface JitterBufferEntry {
 }
 
 /** Interface for the Transport. */
-export const createNetwork = <Ext>(hostId: UserID, topic: Topic, extension: Ext = {} as Ext) => {
+export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, extension: Ext = {} as Ext) => {
   addOutgoingTopicIfNecessary(topic)
   const network = {
     /** Consumers and producers have separate types on client and server */
@@ -122,6 +122,8 @@ export const createNetwork = <Ext>(hostId: UserID, topic: Topic, extension: Ext 
      * @todo rename to hostUserID to differentiate better from hostPeerID
      */
     hostId,
+
+    id,
 
     /**
      * The network is ready for sending messages and data
