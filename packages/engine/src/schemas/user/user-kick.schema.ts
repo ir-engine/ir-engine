@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { UserID } from './user.schema'
 
 export const userKickPath = 'user-kick'
 
@@ -43,7 +43,7 @@ export const userKickSchema = Type.Object(
       format: 'uuid'
     }),
     duration: Type.String({ format: 'date-time' }),
-    userId: TypedString<UserId>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     instanceId: Type.String({
