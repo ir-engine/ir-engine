@@ -28,7 +28,6 @@ import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { RecordingResult, RecordingSchema } from '@etherealengine/common/src/interfaces/Recording'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
@@ -39,12 +38,7 @@ import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengin
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
-import {
-  addDataChannelHandler,
-  dataChannelRegistry,
-  NetworkState,
-  removeDataChannelHandler
-} from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
 import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -54,12 +48,17 @@ import { StorageObjectInterface } from '@etherealengine/server-core/src/media/st
 import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import {
+  addDataChannelHandler,
+  DataChannelRegistryState,
+  removeDataChannelHandler
+} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { startMediaRecording } from './MediaRecordingFunctions'
@@ -137,8 +136,14 @@ export const uploadRecordingStaticResource = async (props: {
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
   const app = Engine.instance.api as Application
 
-  const recording = await app.service('recording').get(action.recordingID)
+  const recording = await app.service(recordingPath).get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$peer)
+
+  let schema = recording.schema
+
+  if (typeof schema === 'string') {
+    schema = JSON.parse(schema)
+  }
 
   const user = await app.service(userPath).get(recording.userId)
   if (!user) return dispatchError('Invalid user', action.$peer)
@@ -176,8 +181,6 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       logger.error('Could not decode data channel message', error)
     }
   }
-
-  const schema = JSON.parse(recording.schema) as RecordingSchema
 
   const activeRecording = {
     userID,
@@ -231,7 +234,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
     const dataChannelSchema = Object.values(schema.peers)
       .flat()
-      .filter((component: DataChannelType) => dataChannelRegistry.has(component))
+      .filter((component: DataChannelType) => !!getState(DataChannelRegistryState)[component])
       .filter(Boolean) as DataChannelType[]
 
     for (const dataChannel of dataChannelSchema) {
@@ -268,11 +271,15 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   const hasScopes = await checkScope(user, app, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
 
-  app.service('recording').patch(action.recordingID, { ended: true }, { isInternal: true })
+  app.service(recordingPath).patch(action.recordingID, { ended: true }, { isInternal: true })
 
-  const recording = await app.service('recording').get(action.recordingID)
+  const recording = await app.service(recordingPath).get(action.recordingID)
 
-  const schema = JSON.parse(recording.schema) as RecordingSchema
+  let schema = recording.schema
+
+  if (typeof schema === 'string') {
+    schema = JSON.parse(schema)
+  }
 
   if (activeRecording.serializer) {
     activeRecording.serializer.end()
@@ -289,7 +296,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   if (activeRecording.dataChannelRecorder) {
     const dataChannelSchema = Object.values(schema.peers)
       .flat()
-      .filter((component: DataChannelType) => dataChannelRegistry.has(component))
+      .filter((component: DataChannelType) => !!getState(DataChannelRegistryState)[component])
       .filter(Boolean) as DataChannelType[]
 
     for (const dataChannel of dataChannelSchema) {
@@ -302,7 +309,13 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
   const app = Engine.instance.api as Application
 
-  const recording = (await app.service('recording').get(action.recordingID, { internal: true })) as RecordingResult
+  const recording = await app.service(recordingPath).get(action.recordingID, { isInternal: true })
+
+  let schema = recording.schema
+
+  if (typeof schema === 'string') {
+    schema = JSON.parse(schema)
+  }
 
   const isClone = !action.targetUser
 
@@ -317,8 +330,6 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   if (!hasScopes) return dispatchError('User does not have record:read scope', action.$peer)
 
   if (!recording.resources?.length) return dispatchError('Recording has no resources', action.$peer)
-
-  const schema = JSON.parse(recording.schema) as RecordingSchema
 
   const activePlayback = {
     userID: action.targetUser
@@ -446,7 +457,13 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActions.stopPlayback>) => {
   const app = Engine.instance.api as Application
 
-  const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
+  const recording = await app.service(recordingPath).get(action.recordingID)
+
+  let schema = recording.schema
+
+  if (typeof schema === 'string') {
+    schema = JSON.parse(schema)
+  }
 
   const user = await app.service(userPath).get(recording.userId)
 

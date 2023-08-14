@@ -23,99 +23,87 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
-
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Forbidden, NotFound } from '@feathersjs/errors'
+import {
+  RecordingData,
+  RecordingID,
+  RecordingPatch,
+  RecordingQuery,
+  RecordingType
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
-import { UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
 
-export type RecordingDataType = RecordingResult
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface RecordingParams extends RootParams<RecordingQuery> {}
 
-export class Recording<T = RecordingDataType> extends Service<T> {
+export class RecordingService<T = RecordingType, ServiceParams extends Params = RecordingParams> extends KnexAdapter<
+  RecordingType,
+  RecordingData,
+  RecordingParams,
+  RecordingPatch
+> {
   app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async get(id: RecordingID, params?: any): Promise<T> {
-    // get resources with associated URLs
-    // TODO: move resources population to resolvers once this service is migrated to feathers 5
-    const resources = await this.app.service(recordingResourcePath).find({
-      query: {
-        recordingId: id
-      },
-      paginate: false
-    })
-
-    const result = (await super.get(id)) as RecordingDataType
-
-    result.resources = resources.map((resource) => resource.staticResource)
-
-    return result as T
+  async get(id: RecordingID, params?: RecordingParams) {
+    return await super._get(id, params)
   }
 
-  async find(params?: UserParams): Promise<Paginated<T>> {
+  async find(params?: RecordingParams) {
+    let paramsWithoutExtras = {
+      ...params,
+      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+      query: params?.query ? JSON.parse(JSON.stringify(params?.query)) : {}
+    }
+    paramsWithoutExtras = { ...paramsWithoutExtras, query: { ...paramsWithoutExtras.query, userId: params?.user?.id } }
+
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin && params.query.action === 'admin') {
-        delete params.query.action
         // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
-        const recordings = (await super.find({ ...params })) as Paginated<RecordingDataType>
-
-        // TODO: Move this to resolvers as recordings service is moved to feathers 5
-        const recordingUsers = (await this.app.service(userPath)._find({
-          query: {
-            id: {
-              $in: recordings.data.map((item) => item.userId)
-            }
-          },
-          paginate: false
-        })) as any as UserType[]
-
-        for (const recording of recordings.data) {
-          const user = recordingUsers.find((item) => item.id === recording.userId)
-          recording.userName = user ? user.name : ''
-        }
-
-        // TODO: Remove as any once this file is migrated to feathers 5.
-        return recordings as any
+        if (paramsWithoutExtras.query?.userId || paramsWithoutExtras.query?.userId === '')
+          delete paramsWithoutExtras.query.userId
       }
     }
 
-    return (await super.find({
-      query: {
-        userId: params?.user!.id
-      }
-    })) as Paginated<T>
+    // Remove recording username sort
+    if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query?.$sort['user']) {
+      delete paramsWithoutExtras.query.$sort['user']
+    }
+
+    // Remove extra params
+    if (paramsWithoutExtras.query?.action || paramsWithoutExtras.query?.action === '')
+      delete paramsWithoutExtras.query.action
+
+    return super._find(paramsWithoutExtras)
   }
 
-  async create(data?: any, params?: any): Promise<T | T[]> {
-    return super.create({
+  async create(data: RecordingData, params?: RecordingParams) {
+    return super._create({
       ...data,
-      userId: params.user.id
+      userId: params?.user?.id
     })
   }
 
-  async remove(id: RecordingResult['id'], params?: UserParams) {
-    if (params && params.user && params.query) {
-      const admin = await checkScope(params.user, this.app, 'admin', 'admin')
-      if (admin) {
-        const recording = super.get(id)
-        if (!recording) {
-          throw new NotFound('Unable to find recording with this id')
-        }
-        return super.remove(id)
-      }
+  async remove(id: RecordingID) {
+    const recording = super._get(id)
+    if (!recording) {
+      throw new NotFound('Unable to find recording with this id')
     }
-    throw new Forbidden('This action can only be performed by admins')
+    return super._remove(id)
+  }
+
+  async patch(id: RecordingID, data: RecordingPatch, params?: RecordingParams) {
+    return await super._patch(id, data, params)
   }
 }

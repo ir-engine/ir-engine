@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
@@ -37,12 +36,13 @@ import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  selectedRecordingId: RecordingResult['id'] | undefined
+  selectedRecordingId: RecordingID | undefined
   onClose: () => void
 }
 
@@ -51,7 +51,7 @@ const RecordingFilesDrawer = ({ open, onClose, selectedRecordingId }: Props) => 
 
   const { t } = useTranslation()
 
-  const recordingData = useGet('recording', selectedRecordingId).data
+  const recordingData = useGet(recordingPath, selectedRecordingId).data
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef.current as any)?.onSelectionChanged?.(props)

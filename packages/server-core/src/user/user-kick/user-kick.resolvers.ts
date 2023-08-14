@@ -23,37 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `login-token` service on path `/login-token`
-import { Application } from '../../../declarations'
-import { LoginToken } from './login-token.class'
-import loginTokenDocs from './login-token.docs'
-import hooks from './login-token.hooks'
-import createModel from './login-token.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-// Add this service to the service type index
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'login-token': LoginToken
-  }
-}
+import { UserKickID, UserKickQuery, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new LoginToken(options, app)
-  event.docs = loginTokenDocs
-  app.use('login-token', event)
+export const userKickResolver = resolve<UserKickType, HookContext>({})
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('login-token')
+export const userKickExternalResolver = resolve<UserKickType, HookContext>({})
 
-  service.hooks(hooks)
-}
+export const userKickDataResolver = resolve<UserKickType, HookContext>({
+  id: async () => {
+    return v4() as UserKickID
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userKickPatchResolver = resolve<UserKickType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const userKickQueryResolver = resolve<UserKickQuery, HookContext>({})

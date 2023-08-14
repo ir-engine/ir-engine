@@ -45,11 +45,11 @@ import {
   closeDataProducer,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
