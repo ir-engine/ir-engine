@@ -40,15 +40,24 @@ import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 
+import { DataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 import { ServerRecordingSystem } from './ServerRecordingSystem'
 
 export const startMediaServerSystems = () => {
   /** Fixed */
-  startSystems([EntityNetworkStateSystem, MediaProducerConsumerStateSystem, ServerHostNetworkSystem], {
-    with: SimulationSystemGroup
-  })
+  startSystems(
+    [
+      EntityNetworkStateSystem,
+      MediaProducerConsumerStateSystem,
+      DataProducerConsumerStateSystem,
+      ServerHostNetworkSystem
+    ],
+    {
+      with: SimulationSystemGroup
+    }
+  )
 
   /** Post Render */
   startSystems([ServerRecordingSystem], {
@@ -66,6 +75,7 @@ export const startWorldServerSystems = () => {
       IncomingNetworkSystem,
       EntityNetworkStateSystem,
       MediaProducerConsumerStateSystem,
+      DataProducerConsumerStateSystem,
       ServerHostNetworkSystem,
       GrabbableSystem,
       AvatarSimulationSystemGroup

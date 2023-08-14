@@ -1,0 +1,80 @@
+.popup-container {
+  background-color: var(--popup-bg-color, grey);
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  height: 50px;
+  width: 200px; /* Default width for desktops */
+  border-radius: 10px;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+@media (max-width: 768px) {
+  /* Adjust the width for tablets */
+  .popup-container {
+    width: 80%;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Adjust the width for phones */
+  .popup-container {
+    width: 90%;
+    max-width: 320px;
+  }
+}
+
+.popup-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--icon-bg-color, #f0f0f0);
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+.popup-content {
+  color: var(--textColor, white);
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  overflow: hidden;
+  padding: 8px;
+  min-height: 50px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@keyframes fadeOutAnimation {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.error-pop-up-container {
+  /* Override the background-color to red */
+  background-color: #ff8080;
+}
+
+.error-pop-up-icon-box {
+  /* Override the icon background color to red */
+  background-color: red;
+}
+
+.warning-pop-up-container {
+  /* Override the background-color to red */
+  background-color: #ffffe0;
+}
+
+.warning-pop-up-icon-box {
+  /* Override the icon background color to red */
+  background-color: yellow;
+}
