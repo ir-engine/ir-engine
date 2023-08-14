@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceInterface } from './StaticResourceInterface'
+import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 
 export interface StaticResourceResult {
-  data: StaticResourceInterface[]
+  data: StaticResourceType[]
   total: number
   limit: number
   skip: number

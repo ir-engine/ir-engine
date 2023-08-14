@@ -26,13 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { uploadToFeathersService } from '../../util/upload'
 import { AuthState } from './AuthService'
@@ -109,7 +108,7 @@ export const AvatarService = {
         originalAvatar.id
       )
 
-      const removalPromises: Promise<StaticResourceInterface>[] = []
+      const removalPromises: Promise<StaticResourceType>[] = []
       if (uploadResponse[0].id !== originalAvatar.modelResourceId)
         removalPromises.push(AvatarService.removeStaticResource(originalAvatar.modelResourceId))
       if (uploadResponse[1].id !== originalAvatar.thumbnailResourceId)
@@ -161,7 +160,7 @@ export const AvatarService = {
         avatarId,
         isPublic
       }
-    }).promise as Promise<StaticResourceInterface[]>
+    }).promise as Promise<StaticResourceType[]>
   },
 
   async getAvatar(id: string) {

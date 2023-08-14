@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { StaticResourceFilterResult } from '@etherealengine/common/src/interfaces/StaticResourceResult'
 import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -42,7 +41,7 @@ export const RESOURCE_PAGE_LIMIT = 100
 export const AdminResourceState = defineState({
   name: 'AdminResourceState',
   initial: () => ({
-    resources: [] as Array<StaticResourceInterface>,
+    resources: [] as Array<StaticResourceType>,
     skip: 0,
     limit: RESOURCE_PAGE_LIMIT,
     total: 0,
