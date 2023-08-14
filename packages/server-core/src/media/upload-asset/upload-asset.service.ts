@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import Multer from '@koa/multer'
 import { createHash } from 'crypto'
 import fs from 'fs'
@@ -154,9 +154,9 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
   const existingResource = (await app.service(staticResourcePath).find({
     query: whereQuery,
     paginate: false
-  })) as StaticResourceType[] | null
+  })) as Paginated<StaticResourceType> | null
 
-  if (existingResource && existingResource.length > 0) return existingResource[0]
+  if (existingResource && existingResource.data.length > 0) return existingResource.data[0]
 
   const key = args.path ?? `/temp/${hash}`
   return await addAssetAsStaticResource(app, args.file, {
@@ -236,7 +236,7 @@ export const addAssetAsStaticResource = async (
   const existingAsset = (await app.service(staticResourcePath).find({
     query: whereQuery,
     paginate: false
-  })) as StaticResourceType[]
+  })) as Paginated<StaticResourceType>
 
   const stats = await getStats(file.buffer, file.mimetype)
 
@@ -257,9 +257,9 @@ export const addAssetAsStaticResource = async (
 
   let resourceId = ''
 
-  if (existingAsset[0]) {
-    await app.service(staticResourcePath).patch(existingAsset[0].id, body, { isInternal: true })
-    resourceId = existingAsset[0].id
+  if (existingAsset && existingAsset.data.length > 0) {
+    resourceId = existingAsset.data[0].id
+    await app.service(staticResourcePath).patch(resourceId, body, { isInternal: true })
   } else {
     const resource = await app.service(staticResourcePath).create(body, { isInternal: true })
     resourceId = resource.id

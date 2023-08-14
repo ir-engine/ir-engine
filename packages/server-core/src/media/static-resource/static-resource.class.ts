@@ -30,7 +30,7 @@ import {
   StaticResourceType
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Forbidden, NotFound } from '@feathersjs/errors'
-import { Params } from '@feathersjs/feathers'
+import { NullableId, Params } from '@feathersjs/feathers'
 import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
@@ -90,7 +90,7 @@ export class StaticResourceService<
     })
   }
 
-  async patch(id: string, data: StaticResourcePatch, params?: StaticResourceParams) {
+  async patch(id: NullableId, data: StaticResourcePatch, params?: StaticResourceParams) {
     return await super._patch(id, data, params)
   }
 

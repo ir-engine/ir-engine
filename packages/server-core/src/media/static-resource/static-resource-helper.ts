@@ -38,6 +38,7 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -156,11 +157,10 @@ export const addAssetFromProject = async (
       project,
       mimeType,
       $limit: 1
-    },
-    paginate: false
-  })) as StaticResourceType[]
+    }
+  })) as Paginated<StaticResourceType>
 
-  if (existingResource.length > 0) return existingResource[0]
+  if (existingResource.data.length > 0) return existingResource.data[0]
 
   const forceDownload = isFromProject ? false : download
 
