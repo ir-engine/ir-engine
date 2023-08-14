@@ -32,7 +32,7 @@ import { UserID } from './user.schema'
 
 export const userKickPath = 'user-kick'
 
-export const userKickMethods = ['find', 'create', 'patch', 'remove'] as const
+export const userKickMethods = ['find', 'create'] as const
 
 export type UserKickID = OpaqueType<'UserKickID'> & string
 
