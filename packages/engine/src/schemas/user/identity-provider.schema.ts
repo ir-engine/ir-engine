@@ -33,6 +33,19 @@ export const identityProviderPath = 'identity-provider'
 
 export const identityProviderMethods = ['find', 'create'] as const
 
+export const identityProviderTypes = [
+  'email',
+  'sms',
+  'password',
+  'discord',
+  'github',
+  'google',
+  'facebook',
+  'twitter',
+  'linkedin',
+  'auth0'
+]
+
 // Main data model schema
 export const identityProviderSchema = Type.Object(
   {
@@ -44,18 +57,7 @@ export const identityProviderSchema = Type.Object(
     }),
     accountIdentifier: Type.Optional(Type.String()),
     oauthToken: Type.Optional(Type.String()),
-    type: StringEnum([
-      'email',
-      'sms',
-      'password',
-      'discord',
-      'github',
-      'google',
-      'facebook',
-      'twitter',
-      'linkedin',
-      'auth0'
-    ]),
+    type: StringEnum(identityProviderTypes),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),

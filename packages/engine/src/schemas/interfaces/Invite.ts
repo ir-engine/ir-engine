@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { IdentityProviderType } from '../user/identity-provider.schema'
 import { UserType } from '../user/user.schema'
 
 export type Invite = {
@@ -37,7 +38,7 @@ export type Invite = {
   user?: UserType
   userId: UserID
   passcode: string
-  identityProviderType?: string
+  identityProviderType?: IdentityProviderType['type']
   createdAt: string
   updatedAt: string
   makeAdmin: boolean
