@@ -42,7 +42,7 @@ import { Spark } from 'primus'
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
@@ -60,6 +60,7 @@ import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
@@ -156,10 +157,9 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
   network.outgoingDataProducers[dataChannel] = outgoingDataProducer
 }
 
-export const handleConsumeData = async (
-  network: SocketWebRTCServerNetwork,
-  action: typeof DataConsumerActions.requestConsumer.matches._TYPE
-) => {
+export const handleConsumeData = async (action: typeof DataConsumerActions.requestConsumer.matches._TYPE) => {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
   const { $peer: peerID, dataChannel } = action
 
   const peer = network.peers.get(peerID)!
@@ -327,14 +327,15 @@ export async function createInternalDataConsumer(
 }
 
 export async function handleWebRtcTransportCreate(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data: WebRtcTransportParams,
-  messageId: string
+  action: typeof NetworkTransportActions.requestTransport.matches._TYPE
 ): Promise<any> {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
+  const { $peer: peerID, direction, sctpCapabilities } = action
+
   try {
-    const { direction, sctpCapabilities, channelId } = Object.assign(data)
+    const instance = getState(InstanceServerState).instance
+    const channelId = instance.channelId!
 
     const existingTransports = Object.values(network.mediasoupTransports).filter(
       (t) => t.appData.peerID === peerID && t.appData.direction === direction && t.appData.channelId === channelId
@@ -343,16 +344,20 @@ export async function handleWebRtcTransportCreate(
     const newTransport = await createWebRtcTransport(network, {
       peerID: peerID,
       direction,
-      sctpCapabilities,
+      sctpCapabilities: sctpCapabilities as any,
       channelId
     })
 
     if (!newTransport)
-      spark.write({
-        type: MessageTypes.WebRTCTransportCreate.toString(),
-        data: { error: 'No transport was created' },
-        id: messageId
-      })
+      return dispatchAction(
+        NetworkTransportActions.requestTransportError({
+          error: 'No transport was created',
+          direction,
+          $network: network.id,
+          $topic: network.topic,
+          $to: peerID
+        })
+      )
 
     await newTransport.setMaxIncomingBitrate(localConfig.mediasoup.webRtcTransport.maxIncomingBitrate)
 
@@ -387,30 +392,39 @@ export async function handleWebRtcTransportCreate(
         ).hostPort
       }
     }
-    const clientTransportOptions = {
-      id,
-      sctpParameters: {
-        ...sctpParameters,
-        OS: sctpCapabilities.numStreams.OS,
-        MIS: sctpCapabilities.numStreams.MIS
-      },
-      iceParameters,
-      iceCandidates,
-      dtlsParameters
-    }
-
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
       if (dtlsState === 'closed') closeTransport(network, newTransport as unknown as WebRTCTransportExtension)
     })
-    // newTransport.observer.on('newproducer', sendNewProducer(network, spark, peerID, channelId) as any)
-    spark.write({
-      type: MessageTypes.WebRTCTransportCreate.toString(),
-      data: { transportOptions: clientTransportOptions },
-      id: messageId
-    })
+
+    dispatchAction(
+      NetworkTransportActions.transportCreated({
+        transportID: id,
+        direction,
+        sctpParameters: {
+          ...sctpParameters,
+          OS: (sctpCapabilities as any).numStreams.OS,
+          MIS: (sctpCapabilities as any).numStreams.MIS
+        },
+        iceParameters,
+        iceCandidates,
+        dtlsParameters,
+        $network: network.id,
+        $topic: network.topic,
+        $to: peerID
+      })
+    )
   } catch (err) {
     logger.error(err)
-    spark.write({ type: MessageTypes.WebRTCTransportCreate.toString(), data: { error: err }, id: messageId })
+
+    return dispatchAction(
+      NetworkTransportActions.requestTransportError({
+        error: err,
+        direction,
+        $network: network.id,
+        $topic: network.topic,
+        $to: peerID
+      })
+    )
   }
 }
 /**
@@ -422,11 +436,20 @@ export async function handleWebRtcTransportCreate(
  * - Sends the producer to the client that created it
  */
 export async function handleProduceData(
-  network: SocketWebRTCServerNetwork,
   action: typeof DataProducerActions.requestProducer.matches._TYPE
 ): Promise<any> {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
   console.log('handleProduceData', action)
-  const { $peer: peerID, transportId, sctpStreamParameters, dataChannel: label, protocol, appData, requestID } = action
+  const {
+    $peer: peerID,
+    transportID: transportId,
+    sctpStreamParameters,
+    dataChannel: label,
+    protocol,
+    appData,
+    requestID
+  } = action
 
   try {
     const userId = getUserIdFromPeerID(network, peerID)
@@ -549,7 +572,7 @@ export async function handleProduceData(
     return dispatchAction(
       DataProducerActions.producerCreated({
         requestID,
-        transportId,
+        transportID: transportId,
         producerID: dataProducer.id,
         dataChannel: label,
         protocol,
@@ -574,56 +597,69 @@ export async function handleProduceData(
   }
 }
 
-export async function handleWebRtcTransportClose(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data,
-  messageId: string
-) {
-  const { transportId } = data
-  const transport = network.mediasoupTransports[transportId]
-  if (transport) {
-    await closeTransport(network, transport).catch((err) => logger.error(err, 'Error closing WebRTC transport.'))
-  }
-  spark.write({ type: MessageTypes.WebRTCTransportClose.toString(), data: { closed: true }, id: messageId })
+export async function handleWebRtcTransportClose(action: typeof NetworkTransportActions.closeTransport.matches._TYPE) {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
+  const { transportID } = action
+  const transport = network.mediasoupTransports[transportID]
+  if (!transport) return
+
+  await closeTransport(network, transport).catch((err) => logger.error(err, 'Error closing WebRTC transport.'))
 }
 
 export async function handleWebRtcTransportConnect(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data,
-  messageId: string
+  action: typeof NetworkTransportActions.requestTransportConnect.matches._TYPE
 ) {
-  const { transportId, dtlsParameters } = data,
-    transport = network.mediasoupTransports[transportId]
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
+  const { transportID, requestID, dtlsParameters } = action
+  const transport = network.mediasoupTransports[transportID]
   if (transport) {
-    const pending = network.transportsConnectPending[transportId] ?? transport.connect({ dtlsParameters })
+    const pending =
+      network.transportsConnectPending[transportID] ?? transport.connect({ dtlsParameters: dtlsParameters as any })
     pending
       .then(() => {
-        spark.write({ type: MessageTypes.WebRTCTransportConnect.toString(), data: { connected: true }, id: messageId })
+        dispatchAction(
+          NetworkTransportActions.transportConnected({
+            transportID,
+            requestID,
+            $network: action.$network,
+            $topic: action.$topic,
+            $to: action.$peer
+          })
+        )
       })
       .catch((err) => {
-        logger.error(err, 'handleWebRtcTransportConnect, data: %o', data)
-        spark.write({ type: MessageTypes.WebRTCTransportConnect.toString(), data: { connected: false }, id: messageId })
+        logger.error(err, 'handleWebRtcTransportConnect, data: %o', action)
+        dispatchAction(
+          NetworkTransportActions.requestTransportConnectError({
+            requestID,
+            error: err.message,
+            $network: action.$network,
+            $topic: action.$topic,
+            $to: action.$peer
+          })
+        )
       })
-    network.transportsConnectPending[transportId] = pending
+    network.transportsConnectPending[transportID] = pending
   } else {
     logger.error('Invalid transport.')
-    spark.write({
-      type: MessageTypes.WebRTCTransportConnect.toString(),
-      data: { error: 'invalid transport' },
-      id: messageId
-    })
+    dispatchAction(
+      NetworkTransportActions.requestTransportConnectError({
+        requestID,
+        error: 'Invalid transport',
+        $network: action.$network,
+        $topic: action.$topic,
+        $to: action.$peer
+      })
+    )
   }
 }
 
-export async function handleRequestProducer(
-  network: SocketWebRTCServerNetwork,
-  action: typeof MediaProducerActions.requestProducer.matches._TYPE
-) {
-  const { $peer: peerID, transportId, rtpParameters, paused, requestID, appData, kind } = action
+export async function handleRequestProducer(action: typeof MediaProducerActions.requestProducer.matches._TYPE) {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
+  const { $peer: peerID, transportID: transportId, rtpParameters, paused, requestID, appData, kind } = action
   const userId = getUserIdFromPeerID(network, peerID)
 
   const transport = network.mediasoupTransports[transportId]
@@ -704,10 +740,9 @@ export async function handleRequestProducer(
   }
 }
 
-export const handleRequestConsumer = async (
-  network: SocketWebRTCServerNetwork,
-  action: typeof MediaConsumerActions.requestConsumer.matches._TYPE
-) => {
+export const handleRequestConsumer = async (action: typeof MediaConsumerActions.requestConsumer.matches._TYPE) => {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
   const { peerID: mediaPeerId, mediaTag, rtpCapabilities, channelID } = action
   const peerID = action.$peer
 
@@ -804,9 +839,10 @@ export const handleRequestConsumer = async (
 }
 
 export async function handleConsumerSetLayers(
-  network: SocketWebRTCServerNetwork,
   action: typeof MediaConsumerActions.consumerLayers.matches._TYPE
 ): Promise<any> {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+
   const { consumerID, layer } = action
   const consumer = network.consumers.find((c) => c.id === consumerID)!
   if (!consumer) return logger.warn('consumer-set-layers: consumer not found ' + action.consumerID)

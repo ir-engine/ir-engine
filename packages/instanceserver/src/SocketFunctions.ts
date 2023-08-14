@@ -43,12 +43,7 @@ import {
   handleLeaveWorld
 } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
-import {
-  handleWebRtcInitializeRouter,
-  handleWebRtcTransportClose,
-  handleWebRtcTransportConnect,
-  handleWebRtcTransportCreate
-} from './WebRTCFunctions'
+import { handleWebRtcInitializeRouter } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:spark' })
 
@@ -162,15 +157,6 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
             break
           case MessageTypes.LeaveWorld.toString():
             handleLeaveWorld(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCTransportCreate.toString():
-            handleWebRtcTransportCreate(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCTransportConnect.toString():
-            handleWebRtcTransportConnect(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCTransportClose.toString():
-            handleWebRtcTransportClose(network, spark, peerID, data, id)
             break
           case MessageTypes.InitializeRouter.toString():
             handleWebRtcInitializeRouter(network, spark, peerID, data, id)

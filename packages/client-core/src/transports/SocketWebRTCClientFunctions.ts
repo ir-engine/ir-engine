@@ -36,7 +36,6 @@ import {
 } from 'mediasoup-client/lib/types'
 import type { EventEmitter } from 'primus'
 import Primus from 'primus-client'
-import { v4 as uuidv4 } from 'uuid'
 
 import config from '@etherealengine/common/src/config'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
@@ -91,6 +90,7 @@ import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { MathUtils } from 'three'
 import {
   LocationInstanceConnectionAction,
@@ -509,7 +509,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
 
   async function disconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
-    getMutableState(EngineState).connectedWorld.set(false)
     network.primus.removeListener('data', consumeDataAndKickHandler)
   }
 
@@ -522,17 +521,34 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   network.primus.on('data', consumeDataAndKickHandler)
   network.primus.socket.addEventListener('close', disconnectHandler)
   network.primus.socket.addEventListener('open', reconnectHandler)
-  // Get information for how to consume data from server and init a data consumer
 
-  await Promise.all([initSendTransport(network), initReceiveTransport(network)])
+  dispatchAction(
+    NetworkTransportActions.requestTransport({
+      direction: 'send',
+      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
+
+  dispatchAction(
+    NetworkTransportActions.requestTransport({
+      direction: 'recv',
+      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
 
   getMutableState(EngineState).connectedWorld.set(true)
 
-  // use sendBeacon to tell the server we're disconnecting when
-  // the page unloads
+  // // use sendBeacon to tell the server we're disconnecting when
+  // // the page unloads
   window.addEventListener('unload', async () => {
     // TODO: Handle this as a full disconnect #5404
-    network.primus.write({ type: MessageTypes.LeaveWorld.toString(), id: uuidv4() })
+    network.primus.write({ type: MessageTypes.LeaveWorld.toString(), id: MathUtils.generateUUID() })
   })
 }
 
@@ -615,7 +631,26 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   network.primus.socket.addEventListener('open', reconnectHandler)
 
   await initRouter(network)
-  await Promise.all([initSendTransport(network), initReceiveTransport(network)])
+
+  dispatchAction(
+    NetworkTransportActions.requestTransport({
+      direction: 'send',
+      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
+
+  dispatchAction(
+    NetworkTransportActions.requestTransport({
+      direction: 'recv',
+      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
 }
 
 /**
@@ -670,37 +705,41 @@ export async function createDataConsumer(
 ): Promise<void> {
   dispatchAction(
     DataConsumerActions.requestConsumer({
-      $network: network.hostId,
+      dataChannel,
+      $network: network.id,
       $topic: network.topic,
-      dataChannel
+      $to: network.hostPeerID
     })
   )
 }
 
-export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {
+export const onTransportCreated = async (action: typeof NetworkTransportActions.transportCreated.matches._TYPE) => {
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+
+  const { transportID, direction, sctpParameters, iceParameters, iceCandidates, dtlsParameters } = action
+
   const channelId = getChannelIdFromTransport(network)
 
-  logger.info('Creating transport: %o', {
-    topic: network.topic,
-    direction,
-    hostId: network.hostId,
-    channelId
-  })
-
-  // ask the server to create a server-side transport object and send
-  // us back the info we need to create a client-side transport
   let transport: MediaSoupTransport
 
-  const { transportOptions } = await promisedRequest(network, MessageTypes.WebRTCTransportCreate.toString(), {
-    direction,
-    sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
-    channelId
-  })
+  const iceServers = config.client.nodeEnv === 'production' ? PUBLIC_STUN_SERVERS : []
 
-  if (config.client.nodeEnv === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS
-  if (direction === 'recv') transport = await network.mediasoupDevice.createRecvTransport(transportOptions)
-  else if (direction === 'send') transport = await network.mediasoupDevice.createSendTransport(transportOptions)
-  else throw new Error(`bad transport 'direction': ${direction}`)
+  const transportOptions = {
+    id: action.transportID,
+    sctpParameters: sctpParameters as any,
+    iceParameters: iceParameters as any,
+    iceCandidates: iceCandidates as any,
+    dtlsParameters: dtlsParameters as any,
+    iceServers
+  }
+
+  if (direction === 'recv') {
+    transport = await network.mediasoupDevice.createRecvTransport(transportOptions)
+    network.recvTransport = transport
+  } else if (direction === 'send') {
+    transport = await network.mediasoupDevice.createSendTransport(transportOptions)
+    network.sendTransport = transport
+  } else throw new Error(`bad transport 'direction': ${direction}`)
 
   // mediasoup-client will emit a connect event when media needs to
   // start flowing for the first time. send dtlsParameters to the
@@ -713,17 +752,45 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
       callback: () => void,
       errback: (error: Error) => void
     ) => {
-      const connectResult = await promisedRequest(network, MessageTypes.WebRTCTransportConnect.toString(), {
-        transportId: transportOptions.id,
-        dtlsParameters
-      })
+      const requestID = MathUtils.generateUUID()
+      console.log({ requestID })
+      dispatchAction(
+        NetworkTransportActions.requestTransportConnect({
+          requestID,
+          transportID,
+          dtlsParameters,
+          $network: network.id,
+          $topic: network.topic,
+          $to: network.hostPeerID
+        })
+      )
 
-      if (connectResult.error) {
-        logger.error(connectResult.error, 'Transport connect error')
-        return errback(connectResult.error)
+      //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
+      try {
+        const transportConnected = await new Promise<typeof NetworkTransportActions.transportConnected.matches._TYPE>(
+          (resolve, reject) => {
+            const onAction = (action) => {
+              if (action.requestID !== requestID) return
+              matches(action)
+                .when(NetworkTransportActions.transportConnected.matches, (action) => {
+                  removeActionReceptor(onAction)
+                  resolve(action)
+                })
+                .when(NetworkTransportActions.requestTransportConnectError.matches, (action) => {
+                  removeActionReceptor(onAction)
+                  logger.error(action.error)
+                  reject(new Error(action.error))
+                })
+            }
+            addActionReceptor(onAction)
+          }
+        )
+        console.log({ transportConnected })
+        callback()
+      } catch (e) {
+        logger.error('Transport connect error', e)
+        errback(e)
       }
-
-      callback()
     }
   )
 
@@ -767,7 +834,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
         dispatchAction(
           MediaProducerActions.requestProducer({
             requestID,
-            transportId: transportOptions.id,
+            transportID,
             kind,
             rtpParameters,
             paused,
@@ -822,7 +889,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
         dispatchAction(
           DataProducerActions.requestProducer({
             requestID,
-            transportId: transportOptions.id,
+            transportID: transportOptions.id,
             sctpStreamParameters,
             dataChannel: label,
             protocol,
@@ -865,43 +932,31 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // failed, or disconnected, leave the  and reset
   transport.on('connectionstatechange', async (state: string) => {
     if (state === 'closed' || state === 'failed' || state === 'disconnected') {
-      NetworkPeerFunctions.destroyAllPeers(network)
-      dispatchAction(
-        network.topic === NetworkTopics.world
-          ? NetworkConnectionService.actions.worldInstanceDisconnected({})
-          : NetworkConnectionService.actions.mediaInstanceDisconnected({})
-      )
       logger.error(new Error(`Transport ${transport} transitioned to state ${state}.`))
       logger.error(
         'If this occurred unexpectedly shortly after joining a world, check that the instanceserver nodegroup has public IP addresses.'
       )
       logger.info('Waiting 5 seconds to make a new transport')
-      setTimeout(async () => {
+      setTimeout(() => {
         logger.info('Re-creating transport after unexpected closing/fail/disconnect %o', {
           direction,
           channelId
         })
-        await createTransport(network, direction)
-        logger.info('Re-created transport %o', { direction, channelId })
+        // ensure the network still exists and we want to re-create the transport
+        if (!getState(NetworkState).networks[network.id] || !network.primus || network.primus.disconnect) return
+
         dispatchAction(
-          network.topic === NetworkTopics.world
-            ? NetworkConnectionService.actions.worldInstanceReconnected({})
-            : NetworkConnectionService.actions.mediaInstanceReconnected({})
+          NetworkTransportActions.requestTransport({
+            direction,
+            sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+            $network: network.id,
+            $topic: network.topic,
+            $to: network.hostPeerID
+          })
         )
       }, 5000)
     }
   })
-  ;(transport as any).channelId = channelId
-
-  return transport
-}
-
-export async function initReceiveTransport(network: SocketWebRTCClientNetwork): Promise<void> {
-  network.recvTransport = await createTransport(network, 'recv')
-}
-
-export async function initSendTransport(network: SocketWebRTCClientNetwork): Promise<void> {
-  network.sendTransport = await createTransport(network, 'send')
 }
 
 export async function initRouter(network: SocketWebRTCClientNetwork): Promise<void> {
@@ -1201,10 +1256,9 @@ export async function subscribeToTrack(
   )
 }
 
-export const receiveConsumerHandler = async (
-  network: SocketWebRTCClientNetwork,
-  action: typeof MediaConsumerActions.consumerCreated.matches._TYPE
-) => {
+export const receiveConsumerHandler = async (action: typeof MediaConsumerActions.consumerCreated.matches._TYPE) => {
+  const network = getState(NetworkState).networks[action.$network]
+
   const { peerID, mediaTag, channelID, paused } = action
 
   const consumer = (await network.recvTransport.consume({
@@ -1447,7 +1501,6 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       removeNetwork(network)
       getMutableState(NetworkState).hostIds.world.set(none)
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
-      getMutableState(EngineState).connectedWorld.set(false)
       // if world has a media server connection
       if (Engine.instance.mediaNetwork) {
         const mediaState = getState(MediaInstanceState).instances[Engine.instance.mediaNetwork.hostId]
@@ -1473,9 +1526,6 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
 export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   logger.info('Start screen share')
   const mediaStreamState = getMutableState(MediaStreamState)
-
-  // make sure we've joined the  and that we have a sending transport
-  if (!network.sendTransport) network.sendTransport = await createTransport(network, 'send')
 
   // get a screen share track
   mediaStreamState.localScreen.set(

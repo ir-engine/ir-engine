@@ -37,7 +37,6 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
 import { NetworkState } from '../NetworkState'
@@ -47,7 +46,7 @@ export class DataProducerActions {
   static requestProducer = defineAction({
     type: 'ee.engine.network.DATA_REQUEST_PRODUCER',
     requestID: matches.string,
-    transportId: matches.string,
+    transportID: matches.string,
     protocol: matches.string,
     sctpStreamParameters: matches.object as Validator<unknown, any>,
     dataChannel: matches.string as Validator<unknown, DataChannelType>,
@@ -64,7 +63,7 @@ export class DataProducerActions {
     type: 'ee.engine.network.DATA_PRODUCER_CREATED',
     requestID: matches.string,
     producerID: matches.string,
-    transportId: matches.string,
+    transportID: matches.string,
     protocol: matches.string,
     sctpStreamParameters: matches.object as Validator<unknown, any>,
     dataChannel: matches.string as Validator<unknown, DataChannelType>,
@@ -133,13 +132,13 @@ export const DataProducerConsumerState = defineState({
     [
       DataProducerActions.producerCreated,
       (state, action: typeof DataProducerActions.producerCreated.matches._TYPE) => {
-        const hostId = Engine.instance.worldNetwork.hostId
-        if (!state.value[hostId]) {
-          state.merge({ [hostId]: { producers: {}, consumers: {} } })
+        const networkID = action.$network
+        if (!state.value[networkID]) {
+          state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
-        state[hostId].producers.merge({
+        state[networkID].producers.merge({
           [action.producerID]: {
-            transportId: action.transportId,
+            transportId: action.transportID,
             protocol: action.protocol,
             sctpStreamParameters: action.sctpStreamParameters as any,
             dataChannel: action.dataChannel,
@@ -151,24 +150,24 @@ export const DataProducerConsumerState = defineState({
     [
       DataProducerActions.closeProducer,
       (state, action: typeof DataProducerActions.closeProducer.matches._TYPE) => {
-        const hostId = Engine.instance.worldNetwork.hostId
-        if (!state.value[hostId]) return
+        const networkID = action.$network
+        if (!state.value[networkID]) return
 
-        state[hostId].producers[action.producerID].set(none)
+        state[networkID].producers[action.producerID].set(none)
 
-        if (!Object.keys(state[hostId].producers).length && !Object.keys(state[hostId].consumers).length) {
-          state[hostId].set(none)
+        if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
+          state[networkID].set(none)
         }
       }
     ],
     [
       DataConsumerActions.consumerCreated,
       (state, action: typeof DataConsumerActions.consumerCreated.matches._TYPE) => {
-        const hostId = Engine.instance.worldNetwork.hostId
-        if (!state.value[hostId]) {
-          state.merge({ [hostId]: { producers: {}, consumers: {} } })
+        const networkID = action.$network
+        if (!state.value[networkID]) {
+          state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
-        state[hostId].consumers.merge({
+        state[networkID].consumers.merge({
           [action.consumerID]: {
             dataChannel: action.dataChannel,
             sctpStreamParameters: action.sctpStreamParameters as any,
@@ -181,13 +180,13 @@ export const DataProducerConsumerState = defineState({
     [
       DataConsumerActions.closeConsumer,
       (state, action: typeof DataConsumerActions.closeConsumer.matches._TYPE) => {
-        const hostId = Engine.instance.worldNetwork.hostId
-        if (!state.value[hostId]) return
+        const networkID = action.$network
+        if (!state.value[networkID]) return
 
-        state[hostId].consumers[action.consumerID].set(none)
+        state[networkID].consumers[action.consumerID].set(none)
 
-        if (!Object.keys(state[hostId].consumers).length && !Object.keys(state[hostId].consumers).length) {
-          state[hostId].set(none)
+        if (!Object.keys(state[networkID].consumers).length && !Object.keys(state[networkID].consumers).length) {
+          state[networkID].set(none)
         }
       }
     ]

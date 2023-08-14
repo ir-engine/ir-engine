@@ -40,7 +40,6 @@ import {
 } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
 import { MediaStreamAppData, NetworkState } from '../NetworkState'
@@ -49,7 +48,7 @@ export class MediaProducerActions {
   static requestProducer = defineAction({
     type: 'ee.engine.network.MEDIA_CREATE_PRODUCER',
     requestID: matches.string,
-    transportId: matches.string,
+    transportID: matches.string,
     kind: matches.literals('audio', 'video').optional(),
     rtpParameters: matches.object,
     paused: matches.boolean,
@@ -164,11 +163,11 @@ export const MediaProducerConsumerState = defineState({
     [
       MediaProducerActions.producerCreated,
       (state, action: typeof MediaProducerActions.producerCreated.matches._TYPE) => {
-        const hostId = Engine.instance.mediaNetwork.hostId
-        if (!state.value[hostId]) {
-          state.merge({ [hostId]: { producers: {}, consumers: {} } })
+        const networkID = action.$network
+        if (!state.value[networkID]) {
+          state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
-        state[hostId].producers.merge({
+        state[networkID].producers.merge({
           [action.producerID]: {
             peerID: action.peerID,
             mediaTag: action.mediaTag,
@@ -180,31 +179,31 @@ export const MediaProducerConsumerState = defineState({
     [
       MediaProducerActions.closeProducer,
       (state, action: typeof MediaProducerActions.closeProducer.matches._TYPE) => {
-        const hostId = Engine.instance.mediaNetwork.hostId
-        if (!state.value[hostId]) return
+        const networkID = action.$network
+        if (!state.value[networkID]) return
 
-        state[hostId].producers[action.producerID].set(none)
+        state[networkID].producers[action.producerID].set(none)
 
-        if (!Object.keys(state[hostId].producers).length && !Object.keys(state[hostId].consumers).length) {
-          state[hostId].set(none)
+        if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
+          state[networkID].set(none)
         }
       }
     ],
     [
       MediaProducerActions.producerPaused,
       (state, action: typeof MediaProducerActions.producerPaused.matches._TYPE) => {
-        const hostId = Engine.instance.mediaNetwork.hostId
-        if (!state.value[hostId]?.producers[action.producerID]) return
+        const networkID = action.$network
+        if (!state.value[networkID]?.producers[action.producerID]) return
 
-        state[hostId].producers[action.producerID].merge({
+        state[networkID].producers[action.producerID].merge({
           paused: action.paused,
           globalMute: action.globalMute
         })
 
-        const peerID = state[hostId].producers[action.producerID].peerID.value
+        const peerID = state[networkID].producers[action.producerID].peerID.value
 
         const { producerID: producerId, globalMute, paused } = action
-        const network = getState(NetworkState).networks[hostId]
+        const network = getState(NetworkState).networks[networkID]
         const producer = network.producers.find((p) => p.id === producerId)
         if (producer) {
           const media = network.peers.get(peerID)?.media
@@ -218,11 +217,11 @@ export const MediaProducerConsumerState = defineState({
     [
       MediaConsumerActions.consumerCreated,
       (state, action: typeof MediaConsumerActions.consumerCreated.matches._TYPE) => {
-        const hostId = Engine.instance.mediaNetwork.hostId
-        if (!state.value[hostId]) {
-          state.merge({ [hostId]: { producers: {}, consumers: {} } })
+        const networkID = action.$network
+        if (!state.value[networkID]) {
+          state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
-        state[hostId].consumers.merge({
+        state[networkID].consumers.merge({
           [action.consumerID]: {
             peerID: action.peerID,
             mediaTag: action.mediaTag,
@@ -239,23 +238,23 @@ export const MediaProducerConsumerState = defineState({
     [
       MediaConsumerActions.closeConsumer,
       (state, action: typeof MediaConsumerActions.closeConsumer.matches._TYPE) => {
-        const hostId = Engine.instance.mediaNetwork.hostId
-        if (!state.value[hostId]) return
+        const networkID = action.$network
+        if (!state.value[networkID]) return
 
-        state[hostId].consumers[action.consumerID].set(none)
+        state[networkID].consumers[action.consumerID].set(none)
 
-        if (!Object.keys(state[hostId].consumers).length && !Object.keys(state[hostId].consumers).length) {
-          state[hostId].set(none)
+        if (!Object.keys(state[networkID].consumers).length && !Object.keys(state[networkID].consumers).length) {
+          state[networkID].set(none)
         }
       }
     ],
     [
       MediaConsumerActions.consumerPaused,
       (state, action: typeof MediaConsumerActions.consumerPaused.matches._TYPE) => {
-        const hostId = Engine.instance.mediaNetwork.hostId
-        if (!state.value[hostId]?.consumers[action.consumerID]) return
+        const networkID = action.$network
+        if (!state.value[networkID]?.consumers[action.consumerID]) return
 
-        state[hostId].consumers[action.consumerID].merge({
+        state[networkID].consumers[action.consumerID].merge({
           paused: action.paused
         })
       }

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
@@ -32,11 +31,11 @@ import {
   DataChannelRegistryState,
   DataConsumerActions
 } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+import { NetworkTransportState } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
-import { useWorldInstance } from '../common/services/LocationInstanceConnectionService'
 import {
   SocketWebRTCClientNetwork,
   createDataConsumer,
@@ -84,12 +83,10 @@ const execute = () => {
 
 export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
-  const currentLocationInstanceConnection = useWorldInstance()
-  // replace connectedToWorld with nework specific state
-  const connectedToWorld = useHookstate(getMutableState(EngineState).connectedWorld)
+  const transportState = useHookstate(getMutableState(NetworkTransportState)[networkID])
 
   useEffect(() => {
-    if (!currentLocationInstanceConnection?.connected?.value || !connectedToWorld.value) return
+    if (!transportState.value) return
 
     const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
     createDataProducer(network, dataChannelType)
@@ -98,7 +95,7 @@ export const DataChannel = (props: { networkID: UserID; dataChannelType: DataCha
     return () => {
       // todo - cleanup
     }
-  }, [currentLocationInstanceConnection?.connected, connectedToWorld])
+  }, [transportState])
 
   return null
 }
