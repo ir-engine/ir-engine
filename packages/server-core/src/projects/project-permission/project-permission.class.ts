@@ -28,10 +28,9 @@ import { Id, Params } from '@feathersjs/feathers'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../api/root-params'
 
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
@@ -113,13 +112,13 @@ export class ProjectPermissionService<
     return projectPermission
   }
 
-  async create(data: any, params?: UserParams) {
+  async create(data: ProjectPermissionData, params?: ProjectPermissionParams) {
     const selfUser = params!.user!
-    if (USER_ID_REGEX.test(data.inviteCode)) {
+    if (USER_ID_REGEX.test(data.inviteCode!)) {
       data.userId = data.inviteCode
       delete data.inviteCode
     }
-    if (INVITE_CODE_REGEX.test(data.userId)) {
+    if (INVITE_CODE_REGEX.test(data.userId!)) {
       data.inviteCode = data.userId
       delete data.inviteCode
     }
@@ -129,7 +128,7 @@ export class ProjectPermissionService<
             inviteCode: data.inviteCode
           }
         : {
-            id: data.userId
+            id: data.userId as UserID
           }
       const users = await this.app.service(userPath)._find({
         query: searchParam

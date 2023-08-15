@@ -55,9 +55,15 @@ export const projectPermissionSchema = Type.Object(
 export type ProjectPermissionType = Static<typeof projectPermissionSchema>
 
 // Schema for creating new entries
-export const projectPermissionDataSchema = Type.Partial(projectPermissionSchema, {
-  $id: 'ProjectPermissionData'
-})
+export const projectPermissionDataProperties = Type.Partial(projectPermissionSchema)
+
+export const projectPermissionDataSchema = Type.Intersect(
+  [projectPermissionDataProperties, Type.Object({ inviteCode: Type.Optional(Type.String()) })],
+  {
+    $id: 'ProjectPermissionData',
+    additionalProperties: false
+  }
+)
 export type ProjectPermissionData = Static<typeof projectPermissionDataSchema>
 
 // Schema for updating existing entries
