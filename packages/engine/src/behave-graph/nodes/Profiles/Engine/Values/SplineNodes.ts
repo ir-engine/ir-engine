@@ -56,9 +56,9 @@ export const getSpline = makeFunctionNodeDefinition({
 
 const initialState = () => {}
 export const addSpline = makeAsyncNodeDefinition({
-  typeName: 'engine/spline/addSpline',
+  typeName: 'engine/spline/addSplineTrack',
   category: NodeCategory.Action,
-  label: 'Add spline',
+  label: 'Add spline track',
   in: {
     flow: 'flow',
     entity: 'entity',
@@ -66,9 +66,10 @@ export const addSpline = makeAsyncNodeDefinition({
     splineUUID: 'string',
     isLoop: 'boolean',
     lockToXZPlane: 'boolean',
-    enableRotation: 'boolean'
+    enableRotation: 'boolean',
+    reset: 'boolean'
   },
-  out: { flow: 'flow', splineEnd: 'flow', entity: 'entity' },
+  out: { flow: 'flow', trackEnd: 'flow', entity: 'entity' },
   initialState: initialState(),
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
     const entity = read<Entity>('entity')
@@ -77,8 +78,9 @@ export const addSpline = makeAsyncNodeDefinition({
     const isLoop = read<boolean>('isLoop')
     const lockToXZPlane = read<boolean>('lockToXZPlane')
     const enableRotation = read<boolean>('enableRotation')
-
+    const alpha = read<number>('reset') ? 0 : undefined //
     setComponent(entity, SplineTrackComponent, {
+      alpha: alpha,
       splineEntityUUID: splineUuid,
       velocity: velocity,
       enableRotation: enableRotation,

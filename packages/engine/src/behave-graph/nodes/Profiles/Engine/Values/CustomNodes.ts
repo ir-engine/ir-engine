@@ -253,7 +253,7 @@ export const loadAsset = makeAsyncNodeDefinition({
     flow: 'flow',
     assetPath: 'string'
   },
-  out: { flow: 'flow', loadDone: 'flow', entity: 'entity' },
+  out: { flow: 'flow', loadEnd: 'flow', entity: 'entity' },
   initialState: initialState(),
   triggered: ({ read, write, commit, finished }) => {
     const loadAsset = async () => {
