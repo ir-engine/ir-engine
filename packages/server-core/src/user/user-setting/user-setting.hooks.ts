@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
@@ -34,19 +35,27 @@ import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-logg
 import {
   userSettingDataSchema,
   userSettingPatchSchema,
+  userSettingPath,
   userSettingQuerySchema,
   userSettingSchema
-} from '@etherealengine/engine/src/schemas/setting/user-setting.schema'
+} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import { getValidator } from '@feathersjs/typebox'
 import authenticate from '../../hooks/authenticate'
+import {
+  userSettingDataResolver,
+  userSettingExternalResolver,
+  userSettingPatchResolver,
+  userSettingQueryResolver,
+  userSettingResolver
+} from './user-setting.resolvers'
 
 const ensureUserSettingsOwner = () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, params, id } = context
     const user = params.user
-    const userSettings = await app.service('user-settings').get(id!)
-    if (user.id !== userSettings.userId) throw new Forbidden('You are not the owner of those user-settings')
+    const userSettings = await app.service(userSettingPath).get(id!)
+    if (user.id !== userSettings.userId) throw new Forbidden(`You are not the owner of those ${userSettingPath}`)
     return context
   }
 }
@@ -54,18 +63,14 @@ const ensureUserSettingsOwner = () => {
 const ensureUserThemeModes = () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, result } = context
-    const clientSetting = await app.service(clientSettingPath).find()
-    if (clientSetting && clientSetting.data.length > 0) {
-      result.themeModes = clientSetting.data[0].themeModes
-      await app.service('user-settings').patch(result.id, result)
+    const clientSettings = await app.service(clientSettingPath).find()
+    if (clientSettings && clientSettings.data.length > 0) {
+      result.themeModes = clientSettings.data[0].themeModes
 
-      // Setting themeModes value again to override the value updated in above patch() call.
-      result.themeModes = clientSetting.data[0].themeModes
-
-      // backwards compat
-      if (typeof result.themeModes === 'string') result.themeModes = JSON.parse(result.themeModes)
-      if (typeof result.themeModes === 'string') result.themeModes = JSON.parse(result.themeModes)
+      // @ts-ignore
+      await app.service(userSettingPath)._patch(result.id, result)
     }
+
     return context
   }
 }
@@ -77,13 +82,29 @@ const userSettingPatchValidator = getValidator(userSettingPatchSchema, dataValid
 const userSettingQueryValidator = getValidator(userSettingQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(userSettingExternalResolver), schemaHooks.resolveResult(userSettingResolver)]
+  },
+
   before: {
-    all: [authenticate()],
-    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
-    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
-    create: [iff(isProvider('external'), attachOwnerId('userId') as any)],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(userSettingQueryValidator),
+      schemaHooks.resolveQuery(userSettingQueryResolver)
+    ],
+    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
+    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
+    create: [
+      iff(isProvider('external'), attachOwnerId('userId')),
+      () => schemaHooks.validateData(userSettingDataValidator),
+      schemaHooks.resolveData(userSettingDataResolver)
+    ],
     update: [disallow()],
-    patch: [iff(isProvider('external'), ensureUserSettingsOwner() as any)],
+    patch: [
+      iff(isProvider('external'), ensureUserSettingsOwner()),
+      () => schemaHooks.validateData(userSettingPatchValidator),
+      schemaHooks.resolveData(userSettingPatchResolver)
+    ],
     remove: [disallow('external')]
   },
 
