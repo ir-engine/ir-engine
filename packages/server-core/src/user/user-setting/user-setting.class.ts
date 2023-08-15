@@ -23,31 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { UserSettings } from './user-settings.class'
-import userSettingsDocs from './user-settings.docs'
-import hooks from './user-settings.hooks'
-import createModel from './user-settings.model'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'user-settings': UserSettings
-  }
-}
+import {
+  UserSettingData,
+  UserSettingPatch,
+  UserSettingQuery,
+  UserSettingType
+} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { RootParams } from '../../api/root-params'
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
-  }
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new UserSettings(options, app)
-  event.docs = userSettingsDocs
-  app.use('user-settings', event)
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UserSettingParams extends RootParams<UserSettingQuery> {}
 
-  const service = app.service('user-settings')
-
-  service.hooks(hooks)
-}
+export class UserSettingService<
+  T = UserSettingType,
+  ServiceParams extends Params = UserSettingParams
+> extends KnexService<UserSettingType, UserSettingData, UserSettingParams, UserSettingPatch> {}
