@@ -210,19 +210,11 @@ export const pushProjectToGithub = async (
     const split = githubPathRegexExec[2].split('/')
     const owner = split[0]
     const repo = split[1].replace('.git', '')
-    const repos = await getUserRepos(githubIdentityProvider.data[0].oauthToken!)
 
-    const octoKit =
-      githubIdentityProvider.data.length > 0
-        ? new Octokit({ auth: githubIdentityProvider.data[0].oauthToken })
-        : await (async () => {
-            return getInstallationOctokit(
-              repos.find((repo) => {
-                repo.repositoryPath = repo.repositoryPath.toLowerCase()
-                return repo.repositoryPath === repoPath || repo.repositoryPath === repoPath + '.git'
-              })
-            )
-          })()
+    if (githubIdentityProvider.data.length === 0)
+      throw new Forbidden('You must log out and log back in with Github to refresh the token, and then try again.')
+
+    const octoKit = new Octokit({ auth: githubIdentityProvider.data[0].oauthToken })
     if (!octoKit) return
     try {
       await octoKit.rest.repos.get({
