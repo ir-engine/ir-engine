@@ -37,6 +37,7 @@ import { RootParams } from '../../api/root-params'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface StaticResourceParams extends RootParams<StaticResourceQuery> {}
 
 export class StaticResourceService<

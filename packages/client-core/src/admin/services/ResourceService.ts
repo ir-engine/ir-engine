@@ -79,7 +79,7 @@ export const ResourceService = {
     }
   },
   fetchAdminResources: async (skip = 0, search: string | undefined = undefined, sortField = 'key', orderBy = 'asc') => {
-    const $sort = sortField.length ? { [sortField]: orderBy === 'desc' ? 0 : 1 } : {}
+    const $sort = sortField.length ? { [sortField]: orderBy === 'desc' ? -1 : 1 } : {}
     const adminResourceState = getMutableState(AdminResourceState)
     const limit = adminResourceState.limit.value
     const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
