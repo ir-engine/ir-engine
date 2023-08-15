@@ -23,12 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceFilterResult } from '@etherealengine/common/src/interfaces/StaticResourceResult'
 import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import {
+  StaticResourceFiltersType,
+  staticResourceFiltersPath
+} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -49,7 +52,7 @@ export const AdminResourceState = defineState({
     fetched: false,
     updateNeeded: true,
     lastFetched: Date.now(),
-    filters: undefined as StaticResourceFilterResult | undefined,
+    filters: undefined as StaticResourceFiltersType | undefined,
     selectedMimeTypes: [] as string[]
   })
 })
@@ -106,7 +109,7 @@ export const ResourceService = {
     })
   },
   getResourceFilters: async () => {
-    const filters = await Engine.instance.api.service('static-resource-filters').get()
+    const filters = await (await Engine.instance.api.service(staticResourceFiltersPath).find()).data[0]
     getMutableState(AdminResourceState).merge({
       filters: filters,
       selectedMimeTypes: filters.mimeTypes

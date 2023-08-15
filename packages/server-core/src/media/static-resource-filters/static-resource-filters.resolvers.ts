@@ -25,41 +25,31 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
 
-import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { AvatarDatabaseType, AvatarQuery, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import {
+  StaticResourceFiltersQuery,
+  StaticResourceFiltersType
+} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { Paginated } from '@feathersjs/feathers'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+export const staticResourceFiltersResolver = resolve<StaticResourceFiltersType, HookContext>({
+  mimeTypes: virtual(async (mimeType, context) => {
+    const mimeTypes = (await context.app.service(staticResourcePath).find({
+      query: {
+        $select: ['mimeType']
+      }
+    })) as Paginated<StaticResourceType>
 
-export const avatarResolver = resolve<AvatarType, HookContext>({
-  modelResource: virtual(async (avatar, context) => {
-    const modelStaticResource = (await context.app
-      .service(staticResourcePath)
-      .get(avatar.modelResourceId)) as StaticResourceType
-    return modelStaticResource
-  }),
-  thumbnailResource: virtual(async (avatar, context) => {
-    const thumbnailStaticResource = (await context.app
-      .service(staticResourcePath)
-      .get(avatar.thumbnailResourceId)) as StaticResourceType
-    return thumbnailStaticResource
+    return mimeTypes.data.map((el) => el.mimeType)
   })
 })
 
-export const avatarExternalResolver = resolve<AvatarType, HookContext>({})
+export const staticResourceFiltersExternalResolver = resolve<StaticResourceFiltersType, HookContext>({})
 
-export const avatarDataResolver = resolve<AvatarDatabaseType, HookContext>({
-  id: async () => {
-    return v4()
-  },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql
-})
+export const staticResourceFiltersDataResolver = resolve<StaticResourceFiltersType, HookContext>({})
 
-export const avatarPatchResolver = resolve<AvatarType, HookContext>({
-  updatedAt: getDateTimeSql
-})
+export const staticResourceFiltersPatchResolver = resolve<StaticResourceFiltersType, HookContext>({})
 
-export const avatarQueryResolver = resolve<AvatarQuery, HookContext>({})
+export const staticResourceFiltersQueryResolver = resolve<StaticResourceFiltersQuery, HookContext>({})

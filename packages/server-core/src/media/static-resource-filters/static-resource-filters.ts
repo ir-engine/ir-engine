@@ -24,36 +24,36 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  staticResourceMethods,
-  staticResourcePath
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+  staticResourceFiltersMethods,
+  staticResourceFiltersPath
+} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
 import { Application } from '../../../declarations'
-import { StaticResourceService } from './static-resource.class'
-import staticResourceDocs from './static-resource.docs'
-import hooks from './static-resource.hooks'
+import { StaticResourceFiltersService } from './static-resource-filters.class'
+import staticResourceFiltersDocs from './static-resource-filters.docs'
+import hooks from './static-resource-filters.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [staticResourcePath]: StaticResourceService
+    [staticResourceFiltersPath]: StaticResourceFiltersService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    name: staticResourcePath,
+    name: staticResourceFiltersPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
   }
 
-  app.use(staticResourcePath, new StaticResourceService(options, app), {
+  app.use(staticResourceFiltersPath, new StaticResourceFiltersService(options), {
     // A list of all methods this service exposes externally
-    methods: staticResourceMethods,
+    methods: staticResourceFiltersMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: staticResourceDocs
+    docs: staticResourceFiltersDocs
   })
 
-  const service = app.service(staticResourcePath)
+  const service = app.service(staticResourceFiltersPath)
   service.hooks(hooks)
 }

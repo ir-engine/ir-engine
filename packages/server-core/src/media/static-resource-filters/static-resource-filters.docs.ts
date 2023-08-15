@@ -23,37 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
 import {
-  staticResourceMethods,
-  staticResourcePath
-} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { Application } from '../../../declarations'
-import { StaticResourceService } from './static-resource.class'
-import staticResourceDocs from './static-resource.docs'
-import hooks from './static-resource.hooks'
+  staticResourceFiltersDataSchema,
+  staticResourceFiltersPatchSchema,
+  staticResourceFiltersQuerySchema,
+  staticResourceFiltersSchema
+} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [staticResourcePath]: StaticResourceService
+export default createSwaggerServiceOptions({
+  schemas: {
+    staticResourceFiltersDataSchema,
+    staticResourceFiltersPatchSchema,
+    staticResourceFiltersQuerySchema,
+    staticResourceFiltersSchema
+  },
+  docs: {
+    description: 'Static resource filters service description',
+    securities: ['all']
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    name: staticResourcePath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(staticResourcePath, new StaticResourceService(options, app), {
-    // A list of all methods this service exposes externally
-    methods: staticResourceMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: staticResourceDocs
-  })
-
-  const service = app.service(staticResourcePath)
-  service.hooks(hooks)
-}
+})

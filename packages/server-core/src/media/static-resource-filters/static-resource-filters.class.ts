@@ -18,6 +18,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface StaticResourceFilterResult {
-  mimeTypes: string[]
-}
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+
+import {
+  StaticResourceFiltersData,
+  StaticResourceFiltersPatch,
+  StaticResourceFiltersQuery,
+  StaticResourceFiltersType
+} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
+import { RootParams } from '../../api/root-params'
+
+export interface StaticResourceFiltersParams extends RootParams<StaticResourceFiltersQuery> {}
+
+/**
+ * A class for StaticResourceFilters service
+ */
+
+export class StaticResourceFiltersService<
+  T = StaticResourceFiltersType,
+  ServiceParams extends Params = StaticResourceFiltersParams
+> extends KnexService<
+  StaticResourceFiltersType,
+  StaticResourceFiltersData,
+  StaticResourceFiltersParams,
+  StaticResourceFiltersPatch
+> {}
