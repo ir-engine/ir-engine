@@ -30,7 +30,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const inviteTypePath = 'invite-type'
 
-export const inviteTypeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const inviteTypeMethods = ['find', 'get'] as const
 
 // Main data model schema
 export const inviteTypeSchema = Type.Object(
