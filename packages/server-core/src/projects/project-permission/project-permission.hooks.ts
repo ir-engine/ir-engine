@@ -24,20 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-
-import {
-  projectPermissionDataSchema,
-  projectPermissionPatchSchema,
-  projectPermissionQuerySchema,
-  projectPermissionSchema
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
 
+import {
+  projectPermissionDataValidator,
+  projectPermissionPatchValidator,
+  projectPermissionQueryValidator
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
   projectPermissionDataResolver,
   projectPermissionExternalResolver,
@@ -45,12 +41,6 @@ import {
   projectPermissionQueryResolver,
   projectPermissionResolver
 } from './project-permission.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const projectPermissionValidator = getValidator(projectPermissionSchema, dataValidator)
-const projectPermissionDataValidator = getValidator(projectPermissionDataSchema, dataValidator)
-const projectPermissionPatchValidator = getValidator(projectPermissionPatchSchema, dataValidator)
-const projectPermissionQueryValidator = getValidator(projectPermissionQuerySchema, queryValidator)
 
 export default {
   around: {

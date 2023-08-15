@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { userSchema } from '../user/user.schema'
+import { dataValidator, queryValidator } from '../validators'
 
 export const projectPermissionPath = 'project-permission'
 
@@ -81,3 +82,8 @@ export const projectPermissionQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type ProjectPermissionQuery = Static<typeof projectPermissionQuerySchema>
+
+export const projectPermissionValidator = getValidator(projectPermissionSchema, dataValidator)
+export const projectPermissionDataValidator = getValidator(projectPermissionDataSchema, dataValidator)
+export const projectPermissionPatchValidator = getValidator(projectPermissionPatchSchema, dataValidator)
+export const projectPermissionQueryValidator = getValidator(projectPermissionQuerySchema, queryValidator)
