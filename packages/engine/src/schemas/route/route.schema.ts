@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const routePath = 'route'
 
@@ -69,3 +70,8 @@ export const routeQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type RouteQuery = Static<typeof routeQuerySchema>
+
+export const routeValidator = getValidator(routeSchema, dataValidator)
+export const routeDataValidator = getValidator(routeDataSchema, dataValidator)
+export const routePatchValidator = getValidator(routePatchSchema, dataValidator)
+export const routeQueryValidator = getValidator(routeQuerySchema, queryValidator)

@@ -24,23 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  authAppCredentialsSchema,
-  authBearerTokenSchema,
-  authCallbackSchema,
-  authDefaultsSchema,
-  authenticationSettingDataSchema,
-  authenticationSettingPatchSchema,
-  authenticationSettingQuerySchema,
-  authenticationSettingSchema,
-  authJwtOptionsSchema,
-  authOauthSchema,
-  authStrategiesSchema
+  authenticationSettingDataValidator,
+  authenticationSettingPatchValidator,
+  authenticationSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -51,26 +41,6 @@ import {
   authenticationSettingQueryResolver,
   authenticationSettingResolver
 } from './authentication-setting.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const authAppCredentialsValidator = getValidator(authAppCredentialsSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const authBearerTokenValidator = getValidator(authBearerTokenSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const authCallbackValidator = getValidator(authCallbackSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const authDefaultsValidator = getValidator(authDefaultsSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const authJwtOptionsValidator = getValidator(authJwtOptionsSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const authOauthValidator = getValidator(authOauthSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const authStrategiesValidator = getValidator(authStrategiesSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const authenticationSettingValidator = getValidator(authenticationSettingSchema, dataValidator)
-const authenticationSettingDataValidator = getValidator(authenticationSettingDataSchema, dataValidator)
-const authenticationSettingPatchValidator = getValidator(authenticationSettingPatchSchema, dataValidator)
-const authenticationSettingQueryValidator = getValidator(authenticationSettingQuerySchema, queryValidator)
 
 export default {
   around: {
