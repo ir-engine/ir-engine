@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const userRelationshipTypePath = 'user-relationship-type'
 
@@ -71,3 +72,8 @@ export const userRelationshipTypeQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type UserRelationshipTypeQuery = Static<typeof userRelationshipTypeQuerySchema>
+
+export const userRelationshipTypeValidator = getValidator(userRelationshipTypeSchema, dataValidator)
+export const userRelationshipTypeDataValidator = getValidator(userRelationshipTypeDataSchema, dataValidator)
+export const userRelationshipTypePatchValidator = getValidator(userRelationshipTypePatchSchema, dataValidator)
+export const userRelationshipTypeQueryValidator = getValidator(userRelationshipTypeQuerySchema, queryValidator)
