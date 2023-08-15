@@ -30,6 +30,7 @@ import { KnexAdapter } from '@feathersjs/knex'
 import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { Op } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -164,7 +165,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
   _afterCreate = async (app: Application, result: UserType) => {
     try {
-      await app.service('user-settings').create({
+      await app.service(userSettingPath).create({
         userId: result.id
       })
 

@@ -53,7 +53,7 @@ interface Vector3ScrubberProps {
 
 export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
   props.className = `Vector3Scrubber ${axis}`
-  const content = children ?? axis.toUpperCase() // Generate content conditionally
+  const content = children ?? axis.toUpperCase()
   return (
     <Scrubber tag={tag} onChange={onChange} value={value} {...props}>
       {content}
