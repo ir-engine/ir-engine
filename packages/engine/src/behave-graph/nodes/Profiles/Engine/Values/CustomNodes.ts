@@ -243,6 +243,7 @@ export const playAnimation = makeFlowNodeDefinition({
     commit('flow')
   }
 })
+
 const initialState = () => {}
 export const loadAsset = makeAsyncNodeDefinition({
   typeName: 'engine/asset/loadAsset',

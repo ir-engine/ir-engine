@@ -23,50 +23,74 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
-import { AnimationManager } from '../../../../../avatar/AnimationManager'
+import { NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Entity } from '../../../../../ecs/classes/Entity'
+import { defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { NameComponent } from '../../../../../scene/components/NameComponent'
+import { SplineComponent } from '../../../../../scene/components/SplineComponent'
+import { SplineTrackComponent } from '../../../../../scene/components/SplineTrackComponent'
+
+const splineQuery = defineQuery([SplineComponent])
 
 export const getSpline = makeFunctionNodeDefinition({
   typeName: 'engine/spline/getSpline',
   category: NodeCategory.Query,
-  label: 'Get Spline',
+  label: 'Get Spline Entity',
   in: {
-    spline: (_, graphApi) => {
-      const getAnims = async () => {
-        return await AnimationManager.instance.loadDefaultAnimations()
-      }
-      const animations = AnimationManager.instance?._animations ?? getAnims()
-
-      const choices = Array.from(animations)
-        .map((clip) => clip.name)
-        .sort()
-      choices.unshift('none')
+    splineName: (_, graphApi) => {
+      const choices = splineQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
+      choices.unshift({ text: 'none', value: -1 as Entity })
       return {
-        valueType: 'string',
+        valueType: 'entity',
         choices: choices
       }
     }
   },
-  out: { splineName: 'string' },
-  exec: ({ read, write, graph }) => {
-    const splineName: string = read('spline')
-    write('splineName', splineName)
+  out: { entity: 'entity' },
+  exec: ({ read, write }) => {
+    const splineEntity = read<Entity>('splineName')
+    write('entity', splineEntity)
   }
 })
 
-export const addSpline = makeFlowNodeDefinition({
+const initialState = () => {}
+export const addSpline = makeAsyncNodeDefinition({
   typeName: 'engine/spline/addSpline',
   category: NodeCategory.Action,
   label: 'Add spline',
   in: {
-    flow: 'flow'
+    flow: 'flow',
+    entity: 'entity',
+    velocity: 'float',
+    splineUUID: 'string',
+    isLoop: 'boolean',
+    lockToXZPlane: 'boolean',
+    enableRotation: 'boolean'
   },
-  out: { flow1: 'flow', flow2: 'flow' },
-  initialState: undefined,
-  triggered: ({ read, commit, graph: { getDependency } }) => {
-    commit('flow1', () => {
-      commit('flow2')
+  out: { flow: 'flow', splineEnd: 'flow', entity: 'entity' },
+  initialState: initialState(),
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    const entity = read<Entity>('entity')
+    const splineUuid = read<EntityUUID>('splineUUID')
+    const velocity = read<number>('velocity')
+    const isLoop = read<boolean>('isLoop')
+    const lockToXZPlane = read<boolean>('lockToXZPlane')
+    const enableRotation = read<boolean>('enableRotation')
+
+    setComponent(entity, SplineTrackComponent, {
+      splineEntityUUID: splineUuid,
+      velocity: velocity,
+      enableRotation: enableRotation,
+      lockToXZPlane: lockToXZPlane,
+      loop: isLoop
     })
+
+    commit('flow')
+    write('entity', entity)
+  },
+  dispose: ({ state, graph: { getDependency } }) => {
+    return initialState()
   }
 })
 

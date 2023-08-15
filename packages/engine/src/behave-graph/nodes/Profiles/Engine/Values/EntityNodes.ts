@@ -37,6 +37,7 @@ import { defineQuery, getComponent, setComponent } from '../../../../../ecs/func
 import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
+import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { addEntityToScene } from '../helper/entityHelper'
 
@@ -57,7 +58,7 @@ export const getEntity = makeFunctionNodeDefinition({
   },
   out: { entity: 'entity' },
   exec: ({ read, write, graph }) => {
-    const entity = read('entity')
+    const entity = read<Entity>('entity')
     write('entity', entity)
   }
 })
@@ -170,6 +171,14 @@ export const setEntityTransform = makeFlowNodeDefinition({
     setComponent(entity, TransformComponent, { position: position, rotation: rotation, scale: scale })
     commit('flow')
   }
+})
+
+export const getUUID = makeInNOutFunctionDesc({
+  name: 'engine/entity/getUuid',
+  label: 'Entity uuid',
+  in: ['entity'],
+  out: 'string',
+  exec: (entity: Entity) => getComponent(entity, UUIDComponent)
 })
 
 export const Constant = makeInNOutFunctionDesc({
