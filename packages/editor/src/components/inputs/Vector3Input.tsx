@@ -43,7 +43,7 @@ export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }
 
 interface Vector3ScrubberProps {
   tag?: string
-  axis: 'x' | 'y' | 'z'
+  axis: 'x' | 'y' | 'z' | string
   value: number
   onChange: any
   onPointerUp?: any
