@@ -33,7 +33,7 @@ import { toQuat, toVector3 } from '@behave-graph/scene'
 import { MathUtils } from 'three'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { ComponentMap, defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
@@ -87,19 +87,11 @@ export const getCameraEntity = makeFunctionNodeDefinition({
 })
 
 export const getEntityTransform = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/getComponentfromEntity',
+  typeName: 'engine/entity/getEntityTransform',
   category: NodeCategory.Query,
   label: 'Get entity transform',
   in: {
-    entity: 'entity',
-    componentName: (_, graphApi) => {
-      const choices = Array.from(ComponentMap.keys()).sort()
-      choices.unshift('none')
-      return {
-        valueType: 'string',
-        choices: choices
-      }
-    }
+    entity: 'entity'
   },
   out: { position: 'vec3', rotation: 'quat', scale: 'vec3', matrix: 'mat4' },
   exec: ({ read, write, graph }) => {

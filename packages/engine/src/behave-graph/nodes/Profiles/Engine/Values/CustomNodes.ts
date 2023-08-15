@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
+import {
+  NodeCategory,
+  makeAsyncNodeDefinition,
+  makeFlowNodeDefinition,
+  makeFunctionNodeDefinition
+} from '@behave-graph/core'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
@@ -38,6 +43,7 @@ import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
+import { addMediaComponent } from '../helper/assetHelper'
 
 export const playVideo = makeFlowNodeDefinition({
   typeName: 'engine/media/playVideo',
@@ -235,6 +241,37 @@ export const playAnimation = makeFlowNodeDefinition({
     const play = getCallback(entity, 'xre.play')
     play!()
     commit('flow')
+  }
+})
+const initialState = () => {}
+export const loadAsset = makeAsyncNodeDefinition({
+  typeName: 'engine/asset/loadAsset',
+  category: NodeCategory.Action,
+  label: 'Load asset',
+  in: {
+    flow: 'flow',
+    assetPath: 'string'
+  },
+  out: { flow: 'flow', loadDone: 'flow', entity: 'entity' },
+  initialState: initialState(),
+  triggered: ({ read, write, commit, finished }) => {
+    const loadAsset = async () => {
+      const assetPath = read<string>('assetPath')
+      const node = await addMediaComponent(assetPath)
+      return node
+    }
+
+    commit('flow', async () => {
+      const entity = await loadAsset()
+      write('entity', entity)
+      commit('loadDone', () => {
+        finished
+      })
+    })
+    return null
+  },
+  dispose: ({ state, graph: { getDependency } }) => {
+    return initialState()
   }
 })
 
