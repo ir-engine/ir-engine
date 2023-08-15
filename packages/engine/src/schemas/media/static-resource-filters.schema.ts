@@ -24,7 +24,7 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const staticResourceFiltersPath = 'static-resource-filters'
 
-export const staticResourceFiltersMethods = ['get'] as const
+export const staticResourceFiltersMethods = ['find'] as const
 
 // Main data model schema
 export const staticResourceFiltersSchema = Type.Object(
@@ -34,18 +34,6 @@ export const staticResourceFiltersSchema = Type.Object(
   { $id: 'StaticResourceFilters', additionalProperties: false }
 )
 export type StaticResourceFiltersType = Static<typeof staticResourceFiltersSchema>
-
-// Schema for creating new entries
-export const staticResourceFiltersDataSchema = Type.Pick(staticResourceFiltersSchema, ['mimeTypes'], {
-  $id: 'StaticResourceFiltersData'
-})
-export type StaticResourceFiltersData = Static<typeof staticResourceFiltersDataSchema>
-
-// Schema for updating existing entries
-export const staticResourceFiltersPatchSchema = Type.Partial(staticResourceFiltersSchema, {
-  $id: 'StaticResourceFiltersPatch'
-})
-export type StaticResourceFiltersPatch = Static<typeof staticResourceFiltersPatchSchema>
 
 // Schema for allowed query properties
 export const staticResourceFiltersQueryProperties = Type.Pick(staticResourceFiltersSchema, ['mimeTypes'])

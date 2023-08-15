@@ -22,8 +22,6 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { getValidator } from '@feathersjs/typebox'
 
 import {
-  staticResourceFiltersDataSchema,
-  staticResourceFiltersPatchSchema,
   staticResourceFiltersQuerySchema,
   staticResourceFiltersSchema
 } from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
@@ -33,17 +31,13 @@ import authenticate from '../../hooks/authenticate'
 
 import verifyScope from '../../hooks/verify-scope'
 import {
-  staticResourceFiltersDataResolver,
   staticResourceFiltersExternalResolver,
-  staticResourceFiltersPatchResolver,
   staticResourceFiltersQueryResolver,
   staticResourceFiltersResolver
 } from './static-resource-filters.resolvers'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const staticResourceFiltersValidator = getValidator(staticResourceFiltersSchema, dataValidator)
-const staticResourceFiltersDataValidator = getValidator(staticResourceFiltersDataSchema, dataValidator)
-const staticResourceFiltersPatchValidator = getValidator(staticResourceFiltersPatchSchema, dataValidator)
 const staticResourceFiltersQueryValidator = getValidator(staticResourceFiltersQuerySchema, queryValidator)
 
 export default {
@@ -55,21 +49,17 @@ export default {
   },
 
   before: {
-    all: [],
-    find: [
+    all: [
+      authenticate(),
+      verifyScope('admin', 'admin'),
       () => schemaHooks.validateQuery(staticResourceFiltersQueryValidator),
       schemaHooks.resolveQuery(staticResourceFiltersQueryResolver)
     ],
-    get: [authenticate(), verifyScope('admin', 'admin')],
-    create: [
-      () => schemaHooks.validateData(staticResourceFiltersDataValidator),
-      schemaHooks.resolveData(staticResourceFiltersDataResolver)
-    ],
+    find: [],
+    get: [],
+    create: [],
     update: [],
-    patch: [
-      () => schemaHooks.validateData(staticResourceFiltersPatchValidator),
-      schemaHooks.resolveData(staticResourceFiltersPatchResolver)
-    ],
+    patch: [],
     remove: []
   },
   after: {

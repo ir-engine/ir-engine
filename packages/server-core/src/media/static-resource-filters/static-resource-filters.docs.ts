@@ -25,20 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import {
-  staticResourceFiltersDataSchema,
-  staticResourceFiltersPatchSchema,
-  staticResourceFiltersQuerySchema,
-  staticResourceFiltersSchema
-} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
-
 export default createSwaggerServiceOptions({
-  schemas: {
-    staticResourceFiltersDataSchema,
-    staticResourceFiltersPatchSchema,
-    staticResourceFiltersQuerySchema,
-    staticResourceFiltersSchema
-  },
+  schemas: {},
   docs: {
     description: 'Static resource filters service description',
     securities: ['all']
