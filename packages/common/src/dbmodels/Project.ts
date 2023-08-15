@@ -42,10 +42,10 @@ import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.s
 
 export interface ProjectPermissionInterface {
   id: string
-  projectId: string
-  userId: UserID
-  type: string
-  user: UserType
+  projectId?: string
+  userId?: UserID
+  type?: string
+  user?: UserType
 }
 
 export interface ProjectPermissionType {
