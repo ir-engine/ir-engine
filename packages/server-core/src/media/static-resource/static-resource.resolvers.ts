@@ -28,26 +28,98 @@ import { resolve } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
+  StaticResourceDatabaseType,
   StaticResourceQuery,
   StaticResourceType
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { nanoid } from 'nanoid'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const staticResourceResolver = resolve<StaticResourceType, HookContext>({})
 
-export const staticResourceExternalResolver = resolve<StaticResourceType, HookContext>({})
+export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
+  let metadata = JSON.parse(rawData.metadata) as any
 
-export const staticResourceDataResolver = resolve<StaticResourceType, HookContext>({
-  id: async () => {
-    return v4()
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof metadata === 'string') {
+    metadata = JSON.parse(metadata)
+  }
+
+  let tags = JSON.parse(rawData.tags) as string[]
+
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof tags === 'string') {
+    tags = JSON.parse(tags)
+  }
+
+  let stats = JSON.parse(rawData.stats) as Record<string, any>
+
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof stats === 'string') {
+    stats = JSON.parse(stats)
+  }
+
+  return {
+    ...rawData,
+    metadata,
+    tags,
+    stats
+  }
+}
+
+export const staticResourceExternalResolver = resolve<StaticResourceType, HookContext>(
+  {},
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return staticResourceDbToSchema(rawData)
+    }
+  }
+)
+
+export const staticResourceDataResolver = resolve<StaticResourceType, HookContext>(
+  {
+    id: async () => {
+      return v4()
+    },
+    sid: async () => {
+      return nanoid(8)
+    },
+    createdAt: getDateTimeSql,
+    updatedAt: getDateTimeSql
   },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql
-})
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData,
+        metadata: JSON.stringify(rawData.metadata),
+        tags: JSON.stringify(rawData.tags),
+        stats: JSON.stringify(rawData.stats)
+      }
+    }
+  }
+)
 
-export const staticResourcePatchResolver = resolve<StaticResourceType, HookContext>({
-  updatedAt: getDateTimeSql
-})
+export const staticResourcePatchResolver = resolve<StaticResourceType, HookContext>(
+  {
+    updatedAt: getDateTimeSql
+  },
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData,
+        metadata: JSON.stringify(rawData.metadata),
+        tags: JSON.stringify(rawData.tags),
+        stats: JSON.stringify(rawData.stats)
+      }
+    }
+  }
+)
 
 export const staticResourceQueryResolver = resolve<StaticResourceQuery, HookContext>({})

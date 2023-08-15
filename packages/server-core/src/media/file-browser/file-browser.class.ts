@@ -255,7 +255,7 @@ export class FileBrowserService implements ServiceMethods<any> {
 
     const staticResource = (await this.app.service(staticResourcePath).find({
       query: {
-        key: key,
+        key: filePath,
         $limit: 1
       }
     })) as Paginated<StaticResourceType>

@@ -152,8 +152,7 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
 
   /** @todo - if adding variants that already exist, we only return the first one */
   const existingResource = (await app.service(staticResourcePath).find({
-    query: whereQuery,
-    paginate: false
+    query: whereQuery
   })) as Paginated<StaticResourceType> | null
 
   if (existingResource && existingResource.data.length > 0) return existingResource.data[0]
@@ -234,8 +233,7 @@ export const addAssetAsStaticResource = async (
   } as any
   if (args.project) whereQuery.project = args.project
   const existingAsset = (await app.service(staticResourcePath).find({
-    query: whereQuery,
-    paginate: false
+    query: whereQuery
   })) as Paginated<StaticResourceType>
 
   const stats = await getStats(file.buffer, file.mimetype)
