@@ -361,7 +361,6 @@ const execute = () => {
       const isPeerForEntity = Array.from(timeSeriesMocapData.keys()).find(
         (peerID: PeerID) => network.peers.get(peerID)?.userId === networkObject.ownerId
       )
-      console.log(isPeerForEntity, ikEntities.length)
       if (isPeerForEntity && ikEntities.length == 0) {
         // just animate and exit
         animationComponent.mixer.stopAllAction()
