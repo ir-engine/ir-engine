@@ -58,7 +58,7 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState, useState } from '@etherealengine/hyperflux'
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
@@ -71,6 +71,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
+import StringInput from '../inputs/StringInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
@@ -198,14 +199,29 @@ export function ElementList() {
     setAnchorPosition(undefined)
   }
 
+  const searchBarState = useState('')
+
+  const validElements = useState(ComponentShelfCategories)
+
+  useEffect(() => {
+    const result: Record<string, Component[]> = {}
+    for (const [category, items] of Object.entries(ComponentShelfCategories)) {
+      result[category] = items.filter((item) => item.name.toLowerCase().includes(searchBarState.value.toLowerCase()))
+    }
+    validElements.set(result)
+  }, [searchBarState])
+
   return (
     <>
       <div className={styles.elementListContainer}>
-        {Object.entries(ComponentShelfCategories).map(([category, items]) => (
+        <StringInput value={searchBarState.value} onChange={searchBarState.set} placeholder={t('Search...')} />
+        {Object.entries(validElements.get(NO_PROXY)).map(([category, items]) => (
           <div className={styles.category} key={category}>
-            <Typography variant="subtitle2" className={styles.categoryTitle}>
-              {category}
-            </Typography>
+            {items.length > 0 && (
+              <Typography variant="subtitle2" className={styles.categoryTitle}>
+                {category}
+              </Typography>
+            )}
             {items.map((item) => (
               <SceneElementListItem
                 key={item.name}
