@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const userApiKeyPath = 'user-api-key'
 
@@ -42,7 +43,7 @@ export const userApiKeySchema = Type.Object(
     token: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
@@ -75,3 +76,8 @@ export const userApiKeyQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type UserApiKeyQuery = Static<typeof userApiKeyQuerySchema>
+
+export const userApiKeyValidator = getValidator(userApiKeySchema, dataValidator)
+export const userApiKeyDataValidator = getValidator(userApiKeyDataSchema, dataValidator)
+export const userApiKeyPatchValidator = getValidator(userApiKeyPatchSchema, dataValidator)
+export const userApiKeyQueryValidator = getValidator(userApiKeyQuerySchema, queryValidator)

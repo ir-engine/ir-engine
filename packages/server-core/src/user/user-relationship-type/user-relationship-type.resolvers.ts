@@ -23,47 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-import { UserSetting } from '@etherealengine/common/src/dbmodels/UserSetting'
+import {
+  UserRelationshipTypeQuery,
+  UserRelationshipTypeType
+} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { Application } from '../../../declarations'
-import { createUserModel } from '../../all.model'
+export const userRelationshipTypeResolver = resolve<UserRelationshipTypeType, HookContext>({})
 
-/**
- *
- * Model for database entity
- * this model contain users setting
- */
+export const userRelationshipTypeExternalResolver = resolve<UserRelationshipTypeType, HookContext>({})
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const UserSettings = sequelizeClient.define<Model<UserSetting>>(
-    'user_settings',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      themeModes: {
-        type: DataTypes.JSON,
-        allowNull: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
+export const userRelationshipTypeDataResolver = resolve<UserRelationshipTypeType, HookContext>({})
 
-  ;(UserSettings as any).associate = (models: any): void => {
-    ;(UserSettings as any).belongsTo(createUserModel(app), { primaryKey: true, required: true, allowNull: false })
-  }
+export const userRelationshipTypePatchResolver = resolve<UserRelationshipTypeType, HookContext>({})
 
-  return UserSettings
-}
+export const userRelationshipTypeQueryResolver = resolve<UserRelationshipTypeQuery, HookContext>({})

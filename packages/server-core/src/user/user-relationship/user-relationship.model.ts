@@ -25,7 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
+import {
+  UserRelationshipInterface,
+  UserRelationshipTypeInterface
+} from '@etherealengine/common/src/dbmodels/UserRelationship'
 
 import { Application } from '../../../declarations'
 import { createUserModel } from '../../all.model'
@@ -60,8 +63,40 @@ export default (app: Application) => {
   ;(userRelationship as any).associate = (models: any): void => {
     ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'user', constraints: false })
     ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'relatedUser', constraints: false })
-    ;(userRelationship as any).belongsTo(models.user_relationship_type, { foreignKey: 'type' })
+    ;(userRelationship as any).belongsTo(createUserRelationshipTypeModel(app), { foreignKey: 'userRelationshipType' })
   }
 
   return userRelationship
+}
+
+const createUserRelationshipTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const userRelationshipType = sequelizeClient.define<Model<UserRelationshipTypeInterface>>(
+    'user-relationship-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        },
+        beforeUpdate(instance: any, options: any): void {
+          throw new Error("Can't update a type!")
+        }
+      },
+      timestamps: false
+    }
+  )
+
+  ;(userRelationshipType as any).associate = (models: any): void => {
+    ;(userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'userRelationshipType' })
+  }
+
+  return userRelationshipType
 }

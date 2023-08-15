@@ -23,6 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from './OpaqueType'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export type RecordingID = OpaqueType<'RecordingID'> & string
+import {
+  userKickDataSchema,
+  userKickPatchSchema,
+  userKickQuerySchema,
+  userKickSchema
+} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    userKickDataSchema,
+    userKickPatchSchema,
+    userKickQuerySchema,
+    userKickSchema
+  },
+  docs: {
+    description: 'User kick service description',
+    securities: ['all']
+  }
+})

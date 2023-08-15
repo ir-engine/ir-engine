@@ -23,37 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `login-token` service on path `/login-token`
-import { Application } from '../../../declarations'
-import { LoginToken } from './login-token.class'
-import loginTokenDocs from './login-token.docs'
-import hooks from './login-token.hooks'
-import createModel from './login-token.model'
+import {
+  userRelationshipTypeMethods,
+  userRelationshipTypePath
+} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
 
-// Add this service to the service type index
+import { Application } from '../../../declarations'
+import { UserRelationshipTypeService } from './user-relationship-type.class'
+import userRelationshipTypeDocs from './user-relationship-type.docs'
+import hooks from './user-relationship-type.hooks'
+
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'login-token': LoginToken
+    [userRelationshipTypePath]: UserRelationshipTypeService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
+    id: 'type',
+    name: userRelationshipTypePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new LoginToken(options, app)
-  event.docs = loginTokenDocs
-  app.use('login-token', event)
+  app.use(userRelationshipTypePath, new UserRelationshipTypeService(options), {
+    // A list of all methods this service exposes externally
+    methods: userRelationshipTypeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: userRelationshipTypeDocs
+  })
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('login-token')
-
+  const service = app.service(userRelationshipTypePath)
   service.hooks(hooks)
 }

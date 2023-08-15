@@ -23,28 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'user-settings': {
-      type: 'object',
-      properties: {
-        themeModes: {
-          type: 'json'
-        }
-      }
-    },
-    'user-settings_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/user-settings' }
-    }
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
+
+import { UserKickID, UserKickQuery, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const userKickResolver = resolve<UserKickType, HookContext>({})
+
+export const userKickExternalResolver = resolve<UserKickType, HookContext>({})
+
+export const userKickDataResolver = resolve<UserKickType, HookContext>({
+  id: async () => {
+    return v4() as UserKickID
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
-  }
-}
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userKickPatchResolver = resolve<UserKickType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const userKickQueryResolver = resolve<UserKickQuery, HookContext>({})

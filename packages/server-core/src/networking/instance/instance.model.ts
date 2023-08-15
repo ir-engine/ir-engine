@@ -28,7 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { InstanceAuthorizedUserInterface, InstanceInterface } from '@etherealengine/common/src/dbmodels/Instance'
 
 import { Application } from '../../../declarations'
-import { createLocationModel, createUserModel } from '../../all.model'
+import { createLocationModel, createUserKickModel, createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -84,7 +84,7 @@ export default (app: Application) => {
     ;(instance as any).hasMany(models.bot, { foreignKey: { allowNull: true } })
     ;(instance as any).belongsToMany(createUserModel(app), { through: 'instance-authorized-user' })
     ;(instance as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
-    ;(instance as any).hasMany(models.user_kick, { onDelete: 'cascade' })
+    ;(instance as any).hasMany(createUserKickModel(app), { onDelete: 'cascade' })
   }
   return instance
 }

@@ -671,6 +671,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
         requestID,
         error: 'Invalid transport ID.',
         $network: action.$network,
+        $topic: action.$topic,
         $to: peerID
       })
     )

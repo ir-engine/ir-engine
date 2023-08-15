@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  githubRepoAccessDataSchema,
-  githubRepoAccessPatchSchema,
-  githubRepoAccessQuerySchema,
-  githubRepoAccessSchema
+  githubRepoAccessDataValidator,
+  githubRepoAccessPatchValidator,
+  githubRepoAccessQueryValidator
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -44,12 +41,6 @@ import {
   githubRepoAccessQueryResolver,
   githubRepoAccessResolver
 } from './github-repo-access.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const githubRepoAccessValidator = getValidator(githubRepoAccessSchema, dataValidator)
-const githubRepoAccessDataValidator = getValidator(githubRepoAccessDataSchema, dataValidator)
-const githubRepoAccessPatchValidator = getValidator(githubRepoAccessPatchSchema, dataValidator)
-const githubRepoAccessQueryValidator = getValidator(githubRepoAccessQuerySchema, queryValidator)
 
 export default {
   around: {

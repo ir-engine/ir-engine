@@ -840,6 +840,7 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
             paused,
             appData,
             $network: network.id,
+            $topic: network.topic,
             $to: network.hostPeerID
           })
         )

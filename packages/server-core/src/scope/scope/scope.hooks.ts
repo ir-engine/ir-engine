@@ -23,25 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  scopeDataSchema,
-  scopePatchSchema,
-  scopeQuerySchema,
-  scopeSchema
-} from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
-import { getValidator } from '@feathersjs/typebox'
-
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const scopeValidator = getValidator(scopeSchema, dataValidator)
-const scopeDataValidator = getValidator(scopeDataSchema, dataValidator)
-const scopePatchValidator = getValidator(scopePatchSchema, dataValidator)
-const scopeQueryValidator = getValidator(scopeQuerySchema, queryValidator)
 
 export default {
   before: {

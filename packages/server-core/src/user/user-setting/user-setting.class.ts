@@ -23,31 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `instance-provision` service on path `/instance-provision`
-import { Application } from '../../../declarations'
-import { Recording } from './recording.class'
-import recordingDocs from './recording.docs'
-import hooks from './recording.hooks'
-import createModel from './recording.model'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 
-// Add this service to the service type index
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    recording: Recording
-  }
-}
+import {
+  UserSettingData,
+  UserSettingPatch,
+  UserSettingQuery,
+  UserSettingType
+} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { RootParams } from '../../api/root-params'
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UserSettingParams extends RootParams<UserSettingQuery> {}
 
-  const event = new Recording(options, app)
-  event.docs = recordingDocs
-  app.use('recording', event)
-
-  const service = app.service('recording')
-  service.hooks(hooks)
-}
+export class UserSettingService<
+  T = UserSettingType,
+  ServiceParams extends Params = UserSettingParams
+> extends KnexService<UserSettingType, UserSettingData, UserSettingParams, UserSettingPatch> {}
