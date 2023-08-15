@@ -38,10 +38,9 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
   staticResource: virtual(async (recordingResource, context) => {
-    //TODO: We should replace `as any as StaticResourceType` with `as StaticResourceType` once static-resource service is migrated to feathers 5.
     const staticResource = (await context.app
       .service(staticResourcePath)
-      .get(recordingResource.staticResourceId)) as any as StaticResourceType
+      .get(recordingResource.staticResourceId)) as StaticResourceType
     return staticResource
   })
 })
