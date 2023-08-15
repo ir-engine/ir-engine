@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import moment from 'moment'
 
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -72,22 +72,23 @@ export class Login implements ServiceMethods<Data> {
    */
   async get(id: Id, params?: Params): Promise<any> {
     try {
-      const result = await this.app.service('login-token').Model.findOne({
-        where: {
-          token: id
+      const result = await this.app.service(loginTokenPath)._find({
+        query: {
+          token: id.toString()
         }
       })
-      if (result == null) {
+
+      if (result.data.length === 0) {
         logger.info('Invalid login token')
         return {
           error: 'invalid login token'
         }
       }
-      if (moment().utc().toDate() > result.expiresAt) {
+      if (new Date() > new Date(result.data[0].expiresAt)) {
         logger.info('Login Token has expired')
         return { error: 'Login link has expired' }
       }
-      const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId)
+      const identityProvider = await this.app.service('identity-provider').get(result.data[0].identityProviderId)
       await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {
@@ -101,7 +102,7 @@ export class Login implements ServiceMethods<Data> {
       const token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
-      await this.app.service('login-token').remove(result.id)
+      await this.app.service(loginTokenPath)._remove(result.data[0].id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })

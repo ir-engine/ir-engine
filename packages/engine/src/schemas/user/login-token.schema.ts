@@ -27,56 +27,48 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
-export const userSettingPath = 'user-settings'
+export const loginTokenPath = 'login-token'
+
+export const loginTokenMethods = ['create'] as const
 
 // Main data model schema
-export const userSettingSchema = Type.Object(
+export const loginTokenSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
-    themeModes: Type.Record(Type.String(), Type.String())
-    // userId: TypedString<UserID>({
-    //   format: 'uuid'
-    // })
-    // createdAt: Type.String({ format: 'date-time' }),
-    // updatedAt: Type.String({ format: 'date-time' })
+    token: Type.String(),
+    identityProviderId: Type.String({
+      format: 'uuid'
+    }),
+    expiresAt: Type.String({ format: 'date-time' }),
+    createdAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'UserSetting', additionalProperties: false }
+  { $id: 'LoginToken', additionalProperties: false }
 )
-export type UserSettingType = Static<typeof userSettingSchema>
-
-export type UserSettingDatabaseType = Omit<UserSettingType, 'themeModes'> & {
-  themeModes: string
-}
+export type LoginTokenType = Static<typeof loginTokenSchema>
 
 // Schema for creating new entries
-export const userSettingDataSchema = Type.Pick(userSettingSchema, ['themeModes'], {
-  $id: 'UserSettingData'
+export const loginTokenDataSchema = Type.Partial(loginTokenSchema, {
+  $id: 'LoginTokenData'
 })
-// export const userSettingDataSchema = Type.Pick(userSettingSchema, ['themeModes', 'userId'], {
-//   $id: 'UserSettingData'
-// })
-export type UserSettingData = Static<typeof userSettingDataSchema>
+export type LoginTokenData = Static<typeof loginTokenDataSchema>
 
 // Schema for updating existing entries
-export const userSettingPatchSchema = Type.Partial(userSettingSchema, {
-  $id: 'UserSettingPatch'
+export const loginTokenPatchSchema = Type.Partial(loginTokenSchema, {
+  $id: 'LoginTokenPatch'
 })
-export type UserSettingPatch = Static<typeof userSettingPatchSchema>
+export type LoginTokenPatch = Static<typeof loginTokenPatchSchema>
 
 // Schema for allowed query properties
-export const userSettingQueryProperties = Type.Pick(userSettingSchema, [
-  'id'
-  // 'themeModes', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
-  // 'userId'
-])
-export const userSettingQuerySchema = Type.Intersect(
+export const loginTokenQueryProperties = Type.Pick(loginTokenSchema, ['id', 'token', 'identityProviderId'])
+export const loginTokenQuerySchema = Type.Intersect(
   [
-    querySyntax(userSettingQueryProperties),
+    querySyntax(loginTokenQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type UserSettingQuery = Static<typeof userSettingQuerySchema>
+export type LoginTokenQuery = Static<typeof loginTokenQuerySchema>

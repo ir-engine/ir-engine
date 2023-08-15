@@ -25,16 +25,48 @@ Ethereal Engine. All Rights Reserved.
 
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import authenticate from '../../hooks/authenticate'
 
+import {
+  userKickDataSchema,
+  userKickPatchSchema,
+  userKickQuerySchema,
+  userKickSchema
+} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
+import {
+  userKickDataResolver,
+  userKickExternalResolver,
+  userKickPatchResolver,
+  userKickQueryResolver,
+  userKickResolver
+} from './user-kick.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userKickValidator = getValidator(userKickSchema, dataValidator)
+const userKickDataValidator = getValidator(userKickDataSchema, dataValidator)
+const userKickPatchValidator = getValidator(userKickPatchSchema, dataValidator)
+const userKickQueryValidator = getValidator(userKickQuerySchema, queryValidator)
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(userKickExternalResolver), schemaHooks.resolveResult(userKickResolver)]
+  },
+
   before: {
-    all: [iff(isProvider('external'), authenticate() as any)],
+    all: [
+      iff(isProvider('external'), authenticate() as any),
+      () => schemaHooks.validateQuery(userKickQueryValidator),
+      schemaHooks.resolveQuery(userKickQueryResolver)
+    ],
     find: [],
     get: [disallow()],
-    create: [],
+    create: [() => schemaHooks.validateData(userKickDataValidator), schemaHooks.resolveData(userKickDataResolver)],
     update: [],
-    patch: [],
+    patch: [() => schemaHooks.validateData(userKickPatchValidator), schemaHooks.resolveData(userKickPatchResolver)],
     remove: []
   },
 
@@ -57,4 +89,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

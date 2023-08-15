@@ -23,47 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import { UserSetting } from '@etherealengine/common/src/dbmodels/UserSetting'
+import { UserKickID, UserKickQuery, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { Application } from '../../../declarations'
-import { createUserModel } from '../../all.model'
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-/**
- *
- * Model for database entity
- * this model contain users setting
- */
+export const userKickResolver = resolve<UserKickType, HookContext>({})
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const UserSettings = sequelizeClient.define<Model<UserSetting>>(
-    'user_settings',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      themeModes: {
-        type: DataTypes.JSON,
-        allowNull: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
+export const userKickExternalResolver = resolve<UserKickType, HookContext>({})
 
-  ;(UserSettings as any).associate = (models: any): void => {
-    ;(UserSettings as any).belongsTo(createUserModel(app), { primaryKey: true, required: true, allowNull: false })
-  }
+export const userKickDataResolver = resolve<UserKickType, HookContext>({
+  id: async () => {
+    return v4() as UserKickID
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
 
-  return UserSettings
-}
+export const userKickPatchResolver = resolve<UserKickType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const userKickQueryResolver = resolve<UserKickQuery, HookContext>({})

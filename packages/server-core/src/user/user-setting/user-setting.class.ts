@@ -23,7 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface UserSetting {
-  id: string
-  themeModes: Record<string, string>
-}
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+
+import {
+  UserSettingData,
+  UserSettingPatch,
+  UserSettingQuery,
+  UserSettingType
+} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { RootParams } from '../../api/root-params'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UserSettingParams extends RootParams<UserSettingQuery> {}
+
+export class UserSettingService<
+  T = UserSettingType,
+  ServiceParams extends Params = UserSettingParams
+> extends KnexService<UserSettingType, UserSettingData, UserSettingParams, UserSettingPatch> {}

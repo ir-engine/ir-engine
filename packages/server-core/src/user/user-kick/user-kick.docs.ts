@@ -23,31 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { UserSettings } from './user-settings.class'
-import userSettingsDocs from './user-settings.docs'
-import hooks from './user-settings.hooks'
-import createModel from './user-settings.model'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'user-settings': UserSettings
+import {
+  userKickDataSchema,
+  userKickPatchSchema,
+  userKickQuerySchema,
+  userKickSchema
+} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    userKickDataSchema,
+    userKickPatchSchema,
+    userKickQuerySchema,
+    userKickSchema
+  },
+  docs: {
+    description: 'User kick service description',
+    securities: ['all']
   }
-}
-
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
-  }
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new UserSettings(options, app)
-  event.docs = userSettingsDocs
-  app.use('user-settings', event)
-
-  const service = app.service('user-settings')
-
-  service.hooks(hooks)
-}
+})
