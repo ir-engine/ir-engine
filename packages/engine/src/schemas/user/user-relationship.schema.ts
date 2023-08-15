@@ -30,7 +30,7 @@ import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 import { userRelationshipTypes } from './user-relationship-type.schema'
-import { UserID } from './user.schema'
+import { UserID, userSchema } from './user.schema'
 
 export const userRelationshipPath = 'user-relationship'
 
@@ -50,8 +50,8 @@ export const userRelationshipSchema = Type.Object(
     relatedUserId: TypedString<UserID>({
       format: 'uuid'
     }),
-    user: Type.Any(), // TODO: Change this to userSchema once its moved to feathers 5.
-    relatedUser: Type.Any(), // TODO: Change this to userSchema once its moved to feathers 5.
+    user: Type.Ref(userSchema),
+    relatedUser: Type.Ref(userSchema),
     userRelationshipType: StringEnum(userRelationshipTypes),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

@@ -28,7 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { UserRelationshipTypeInterface } from '@etherealengine/common/src/dbmodels/UserRelationshipType'
 
 import { Application } from '../../../declarations'
-import { createUserRelationshipModel } from '../user/user.model'
+import { createUserRelationshipModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
