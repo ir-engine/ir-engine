@@ -23,17 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  recordingDataSchema,
-  recordingPatchSchema,
-  recordingQuerySchema,
-  recordingSchema,
-  recordingSchemaType
+  recordingDataValidator,
+  recordingPatchValidator,
+  recordingQueryValidator
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 
 import { HookContext, NextFunction } from '@feathersjs/feathers'
@@ -46,14 +42,6 @@ import {
   recordingQueryResolver,
   recordingResolver
 } from './recording.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const recordingSchemaValidator = getValidator(recordingSchemaType, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const recordingValidator = getValidator(recordingSchema, dataValidator)
-const recordingDataValidator = getValidator(recordingDataSchema, dataValidator)
-const recordingPatchValidator = getValidator(recordingPatchSchema, dataValidator)
-const recordingQueryValidator = getValidator(recordingQuerySchema, queryValidator)
 
 const applyUserNameSort = async (context: HookContext, next: NextFunction) => {
   await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks

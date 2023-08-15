@@ -79,15 +79,15 @@ const arrayInputGroupContentStyle: React.CSSProperties = {
 }
 
 const labelStyle = {
-  maxWidth: '33.33333%'
+  maxWidth: '20%'
 }
 
 const inputStyle = {
-  maxWidth: '66.66666%'
+  maxWidth: '80%'
 }
 
 const divStyle = {
-  maxWidth: '66.66666%'
+  maxWidth: '80%'
 }
 
 const ArrayInputGroup = ({

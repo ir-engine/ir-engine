@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const locationTypePath = 'location-type'
 
@@ -63,3 +64,8 @@ export const locationTypeQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type LocationTypeQuery = Static<typeof locationTypeQuerySchema>
+
+export const locationTypeValidator = getValidator(locationTypeSchema, dataValidator)
+export const locationTypeDataValidator = getValidator(locationTypeDataSchema, dataValidator)
+export const locationTypePatchValidator = getValidator(locationTypePatchSchema, dataValidator)
+export const locationTypeQueryValidator = getValidator(locationTypeQuerySchema, queryValidator)
