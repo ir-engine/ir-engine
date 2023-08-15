@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const instanceAttendancePath = 'instance-attendance'
 
@@ -90,3 +91,8 @@ export const instanceAttendanceQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type InstanceAttendanceQuery = Static<typeof instanceAttendanceQuerySchema>
+
+export const instanceAttendanceValidator = getValidator(instanceAttendanceSchema, dataValidator)
+export const instanceAttendanceDataValidator = getValidator(instanceAttendanceDataSchema, dataValidator)
+export const instanceAttendancePatchValidator = getValidator(instanceAttendancePatchSchema, dataValidator)
+export const instanceAttendanceQueryValidator = getValidator(instanceAttendanceQuerySchema, queryValidator)

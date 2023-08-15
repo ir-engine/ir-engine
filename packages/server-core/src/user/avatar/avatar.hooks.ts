@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  avatarDataSchema,
-  avatarPatchSchema,
-  avatarQuerySchema,
-  avatarSchema
+  avatarDataValidator,
+  avatarPatchValidator,
+  avatarQueryValidator
 } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -44,12 +41,6 @@ import {
   avatarQueryResolver,
   avatarResolver
 } from './avatar.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const avatarValidator = getValidator(avatarSchema, dataValidator)
-const avatarDataValidator = getValidator(avatarDataSchema, dataValidator)
-const avatarPatchValidator = getValidator(avatarPatchSchema, dataValidator)
-const avatarQueryValidator = getValidator(avatarQuerySchema, queryValidator)
 
 export default {
   around: {

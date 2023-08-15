@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import type { Static } from '@feathersjs/typebox'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const staticResourcePath = 'static-resource'
 
