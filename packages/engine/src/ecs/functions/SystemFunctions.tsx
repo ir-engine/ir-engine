@@ -31,6 +31,7 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getState, startReactor } from '@etherealengine/hyperflux'
 
+import { MathUtils } from 'three'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
@@ -198,6 +199,29 @@ export const startSystems = (
   for (const system of systems) {
     startSystem(system, insert)
   }
+}
+
+/**
+ *
+ *
+ *
+ */
+
+export const useExecute = (
+  execute: () => void,
+  insert: {
+    before?: SystemUUID
+    with?: SystemUUID
+    after?: SystemUUID
+  }
+) => {
+  useEffect(() => {
+    const handle = defineSystem({ uuid: MathUtils.generateUUID(), execute })
+    startSystem(handle, insert)
+    return () => {
+      disableSystem(handle)
+    }
+  }, [])
 }
 
 /**
