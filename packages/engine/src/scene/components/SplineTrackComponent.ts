@@ -23,19 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { getState } from '@etherealengine/hyperflux'
 import { Quaternion } from 'three'
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { SplineComponent } from './SplineComponent'
+import { UUIDComponent } from './UUIDComponent'
 
 export const SplineTrackComponent = defineComponent({
   name: 'SplineTrackComponent',
@@ -43,6 +41,7 @@ export const SplineTrackComponent = defineComponent({
 
   onInit: (entity) => {
     return {
+      splineEntityUUID: null as EntityUUID | null,
       alpha: 0.01,
       velocity: 1.0,
       disableRoll: false,
@@ -52,14 +51,16 @@ export const SplineTrackComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    json.velocity && component.velocity.set(json.velocity)
-    json.alpha && component.alpha.set(json.alpha)
-    json.disableRoll && component.disableRoll.set(json.disableRoll)
-    json.disableRunning && component.disableRunning.set(json.disableRunning)
+    if (typeof json.splineEntityUUID !== 'undefined') component.splineEntityUUID.set(json.splineEntityUUID)
+    if (typeof json.velocity === 'number') component.velocity.set(json.velocity)
+    if (typeof json.alpha === 'number') component.alpha.set(json.alpha)
+    if (typeof json.disableRoll === 'boolean') component.disableRoll.set(json.disableRoll)
+    if (typeof json.disableRunning === 'boolean') component.disableRunning.set(json.disableRunning)
   },
 
   toJSON: (entity, component) => {
     return {
+      splineEntityUUID: component.splineEntityUUID.value,
       velocity: component.velocity.value,
       alpha: component.alpha.value,
       disableRoll: component.disableRoll.value,
@@ -67,25 +68,26 @@ export const SplineTrackComponent = defineComponent({
     }
   },
 
-  onRemove: (entity, component) => {},
-
   reactor: function (props) {
     const entity = useEntityContext()
     const component = useComponent(entity, SplineTrackComponent)
 
     useExecute(
       () => {
+        if (getState(EngineState).isEditor) return
+
+        if (!component.splineEntityUUID.value) return
+        const splineTargetEntity = UUIDComponent.entitiesByUUID[component.splineEntityUUID.value]
+        if (!splineTargetEntity) return
+
+        const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
+        if (!splineComponent) return
+
         // get local transform for this entity
         const local = getOptionalComponent(entity, LocalTransformComponent)
         const transform = getOptionalComponent(entity, TransformComponent)
         if (!transform) return
 
-        // look at parent first then at self for a splineComponent
-        const tree = getComponent(entity, EntityTreeComponent)
-        if (!tree || !tree.parentEntity) return null
-        let splineComponent = getOptionalComponent(tree.parentEntity, SplineComponent)
-        if (!splineComponent) splineComponent = getOptionalComponent(entity, SplineComponent)
-        if (!splineComponent) return
         const elements = splineComponent.elements
         if (elements.length < 2) return
 
@@ -106,11 +108,11 @@ export const SplineTrackComponent = defineComponent({
 
         // @todo replace naive lerp with a spline division based calculation
         if (local) {
-          local.position.lerpVectors(p1, p2, alpha - index) //.add(transform.position).y -= 1
+          local.position.lerpVectors(p1, p2, alpha - index)
           if (!component.disableRoll.value)
             local.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
         } else {
-          transform.position.lerpVectors(p1, p2, alpha - index) //.add(transform.position).y -= 1
+          transform.position.lerpVectors(p1, p2, alpha - index)
           if (!component.disableRoll.value)
             transform.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
         }

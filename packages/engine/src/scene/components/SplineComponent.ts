@@ -59,7 +59,7 @@ interface ISplineElement {
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
-  jsonID: 'spline-component',
+  jsonID: 'spline',
 
   onInit: (entity) => {
     return {
@@ -86,7 +86,7 @@ export const SplineComponent = defineComponent({
 
     useEffect(() => {
       if (elements.length < 3) {
-        return () => {}
+        return
       }
 
       const line = new Line(lineGeometry.clone(), new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 }))
@@ -102,14 +102,13 @@ export const SplineComponent = defineComponent({
         gizmo.castShadow = true
         gizmo.receiveShadow = true
         gizmo.layers.set(ObjectLayers.NodeHelper)
-        gizmo.name = `${entity}-gizmos-${++id}}`
+        gizmo.name = `${entity}-gizmos-${++id}`
         gizmo.updateMatrixWorld(true)
         gizmo.add(new ArrowHelper())
         line.add(gizmo)
         gizmo.position.copy(elem.position)
         gizmo.quaternion.copy(elem.quaternion)
         gizmo.updateMatrixWorld(true)
-        console.log(gizmo.position)
       }
 
       const curve = new CatmullRomCurve3(elements.value.map((e) => e.position))
@@ -127,11 +126,12 @@ export const SplineComponent = defineComponent({
         line.children.forEach((child) => line.remove(child))
         removeObjectFromGroup(entity, line)
       }
-    }, [elements])
+    }, [
+      elements.length,
+      // force a unique dep change upon any position or quaternion change
+      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.quaternion)}`).join('')
+    ])
+
     return null
   }
 })
-
-function SplineElementReactor() {
-  return null
-}

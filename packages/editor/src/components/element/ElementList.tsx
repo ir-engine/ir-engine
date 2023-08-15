@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { startCase } from 'lodash'
 import React, { useCallback, useEffect } from 'react'
-import { useDrag, useDrop } from 'react-dnd'
+import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
-import { Vector2 } from 'three'
 
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -56,10 +55,7 @@ import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import { getState } from '@etherealengine/hyperflux'
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
@@ -73,11 +69,11 @@ import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/co
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
+import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
-type SceneElementType = {
+export type SceneElementType = {
   componentName: string
   label: string
   Icon: any
@@ -149,24 +145,6 @@ export function ElementList() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
-  const [{ isDragging }, dropRef] = useDrop({
-    accept: [ItemTypes.Prefab],
-    collect: (monitor) => ({ isDragging: monitor.getItem() !== null && monitor.canDrop() }),
-    drop(item: SceneElementType, monitor) {
-      const node = addSceneComponentElement(item)
-      if (!node) return
-
-      const transformComponent = getComponent(node, TransformComponent)
-      if (transformComponent) {
-        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-        const localTransformComponent = getComponent(node, LocalTransformComponent)
-        if (localTransformComponent) {
-          localTransformComponent.position.copy(transformComponent.position)
-        }
-      }
-    }
-  })
-
   const placeObject = () => {
     handleClose()
 
@@ -225,11 +203,6 @@ export function ElementList() {
           </div>
         ))}
       </div>
-      <div
-        className={styles.elementDropZone}
-        ref={dropRef}
-        style={{ pointerEvents: isDragging ? 'auto' : 'none', border: isDragging ? '5px solid red' : 'none' }}
-      />
       <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
         <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>

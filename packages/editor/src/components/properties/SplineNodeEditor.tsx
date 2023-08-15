@@ -64,39 +64,53 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         </PropertiesPanelButton>
       </InputGroup>
       {elements.map((elem, index) => (
-        <InputGroup
-          key={`splinepose-${props.entity}-${index}`}
-          name="Position"
-          label={`${t('editor:properties.transform.lbl-position')} ${index + 1}`}
-        >
-          <div
-            style={{}}
-            onClick={() => {
-              elements.filter((_, i) => i !== index)
-            }}
-          >
-            <ClearIcon style={{ color: 'white' }} />
+        <div key={index}>
+          <br />
+          <div style={{ display: 'flex' }}>
+            <div
+              style={
+                {
+                  // pointerEvents: 'all',
+                  // marginTop: '20px',
+                  // position: 'fixed'
+                }
+              }
+              onClick={() => {
+                elements.set((p) => {
+                  p.splice(index, 1)
+                  return p
+                })
+              }}
+            >
+              <ClearIcon style={{ color: 'white' }} />
+            </div>
+            <div>
+              <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')} ${index + 1}`}>
+                <Vector3Input
+                  //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+                  value={elem.position.value}
+                  smallStep={0.01}
+                  mediumStep={0.1}
+                  largeStep={1}
+                  onChange={(position) => {
+                    elem.position.set(new Vector3(position.x, position.y, position.z))
+                  }}
+                />
+              </InputGroup>
+              <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')} ${index + 1}`}>
+                <EulerInput
+                  //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+                  quaternion={elem.quaternion.value}
+                  unit="°"
+                  onChange={(euler) => {
+                    const quaternion = new Quaternion().setFromEuler(euler)
+                    elem.quaternion.set(quaternion)
+                  }}
+                />
+              </InputGroup>
+            </div>
           </div>
-          <Vector3Input
-            //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-            value={elem.position.value}
-            smallStep={0.01}
-            mediumStep={0.1}
-            largeStep={1}
-            onChange={(position) => {
-              elem.position.set(new Vector3(position.x, position.y, position.z))
-            }}
-          />
-          <EulerInput
-            //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-            quaternion={elem.quaternion.value}
-            unit="°"
-            onChange={(euler) => {
-              const quaternion = new Quaternion().setFromEuler(euler)
-              elem.quaternion.set(quaternion)
-            }}
-          />
-        </InputGroup>
+        </div>
       ))}
     </NodeEditor>
   )
