@@ -23,16 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  identityProviderDataSchema,
-  identityProviderPatchSchema,
-  identityProviderQuerySchema,
-  identityProviderSchema
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
@@ -104,12 +96,6 @@ const checkOnlyIdentityProvider = () => {
     return context
   }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const identityProviderValidator = getValidator(identityProviderSchema, dataValidator)
-const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)
-const identityProviderPatchValidator = getValidator(identityProviderPatchSchema, dataValidator)
-const identityProviderQueryValidator = getValidator(identityProviderQuerySchema, queryValidator)
 
 export default {
   before: {

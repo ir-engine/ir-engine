@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  inviteTypeDataSchema,
-  inviteTypePatchSchema,
-  inviteTypeQuerySchema,
-  inviteTypeSchema
+  inviteTypeDataValidator,
+  inviteTypePatchValidator,
+  inviteTypeQueryValidator
 } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import {
   inviteTypeDataResolver,
@@ -42,12 +39,6 @@ import {
   inviteTypeQueryResolver,
   inviteTypeResolver
 } from './invite-type.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const inviteTypeValidator = getValidator(inviteTypeSchema, dataValidator)
-const inviteTypeDataValidator = getValidator(inviteTypeDataSchema, dataValidator)
-const inviteTypePatchValidator = getValidator(inviteTypePatchSchema, dataValidator)
-const inviteTypeQueryValidator = getValidator(inviteTypeQuerySchema, queryValidator)
 
 export default {
   around: {

@@ -33,14 +33,11 @@ import attachOwnerId from '@etherealengine/server-core/src/hooks/set-loggedin-us
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import {
-  userSettingDataSchema,
-  userSettingPatchSchema,
+  userSettingDataValidator,
+  userSettingPatchValidator,
   userSettingPath,
-  userSettingQuerySchema,
-  userSettingSchema
+  userSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
-import { getValidator } from '@feathersjs/typebox'
 import authenticate from '../../hooks/authenticate'
 import {
   userSettingDataResolver,
@@ -74,12 +71,6 @@ const ensureUserThemeModes = () => {
     return context
   }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const userSettingValidator = getValidator(userSettingSchema, dataValidator)
-const userSettingDataValidator = getValidator(userSettingDataSchema, dataValidator)
-const userSettingPatchValidator = getValidator(userSettingPatchSchema, dataValidator)
-const userSettingQueryValidator = getValidator(userSettingQuerySchema, queryValidator)
 
 export default {
   around: {

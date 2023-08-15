@@ -24,13 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 
-import {
-  inviteCodeLookupQuerySchema,
-  inviteCodeLookupSchema
-} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+import { inviteCodeLookupQueryValidator } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 
 import authenticate from '../../hooks/authenticate'
 import {
@@ -38,10 +33,6 @@ import {
   inviteCodeLookupQueryResolver,
   inviteCodeLookupResolver
 } from './invite-code-lookup.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const inviteCodeLookupValidator = getValidator(inviteCodeLookupSchema, dataValidator)
-const inviteCodeLookupQueryValidator = getValidator(inviteCodeLookupQuerySchema, queryValidator)
 
 export default {
   around: {

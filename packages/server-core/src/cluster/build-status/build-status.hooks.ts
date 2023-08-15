@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  buildStatusDataSchema,
-  buildStatusPatchSchema,
-  buildStatusQuerySchema,
-  buildStatusSchema
+  buildStatusDataValidator,
+  buildStatusPatchValidator,
+  buildStatusQueryValidator
 } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -44,12 +41,6 @@ import {
   buildStatusQueryResolver,
   buildStatusResolver
 } from './build-status.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const buildStatusValidator = getValidator(buildStatusSchema, dataValidator)
-const buildStatusDataValidator = getValidator(buildStatusDataSchema, dataValidator)
-const buildStatusPatchValidator = getValidator(buildStatusPatchSchema, dataValidator)
-const buildStatusQueryValidator = getValidator(buildStatusQuerySchema, queryValidator)
 
 export default {
   around: {
