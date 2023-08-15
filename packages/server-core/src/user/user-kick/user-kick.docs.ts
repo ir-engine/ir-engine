@@ -23,14 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BoxGeometry, Mesh, MeshLambertMaterial, Object3D } from 'three'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default class SplineHelper extends Object3D {
-  constructor() {
-    super()
-    const geometry = new BoxGeometry(0.1, 0.1, 0.1)
-    const material = new MeshLambertMaterial({ color: Math.random() * 0xffffff })
-    const object = new Mesh(geometry, material)
-    super.add(object)
+import {
+  userKickDataSchema,
+  userKickPatchSchema,
+  userKickQuerySchema,
+  userKickSchema
+} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    userKickDataSchema,
+    userKickPatchSchema,
+    userKickQuerySchema,
+    userKickSchema
+  },
+  docs: {
+    description: 'User kick service description',
+    securities: ['all']
   }
-}
+})

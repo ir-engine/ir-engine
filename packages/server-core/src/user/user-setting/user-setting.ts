@@ -23,33 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { userSettingMethods, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+
 import { Application } from '../../../declarations'
-import { UserKick } from './user-kick.class'
-import hooks from './user-kick.hooks'
-import createModel from './user-kick.model'
+import { UserSettingService } from './user-setting.class'
+import userSettingDocs from './user-setting.docs'
+import hooks from './user-setting.hooks'
 
 declare module '@etherealengine/common/declarations' {
-  /**
-   * Interface for user-kick
-   */
   interface ServiceTypes {
-    'user-kick': UserKick
+    [userSettingPath]: UserSettingService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: userSettingPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new UserKick(options, app)
-  // event.docs = userKickDocs
+  app.use(userSettingPath, new UserSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: userSettingMethods,
+    // You can add additional custom events to be sent to client here
+    events: [],
+    docs: userSettingDocs
+  })
 
-  app.use('user-kick', event)
-
-  const service = app.service('user-kick')
-
+  const service = app.service(userSettingPath)
   service.hooks(hooks)
 }

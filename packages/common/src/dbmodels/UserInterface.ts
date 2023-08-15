@@ -86,3 +86,13 @@ export interface LocationAuthorizedUserInterface {
 export interface LocationAdminInterface {
   id: string
 }
+
+export interface UserKick {
+  id: string
+  duration: Date
+}
+
+export interface UserSetting {
+  id: string
+  themeModes: string
+}

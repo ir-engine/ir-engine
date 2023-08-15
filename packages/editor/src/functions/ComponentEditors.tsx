@@ -52,6 +52,8 @@ import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/co
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
+import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
+import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
@@ -93,6 +95,8 @@ import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
+import { SplineNodeEditor } from '../components/properties/SplineNodeEditor'
+import { SplineTrackNodeEditor } from '../components/properties/SplineTrackNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
@@ -136,10 +140,11 @@ EntityNodeEditor.set(VolumetricComponent, VolumetricNodeEditor)
 // EntityNodeEditor.set(WaterComponent, WaterNodeEditor)
 // EntityNodeEditor.set(InteriorComponent, InteriorNodeEditor)
 EntityNodeEditor.set(SystemComponent, SystemNodeEditor)
-// EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 // EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
 EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
 EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
+EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
+EntityNodeEditor.set(SplineTrackComponent, SplineTrackNodeEditor)
 EntityNodeEditor.set(BehaveGraphComponent, BehaveGraphNodeEditor)

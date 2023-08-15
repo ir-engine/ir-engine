@@ -109,42 +109,6 @@ const restrictUserRemove = (context: HookContext) => {
   return context
 }
 
-// TODO: Remove this when user-settings service is moved to feathers 5.
-const parseAllUserSettings = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { result } = context
-
-    for (const index in result.data) {
-      if (result.data[index].userSetting && result.data[index].userSetting.themeModes) {
-        let themeModes = JSON.parse(result.data[index].userSetting.themeModes)
-
-        if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
-
-        result.data[index].userSetting.themeModes = themeModes
-      }
-    }
-
-    return context
-  }
-}
-
-// TODO: Remove this when user-settings service is moved to feathers 5.
-const parseUserSettings = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { result } = context
-
-    if (result.userSetting && result.userSetting.themeModes) {
-      let themeModes = JSON.parse(result.userSetting.themeModes)
-
-      if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
-
-      result.userSetting.themeModes = themeModes
-    }
-
-    return context
-  }
-}
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userScopeValidator = getValidator(userScopeSchema, dataValidator)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -189,16 +153,14 @@ export default {
   after: {
     all: [],
     find: [
-      parseAllUserSettings(),
       addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
     ],
     get: [
-      parseUserSettings(),
       addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
     ],
-    create: [parseUserSettings()],
-    update: [parseUserSettings()],
-    patch: [parseUserSettings()],
+    create: [],
+    update: [],
+    patch: [],
     remove: []
   },
 
