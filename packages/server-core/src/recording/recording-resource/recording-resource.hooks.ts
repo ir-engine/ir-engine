@@ -23,16 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  recordingResourceDataSchema,
-  recordingResourcePatchSchema,
-  recordingResourceQuerySchema,
-  recordingResourceSchema
+  recordingResourceDataValidator,
+  recordingResourcePatchValidator,
+  recordingResourceQueryValidator
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
@@ -43,12 +40,6 @@ import {
   recordingResourceQueryResolver,
   recordingResourceResolver
 } from './recording-resource.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const recordingResourceValidator = getValidator(recordingResourceSchema, dataValidator)
-const recordingResourceDataValidator = getValidator(recordingResourceDataSchema, dataValidator)
-const recordingResourcePatchValidator = getValidator(recordingResourcePatchSchema, dataValidator)
-const recordingResourceQueryValidator = getValidator(recordingResourceQuerySchema, queryValidator)
 
 export default {
   around: {
