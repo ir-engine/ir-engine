@@ -24,11 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
@@ -55,14 +58,15 @@ export default (writeAccess) => {
       else throw new BadRequest('Invalid Project name')
     }
     if (!projectId) projectId = params.id || context.id
-    const projectPermissionResult = await app.service(projectPermissionPath).find({
+    // @ts-ignore
+    const projectPermissionResult = (await app.service(projectPermissionPath)._find({
       query: {
         projectId: projectId,
         userId: loggedInUser.id,
         $limit: 1
       }
-    })
-    if (projectPermissionResult == null) {
+    })) as Paginated<ProjectPermissionType>
+    if (projectPermissionResult.data.length === 0) {
       const githubIdentityProvider = await (app.service('identity-provider') as any).Model.findOne({
         where: {
           userId: params.user.id,

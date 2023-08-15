@@ -23,13 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
+
+const createProjectPermission = async (context: HookContext) => {
+  if (context.params?.user?.id) {
+    const projectPermissionData = await projectPermissionDataResolver.resolve(
+      {
+        userId: context.params.user.id,
+        projectId: context.result.id,
+        type: 'owner'
+      },
+      context as any
+    )
+    return context.app.service(projectPermissionPath).create(projectPermissionData)
+  }
+  return context
+}
 
 export default {
   before: {
@@ -46,17 +62,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [
-      (context: HookContext) => {
-        return context.params?.user?.id
-          ? context.app.service(projectPermissionPath).create({
-              userId: context.params.user.id,
-              projectId: context.result.id,
-              type: 'owner'
-            })
-          : context
-      }
-    ],
+    create: [createProjectPermission],
     update: [],
     patch: [],
     remove: []

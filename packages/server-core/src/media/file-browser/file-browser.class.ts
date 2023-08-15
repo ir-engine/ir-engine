@@ -128,6 +128,7 @@ export class FileBrowserService implements ServiceMethods<any> {
         .join('project', 'projectPermissionPath.projectId', 'project.id')
         .where('projectPermissionPath.userId', params.user!.id)
         .select()
+        .options({ nestTables: true })
 
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
       result = result.filter((item) => {

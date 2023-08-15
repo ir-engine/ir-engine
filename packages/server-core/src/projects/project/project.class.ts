@@ -689,6 +689,8 @@ export class Project extends Service {
         .from(projectPermissionPath)
         .join('project', 'project.id', `${projectPermissionPath}.projectId`)
         .where({ userId: params.user!.id })
+        .select()
+        .options({ nestTables: true })
 
       const allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repoAccess = githubIdentityProvider

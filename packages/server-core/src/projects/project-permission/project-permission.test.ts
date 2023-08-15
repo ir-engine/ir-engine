@@ -322,10 +322,11 @@ describe('project-permission.test', () => {
           params
         )) as ProjectPermissionType
 
-        const permissions = await app.service(projectPermissionPath).find({
+        const permissions = await app.service(projectPermissionPath)._find({
           query: {
             projectId: project1.id
-          }
+          },
+          paginate: false
         })
         assert.ok(project1Permission4)
         assert.strictEqual(project1Permission4.userId, user4.id)
@@ -408,10 +409,11 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const permissions = await app.service(projectPermissionPath).find({
+        const permissions = await app.service(projectPermissionPath)._find({
           query: {
             projectId: project1.id
-          }
+          },
+          paginate: false
         })
         assert.rejects(
           async () => {
@@ -490,10 +492,11 @@ describe('project-permission.test', () => {
         }
 
         await app.service(projectPermissionPath).remove(project1Permission1.id, params)
-        const permissions = (await app.service(projectPermissionPath).find({
+        const permissions = (await app.service(projectPermissionPath)._find({
           query: {
             projectId: project1.id
-          }
+          },
+          paginate: false
         })) as any as ProjectPermissionType[]
         assert.strictEqual(permissions.length, 1)
         assert.strictEqual(permissions[0].id, project1Permission2.id)

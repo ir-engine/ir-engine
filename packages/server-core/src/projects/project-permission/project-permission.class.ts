@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Params } from '@feathersjs/feathers'
+import { Id, Paginated, Params } from '@feathersjs/feathers'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 
@@ -77,9 +77,9 @@ export class ProjectPermissionService<
           projectId: projectId,
           $limit: 1
         }
-      })) as any as ProjectPermissionType[]
-      if (newOwner.length > 0)
-        await super._patch(newOwner[0].id, {
+      })) as Paginated<ProjectPermissionType>
+      if (newOwner.data.length > 0)
+        await super._patch(newOwner.data[0].id, {
           type: 'owner'
         })
     }
@@ -87,7 +87,7 @@ export class ProjectPermissionService<
 
   async find(params?: ProjectPermissionParams) {
     const loggedInUser = params!.user!
-    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return super._find(params)
+    if (loggedInUser?.scopes?.find((scope) => scope.type === 'admin:admin')) return super._find(params)
     if (params?.query?.projectId) {
       const permissionStatus = (await super._find({
         query: {
@@ -95,8 +95,8 @@ export class ProjectPermissionService<
           userId: loggedInUser?.id,
           $limit: 1
         }
-      })) as any as ProjectPermissionType[]
-      if (permissionStatus) return super._find(params)
+      })) as Paginated<ProjectPermissionType>
+      if (permissionStatus.data.length > 0) return super._find(params)
     }
     if (!params) params = {}
     if (!params.query) params.query = {}
@@ -154,7 +154,7 @@ export class ProjectPermissionService<
         paginate: false
       })) as any as ProjectPermissionType[]
       return super._create({
-        projectId: data.projectId,
+        ...data,
         userId: users.data[0].id,
         type:
           data.type === 'owner' ||
