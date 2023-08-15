@@ -53,6 +53,9 @@ export const sendActionsAsPeer = (network: Network) => {
   if (!network.ready) return
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
+  for (const action of actions) {
+    if (action.$network && !action.$topic && action.$network === network.id) action.$topic = network.topic
+  }
   // for (const peerID of network.peers) {
   network.transport.messageToPeer(network.hostPeerID, {
     type: MessageTypes.ActionData.toString(),
@@ -74,13 +77,16 @@ export const sendActionsAsHost = (network: Network) => {
     const arr: Action[] = []
     for (const a of [...actions]) {
       const action = { ...a }
+      if (action.$network) {
+        if (action.$network !== network.id) continue
+        else action.$topic = network.topic
+      }
       if (outgoing[network.topic].historyUUIDs.has(action.$uuid)) {
         const idx = outgoing[network.topic].queue.findIndex((a) => a.$uuid === action.$uuid)
         outgoing[network.topic].queue.splice(idx, 1)
       }
       if (!action.$to) continue
-      const toUserId = network.peers.get(peerID)?.userId
-      if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
+      if (action.$to === 'all' || (action.$to === 'others' && peerID !== action.$peer) || action.$to === peerID) {
         arr.push(action)
       }
     }

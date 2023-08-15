@@ -90,7 +90,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
   matches(action)
     .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
       getMutableState(NetworkState).hostIds.world.set(action.instanceId)
-      addNetwork(initializeNetwork(action.instanceId, NetworkTopics.world))
+      addNetwork(initializeNetwork(action.instanceId, action.instanceId, NetworkTopics.world))
       return s.instances.merge({
         [action.instanceId]: {
           ipAddress: action.ipAddress,

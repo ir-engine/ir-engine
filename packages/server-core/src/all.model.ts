@@ -39,7 +39,9 @@ import {
   LocationTypeInterface,
   UserApiKeyInterface,
   UserInterface,
-  UserRelationshipInterface
+  UserKick,
+  UserRelationshipInterface,
+  UserSetting
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../declarations'
@@ -89,7 +91,7 @@ export const createUserModel = (app: Application) => {
 
   ;(User as any).associate = (models: any): void => {
     ;(User as any).hasMany(createInstanceAttendanceModel(app), { as: 'instanceAttendance' })
-    ;(User as any).hasOne(models.user_settings)
+    ;(User as any).hasOne(createUserSettingModel(app))
     ;(User as any).belongsToMany(createUserModel(app), {
       as: 'relatedUser',
       through: createUserRelationshipModel(app)
@@ -106,7 +108,7 @@ export const createUserModel = (app: Application) => {
     ;(User as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
     ;(User as any).hasOne(createUserApiKeyModel(app))
     ;(User as any).belongsTo(createAvatarModel(app))
-    ;(User as any).hasMany(models.user_kick, { onDelete: 'cascade' })
+    ;(User as any).hasMany(createUserKickModel(app), { onDelete: 'cascade' })
   }
 
   return User
@@ -475,6 +477,76 @@ export const createInstanceAttendanceModel = (app: Application) => {
     ;(instanceAttendance as any).belongsTo(createUserModel(app))
   }
   return instanceAttendance
+}
+export const createUserKickModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const userKick = sequelizeClient.define<Model<UserKick>>(
+    'user-kick',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      duration: {
+        type: DataTypes.DATE,
+        allowNull: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): any {
+          options.raw = true
+        }
+      },
+      indexes: [
+        {
+          unique: true,
+          fields: ['id']
+        }
+      ]
+    }
+  )
+
+  ;(userKick as any).associate = (models: any): void => {
+    ;(userKick as any).belongsTo(createUserModel(app), { as: 'user' })
+    ;(userKick as any).belongsTo(models.instance, { as: 'instance' })
+  }
+
+  return userKick
+}
+
+export const createUserSettingModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const UserSettings = sequelizeClient.define<Model<UserSetting>>(
+    'user-setting',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      themeModes: {
+        type: DataTypes.JSON,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(UserSettings as any).associate = (models: any): void => {
+    ;(UserSettings as any).belongsTo(createUserModel(app), { primaryKey: true, required: true, allowNull: false })
+  }
+
+  return UserSettings
 }
 
 export const createUserRelationshipModel = (app: Application) => {

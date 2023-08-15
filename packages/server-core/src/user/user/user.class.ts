@@ -30,6 +30,7 @@ import { KnexAdapter } from '@feathersjs/knex'
 import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { Op } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -143,7 +144,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
     delete dataWithoutExtras.scopes
 
-    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType
+    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType | UserType[]
 
     await this._afterPatch(this.app, result)
 
@@ -164,7 +165,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
   _afterCreate = async (app: Application, result: UserType) => {
     try {
-      await app.service('user-settings').create({
+      await app.service(userSettingPath).create({
         userId: result.id
       })
 
@@ -191,13 +192,15 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
     }
   }
 
-  _afterPatch = async (app: Application, result: UserType) => {
+  _afterPatch = async (app: Application, results: UserType | UserType[]) => {
     try {
-      if (result && !result.isGuest && result.inviteCode == null) {
-        const code = await getFreeInviteCode(app)
-        await this._patch(result.id!, {
-          inviteCode: code
-        })
+      for (const result of Array.isArray(results) ? results : [results]) {
+        if (result && !result.isGuest && result.inviteCode == null) {
+          const code = await getFreeInviteCode(app)
+          await this._patch(result.id!, {
+            inviteCode: code
+          })
+        }
       }
     } catch (err) {
       logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)

@@ -658,8 +658,18 @@
       "lbl-useLoadingEffect": "Use Loading Effect"
     },
     "spline": {
-      "description": "Dynamically create and customize curves.",
-      "lbl-addNode": "Add node to curve."
+      "name": "Spline",
+      "description": "Create and customize curves.",
+      "lbl-addNode": "Add node to curve"
+    },
+    "splinetrack": {
+      "name": "Spline Track",
+      "description": "Have an entity follow a Spline",
+      "lbl-spline": "Source Spline",
+      "lbl-velocity": "Velocity",
+      "lbl-enableRotation": "Enable Rotation",
+      "lbl-lockXZ": "Lock To XZ Plane",
+      "lbl-loop": "Loop"
     },
     "systemnode": {
       "description": "Attach script.",

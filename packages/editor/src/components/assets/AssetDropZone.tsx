@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 import { Vector2 } from 'three'
 
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -41,38 +40,24 @@ import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
 import { SelectionAction } from '../../services/SelectionServices'
 import useUpload from './useUpload'
 
-/**
- * DropZoneBackground provides styles for the view port area where we drag and drop objects.
- *
- * @param {styled component}
- */
-const DropZoneBackground = (styled as any).div`
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  justify-content: center;
-  align-items: center;
-  opacity: ${({ isOver, canDrop, isUploaded }) => (isOver && canDrop && !isUploaded ? '1' : '0')};
-  pointer-events: ${({ isDragging }) => (isDragging ? 'auto' : 'none')};
+const dropZoneBackgroundStyle = {
+  position: 'absolute',
+  display: 'flex',
+  flexDirection: 'column',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  justifyContent: 'center',
+  alignItems: 'center'
+}
 
-  h3 {
-    font-size: 1.5em;
-    margin-top: 12px;
-  }
-`
+const h3Style = {
+  fontSize: '1.5em',
+  marginTop: '12px'
+}
 
-/**
- * AssetDropZone function used to create view port where we can drag and drop objects.
- *
- * @param       {any} afterUpload
- * @param       {any} uploadOptions
- * @constructor
- */
 export function AssetDropZone() {
   const { t } = useTranslation()
 
@@ -121,16 +106,17 @@ export function AssetDropZone() {
 
   //returning dropzone view
   return (
-    <DropZoneBackground
+    <div
       ref={onDropTarget}
-      isDragging={isDragging}
-      canDrop={canDrop}
-      isOver={isOver}
-      isUploaded={isUploaded}
+      style={{
+        ...(dropZoneBackgroundStyle as React.CSSProperties),
+        opacity: isOver && canDrop && !isUploaded ? '1' : '0',
+        pointerEvents: isDragging ? 'auto' : 'none'
+      }}
     >
       <CloudUploadIcon fontSize="large" />
-      <h3>{t('editor:asset.dropZone.title')}</h3>
-    </DropZoneBackground>
+      <h3 style={h3Style}>{t('editor:asset.dropZone.title')}</h3>
+    </div>
   )
 }
 

@@ -59,6 +59,7 @@ const GridTool = () => {
         </button>
       </InfoTooltip>
       <NumericStepperInput
+        style={{ width: '120px' }}
         className={styles.toolbarNumericStepperInput}
         value={rendererState.gridHeight.value}
         onChange={onChangeGridHeight}

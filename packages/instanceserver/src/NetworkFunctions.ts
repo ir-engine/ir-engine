@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
-import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
+import { DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -56,7 +56,9 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -171,12 +173,12 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
 
   // check if user is not kicked in the instance for a duration
   const currentDate = new Date()
-  const userKick = (await app.service('user-kick').find({
+  const userKick = (await app.service(userKickPath).find({
     query: {
       userId,
       instanceId: instance.id,
       duration: {
-        $gt: currentDate
+        $gt: toDateTimeSql(currentDate)
       },
       $limit: 0
     }
@@ -219,8 +221,8 @@ export const handleConnectingPeer = async (
     media: {} as any,
     consumerLayers: {},
     stats: {},
-    incomingDataConsumers: new Map<DataChannelType, DataConsumer>(),
-    outgoingDataConsumers: new Map<DataChannelType, DataConsumer>(),
+    incomingDataConsumers: new Map<DataChannelType, any>(),
+    outgoingDataConsumers: new Map<DataChannelType, any>(),
     dataProducers: new Map<string, DataProducer>()
   })
 
@@ -251,7 +253,7 @@ export async function handleJoinWorld(
 ) {
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId).map((action) => {
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
     return _.cloneDeep(action)
   })
 
@@ -352,6 +354,7 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark:
     ew Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
     a.$from = networkPeer.userId
+    a.$network = network.hostId // TODO replace with network.id
     dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))

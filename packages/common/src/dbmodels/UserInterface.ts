@@ -87,6 +87,16 @@ export interface LocationAdminInterface {
   id: string
 }
 
+export interface UserKick {
+  id: string
+  duration: Date
+}
+
+export interface UserSetting {
+  id: string
+  themeModes: string
+}
+
 export interface UserRelationshipInterface {
   id: string
   userId: string

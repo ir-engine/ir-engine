@@ -23,29 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { css } from 'styled-components'
+// redundant since we cover this in other sheets , but still kept here nonetheless
 
 /**
  * Styled component containing  common css styles.
  */
-export default css`
-  background-color: var(--inputBackground);
-  border-radius: 4px;
-  border: 1px solid var(--inputOutline);
-  color: var(--textColor);
-  height: 24px;
-  padding: 6px 8px;
+export const inputStyles = {
+  backgroundColor: 'var(--inputBackground)',
+  borderRadius: '4px',
+  border: '1px solid var(--inputOutline)',
+  color: 'var(--textColor)',
+  height: '24px',
+  padding: '6px 8px',
 
-  &:hover {
-    border-color: var(--blueHover);
-  }
+  '&:hover': {
+    borderColor: 'var(--blueHover)'
+  },
 
-  &:focus {
-    border-color: var(--blue);
-  }
+  '&:focus': {
+    borderColor: 'var(--blue)'
+  },
 
-  &:disabled {
-    background-color: var(--disabled);
-    color: var(--disabledText);
+  '&:disabled': {
+    backgroundColor: 'var(--disabled)',
+    color: 'var(--disabledText)'
   }
-`
+}

@@ -23,20 +23,88 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
+import {
+  recordingDataValidator,
+  recordingPatchValidator,
+  recordingQueryValidator
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
+
+import { HookContext, NextFunction } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  recordingDataResolver,
+  recordingExternalResolver,
+  recordingPatchResolver,
+  recordingQueryResolver,
+  recordingResolver
+} from './recording.resolvers'
+
+const applyUserNameSort = async (context: HookContext, next: NextFunction) => {
+  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
+
+  const hasUserNameSort = context.params.query && context.params.query.$sort && context.params.query.$sort['user']
+
+  if (hasUserNameSort) {
+    const { dispatch } = context
+    const data = dispatch.data ? dispatch.data : dispatch
+
+    data.sort((a, b) => {
+      let fa = a['user'],
+        fb = b['user']
+
+      if (typeof fa === 'string') {
+        fa = fa.toLowerCase()
+        fb = fb.toLowerCase()
+      }
+
+      if (fa < fb) {
+        return -1
+      }
+      if (fa > fb) {
+        return 1
+      }
+      return 0
+    })
+
+    if (context.params.query.$sort['user'] === 1) {
+      data.reverse()
+    }
+  }
+}
 
 export default {
+  around: {
+    all: [
+      applyUserNameSort,
+      schemaHooks.resolveExternal(recordingExternalResolver),
+      schemaHooks.resolveResult(recordingResolver)
+    ]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(recordingQueryValidator),
+      schemaHooks.resolveQuery(recordingQueryResolver)
+    ],
     find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
-    get: [iff(isProvider('external'), verifyScope('recording', 'read') as any)],
-    create: [iff(isProvider('external'), verifyScope('recording', 'write'))],
-    update: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
-    patch: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
-    remove: [iff(isProvider('external'), verifyScope('recording', 'write') as any)]
+    get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
+    create: [
+      iff(isProvider('external'), verifyScope('recording', 'write')),
+      () => schemaHooks.validateData(recordingDataValidator),
+      schemaHooks.resolveData(recordingDataResolver)
+    ],
+    update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
+    patch: [
+      iff(isProvider('external'), verifyScope('recording', 'write')),
+      () => schemaHooks.validateData(recordingPatchValidator),
+      schemaHooks.resolveData(recordingPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('recording', 'write'))]
   },
 
   after: {

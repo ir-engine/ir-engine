@@ -23,16 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
+import {
+  loginTokenDataValidator,
+  loginTokenPatchValidator,
+  loginTokenQueryValidator
+} from '@etherealengine/engine/src/schemas/user/login-token.schema'
+
+import {
+  loginTokenDataResolver,
+  loginTokenExternalResolver,
+  loginTokenPatchResolver,
+  loginTokenQueryResolver,
+  loginTokenResolver
+} from './login-token.resolvers'
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(loginTokenExternalResolver), schemaHooks.resolveResult(loginTokenResolver)]
+  },
+
   before: {
-    all: [],
+    all: [() => schemaHooks.validateQuery(loginTokenQueryValidator), schemaHooks.resolveQuery(loginTokenQueryResolver)],
     find: [disallow('external')],
     get: [disallow('external')],
-    create: [disallow('external')],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(loginTokenDataValidator),
+      schemaHooks.resolveData(loginTokenDataResolver)
+    ],
     update: [disallow('external')],
-    patch: [disallow('external')],
+    patch: [
+      disallow('external'),
+      () => schemaHooks.validateData(loginTokenPatchValidator),
+      schemaHooks.resolveData(loginTokenPatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

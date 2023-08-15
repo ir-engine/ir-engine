@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const staticResourcePath = 'static-resource'
 
@@ -43,7 +44,7 @@ export const staticResourceSchema = Type.Object(
     key: Type.String(),
     metadata: Type.Any(),
     mimeType: Type.String(),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     hash: Type.String(),
@@ -123,3 +124,8 @@ export const staticResourceQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type StaticResourceQuery = Static<typeof staticResourceQuerySchema>
+
+export const staticResourceValidator = getValidator(staticResourceSchema, dataValidator)
+export const staticResourceDataValidator = getValidator(staticResourceDataSchema, dataValidator)
+export const staticResourcePatchValidator = getValidator(staticResourcePatchSchema, dataValidator)
+export const staticResourceQueryValidator = getValidator(staticResourceQuerySchema, queryValidator)

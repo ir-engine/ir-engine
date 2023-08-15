@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  instanceAuthorizedUserDataSchema,
-  instanceAuthorizedUserPatchSchema,
-  instanceAuthorizedUserQuerySchema,
-  instanceAuthorizedUserSchema
+  instanceAuthorizedUserDataValidator,
+  instanceAuthorizedUserPatchValidator,
+  instanceAuthorizedUserQueryValidator
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import {
   instanceAuthorizedUserDataResolver,
@@ -42,12 +39,6 @@ import {
   instanceAuthorizedUserQueryResolver,
   instanceAuthorizedUserResolver
 } from './instance-authorized-user.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const instanceAuthorizedUserValidator = getValidator(instanceAuthorizedUserSchema, dataValidator)
-const instanceAuthorizedUserDataValidator = getValidator(instanceAuthorizedUserDataSchema, dataValidator)
-const instanceAuthorizedUserPatchValidator = getValidator(instanceAuthorizedUserPatchSchema, dataValidator)
-const instanceAuthorizedUserQueryValidator = getValidator(instanceAuthorizedUserQuerySchema, queryValidator)
 
 export default {
   around: {
