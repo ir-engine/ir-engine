@@ -28,15 +28,12 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import authenticate from '../../hooks/authenticate'
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 
 import {
-  userRelationshipDataSchema,
-  userRelationshipPatchSchema,
-  userRelationshipQuerySchema,
-  userRelationshipSchema
+  userRelationshipDataValidator,
+  userRelationshipPatchValidator,
+  userRelationshipQueryValidator
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import {
   userRelationshipDataResolver,
@@ -45,12 +42,6 @@ import {
   userRelationshipQueryResolver,
   userRelationshipResolver
 } from './user-relationship.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const userRelationshipValidator = getValidator(userRelationshipSchema, dataValidator)
-const userRelationshipDataValidator = getValidator(userRelationshipDataSchema, dataValidator)
-const userRelationshipPatchValidator = getValidator(userRelationshipPatchSchema, dataValidator)
-const userRelationshipQueryValidator = getValidator(userRelationshipQuerySchema, queryValidator)
 
 export default {
   around: {

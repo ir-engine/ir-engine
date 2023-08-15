@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 import { userRelationshipTypes } from './user-relationship-type.schema'
+import { UserID } from './user.schema'
 
 export const userRelationshipPath = 'user-relationship'
 
@@ -43,10 +44,10 @@ export const userRelationshipSchema = Type.Object(
     id: TypedString<UserRelationshipID>({
       format: 'uuid'
     }),
-    userId: TypedString<UserId>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    relatedUserId: TypedString<UserId>({
+    relatedUserId: TypedString<UserID>({
       format: 'uuid'
     }),
     user: Type.Any(), // TODO: Change this to userSchema once its moved to feathers 5.
@@ -90,3 +91,8 @@ export const userRelationshipQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type UserRelationshipQuery = Static<typeof userRelationshipQuerySchema>
+
+export const userRelationshipValidator = getValidator(userRelationshipSchema, dataValidator)
+export const userRelationshipDataValidator = getValidator(userRelationshipDataSchema, dataValidator)
+export const userRelationshipPatchValidator = getValidator(userRelationshipPatchSchema, dataValidator)
+export const userRelationshipQueryValidator = getValidator(userRelationshipQuerySchema, queryValidator)
