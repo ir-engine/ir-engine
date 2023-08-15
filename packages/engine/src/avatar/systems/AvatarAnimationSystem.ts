@@ -350,6 +350,8 @@ const execute = () => {
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
+    const animationComponent = getComponent(entity, AnimationComponent)
+
     const rig = rigComponent.rig
 
     // temp for mocap
@@ -359,8 +361,10 @@ const execute = () => {
       const isPeerForEntity = Array.from(timeSeriesMocapData.keys()).find(
         (peerID: PeerID) => network.peers.get(peerID)?.userId === networkObject.ownerId
       )
+      console.log(isPeerForEntity, ikEntities.length)
       if (isPeerForEntity && ikEntities.length == 0) {
         // just animate and exit
+        animationComponent.mixer.stopAllAction()
         rigComponent.vrm.update(getState(EngineState).deltaSeconds)
         continue
       }
@@ -369,7 +373,6 @@ const execute = () => {
     /**
      * Apply motion to velocity controlled animations
      */
-    const animationComponent = getComponent(entity, AnimationComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
 
