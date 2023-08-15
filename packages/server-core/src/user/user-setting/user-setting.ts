@@ -23,28 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'user-settings': {
-      type: 'object',
-      properties: {
-        themeModes: {
-          type: 'json'
-        }
-      }
-    },
-    'user-settings_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/user-settings' }
-    }
-  },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+import { userSettingMethods, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+
+import { Application } from '../../../declarations'
+import { UserSettingService } from './user-setting.class'
+import userSettingDocs from './user-setting.docs'
+import hooks from './user-setting.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [userSettingPath]: UserSettingService
   }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: userSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(userSettingPath, new UserSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: userSettingMethods,
+    // You can add additional custom events to be sent to client here
+    events: [],
+    docs: userSettingDocs
+  })
+
+  const service = app.service(userSettingPath)
+  service.hooks(hooks)
 }

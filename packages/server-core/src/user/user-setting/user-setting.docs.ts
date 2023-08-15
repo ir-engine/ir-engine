@@ -23,47 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { UserSetting } from '@etherealengine/common/src/dbmodels/UserSetting'
+import {
+  userSettingDataSchema,
+  userSettingPatchSchema,
+  userSettingQuerySchema,
+  userSettingSchema
+} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 
-import { Application } from '../../../declarations'
-import { createUserModel } from '../../all.model'
-
-/**
- *
- * Model for database entity
- * this model contain users setting
- */
-
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const UserSettings = sequelizeClient.define<Model<UserSetting>>(
-    'user_settings',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      themeModes: {
-        type: DataTypes.JSON,
-        allowNull: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-
-  ;(UserSettings as any).associate = (models: any): void => {
-    ;(UserSettings as any).belongsTo(createUserModel(app), { primaryKey: true, required: true, allowNull: false })
+export default createSwaggerServiceOptions({
+  schemas: {
+    userSettingDataSchema,
+    userSettingPatchSchema,
+    userSettingQuerySchema,
+    userSettingSchema
+  },
+  docs: {
+    description: 'User setting service description',
+    securities: ['all']
   }
-
-  return UserSettings
-}
+})
