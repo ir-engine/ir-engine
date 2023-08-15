@@ -500,7 +500,7 @@ const EditorContainer = () => {
     ) : (
       <div className={styles.bgImageBlock}>
         <img style={{ height: 'auto', maxWidth: '100%' }} src="/static/etherealengine.png" alt="" />
-        <h2 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('editor:selectSceneMsg')}</h2>
+        <h2>{t('editor:selectSceneMsg')}</h2>
       </div>
     )
   }

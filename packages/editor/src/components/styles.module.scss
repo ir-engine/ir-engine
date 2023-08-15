@@ -84,16 +84,18 @@
 
   img {
     opacity: 0.8;
-    //filter: unquote($string: "invert()");
+
+    // filter: unquote($string: "invert()");
     margin-top: -50px;
   }
 
   h2 {
     width: 100%;
-    font-size: 20px;
     text-align: center;
     color: var(--textColor);
     margin-top: 30px;
+    font-size: 100%;
+    font-weight: normal;
   }
 }
 

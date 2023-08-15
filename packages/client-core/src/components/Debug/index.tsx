@@ -211,7 +211,7 @@ export const Debug = ({ showingStateRef }) => {
   return (
     <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
       <div className={styles.debugOptionContainer}>
-        <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('common:debug.debugOptions')}</h1>
+        <h1>{t('common:debug.debugOptions')}</h1>
         <div className={styles.optionBlock}>
           <div className={styles.flagContainer}>
             <button
@@ -256,11 +256,11 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <StatsPanel show={showingStateRef.current} />
       <div className={styles.jsonPanel}>
-        <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('common:debug.entities')}</h1>
+        <h1>{t('common:debug.entities')}</h1>
         <JSONTree data={namedEntities.get({ noproxy: true })} />
       </div>
       <div className={styles.jsonPanel}>
-        <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('common:debug.entityTree')}</h1>
+        <h1>{t('common:debug.entityTree')}</h1>
         <JSONTree
           data={entityTree.value}
           postprocessValue={(v: any) => v?.value ?? v}
@@ -270,14 +270,14 @@ export const Debug = ({ showingStateRef }) => {
         />
       </div>
       <div className={styles.jsonPanel}>
-        <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('common:debug.state')}</h1>
+        <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
           postprocessValue={(v: any) => (v?.value && v?.get({ noproxy: true })) ?? v}
         />
       </div>
       <div className={styles.jsonPanel}>
-        <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('common:debug.systems')}</h1>
+        <h1>{t('common:debug.systems')}</h1>
         <JSONTree
           data={dag}
           labelRenderer={(raw, ...keyPath) => {

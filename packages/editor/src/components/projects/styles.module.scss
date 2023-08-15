@@ -88,6 +88,7 @@
 
       h2 {
         font-size: 24px;
+        font-weight: normal;
       }
 
       .buttonContainer {
@@ -197,6 +198,8 @@
           h3 {
             line-height: 30px;
             margin-left: -5px;
+            font-size:100%;
+            font-weight:normal;
           }
         }
 
@@ -338,6 +341,7 @@
       text-align: center;
       margin-top: 10px;
       color: var(--textColor);
+      font-weight: normal;
     }
 
     button {
@@ -421,6 +425,8 @@
   .errorMessage {
     color: var(--red);
     margin: 5px 2px;
+    font-size: 100%;
+    font-weight: normal;
   }
 
   .secondaryText {
@@ -622,3 +628,4 @@
   background-color: var(--popupBackground) !important;
   color: var(--textColor) !important;
 }
+

@@ -55,7 +55,8 @@ const dropZoneBackgroundStyle = {
 
 const h3Style = {
   fontSize: '1.5em',
-  marginTop: '12px'
+  marginTop: '12px',
+  fontWeight: 'normal'
 }
 
 export function AssetDropZone() {

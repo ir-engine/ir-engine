@@ -341,7 +341,7 @@ const CaptureDashboard = () => {
           <div className="w-100 bg-base-100">
             <div tabIndex={0} className="collapse collapse-open">
               <div className="collapse-title w-full h-[50px]">
-                <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>Pose Options</h1>
+                <h1 className="text-base font-normal">Pose Options</h1>
               </div>
               <div className="collapse-content w-full h-auto">
                 <ul className="list-none text-base-content w-full h-auto">
@@ -462,7 +462,7 @@ const CaptureDashboard = () => {
                   }}
                   className="m-0 absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0"
                 >
-                  <h1 style={{ fontSize: '100%', fontWeight: 'normal' }}>
+                  <h1 className="text-base font-normal">
                     {mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}
                   </h1>
                 </button>

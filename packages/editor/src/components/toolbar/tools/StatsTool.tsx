@@ -64,7 +64,7 @@ const StatsTool = () => {
       </div>
       {isVisible && (
         <div className={styles.statsContainer}>
-          <h3 style={{ fontSize: '100%', fontWeight: 'normal' }}>{t('editor:viewport.state.header')}</h3>
+          <h3>{t('editor:viewport.state.header')}</h3>
           {info && (
             <ul style={{ listStyle: 'none' }}>
               <li>

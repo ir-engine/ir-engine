@@ -96,7 +96,8 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
           width: '100%',
           padding: '0.5rem',
           height: '8rem',
-          verticalAlign: 'top'
+          verticalAlign: 'top',
+          margin: 0
         }}
         placeholder="Paste JSON here"
         value={value}
