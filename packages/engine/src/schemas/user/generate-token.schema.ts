@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const generateTokenPath = 'generate-token'
 
@@ -66,3 +67,8 @@ export const generateTokenQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type GenerateTokenQuery = Static<typeof generateTokenQuerySchema>
+
+export const generateTokenValidator = getValidator(generateTokenSchema, dataValidator)
+export const generateTokenDataValidator = getValidator(generateTokenDataSchema, dataValidator)
+export const generateTokenPatchValidator = getValidator(generateTokenPatchSchema, dataValidator)
+export const generateTokenQueryValidator = getValidator(generateTokenQuerySchema, queryValidator)

@@ -24,18 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
-
-import {
-  generateTokenDataSchema,
-  generateTokenPatchSchema,
-  generateTokenQuerySchema,
-  generateTokenSchema
-} from '@etherealengine/engine/src/schemas/user/generate-token.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 
+import {
+  generateTokenDataValidator,
+  generateTokenPatchValidator,
+  generateTokenQueryValidator
+} from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
   generateTokenDataResolver,
   generateTokenExternalResolver,
@@ -43,12 +39,6 @@ import {
   generateTokenQueryResolver,
   generateTokenResolver
 } from './generate-token.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const generateTokenValidator = getValidator(generateTokenSchema, dataValidator)
-const generateTokenDataValidator = getValidator(generateTokenDataSchema, dataValidator)
-const generateTokenPatchValidator = getValidator(generateTokenPatchSchema, dataValidator)
-const generateTokenQueryValidator = getValidator(generateTokenQuerySchema, queryValidator)
 
 export default {
   around: {
