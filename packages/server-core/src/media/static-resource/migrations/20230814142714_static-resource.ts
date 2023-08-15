@@ -45,18 +45,10 @@ export async function up(knex: Knex): Promise<void> {
 
   tableExists = await trx.schema.hasTable(staticResourcePath)
 
-  if (tableExists) {
-    const hasIdColumn = await trx.schema.hasColumn(staticResourcePath, 'id')
-    const hasUserIdColumn = await trx.schema.hasColumn(staticResourcePath, 'userId')
-    if (!(hasUserIdColumn && hasIdColumn)) {
-      await trx.schema.dropTable(staticResourcePath)
-      tableExists = false
-    }
-  }
-
   if (!tableExists && !oldNamedTableExists) {
     await trx.schema.createTable(staticResourcePath, (table) => {
-      table.string('id', 36).notNullable().primary()
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('sid', 255).notNullable()
       table.string('hash', 255).notNullable()
       table.string('url', 255).defaultTo(null)
@@ -69,13 +61,13 @@ export async function up(knex: Knex): Promise<void> {
       table.string('attribution', 255).defaultTo(null)
       table.json('tags').defaultTo(null)
       table.json('stats').defaultTo(null)
+      //@ts-ignore
+      table.uuid('userId').collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
-      table.string('userId', 36).defaultTo(null)
-      table.index('userId')
 
       // Foreign keys
-      table.foreign('userId').references('user.id').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     })
 
     await trx.raw('SET FOREIGN_KEY_CHECKS=1')
