@@ -27,3 +27,7 @@ Ethereal Engine. All Rights Reserved.
 export const getDateTimeSql = async () => {
   return new Date().toISOString().slice(0, 19).replace('T', ' ')
 }
+
+export const toDateTimeSql = (date: Date) => {
+  return date.toISOString().slice(0, 19).replace('T', ' ')
+}

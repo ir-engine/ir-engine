@@ -32,15 +32,15 @@ import GithubRepoAccessRefresh from './github-repo-access-refresh/github-repo-ac
 import GithubRepoAccessWebhook from './github-repo-access-webhook/github-repo-access-webhook'
 import GithubRepoAccess from './github-repo-access/github-repo-access'
 import IdentityProvider from './identity-provider/identity-provider.service'
-import LoginToken from './login-token/login-token.service'
+import LoginToken from './login-token/login-token'
 import Login from './login/login.service'
 import MagicLink from './magic-link/magic-link.service'
 import SMS from './sms/sms.service'
 import UserApiKey from './user-api-key/user-api-key'
-import UserKick from './user-kick/user-kick.service'
+import UserKick from './user-kick/user-kick'
 import UserRelationshipType from './user-relationship-type/user-relationship-type'
 import UserRelationship from './user-relationship/user-relationship.service'
-import UserSettings from './user-settings/user-settings.service'
+import UserSettings from './user-setting/user-setting'
 import User from './user/user'
 
 export default [
