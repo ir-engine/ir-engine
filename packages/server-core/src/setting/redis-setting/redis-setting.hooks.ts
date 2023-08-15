@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  redisSettingDataSchema,
-  redisSettingPatchSchema,
-  redisSettingQuerySchema,
-  redisSettingSchema
+  redisSettingDataValidator,
+  redisSettingPatchValidator,
+  redisSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -44,12 +41,6 @@ import {
   redisSettingQueryResolver,
   redisSettingResolver
 } from './redis-setting.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const redisSettingValidator = getValidator(redisSettingSchema, dataValidator)
-const redisSettingDataValidator = getValidator(redisSettingDataSchema, dataValidator)
-const redisSettingPatchValidator = getValidator(redisSettingPatchSchema, dataValidator)
-const redisSettingQueryValidator = getValidator(redisSettingQuerySchema, queryValidator)
 
 export default {
   around: {

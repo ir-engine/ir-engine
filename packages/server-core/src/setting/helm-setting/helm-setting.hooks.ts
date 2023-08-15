@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  helmSettingDataSchema,
-  helmSettingPatchSchema,
-  helmSettingQuerySchema,
-  helmSettingSchema
+  helmSettingDataValidator,
+  helmSettingPatchValidator,
+  helmSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -44,12 +41,6 @@ import {
   helmSettingQueryResolver,
   helmSettingResolver
 } from './helm-setting.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const helmSettingValidator = getValidator(helmSettingSchema, dataValidator)
-const helmSettingDataValidator = getValidator(helmSettingDataSchema, dataValidator)
-const helmSettingPatchValidator = getValidator(helmSettingPatchSchema, dataValidator)
-const helmSettingQueryValidator = getValidator(helmSettingQuerySchema, queryValidator)
 
 export default {
   around: {
