@@ -663,12 +663,13 @@
       "lbl-addNode": "Add node to curve"
     },
     "splinetrack": {
-      "name": "SplineTrack",
+      "name": "Spline Track",
       "description": "Have an entity follow a Spline",
-      "lbl-velocity": "Adjust overall velocity",
-      "lbl-roll": "Disable roll",
-      "lbl-alpha": "Adjust position along spline",
-      "lbl-running": "Disable running"
+      "lbl-spline": "Source Spline",
+      "lbl-velocity": "Velocity",
+      "lbl-enableRotation": "Enable Rotation",
+      "lbl-lockXZ": "Lock To XZ Plane",
+      "lbl-loop": "Loop"
     },
     "systemnode": {
       "description": "Attach script.",

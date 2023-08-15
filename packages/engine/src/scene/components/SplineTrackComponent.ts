@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
-import { Quaternion } from 'three'
+import { Euler, Quaternion, Vector3 } from 'three'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
@@ -35,17 +35,23 @@ import { LocalTransformComponent, TransformComponent } from '../../transform/com
 import { SplineComponent } from './SplineComponent'
 import { UUIDComponent } from './UUIDComponent'
 
+const _euler = new Euler()
+const _quat = new Quaternion()
+
+const _point1Vector = new Vector3()
+
 export const SplineTrackComponent = defineComponent({
   name: 'SplineTrackComponent',
   jsonID: 'spline-track',
 
   onInit: (entity) => {
     return {
+      alpha: 0, // internal
       splineEntityUUID: null as EntityUUID | null,
-      alpha: 0.01,
       velocity: 1.0,
-      disableRoll: false,
-      disableRunning: false
+      enableRotation: false,
+      lockToXZPlane: true,
+      loop: true
     }
   },
 
@@ -53,18 +59,18 @@ export const SplineTrackComponent = defineComponent({
     if (!json) return
     if (typeof json.splineEntityUUID !== 'undefined') component.splineEntityUUID.set(json.splineEntityUUID)
     if (typeof json.velocity === 'number') component.velocity.set(json.velocity)
-    if (typeof json.alpha === 'number') component.alpha.set(json.alpha)
-    if (typeof json.disableRoll === 'boolean') component.disableRoll.set(json.disableRoll)
-    if (typeof json.disableRunning === 'boolean') component.disableRunning.set(json.disableRunning)
+    if (typeof json.enableRotation === 'boolean') component.enableRotation.set(json.enableRotation)
+    if (typeof json.lockToXZPlane === 'boolean') component.lockToXZPlane.set(json.lockToXZPlane)
+    if (typeof json.loop === 'boolean') component.loop.set(json.loop)
   },
 
   toJSON: (entity, component) => {
     return {
       splineEntityUUID: component.splineEntityUUID.value,
       velocity: component.velocity.value,
-      alpha: component.alpha.value,
-      disableRoll: component.disableRoll.value,
-      disableRunning: component.disableRunning.value
+      enableRotation: component.enableRotation.value,
+      lockToXZPlane: component.lockToXZPlane.value,
+      loop: component.loop.value
     }
   },
 
@@ -74,7 +80,8 @@ export const SplineTrackComponent = defineComponent({
 
     useExecute(
       () => {
-        if (getState(EngineState).isEditor) return
+        const { isEditor, deltaSeconds } = getState(EngineState)
+        if (isEditor) return
 
         if (!component.splineEntityUUID.value) return
         const splineTargetEntity = UUIDComponent.entitiesByUUID[component.splineEntityUUID.value]
@@ -84,37 +91,53 @@ export const SplineTrackComponent = defineComponent({
         if (!splineComponent) return
 
         // get local transform for this entity
-        const local = getOptionalComponent(entity, LocalTransformComponent)
-        const transform = getOptionalComponent(entity, TransformComponent)
+        const transform =
+          getOptionalComponent(entity, LocalTransformComponent) ?? getOptionalComponent(entity, TransformComponent)
         if (!transform) return
 
         const elements = splineComponent.elements
-        if (elements.length < 2) return
+        if (elements.length < 1) return
 
-        // move
+        if (Math.floor(component.alpha.value) > elements.length - 1) {
+          if (!component.loop.value) {
+            return
+          }
+          component.alpha.set(0)
+        }
+        component.alpha.set(
+          (alpha) => alpha + (deltaSeconds * component.velocity.value) / splineComponent.curve.getLength()
+        )
+
+        // move along spline
         const alpha = component.alpha.value
         const index = Math.floor(component.alpha.value)
-        if (index > elements.length - 2) {
-          component.alpha.set(0)
-          return
-        }
-        if (!component.disableRunning.value) {
-          component.alpha.set(alpha + 0.01 * component.velocity.value)
-        }
-        const p1 = elements[index].position
-        const p2 = elements[index + 1].position
-        const q1 = elements[index].quaternion
-        const q2 = elements[index + 1].quaternion
+        const nextIndex = index + 1 > elements.length - 1 ? 0 : index + 1
 
-        // @todo replace naive lerp with a spline division based calculation
-        if (local) {
-          local.position.lerpVectors(p1, p2, alpha - index)
-          if (!component.disableRoll.value)
-            local.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
-        } else {
-          transform.position.lerpVectors(p1, p2, alpha - index)
-          if (!component.disableRoll.value)
-            transform.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
+        // translation
+        splineComponent.curve.getPointAt(alpha - index, _point1Vector)
+        transform.position.copy(_point1Vector)
+
+        // rotation
+        const q1 = elements[index].quaternion
+        const q2 = elements[nextIndex].quaternion
+
+        if (component.enableRotation.value) {
+          if (component.lockToXZPlane.value) {
+            // get X and Y rotation only
+            _euler.setFromQuaternion(q1)
+            _euler.z = 0
+
+            transform.rotation.setFromEuler(_euler)
+
+            _euler.setFromQuaternion(q2)
+            _euler.z = 0
+
+            _quat.setFromEuler(_euler)
+
+            transform.rotation.fastSlerp(_quat, alpha - index)
+          } else {
+            transform.rotation.copy(q1).fastSlerp(q2, alpha - index)
+          }
         }
       },
       { with: PresentationSystemGroup }

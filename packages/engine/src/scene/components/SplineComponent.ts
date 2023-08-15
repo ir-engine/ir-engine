@@ -25,13 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   ArrowHelper,
+  AxesHelper,
   BoxGeometry,
   BufferAttribute,
   BufferGeometry,
   CatmullRomCurve3,
+  Color,
   Line,
   LineBasicMaterial,
-  Mesh,
   MeshLambertMaterial,
   Quaternion,
   Vector3
@@ -63,7 +64,9 @@ export const SplineComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      elements: [] as ISplineElement[]
+      elements: [] as ISplineElement[],
+      // internal
+      curve: new CatmullRomCurve3([], true)
     }
   },
 
@@ -82,10 +85,12 @@ export const SplineComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const elements = useComponent(entity, SplineComponent).elements
+    const component = useComponent(entity, SplineComponent)
+    const elements = component.elements
 
     useEffect(() => {
       if (elements.length < 3) {
+        component.curve.set(new CatmullRomCurve3([], true))
         return
       }
 
@@ -98,20 +103,22 @@ export const SplineComponent = defineComponent({
 
       let id = 0
       for (const elem of elements.value) {
-        const gizmo = new Mesh(helperGeometry, helperMaterial)
+        const gizmo = new AxesHelper()
         gizmo.castShadow = true
         gizmo.receiveShadow = true
-        gizmo.layers.set(ObjectLayers.NodeHelper)
         gizmo.name = `${entity}-gizmos-${++id}`
-        gizmo.updateMatrixWorld(true)
-        gizmo.add(new ArrowHelper())
-        line.add(gizmo)
+        gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
+        setObjectLayers(gizmo, ObjectLayers.NodeHelper)
         gizmo.position.copy(elem.position)
         gizmo.quaternion.copy(elem.quaternion)
         gizmo.updateMatrixWorld(true)
+        line.add(gizmo)
       }
 
-      const curve = new CatmullRomCurve3(elements.value.map((e) => e.position))
+      const curve = new CatmullRomCurve3(
+        elements.value.map((e) => e.position),
+        true
+      )
       curve.curveType = 'catmullrom'
       const positions = line.geometry.attributes.position
       for (let i = 0; i < ARC_SEGMENTS; i++) {
@@ -121,6 +128,8 @@ export const SplineComponent = defineComponent({
       }
       positions.needsUpdate = true
       line.visible = true
+
+      component.curve.set(curve)
 
       return () => {
         line.children.forEach((child) => line.remove(child))
