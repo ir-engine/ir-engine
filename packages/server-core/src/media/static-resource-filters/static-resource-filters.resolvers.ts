@@ -24,27 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve, virtual } from '@feathersjs/schema'
+import { resolve } from '@feathersjs/schema'
 
 import {
   StaticResourceFiltersQuery,
   StaticResourceFiltersType
 } from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { Paginated } from '@feathersjs/feathers'
 
-export const staticResourceFiltersResolver = resolve<StaticResourceFiltersType, HookContext>({
-  mimeTypes: virtual(async (mimeType, context) => {
-    const mimeTypes = (await context.app.service(staticResourcePath).find({
-      query: {
-        $select: ['mimeType']
-      }
-    })) as Paginated<StaticResourceType>
-
-    return mimeTypes.data.map((el) => el.mimeType)
-  })
-})
+export const staticResourceFiltersResolver = resolve<StaticResourceFiltersType, HookContext>({})
 
 export const staticResourceFiltersExternalResolver = resolve<StaticResourceFiltersType, HookContext>({})
 

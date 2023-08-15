@@ -64,31 +64,7 @@ export class StaticResourceService<
   }
 
   async find(params?: StaticResourceParams) {
-    const search = params?.query?.search ?? ''
-    const key = params?.query?.key ?? ''
-    const mimeTypes =
-      params?.query?.mimeTypes && params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : undefined
-
-    return await super._find({
-      ...params,
-      query: {
-        $or: [
-          {
-            key: {
-              $like: `%${search}%`
-            }
-          },
-          {
-            key: key
-          },
-          {
-            mimeType: {
-              $in: mimeTypes
-            }
-          }
-        ]
-      }
-    })
+    return await super._find(params)
   }
 
   async patch(id: NullableId, data: StaticResourcePatch, params?: StaticResourceParams) {

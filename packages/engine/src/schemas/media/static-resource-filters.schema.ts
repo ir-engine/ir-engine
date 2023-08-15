@@ -19,12 +19,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 
 export const staticResourceFiltersPath = 'static-resource-filters'
 
-export const staticResourceFiltersMethods = ['find'] as const
+export const staticResourceFiltersMethods = ['get'] as const
 
 // Main data model schema
 export const staticResourceFiltersSchema = Type.Object(
@@ -46,3 +47,6 @@ export const staticResourceFiltersQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type StaticResourceFiltersQuery = Static<typeof staticResourceFiltersQuerySchema>
+
+export const staticResourceFiltersValidator = getValidator(staticResourceFiltersSchema, dataValidator)
+export const staticResourceFiltersQueryValidator = getValidator(staticResourceFiltersQuerySchema, queryValidator)

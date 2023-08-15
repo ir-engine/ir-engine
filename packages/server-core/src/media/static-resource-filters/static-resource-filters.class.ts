@@ -18,15 +18,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
+import { Application } from '../../../declarations'
 
 import {
   StaticResourceFiltersQuery,
   StaticResourceFiltersType
 } from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { Knex } from 'knex'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface StaticResourceFiltersParams extends RootParams<StaticResourceFiltersQuery> {}
 
-export class StaticResourceFiltersService extends KnexService<StaticResourceFiltersType, StaticResourceFiltersParams> {}
+export class StaticResourceFiltersService extends KnexAdapter<StaticResourceFiltersType, StaticResourceFiltersParams> {
+  app: Application
+
+  constructor(options: KnexAdapterOptions, app: Application) {
+    super(options)
+    this.app = app
+  }
+
+  async get() {
+    const knexClient: Knex = this.app.get('knexClient')
+
+    const mimeTypes = await knexClient
+      .select('mimeType')
+      .groupBy('mimeType')
+      .from<StaticResourceType>(staticResourcePath)
+
+    const filters: StaticResourceFiltersType = { mimeTypes: mimeTypes.map((el) => el.mimeType) }
+    return filters
+  }
+}

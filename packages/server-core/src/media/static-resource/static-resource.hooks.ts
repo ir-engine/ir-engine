@@ -23,18 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  staticResourceDataSchema,
-  staticResourcePatchSchema,
-  staticResourceQuerySchema,
-  staticResourceSchema
+  staticResourceDataValidator,
+  staticResourcePatchValidator,
+  staticResourceQueryValidator
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
@@ -45,12 +42,6 @@ import {
   staticResourceQueryResolver,
   staticResourceResolver
 } from './static-resource.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const staticResourceValidator = getValidator(staticResourceSchema, dataValidator)
-const staticResourceDataValidator = getValidator(staticResourceDataSchema, dataValidator)
-const staticResourcePatchValidator = getValidator(staticResourcePatchSchema, dataValidator)
-const staticResourceQueryValidator = getValidator(staticResourceQuerySchema, queryValidator)
 
 export default {
   around: {

@@ -86,6 +86,20 @@ export const ResourceService = {
     const adminResourceState = getMutableState(AdminResourceState)
     const limit = adminResourceState.limit.value
     const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
+    const searchKey = search ?? ''
+    const key = ''
+    const mimeTypes = selectedMimeTypes && selectedMimeTypes.length > 0 ? selectedMimeTypes : undefined
+
+    const $or = [
+      {
+        key: {
+          $like: `%${searchKey}%`
+        }
+      },
+      {
+        key: key
+      }
+    ] as any
 
     const resources = (await Engine.instance.api.service(staticResourcePath).find({
       query: {
@@ -93,7 +107,10 @@ export const ResourceService = {
         $limit: limit,
         $skip: skip * RESOURCE_PAGE_LIMIT,
         search: search,
-        mimeTypes: selectedMimeTypes
+        $or,
+        mimeType: {
+          $in: mimeTypes
+        }
       }
     })) as Paginated<StaticResourceType>
 
@@ -109,7 +126,7 @@ export const ResourceService = {
     })
   },
   getResourceFilters: async () => {
-    const filters = await (await Engine.instance.api.service(staticResourceFiltersPath).find()).data[0]
+    const filters = await await Engine.instance.api.service(staticResourceFiltersPath).get()
     getMutableState(AdminResourceState).merge({
       filters: filters,
       selectedMimeTypes: filters.mimeTypes
