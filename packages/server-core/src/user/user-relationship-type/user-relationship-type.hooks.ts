@@ -23,16 +23,49 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+
+import {
+  userRelationshipTypeDataValidator,
+  userRelationshipTypePatchValidator,
+  userRelationshipTypeQueryValidator
+} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+
 import { disallow } from 'feathers-hooks-common'
+import {
+  userRelationshipTypeDataResolver,
+  userRelationshipTypeExternalResolver,
+  userRelationshipTypePatchResolver,
+  userRelationshipTypeQueryResolver,
+  userRelationshipTypeResolver
+} from './user-relationship-type.resolvers'
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(userRelationshipTypeExternalResolver),
+      schemaHooks.resolveResult(userRelationshipTypeResolver)
+    ]
+  },
+
   before: {
-    all: [],
+    all: [
+      () => schemaHooks.validateQuery(userRelationshipTypeQueryValidator),
+      schemaHooks.resolveQuery(userRelationshipTypeQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [disallow('external')],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(userRelationshipTypeDataValidator),
+      schemaHooks.resolveData(userRelationshipTypeDataResolver)
+    ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(userRelationshipTypePatchValidator),
+      schemaHooks.resolveData(userRelationshipTypePatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

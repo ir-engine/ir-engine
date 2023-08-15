@@ -29,6 +29,7 @@ import { Sequelize, Transaction } from 'sequelize'
 
 import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
+import { userRelationshipTypePath } from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
@@ -51,8 +52,9 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
   async find(params?: Params): Promise<any> {
     if (!params) params = {}
     const UserRelationshipModel = this.getModel(params)
-    const UserRelationshipTypeService = this.app.service('user-relationship-type')
-    const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
+    const userRelationshipTypes = await this.app.service(userRelationshipTypePath).find({
+      paginate: false
+    })
 
     const userId = params.query?.userId
 
