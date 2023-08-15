@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type, querySyntax } from '@feathersjs/typebox'
+import { Static, Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { UserID } from '../user/user.schema'
+import { dataValidator, queryValidator } from '../validators'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
@@ -58,3 +59,6 @@ export const inviteCodeLookupQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type InviteCodeLookupQuery = Static<typeof inviteCodeLookupQuerySchema>
+
+export const inviteCodeLookupValidator = getValidator(inviteCodeLookupSchema, dataValidator)
+export const inviteCodeLookupQueryValidator = getValidator(inviteCodeLookupQuerySchema, queryValidator)

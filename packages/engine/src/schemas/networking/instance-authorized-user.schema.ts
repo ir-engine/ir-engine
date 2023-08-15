@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const instanceAuthorizedUserPath = 'instance-authorized-user'
 
@@ -79,3 +80,8 @@ export const instanceAuthorizedUserQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type InstanceAuthorizedUserQuery = Static<typeof instanceAuthorizedUserQuerySchema>
+
+export const instanceAuthorizedUserValidator = getValidator(instanceAuthorizedUserSchema, dataValidator)
+export const instanceAuthorizedUserDataValidator = getValidator(instanceAuthorizedUserDataSchema, dataValidator)
+export const instanceAuthorizedUserPatchValidator = getValidator(instanceAuthorizedUserPatchSchema, dataValidator)
+export const instanceAuthorizedUserQueryValidator = getValidator(instanceAuthorizedUserQuerySchema, queryValidator)

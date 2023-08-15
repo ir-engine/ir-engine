@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 import { UserID } from './user.schema'
 
 export const identityProviderPath = 'identity-provider'
@@ -107,3 +108,8 @@ export const identityProviderQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type IdentityProviderQuery = Static<typeof identityProviderQuerySchema>
+
+export const identityProviderValidator = getValidator(identityProviderSchema, dataValidator)
+export const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)
+export const identityProviderPatchValidator = getValidator(identityProviderPatchSchema, dataValidator)
+export const identityProviderQueryValidator = getValidator(identityProviderQuerySchema, queryValidator)

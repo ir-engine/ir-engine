@@ -24,18 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
   IdentityProviderType,
-  identityProviderDataSchema,
-  identityProviderPatchSchema,
+  identityProviderDataValidator,
+  identityProviderPatchValidator,
   identityProviderPath,
-  identityProviderQuerySchema,
-  identityProviderSchema
+  identityProviderQueryValidator
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import { Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
@@ -107,12 +104,6 @@ const checkOnlyIdentityProvider = () => {
     return context
   }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const identityProviderValidator = getValidator(identityProviderSchema, dataValidator)
-const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)
-const identityProviderPatchValidator = getValidator(identityProviderPatchSchema, dataValidator)
-const identityProviderQueryValidator = getValidator(identityProviderQuerySchema, queryValidator)
 
 export default {
   around: {

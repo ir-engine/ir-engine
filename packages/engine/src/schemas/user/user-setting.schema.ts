@@ -27,8 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const userSettingPath = 'user-setting'
 
@@ -84,3 +85,8 @@ export const userSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type UserSettingQuery = Static<typeof userSettingQuerySchema>
+
+export const userSettingValidator = getValidator(userSettingSchema, dataValidator)
+export const userSettingDataValidator = getValidator(userSettingDataSchema, dataValidator)
+export const userSettingPatchValidator = getValidator(userSettingPatchSchema, dataValidator)
+export const userSettingQueryValidator = getValidator(userSettingQuerySchema, queryValidator)
