@@ -180,10 +180,11 @@ export const getAnimations = async () => {
     manager.ikTargetsAnimations.set(ikAsset.animations)
     manager.fkAnimations.set(fkAsset)
   }
+
   return (
-    (!manager.useDynamicAnimation
-      ? cloneDeep(manager.ikTargetsAnimations.value)
-      : cloneDeep(manager.fkAnimations.value?.animations)) ?? [new AnimationClip()]
+    (!manager.useDynamicAnimation.value
+      ? cloneDeep(manager.fkAnimations.value?.animations)
+      : cloneDeep(manager.ikTargetsAnimations.value)) ?? [new AnimationClip()]
   )
 }
 
