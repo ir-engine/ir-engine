@@ -71,6 +71,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
+import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
@@ -205,16 +206,24 @@ export function ElementList() {
 
   useEffect(() => {
     const result: Record<string, Component[]> = {}
-    for (const [category, items] of Object.entries(ComponentShelfCategories)) {
-      result[category] = items.filter((item) => item.name.toLowerCase().includes(searchBarState.value.toLowerCase()))
+    if (searchBarState.value === '') {
+      validElements.set(ComponentShelfCategories)
+    } else {
+      for (const [category, items] of Object.entries(ComponentShelfCategories)) {
+        result[category] = items.filter((item) => item.name.toLowerCase().includes(searchBarState.value.toLowerCase()))
+      }
+      validElements.set(result)
     }
-    validElements.set(result)
   }, [searchBarState])
 
   return (
     <>
       <div className={styles.elementListContainer}>
-        <StringInput value={searchBarState.value} onChange={searchBarState.set} placeholder={t('Search...')} />
+        <span className={styles.searchContainer}>
+          <Button onClick={() => searchBarState.set('')}>x</Button>
+          <StringInput value={searchBarState.value} onChange={searchBarState.set} placeholder={t('Search...')} />
+        </span>
+
         {Object.entries(validElements.get(NO_PROXY)).map(([category, items]) => (
           <div className={styles.category} key={category}>
             {items.length > 0 && (
