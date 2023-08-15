@@ -23,7 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface UserKick {
-  id: string
-  duration: Date
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
+
+import { LoginTokenQuery, LoginTokenType } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const loginTokenResolver = resolve<LoginTokenType, HookContext>({})
+
+export const loginTokenExternalResolver = resolve<LoginTokenType, HookContext>({})
+
+export const loginTokenDataResolver = resolve<LoginTokenType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const loginTokenPatchResolver = resolve<LoginTokenType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const loginTokenQueryResolver = resolve<LoginTokenQuery, HookContext>({})

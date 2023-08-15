@@ -35,7 +35,6 @@ import {
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/setting/user-setting.schema'
 import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -44,6 +43,7 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const userResolver = resolve<UserType, HookContext>({

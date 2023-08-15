@@ -105,3 +105,12 @@ export interface IdentityProviderInterface {
   userId: UserID
   oauthToken?: string
 }
+export interface UserKick {
+  id: string
+  duration: Date
+}
+
+export interface UserSetting {
+  id: string
+  themeModes: string
+}

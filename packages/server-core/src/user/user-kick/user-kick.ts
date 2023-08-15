@@ -23,28 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'user-settings': {
-      type: 'object',
-      properties: {
-        themeModes: {
-          type: 'json'
-        }
-      }
-    },
-    'user-settings_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/user-settings' }
-    }
-  },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+import { userKickMethods, userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+
+import { Application } from '../../../declarations'
+import { UserKickService } from './user-kick.class'
+import userKickDocs from './user-kick.docs'
+import hooks from './user-kick.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [userKickPath]: UserKickService
   }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: userKickPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(userKickPath, new UserKickService(options), {
+    // A list of all methods this service exposes externally
+    methods: userKickMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: userKickDocs
+  })
+
+  const service = app.service(userKickPath)
+  service.hooks(hooks)
 }

@@ -30,6 +30,7 @@ import * as path from 'path'
 import * as pug from 'pug'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -233,7 +234,7 @@ export class Magiclink implements ServiceMethods<Data> {
     }
 
     if (identityProvider) {
-      const loginToken = await this.app.service('login-token').create({
+      const loginToken = await this.app.service(loginTokenPath).create({
         identityProviderId: identityProvider.id
       })
 

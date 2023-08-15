@@ -34,6 +34,7 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
@@ -167,7 +168,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
   _afterCreate = async (app: Application, result: UserType) => {
     try {
-      await app.service('user-settings').create({
+      await app.service(userSettingPath).create({
         userId: result.id
       })
 
