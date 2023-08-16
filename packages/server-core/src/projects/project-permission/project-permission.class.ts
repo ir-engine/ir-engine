@@ -120,7 +120,7 @@ export class ProjectPermissionService<
     }
     if (INVITE_CODE_REGEX.test(data.userId!)) {
       data.inviteCode = data.userId
-      delete data.inviteCode
+      delete data.userId
     }
     try {
       const searchParam = data.inviteCode
