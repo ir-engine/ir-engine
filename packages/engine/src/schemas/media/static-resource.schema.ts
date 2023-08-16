@@ -55,7 +55,6 @@ export const staticResourceSchema = Type.Object(
     tags: Type.Array(Type.String()),
     url: Type.String(),
     stats: Type.Record(Type.String(), Type.Any()),
-    LOD0_url: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -109,8 +108,6 @@ export const staticResourceQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        search: Type.Optional(Type.String()),
-        mimeTypes: Type.Optional(Type.Array(Type.String())),
         storageProviderName: Type.Optional(Type.String())
       },
       { additionalProperties: false }

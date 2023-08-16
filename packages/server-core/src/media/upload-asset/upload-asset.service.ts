@@ -144,15 +144,15 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
     name: args.file.originalname
   })
 
-  const whereQuery = {
+  const query = {
     hash,
     $limit: 1
   } as any
-  if (args.project) whereQuery.project = args.project
+  if (args.project) query.project = args.project
 
   /** @todo - if adding variants that already exist, we only return the first one */
   const existingResource = (await app.service(staticResourcePath).find({
-    query: whereQuery
+    query: query
   })) as Paginated<StaticResourceType> | null
 
   if (existingResource && existingResource.data.length > 0) return existingResource.data[0]
@@ -227,13 +227,13 @@ export const addAssetAsStaticResource = async (
   const primaryKey = isExternalURL ? args.path : processFileName(path.join(args.path, file.originalname))
   const url = isExternalURL ? args.path : getCachedURL(primaryKey, provider.cacheDomain)
 
-  const whereQuery = {
+  const query = {
     $limit: 1,
     $or: [{ url: url }, { id: args.id || '' }]
   } as any
-  if (args.project) whereQuery.project = args.project
+  if (args.project) query.project = args.project
   const existingAsset = (await app.service(staticResourcePath).find({
-    query: whereQuery
+    query: query
   })) as Paginated<StaticResourceType>
 
   const stats = await getStats(file.buffer, file.mimetype)
@@ -255,7 +255,7 @@ export const addAssetAsStaticResource = async (
 
   let resourceId = ''
 
-  if (existingAsset && existingAsset.data.length > 0) {
+  if (existingAsset.data.length > 0) {
     resourceId = existingAsset.data[0].id
     await app.service(staticResourcePath).patch(resourceId, body, { isInternal: true })
   } else {

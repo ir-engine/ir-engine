@@ -259,7 +259,8 @@ export class FileBrowserService implements ServiceMethods<any> {
         $limit: 1
       }
     })) as Paginated<StaticResourceType>
-    staticResource?.data?.length > 0 && (await this.app.service(staticResourcePath).remove(staticResource?.data[0]?.id))
+
+    if (staticResource?.data?.length > 0) await this.app.service(staticResourcePath).remove(staticResource?.data[0]?.id)
 
     return result
   }

@@ -27,7 +27,10 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import knex from 'knex'
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import {
+  StaticResourceDatabaseType,
+  staticResourcePath
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
@@ -58,14 +61,18 @@ cli.main(async () => {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
 
-    const staticResources = await knexClient.from<StaticResourceType>(staticResourcePath).whereNull('url')
+    type UpdatedStaticResourceType = StaticResourceDatabaseType & {
+      LOD0_url: string
+    }
+
+    const staticResources = await knexClient.from<UpdatedStaticResourceType>(staticResourcePath).whereNull('url')
 
     console.log('static resources', staticResources)
 
     for (const resource of staticResources) {
       if (resource.LOD0_url && resource.url == null)
         await knexClient
-          .from<StaticResourceType>(staticResourcePath)
+          .from<StaticResourceDatabaseType>(staticResourcePath)
           .where({
             id: resource.id
           } as any)

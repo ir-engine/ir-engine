@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Paginated, Params } from '@feathersjs/feathers'
+import { Id, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
@@ -639,10 +639,11 @@ export class Project extends Service {
             }
           }
         ]
-      }
-    })) as Paginated<StaticResourceType>
-    staticResourceItems.data.length &&
-      staticResourceItems.data.forEach(async (staticResource) => {
+      },
+      paginate: false
+    })) as StaticResourceType[]
+    staticResourceItems.length &&
+      staticResourceItems.forEach(async (staticResource) => {
         await this.app.service(staticResourcePath).remove(staticResource.id)
       })
 
