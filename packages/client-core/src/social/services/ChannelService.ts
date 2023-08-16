@@ -33,7 +33,6 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
-import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { SocketWebRTCClientNetwork, endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 
@@ -120,7 +119,6 @@ export const ChannelService = {
     } else {
       getMutableState(ChannelState).targetChannelId.set(channelID)
     }
-    MediaInstanceConnectionService.setJoining(true)
     const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     if (!network) return
     await endVideoChat(network, {})

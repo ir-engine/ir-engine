@@ -52,7 +52,6 @@ import {
   SocketWebRTCClientNetwork
 } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
-import { NetworkConnectionService } from './NetworkConnectionService'
 
 const logger = multiLogger.child({ component: 'client-core:service:media-instance' })
 
@@ -72,9 +71,7 @@ type InstanceState = {
 export const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
-    instances: {} as { [id: string]: InstanceState },
-    /** @deprecated */
-    joiningNewMediaChannel: false
+    instances: {} as { [id: string]: InstanceState }
   })
 })
 
@@ -116,7 +113,6 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       return s.instances[action.instanceId].connecting.set(true)
     })
     .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
-      s.joiningNewMediaChannel.set(false)
       return s.instances[action.instanceId].merge({
         connected: true,
         connecting: false,
@@ -139,9 +135,6 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       networkState.hostIds.media.set(action.newInstanceId as UserID)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
-    })
-    .when(MediaInstanceConnectionAction.joiningNewMediaChannel.matches, () => {
-      return s.joiningNewMediaChannel.set(true)
     })
 }
 
@@ -168,7 +161,10 @@ export const MediaInstanceConnectionService = {
         })
       )
     } else {
-      dispatchAction(NetworkConnectionService.actions.noMediaServersAvailable({ instanceId: channelId! ?? '' }))
+      logger.error('Failed to connect to expected instance')
+      setTimeout(() => {
+        MediaInstanceConnectionService.provisionServer(channelId, createPrivateRoom)
+      }, 1000)
     }
   },
   connectToServer: async (instanceId: string, channelId: ChannelID) => {
@@ -224,9 +220,6 @@ export const MediaInstanceConnectionService = {
         Engine.instance.api.service('instance-provision').off('created', listener)
       }
     }, [])
-  },
-  setJoining: (joining: boolean) => {
-    dispatchAction(MediaInstanceConnectionAction.joiningNewMediaChannel({}))
   }
 }
 
@@ -260,10 +253,6 @@ export class MediaInstanceConnectionAction {
   static disconnect = defineAction({
     type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_DISCONNECT' as const,
     instanceId: matches.string
-  })
-
-  static joiningNewMediaChannel = defineAction({
-    type: 'ee.client.MediaInstanceConnection.JOINING_NEW_MEDIA_CHANNEL' as const
   })
 
   static changeActiveConnectionHostId = defineAction({

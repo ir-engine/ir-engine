@@ -32,7 +32,6 @@ import {
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
-  MediaInstanceState,
   useMediaInstance
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
@@ -146,7 +145,6 @@ export const MediaInstanceProvisioning = () => {
   const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
   const currentWorldInstanceConnection = useWorldInstance()
-  const joiningNewMediaChannel = useHookstate(getMutableState(MediaInstanceState).joiningNewMediaChannel)
 
   MediaInstanceConnectionService.useAPIListeners()
 
@@ -160,12 +158,7 @@ export const MediaInstanceProvisioning = () => {
       if (!currentChannelInstanceConnection?.provisioned.value && currentChannel)
         MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
-  }, [
-    channelState.channels.channels?.length,
-    joiningNewMediaChannel,
-    currentWorldInstanceConnection?.connected,
-    channelState.targetChannelId
-  ])
+  }, [channelState.channels.channels?.length, currentWorldInstanceConnection?.connected, channelState.targetChannelId])
 
   // Once the media server is provisioned, connect to it
   useEffect(() => {

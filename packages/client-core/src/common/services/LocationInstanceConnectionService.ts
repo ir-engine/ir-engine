@@ -51,7 +51,6 @@ import {
   SocketWebRTCClientNetwork
 } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
-import { NetworkConnectionService } from './NetworkConnectionService'
 
 type InstanceState = {
   ipAddress: string
@@ -173,7 +172,10 @@ export const LocationInstanceConnectionService = {
         })
       )
     } else {
-      dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId ?? '' }))
+      logger.error('Failed to connect to expected instance')
+      setTimeout(() => {
+        LocationInstanceConnectionService.provisionServer(locationId, instanceId, sceneId, roomCode, createPrivateRoom)
+      }, 1000)
     }
   },
   provisionExistingServer: async (locationId: string, instanceId: string, sceneId: string) => {

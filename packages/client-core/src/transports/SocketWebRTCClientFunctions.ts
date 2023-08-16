@@ -102,7 +102,6 @@ import {
   MediaInstanceConnectionService,
   MediaInstanceState
 } from '../common/services/MediaInstanceConnectionService'
-import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -412,10 +411,8 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   if (isWorldConnection) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
-    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
   } else {
     dispatchAction(MediaInstanceConnectionAction.serverConnected({ instanceId: network.hostId }))
-    dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
   }
 
   const authState = getState(AuthState)
@@ -471,7 +468,6 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const connectToWorldResponse = await promisedRequest(network, MessageTypes.JoinWorld.toString(), joinWorldRequest)
 
   if (!connectToWorldResponse || !connectToWorldResponse.routerRtpCapabilities) {
-    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
     network.reconnecting = false
     onConnectToInstance(network)
     return
@@ -495,12 +491,10 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
   function kickHandler(message) {
     leaveNetwork(network, true)
-    dispatchAction(NetworkConnectionService.actions.worldInstanceKicked({ message }))
     logger.info('Client has been kicked from the world')
   }
 
   async function reconnectHandler() {
-    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
     network.reconnecting = false
     await onConnectToInstance(network)
     network.primus.removeListener('reconnected', reconnectHandler)
@@ -508,7 +502,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   }
 
   async function disconnectHandler() {
-    dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     network.primus.removeListener('data', consumeDataAndKickHandler)
   }
 
@@ -558,7 +551,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   async function reconnectHandler() {
     network.primus.removeListener('reconnected', reconnectHandler)
     network.primus.removeListener('disconnection', disconnectHandler)
-    dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
     network.reconnecting = false
     await onConnectToInstance(network)
     await updateNearbyAvatars()
@@ -622,7 +614,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
         })
       )
     })
-    dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected({}))
   }
 
   network.primus.on('disconnection', disconnectHandler)
