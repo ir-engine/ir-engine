@@ -65,7 +65,7 @@ export async function up(knex: Knex): Promise<void> {
       table
         .foreign('type')
         .references('type')
-        .inTable('user_relationship_type') // TODO: change this to user-relationship-type after its service is converted to feathers 5.
+        .inTable('user-relationship-type')
         .onDelete('SET NULL')
         .onUpdate('CASCADE')
     })

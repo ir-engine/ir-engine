@@ -576,7 +576,7 @@ const createUserRelationshipTypeModel = (app: Application) => {
   )
 
   ;(userRelationshipType as any).associate = (models: any): void => {
-    ;(userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'userRelationshipType' })
+    ;(userRelationshipType as any).hasMany(createUserRelationshipModel(app), { foreignKey: 'userRelationshipType' })
   }
 
   return userRelationshipType
