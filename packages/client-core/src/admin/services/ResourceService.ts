@@ -106,7 +106,6 @@ export const ResourceService = {
         $sort,
         $limit: limit,
         $skip: skip * RESOURCE_PAGE_LIMIT,
-        search: search,
         $or,
         mimeType: {
           $in: mimeTypes
