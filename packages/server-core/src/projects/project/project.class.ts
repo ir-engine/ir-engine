@@ -48,8 +48,11 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -671,6 +674,7 @@ export class Project extends Service {
   //@ts-ignore
   async find(params?: UserParams): Promise<{ data: ProjectInterface[]; errors: any[] }> {
     let projectPushIds: string[] = []
+    let populateProjectPermissions = false
     const errors = [] as any
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
@@ -747,12 +751,10 @@ export class Project extends Service {
       if (!params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
         params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
       delete params.query.allowed
-      if (!params.sequelize) params.sequelize = { raw: false }
-      if (!params.sequelize.include) params.sequelize.include = []
-      params.sequelize.include.push({
-        model: this.app.service(projectPermissionPath).Model
-      })
+
+      populateProjectPermissions = true
     }
+
     params = {
       ...params,
       query: {
@@ -787,6 +789,21 @@ export class Project extends Service {
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
+
+        if (populateProjectPermissions) {
+          // TODO: Following can be moved to project resolver once this service is moved to feathers 5.
+          values.project_permissions = (await this.app.service(projectPermissionPath)._find({
+            query: {
+              projectId: values.id
+            },
+            paginate: false
+          })) as ProjectPermissionType[]
+
+          for (const permissions of values.project_permissions || []) {
+            if (!permissions.user && permissions.userId)
+              permissions.user = await this.app.service(userPath)._get(permissions.userId)
+          }
+        }
       } catch (err) {
         //
       }
