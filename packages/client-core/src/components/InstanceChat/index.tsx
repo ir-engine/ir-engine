@@ -455,7 +455,7 @@ export const InstanceChatWrapper = () => {
   const worldNetwork = useWorldNetwork()
 
   useEffect(() => {
-    if (Engine.instance.worldNetwork?.hostId && worldNetwork?.connected?.value) {
+    if (worldNetwork?.connected?.value) {
       ChannelService.getInstanceChannel()
     }
   }, [worldNetwork?.connected])

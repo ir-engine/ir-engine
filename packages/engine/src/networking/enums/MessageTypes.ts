@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 /** Network Message Types. */
 export enum MessageTypes {
   Heartbeat = 0,
-  ClientConnected = 1,
-  ClientDisconnected = 2,
-  Initialization = 3,
+  // ClientConnected = 1,
+  // ClientDisconnected = 2,
+  // Initialization = 3,
   JoinWorld = 4,
-  LeaveWorld = 5,
+  // LeaveWorld = 5,
   UpdatePeers = 6,
   // WebRTCTransportCreate = 7,
   // WebRTCTransportConnect = 8,

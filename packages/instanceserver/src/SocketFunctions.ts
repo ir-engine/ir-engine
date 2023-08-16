@@ -39,8 +39,7 @@ import {
   handleDisconnect,
   handleHeartbeat,
   handleIncomingActions,
-  handleJoinWorld,
-  handleLeaveWorld
+  handleJoinWorld
 } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 
@@ -57,7 +56,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
    **/
   await new Promise<void>((resolve) => {
     const interval = setInterval(() => {
-      if (getState(EngineState).joinedWorld) {
+      if (getState(EngineState).connectedWorld) {
         clearInterval(interval)
         resolve()
       }
@@ -153,9 +152,6 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
             break
           case MessageTypes.ActionData.toString():
             handleIncomingActions(network, spark, peerID, data)
-            break
-          case MessageTypes.LeaveWorld.toString():
-            handleLeaveWorld(network, spark, peerID, data, id)
             break
         }
       })

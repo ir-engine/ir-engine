@@ -239,9 +239,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
 
 export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }) => {
   const { networkID, consumerID } = props
-  const consumerState = useHookstate(getMutableState(DataProducerConsumerState)[networkID].consumers[consumerID])
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
-  const networkConsumerState = networkState.consumers.find((p) => p.value.id === consumerID)
 
   useEffect(() => {
     return () => {

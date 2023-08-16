@@ -127,6 +127,8 @@ export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, ext
      */
     connected: false,
 
+    authenticated: false,
+
     ready: false,
 
     /**

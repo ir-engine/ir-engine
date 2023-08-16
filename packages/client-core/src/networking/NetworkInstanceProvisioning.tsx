@@ -33,7 +33,8 @@ import {
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
-  useMediaInstance
+  useMediaInstance,
+  useMediaNetwork
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
@@ -105,7 +106,8 @@ export const WorldInstanceProvisioning = () => {
       engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
       currentLocationInstanceConnection.provisioned.value &&
-      !worldNetworkState?.connected.value
+      worldNetworkState &&
+      !worldNetworkState.connected.value
     )
       LocationInstanceConnectionService.connectToServer(worldNetwork.hostId)
   }, [engineState.sceneLoaded, worldNetworkState?.connected, currentLocationInstanceConnection?.provisioned])
@@ -120,14 +122,14 @@ export const WorldInstanceProvisioning = () => {
 
       if (networkConfigState.roomID.value) query.set('roomCode', instance!.roomCode.value)
 
-      if (networkConfigState.instanceID.value) query.set('instanceId', worldNetwork.hostId)
+      if (networkConfigState.instanceID.value) query.set('instanceId', worldNetwork.id)
 
       parsed.search = query.toString()
       if (typeof history.pushState !== 'undefined') {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
-  }, [locationInstance.instances, instance, networkConfigState])
+  }, [locationInstance.instances, worldNetworkState?.connected, instance, networkConfigState])
 
   return null
 }
@@ -139,6 +141,7 @@ export const MediaInstanceProvisioning = () => {
   const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
   const worldNetwork = useWorldNetwork()
+  const mediaNetwork = useMediaNetwork()
 
   MediaInstanceConnectionService.useAPIListeners()
 
@@ -160,14 +163,15 @@ export const MediaInstanceProvisioning = () => {
       mediaNetworkHostId &&
       currentChannelInstanceConnection?.value &&
       currentChannelInstanceConnection.provisioned.value &&
-      !worldNetwork?.connected.value
+      mediaNetwork &&
+      !mediaNetwork?.connected.value
     ) {
       MediaInstanceConnectionService.connectToServer(
         mediaNetworkHostId,
         currentChannelInstanceConnection.channelId.value!
       )
     }
-  }, [worldNetwork?.connected, currentChannelInstanceConnection?.provisioned])
+  }, [mediaNetwork?.connected, currentChannelInstanceConnection?.provisioned])
 
   return null
 }

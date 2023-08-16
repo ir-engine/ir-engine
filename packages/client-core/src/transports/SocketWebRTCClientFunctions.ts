@@ -43,7 +43,7 @@ import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/P
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   MediaStreamAppData,
   MediaTagType,
@@ -63,11 +63,7 @@ import {
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { receiveJoinMediaServer } from '@etherealengine/engine/src/networking/functions/receiveJoinMediaServer'
-import {
-  JoinWorldRequestData,
-  receiveJoinWorld
-} from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { JoinWorldProps, JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
@@ -186,12 +182,12 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   networkState.authenticated.set(false)
   network.recvTransport?.close()
   network.sendTransport?.close()
-  network.recvTransport = null!
-  network.sendTransport = null!
+  networkState.recvTransport.set(null!)
+  networkState.sendTransport.set(null!)
   network.heartbeat && clearInterval(network.heartbeat)
   network.primus?.end()
   network.primus?.removeAllListeners()
-  network.primus = null!
+  networkState.primus.set(null!)
 }
 
 export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
@@ -222,8 +218,6 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
   const network = createNetwork(id, hostId, topic, {
     mediasoupDevice,
     transport,
-    connected: false,
-    authenticated: false,
     recvTransport: null! as MediaSoupTransport,
     sendTransport: null! as MediaSoupTransport,
     primus: null! as Primus,
@@ -294,26 +288,23 @@ export const connectToNetwork = async (
     return handleFailedConnection(network)!
   }
 
-  network.primus = primus
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
+
+  networkState.primus.set(primus)
 
   const connectionFailTimeout = setTimeout(() => {
     handleFailedConnection(network)
   }, 3000)
 
-  await new Promise<void>((resolve) => {
-    const onConnect = () => {
-      primus.off('incoming::open', onConnect)
-      clearTimeout(connectionFailTimeout)
+  const onConnect = () => {
+    primus.off('incoming::open', onConnect)
+    logger.info('CONNECTED to port %o', { port })
 
-      const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
-      networkState.connected.set(true)
+    clearTimeout(connectionFailTimeout)
 
-      logger.info('CONNECT to port %o', { port })
-
-      resolve()
-    }
-    primus.on('incoming::open', onConnect)
-  })
+    networkState.connected.set(true)
+  }
+  primus.on('incoming::open', onConnect)
 }
 
 type Primus = EventEmitter & {
@@ -399,7 +390,6 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   logger.info('Connecting to instance type: %o', { topic: network.topic, hostId: network.hostId })
 
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
-  networkState.connected.set(true)
 
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
@@ -463,51 +453,41 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     inviteCode: getSearchParamFromURL('inviteCode')
   } as JoinWorldRequestData
 
-  const connectToWorldResponse = await promisedRequest(network, MessageTypes.JoinWorld.toString(), joinWorldRequest)
+  const connectToWorldResponse = (await promisedRequest(
+    network,
+    MessageTypes.JoinWorld.toString(),
+    joinWorldRequest
+  )) as JoinWorldProps
 
   if (!connectToWorldResponse || !connectToWorldResponse.routerRtpCapabilities) {
     onConnectToInstance(network)
     return
   }
 
-  if (!network.mediasoupDevice.loaded) await network.mediasoupDevice.load(connectToWorldResponse)
+  if (!network.mediasoupDevice.loaded)
+    await network.mediasoupDevice.load({
+      routerRtpCapabilities: connectToWorldResponse.routerRtpCapabilities
+    })
 
-  if (isWorldConnection) receiveJoinWorld(connectToWorldResponse)
-  else receiveJoinMediaServer(connectToWorldResponse)
+  // handle cached actions
+  for (const action of connectToWorldResponse.cachedActions)
+    Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  if (isWorldConnection) await onConnectToWorldInstance(network)
-  else await onConnectToMediaInstance(network)
+  Engine.instance.store.actions.outgoing[network.topic].queue.push(
+    ...Engine.instance.store.actions.outgoing[network.topic].history
+  )
 
-  networkState.ready.set(true)
+  if (isWorldConnection) {
+    console.log('RECEIVED JOIN WORLD RESPONSE', connectToWorldResponse)
 
-  logger.info('Successfully connected to instance type: %o', { topic: network.topic, hostId: network.hostId })
-}
+    const spectateUserId = getSearchParamFromURL('spectate')
+    if (spectateUserId) {
+      dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
+    }
 
-export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
-  function kickHandler() {
-    leaveNetwork(network, true)
-    logger.info('Client has been kicked from the world')
+    // todo move to a reactor
+    getMutableState(EngineState).connectedWorld.set(true)
   }
-
-  async function reconnectHandler() {
-    network.primus.removeListener('reconnected', reconnectHandler)
-    network.primus.removeListener('disconnection', disconnectHandler)
-    await onConnectToInstance(network)
-  }
-
-  async function disconnectHandler() {
-    network.primus.removeListener('data', consumeDataAndKickHandler)
-  }
-
-  async function consumeDataAndKickHandler(message) {
-    if (message.type === MessageTypes.Kick.toString()) kickHandler()
-  }
-
-  network.primus.on('disconnection', disconnectHandler)
-  network.primus.on('reconnected', reconnectHandler)
-  network.primus.on('data', consumeDataAndKickHandler)
-  network.primus.socket.addEventListener('close', disconnectHandler)
-  network.primus.socket.addEventListener('open', reconnectHandler)
 
   dispatchAction(
     NetworkTransportActions.requestTransport({
@@ -529,63 +509,16 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     })
   )
 
-  getMutableState(EngineState).connectedWorld.set(true)
-
-  // // use sendBeacon to tell the server we're disconnecting when
-  // // the page unloads
-  window.addEventListener('unload', async () => {
-    // TODO: Handle this as a full disconnect #5404
-    network.primus.write({ type: MessageTypes.LeaveWorld.toString(), id: MathUtils.generateUUID() })
-  })
-}
-
-export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwork) {
   function reconnectHandler() {
-    network.primus.off('disconnection', disconnectHandler)
     network.primus.off('reconnected', reconnectHandler)
     network.primus.removeListener('reconnected', reconnectHandler)
-    network.primus.removeListener('disconnection', disconnectHandler)
     onConnectToInstance(network)
   }
 
-  async function disconnectHandler() {
-    if (network.recvTransport && network.recvTransport?.closed !== true) network.recvTransport?.close()
-    if (network.sendTransport && network.sendTransport?.closed !== true) network.sendTransport?.close()
-    network.consumers.forEach((consumer) => {
-      dispatchAction(
-        MediaConsumerActions.closeConsumer({
-          consumerID: consumer.id,
-          $network: network.id,
-          $topic: network.topic
-        })
-      )
-    })
-  }
-
-  network.primus.on('disconnection', disconnectHandler)
   network.primus.on('reconnected', reconnectHandler)
-  network.primus.socket.addEventListener('close', disconnectHandler)
   network.primus.socket.addEventListener('open', reconnectHandler)
 
-  dispatchAction(
-    NetworkTransportActions.requestTransport({
-      direction: 'send',
-      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
-      $network: network.id,
-      $topic: network.topic,
-      $to: network.hostPeerID
-    })
-  )
-
-  dispatchAction(
-    NetworkTransportActions.requestTransport({
-      direction: 'recv',
-      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
-      $network: network.id,
-      $topic: network.topic,
-      $to: network.hostPeerID
-    })
-  )
+  logger.info('Successfully connected to instance type: %o', { topic: network.topic, hostId: network.hostId })
 }
 
 /**
@@ -668,12 +601,14 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
     iceServers
   }
 
+  const networkState = getMutableState(NetworkState).networks[action.$network] as State<SocketWebRTCClientNetwork>
+
   if (direction === 'recv') {
     transport = await network.mediasoupDevice.createRecvTransport(transportOptions)
-    network.recvTransport = transport
+    networkState.recvTransport.set(transport)
   } else if (direction === 'send') {
     transport = await network.mediasoupDevice.createSendTransport(transportOptions)
-    network.sendTransport = transport
+    networkState.sendTransport.set(transport)
   } else throw new Error(`bad transport 'direction': ${direction}`)
 
   // mediasoup-client will emit a connect event when media needs to

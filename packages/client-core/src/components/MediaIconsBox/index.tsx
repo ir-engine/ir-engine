@@ -133,7 +133,7 @@ export const MediaIconsBox = () => {
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
-      {networkState.config.media.value && !mediaNetworkState?.connected.value && (
+      {networkState.config.media.value && !mediaNetworkState?.ready.value && (
         <div className={styles.loader}>
           <CircularProgress />
           <div
@@ -149,7 +149,7 @@ export const MediaIconsBox = () => {
           </div>
         </div>
       )}
-      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.connected.value ? (
+      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <button
           type="button"
           id="UserAudio"
@@ -161,7 +161,7 @@ export const MediaIconsBox = () => {
           <Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />
         </button>
       ) : null}
-      {videoEnabled && hasVideoDevice.value && mediaNetworkReady && mediaNetworkState?.connected.value ? (
+      {videoEnabled && hasVideoDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <>
           <button
             type="button"

@@ -60,7 +60,6 @@ import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.s
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { closeTransport } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
@@ -397,20 +396,4 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }
-}
-
-export async function handleLeaveWorld(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data,
-  messageId: string
-): Promise<any> {
-  for (const [, transport] of Object.entries(network.mediasoupTransports))
-    if (transport.appData.peerID === peerID) await closeTransport(network, transport)
-  if (network.peers.has(peerID)) {
-    NetworkPeerFunctions.destroyPeer(network, peerID)
-    updatePeers(network)
-  }
-  spark.write({ type: MessageTypes.LeaveWorld.toString(), id: messageId })
 }

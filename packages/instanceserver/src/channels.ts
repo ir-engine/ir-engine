@@ -43,7 +43,7 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, State } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -60,7 +60,7 @@ import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/u
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
+import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -296,10 +296,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
 
-  const networkState = getMutableState(NetworkState).networks[network.id]
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  networkState.authenticated.set(true)
+  networkState.connected.set(true)
   networkState.ready.set(true)
 
-  dispatchAction(EngineActions.joinedWorld({}))
+  getMutableState(EngineState).connectedWorld.set(true)
 }
 
 /**
@@ -397,10 +399,10 @@ const createOrUpdateInstance = async (
     await loadEngine(app, sceneId)
   } else {
     try {
-      if (!getState(EngineState).joinedWorld)
+      if (!getState(EngineState).connectedWorld)
         await new Promise<void>((resolve) => {
           const interval = setInterval(() => {
-            if (getState(EngineState).joinedWorld) {
+            if (getState(EngineState).connectedWorld) {
               clearInterval(interval)
               resolve()
             }
@@ -730,9 +732,6 @@ export default (app: Application): void => {
   }
 
   app.service(userKickPath).on('created', kickCreatedListener)
-
-  logger.info('registered kickCreatedListener')
-
   app.service('channel-user').on('removed', handleChannelUserRemoved(app))
 
   app.on('connection', onConnection(app))

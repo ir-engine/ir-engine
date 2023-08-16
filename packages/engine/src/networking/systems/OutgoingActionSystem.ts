@@ -50,7 +50,7 @@ export const updatePeers = (network: Network) => {
 }
 
 export const sendActionsAsPeer = (network: Network) => {
-  if (!network.ready) return
+  if (!network.authenticated) return
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
   for (const action of actions) {
@@ -66,7 +66,7 @@ export const sendActionsAsPeer = (network: Network) => {
 }
 
 export const sendActionsAsHost = (network: Network) => {
-  if (!network.ready) return
+  if (!network.authenticated) return
 
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return

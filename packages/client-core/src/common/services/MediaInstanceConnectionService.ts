@@ -43,7 +43,6 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { LocationState } from '../../social/services/LocationService'
 import {
   connectToNetwork,
   endVideoChat,
@@ -141,7 +140,7 @@ export const MediaInstanceConnectionService = {
       }, 1000)
     }
   },
-  connectToServer: async (instanceId: string, channelId: ChannelID) => {
+  connectToServer: (instanceId: string, channelId: ChannelID) => {
     const authState = getState(AuthState)
     const user = authState.user
     const { ipAddress, port } = getState(MediaInstanceState).instances[instanceId]
@@ -153,9 +152,7 @@ export const MediaInstanceConnectionService = {
       leaveNetwork(network, false)
     }
 
-    const locationState = getState(LocationState)
-
-    await connectToNetwork(network, { port, ipAddress, channelId })
+    connectToNetwork(network, { port, ipAddress, channelId })
   },
   useAPIListeners: () => {
     useEffect(() => {

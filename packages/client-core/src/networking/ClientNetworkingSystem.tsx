@@ -64,15 +64,20 @@ const execute = () => {
 const NetworkConnectionReactor = (props: { networkID: UserID }) => {
   const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
   const networkConnected = useHookstate(networkState.connected)
+  const recvTransport = useHookstate(networkState.recvTransport)
+  const sendTransport = useHookstate(networkState.sendTransport)
 
   useEffect(() => {
     const network = getState(NetworkState).networks[props.networkID] as SocketWebRTCClientNetwork
 
     if (networkConnected.value) {
-      console.log('connected')
       onConnectToInstance(network)
     }
   }, [networkConnected])
+
+  useEffect(() => {
+    networkState.ready.set(!!recvTransport.value && !!sendTransport.value)
+  }, [recvTransport, sendTransport])
 
   return null
 }
