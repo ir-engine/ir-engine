@@ -72,7 +72,7 @@ export class Archiver implements Partial<ServiceMethods<any>> {
 
     for (let i = 0; i < result.length; i++) {
       if (result[i].type == 'folder') {
-        let content = await storageProvider.listFolderContent(result[i].key)
+        let content = await storageProvider.listFolderContent(result[i].key + '/')
         content.forEach((f) => {
           result.push(f)
         })
