@@ -32,3 +32,7 @@ export interface UserRelationshipInterface {
   userRelationshipType: 'friend' | 'requested'
   dataValues: any
 }
+
+export interface UserRelationshipTypeInterface {
+  type: string
+}

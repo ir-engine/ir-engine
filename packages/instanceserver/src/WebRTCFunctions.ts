@@ -635,6 +635,7 @@ export async function handleRequestProducer(
         requestID,
         error: 'Invalid transport ID.',
         $network: action.$network,
+        $topic: action.$topic,
         $to: peerID
       })
     )
