@@ -64,11 +64,11 @@ export class StaticResourceService<
   }
 
   async find(params?: StaticResourceParams) {
-    return await super._find(params)
+    return super._find(params)
   }
 
   async patch(id: NullableId, data: StaticResourcePatch, params?: StaticResourceParams) {
-    return await super._patch(id, data, params)
+    return super._patch(id, data, params)
   }
 
   async remove(id: string, params?: StaticResourceParams) {
