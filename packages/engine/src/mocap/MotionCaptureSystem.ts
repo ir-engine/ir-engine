@@ -52,7 +52,7 @@ import UpdateSolvedPose from './UpdateSolvedPose'
 const debugPoseObjs: Object3D[] = []
 const debugHandObjs: Object3D[] = []
 const debug = false
-const useSolvers = false
+const useSolvers = true
 
 export interface MotionCaptureStream extends Results {
   za: Landmark[]
