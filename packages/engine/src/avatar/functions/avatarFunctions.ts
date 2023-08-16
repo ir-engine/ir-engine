@@ -174,9 +174,11 @@ export const getAnimations = async () => {
       `${config.client.fileServer}/projects/default-project/assets/${ikPath}`
     )) as GLTF
 
-    const movement = getState(AvatarMovementSettingsState)
-    movement.runSpeed = getRootSpeed(fkAsset.animations[4]) * 0.01
-    movement.walkSpeed = getRootSpeed(fkAsset.animations[6]) * 0.01
+    if (fkAsset && fkAsset.animations && fkAsset.animations[4] && fkAsset.animations[6]) {
+      const movement = getState(AvatarMovementSettingsState)
+      movement.runSpeed = getRootSpeed(fkAsset.animations[4]) * 0.01
+      movement.walkSpeed = getRootSpeed(fkAsset.animations[6]) * 0.01
+    }
     manager.ikTargetsAnimations.set(ikAsset.animations)
     manager.fkAnimations.set(fkAsset)
   }
