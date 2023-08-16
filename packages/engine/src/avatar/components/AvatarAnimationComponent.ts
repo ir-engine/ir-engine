@@ -247,7 +247,13 @@ export const AvatarRigComponent = defineComponent({
           case 'rightFootTarget':
           case 'leftFootTarget':
           case 'headTarget':
-            bonePos.copy(rig.bindRig[key.replace('Target', '')].node.matrixWorld)
+            bonePos.copy(
+              rig.bindRig[key.replace('Target', '')].node.matrixWorld.multiply(
+                new Matrix4()
+                  .setPosition(rig.bindRig[key].node.getWorldDirection(new Vector3()))
+                  .multiplyScalar(direction * -1)
+              )
+            )
             break
           case 'rightElbowHint':
             bonePos.copy(
