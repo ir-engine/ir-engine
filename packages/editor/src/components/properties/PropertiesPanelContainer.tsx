@@ -125,7 +125,7 @@ export const PropertiesPanelContainer = () => {
     collect: (monitor) => {
       if (isObject3D) return { isDragging: false }
 
-      if (monitor.getItem() === null || !monitor.canDrop()) return { isDragging: false }
+      if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
 
       const component = ComponentMap.get(monitor.getItem().componentName)
       if (!component) return { isDragging: false }
