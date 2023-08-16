@@ -28,13 +28,12 @@ import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
 import { RestingDefault } from './solvers/utils/helpers'
 
-import { calcHead } from './solvers/FaceSolver/calcHead'
 import { calcArms } from './solvers/PoseSolver/calcArms'
 import { calcHips } from './solvers/PoseSolver/calcHips'
 import { calcLegs } from './solvers/PoseSolver/calcLegs'
 
 const UpdateSolvedPose = (lm3d, lm2d, _hipsPos, avatarRig, avatarTransform) => {
-  const head = calcHead(lm2d)
+  //const head = calcHead(lm2d)
   const arms = calcArms(lm3d)
   const hips = calcHips(lm3d, lm2d)
   const legs = calcLegs(lm3d)
