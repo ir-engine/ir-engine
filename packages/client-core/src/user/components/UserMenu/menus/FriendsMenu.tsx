@@ -140,12 +140,12 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }
 
   const displayList: Array<DisplayedUserInterface> = []
-  const pendingList = friendState.relationships.value
+  const pendingList: Array<DisplayedUserInterface> = friendState.relationships.value
     .filter((item) => item.userRelationshipType === 'pending')
-    .map((item) => item.relatedUser)
-  const friendList = friendState.relationships.value
+    .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'pending' as const }))
+  const friendList: Array<DisplayedUserInterface> = friendState.relationships.value
     .filter((item) => item.userRelationshipType === 'friend')
-    .map((item) => item.relatedUser)
+    .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'friend' as const }))
 
   if (selectedTab.value === 'friends') {
     displayList.push(...pendingList)
@@ -159,9 +159,9 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
       }))
     )
   } else if (selectedTab.value === 'blocked') {
-    const blockingList = friendState.relationships.value
+    const blockingList: Array<DisplayedUserInterface> = friendState.relationships.value
       .filter((item) => item.userRelationshipType === 'blocking')
-      .map((item) => item.relatedUser)
+      .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'blocking' as const }))
     displayList.push(...blockingList)
   } else if (selectedTab.value === 'find') {
     const layerPeers = Engine.instance.worldNetworkState?.peers

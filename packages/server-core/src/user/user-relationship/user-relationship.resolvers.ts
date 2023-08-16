@@ -38,12 +38,16 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const userRelationshipResolver = resolve<UserRelationshipType, HookContext>({
   user: virtual(async (userRelationship, context) => {
-    const user = await context.app.service('user')._get(userRelationship.userId)
-    return user
+    if (userRelationship.userId) {
+      const user = await context.app.service('user')._get(userRelationship.userId)
+      return user
+    }
   }),
   relatedUser: virtual(async (userRelationship, context) => {
-    const relatedUser = await context.app.service('user')._get(userRelationship.relatedUserId)
-    return relatedUser
+    if (userRelationship.relatedUserId) {
+      const relatedUser = await context.app.service('user')._get(userRelationship.relatedUserId)
+      return relatedUser
+    }
   })
 })
 

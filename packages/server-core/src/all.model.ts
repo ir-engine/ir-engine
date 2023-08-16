@@ -612,7 +612,7 @@ export const createUserRelationshipModel = (app: Application) => {
   ;(userRelationship as any).associate = (models: any): void => {
     ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'user', constraints: false })
     ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'relatedUser', constraints: false })
-    ;(userRelationship as any).belongsTo(createUserRelationshipTypeModel(app), { foreignKey: 'type' })
+    ;(userRelationship as any).belongsTo(createUserRelationshipTypeModel(app), { foreignKey: 'userRelationshipType' })
   }
 
   return userRelationship

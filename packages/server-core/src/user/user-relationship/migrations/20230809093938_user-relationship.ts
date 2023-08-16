@@ -56,7 +56,7 @@ export async function up(knex: Knex): Promise<void> {
       table.uuid('userId').collate('utf8mb4_bin').nullable().index()
       //@ts-ignore
       table.uuid('relatedUserId').collate('utf8mb4_bin').nullable().index()
-      table.string('type', 255).nullable().index()
+      table.string('userRelationshipType', 255).nullable().index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
@@ -65,7 +65,7 @@ export async function up(knex: Knex): Promise<void> {
       table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
       table.foreign('relatedUserId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
       table
-        .foreign('type')
+        .foreign('userRelationshipType')
         .references('type')
         .inTable('user-relationship-type')
         .onDelete('SET NULL')

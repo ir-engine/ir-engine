@@ -206,7 +206,7 @@ export class UserRelationshipService<
     //If the ID provided is not a user ID, as it's expected to be, it'll throw a 404
     await this.app.service(userPath).get(id)
 
-    await super._remove(null, {
+    return await super._remove(null, {
       query: {
         $or: [
           {
@@ -220,14 +220,5 @@ export class UserRelationshipService<
         ]
       }
     })
-
-    const response = await super._find({
-      query: {
-        userId,
-        relatedUserId: id
-      }
-    })
-
-    return response.data.length > 0 ? response.data[0] : undefined
   }
 }
