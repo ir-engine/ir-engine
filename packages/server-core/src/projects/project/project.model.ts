@@ -156,7 +156,7 @@ export const createProjectPermissionTypeModel = (app: Application) => {
     }
   )
   ;(ProjectPermissionType as any).associate = (models: any): void => {
-    ;(ProjectPermissionType as any).hasMany(models.project_permission, { foreignKey: 'type' })
+    ;(ProjectPermissionType as any).hasMany(createProjectPermissionModel(app), { foreignKey: 'type' })
   }
 
   return ProjectPermissionType
