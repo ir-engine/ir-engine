@@ -28,7 +28,8 @@ Ethereal Engine. All Rights Reserved.
 /* eslint-disable @typescript-eslint/no-var-requires */
 const dotenv = require('dotenv');
 const fs = require('fs');
-const Sequelize = require('sequelize');
+const knex = require('knex');
+const { staticResourcePath } = require('@etherealengine/engine/src/media/static-resource.schema')
 const { S3Client } = require('@aws-sdk/client-s3');
 const { nanoid } = require('nanoid');
 
@@ -45,51 +46,18 @@ const s3 = new S3Client({
     region: process.env.STORAGE_S3_REGION
 });
 
-const db = {
-    username: process.env.MYSQL_USER || 'server',
-    password: process.env.MYSQL_PASSWORD || 'password',
-    database: process.env.MYSQL_DATABASE || 'etherealengine',
-    host: process.env.MYSQL_HOST || '127.0.0.1',
-    port: process.env.MYSQL_PORT || 3306,
-    dialect: 'mysql',
-    url: process.env.MYSQL_URL ||
-    `mysql://${this.username}:${this.password}@${this.host}:${this.port}/${this.database}`
-};
-
 const onlyDBUpdate = process.argv.includes('--db-only');
-const sequelizeClient = new Sequelize({
-    ...db,
-    logging: console.log,
-    define: {
-        freezeTableName: true
-    },
-});
-
-const staticResource = sequelizeClient.define('static_resource', {
-    id: {
-        type: Sequelize.DataTypes.UUID,
-        defaultValue: Sequelize.DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-    },
-    sid: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false
-    },
-    name: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true
-    },
-    url: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-    },
-    key: Sequelize.DataTypes.STRING,
-    userId: Sequelize.DataTypes.CHAR,
-    createdAt: Sequelize.DataTypes.DATE,
-    updatedAt: Sequelize.DataTypes.DATE,
-});
+const knexClient = knex({
+    client: 'mysql',
+    connection: {
+      user: process.env.MYSQL_USER ?? 'server',
+      password: process.env.MYSQL_PASSWORD ?? 'password',
+      host: process.env.MYSQL_HOST ?? '127.0.0.1',
+      port: parseInt(process.env.MYSQL_PORT || '3306'),
+      database: process.env.MYSQL_DATABASE ?? 'etherealengine',
+      charset: 'utf8mb4'
+    }
+  })
 
 // match case of the name of the avatar and the name of corresponding file.
 // also update seed file of static resource model to match changes.
@@ -141,14 +109,14 @@ const uploadFile = (Key, Body) => {
 };
 
 const saveToDB = async (name, extension) => {
-    return staticResource.create({
+    await knexClient.from(staticResourcePath).insert({
         sid: nanoid(8),
         name,
         url: 'https://s3.amazonaws.com/' + BUCKET + '/' + AVATAR_FOLDER + '/' + name + extension,
         key: AVATAR_FOLDER + '/' + name + extension,
         createdAt: Date.now(),
         updatedAt: Date.now()
-    });
+      })
 };
 
 const processFile = async (fileName, extension, dirPath) => {
@@ -168,11 +136,11 @@ const processFile = async (fileName, extension, dirPath) => {
 new Promise(async (resolve, reject) => {
     try {
         console.log('Removing old DB entries.');
-        await staticResource.destroy({
-            where: {
-                userId: null
-            }
-        });
+        await knexClient.from(staticResourcePath)
+        .where({
+            userId: null
+          })
+        .del()
 
         for (const avatar of AVATAR_LIST) {
             console.log('Uploading Avatar Model =>', avatar);

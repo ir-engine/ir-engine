@@ -55,6 +55,7 @@ export const staticResourceSchema = Type.Object(
     tags: Type.Array(Type.String()),
     url: Type.String(),
     stats: Type.Record(Type.String(), Type.Any()),
+    LOD0_url: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
