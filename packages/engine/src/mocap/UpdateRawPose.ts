@@ -97,7 +97,7 @@ const UpdateRawPose = (data: Landmark[], pose: Landmark[], bindHips, avatarRig, 
         */
 
           rawPoses[key] = data[indices[key]]
-          console.log(data[indices[key]])
+
           solvedPoses[key] = new Vector3(rawPoses[key].x, rawPoses[key].y, rawPoses[key].z)
             .multiplyScalar(-1)
             .applyQuaternion(rotationOffset)
