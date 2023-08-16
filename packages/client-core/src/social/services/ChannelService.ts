@@ -112,7 +112,7 @@ export const ChannelService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  joinChannelInstance: async (channelID: ChannelID) => {
+  joinChannelInstance: (channelID: ChannelID) => {
     getMutableState(ChannelState).targetChannelId.set(channelID)
     if (channelID === '' && Engine.instance.worldNetwork) {
       ChannelService.getInstanceChannel()
@@ -121,8 +121,8 @@ export const ChannelService = {
     }
     const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     if (!network) return
-    await endVideoChat(network, {})
-    await leaveNetwork(network)
+    endVideoChat(network, {})
+    leaveNetwork(network)
   },
   removeUserFromChannel: async (channelId: ChannelID, userId: UserID) => {
     try {

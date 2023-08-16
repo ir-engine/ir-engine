@@ -60,11 +60,7 @@ type InstanceState = {
   port: string
   channelId?: ChannelID
   roomCode: string
-  videoEnabled: boolean
   provisioned: boolean
-  connected: boolean
-  readyToConnect: boolean
-  connecting: boolean
 }
 
 //State
@@ -100,32 +96,10 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
           port: action.port,
           channelId: action.channelId,
           roomCode: action.roomCode,
-          videoEnabled: false,
-          provisioned: true,
-          readyToConnect: true,
-          connected: false,
-          connecting: false
+          provisioned: true
         })
       }
       return s
-    })
-    .when(MediaInstanceConnectionAction.serverConnecting.matches, (action) => {
-      return s.instances[action.instanceId].connecting.set(true)
-    })
-    .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
-      return s.instances[action.instanceId].merge({
-        connected: true,
-        connecting: false,
-        readyToConnect: false
-      })
-    })
-    .when(MediaInstanceConnectionAction.enableVideo.matches, (action) => {
-      return s.instances[action.instanceId].merge({
-        videoEnabled: action.enableVideo
-      })
-    })
-    .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
-      return s.instances[action.instanceId].set(none)
     })
     .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
       const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
@@ -168,7 +142,6 @@ export const MediaInstanceConnectionService = {
     }
   },
   connectToServer: async (instanceId: string, channelId: ChannelID) => {
-    dispatchAction(MediaInstanceConnectionAction.serverConnecting({ instanceId }))
     const authState = getState(AuthState)
     const user = authState.user
     const { ipAddress, port } = getState(MediaInstanceState).instances[instanceId]
@@ -176,29 +149,13 @@ export const MediaInstanceConnectionService = {
     const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, network }, 'Connect To Media Server.')
     if (network.primus) {
-      await endVideoChat(network, { endConsumers: true })
-      await leaveNetwork(network, false)
+      endVideoChat(network, { endConsumers: true })
+      leaveNetwork(network, false)
     }
 
     const locationState = getState(LocationState)
-    const currentLocation = locationState.currentLocation.location
-
-    dispatchAction(
-      MediaInstanceConnectionAction.enableVideo({
-        instanceId,
-        enableVideo:
-          currentLocation?.locationSetting?.videoEnabled === true ||
-          !(
-            currentLocation?.locationSetting?.locationType === 'showroom' &&
-            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id) == null
-          )
-      })
-    )
 
     await connectToNetwork(network, { port, ipAddress, channelId })
-  },
-  resetServer: (instanceId: string) => {
-    dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
   },
   useAPIListeners: () => {
     useEffect(() => {
@@ -232,27 +189,6 @@ export class MediaInstanceConnectionAction {
     port: matches.string,
     roomCode: matches.string,
     channelId: matches.string.optional() as Validator<unknown, ChannelID | undefined>
-  })
-
-  static serverConnecting = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CONNECTING' as const,
-    instanceId: matches.string
-  })
-
-  static enableVideo = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_VIDEO_ENABLED' as const,
-    instanceId: matches.string,
-    enableVideo: matches.boolean
-  })
-
-  static serverConnected = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_CONNECTED' as const,
-    instanceId: matches.string
-  })
-
-  static disconnect = defineAction({
-    type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_DISCONNECT' as const,
-    instanceId: matches.string
   })
 
   static changeActiveConnectionHostId = defineAction({

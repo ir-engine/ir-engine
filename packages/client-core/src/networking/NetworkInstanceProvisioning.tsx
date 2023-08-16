@@ -28,7 +28,8 @@ import React, { useEffect } from 'react'
 import {
   LocationInstanceConnectionService,
   LocationInstanceState,
-  useWorldInstance
+  useWorldInstance,
+  useWorldNetwork
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
@@ -54,6 +55,7 @@ export const WorldInstanceProvisioning = () => {
   const engineState = useHookstate(getMutableState(EngineState))
 
   const worldNetwork = Engine.instance.worldNetwork
+  const worldNetworkState = useWorldNetwork()
   const currentLocationInstanceConnection = useWorldInstance()
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
 
@@ -103,28 +105,20 @@ export const WorldInstanceProvisioning = () => {
       engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
       currentLocationInstanceConnection.provisioned.value &&
-      currentLocationInstanceConnection.readyToConnect.value &&
-      !currentLocationInstanceConnection.connecting.value &&
-      !currentLocationInstanceConnection.connected.value
+      !worldNetworkState?.connected.value
     )
       LocationInstanceConnectionService.connectToServer(worldNetwork.hostId)
-  }, [
-    engineState.sceneLoaded,
-    currentLocationInstanceConnection?.connected,
-    currentLocationInstanceConnection?.readyToConnect,
-    currentLocationInstanceConnection?.provisioned,
-    currentLocationInstanceConnection?.connecting
-  ])
+  }, [engineState.sceneLoaded, worldNetworkState?.connected, currentLocationInstanceConnection?.provisioned])
 
   // Populate the URL with the room code and instance id
   useEffect(() => {
     if (!networkConfigState.roomID.value && !networkConfigState.instanceID.value) return
 
-    if (instance?.connected?.value) {
+    if (worldNetworkState?.connected?.value) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
 
-      if (networkConfigState.roomID.value) query.set('roomCode', instance.roomCode.value)
+      if (networkConfigState.roomID.value) query.set('roomCode', instance!.roomCode.value)
 
       if (networkConfigState.instanceID.value) query.set('instanceId', worldNetwork.hostId)
 
@@ -144,7 +138,7 @@ export const MediaInstanceProvisioning = () => {
   const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
   const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
-  const currentWorldInstanceConnection = useWorldInstance()
+  const worldNetwork = useWorldNetwork()
 
   MediaInstanceConnectionService.useAPIListeners()
 
@@ -158,7 +152,7 @@ export const MediaInstanceProvisioning = () => {
       if (!currentChannelInstanceConnection?.provisioned.value && currentChannel)
         MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
-  }, [channelState.channels.channels?.length, currentWorldInstanceConnection?.connected, channelState.targetChannelId])
+  }, [channelState.channels.channels?.length, worldNetwork?.connected, channelState.targetChannelId])
 
   // Once the media server is provisioned, connect to it
   useEffect(() => {
@@ -166,21 +160,14 @@ export const MediaInstanceProvisioning = () => {
       mediaNetworkHostId &&
       currentChannelInstanceConnection?.value &&
       currentChannelInstanceConnection.provisioned.value &&
-      currentChannelInstanceConnection.readyToConnect.value &&
-      !currentChannelInstanceConnection.connecting.value &&
-      !currentChannelInstanceConnection.connected.value
+      !worldNetwork?.connected.value
     ) {
       MediaInstanceConnectionService.connectToServer(
         mediaNetworkHostId,
         currentChannelInstanceConnection.channelId.value!
       )
     }
-  }, [
-    currentChannelInstanceConnection?.connected,
-    currentChannelInstanceConnection?.readyToConnect,
-    currentChannelInstanceConnection?.provisioned,
-    currentChannelInstanceConnection?.connecting
-  ])
+  }, [worldNetwork?.connected, currentChannelInstanceConnection?.provisioned])
 
   return null
 }

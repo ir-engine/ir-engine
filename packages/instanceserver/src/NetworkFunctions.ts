@@ -38,7 +38,6 @@ import { MessageTypes } from '@etherealengine/engine/src/networking/enums/Messag
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { updateNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -196,7 +195,7 @@ export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: 
   return client?.userId
 }
 
-export const handleConnectingPeer = async (
+export const handleConnectingPeer = (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
@@ -237,9 +236,6 @@ export const handleConnectingPeer = async (
 
   network.userIDToUserIndex.set(userId, userIndex)
   network.userIndexToUserID.set(userIndex, userId)
-
-  //TODO: remove this once all network state properties are reactively set
-  updateNetwork(network)
 }
 
 export async function handleJoinWorld(

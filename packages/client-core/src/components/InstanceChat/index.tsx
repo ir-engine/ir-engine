@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
@@ -452,13 +452,13 @@ export const InstanceChatWrapper = () => {
   /**
    * Provisioning logic
    */
-  const currentInstanceConnection = useWorldInstance()
+  const worldNetwork = useWorldNetwork()
 
   useEffect(() => {
-    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+    if (Engine.instance.worldNetwork?.hostId && worldNetwork?.connected?.value) {
       ChannelService.getInstanceChannel()
     }
-  }, [currentInstanceConnection?.connected])
+  }, [worldNetwork?.connected])
 
   return (
     <>

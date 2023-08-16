@@ -296,7 +296,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
 
-  network.ready = true
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.ready.set(true)
 
   dispatchAction(EngineActions.joinedWorld({}))
 }

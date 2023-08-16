@@ -220,13 +220,9 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   }, [])
 
   const currentChannelInstanceConnection = useMediaInstance()
-  const networkState = useHookstate(getMutableState(NetworkState))
   const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaConnected =
-    mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
-  const connecting =
-    mediaHostId &&
-    (currentChannelInstanceConnection?.connecting?.value || !networkState.networks[mediaHostId]?.ready?.value)
+  const mediaConnected = mediaHostId && currentChannelInstanceConnection?.connected.value
+  const connecting = mediaHostId && !currentChannelInstanceConnection?.connected?.value
 
   return (
     <>
@@ -302,8 +298,7 @@ export const MessageContainer = () => {
   const currentChannelInstanceConnection = useMediaInstance()
   const networkState = useHookstate(getMutableState(NetworkState))
   const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaConnected =
-    mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
+  const mediaConnected = mediaHostId && currentChannelInstanceConnection?.connected.value
 
   return (
     <>

@@ -59,9 +59,6 @@ type InstanceState = {
   sceneId: string | null
   roomCode: string
   provisioned: boolean
-  connected: boolean
-  readyToConnect: boolean
-  connecting: boolean
 }
 
 //State
@@ -97,25 +94,9 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
           locationId: action.locationId,
           sceneId: action.sceneId,
           roomCode: action.roomCode,
-          provisioned: true,
-          readyToConnect: true,
-          connected: false,
-          connecting: false
+          provisioned: true
         }
       })
-    })
-    .when(LocationInstanceConnectionAction.connecting.matches, (action) => {
-      return s.instances[action.instanceId].connecting.set(true)
-    })
-    .when(LocationInstanceConnectionAction.instanceServerConnected.matches, (action) => {
-      return s.instances[action.instanceId].merge({
-        connected: true,
-        connecting: false,
-        readyToConnect: false
-      })
-    })
-    .when(LocationInstanceConnectionAction.disconnect.matches, (action) => {
-      return s.instances[action.instanceId].set(none)
     })
     .when(LocationInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
       const currentNetworkState = s.instances[action.currentInstanceId].get({ noproxy: true })
@@ -263,15 +244,14 @@ export const LocationInstanceConnectionService = {
       console.warn('Failed to connect to expected existing instance')
     }
   },
-  connectToServer: async (instanceId: string) => {
-    dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
+  connectToServer: (instanceId: string) => {
     const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, transport: network }, 'Connect To World Server')
     if (network.primus) {
-      await leaveNetwork(network, false)
+      leaveNetwork(network, false)
     }
     const { ipAddress, port, locationId, roomCode } = getState(LocationInstanceState).instances[instanceId]
-    await connectToNetwork(network, { port, ipAddress, locationId, roomCode })
+    connectToNetwork(network, { port, ipAddress, locationId, roomCode })
   },
   useAPIListeners: () => {
     useEffect(() => {
@@ -313,16 +293,6 @@ export class LocationInstanceConnectionAction {
 
   static connecting = defineAction({
     type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTING' as const,
-    instanceId: matches.string
-  })
-
-  static instanceServerConnected = defineAction({
-    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_CONNECTED' as const,
-    instanceId: matches.string
-  })
-
-  static disconnect = defineAction({
-    type: 'ee.client.LocationInstanceConnection.LOCATION_INSTANCE_SERVER_DISCONNECT' as const,
     instanceId: matches.string
   })
 

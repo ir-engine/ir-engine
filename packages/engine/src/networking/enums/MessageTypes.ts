@@ -53,6 +53,6 @@ export enum MessageTypes {
   Authorization = 25,
   Kick = 26,
   // WebRTCRequestCurrentProducers = 29,
-  InitializeRouter = 31,
+  // InitializeRouter = 31,
   ActionData = 42
 }

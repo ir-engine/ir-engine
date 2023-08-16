@@ -26,15 +26,30 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { addActionReceptor, defineActionQueue, removeActionReceptor } from '@etherealengine/hyperflux'
+import {
+  State,
+  addActionReceptor,
+  defineActionQueue,
+  getMutableState,
+  getState,
+  removeActionReceptor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { LocationInstanceConnectionServiceReceptor } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceConnectionServiceReceptor } from '../common/services/MediaInstanceConnectionService'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import { FriendServiceReceptor } from '../social/services/FriendService'
-import { onTransportCreated, receiveConsumerHandler } from '../transports/SocketWebRTCClientFunctions'
+import {
+  SocketWebRTCClientNetwork,
+  onConnectToInstance,
+  onTransportCreated,
+  receiveConsumerHandler
+} from '../transports/SocketWebRTCClientFunctions'
 import { DataChannelSystem } from './DataChannelSystem'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
@@ -44,6 +59,22 @@ const transportCreatedActionQueue = defineActionQueue(NetworkTransportActions.tr
 const execute = () => {
   for (const action of consumerCreatedQueue()) receiveConsumerHandler(action)
   for (const action of transportCreatedActionQueue()) onTransportCreated(action)
+}
+
+const NetworkConnectionReactor = (props: { networkID: UserID }) => {
+  const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
+  const networkConnected = useHookstate(networkState.connected)
+
+  useEffect(() => {
+    const network = getState(NetworkState).networks[props.networkID] as SocketWebRTCClientNetwork
+
+    if (networkConnected.value) {
+      console.log('connected')
+      onConnectToInstance(network)
+    }
+  }, [networkConnected])
+
+  return null
 }
 
 const reactor = () => {
@@ -60,8 +91,13 @@ const reactor = () => {
     }
   }, [])
 
+  const networkIDs = Object.keys(useHookstate(getMutableState(NetworkState).networks).value)
+
   return (
     <>
+      {networkIDs.map((hostId: UserID) => (
+        <NetworkConnectionReactor key={hostId} networkID={hostId} />
+      ))}
       <PeerMediaConsumers />
       <InstanceProvisioning />
     </>

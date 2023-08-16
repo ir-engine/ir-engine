@@ -37,11 +37,9 @@ import {
   Worker
 } from 'mediasoup/node/lib/types'
 import os from 'os'
-import { Spark } from 'primus'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -122,6 +120,22 @@ export async function startWebRTC() {
     logger.info('Worker created router.')
     workers.push(newWorker)
   }
+
+  /** @todo this might be unnecessary, see if we can merge `instance` and `[channelId]` on routers obj */
+  const channelID = getState(InstanceServerState).instance.channelId
+
+  if (channelID) {
+    const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
+    logger.info(`Making new routers for channelID "${channelID}".`)
+    routers[channelID] = []
+    await Promise.all(
+      workers.map(async (worker) => {
+        const newRouter = await worker.createRouter({ mediaCodecs, appData: { worker } })
+        routers[channelID].push(newRouter)
+      })
+    )
+  }
+
   return { routers, workers }
 }
 
@@ -854,29 +868,4 @@ export async function handleConsumerSetLayers(
     logger.warn(err)
     logger.warn('consumer-set-layers: failed to set preferred layers ' + action.consumerID)
   }
-}
-
-export async function handleWebRtcInitializeRouter(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data,
-  messageId: string
-): Promise<any> {
-  const { channelId } = data
-  // @todo replace with if (isChannel)
-  if (channelId) {
-    const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
-    if (!network.routers[channelId]) {
-      logger.info(`Making new routers for channelId "${channelId}".`)
-      network.routers[channelId] = []
-      await Promise.all(
-        network.workers.map(async (worker) => {
-          const newRouter = await worker.createRouter({ mediaCodecs, appData: { worker } })
-          network.routers[channelId].push(newRouter)
-        })
-      )
-    }
-  }
-  spark.write({ type: MessageTypes.InitializeRouter.toString(), data: { initialized: true }, id: messageId })
 }

@@ -43,7 +43,6 @@ import {
   handleLeaveWorld
 } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
-import { handleWebRtcInitializeRouter } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:spark' })
 
@@ -129,7 +128,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
          * @todo Check if the user is banned
          */
 
-        await handleConnectingPeer(network, spark, peerID, user)
+        handleConnectingPeer(network, spark, peerID, user)
       } catch (e) {
         console.error(e)
         authTask.status = 'fail'
@@ -157,9 +156,6 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
             break
           case MessageTypes.LeaveWorld.toString():
             handleLeaveWorld(network, spark, peerID, data, id)
-            break
-          case MessageTypes.InitializeRouter.toString():
-            handleWebRtcInitializeRouter(network, spark, peerID, data, id)
             break
         }
       })
