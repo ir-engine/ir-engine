@@ -26,68 +26,71 @@ Ethereal Engine. All Rights Reserved.
 import { Vector3 } from 'three'
 import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
-import MediapipePoseNames from './MediapipePoseNames'
-import { TPose, Vector } from './solvers'
+import { RestingDefault } from './solvers/utils/helpers'
 
-import { PoseSolver } from './solvers/PoseSolver'
+import { calcHead } from './solvers/FaceSolver/calcHead'
+import { calcArms } from './solvers/PoseSolver/calcArms'
+import { calcHips } from './solvers/PoseSolver/calcHips'
+import { calcLegs } from './solvers/PoseSolver/calcLegs'
 
-const UpdateSolvedPose = (rawPose, pose, hipsPos, avatarRig, avatarTransform) => {
-  if (rawPose) {
-    const poseData = PoseSolver.solve(rawPose, pose) as TPose
+const UpdateSolvedPose = (lm3d, lm2d, _hipsPos, avatarRig, avatarTransform) => {
+  const head = calcHead(lm2d)
+  const arms = calcArms(lm3d)
+  const hips = calcHips(lm3d, lm2d)
+  const legs = calcLegs(lm3d)
 
-    const {
-      RightUpperArm,
-      RightLowerArm,
-      LeftUpperArm,
-      LeftLowerArm,
-      RightHand,
-      LeftHand,
-      RightUpperLeg,
-      RightLowerLeg,
-      LeftUpperLeg,
-      LeftLowerLeg,
-      Hips,
-      Spine
-    } = poseData
-
-    const leftFoot = Vector.fromArray(rawPose[MediapipePoseNames.indexOf('left_heel')])
-    const rightFoot = Vector.fromArray(rawPose[MediapipePoseNames.indexOf('right_heel')])
-
-    // foot y is how far below the hip center the foot is, with positive being downwards
-    const lowerFoot = Math.min(leftFoot.y, rightFoot.y)
-
-    const world = Hips.worldPosition! as Vector3
-    const hipsPos = {
-      x: world?.x,
-      y: lowerFoot,
-      z: world?.z
-    }
-
-    updateRigPosition('Hips', hipsPos, 1, 0.07, avatarRig)
-
-    updateRigRotation('Hips', Hips.rotation, 1, 0.7, avatarRig)
-
-    updateRigRotation('Chest', Spine, 0.25, 0.3, avatarRig)
-
-    updateRigPosition('Spine', Spine, 0.45, 0.3, avatarRig)
-
-    updateRigRotation('RightUpperArm', RightUpperArm, 1, 0.3, avatarRig)
-
-    updateRigRotation('RightLowerArm', RightLowerArm, 1, 0.3, avatarRig)
-
-    updateRigRotation('LeftUpperArm', LeftUpperArm, 1, 0.3, avatarRig)
-
-    updateRigRotation('LeftLowerArm', LeftLowerArm, 1, 0.3, avatarRig)
-
-    updateRigPosition('LeftHand', LeftHand, 1, 0.3, avatarRig)
-    updateRigPosition('RightHand', RightHand, 1, 0.3, avatarRig)
-
-    updateRigRotation('LeftUpperLeg', LeftUpperLeg, 1, 0.3, avatarRig)
-    updateRigRotation('LeftLowerLeg', LeftLowerLeg, 1, 0.3, avatarRig)
-
-    updateRigRotation('RightUpperLeg', RightUpperLeg, 1, 0.3, avatarRig)
-    updateRigRotation('RightLowerLeg', RightLowerLeg, 1, 0.3, avatarRig)
+  // move hips above leg - clearly of course this is specialized to standing avatars
+  const world = hips.Hips.worldPosition! as Vector3
+  const hipsPos = {
+    x: -world?.x,
+    y: 2, //Math.min(leftFoot.y, rightFoot.y), // foot y is how far below the hip center the foot is, with positive being downwards
+    z: -world?.z
   }
+
+  // detect off screen optionally
+  /// @todo should not use resting defaults but rather last valid data; or simply don't touch
+  const testLimits = true
+  if (testLimits) {
+    const rightHandOffscreen = lm3d[15].y > 0.1 || (lm3d[15].visibility ?? 0) < 0.23 || 0.995 < lm2d[15].y
+    const leftHandOffscreen = lm3d[16].y > 0.1 || (lm3d[16].visibility ?? 0) < 0.23 || 0.995 < lm2d[16].y
+    const leftFootOffscreen = lm3d[23].y > 0.1 || (lm3d[23].visibility ?? 0) < 0.63 || hips.Hips.position.z > -0.4
+    const rightFootOffscreen = lm3d[24].y > 0.1 || (lm3d[24].visibility ?? 0) < 0.63 || hips.Hips.position.z > -0.4
+
+    arms.UpperArm.l = arms.UpperArm.l.multiply(leftHandOffscreen ? 0 : 1)
+    arms.UpperArm.l.z = leftHandOffscreen ? RestingDefault.Pose.LeftUpperArm.z : arms.UpperArm.l.z
+    arms.UpperArm.r = arms.UpperArm.r.multiply(rightHandOffscreen ? 0 : 1)
+    arms.UpperArm.r.z = rightHandOffscreen ? RestingDefault.Pose.RightUpperArm.z : arms.UpperArm.r.z
+
+    arms.LowerArm.l = arms.LowerArm.l.multiply(leftHandOffscreen ? 0 : 1)
+    arms.LowerArm.r = arms.LowerArm.r.multiply(rightHandOffscreen ? 0 : 1)
+
+    arms.Hand.l = arms.Hand.l.multiply(leftHandOffscreen ? 0 : 1)
+    arms.Hand.r = arms.Hand.r.multiply(rightHandOffscreen ? 0 : 1)
+
+    legs.UpperLeg.l = legs.UpperLeg.l.multiply(rightFootOffscreen ? 0 : 1)
+    legs.UpperLeg.r = legs.UpperLeg.r.multiply(leftFootOffscreen ? 0 : 1)
+    legs.LowerLeg.l = legs.LowerLeg.l.multiply(rightFootOffscreen ? 0 : 1)
+    legs.LowerLeg.r = legs.LowerLeg.r.multiply(leftFootOffscreen ? 0 : 1)
+  }
+
+  updateRigPosition('Hips', hipsPos, 1, 0.07, avatarRig)
+
+  updateRigRotation('Hips', hips.Hips.rotation, 1, 0.7, avatarRig)
+
+  updateRigRotation('Chest', hips.Spine, 0.25, 0.3, avatarRig)
+
+  updateRigPosition('Spine', hips.Spine, 0.45, 0.3, avatarRig)
+
+  updateRigRotation('RightUpperArm', arms.UpperArm.r, 1, 0.3, avatarRig)
+  updateRigRotation('RightLowerArm', arms.LowerArm.r, 1, 0.3, avatarRig)
+  updateRigRotation('LeftUpperArm', arms.UpperArm.l, 1, 0.3, avatarRig)
+  updateRigRotation('LeftLowerArm', arms.LowerArm.l, 1, 0.3, avatarRig)
+  updateRigPosition('LeftHand', arms.Hand.l, 1, 0.3, avatarRig)
+  updateRigPosition('RightHand', arms.Hand.r, 1, 0.3, avatarRig)
+  updateRigRotation('LeftUpperLeg', legs.UpperLeg.l, 1, 0.3, avatarRig)
+  updateRigRotation('LeftLowerLeg', legs.LowerLeg.l, 1, 0.3, avatarRig)
+  updateRigRotation('RightUpperLeg', legs.UpperLeg.r, 1, 0.3, avatarRig)
+  updateRigRotation('RightLowerLeg', legs.LowerLeg.r, 1, 0.3, avatarRig)
 }
 
 export default UpdateSolvedPose
