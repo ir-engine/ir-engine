@@ -188,6 +188,8 @@ export class UserRelationshipService<
       }
     }
 
+    await trx.commit()
+
     const response = await super._find({
       query: whereParams
     })
