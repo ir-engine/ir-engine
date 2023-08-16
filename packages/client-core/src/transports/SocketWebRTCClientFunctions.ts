@@ -773,6 +773,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
             paused,
             appData,
             $network: network.id,
+            $topic: network.topic,
             $to: network.hostPeerID
           })
         )

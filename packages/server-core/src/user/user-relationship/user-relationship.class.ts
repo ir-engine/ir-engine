@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Id, Params } from '@feathersjs/feathers'
 
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 
