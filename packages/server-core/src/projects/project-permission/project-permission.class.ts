@@ -114,11 +114,11 @@ export class ProjectPermissionService<
 
   async create(data: ProjectPermissionData, params?: ProjectPermissionParams) {
     const selfUser = params!.user!
-    if (USER_ID_REGEX.test(data.inviteCode!)) {
-      data.userId = data.inviteCode
+    if (data.inviteCode && USER_ID_REGEX.test(data.inviteCode)) {
+      data.userId = data.inviteCode as UserID
       delete data.inviteCode
     }
-    if (INVITE_CODE_REGEX.test(data.userId!)) {
+    if (data.userId && INVITE_CODE_REGEX.test(data.userId)) {
       data.inviteCode = data.userId
       delete data.userId
     }
@@ -128,7 +128,7 @@ export class ProjectPermissionService<
             inviteCode: data.inviteCode
           }
         : {
-            id: data.userId as UserID
+            id: data.userId
           }
       const users = await this.app.service(userPath)._find({
         query: searchParam

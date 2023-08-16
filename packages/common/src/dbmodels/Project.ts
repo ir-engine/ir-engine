@@ -37,19 +37,3 @@ export interface ProjectInterface {
   commitSHA: string
   commitDate: string
 }
-
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-
-export interface ProjectPermissionInterface {
-  id: string
-  projectId?: string
-  userId?: UserID
-  type?: string
-  user?: UserType
-}
-
-export interface ProjectPermissionType {
-  createdAt: string
-  type: string
-  updatedAt: string
-}

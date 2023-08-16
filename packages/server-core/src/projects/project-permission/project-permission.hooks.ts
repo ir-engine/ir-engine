@@ -59,17 +59,17 @@ export default {
     find: [],
     get: [],
     create: [
-      iff(isProvider('external'), verifyProjectOwner() as any),
+      iff(isProvider('external'), verifyProjectOwner()),
       () => schemaHooks.validateData(projectPermissionDataValidator),
       schemaHooks.resolveData(projectPermissionDataResolver)
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyProjectOwner() as any),
+      iff(isProvider('external'), verifyProjectOwner()),
       () => schemaHooks.validateData(projectPermissionPatchValidator),
       schemaHooks.resolveData(projectPermissionPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyProjectOwner() as any)]
+    remove: [iff(isProvider('external'), verifyProjectOwner())]
   },
 
   after: {

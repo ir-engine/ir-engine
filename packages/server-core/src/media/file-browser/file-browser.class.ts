@@ -125,8 +125,8 @@ export class FileBrowserService implements ServiceMethods<any> {
       const knexClient: Knex = this.app.get('knexClient')
       const projectPermissions = await knexClient
         .from(projectPermissionPath)
-        .join('project', 'projectPermissionPath.projectId', 'project.id')
-        .where('projectPermissionPath.userId', params.user!.id)
+        .join('project', `${projectPermissionPath}.projectId`, 'project.id')
+        .where(`${projectPermissionPath}.userId`, params.user!.id)
         .select()
         .options({ nestTables: true })
 

@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { userSchema } from '../user/user.schema'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const projectPermissionPath = 'project-permission'
@@ -42,7 +43,7 @@ export const projectPermissionSchema = Type.Object(
     projectId: Type.String({
       format: 'uuid'
     }),
-    userId: Type.String({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     type: Type.String(),

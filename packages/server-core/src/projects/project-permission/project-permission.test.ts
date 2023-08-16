@@ -35,7 +35,7 @@ import {
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -186,13 +186,13 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        project1Permission2 = (await app.service(projectPermissionPath).create(
+        project1Permission2 = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
             userId: user2.id
           },
           params
-        )) as ProjectPermissionType
+        )
         assert.ok(project1Permission2)
         assert.strictEqual(project1Permission2.userId, user2.id)
         assert.strictEqual(project1Permission2.projectId, project1.id)
@@ -206,13 +206,13 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        const duplicate = (await app.service(projectPermissionPath).create(
+        const duplicate = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
             userId: user2.id
           },
           params
-        )) as ProjectPermissionType
+        )
         assert.ok(duplicate)
         assert.strictEqual(project1Permission2.id, duplicate.id)
       })
@@ -252,7 +252,7 @@ describe('project-permission.test', () => {
             await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: 'abcdefg'
+                userId: 'abcdefg' as UserID
               },
               params
             )
@@ -313,14 +313,14 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        project1Permission4 = (await app.service(projectPermissionPath).create(
+        project1Permission4 = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
             userId: user4.id,
             type: 'owner'
           },
           params
-        )) as ProjectPermissionType
+        )
 
         const permissions = await app.service(projectPermissionPath)._find({
           query: {
@@ -347,7 +347,7 @@ describe('project-permission.test', () => {
           project1Permission2.id,
           {
             projectId: project1.id,
-            userId: 'abcdefg',
+            userId: 'abcdefg' as UserID,
             type: 'owner'
           },
           params
