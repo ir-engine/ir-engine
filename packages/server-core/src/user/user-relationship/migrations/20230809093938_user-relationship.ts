@@ -52,8 +52,10 @@ export async function up(knex: Knex): Promise<void> {
     await trx.schema.createTable(userRelationshipPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
-      table.string('userId', 36).nullable().index()
-      table.string('relatedUserId', 36).nullable().index()
+      //@ts-ignore
+      table.uuid('userId').collate('utf8mb4_bin').nullable().index()
+      //@ts-ignore
+      table.uuid('relatedUserId').collate('utf8mb4_bin').nullable().index()
       table.string('type', 255).nullable().index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
