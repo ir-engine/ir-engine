@@ -29,11 +29,14 @@ import { useEffect } from 'react'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Relationship } from '@etherealengine/engine/src/schemas/interfaces/Relationship'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  userRelationshipPath,
+  UserRelationshipType
+} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -43,13 +46,7 @@ const logger = multiLogger.child({ component: 'client-core:FriendService' })
 export const FriendState = defineState({
   name: 'FriendState',
   initial: () => ({
-    relationships: {
-      blocked: [] as Array<UserType>,
-      blocking: [] as Array<UserType>,
-      friend: [] as Array<UserType>,
-      requested: [] as Array<UserType>,
-      pending: [] as Array<UserType>
-    },
+    relationships: [] as UserRelationshipType[],
     isFetching: false,
     updateNeeded: true
   })
@@ -62,13 +59,7 @@ export const FriendServiceReceptor = (action) => {
       return s.isFetching.set(true)
     })
     .when(FriendAction.loadedFriendsAction.matches, (action) => {
-      s.relationships.merge({
-        blocked: action.relationships.blocked,
-        blocking: action.relationships.blocking,
-        friend: action.relationships.friend,
-        requested: action.relationships.requested,
-        pending: action.relationships.pending
-      })
+      s.relationships.set(action.relationships)
       s.updateNeeded.set(false)
       s.isFetching.set(false)
       return
@@ -81,12 +72,14 @@ export const FriendService = {
     try {
       dispatchAction(FriendAction.fetchingFriendsAction({}))
 
-      const relationships: Relationship = await Engine.instance.api.service(userRelationshipPath).find({
+      const relationships = (await Engine.instance.api.service(userRelationshipPath).find({
         query: {
-          userId
+          userId,
+          $limit: 100
         }
-      })
-      dispatchAction(FriendAction.loadedFriendsAction({ relationships }))
+      })) as Paginated<UserRelationshipType>
+
+      dispatchAction(FriendAction.loadedFriendsAction({ relationships: relationships.data }))
     } catch (err) {
       logger.error(err)
     }
@@ -161,7 +154,8 @@ async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requ
   try {
     await Engine.instance.api.service(userRelationshipPath).create({
       relatedUserId,
-      userRelationshipType: type
+      userRelationshipType: type,
+      userId: '' as UserID
     })
 
     FriendService.getUserRelationship(userId)
@@ -188,6 +182,6 @@ export class FriendAction {
 
   static loadedFriendsAction = defineAction({
     type: 'ee.client.Friend.LOADED_FRIENDS' as const,
-    relationships: matches.object as Validator<unknown, Relationship>
+    relationships: matches.object as Validator<unknown, UserRelationshipType[]>
   })
 }

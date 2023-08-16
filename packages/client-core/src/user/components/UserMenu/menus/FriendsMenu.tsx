@@ -140,10 +140,16 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }
 
   const displayList: Array<DisplayedUserInterface> = []
+  const pendingList = friendState.relationships.value
+    .filter((item) => item.userRelationshipType === 'pending')
+    .map((item) => item.relatedUser)
+  const friendList = friendState.relationships.value
+    .filter((item) => item.userRelationshipType === 'friend')
+    .map((item) => item.relatedUser)
 
   if (selectedTab.value === 'friends') {
-    displayList.push(...friendState.relationships.pending.value)
-    displayList.push(...friendState.relationships.friend.value)
+    displayList.push(...pendingList)
+    displayList.push(...friendList)
   } else if (selectedTab.value === 'messages') {
     displayList.push(
       ...privateChannels.map((channel) => ({
@@ -153,17 +159,28 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
       }))
     )
   } else if (selectedTab.value === 'blocked') {
-    displayList.push(...friendState.relationships.blocking.value)
+    const blockingList = friendState.relationships.value
+      .filter((item) => item.userRelationshipType === 'blocking')
+      .map((item) => item.relatedUser)
+    displayList.push(...blockingList)
   } else if (selectedTab.value === 'find') {
     const layerPeers = Engine.instance.worldNetworkState?.peers
       ? Array.from(Engine.instance.worldNetworkState.peers.get({ noproxy: true }).values()).filter(
           (peer) =>
             peer.peerID !== 'server' &&
             peer.userId !== userId &&
-            !friendState.relationships.friend.value.find((item) => item.id === peer.userId) &&
-            !friendState.relationships.pending.value.find((item) => item.id === peer.userId) &&
-            !friendState.relationships.blocked.value.find((item) => item.id === peer.userId) &&
-            !friendState.relationships.blocking.value.find((item) => item.id === peer.userId)
+            !friendState.relationships.value.find(
+              (item) => item.relatedUserId === peer.userId && item.userRelationshipType === 'friend'
+            ) &&
+            !friendState.relationships.value.find(
+              (item) => item.relatedUserId === peer.userId && item.userRelationshipType === 'pending'
+            ) &&
+            !friendState.relationships.value.find(
+              (item) => item.relatedUserId === peer.userId && item.userRelationshipType === 'blocked'
+            ) &&
+            !friendState.relationships.value.find(
+              (item) => item.relatedUserId === peer.userId && item.userRelationshipType === 'blocking'
+            )
         )
       : []
     displayList.push(
@@ -173,7 +190,12 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     )
 
     displayList.forEach((peer) => {
-      if (friendState.relationships.requested.value.find((item) => item.id === peer.id)) peer.relationType = 'requested'
+      if (
+        friendState.relationships.value.find(
+          (item) => item.relatedUserId === peer.id && item.userRelationshipType === 'requested'
+        )
+      )
+        peer.relationType = 'requested'
     })
   }
 
