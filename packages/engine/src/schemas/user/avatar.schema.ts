@@ -55,8 +55,8 @@ export const avatarSchema = Type.Object(
       format: 'uuid'
     }),
     project: Type.String(),
-    modelResource: Type.Ref(staticResourceSchema),
-    thumbnailResource: Type.Ref(staticResourceSchema),
+    modelResource: Type.Union([Type.Ref(staticResourceSchema), Type.Null()]),
+    thumbnailResource: Type.Union([Type.Ref(staticResourceSchema), Type.Null()]),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
