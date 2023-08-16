@@ -26,10 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SplineComponent } from '../../../../../scene/components/SplineComponent'
 import { SplineTrackComponent } from '../../../../../scene/components/SplineTrackComponent'
+import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 
 const splineQuery = defineQuery([SplineComponent])
 
@@ -54,7 +62,13 @@ export const getSpline = makeFunctionNodeDefinition({
   }
 })
 
-const initialState = () => {}
+let systemCounter = 0
+type State = {
+  systemUUID: SystemUUID
+}
+const initialState = (): State => ({
+  systemUUID: '' as SystemUUID
+})
 export const addSpline = makeAsyncNodeDefinition({
   typeName: 'engine/spline/addSplineTrack',
   category: NodeCategory.Action,
@@ -78,7 +92,7 @@ export const addSpline = makeAsyncNodeDefinition({
     const isLoop = read<boolean>('isLoop')
     const lockToXZPlane = read<boolean>('lockToXZPlane')
     const enableRotation = read<boolean>('enableRotation')
-    const alpha = read<number>('reset') ? 0 : undefined //
+    const alpha = read<number>('reset') ? 0 : undefined
     setComponent(entity, SplineTrackComponent, {
       alpha: alpha,
       splineEntityUUID: splineUuid,
@@ -88,10 +102,35 @@ export const addSpline = makeAsyncNodeDefinition({
       loop: isLoop
     })
 
-    commit('flow')
     write('entity', entity)
+
+    const systemUUID = defineSystem({
+      uuid: 'behave-graph-spline-tracker-' + systemCounter++,
+      execute: () => {
+        // can we hook into the spline track reactor somehow? this feels wasteful, but probably the right way to do it
+        const splineTrack = getComponent(entity, SplineTrackComponent)
+        if (splineTrack.loop) return
+        const splineEntity = UUIDComponent.entitiesByUUID[splineTrack.splineEntityUUID!]
+        if (!splineEntity) return
+        const spline = getOptionalComponent(splineEntity, SplineComponent)
+        if (!spline) return
+        if (Math.floor(splineTrack.alpha) > spline!.elements.length - 1) {
+          commit('trackEnd')
+        }
+      }
+    })
+
+    commit('flow', () => {
+      startSystem(systemUUID, { with: PresentationSystemGroup })
+    })
+    const state: State = {
+      systemUUID
+    }
+
+    return state
   },
-  dispose: ({ state, graph: { getDependency } }) => {
+  dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
+    disableSystem(systemUUID)
     return initialState()
   }
 })

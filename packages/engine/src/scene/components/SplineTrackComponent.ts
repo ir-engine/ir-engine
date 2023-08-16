@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { Euler, Quaternion, Vector3 } from 'three'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -81,6 +82,7 @@ export const SplineTrackComponent = defineComponent({
     useExecute(
       () => {
         const { isEditor, deltaSeconds } = getState(EngineState)
+
         if (isEditor) return
 
         if (!component.splineEntityUUID.value) return
@@ -100,6 +102,8 @@ export const SplineTrackComponent = defineComponent({
 
         if (Math.floor(component.alpha.value) > elements.length - 1) {
           if (!component.loop.value) {
+            //emit an event here?
+
             return
           }
           component.alpha.set(0)
@@ -142,6 +146,15 @@ export const SplineTrackComponent = defineComponent({
       },
       { with: PresentationSystemGroup }
     )
+
+    useEffect(() => {
+      if (!component.splineEntityUUID.value) return
+      const splineTargetEntity = UUIDComponent.entitiesByUUID[component.splineEntityUUID.value]
+      if (!splineTargetEntity) return
+      const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
+      if (!splineComponent) return
+      splineComponent.curve.closed = component.loop.value
+    }, [component.loop])
 
     return null
   }
