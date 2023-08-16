@@ -57,9 +57,11 @@ const checkIdentityProvider = (): any => {
         }
       })) as Paginated<IdentityProviderType>
       if (
-        context.params[identityProviderPath] &&
-        thisIdentityProvider.data.length > 0 &&
-        context.params[identityProviderPath].userId !== thisIdentityProvider.data[0].userId
+        !context.params.user ||
+        thisIdentityProvider.total === 0 ||
+        (context.params.user &&
+          thisIdentityProvider.total > 0 &&
+          context.params.user.id !== thisIdentityProvider.data[0].userId)
       )
         throw new NotFound()
     } else {
@@ -99,7 +101,7 @@ const checkOnlyIdentityProvider = () => {
       .find({ query: { userId: thisIdentityProvider.data[0].userId } })
 
     if (providers.total <= 1) {
-      throw new MethodNotAllowed('Cannot remove the only provider')
+      throw new MethodNotAllowed('Cannot remove the only identity provider on a user')
     }
     return context
   }
@@ -120,7 +122,11 @@ export default {
       () => schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    get: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
+    get: [
+      iff(isProvider('external'), authenticate() as any, checkIdentityProvider()),
+      () => schemaHooks.validateQuery(identityProviderQueryValidator),
+      schemaHooks.resolveQuery(identityProviderQueryResolver)
+    ],
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver)

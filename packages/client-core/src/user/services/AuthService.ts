@@ -348,17 +348,17 @@ export const AuthService = {
         NotificationService.dispatchNotify('You can not remove your last login method.', { variant: 'warning' })
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
-        const newToken = await Engine.instance.api.service(generateTokenPath).create({
+        const newTokenResult = await Engine.instance.api.service(generateTokenPath).create({
           type: otherIp!.type,
           token: otherIp!.token
         })
 
-        if (newToken) {
+        if (newTokenResult?.token) {
           getMutableState(AuthState).merge({ isProcessing: true, error: '' })
-          await API.instance.client.authentication.setAccessToken(newToken as string)
+          await API.instance.client.authentication.setAccessToken(newTokenResult.token)
           const res = await API.instance.client.reAuthenticate(true)
           const authUser = resolveAuthUser(res)
-          await Engine.instance.api.service(identityProviderPath)._remove(ipToRemove.id)
+          await Engine.instance.api.service(identityProviderPath).remove(ipToRemove.id)
           const authState = getMutableState(AuthState)
           authState.merge({ authUser })
           await AuthService.loadUserData(authUser.identityProvider.userId)

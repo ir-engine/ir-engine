@@ -35,9 +35,7 @@ export const generateTokenMethods = ['create'] as const
 // Main data model schema
 export const generateTokenSchema = Type.Object(
   {
-    token: Type.String({
-      format: 'uuid'
-    }),
+    token: Type.String(),
     type: Type.String()
   },
   { $id: 'GenerateToken', additionalProperties: false }

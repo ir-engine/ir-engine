@@ -47,21 +47,21 @@ export class GithubStrategy extends CustomOAuthStrategy {
 
   async getEntityData(profile: any, entity: any, params: CustomOAuthParams): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
-    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-      { accessToken: params?.authentication?.accessToken },
-      {}
-    )
-    const identityProvider = authResult[identityProviderPath]
+    const authResult = entity
+      ? entity
+      : await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+          { accessToken: params?.authentication?.accessToken },
+          {}
+        )
+    const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
     return {
       ...baseData,
-      email: profile.email,
+      accountIdentifier: profile.login,
+      oauthToken: params.access_token,
       type: 'github',
-      oauthToken: params.access_token!,
-      userName: profile.login,
-      userId,
-      accountIdentifier: profile.login
+      userId
     }
   }
 
@@ -85,11 +85,10 @@ export class GithubStrategy extends CustomOAuthStrategy {
         userId: newUser.id,
         oauthToken: params.access_token
       })
-    } else {
+    } else
       await this.app.service(identityProviderPath)._patch(entity.id, {
         oauthToken: params.access_token
       })
-    }
     const identityProvider = authResult[identityProviderPath]
     const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)

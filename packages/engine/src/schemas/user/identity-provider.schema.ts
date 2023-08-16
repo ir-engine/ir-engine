@@ -32,7 +32,7 @@ import { UserID } from './user.schema'
 
 export const identityProviderPath = 'identity-provider'
 
-export const identityProviderMethods = ['find', 'create'] as const
+export const identityProviderMethods = ['find', 'create', 'get', 'patch', 'remove'] as const
 
 export const identityProviderTypes = [
   'email',

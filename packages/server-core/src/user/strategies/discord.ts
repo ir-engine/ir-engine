@@ -46,19 +46,20 @@ export class DiscordStrategy extends CustomOAuthStrategy {
 
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
-    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-      { accessToken: params?.authentication?.accessToken },
-      {}
-    )
-    const identityProvider = authResult[identityProviderPath]
+    const authResult = entity
+      ? entity
+      : await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+          { accessToken: params?.authentication?.accessToken },
+          {}
+        )
+    const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
     return {
       ...baseData,
-      email: profile.email,
+      accountIdentifier: `${profile.username}#${profile.discriminator}`,
       type: 'discord',
-      userId,
-      accountIdentifier: `${profile.username}#${profile.discriminator}`
+      userId
     }
   }
 
