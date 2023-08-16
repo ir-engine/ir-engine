@@ -116,59 +116,54 @@ const execute = () => {
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const userID = network.peers.get(peerID)!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+    if (!entity) continue
 
-    if (entity) {
-      const data = mocapData.popLast()
-      // console.log('received mocap data', peerID, data)
-      if (!data) continue
-      timeSeriesMocapLastSeen.set(peerID, Date.now())
+    const data = mocapData.popLast()
+    if (!data) continue
+    timeSeriesMocapLastSeen.set(peerID, Date.now())
 
-      const avatarRig = getComponent(entity, AvatarRigComponent)
-      const avatarTransform = getComponent(entity, TransformComponent)
+    if (!data.poseLandmarks || !data?.za) continue
 
-      if (!avatarRig) continue
+    const avatarRig = getComponent(entity, AvatarRigComponent)
+    const avatarTransform = getComponent(entity, TransformComponent)
+    if (!avatarRig) continue
 
-      const avatarHips = avatarRig?.bindRig?.hips?.node
-      const bindHipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
+    const avatarHips = avatarRig?.bindRig?.hips?.node
+    const bindHipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
 
-      if (useSolvers) {
-        // Use solvers to update the avatar
-        if (data?.poseLandmarks && data?.za) {
-          UpdateSolvedPose(data?.za, data?.poseLandmarks, bindHipsPos.clone(), avatarRig, avatarTransform)
-          UpdateSolvedHand(data?.rightHandLandmarks, 'right', avatarRig, avatarTransform)
-          UpdateSolvedHand(data?.leftHandLandmarks, 'left', avatarRig, avatarTransform)
-          UpdateSolvedFace(data?.faceLandmarks, avatarRig, avatarTransform)
-        }
-      } else {
-        // Use ik targets to update the avatar
-        if (data?.poseLandmarks && data?.za) {
-          UpdateRawPose(data?.za, data?.poseLandmarks, bindHipsPos.clone(), avatarRig, avatarTransform)
-        }
+    if (useSolvers) {
+      // Use solvers to update the avatar
+      UpdateSolvedPose(data?.za, data?.poseLandmarks, bindHipsPos.clone(), avatarRig, avatarTransform)
+      UpdateSolvedHand(data?.rightHandLandmarks, 'right', avatarRig, avatarTransform)
+      UpdateSolvedHand(data?.leftHandLandmarks, 'left', avatarRig, avatarTransform)
+      UpdateSolvedFace(data?.faceLandmarks, avatarRig, avatarTransform)
+    } else {
+      // Use ik targets to update the avatar
+      UpdateRawPose(data?.za, data?.poseLandmarks, bindHipsPos.clone(), avatarRig, avatarTransform)
+    }
+
+    if (debug) {
+      if (data.za) {
+        data.za.forEach((landmark, idx) => {
+          if (debugPoseObjs[idx] === undefined) {
+            const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial())
+            debugPoseObjs.push(mesh)
+            Engine.instance.scene.add(mesh)
+          }
+          debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
+          debugPoseObjs[idx].updateMatrixWorld()
+        })
       }
-
-      if (debug) {
-        if (data.za) {
-          data.za.forEach((landmark, idx) => {
-            if (debugPoseObjs[idx] === undefined) {
-              const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial())
-              debugPoseObjs.push(mesh)
-              Engine.instance.scene.add(mesh)
-            }
-            debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
-            debugPoseObjs[idx].updateMatrixWorld()
-          })
-        }
-        if (data.leftHandLandmarks && data.rightHandLandmarks) {
-          ;[...data.leftHandLandmarks, ...data.rightHandLandmarks].forEach((landmark, idx) => {
-            if (debugHandObjs[idx] === undefined) {
-              const mesh = new Mesh(new SphereGeometry(0.0125), new MeshBasicMaterial())
-              debugHandObjs[idx] = mesh
-              Engine?.instance?.scene?.add(mesh)
-            }
-            debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
-            debugPoseObjs[idx].updateMatrixWorld()
-          })
-        }
+      if (data.leftHandLandmarks && data.rightHandLandmarks) {
+        ;[...data.leftHandLandmarks, ...data.rightHandLandmarks].forEach((landmark, idx) => {
+          if (debugHandObjs[idx] === undefined) {
+            const mesh = new Mesh(new SphereGeometry(0.0125), new MeshBasicMaterial())
+            debugHandObjs[idx] = mesh
+            Engine?.instance?.scene?.add(mesh)
+          }
+          debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
+          debugPoseObjs[idx].updateMatrixWorld()
+        })
       }
     }
   }
