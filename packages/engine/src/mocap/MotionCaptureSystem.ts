@@ -51,7 +51,7 @@ import UpdateSolvedPose from './UpdateSolvedPose'
 
 const debugPoseObjs: Object3D[] = []
 const debugHandObjs: Object3D[] = []
-const debug = false
+const debug = true
 const useSolvers = true
 
 export interface MotionCaptureStream extends Results {
@@ -122,7 +122,7 @@ const execute = () => {
     if (!data) continue
     timeSeriesMocapLastSeen.set(peerID, Date.now())
 
-    if (!data.poseLandmarks || !data?.za) continue
+    if (!data?.poseLandmarks || !data?.za) continue
 
     const avatarRig = getComponent(entity, AvatarRigComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
@@ -143,17 +143,16 @@ const execute = () => {
     }
 
     if (debug) {
-      if (data.za) {
-        data.za.forEach((landmark, idx) => {
-          if (debugPoseObjs[idx] === undefined) {
-            const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial())
-            debugPoseObjs.push(mesh)
-            Engine.instance.scene.add(mesh)
-          }
-          debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
-          debugPoseObjs[idx].updateMatrixWorld()
-        })
-      }
+      data.za.forEach((landmark, idx) => {
+        if (debugPoseObjs[idx] === undefined) {
+          const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial())
+          debugPoseObjs.push(mesh)
+          Engine.instance.scene.add(mesh)
+        }
+        debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
+        debugPoseObjs[idx].updateMatrixWorld()
+      })
+      /*
       if (data.leftHandLandmarks && data.rightHandLandmarks) {
         ;[...data.leftHandLandmarks, ...data.rightHandLandmarks].forEach((landmark, idx) => {
           if (debugHandObjs[idx] === undefined) {
@@ -165,6 +164,7 @@ const execute = () => {
           debugPoseObjs[idx].updateMatrixWorld()
         })
       }
+      */
     }
   }
 }
