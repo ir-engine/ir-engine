@@ -30,7 +30,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const scopeTypePath = 'scope-type'
 
-export const scopeTypeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const scopeTypeMethods = ['find', 'get'] as const
 
 // Main data model schema
 export const scopeTypeSchema = Type.Object(

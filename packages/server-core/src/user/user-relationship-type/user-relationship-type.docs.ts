@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'user-relationship-type': {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string'
-        }
-      }
-    },
-    'user-relationship-type_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/user-relationship-type' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  userRelationshipTypeDataSchema,
+  userRelationshipTypePatchSchema,
+  userRelationshipTypeQuerySchema,
+  userRelationshipTypeSchema
+} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    userRelationshipTypeDataSchema,
+    userRelationshipTypePatchSchema,
+    userRelationshipTypeQuerySchema,
+    userRelationshipTypeSchema
+  },
+  docs: {
+    description: 'User relationship type service description',
+    securities: ['all']
   }
-}
+})
