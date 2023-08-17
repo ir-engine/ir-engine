@@ -210,6 +210,7 @@ export const InstanceChat = ({
   CloseButton = CloseIcon,
   newMessageLabel = 'World Chat...'
 }: InstanceChatProps): any => {
+  const { t } = useTranslation()
   const chatWindowOpen = useHookstate(false)
   const unreadMessages = useHookstate(false)
   const messageContainerVisible = useHookstate(false)
@@ -418,6 +419,7 @@ export const InstanceChat = ({
             >
               <Fab
                 id="openMessagesButton"
+                title={t('user:menu.toggleChat')}
                 className={styles.chatBadge}
                 color="primary"
                 onClick={() => toggleChatWindow()}
