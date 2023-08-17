@@ -38,7 +38,6 @@ import {
 } from 'mediasoup/node/lib/types'
 import os from 'os'
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
@@ -82,7 +81,7 @@ const getNewOffset = async (ipAddress, startPort, i, offset) => {
 export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   const cores = os.cpus()
-  const routers = { instance: [] } as { instance: Router[]; [channelID: ChannelID]: Router[] }
+  const routers = [] as Router[]
   const workers = [] as Worker[]
   //This is used in case ports in the range to use are in use by something else
   let offset = 0
@@ -116,24 +115,9 @@ export async function startWebRTC() {
 
     const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
     const newRouter = await newWorker.createRouter({ mediaCodecs, appData: { worker: newWorker } })
-    routers.instance.push(newRouter)
+    routers.push(newRouter)
     logger.info('Worker created router.')
     workers.push(newWorker)
-  }
-
-  /** @todo this might be unnecessary, see if we can merge `instance` and `[channelId]` on routers obj */
-  const channelID = getState(InstanceServerState).instance.channelId
-
-  if (channelID) {
-    const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
-    logger.info(`Making new routers for channelID "${channelID}".`)
-    routers[channelID] = []
-    await Promise.all(
-      workers.map(async (worker) => {
-        const newRouter = await worker.createRouter({ mediaCodecs, appData: { worker } })
-        routers[channelID].push(newRouter)
-      })
-    )
   }
 
   return { routers, workers }
@@ -158,10 +142,10 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
     }
   })
 
-  const currentRouter = network.routers.instance[0]
+  const currentRouter = network.routers[0]
 
   await Promise.all(
-    network.routers.instance.map(async (router) => {
+    network.routers.map(async (router) => {
       if (router.id !== currentRouter.id)
         return currentRouter.pipeToRouter({ dataProducerId: outgoingDataProducer.id, router: router })
       else return Promise.resolve()
@@ -277,7 +261,7 @@ export async function createWebRtcTransport(
   { peerID, direction, sctpCapabilities, channelId }: WebRtcTransportParams
 ): Promise<WebRTCTransportExtension> {
   const { initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
-  const routerList: Router[] = channelId ? network.routers[channelId] : network.routers.instance
+  const routerList = network.routers
 
   const dumps = await Promise.all(routerList.map(async (item) => await item.dump()))
   const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
@@ -527,10 +511,10 @@ export async function handleProduceData(
 
     network.peers.get(peerID)!.dataProducers!.set(dataProducer.id, dataProducer)
 
-    const currentRouter = network.routers.instance.find((router) => router.id === transport.internal.routerId)!
+    const currentRouter = network.routers.find((router) => router.id === transport.internal.routerId)!
 
     await Promise.all(
-      network.routers.instance.map(async (router) => {
+      network.routers.map(async (router) => {
         if (router.id !== transport.internal.routerId)
           return currentRouter.pipeToRouter({
             dataProducerId: dataProducer.id,
@@ -688,7 +672,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
       appData: newProducerAppData
     })) as unknown as ProducerExtension
 
-    const routers = network.routers[appData.channelId]
+    const routers = network.routers
     const currentRouter = routers.find((router) => router.id === transport?.internal.routerId)!
 
     await Promise.all(
@@ -760,7 +744,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
   )!
 
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
-  const router = network.routers[channelID].find((router) => router.id === transport?.internal.routerId)
+  const router = network.routers.find((router) => router.id === transport?.internal.routerId)
   if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.id}`
     logger.error(`recv-track: ${peerID} ${msg}`)

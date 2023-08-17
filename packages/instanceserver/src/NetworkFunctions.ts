@@ -247,7 +247,7 @@ export const handleConnectingPeer = (
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 
   return {
-    routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
+    routerRtpCapabilities: network.routers[0].rtpCapabilities,
     peerIndex: network.peerIDToPeerIndex.get(peerID)!,
     cachedActions
   }
