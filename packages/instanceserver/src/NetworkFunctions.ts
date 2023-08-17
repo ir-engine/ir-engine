@@ -34,9 +34,7 @@ import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respa
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
@@ -198,7 +196,8 @@ export const handleConnectingPeer = (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
-  user: UserType
+  user: UserType,
+  inviteCode?: string
 ) => {
   const userId = user.id
 
@@ -235,38 +234,23 @@ export const handleConnectingPeer = (
 
   network.userIDToUserIndex.set(userId, userIndex)
   network.userIndexToUserID.set(userIndex, userId)
-}
 
-export async function handleJoinWorld(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data: JoinWorldRequestData,
-  messageId: string,
-  userId: UserID,
-  user: UserType
-) {
+  updatePeers(network)
+
   logger.info('Connect to world from ' + userId)
 
   const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
     return _.cloneDeep(action)
   })
 
-  updatePeers(network)
-
-  spark.write({
-    type: MessageTypes.JoinWorld.toString(),
-    data: {
-      peerIndex: network.peerIDToPeerIndex.get(peerID)!,
-      routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
-      cachedActions
-    },
-    id: messageId
-  })
-
   const instanceServerState = getState(InstanceServerState)
-  if (data.inviteCode && !instanceServerState.isMediaInstance)
-    await getUserSpawnFromInvite(network, user, data.inviteCode!)
+  if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
+
+  return {
+    routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
+    peerIndex: network.peerIDToPeerIndex.get(peerID)!,
+    cachedActions
+  }
 }
 
 const getUserSpawnFromInvite = async (
@@ -340,27 +324,26 @@ const getUserSpawnFromInvite = async (
   }
 }
 
-export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID, message) {
-  if (!message) return
+export const handleIncomingActions = (network: SocketWebRTCServerNetwork, peerID: PeerID) => (message) => {
   const networkPeer = network.peers.get(peerID)
-  if (!networkPeer) return logger.error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
+  if (!networkPeer) return
 
-  const actions = /*decode(n
-    ew Uint8Array(*/ message /*))*/ as Required<Action>[]
+  networkPeer.lastSeenTs = Date.now()
+  if (!message?.length) {
+    // logger.info('Got heartbeat from ' + peerID + ' at ' + Date.now())
+    return
+  }
+
+  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
     a.$from = networkPeer.userId
-    a.$network = network.hostId // TODO replace with network.id
+    a.$network = network.id
     dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
-export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
-  // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
-  if (network.peers.has(peerID)) network.peers.get(peerID)!.lastSeenTs = Date.now()
-}
-
-export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
+export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserID
   const disconnectedClient = network.peers.get(peerID)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)

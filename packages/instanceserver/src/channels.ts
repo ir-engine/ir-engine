@@ -37,7 +37,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
@@ -58,7 +57,7 @@ import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/netwo
 import { userKickPath, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
-import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
+import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
 import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
@@ -728,7 +727,7 @@ export default (app: Application): void => {
     const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
     if (!peer || !peer.spark) return
 
-    peer.spark.write({ type: MessageTypes.Kick.toString(), data: '' })
+    handleDisconnect(getServerNetwork(app), peer.peerID)
   }
 
   app.service(userKickPath).on('created', kickCreatedListener)

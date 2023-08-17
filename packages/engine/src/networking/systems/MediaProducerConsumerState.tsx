@@ -40,6 +40,7 @@ import {
 } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
+import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
 import { MediaStreamAppData, NetworkState } from '../NetworkState'
@@ -179,6 +180,18 @@ export const MediaProducerConsumerState = defineState({
     [
       MediaProducerActions.closeProducer,
       (state, action: typeof MediaProducerActions.closeProducer.matches._TYPE) => {
+        // removed create/close cached actions for this producer
+        const cachedActions = Engine.instance.store.actions.cached
+        const peerCachedActions = cachedActions.filter(
+          (cachedAction) =>
+            (MediaProducerActions.producerCreated.matches.test(cachedAction) ||
+              MediaProducerActions.closeProducer.matches.test(cachedAction)) &&
+            cachedAction.producerID === action.producerID
+        )
+        for (const cachedAction of peerCachedActions) {
+          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
+        }
+
         const networkID = action.$network
         if (!state.value[networkID]) return
 
@@ -337,6 +350,20 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
 
     if (producerState.paused.value && producer.pause) producer.pause()
     if (!producerState.paused.value && producer.resume) producer.resume()
+
+    const consumer = Object.entries(getState(MediaProducerConsumerState)[networkID].consumers).find(
+      ([_, consumer]) => consumer.producerID === producerID
+    )
+
+    if (!consumer) return console.warn('No consumer found for paused producer', producerID)
+
+    dispatchAction(
+      MediaConsumerActions.consumerPaused({
+        consumerID: consumer[0],
+        paused: !!producerState.paused.value,
+        $topic: network.topic
+      })
+    )
   }, [producerState.paused, networkProducerState])
 
   return <></>

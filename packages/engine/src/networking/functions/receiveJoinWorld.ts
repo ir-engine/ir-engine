@@ -34,13 +34,26 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { Engine } from '../../ecs/classes/Engine'
 import { WorldState } from '../interfaces/WorldState'
 
+export enum AuthError {
+  MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',
+  USER_NOT_FOUND = 'USER_NOT_FOUND',
+  USER_NOT_AUTHORIZED = 'USER_NOT_AUTHORIZED',
+  INTERNAL_ERROR = 'INTERNAL_ERROR'
+}
+
+export type AuthTask = {
+  status: 'success' | 'fail' | 'pending'
+  routerRtpCapabilities?: any
+  cachedActions?: Required<Action>[]
+  error?: AuthError
+}
+
 export type JoinWorldRequestData = {
   inviteCode?: string
 }
 
 export type JoinWorldProps = {
   peerIndex: number
-  routerRtpCapabilities: any
   cachedActions: Required<Action>[]
 }
 

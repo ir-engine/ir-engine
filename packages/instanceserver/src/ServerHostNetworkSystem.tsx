@@ -88,11 +88,6 @@ const execute = () => {
     handleRequestProducer(action)
   }
 
-  const worldNetwork = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
-  if (worldNetwork) {
-    if (worldNetwork.isHosting) validateNetworkObjects(worldNetwork)
-  }
-
   for (const action of dataRequestProducerActionQueue()) {
     handleProduceData(action)
   }
@@ -108,6 +103,11 @@ const execute = () => {
   }
   for (const action of transportCloseActionQueue()) {
     handleWebRtcTransportClose(action)
+  }
+
+  const worldNetwork = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
+  if (worldNetwork) {
+    if (worldNetwork.isHosting) validateNetworkObjects(worldNetwork)
   }
 }
 

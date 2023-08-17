@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
+  DataConsumer,
   DataProducer,
   DtlsParameters,
   MediaKind,
@@ -38,8 +39,7 @@ import type { EventEmitter } from 'primus'
 import Primus from 'primus-client'
 
 import config from '@etherealengine/common/src/config'
-import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
-import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -61,9 +61,8 @@ import {
   CAM_VIDEO_SIMULCAST_ENCODINGS,
   SCREEN_SHARE_SIMULCAST_ENCODINGS
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { JoinWorldProps, JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
@@ -217,12 +216,14 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
 
   const network = createNetwork(id, hostId, topic, {
     mediasoupDevice,
+    mediasoupLoaded: false,
     transport,
     recvTransport: null! as MediaSoupTransport,
     sendTransport: null! as MediaSoupTransport,
     primus: null! as Primus,
     /** List of data producer nodes. */
     dataProducers: new Map<DataChannelType, DataProducer>(),
+    dataConsumers: new Map<DataChannelType, DataConsumer>(),
 
     heartbeat: null! as NodeJS.Timer, // is there an equivalent browser type for this?
 
@@ -305,67 +306,8 @@ export const connectToNetwork = async (
     networkState.connected.set(true)
   }
   primus.on('incoming::open', onConnect)
-}
 
-type Primus = EventEmitter & {
-  buffer: any[]
-  disconnect: boolean
-  emitter: any //EventEmitter
-  offlineHandler: () => void
-  online: boolean
-  onlineHandler: () => void
-  options: {
-    pingTimeout: 45000
-    queueSize: number
-    reconnect: any
-    strategy: string
-    timeout: number
-    transport: any
-  }
-  readable: boolean
-  readyState: number
-  recovery: any
-  socket: WebSocket
-  timers: any
-  transformers: { outgoing: Array<any>; incoming: Array<any> }
-  transport: any
-  url: URL
-  writable: boolean
-  _events: any
-  _eventsCount: number
-
-  AVOID_WEBSOCKETS: false
-  NETWORK_EVENTS: unknown
-  ark: any
-  authorization: false
-  client: unknown
-  clone: unknown
-  critical: unknown
-  decoder: unknown
-  destroy: unknown
-  emits: unknown
-  encoder: unknown
-  end: () => void
-  heartbeat: unknown
-  id: unknown
-  initialise: unknown
-  merge: unknown
-  open: unknown
-  parse: unknown
-  pathname: '/primus'
-  plugin: unknown
-  protocol: unknown
-  querystring: unknown
-  querystringify: unknown
-  reserved: unknown
-  send: unknown
-  timeout: unknown
-  transform: unknown
-  transforms: unknown
-  uri: unknown
-  version: '7.3.4'
-  write: (data: any) => void
-  _write: unknown
+  logger.info('Connecting to instance type: %o', { topic: network.topic, id: network.id })
 }
 
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {
@@ -385,31 +327,39 @@ function actionDataHandler(message) {
   }
 }
 
-export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
-  const isWorldConnection = network.topic === NetworkTopics.world
-  logger.info('Connecting to instance type: %o', { topic: network.topic, hostId: network.hostId })
+export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
+  logger.info('Authenticating instance: %o', { topic: network.topic, id: network.id })
 
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
 
   const authState = getState(AuthState)
-  const token = authState.authUser.accessToken
-  const payload = { accessToken: token, peerID: Engine.instance.peerID }
+  const accessToken = authState.authUser.accessToken
+  const inviteCode = getSearchParamFromURL('inviteCode')
+  const payload = { accessToken, peerID: Engine.instance.peerID, inviteCode }
 
   networkState.authenticated.set(false)
 
-  const { status } = await new Promise<AuthTask>((resolve) => {
-    const interval = setInterval(async () => {
+  const { status, routerRtpCapabilities, cachedActions } = await new Promise<AuthTask>((resolve) => {
+    const onAuthentication = (response: AuthTask) => {
+      console.log(response)
+      if (response.status !== 'pending') {
+        clearInterval(interval)
+        resolve(response)
+        network.primus.off('data', onAuthentication)
+      }
+    }
+
+    network.primus.on('data', onAuthentication)
+
+    const interval = setInterval(() => {
       // ensure we're still connected
       if (!network.primus) {
         clearInterval(interval)
         resolve({ status: 'fail' })
         return
       }
-      const response = (await promisedRequest(network, MessageTypes.Authorization.toString(), payload)) as AuthTask
-      if (response.status !== 'pending') {
-        clearInterval(interval)
-        resolve(response)
-      }
+
+      network.primus.write(payload)
     }, 100)
   })
 
@@ -420,66 +370,23 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   networkState.authenticated.set(true)
 
-  // Send heartbeat every second
-  network.heartbeat = setInterval(() => {
-    network.primus.write({ type: MessageTypes.Heartbeat.toString() })
-  }, 1000)
-
-  function peerUpdateHandler(peers: Array<PeersUpdateType>) {
-    for (const peer of peers) {
-      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
-    }
-    for (const [peerID, peer] of network.peers)
-      if (!peers.find((p) => p.peerID === peerID)) {
-        NetworkPeerFunctions.destroyPeer(network, peerID)
-      }
-    logger.info('Updated peers %o', { topic: network.topic, peers })
-  }
-
   async function commonDisconnectHandler() {
     network.primus.removeListener('end', commonDisconnectHandler)
-    network.primus.removeListener('data', actionDataAndPeerUpdateHandler)
   }
 
-  async function actionDataAndPeerUpdateHandler(message) {
-    if (message.type === MessageTypes.ActionData.toString()) actionDataHandler(message.data)
-    if (message.type === MessageTypes.UpdatePeers.toString()) peerUpdateHandler(message.data)
-  }
-
-  network.primus.on('data', actionDataAndPeerUpdateHandler)
+  network.primus.on('data', actionDataHandler)
   network.primus.on('end', commonDisconnectHandler)
 
-  const joinWorldRequest = {
-    inviteCode: getSearchParamFromURL('inviteCode')
-  } as JoinWorldRequestData
-
-  const connectToWorldResponse = (await promisedRequest(
-    network,
-    MessageTypes.JoinWorld.toString(),
-    joinWorldRequest
-  )) as JoinWorldProps
-
-  if (!connectToWorldResponse || !connectToWorldResponse.routerRtpCapabilities) {
-    onConnectToInstance(network)
-    return
-  }
-
-  if (!network.mediasoupDevice.loaded)
-    await network.mediasoupDevice.load({
-      routerRtpCapabilities: connectToWorldResponse.routerRtpCapabilities
-    })
-
   // handle cached actions
-  for (const action of connectToWorldResponse.cachedActions)
-    Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
+  for (const action of cachedActions!) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
   Engine.instance.store.actions.outgoing[network.topic].queue.push(
     ...Engine.instance.store.actions.outgoing[network.topic].history
   )
 
-  if (isWorldConnection) {
-    console.log('RECEIVED JOIN WORLD RESPONSE', connectToWorldResponse)
+  const isWorldConnection = network.topic === NetworkTopics.world
 
+  if (isWorldConnection) {
     const spectateUserId = getSearchParamFromURL('spectate')
     if (spectateUserId) {
       dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
@@ -489,30 +396,41 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     getMutableState(EngineState).connectedWorld.set(true)
   }
 
-  dispatchAction(
-    NetworkTransportActions.requestTransport({
-      direction: 'send',
-      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
-      $network: network.id,
-      $topic: network.topic,
-      $to: network.hostPeerID
-    })
-  )
+  ;(network.mediasoupDevice.loaded
+    ? Promise.resolve()
+    : network.mediasoupDevice.load({
+        routerRtpCapabilities
+      })
+  ).then(() => {
+    networkState.mediasoupLoaded.set(true)
+    dispatchAction(
+      NetworkTransportActions.requestTransport({
+        direction: 'send',
+        sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+        $network: network.id,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
 
-  dispatchAction(
-    NetworkTransportActions.requestTransport({
-      direction: 'recv',
-      sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
-      $network: network.id,
-      $topic: network.topic,
-      $to: network.hostPeerID
-    })
-  )
+    dispatchAction(
+      NetworkTransportActions.requestTransport({
+        direction: 'recv',
+        sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+        $network: network.id,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
+
+    logger.info('Successfully loaded routerRtpCapabilities')
+  })
 
   function reconnectHandler() {
+    console.log('reconnectHandler')
     network.primus.off('reconnected', reconnectHandler)
     network.primus.removeListener('reconnected', reconnectHandler)
-    onConnectToInstance(network)
+    authenticateNetwork(network)
   }
 
   network.primus.on('reconnected', reconnectHandler)
@@ -534,7 +452,7 @@ export async function createDataProducer(
   type = 'raw',
   customInitInfo: any = {}
 ): Promise<void> {
-  console.log('createDataProducer', dataChannelType, network.sendTransport)
+  console.log('createDataProducer', dataChannelType, network)
   if (network.dataProducers.has(dataChannelType)) return
   const sendTransport = network.sendTransport
   const dataProducer = await sendTransport.produceData({
@@ -1404,4 +1322,65 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
     mediaStreamState.screenAudioProducer.set(null)
     mediaStreamState.screenShareAudioPaused.set(true)
   }
+}
+
+type Primus = EventEmitter & {
+  buffer: any[]
+  disconnect: boolean
+  emitter: any //EventEmitter
+  offlineHandler: () => void
+  online: boolean
+  onlineHandler: () => void
+  options: {
+    pingTimeout: 45000
+    queueSize: number
+    reconnect: any
+    strategy: string
+    timeout: number
+    transport: any
+  }
+  readable: boolean
+  readyState: number
+  recovery: any
+  socket: WebSocket
+  timers: any
+  transformers: { outgoing: Array<any>; incoming: Array<any> }
+  transport: any
+  url: URL
+  writable: boolean
+  _events: any
+  _eventsCount: number
+
+  AVOID_WEBSOCKETS: false
+  NETWORK_EVENTS: unknown
+  ark: any
+  authorization: false
+  client: unknown
+  clone: unknown
+  critical: unknown
+  decoder: unknown
+  destroy: unknown
+  emits: unknown
+  encoder: unknown
+  end: () => void
+  heartbeat: unknown
+  id: unknown
+  initialise: unknown
+  merge: unknown
+  open: unknown
+  parse: unknown
+  pathname: '/primus'
+  plugin: unknown
+  protocol: unknown
+  querystring: unknown
+  querystringify: unknown
+  reserved: unknown
+  send: unknown
+  timeout: unknown
+  transform: unknown
+  transforms: unknown
+  uri: unknown
+  version: '7.3.4'
+  write: (data: any) => void
+  _write: unknown
 }

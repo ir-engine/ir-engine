@@ -36,7 +36,8 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { MediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -46,7 +47,7 @@ import { PeerMediaConsumers } from '../media/PeerMedia'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import {
   SocketWebRTCClientNetwork,
-  onConnectToInstance,
+  authenticateNetwork,
   onTransportCreated,
   receiveConsumerHandler
 } from '../transports/SocketWebRTCClientFunctions'
@@ -55,10 +56,33 @@ import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
 const consumerCreatedQueue = defineActionQueue(MediaConsumerActions.consumerCreated.matches)
 const transportCreatedActionQueue = defineActionQueue(NetworkTransportActions.transportCreated.matches)
+const updatePeersActionQueue = defineActionQueue(NetworkActions.updatePeers.matches)
+
+let lastHeartbeat = Date.now()
 
 const execute = () => {
   for (const action of consumerCreatedQueue()) receiveConsumerHandler(action)
   for (const action of transportCreatedActionQueue()) onTransportCreated(action)
+  for (const action of updatePeersActionQueue()) {
+    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
+
+    for (const peer of action.peers) {
+      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
+    }
+    for (const [peerID, peer] of network.peers)
+      if (!action.peers.find((p) => p.peerID === peerID)) {
+        NetworkPeerFunctions.destroyPeer(network, peerID)
+      }
+  }
+
+  /** Send heartbeat as empty message */
+  const now = Date.now()
+  if (lastHeartbeat + 1000 < now) {
+    for (const network of Object.values(getState(NetworkState).networks)) {
+      network.transport.messageToPeer(network.hostPeerID, [])
+    }
+    lastHeartbeat = now
+  }
 }
 
 const NetworkConnectionReactor = (props: { networkID: UserID }) => {
@@ -71,7 +95,7 @@ const NetworkConnectionReactor = (props: { networkID: UserID }) => {
     const network = getState(NetworkState).networks[props.networkID] as SocketWebRTCClientNetwork
 
     if (networkConnected.value) {
-      onConnectToInstance(network)
+      authenticateNetwork(network)
     }
   }, [networkConnected])
 

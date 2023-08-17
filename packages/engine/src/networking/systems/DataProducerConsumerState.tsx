@@ -37,6 +37,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
+import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
 import { NetworkState } from '../NetworkState'
@@ -150,6 +151,18 @@ export const DataProducerConsumerState = defineState({
     [
       DataProducerActions.closeProducer,
       (state, action: typeof DataProducerActions.closeProducer.matches._TYPE) => {
+        // removed create/close cached actions for this producer
+        const cachedActions = Engine.instance.store.actions.cached
+        const peerCachedActions = cachedActions.filter(
+          (cachedAction) =>
+            (DataProducerActions.producerCreated.matches.test(cachedAction) ||
+              DataProducerActions.closeProducer.matches.test(cachedAction)) &&
+            cachedAction.producerID === action.producerID
+        )
+        for (const cachedAction of peerCachedActions) {
+          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
+        }
+
         const networkID = action.$network
         if (!state.value[networkID]) return
 

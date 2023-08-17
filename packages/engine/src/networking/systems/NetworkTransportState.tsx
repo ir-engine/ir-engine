@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction, defineState, none, receiveActions } from '@etherealengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
+import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
 
@@ -117,6 +118,18 @@ export const NetworkTransportState = defineState({
     [
       NetworkTransportActions.closeTransport,
       (state, action: typeof NetworkTransportActions.closeTransport.matches._TYPE) => {
+        // removed create/close cached actions for this producer
+        const cachedActions = Engine.instance.store.actions.cached
+        const peerCachedActions = cachedActions.filter(
+          (cachedAction) =>
+            (NetworkTransportActions.transportCreated.matches.test(cachedAction) ||
+              NetworkTransportActions.closeTransport.matches.test(cachedAction)) &&
+            cachedAction.transportID === action.transportID
+        )
+        for (const cachedAction of peerCachedActions) {
+          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
+        }
+
         const networkID = action.$network
         if (!state.value[networkID]) return
 

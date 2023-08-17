@@ -23,14 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { Validator, matches } from '../common/functions/MatchesUtils'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
+
+export class NetworkActions {
+  static updatePeers = defineAction({
+    type: 'ee.engine.network.UPDATE_PEERS',
+    peers: matches.array as Validator<unknown, PeersUpdateType[]>
+  })
+}
 
 export const NetworkState = defineState({
   name: 'NetworkState',

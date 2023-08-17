@@ -276,21 +276,7 @@ export async function createWebRtcTransport(
   network: SocketWebRTCServerNetwork,
   { peerID, direction, sctpCapabilities, channelId }: WebRtcTransportParams
 ): Promise<WebRTCTransportExtension> {
-  const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
-  const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
-  if (channelId) {
-    if (!network.routers[channelId]) {
-      network.routers[channelId] = [] as any
-      await Promise.all(
-        network.workers.map(async (worker) => {
-          const newRouter = await worker.createRouter({ mediaCodecs, appData: { worker } })
-          network.routers[channelId].push(newRouter)
-          return Promise.resolve()
-        })
-      )
-    }
-    logger.info(`Worker created router for channel ${channelId}`)
-  }
+  const { initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
   const routerList: Router[] = channelId ? network.routers[channelId] : network.routers.instance
 
   const dumps = await Promise.all(routerList.map(async (item) => await item.dump()))

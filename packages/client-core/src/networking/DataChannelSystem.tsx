@@ -31,7 +31,6 @@ import {
   DataChannelRegistryState,
   DataConsumerActions
 } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
-import { NetworkTransportState } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
 import { State, useHookstate } from '@hookstate/core'
@@ -71,6 +70,8 @@ export const consumerData = async (action: typeof DataConsumerActions.consumerCr
   dataConsumer.on('close', () => {
     dataConsumer.close()
   })
+
+  network.dataConsumers.set(action.dataChannel, dataConsumer)
 }
 
 const dataConsumerCreatedActionQueue = defineActionQueue(DataConsumerActions.consumerCreated.matches)
@@ -83,7 +84,6 @@ const execute = () => {
 
 export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
-  const transportState = useHookstate(getMutableState(NetworkTransportState)[networkID])
   const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
   const recvTransport = useHookstate(networkState.recvTransport)
   const sendTransport = useHookstate(networkState.sendTransport)
@@ -98,7 +98,7 @@ export const DataChannel = (props: { networkID: UserID; dataChannelType: DataCha
     return () => {
       // todo - cleanup
     }
-  }, [transportState, recvTransport, sendTransport])
+  }, [recvTransport, sendTransport])
 
   return null
 }
