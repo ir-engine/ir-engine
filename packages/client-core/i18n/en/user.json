@@ -357,6 +357,17 @@
     "enterThumbnailUrl": "Enter Thumbnail URL",
     "avatarName": "Avatar Name"
   },
+  "menu": {
+    "settings": "Settings",
+    "sendLocation": "Send Location",
+    "emote": "Emote",
+    "friends": "Friends",
+    "toggleMute": "Toggle Mute",
+    "toggleCamera": "Toggle Camera",
+    "screenCapture": "Screen Capture",
+    "shareScreen": "Share Screen",
+    "chat": "Chat"
+  },
   "personMenu": {
     "inviteToParty": "Invite To Party",
     "addAsFriend": "Add As Friend",

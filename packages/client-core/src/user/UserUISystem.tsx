@@ -30,7 +30,9 @@ import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 
+import { useTranslation } from 'react-i18next'
 import { InviteService } from '../social/services/InviteService'
+import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
@@ -38,7 +40,6 @@ import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import ReadyPlayerMenu from './components/UserMenu/menus/ReadyPlayerMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
 import ShareMenu from './components/UserMenu/menus/ShareMenu'
-import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 
 export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">
@@ -64,6 +65,7 @@ export const UserMenus = {
 }
 
 const reactor = () => {
+  const { t } = useTranslation()
   InviteService.useAPIListeners()
 
   useEffect(() => {
@@ -80,9 +82,9 @@ const reactor = () => {
     })
 
     popupMenuState.hotbar.merge({
-      [UserMenus.Profile]: FaceRetouchingNatural,
-      [UserMenus.Share]: Send,
-      [UserMenus.Emote]: EmoteIcon
+      [UserMenus.Profile]: { icon: <FaceRetouchingNatural />, tooltip: t('user:menu.Settings') },
+      [UserMenus.Share]: { icon: <Send />, tooltip: t('user:menu.sendLocation') },
+      [UserMenus.Emote]: { icon: <EmoteIcon />, tooltip: t('user:menu.emote') }
     })
 
     return () => {
