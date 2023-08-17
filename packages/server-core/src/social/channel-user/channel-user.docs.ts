@@ -26,21 +26,25 @@ Ethereal Engine. All Rights Reserved.
 /**
  * An object for swagger documentation configuration
  */
-export default {
-  definitions: {
-    'channel-user': {
-      type: 'object',
-      properties: {}
-    },
-    'channel-user_list': {
-      type: 'array',
-      items: { $ref: '#definitions/channel-user' }
-    }
+
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  channelUserDataSchema,
+  channelUserPatchSchema,
+  channelUserQuerySchema,
+  channelUserSchema
+} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    channelUserDataSchema,
+    channelUserPatchSchema,
+    channelUserQuerySchema,
+    channelUserSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Channel user service description',
+    securities: ['all']
   }
-}
+})
