@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -47,6 +46,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingState } from '../../recording/RecordingService'
 import { RecordingTimer, RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
@@ -56,6 +56,7 @@ import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
+  const { t } = useTranslation()
   const recordScopes = useUserHasAccessHook('record')
   const recordingState = useHookstate(getMutableState(RecordingState))
 
@@ -152,6 +153,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="UserAudio"
+          title={t('user:menu.toggleMute')}
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={toggleMicrophonePaused}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -168,6 +170,7 @@ export const MediaIconsBox = () => {
           <button
             type="button"
             id="UserVideo"
+            title={t('user:menu.toggleVideo')}
             className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
             onClick={toggleWebcamPaused}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -179,6 +182,7 @@ export const MediaIconsBox = () => {
             <button
               type="button"
               id="FlipVideo"
+              title={t('user:menu.cycleCamera')}
               className={styles.iconContainer}
               onClick={MediaStreamService.cycleCamera}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -190,6 +194,7 @@ export const MediaIconsBox = () => {
           <button
             type="button"
             id="UserPoseTracking"
+            title={t('user:menu.poseTracking')}
             className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
             onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -200,6 +205,7 @@ export const MediaIconsBox = () => {
           <button
             type="button"
             id="UserScreenSharing"
+            title={t('user:menu.shareScreen')}
             className={styles.iconContainer + ' ' + (isScreenVideoEnabled ? styles.on : '')}
             onClick={toggleScreenshare}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -213,6 +219,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="UserVR"
+          title={t('user:menu.enterVR')}
           className={styles.iconContainer + ' ' + (xrMode === 'immersive-vr' ? styles.on : '')}
           onClick={() => {
             xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-vr' })
@@ -227,6 +234,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="UserAR"
+          title={t('user:menu.enterAR')}
           className={styles.iconContainer + ' ' + (xrMode === 'immersive-ar' ? styles.on : '')}
           onClick={() => {
             xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-ar' })
@@ -241,6 +249,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="ExitSpectator"
+          title={t('user:menu.exitSpectate')}
           className={styles.iconContainer}
           onClick={handleExitSpectatorClick}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -255,6 +264,7 @@ export const MediaIconsBox = () => {
             <button
               type="button"
               id="Record"
+              title={t('user:menu.stopRecording')}
               style={{ color: 'red' }}
               className={styles.iconContainer}
               onClick={toggleRecording}
@@ -265,7 +275,13 @@ export const MediaIconsBox = () => {
               </div>
             </button>
           ) : (
-            <button type="button" id="Record" className={styles.iconContainer} onClick={toggleRecording}>
+            <button
+              type="button"
+              id="Record"
+              title={t('user:menu.startRecording')}
+              className={styles.iconContainer}
+              onClick={toggleRecording}
+            >
               <Icon type="CameraAlt" />
             </button>
           )}

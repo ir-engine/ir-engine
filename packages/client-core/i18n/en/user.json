@@ -363,10 +363,18 @@
     "emote": "Emote",
     "friends": "Friends",
     "toggleMute": "Toggle Mute",
-    "toggleCamera": "Toggle Camera",
-    "screenCapture": "Screen Capture",
+    "toggleVideo": "Toggle Video",
+    "cycleCamera": "Cycle Camera",
+    "poseTracking": "Pose Tracking",
     "shareScreen": "Share Screen",
-    "chat": "Chat"
+    "enterVR": "Enter VR",
+    "enterAR": "Enter AR",
+    "exitSpectate": "Exit Spectate",
+    "startRecording": "Start Recording",
+    "stopRecording": "Stop Recording",
+    "toggleChat": "Toggle Chat",
+    "enterFullScreen": "Enter FullScreen",
+    "exitFullScreen": "Exit FullScreen"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",

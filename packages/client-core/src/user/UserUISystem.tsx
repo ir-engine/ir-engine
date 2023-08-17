@@ -82,7 +82,7 @@ const reactor = () => {
     })
 
     popupMenuState.hotbar.merge({
-      [UserMenus.Profile]: { icon: <FaceRetouchingNatural />, tooltip: t('user:menu.Settings') },
+      [UserMenus.Profile]: { icon: <FaceRetouchingNatural />, tooltip: t('user:menu.settings') },
       [UserMenus.Share]: { icon: <Send />, tooltip: t('user:menu.sendLocation') },
       [UserMenus.Emote]: { icon: <EmoteIcon />, tooltip: t('user:menu.emote') }
     })
