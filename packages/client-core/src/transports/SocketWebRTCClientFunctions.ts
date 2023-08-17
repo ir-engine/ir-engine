@@ -328,6 +328,8 @@ function actionDataHandler(message) {
 }
 
 export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
+  if (network.authenticated) return
+
   logger.info('Authenticating instance: %o', { topic: network.topic, id: network.id })
 
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
@@ -337,11 +339,8 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   const inviteCode = getSearchParamFromURL('inviteCode')
   const payload = { accessToken, peerID: Engine.instance.peerID, inviteCode }
 
-  networkState.authenticated.set(false)
-
   const { status, routerRtpCapabilities, cachedActions } = await new Promise<AuthTask>((resolve) => {
     const onAuthentication = (response: AuthTask) => {
-      console.log(response)
       if (response.status !== 'pending') {
         clearInterval(interval)
         resolve(response)
@@ -370,7 +369,13 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
 
   networkState.authenticated.set(true)
 
+  // must be in an interval so that it runs outside of the animation frame loop
+  network.heartbeat = setInterval(() => {
+    network.transport.messageToPeer(network.hostPeerID, [])
+  }, 1000)
+
   async function commonDisconnectHandler() {
+    network.primus.removeListener('data', actionDataHandler)
     network.primus.removeListener('end', commonDisconnectHandler)
   }
 
@@ -427,9 +432,9 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   })
 
   function reconnectHandler() {
-    console.log('reconnectHandler')
     network.primus.off('reconnected', reconnectHandler)
     network.primus.removeListener('reconnected', reconnectHandler)
+    networkState.authenticated.set(false)
     authenticateNetwork(network)
   }
 
@@ -464,7 +469,7 @@ export async function createDataProducer(
     protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
   })
   dataProducer.on('transportclose', () => {
-    dataProducer?.close()
+    dataProducer.close()
   })
   network.dataProducers.set(dataChannelType, dataProducer)
 }
@@ -541,7 +546,6 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
       errback: (error: Error) => void
     ) => {
       const requestID = MathUtils.generateUUID()
-      console.log({ requestID })
       dispatchAction(
         NetworkTransportActions.requestTransportConnect({
           requestID,
@@ -573,7 +577,6 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
             addActionReceptor(onAction)
           }
         )
-        console.log({ transportConnected })
         callback()
       } catch (e) {
         logger.error('Transport connect error', e)

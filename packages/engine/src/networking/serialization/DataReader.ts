@@ -252,11 +252,10 @@ export const readDataPacket = (network: Network, packet: ArrayBuffer) => {
   const fromUserID = network.userIndexToUserID.get(userIndex)
   const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
   const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
-  if (!fromUserID || isLoopback) return console.warn('Invalid user index', userIndex, peerIndex, fromUserID, isLoopback)
+  if (!fromUserID || isLoopback) return
   network.jitterBufferTaskList.push({
     simulationTime,
     read: () => {
-      console.log('reading packet', packet.byteLength, fromUserID)
       readEntities(view, network, packet.byteLength, fromUserID)
     }
   })

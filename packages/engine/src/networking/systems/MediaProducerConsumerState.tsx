@@ -185,6 +185,7 @@ export const MediaProducerConsumerState = defineState({
         const peerCachedActions = cachedActions.filter(
           (cachedAction) =>
             (MediaProducerActions.producerCreated.matches.test(cachedAction) ||
+              MediaProducerActions.producerPaused.matches.test(cachedAction) ||
               MediaProducerActions.closeProducer.matches.test(cachedAction)) &&
             cachedAction.producerID === action.producerID
         )

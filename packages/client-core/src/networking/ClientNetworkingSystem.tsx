@@ -58,8 +58,6 @@ const consumerCreatedQueue = defineActionQueue(MediaConsumerActions.consumerCrea
 const transportCreatedActionQueue = defineActionQueue(NetworkTransportActions.transportCreated.matches)
 const updatePeersActionQueue = defineActionQueue(NetworkActions.updatePeers.matches)
 
-let lastHeartbeat = Date.now()
-
 const execute = () => {
   for (const action of consumerCreatedQueue()) receiveConsumerHandler(action)
   for (const action of transportCreatedActionQueue()) onTransportCreated(action)
@@ -73,15 +71,6 @@ const execute = () => {
       if (!action.peers.find((p) => p.peerID === peerID)) {
         NetworkPeerFunctions.destroyPeer(network, peerID)
       }
-  }
-
-  /** Send heartbeat as empty message */
-  const now = Date.now()
-  if (lastHeartbeat + 1000 < now) {
-    for (const network of Object.values(getState(NetworkState).networks)) {
-      network.transport.messageToPeer(network.hostPeerID, [])
-    }
-    lastHeartbeat = now
   }
 }
 

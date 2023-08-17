@@ -34,6 +34,7 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
@@ -70,6 +71,10 @@ function createPeer(
     const worldState = getMutableState(WorldState)
     worldState.userNames[userID].set(name)
   }
+
+  // reactively set
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers.set(network.peers)
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {
@@ -94,6 +99,10 @@ function destroyPeer(network: Network, peerID: PeerID) {
   const peerIndexInUserPeers = userPeers.indexOf(peerID)
   userPeers.splice(peerIndexInUserPeers, 1)
   if (!userPeers.length) network.users.delete(userID)
+
+  // reactively set
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers.set(network.peers)
 
   /**
    * if no other connections exist for this user, and this action is occurring on the world network,
