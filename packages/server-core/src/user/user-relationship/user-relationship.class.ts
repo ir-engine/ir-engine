@@ -145,18 +145,18 @@ export class UserRelationshipService<
 
     const { userRelationshipType } = data
 
-    let whereParams: UserRelationshipPatch
+    let queryParams: UserRelationshipPatch
 
     try {
       await this.app.service(userPath).get(id)
       //The ID resolves to a userId, in which case patch the relation joining that user to the requesting one
-      whereParams = {
+      queryParams = {
         userId: params.user!.id,
         relatedUserId: id as UserID
       }
     } catch (err) {
       //The ID does not resolve to a user, in which case it's the ID of the user-relationship object, so patch it
-      whereParams = {
+      queryParams = {
         id: id as UserRelationshipID
       }
     }
@@ -168,11 +168,11 @@ export class UserRelationshipService<
       .update({
         userRelationshipType: userRelationshipType
       })
-      .where(whereParams)
+      .where(queryParams)
 
     if (userRelationshipType === 'friend' || userRelationshipType === 'blocking') {
       const result = await super._find({
-        query: whereParams
+        query: queryParams
       })
 
       if (result.data.length > 0) {
@@ -191,7 +191,7 @@ export class UserRelationshipService<
     await trx.commit()
 
     const response = await super._find({
-      query: whereParams
+      query: queryParams
     })
 
     return response.data.length > 0 ? response.data[0] : undefined
