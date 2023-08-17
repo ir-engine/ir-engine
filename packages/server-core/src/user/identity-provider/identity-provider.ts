@@ -23,64 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
-
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import {
+  identityProviderMethods,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { Application } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
-import { IdentityProvider } from './identity-provider.class'
+import { IdentityProviderService } from './identity-provider.class'
 import identityProviderDocs from './identity-provider.docs'
 import hooks from './identity-provider.hooks'
-import createModel from './identity-provider.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'identity-provider': IdentityProvider
-    'generate-token': any
+    [identityProviderPath]: IdentityProviderService
   }
 }
 
-/**
- * Initialize our service with any options it requires and docs
- */
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: identityProviderPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new IdentityProvider(options, app)
-  event.docs = identityProviderDocs
-
-  app.use('identity-provider', event)
-
-  const service = app.service('identity-provider')
-
-  app.use('generate-token', {
-    create: async ({ type, token }, params): Promise<string | null> => {
-      const userId = params.user.id
-      if (!token || !type) throw new Error('Must pass service and identity-provider token to generate JWT')
-      const ipResult = (await app.service('identity-provider').find({
-        query: {
-          userId: userId,
-          type: type,
-          token: token
-        }
-      })) as Paginated<IdentityProviderInterface>
-      if (ipResult.total > 0) {
-        const ip = ipResult.data[0]
-        return app.service('authentication').createAccessToken({}, { subject: ip.id.toString() })
-      } else return null
-    }
+  app.use(identityProviderPath, new IdentityProviderService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: identityProviderMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: identityProviderDocs
   })
 
-  app.service('generate-token').hooks({
-    before: {
-      create: [authenticate()]
-    }
-  })
-
+  const service = app.service(identityProviderPath)
   service.hooks(hooks)
 }
