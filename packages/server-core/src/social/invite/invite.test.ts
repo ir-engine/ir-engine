@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -48,13 +50,12 @@ describe.skip('invite service', () => {
     // Create test user
     const type = 'password'
     const token = `${v1()}@etherealengine.io`
-    const password = 'test@123'
 
-    user = await app.service('identity-provider').create(
+    user = await app.service(identityProviderPath).create(
       {
         type,
         token,
-        password
+        userId: '' as UserID
       },
       {}
     )
@@ -62,7 +63,7 @@ describe.skip('invite service', () => {
 
   after(async () => {
     // Remove test user
-    await app.service('identity-provider').remove(null, {
+    await app.service(identityProviderPath)._remove(null, {
       query: {
         userId: user.userId
       }
