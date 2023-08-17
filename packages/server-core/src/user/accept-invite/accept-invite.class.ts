@@ -24,16 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import Paginated from '../../types/PageObject'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
@@ -132,23 +135,24 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.identityProviderType != null) {
-        const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
+        const inviteeIdentityProviderResult = (await this.app.service(identityProviderPath).find({
           query: {
             type: invite.identityProviderType,
             token: invite.token
           }
-        })
+        })) as Paginated<IdentityProviderType>
 
-        if ((inviteeIdentityProviderResult as any).total === 0) {
-          inviteeIdentityProvider = await this.app.service('identity-provider').create(
+        if (inviteeIdentityProviderResult.total === 0) {
+          inviteeIdentityProvider = await this.app.service(identityProviderPath).create(
             {
               type: invite.identityProviderType,
-              token: invite.token
+              token: invite.token,
+              userId: invite.userId
             },
             params
           )
         } else {
-          inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
+          inviteeIdentityProvider = inviteeIdentityProviderResult.data[0]
         }
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service(userPath).get(invite.inviteeId)
@@ -160,7 +164,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         inviteeIdentityProvider = invitee.identityProviders[0]
       }
 
-      if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
+      if (params[identityProviderPath] == null) params[identityProviderPath] = inviteeIdentityProvider
 
       if (invite.makeAdmin) {
         const existingAdminScope = await this.app.service('scope').find({
@@ -269,7 +273,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
       returned.token = await this.app
         .service('authentication')
-        .createAccessToken({}, { subject: params['identity-provider'].id.toString() })
+        .createAccessToken({}, { subject: params[identityProviderPath].id.toString() })
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         let instance =

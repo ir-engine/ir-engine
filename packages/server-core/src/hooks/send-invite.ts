@@ -27,9 +27,12 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
@@ -182,12 +185,12 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
         }
       }
 
-      const emailIdentityProviderResult = (await app.service('identity-provider').find({
+      const emailIdentityProviderResult = (await app.service(identityProviderPath).find({
         query: {
           userId: result.inviteeId,
           type: 'email'
         }
-      })) as Paginated<IdentityProviderInterface>
+      })) as Paginated<IdentityProviderType>
 
       if (emailIdentityProviderResult.total > 0) {
         await generateEmail(
@@ -199,12 +202,12 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
           targetObjectId
         )
       } else {
-        const SMSIdentityProviderResult = (await app.service('identity-provider').find({
+        const SMSIdentityProviderResult = (await app.service(identityProviderPath).find({
           query: {
             userId: result.inviteeId,
             type: 'sms'
           }
-        })) as Paginated<IdentityProviderInterface>
+        })) as Paginated<IdentityProviderType>
 
         if (SMSIdentityProviderResult.total > 0) {
           await generateSMS(

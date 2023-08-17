@@ -28,10 +28,11 @@ import Auth from './auth-management/auth-management.service'
 import Avatar from './avatar/avatar'
 import DiscordBotAuth from './discord-bot-auth/discord-bot-auth.service'
 import Email from './email/email.service'
+import GenerateToken from './generate-token/generate-token'
 import GithubRepoAccessRefresh from './github-repo-access-refresh/github-repo-access-refresh'
 import GithubRepoAccessWebhook from './github-repo-access-webhook/github-repo-access-webhook'
 import GithubRepoAccess from './github-repo-access/github-repo-access'
-import IdentityProvider from './identity-provider/identity-provider.service'
+import IdentityProvider from './identity-provider/identity-provider'
 import LoginToken from './login-token/login-token'
 import Login from './login/login.service'
 import MagicLink from './magic-link/magic-link.service'
@@ -62,5 +63,6 @@ export default [
   DiscordBotAuth,
   GithubRepoAccess,
   GithubRepoAccessRefresh,
-  GithubRepoAccessWebhook
+  GithubRepoAccessWebhook,
+  GenerateToken
 ]
