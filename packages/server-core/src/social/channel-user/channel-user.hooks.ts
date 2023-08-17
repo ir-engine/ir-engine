@@ -23,80 +23,102 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  channelUserDataValidator,
+  channelUserPatchValidator,
+  channelUserQueryValidator
+} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import { HookContext } from '@feathersjs/feathers'
+import {
+  channelUserDataResolver,
+  channelUserExternalResolver,
+  channelUserPatchResolver,
+  channelUserQueryResolver,
+  channelUserResolver
+} from './channel-user.resolvers'
+
+const createChannelJoinedMessage = async (context: HookContext) => {
+  const { app, result, params } = context
+  const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
+  await app.service('message').create(
+    {
+      channelId: result.channelId,
+      text: `${user.name} joined the channel`,
+      isNotification: true
+    },
+    {
+      'identity-provider': {
+        userId: result.userId
+      }
+    } as any
+  )
+  return context
+}
+
+const createChannelLeftMessage = async (context: HookContext) => {
+  const { app, params, result } = context
+  const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
+  await app.service('message').create({
+    channelId: result.channelId,
+    text: `${user.name} left the channel`,
+    isNotification: true
+  })
+  const channel = await app.service('channel').get(result.channelId)
+  if (channel.instanceId) return context
+  const channelUserCount = await app.service('channel-user').find({
+    query: {
+      channelId: result.channelId,
+      $limit: 0
+    }
+  })
+  if (channelUserCount.total < 1) {
+    await app.service('channel').remove(result.channelId)
+  }
+  return context
+}
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(channelUserExternalResolver), schemaHooks.resolveResult(channelUserResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(channelUserQueryValidator),
+      schemaHooks.resolveQuery(channelUserQueryResolver)
+    ],
     find: [],
     get: [disallow('external')],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(channelUserDataValidator),
+      schemaHooks.resolveData(channelUserDataResolver)
+    ],
     update: [disallow('external')],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(channelUserPatchValidator),
+      schemaHooks.resolveData(channelUserPatchResolver)
+    ],
     remove: [setLoggedInUser('userId')]
   },
 
   after: {
     all: [],
     find: [],
-    get: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context
-        result.user = await app.service(userPath).get(result.userId)
-        return context
-      }
-    ],
-    create: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, result, params } = context
-        const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
-        await app.service('message').create(
-          {
-            channelId: result.channelId,
-            text: `${user.name} joined the channel`,
-            isNotification: true
-          },
-          {
-            'identity-provider': {
-              userId: result.userId
-            }
-          } as any
-        )
-        return context
-      }
-    ],
+    get: [],
+    create: [createChannelJoinedMessage],
     update: [],
     patch: [],
-    remove: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, params, result } = context
-        const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
-        await app.service('message').create({
-          channelId: result.channelId,
-          text: `${user.name} left the channel`,
-          isNotification: true
-        })
-        const channel = await app.service('channel').get(result.channelId)
-        if (channel.instanceId) return context
-        const channelUserCount = await app.service('channel-user').find({
-          query: {
-            channelId: result.channelId,
-            $limit: 0
-          }
-        })
-        if (channelUserCount.total < 1) {
-          await app.service('channel').remove(result.channelId)
-        }
-        return context
-      }
-    ]
+    remove: [createChannelLeftMessage]
   },
 
   error: {
