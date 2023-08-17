@@ -23,27 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { generateTokenMethods, generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+import { Application } from '../../../declarations'
+import { GenerateTokenService } from './generate-token.class'
+import generateTokenDocs from './generate-token.docs'
+import hooks from './generate-token.hooks'
 
-export interface IdentityProviderInterface {
-  id: string
-  token: string
-  accountIdentifier: string
-  password: string
-  isVerified: string
-  verifyToken: string
-  verifyShortToken: string
-  verifyExpires: string
-  verifyChanges: string
-  resetToken: string
-  resetExpires: string
-  type: string
-  userId: UserID
-  oauthToken?: string
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [generateTokenPath]: GenerateTokenService
+  }
 }
 
-export interface LoginTokenInterface {
-  id: string
-  token: string
-  expiresAt: Date
+export default (app: Application): void => {
+  const options = {
+    name: generateTokenPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(generateTokenPath, new GenerateTokenService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: generateTokenMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: generateTokenDocs
+  })
+
+  const service = app.service(generateTokenPath)
+  service.hooks(hooks)
 }
