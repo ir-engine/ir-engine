@@ -82,9 +82,7 @@ export const SplineTrackComponent = defineComponent({
     useExecute(
       () => {
         const { isEditor, deltaSeconds } = getState(EngineState)
-
         if (isEditor) return
-
         if (!component.splineEntityUUID.value) return
         const splineTargetEntity = UUIDComponent.entitiesByUUID[component.splineEntityUUID.value]
         if (!splineTargetEntity) return
@@ -103,7 +101,6 @@ export const SplineTrackComponent = defineComponent({
         if (Math.floor(component.alpha.value) > elements.length - 1) {
           if (!component.loop.value) {
             //emit an event here?
-
             return
           }
           component.alpha.set(0)

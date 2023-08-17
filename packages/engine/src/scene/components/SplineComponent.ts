@@ -104,8 +104,8 @@ export const SplineComponent = defineComponent({
       if (elements.length > 0) {
         const first = elements[0].value
         const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 }))
+        setObjectLayers(sphere, ObjectLayers.NodeHelper)
         sphere.position.copy(first.position)
-        sphere.quaternion.copy(first.quaternion)
         sphere.updateMatrixWorld(true)
         line.add(sphere)
       }
@@ -113,8 +113,8 @@ export const SplineComponent = defineComponent({
       if (elements.length > 1) {
         const last = elements[elements.length - 1].value
         const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'red', opacity: 0.2 }))
+        setObjectLayers(sphere, ObjectLayers.NodeHelper)
         sphere.position.copy(last.position)
-        sphere.quaternion.copy(last.quaternion)
         sphere.updateMatrixWorld(true)
         line.add(sphere)
       }
@@ -151,7 +151,11 @@ export const SplineComponent = defineComponent({
         line.children.forEach((child) => line.remove(child))
         removeObjectFromGroup(entity, line)
       }
-    }, [elements])
+    }, [
+      elements.length,
+      // force a unique dep change upon any position or quaternion change
+      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.quaternion)})`).join('')
+    ])
 
     return null
   }

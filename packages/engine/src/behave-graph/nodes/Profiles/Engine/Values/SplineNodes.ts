@@ -69,7 +69,7 @@ type State = {
 const initialState = (): State => ({
   systemUUID: '' as SystemUUID
 })
-export const addSpline = makeAsyncNodeDefinition({
+export const addSplineTrack = makeAsyncNodeDefinition({
   typeName: 'engine/spline/addSplineTrack',
   category: NodeCategory.Action,
   label: 'Add spline track',
@@ -85,14 +85,15 @@ export const addSpline = makeAsyncNodeDefinition({
   },
   out: { flow: 'flow', trackEnd: 'flow', entity: 'entity' },
   initialState: initialState(),
-  triggered: ({ read, write, commit, graph: { getDependency } }) => {
-    const entity = read<Entity>('entity')
+  triggered: ({ read, write, commit, finished }) => {
+    const entity = Number(read('entity')) as Entity
     const splineUuid = read<EntityUUID>('splineUUID')
     const velocity = read<number>('velocity')
     const isLoop = read<boolean>('isLoop')
     const lockToXZPlane = read<boolean>('lockToXZPlane')
     const enableRotation = read<boolean>('enableRotation')
     const alpha = read<number>('reset') ? 0 : undefined
+
     setComponent(entity, SplineTrackComponent, {
       alpha: alpha,
       splineEntityUUID: splineUuid,
@@ -103,7 +104,6 @@ export const addSpline = makeAsyncNodeDefinition({
     })
 
     write('entity', entity)
-
     const systemUUID = defineSystem({
       uuid: 'behave-graph-spline-tracker-' + systemCounter++,
       execute: () => {
@@ -116,13 +116,15 @@ export const addSpline = makeAsyncNodeDefinition({
         if (!spline) return
         if (Math.floor(splineTrack.alpha) > spline!.elements.length - 1) {
           commit('trackEnd')
+          finished?.()
+          disableSystem(systemUUID)
+          return
         }
       }
     })
 
-    commit('flow', () => {
-      startSystem(systemUUID, { with: PresentationSystemGroup })
-    })
+    startSystem(systemUUID, { with: PresentationSystemGroup })
+    commit('flow')
     const state: State = {
       systemUUID
     }
@@ -130,7 +132,7 @@ export const addSpline = makeAsyncNodeDefinition({
     return state
   },
   dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
-    disableSystem(systemUUID)
+    if (systemUUID) disableSystem(systemUUID)
     return initialState()
   }
 })

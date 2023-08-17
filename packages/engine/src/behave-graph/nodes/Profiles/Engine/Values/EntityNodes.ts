@@ -58,7 +58,7 @@ export const getEntity = makeFunctionNodeDefinition({
   },
   out: { entity: 'entity' },
   exec: ({ read, write, graph }) => {
-    const entity = read<Entity>('entity')
+    const entity = read('entity')
     write('entity', entity)
   }
 })

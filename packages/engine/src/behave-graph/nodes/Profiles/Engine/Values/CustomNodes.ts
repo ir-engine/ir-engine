@@ -265,8 +265,8 @@ export const loadAsset = makeAsyncNodeDefinition({
     commit('flow', async () => {
       const entity = await loadAsset()
       write('entity', entity)
-      commit('loadDone', () => {
-        finished
+      commit('loadEnd', () => {
+        finished?.()
       })
     })
     return null
