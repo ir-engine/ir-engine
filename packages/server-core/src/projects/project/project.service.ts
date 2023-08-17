@@ -367,7 +367,6 @@ export default (app: Application): void => {
       })
       targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
 
-      //TODO: We should replace `as any as AdminScope[]` with `as AdminScope[]` once scope service is migrated to feathers 5.
       const adminScopes = (await app.service(scopePath).find({
         query: {
           type: 'admin:admin'

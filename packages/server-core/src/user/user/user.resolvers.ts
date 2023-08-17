@@ -84,13 +84,12 @@ export const userResolver = resolve<UserType, HookContext>({
     return identityProviders
   }),
   locationAdmins: virtual(async (user, context) => {
-    //TODO: We should replace `as any as LocationAdminType[]` with `as LocationAdminType[]` once location-admin service is migrated to feathers 5.
     const locationAdmins = (await context.app.service(locationAdminPath).find({
       query: {
         userId: user.id
       },
       paginate: false
-    })) as any as LocationAdminType[]
+    })) as LocationAdminType[]
     return locationAdmins
   }),
   locationBans: virtual(async (user, context) => {
@@ -103,13 +102,12 @@ export const userResolver = resolve<UserType, HookContext>({
     return locationBans
   }),
   scopes: virtual(async (user, context) => {
-    //TODO: We should replace `as any as ScopeType[]` with `as ScopeType[]` once scope service is migrated to feathers 5.
     const scopes = (await context.app.service(scopePath).find({
       query: {
         userId: user.id
       },
       paginate: false
-    })) as any as ScopeType[]
+    })) as ScopeType[]
     return scopes
   }),
   instanceAttendance: virtual(async (user, context) => {
