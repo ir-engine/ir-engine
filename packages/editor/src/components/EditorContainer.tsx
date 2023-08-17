@@ -503,9 +503,12 @@ const EditorContainer = () => {
   }
 
   const ViewportDnD = () => {
-    const [{ isDragging }, dropRef] = useDrop({
+    const [{ isDragging, isOver }, dropRef] = useDrop({
       accept: [ItemTypes.Prefab],
-      collect: (monitor) => ({ isDragging: monitor.getItem() !== null && monitor.canDrop() }),
+      collect: (monitor) => ({
+        isDragging: monitor.getItem() !== null && monitor.canDrop(),
+        isOver: monitor.isOver()
+      }),
       drop(item: SceneElementType, monitor) {
         const node = addSceneComponentElement(item)
         if (!node) return
@@ -526,21 +529,19 @@ const EditorContainer = () => {
         id="viewport-panel"
         ref={dropRef}
         style={{
-          pointerEvents: isDragging ? 'auto' : 'none',
-          border: isDragging ? '5px solid white' : 'none',
-          position: 'fixed',
-          inset: '0px'
+          pointerEvents: isDragging ? 'all' : 'none',
+          border: isDragging && isOver ? '5px solid white' : 'none',
+          width: '100%',
+          height: '100%'
         }}
       />
     )
   }
 
   const ViewPortPanelContent = () => {
-    const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded.value
+    const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
     return sceneLoaded ? (
-      <DndWrapper id="viewport-panel">
-        <ViewportDnD />
-      </DndWrapper>
+      <ViewportDnD />
     ) : (
       <div className={styles.bgImageBlock}>
         <img src="/static/etherealengine.png" alt="" />
