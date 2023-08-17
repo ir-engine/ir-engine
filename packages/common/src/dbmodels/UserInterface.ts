@@ -89,6 +89,22 @@ export interface LocationAdminInterface {
   id: string
 }
 
+export interface IdentityProviderInterface {
+  id: string
+  token: string
+  accountIdentifier: string
+  password: string
+  isVerified: string
+  verifyToken: string
+  verifyShortToken: string
+  verifyExpires: string
+  verifyChanges: string
+  resetToken: string
+  resetExpires: string
+  type: string
+  userId: UserID
+  oauthToken?: string
+}
 export interface UserKick {
   id: string
   duration: Date

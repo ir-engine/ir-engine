@@ -32,6 +32,10 @@ import {
   ProjectPermissionType,
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
@@ -66,20 +70,22 @@ export default (writeAccess) => {
         $limit: 1
       }
     })) as Paginated<ProjectPermissionType>
-    if (projectPermissionResult.data.length === 0) {
-      const githubIdentityProvider = await (app.service('identity-provider') as any).Model.findOne({
-        where: {
+    if (projectPermissionResult == null) {
+      const githubIdentityProvider = (await app.service(identityProviderPath).find({
+        query: {
           userId: params.user.id,
-          type: 'github'
+          type: 'github',
+          $limit: 1
         }
-      })
-      if (!githubIdentityProvider) throw new Forbidden('You are not authorized to access this project')
+      })) as Paginated<IdentityProviderType>
+
+      if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(projectRepoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid project URL')
       const split = githubPathRegexExec[2].split('/')
       const owner = split[0]
       const repo = split[1].replace('.git', '')
-      const userRepoWriteStatus = await checkUserRepoWriteStatus(owner, repo, githubIdentityProvider.oauthToken)
+      const userRepoWriteStatus = await checkUserRepoWriteStatus(owner, repo, githubIdentityProvider.data[0].oauthToken)
       if (userRepoWriteStatus !== 200) throw new Forbidden('You are not authorized to access this project')
     }
 
