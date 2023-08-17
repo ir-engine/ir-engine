@@ -152,10 +152,10 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
 
   /** @todo - if adding variants that already exist, we only return the first one */
   const existingResource = (await app.service(staticResourcePath).find({
-    query: query
-  })) as Paginated<StaticResourceType> | null
+    query
+  })) as Paginated<StaticResourceType>
 
-  if (existingResource && existingResource.data.length > 0) return existingResource.data[0]
+  if (existingResource.data.length > 0) return existingResource.data[0]
 
   const key = args.path ?? `/temp/${hash}`
   return await addAssetAsStaticResource(app, args.file, {
@@ -233,7 +233,7 @@ export const addAssetAsStaticResource = async (
   } as any
   if (args.project) query.project = args.project
   const existingAsset = (await app.service(staticResourcePath).find({
-    query: query
+    query
   })) as Paginated<StaticResourceType>
 
   const stats = await getStats(file.buffer, file.mimetype)
