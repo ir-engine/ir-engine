@@ -77,5 +77,9 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable(staticResourcePath)
+  const tableExists = await knex.schema.hasTable(staticResourcePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(staticResourcePath)
+  }
 }
