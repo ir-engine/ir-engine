@@ -96,3 +96,11 @@ export interface UserSetting {
   id: string
   themeModes: string
 }
+
+export interface ScopeInterface {
+  id: string
+}
+
+export interface ScopeTypeInterface {
+  type: string
+}
