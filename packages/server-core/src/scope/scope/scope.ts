@@ -23,30 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { scopeMethods, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+
 import { Application } from '../../../declarations'
-import { Scope } from './scope.class'
+import { ScopeService } from './scope.class'
 import scopeDocs from './scope.docs'
 import hooks from './scope.hooks'
-import createModel from './scope.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    scope: Scope
+    [scopePath]: ScopeService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: scopePath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new Scope(options, app)
-  event.docs = scopeDocs
-  app.use('scope', event)
+  app.use(scopePath, new ScopeService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: scopeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: scopeDocs
+  })
 
-  const service = app.service('scope')
-
+  const service = app.service(scopePath)
   service.hooks(hooks)
 }
