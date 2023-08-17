@@ -30,7 +30,6 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -54,6 +53,10 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import {
+  identityProviderPath,
+  IdentityProviderType
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userKickPath, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
@@ -546,7 +549,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     { accessToken: connection.socketQuery.token },
     {}
   )
-  const identityProvider = authResult['identity-provider'] as IdentityProviderInterface
+  const identityProvider = authResult[identityProviderPath] as IdentityProviderType
   if (!identityProvider?.id) return
 
   const userId = identityProvider.userId
@@ -647,16 +650,16 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   } catch (err) {
     if (err.code === 401 && err.data.name === 'TokenExpiredError') {
       const jwtDecoded = decode(token)!
-      const idProvider = await app.service('identity-provider').get(jwtDecoded.sub as string)
+      const idProvider = await app.service(identityProviderPath)._get(jwtDecoded.sub as string)
       authResult = {
-        'identity-provider': idProvider
+        [identityProviderPath]: idProvider
       }
     } else throw err
   }
 
   const instanceServerState = getState(InstanceServerState)
 
-  const identityProvider = authResult['identity-provider'] as IdentityProviderInterface
+  const identityProvider = authResult[identityProviderPath] as IdentityProviderType
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
     const user = await app.service(userPath).get(userId)
