@@ -23,39 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import type { Knex } from 'knex'
-
-import { githubRepoAccessPath } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'identity_provider'
+
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(githubRepoAccessPath)
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(identityProviderPath)
+
+  if (oldNamedTableExists) {
+    // In case sequelize creates the new table before we migrate the old table
+    if (tableExists) await trx.schema.dropTable(identityProviderPath)
+    await trx.schema.renameTable(oldTableName, identityProviderPath)
+  }
+
+  tableExists = await trx.schema.hasTable(identityProviderPath)
 
   if (tableExists === false) {
-    await knex.schema.createTable(githubRepoAccessPath, (table) => {
+    await trx.schema.createTable(identityProviderPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
-      table.string('repo', 255).notNullable()
-      table.boolean('hasWriteAccess').nullable()
       //@ts-ignore
-      table.uuid('identityProviderId').collate('utf8mb4_bin').nullable().index()
+      table.uuid('token', 255).collate('utf8mb4_bin').defaultTo(null).unique()
+      table.string('accountIdentifier', 255).defaultTo(null)
+      table.string('oauthToken', 255).defaultTo(null)
+      table.string('type', 255).notNullable()
+      //@ts-ignore
+      table.uuid('userId').collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table
-        .foreign('identityProviderId')
-        .references('id')
-        .inTable('identity-provider')
-        .onDelete('CASCADE')
-        .onUpdate('CASCADE')
+      // unique combinations
+      table.unique(['userId', 'token'], { indexName: 'identity_provider_user_id_token' })
+      table.unique(['userId', 'type'], { indexName: 'identity_provider_user_id_type' })
+
+      table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
     })
   }
 
@@ -68,9 +80,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(githubRepoAccessPath)
+  const tableExists = await knex.schema.hasTable(identityProviderPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(githubRepoAccessPath)
+    await knex.schema.dropTable(identityProviderPath)
   }
 }
