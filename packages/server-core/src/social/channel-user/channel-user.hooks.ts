@@ -27,8 +27,10 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  ChannelUserType,
   channelUserDataValidator,
   channelUserPatchValidator,
+  channelUserPath,
   channelUserQueryValidator
 } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import authenticate from '../../hooks/authenticate'
@@ -73,13 +75,14 @@ const createChannelLeftMessage = async (context: HookContext) => {
   })
   const channel = await app.service('channel').get(result.channelId)
   if (channel.instanceId) return context
-  const channelUserCount = await app.service('channel-user').find({
+  const channelUserCount = (await app.service(channelUserPath).find({
     query: {
-      channelId: result.channelId,
-      $limit: 0
-    }
-  })
-  if (channelUserCount.total < 1) {
+      channelId: result.channelId
+    },
+    paginate: false
+  })) as ChannelUserType[]
+
+  if (channelUserCount.length === 0) {
     await app.service('channel').remove(result.channelId)
   }
   return context

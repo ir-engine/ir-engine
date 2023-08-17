@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ChannelUser from './channel-user/channel-user.service'
+import ChannelUser from './channel-user/channel-user'
 import Channel from './channel/channel.service'
 import InviteCodeLookup from './invite-code-lookup/invite-code-lookup'
 import InviteType from './invite-type/invite-type'

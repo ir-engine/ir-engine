@@ -28,10 +28,11 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Op } from 'sequelize'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
-import { ChannelUser } from '../channel-user/channel-user.class'
 
 /**
  *  Don't remove this comment. It's needed to format import lines nicely.
@@ -60,14 +61,15 @@ export default {
         if (!channelID) return context
 
         const loggedInUser = context.params!.user
-        const channelUser = (await context.app.service('channel-user').Model.findOne({
+        const channelUser = (await context.app.service(channelUserPath).find({
           query: {
             channelId: channelID,
-            userId: loggedInUser.id
+            userId: loggedInUser.id,
+            $limit: 1
           }
-        })) as ChannelUser
+        })) as Paginated<ChannelUserType>
 
-        if (!channelUser) throw new Error('Must be member of channel!')
+        if (channelUser.data.length === 0) throw new Error('Must be member of channel!')
 
         return context
       }),

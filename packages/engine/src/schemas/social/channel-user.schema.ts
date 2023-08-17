@@ -52,7 +52,7 @@ export const channelUserSchema = Type.Object(
 export type ChannelUserType = Static<typeof channelUserSchema>
 
 // Schema for creating new entries
-export const channelUserDataSchema = Type.Pick(channelUserSchema, ['id', 'userId', 'channelId'], {
+export const channelUserDataSchema = Type.Partial(channelUserSchema, {
   $id: 'ChannelUserData'
 })
 export type ChannelUserData = Static<typeof channelUserDataSchema>

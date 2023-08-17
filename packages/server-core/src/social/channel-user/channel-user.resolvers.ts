@@ -34,7 +34,7 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const channelUserResolver = resolve<ChannelUserType, HookContext>({
   user: virtual(async (channelUser, context) => {
-    const user = await context.app.service(userPath).get(channelUser.userId)
+    const user = await context.app.service(userPath)._get(channelUser.userId)
     return user
   })
 })

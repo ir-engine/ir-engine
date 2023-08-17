@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { Message } from './message.class'
@@ -42,13 +43,14 @@ export const onCRUD =
   (app: Application) =>
   async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service(userPath).get(data.senderId)
-    const channelUsers = await app.service('channel-user').find({
+    const channelUsers = (await app.service(channelUserPath).find({
       query: {
         channelId: data.channelId
-      }
-    })
+      },
+      paginate: false
+    })) as ChannelUserType[]
 
-    const userIds = (channelUsers as any).data.map((channelUser) => {
+    const userIds = channelUsers.map((channelUser) => {
       return channelUser.userId
     })
 
