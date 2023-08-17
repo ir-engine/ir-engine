@@ -54,12 +54,12 @@ export const SidebarItems = (allowedRoutes) => [
     icon: <Icon type="NearMe" style={{ color: 'white' }} />
   },
   allowedRoutes.instance && {
-    name: 'user:dashboard.instance',
+    name: 'user:dashboard.instances',
     path: '/admin/instance',
     icon: <Icon type="DirectionsRun" style={{ color: 'white' }} />
   },
   allowedRoutes.channel && {
-    name: 'user:dashboard.channel',
+    name: 'user:dashboard.channels',
     path: '/admin/channel',
     icon: <Icon type="CalendarViewDay" style={{ color: 'white' }} />
   },

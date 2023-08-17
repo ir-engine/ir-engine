@@ -280,7 +280,7 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "feeds": "Feeds",
-    "instance": "Instance",
+    "instances": "Instances",
     "locations": "Locations",
     "routes": "Routes",
     "projects": "Projects",
@@ -297,7 +297,8 @@
     "bots": "Bots",
     "setting": "Settings",
     "server": "Server",
-    "recordings": "Recordings"
+    "recordings": "Recordings",
+    "channels": "Channels"
   },
   "resource": {
     "createResource": "Create Resource"
