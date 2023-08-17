@@ -444,6 +444,19 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   logger.info('Successfully connected to instance type: %o', { topic: network.topic, hostId: network.hostId })
 }
 
+export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
+  const promise = new Promise<void>((resolve) => {
+    const interval = setInterval(() => {
+      if (network.ready) {
+        clearInterval(interval)
+        resolve()
+        return
+      }
+    }, 100)
+  })
+  return promise
+}
+
 /**
  *
  * @param network
@@ -459,7 +472,8 @@ export async function createDataProducer(
 ): Promise<void> {
   console.log('createDataProducer', dataChannelType, network)
   if (network.dataProducers.has(dataChannelType)) return
-  const sendTransport = network.sendTransport
+  await waitForTransports(network)
+  const sendTransport = network.sendTransport!
   const dataProducer = await sendTransport.produceData({
     appData: { data: customInitInfo },
     ordered: false,
@@ -785,17 +799,9 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
   const channelId = currentChannelInstanceConnection.channelId
   const mediaStreamState = getMutableState(MediaStreamState)
   if (mediaStreamState.videoStream.value !== null) {
-    if (network.sendTransport == null) {
-      await new Promise((resolve) => {
-        const waitForTransportReadyInterval = setInterval(() => {
-          if (network.sendTransport) {
-            clearInterval(waitForTransportReadyInterval)
-            resolve(true)
-          }
-        }, 100)
-      })
-    }
-    const transport = network.sendTransport
+    await waitForTransports(network)
+    const transport = network.sendTransport!
+
     try {
       let produceInProgress = false
       await new Promise((resolve) => {
@@ -849,18 +855,9 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
     mediaStreamState.audioStream.value.addTrack(dst.stream.getAudioTracks()[0])
     // same thing for audio, but we can use our already-created
 
-    if (network.sendTransport == null) {
-      await new Promise((resolve) => {
-        const waitForTransportReadyInterval = setInterval(() => {
-          if (network.sendTransport) {
-            clearInterval(waitForTransportReadyInterval)
-            resolve(true)
-          }
-        }, 100)
-      })
-    }
+    await waitForTransports(network)
+    const transport = network.sendTransport!
 
-    const transport = network.sendTransport
     try {
       // Create a new transport for audio and start producing
       let produceInProgress = false
@@ -974,11 +971,13 @@ export async function subscribeToTrack(
 }
 
 export const receiveConsumerHandler = async (action: typeof MediaConsumerActions.consumerCreated.matches._TYPE) => {
-  const network = getState(NetworkState).networks[action.$network]
+  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
   const { peerID, mediaTag, channelID, paused } = action
 
-  const consumer = (await network.recvTransport.consume({
+  await waitForTransports(network)
+
+  const consumer = (await network.recvTransport!.consume({
     id: action.consumerID,
     producerId: action.producerID,
     rtpParameters: action.rtpParameters as any,
@@ -1258,9 +1257,12 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
   const channelId = currentChannelInstanceConnection.channelId
 
+  await waitForTransports(network)
+  const transport = network.sendTransport!
+
   // create a producer for video
   mediaStreamState.screenVideoProducer.set(
-    (await network.sendTransport.produce({
+    (await transport.produce({
       track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
       encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
       codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
@@ -1276,7 +1278,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   // create a producer for audio, if we have it
   if (mediaStreamState.localScreen.value!.getAudioTracks().length) {
     mediaStreamState.screenAudioProducer.set(
-      (await network.sendTransport.produce({
+      (await transport.produce({
         track: mediaStreamState.localScreen.value!.getAudioTracks()[0],
         appData: { mediaTag: screenshareAudioDataChannelType, channelId }
       })) as any as ProducerExtension
