@@ -23,61 +23,55 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Id, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
-
-import {
-  IdentityProviderData,
-  IdentityProviderPatch,
-  IdentityProviderQuery,
-  IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Paginated } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { random } from 'lodash'
 import { v1 as uuidv1 } from 'uuid'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-
-import { RootParams } from '../../api/root-params'
+import { UserParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
-export interface IdentityProviderParams extends RootParams<IdentityProviderQuery> {
-  authentication?: any
+interface IdentityProviderParams extends UserParams {
+  bot?: boolean
 }
 
 /**
- * A class for IdentityProvider service
+ * A class for identity-provider service
  */
+export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> {
+  public app: Application
+  public docs: any
 
-export class IdentityProviderService<
-  T = IdentityProviderType,
-  ServiceParams extends Params = IdentityProviderParams
-> extends KnexAdapter<IdentityProviderType, IdentityProviderData, IdentityProviderParams, IdentityProviderPatch> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
+  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
   }
 
-  async create(data: IdentityProviderData, params?: IdentityProviderParams) {
-    if (!params) params = {}
-    let { token, type } = data
+  /**
+   * A method used to create accessToken
+   *
+   * @param data which contains token and type
+   * @param params
+   * @returns accessToken
+   */
+  async create(data: any, params: IdentityProviderParams = {}): Promise<T & { accessToken?: string }> {
+    let { token, type, password } = data
     let user
     let authResult
 
-    if (params?.authentication) {
+    if (params.authentication) {
       authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-        { accessToken: params?.authentication.accessToken },
+        { accessToken: params.authentication.accessToken },
         {}
       )
       if (authResult[appConfig.authentication.entity]?.userId) {
@@ -86,83 +80,73 @@ export class IdentityProviderService<
     }
     if (
       (!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) &&
-      params?.provider &&
+      params.provider &&
       type !== 'password' &&
       type !== 'email' &&
       type !== 'sms'
     )
       type = 'guest' //Non-password/magiclink create requests must always be for guests
-
     let userId = data.userId || (authResult ? authResult[appConfig.authentication.entity]?.userId : null)
-    let identityProvider: IdentityProviderData = { ...data }
+    let identityProvider: any
 
     switch (type) {
       case 'email':
         identityProvider = {
-          ...identityProvider,
           token,
           type
         }
         break
       case 'sms':
         identityProvider = {
-          ...identityProvider,
           token,
           type
         }
         break
       case 'password':
         identityProvider = {
-          ...identityProvider,
           token,
+          password,
           type
         }
         break
       case 'github':
         identityProvider = {
-          ...identityProvider,
           token: token,
           type
         }
         break
       case 'facebook':
         identityProvider = {
-          ...identityProvider,
           token: token,
           type
         }
         break
       case 'google':
         identityProvider = {
-          ...identityProvider,
           token: token,
           type
         }
         break
       case 'twitter':
         identityProvider = {
-          ...identityProvider,
           token: token,
           type
         }
         break
       case 'linkedin':
         identityProvider = {
-          ...identityProvider,
           token: token,
           type
         }
         break
       case 'discord':
         identityProvider = {
-          ...identityProvider,
           token: token,
           type
         }
         break
       case 'guest':
         identityProvider = {
-          ...identityProvider,
           token: token,
           type: type
         }
@@ -188,13 +172,14 @@ export class IdentityProviderService<
 
     if (foundUser != null) {
       // if there is the user with userId, then we add the identity provider to the user
-      return await super._create(
+      return (await super.create(
         {
+          ...data,
           ...identityProvider,
           userId
         },
         params
-      )
+      )) as T & { accessToken?: string }
     }
 
     const code = await getFreeInviteCode(this.app)
@@ -209,7 +194,7 @@ export class IdentityProviderService<
       .service(avatarPath)
       .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarType>
 
-    const isGuest = type === 'guest'
+    let isGuest = type === 'guest'
 
     if (adminCount.data.length === 0) {
       // in dev mode make the first guest an admin
@@ -219,19 +204,19 @@ export class IdentityProviderService<
       }
     }
 
-    let result: IdentityProviderType
+    let result
     try {
-      const newUser = (await this.app.service(userPath).create({
+      await this.app.service(userPath).create({
         id: userId,
         isGuest,
         inviteCode: type === 'guest' ? '' : code,
         avatarId: avatars.data[random(avatars.data.length - 1)].id
-      })) as UserType
-
-      result = await super._create(
+      })
+      result = await super.create(
         {
+          ...data,
           ...identityProvider,
-          userId: newUser.id
+          userId
         },
         params
       )
@@ -268,24 +253,17 @@ export class IdentityProviderService<
         .createAccessToken({}, { subject: result.id.toString() })
     }
 
+    // TODO: Move this to hooks once move to feathers 5.
+    if (result.userId) {
+      result.user = await this.app.service(userPath)._get(result.userId)
+    }
+
     return result
   }
 
-  async find(params?: IdentityProviderParams) {
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     const loggedInUser = params!.user as UserType
     if (params!.provider) params!.query!.userId = loggedInUser.id
-    return super._find(params)
-  }
-
-  async get(id: Id, params?: IdentityProviderParams) {
-    return super._get(id, params)
-  }
-
-  async patch(id: Id, data: IdentityProviderData, params?: IdentityProviderParams) {
-    return super._patch(id, data, params)
-  }
-
-  async remove(id: Id, params?: IdentityProviderParams) {
-    return super._remove(id, params)
+    return super.find(params)
   }
 }

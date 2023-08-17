@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import Paginated from '../../types/PageObject'
 import makeInitialAdmin from '../../util/make-initial-admin'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -88,7 +88,7 @@ export class Login implements ServiceMethods<Data> {
         logger.info('Login Token has expired')
         return { error: 'Login link has expired' }
       }
-      const identityProvider = await this.app.service(identityProviderPath)._get(result.data[0].identityProviderId)
+      const identityProvider = await this.app.service('identity-provider').get(result.data[0].identityProviderId)
       await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {

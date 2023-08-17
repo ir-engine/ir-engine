@@ -29,11 +29,8 @@ import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -56,11 +53,11 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
           if (item.inviteeId != null) {
             item.invitee = await app.service(userPath).get(item.inviteeId)
           } else if (item.token) {
-            const identityProvider = (await app.service(identityProviderPath).find({
+            const identityProvider = (await app.service('identity-provider').find({
               query: {
                 token: item.token
               }
-            })) as Paginated<IdentityProviderType>
+            })) as Paginated<IdentityProviderInterface>
             if (identityProvider.data.length > 0) {
               item.invitee = await app.service(userPath).get(identityProvider.data[0].userId)
             }
@@ -78,12 +75,12 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
 }
 
 export const inviteReceived = async (inviteService: Invite, query) => {
-  const identityProviders = (await inviteService.app.service(identityProviderPath).find({
+  const identityProviders = await inviteService.app.service('identity-provider').find({
     query: {
       userId: query.userId
     }
-  })) as Paginated<IdentityProviderType>
-  const identityProviderTokens = identityProviders.data.map((provider) => provider.token)
+  })
+  const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
 
   const { $sort, search } = query
 

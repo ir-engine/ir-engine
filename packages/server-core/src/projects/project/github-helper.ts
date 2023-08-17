@@ -38,12 +38,7 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
@@ -126,7 +121,7 @@ export const checkAppOrgStatus = async (organization, token) => {
   return orgs.find((org) => org.login.toLowerCase() === organization.toLowerCase())
 }
 
-export const getUserRepos = async (token?: string): Promise<any[]> => {
+export const getUserRepos = async (token: string): Promise<any[]> => {
   let page = 1
   let end = false
   let repos = []
@@ -196,25 +191,29 @@ export const pushProjectToGithub = async (
       })
     )
     const repoPath = project.repositoryPath.toLowerCase()
-
-    const githubIdentityProvider = (await app.service(identityProviderPath).find({
-      query: {
+    const githubIdentityProvider = await app.service('identity-provider').Model.findOne({
+      where: {
         userId: user.id,
-        type: 'github',
-        $limit: 1
+        type: 'github'
       }
-    })) as Paginated<IdentityProviderType>
-
+    })
     const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
     const split = githubPathRegexExec[2].split('/')
     const owner = split[0]
     const repo = split[1].replace('.git', '')
+    const repos = await getUserRepos(githubIdentityProvider.oauthToken)
 
-    if (githubIdentityProvider.data.length === 0)
-      throw new Forbidden('You must log out and log back in with Github to refresh the token, and then try again.')
-
-    const octoKit = new Octokit({ auth: githubIdentityProvider.data[0].oauthToken })
+    const octoKit = githubIdentityProvider
+      ? new Octokit({ auth: githubIdentityProvider.oauthToken })
+      : await (async () => {
+          return getInstallationOctokit(
+            repos.find((repo) => {
+              repo.repositoryPath = repo.repositoryPath.toLowerCase()
+              return repo.repositoryPath === repoPath || repo.repositoryPath === repoPath + '.git'
+            })
+          )
+        })()
     if (!octoKit) return
     try {
       await octoKit.rest.repos.get({
@@ -377,24 +376,20 @@ export const getGithubOwnerRepo = (url: string) => {
 
 export const getOctokitForChecking = async (app: Application, url: string, params: ProjectParams) => {
   url = url.toLowerCase()
-
-  const githubIdentityProvider = (await app.service(identityProviderPath).find({
-    query: {
+  const githubIdentityProvider = await app.service('identity-provider').Model.findOne({
+    where: {
       userId: params!.user.id,
-      type: 'github',
-      $limit: 1
+      type: 'github'
     }
-  })) as Paginated<IdentityProviderType>
-
-  if (githubIdentityProvider.data.length === 0)
-    throw new Forbidden('You must have a connected GitHub account to access public repos')
+  })
+  if (!githubIdentityProvider) throw new Forbidden('You must have a connected GitHub account to access public repos')
   const { owner, repo } = getGithubOwnerRepo(url)
-  const octoKit = new Octokit({ auth: githubIdentityProvider.data[0].oauthToken })
+  const octoKit = new Octokit({ auth: githubIdentityProvider.oauthToken })
   return {
     owner,
     repo,
     octoKit,
-    token: githubIdentityProvider.data[0].oauthToken
+    token: githubIdentityProvider.oauthToken
   }
 }
 

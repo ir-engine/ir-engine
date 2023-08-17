@@ -28,12 +28,9 @@ import { Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import { SequelizeServiceOptions } from 'feathers-sequelize/types'
 import fetch from 'node-fetch'
 
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
@@ -58,20 +55,24 @@ export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
       const resData = JSON.parse(Buffer.from(await authResponse.arrayBuffer()).toString())
       if (!resData?.bot) throw new Error('The authenticated Discord user is not a bot')
       const token = `discord:::${resData.id}`
-      const ipResult = (await this.app.service(identityProviderPath).find({
+      const ipResult = (await this.app.service('identity-provider').find({
         query: {
           token: token,
           type: 'discord'
         }
-      })) as Paginated<IdentityProviderType>
+      })) as Paginated<IdentityProviderInterface>
       if (ipResult.total > 0) {
         return this.app.service(userPath).get(ipResult.data[0].userId)
       } else {
-        const ipCreation = await this.app.service(identityProviderPath).create({
-          token: token,
-          type: 'discord',
-          userId: '' as UserID
-        })
+        const ipCreation = await this.app.service('identity-provider').create(
+          {
+            token: token,
+            type: 'discord'
+          },
+          {
+            bot: true
+          }
+        )
         return this.app.service(userPath).get(ipCreation.userId)
       }
     } catch (err) {

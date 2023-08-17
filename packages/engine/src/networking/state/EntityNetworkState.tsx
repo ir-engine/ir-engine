@@ -82,18 +82,6 @@ export const EntityNetworkState = defineState({
     [
       WorldNetworkAction.destroyObject,
       (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
-        // removed spawn/destroy cached actions for this entity
-        const cachedActions = Engine.instance.store.actions.cached
-        const peerCachedActions = cachedActions.filter(
-          (cachedAction) =>
-            (WorldNetworkAction.spawnObject.matches.test(cachedAction) ||
-              WorldNetworkAction.destroyObject.matches.test(cachedAction)) &&
-            cachedAction.entityUUID === action.entityUUID
-        )
-        for (const cachedAction of peerCachedActions) {
-          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
-        }
-
         state[action.entityUUID].set(none)
         const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
         if (!entity) return

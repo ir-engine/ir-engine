@@ -31,10 +31,6 @@ import crypto from 'crypto'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotAuthenticated } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
@@ -78,17 +74,14 @@ export class GithubRepoAccessWebhookService<
         ? blocked_user.login
         : null
       if (!ghUser) return ''
-
-      const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
-        query: {
+      const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
+        where: {
           type: 'github',
-          accountIdentifier: ghUser,
-          $limit: 1
+          accountIdentifier: ghUser
         }
-      })) as Paginated<IdentityProviderType>
-
-      if (githubIdentityProvider.data.length === 0) return ''
-      const user = await this.app.service(userPath).get(githubIdentityProvider.data[0].userId)
+      })
+      if (!githubIdentityProvider) return ''
+      const user = await this.app.service(userPath).get(githubIdentityProvider.userId)
       // GitHub's API doesn't always reflect changes to user repo permissions right when a webhook is sent.
       // 10 seconds should be more than enough time for the changes to propagate.
       setTimeout(() => {

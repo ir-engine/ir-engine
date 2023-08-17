@@ -29,7 +29,6 @@ import { random } from 'lodash'
 
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -46,20 +45,19 @@ export class FacebookStrategy extends CustomOAuthStrategy {
 
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
-    const authResult = entity
-      ? entity
-      : await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-          { accessToken: params?.authentication?.accessToken },
-          {}
-        )
-    const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
+    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+      { accessToken: params?.authentication?.accessToken },
+      {}
+    )
+    const identityProvider = authResult['identity-provider']
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
     return {
       ...baseData,
-      accountIdentifier: profile.name,
+      email: profile.email,
       type: 'facebook',
-      userId
+      userId,
+      accountIdentifier: profile.name
     }
   }
 
@@ -79,11 +77,11 @@ export class FacebookStrategy extends CustomOAuthStrategy {
         scopes: []
       })
       entity.userId = newUser.id
-      await this.app.service(identityProviderPath)._patch(entity.id, {
+      await this.app.service('identity-provider').patch(entity.id, {
         userId: newUser.id
       })
     }
-    const identityProvider = authResult[identityProviderPath]
+    const identityProvider = authResult['identity-provider']
     const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
@@ -100,7 +98,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      await this.app.service(identityProviderPath)._remove(identityProvider.id)
+      await this.app.service('identity-provider').remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
       return super.updateEntity(entity, profile, params)
     }
@@ -108,7 +106,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
     if (!existingEntity) {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
+      if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) return existingEntity
     else {

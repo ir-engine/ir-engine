@@ -29,12 +29,9 @@ import { KnexAdapter } from '@feathersjs/knex'
 
 import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { Op } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
@@ -72,14 +69,14 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
     const { search } = params.query || {}
 
     if (search) {
-      const searchedIdentityProviders = (await this.app.service(identityProviderPath).find({
-        query: {
+      const searchedIdentityProviders = await this.app.service('identity-provider').Model.findAll({
+        where: {
           accountIdentifier: {
-            $like: `%${search}%`
+            [Op.like]: `%${search}%`
           }
         },
-        paginate: false
-      })) as IdentityProviderType[]
+        raw: true
+      })
 
       params.query = {
         ...params.query,

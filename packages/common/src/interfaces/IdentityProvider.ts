@@ -23,24 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import {
-  generateTokenDataSchema,
-  generateTokenPatchSchema,
-  generateTokenQuerySchema,
-  generateTokenSchema
-} from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+export interface IdentityProvider {
+  id: number
+  token: string
+  accountIdentifier?: string
+  type: string
+  isVerified: boolean
+  userId: UserID
+}
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    generateTokenDataSchema,
-    generateTokenPatchSchema,
-    generateTokenQuerySchema,
-    generateTokenSchema
-  },
-  docs: {
-    description: 'Generate Token service description',
-    securities: ['all']
-  }
-})
+export const IdentityProviderSeed: IdentityProvider = {
+  id: 0,
+  token: '',
+  type: '',
+  isVerified: false,
+  userId: '' as UserID
+}

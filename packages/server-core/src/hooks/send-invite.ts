@@ -28,12 +28,9 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -41,6 +38,7 @@ import { Application } from '../../declarations'
 import logger from '../ServerLogger'
 import { UserParams } from '../api/root-params'
 import config from '../appconfig'
+import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
 
@@ -185,12 +183,12 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
         }
       }
 
-      const emailIdentityProviderResult = (await app.service(identityProviderPath).find({
+      const emailIdentityProviderResult = (await app.service('identity-provider').find({
         query: {
           userId: result.inviteeId,
           type: 'email'
         }
-      })) as Paginated<IdentityProviderType>
+      })) as Page<IdentityProviderInterface>
 
       if (emailIdentityProviderResult.total > 0) {
         await generateEmail(
@@ -202,12 +200,12 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
           targetObjectId
         )
       } else {
-        const SMSIdentityProviderResult = (await app.service(identityProviderPath).find({
+        const SMSIdentityProviderResult = (await app.service('identity-provider').find({
           query: {
             userId: result.inviteeId,
             type: 'sms'
           }
-        })) as Paginated<IdentityProviderType>
+        })) as Page<IdentityProviderInterface>
 
         if (SMSIdentityProviderResult.total > 0) {
           await generateSMS(

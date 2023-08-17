@@ -126,6 +126,6 @@ describe('location.test', () => {
 
     const item = await app.service(locationPath).find({ query: { id: locations[0].id } })
 
-    assert.equal(item.total, 0)
+    assert.equal((item as any).total, 0)
   })
 })

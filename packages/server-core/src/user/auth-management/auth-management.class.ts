@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
+import Paginated from '../../types/PageObject'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}

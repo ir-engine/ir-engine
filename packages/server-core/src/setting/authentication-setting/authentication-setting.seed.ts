@@ -32,7 +32,6 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import config from '../../appconfig'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
@@ -43,8 +42,8 @@ export async function seed(knex: Knex): Promise<void> {
   const seedData: AuthenticationSettingDatabaseType[] = await Promise.all(
     [
       {
-        service: identityProviderPath,
-        entity: identityProviderPath,
+        service: 'identity-provider',
+        entity: 'identity-provider',
         secret: process.env.AUTH_SECRET || 'test',
         authStrategies: JSON.stringify([
           { jwt: true },

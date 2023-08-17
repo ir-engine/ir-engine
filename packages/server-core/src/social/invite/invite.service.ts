@@ -24,12 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // Initializes the `invite` service on path `/invite`
-import {
-  IdentityProviderType,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { Invite, InviteDataType } from './invite.class'
@@ -77,14 +72,14 @@ export default (app: Application) => {
       if (data.inviteeId) {
         targetIds.push(data.inviteeId)
       } else {
-        const inviteeIdentityProviderResult = (await app.service(identityProviderPath).find({
+        const inviteeIdentityProviderResult = await app.service('identity-provider').find({
           query: {
             type: data.identityProviderType,
             token: data.token
           }
-        })) as Paginated<IdentityProviderType>
-        if (inviteeIdentityProviderResult.total > 0) {
-          targetIds.push(inviteeIdentityProviderResult.data[0].userId)
+        })
+        if ((inviteeIdentityProviderResult as any).total > 0) {
+          targetIds.push((inviteeIdentityProviderResult as any).data[0].userId)
         }
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -108,14 +103,14 @@ export default (app: Application) => {
       if (data.inviteeId) {
         targetIds.push(data.inviteeId)
       } else {
-        const inviteeIdentityProviderResult = (await app.service(identityProviderPath).find({
+        const inviteeIdentityProviderResult = await app.service('identity-provider').find({
           query: {
             type: data.identityProviderType,
             token: data.token
           }
-        })) as Paginated<IdentityProviderType>
-        if (inviteeIdentityProviderResult.total > 0) {
-          targetIds.push(inviteeIdentityProviderResult.data[0].userId)
+        })
+        if ((inviteeIdentityProviderResult as any).total > 0) {
+          targetIds.push((inviteeIdentityProviderResult as any).data[0].userId)
         }
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

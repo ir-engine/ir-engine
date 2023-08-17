@@ -34,7 +34,6 @@ import {
 } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 import { emulate_getTicketsAssignment } from '../emulate'
@@ -60,7 +59,7 @@ export class MatchTicketAssignmentService<
     let assignment: MatchTicketAssignmentType
     try {
       if (config.server.matchmakerEmulationMode) {
-        assignment = await emulate_getTicketsAssignment(this.app, id, params[identityProviderPath].userId)
+        assignment = await emulate_getTicketsAssignment(this.app, id, params['identity-provider'].userId)
       } else {
         assignment = await getTicketsAssignment(String(id))
       }

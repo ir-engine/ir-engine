@@ -24,18 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import Paginated from '../../types/PageObject'
 import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
-import { IdentityProviderService } from '../identity-provider/identity-provider.class'
+import { IdentityProvider } from '../identity-provider/identity-provider.class'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
@@ -127,7 +127,7 @@ export class Magiclink implements ServiceMethods<Data> {
     toEmail: string,
     token: string,
     type: 'connection' | 'login',
-    identityProvider: IdentityProviderService,
+    identityProvider: IdentityProvider,
     subscriptionId?: string
   ): Promise<void> {
     const hashLink = getLink(type, token, subscriptionId ?? '')
@@ -202,7 +202,7 @@ export class Magiclink implements ServiceMethods<Data> {
    */
 
   async create(data: any, params?: Params): Promise<Data> {
-    const identityProviderService = this.app.service(identityProviderPath)
+    const identityProviderService = this.app.service('identity-provider')
 
     // check magiclink type
     let token = ''
@@ -224,8 +224,7 @@ export class Magiclink implements ServiceMethods<Data> {
         {
           token: token,
           type: data.type,
-          accountIdentifier: token,
-          userId: data.userId
+          accountIdentifier: token
         },
         params
       )
