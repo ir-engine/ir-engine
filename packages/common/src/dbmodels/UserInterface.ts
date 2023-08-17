@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+
 export interface UserInterface {
   id: string
   name: string
@@ -87,6 +89,22 @@ export interface LocationAdminInterface {
   id: string
 }
 
+export interface IdentityProviderInterface {
+  id: string
+  token: string
+  accountIdentifier: string
+  password: string
+  isVerified: string
+  verifyToken: string
+  verifyShortToken: string
+  verifyExpires: string
+  verifyChanges: string
+  resetToken: string
+  resetExpires: string
+  type: string
+  userId: UserID
+  oauthToken?: string
+}
 export interface UserKick {
   id: string
   duration: Date
