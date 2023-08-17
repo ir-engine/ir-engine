@@ -27,6 +27,7 @@ import { HookContext } from '@feathersjs/feathers'
 
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { Application } from '../../declarations'
 
@@ -35,13 +36,12 @@ export default (currentType: string, scopeToVerify: string) => {
     if (context.params.isInternal) return context
     const loggedInUser = context.params.user as UserType
     if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
-    const scopes = await context.app.service('scope').Model.findAll({
-      where: {
+    const scopes = (await context.app.service(scopePath).find({
+      query: {
         userId: loggedInUser.id
       },
-      raw: true,
-      nest: true
-    })
+      paginate: false
+    })) as ScopeType[]
     if (!scopes || scopes.length === 0) throw new NotFound('No scope available for the current user.')
 
     const currentScopes = scopes.reduce((result, sc) => {
@@ -57,13 +57,12 @@ export default (currentType: string, scopeToVerify: string) => {
 }
 
 export const checkScope = async (user: UserType, app: Application, currentType: string, scopeToVerify: string) => {
-  const scopes = await app.service('scope').Model.findAll({
-    where: {
+  const scopes = (await app.service(scopePath).find({
+    query: {
       userId: user.id
     },
-    raw: true,
-    nest: true
-  })
+    paginate: false
+  })) as ScopeType[]
   if (!scopes || scopes.length === 0) throw new NotFound('No scope available for the current user.')
 
   const currentScopes = scopes.reduce((result, sc) => {

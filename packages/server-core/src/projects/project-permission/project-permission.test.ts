@@ -31,6 +31,7 @@ import path from 'path'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -122,23 +123,23 @@ describe('project-permission.test', () => {
       }
     })) as Paginated<UserApiKeyType>
     user4.apiKey = user4ApiKeys.data.length > 0 ? user4ApiKeys.data[0] : user4.apiKey
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'editor:write',
       userId: user1.id
     })
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'editor:write',
       userId: user2.id
     })
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'editor:write',
       userId: user3.id
     })
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'editor:write',
       userId: user4.id
     })
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'admin:admin',
       userId: user4.id
     })

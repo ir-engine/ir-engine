@@ -33,8 +33,7 @@ import path from 'path'
 import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
-import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ServerState } from '../../ServerState'
@@ -374,7 +373,7 @@ export default (app: Application): void => {
           type: 'admin:admin'
         },
         paginate: false
-      })) as any as AdminScope[]
+      })) as ScopeType[]
 
       targetIds = targetIds.concat(adminScopes.map((admin) => admin.userId!))
       targetIds = _.uniq(targetIds)

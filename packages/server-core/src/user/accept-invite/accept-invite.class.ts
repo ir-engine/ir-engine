@@ -28,6 +28,7 @@ import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/f
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import {
   IdentityProviderType,
@@ -166,14 +167,14 @@ export class AcceptInvite implements ServiceMethods<Data> {
       if (params[identityProviderPath] == null) params[identityProviderPath] = inviteeIdentityProvider
 
       if (invite.makeAdmin) {
-        const existingAdminScope = await this.app.service('scope').find({
+        const existingAdminScope = (await this.app.service(scopePath).find({
           query: {
             userId: inviteeIdentityProvider.userId,
             type: 'admin:admin'
           }
-        })
+        })) as Paginated<ScopeType>
         if (existingAdminScope.total === 0)
-          await this.app.service('scope').create({
+          await this.app.service(scopePath).create({
             userId: inviteeIdentityProvider.userId,
             type: 'admin:admin'
           })
