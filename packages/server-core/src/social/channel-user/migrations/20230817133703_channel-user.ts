@@ -56,17 +56,19 @@ export async function up(knex: Knex): Promise<void> {
       table.boolean('isOwner').notNullable().defaultTo(false)
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
-      //@ts-ignore
+
       table
         .uuid('channelId')
+        //@ts-ignore
         .collate('utf8mb4_bin')
         .references('id')
         .inTable('channel')
         .onUpdate('CASCADE')
         .onDelete('SET NULL')
-      //@ts-ignore
+
       table
         .uuid('userId')
+        //@ts-ignore
         .collate('utf8mb4_bin')
         .references('id')
         .inTable('user')
