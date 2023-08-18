@@ -34,6 +34,7 @@ import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChannelUserParams extends RootParams<ChannelUserQuery> {}
 
 /**
