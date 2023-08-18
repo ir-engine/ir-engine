@@ -140,9 +140,7 @@ export const addEntity = makeFlowNodeDefinition({
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
     const parentEntityUUID = read<string>('parentEntity')
-    console.log('DEBUG', parentEntityUUID)
     const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.entitiesByUUID[parentEntityUUID]
-    console.log('DEBUG', parentEntity)
     const componentName = read<string>('component')
     const entity = addEntityToScene(componentName, parentEntity)
     const entityName = read<string>('entityName')
