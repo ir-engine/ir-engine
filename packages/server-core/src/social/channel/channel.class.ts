@@ -56,13 +56,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
   async get(id: ChannelID, params?: UserParams) {
     const channel = (await super.get(id, params)) as ChannelDataType
 
-    // TODO: Populating ChannelUser's sender property here manually. Once channel-user service is moved to feathers 5. This should be part of its resolver.
-    if (channel.channel_users && channel.channel_users.length > 0) {
-      for (const channelUser of channel.channel_users) {
-        channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
-      }
-    }
-
     // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
     for (const message of channel.messages) {
       if (message && message.senderId && !message.sender) {
@@ -187,22 +180,26 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           name = search ? { name: { [Op.like]: `%${search}%` } } : {}
         }
 
-        const channel = await (this.app.service('channel') as any).Model.findAndCountAll({
+        const channels = await (this.app.service('channel') as any).Model.findAndCountAll({
           offset: skip,
           limit: limit,
-          order: order,
-          include: [
-            {
-              model: (this.app.service(channelUserPath) as any).Model
-            }
-          ]
+          order: order
         })
+
+        for (const channel of channels) {
+          channel.channel_users = (await this.app.service(channelUserPath).find({
+            query: {
+              channelId: channel.id
+            },
+            paginate: false
+          })) as ChannelUserType[]
+        }
 
         return {
           skip: skip,
           limit: limit,
-          total: channel.count,
-          data: channel.rows
+          total: channels.count,
+          data: channels.rows
         }
       }
 

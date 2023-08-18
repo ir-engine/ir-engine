@@ -51,7 +51,7 @@ export const onCRUD =
       paginate: false
     })) as ChannelUserType[]
 
-    const userIds = (channelUsers as any).data.map((channelUser) => {
+    const userIds = channelUsers.map((channelUser) => {
       return channelUser.userId
     })
 

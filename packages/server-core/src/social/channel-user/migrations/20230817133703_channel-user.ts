@@ -50,7 +50,7 @@ export async function up(knex: Knex): Promise<void> {
   tableExists = await trx.schema.hasTable(channelUserPath)
 
   if (!tableExists && !oldNamedTableExists) {
-    await knex.schema.createTable('channel_user', (table) => {
+    await knex.schema.createTable(channelUserPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.boolean('isOwner').notNullable().defaultTo(false)

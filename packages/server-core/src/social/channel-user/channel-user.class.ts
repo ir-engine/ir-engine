@@ -49,10 +49,7 @@ export class ChannelUserService<
   }
 
   async create(data: ChannelUserData, params?: ChannelUserParams) {
-    return super._create({
-      ...data,
-      userId: params?.user?.id
-    })
+    return super._create(data, params)
   }
 
   async get(id: Id, params?: ChannelUserParams) {

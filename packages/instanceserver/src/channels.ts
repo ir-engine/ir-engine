@@ -331,7 +331,7 @@ const handleUserAttendance = async (app: Application, userId: UserID) => {
     if (!existingChannelUser.total) {
       await app.service(channelUserPath).create({
         channelId: channel.id as ChannelID,
-        userId: userId as UserID
+        userId: userId
       })
     }
   }
