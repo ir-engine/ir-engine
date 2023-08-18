@@ -59,7 +59,7 @@
 
 .checkbox {
   &:global(.Mui-checked) {
-    color: var(--iconButtonColor);
+    color: var(--iconButtonColor)!important;
   }
 }
 
@@ -84,7 +84,8 @@
 
   img {
     opacity: 0.8;
-    //filter: unquote($string: "invert()");
+
+    // filter: unquote($string: "invert()");
     margin-top: -50px;
   }
 
