@@ -37,6 +37,8 @@ import { AvatarRigComponent } from './AvatarAnimationComponent'
 export const xrTargetHeadSuffix = '_xr_target_head'
 export const xrTargetLeftHandSuffix = '_xr_target_left_hand'
 export const xrTargetRightHandSuffix = '_xr_target_right_hand'
+export const xrTargetLeftFootSuffix = '_xr_target_left_foot'
+export const xrTargetRightFootSuffix = '_xr_target_right_foot'
 
 const EPSILON = 1e-6
 

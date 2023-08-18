@@ -77,7 +77,9 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/Av
 import {
   AvatarIKTargetComponent,
   xrTargetHeadSuffix,
+  xrTargetLeftFootSuffix,
   xrTargetLeftHandSuffix,
+  xrTargetRightFootSuffix,
   xrTargetRightHandSuffix
 } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
@@ -275,10 +277,14 @@ const execute = () => {
     const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
     const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
     const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
+    const leftFootUUID = (Engine.instance.userId + xrTargetLeftFootSuffix) as EntityUUID
+    const rightFootUUID = (Engine.instance.userId + xrTargetRightFootSuffix) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
     const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+    const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
+    const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
 
     if (!head && ikTargetHead) removeEntity(ikTargetHead)
     if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
@@ -289,6 +295,10 @@ const execute = () => {
       dispatchAction(XRAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand' }))
     if (rightHand && !ikTargetRightHand)
       dispatchAction(XRAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand' }))
+
+    if (!ikTargetLeftFoot) dispatchAction(XRAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot' }))
+
+    if (!ikTargetRightFoot) dispatchAction(XRAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot' }))
   }
 
   /**
@@ -421,7 +431,6 @@ const execute = () => {
         const hipsForward = new Vector3(0, 0, 1)
 
         rig.hips.node.quaternion.copy(new Quaternion().setFromEuler(new Euler(0, Math.PI, 0)))
-        console.log(ikTargetName)
         switch (ikTargetName) {
           case 'head':
             worldSpaceTargets.head.blendWeight = 0
