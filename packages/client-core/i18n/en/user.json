@@ -280,7 +280,7 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "feeds": "Feeds",
-    "instance": "Instance",
+    "instances": "Instances",
     "locations": "Locations",
     "routes": "Routes",
     "projects": "Projects",
@@ -297,7 +297,8 @@
     "bots": "Bots",
     "setting": "Settings",
     "server": "Server",
-    "recordings": "Recordings"
+    "recordings": "Recordings",
+    "channels": "Channels"
   },
   "resource": {
     "createResource": "Create Resource"
@@ -355,6 +356,25 @@
     "enterAvatarUrl": "Enter Avatar URL",
     "enterThumbnailUrl": "Enter Thumbnail URL",
     "avatarName": "Avatar Name"
+  },
+  "menu": {
+    "settings": "Settings",
+    "sendLocation": "Send Location",
+    "emote": "Emote",
+    "friends": "Friends",
+    "toggleMute": "Toggle Mute",
+    "toggleVideo": "Toggle Video",
+    "cycleCamera": "Cycle Camera",
+    "poseTracking": "Pose Tracking",
+    "shareScreen": "Share Screen",
+    "enterVR": "Enter VR",
+    "enterAR": "Enter AR",
+    "exitSpectate": "Exit Spectate",
+    "startRecording": "Start Recording",
+    "stopRecording": "Stop Recording",
+    "toggleChat": "Toggle Chat",
+    "enterFullScreen": "Enter FullScreen",
+    "exitFullScreen": "Exit FullScreen"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",
