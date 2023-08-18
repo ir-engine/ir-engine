@@ -2134,6 +2134,7 @@ const ATTRIBUTES = {
 	TEXCOORD_1: 'uv1',
 	TEXCOORD_2: 'uv2',
 	TEXCOORD_3: 'uv3',
+	TEXCOORD_4: 'uv4',
 	COLOR_0: 'color',
 	WEIGHTS_0: 'skinWeight',
 	JOINTS_0: 'skinIndex',

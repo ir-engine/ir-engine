@@ -403,7 +403,31 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
   const { io } = await ModelTransformLoader()
 
-  const document = await io.read(args.src)
+  let initialSrc = args.src
+  /* Meshopt Compression */
+  if (args.parms.meshoptCompression.enabled) {
+    const segments = args.src.split('.')
+    const ext = segments.pop()
+    const base = segments.join('.')
+    initialSrc = `${base}-meshopt.${ext}`
+    let packArgs = `-i ${args.src} -o ${initialSrc} `
+    if (!args.parms.meshoptCompression.options.mergeMaterials) {
+      packArgs += `-km `
+    }
+    if (!args.parms.meshoptCompression.options.mergeNodes) {
+      packArgs += `-kn `
+    }
+    if (args.parms.meshoptCompression.options.compression) {
+      packArgs += `-cc `
+    }
+    execFileSync(
+      GLTF_PACK,
+      packArgs.split(/\s+/).filter((x) => !!x)
+    )
+  }
+  /* /Meshopt Compression */
+
+  const document = await io.read(initialSrc)
 
   await MeshoptEncoder.ready
 
@@ -446,9 +470,11 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     )
   }
 
+  /* Draco Compression */
   if (args.parms.dracoCompression.enabled) {
     await document.transform(draco(args.parms.dracoCompression.options))
   }
+  /* /Draco Compression */
 
   /* /PROCESS MESHES */
 
