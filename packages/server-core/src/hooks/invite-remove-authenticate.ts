@@ -24,12 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import Paginated from '../types/PageObject'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -43,12 +45,12 @@ export default () => {
       throw new BadRequest('Invalid invite ID')
     }
     if (invite.identityProviderType != null) {
-      const inviteeIdentityProviderResult = (await app.service('identity-provider').find({
+      const inviteeIdentityProviderResult = (await app.service(identityProviderPath).find({
         query: {
           type: invite.identityProviderType,
           token: invite.token
         }
-      })) as Paginated<IdentityProviderInterface>
+      })) as Paginated<IdentityProviderType>
       if (inviteeIdentityProviderResult.total > 0) {
         inviteIdentityProviderUser = inviteeIdentityProviderResult.data[0].userId
       }

@@ -114,6 +114,9 @@ export const SplineTrackComponent = defineComponent({
         const index = Math.floor(component.alpha.value)
         const nextIndex = index + 1 > elements.length - 1 ? 0 : index + 1
 
+        // prevent a possible loop around hiccup; if no loop then do not permit modulo 0
+        if (!component.loop.value && index > nextIndex) return
+
         // translation
         splineComponent.curve.getPointAt(alpha - index, _point1Vector)
         transform.position.copy(_point1Vector)
