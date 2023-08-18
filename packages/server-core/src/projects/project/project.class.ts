@@ -514,7 +514,7 @@ export class Project extends Service {
       })
 
     if (data.reset) {
-      let repoPath = await getAuthenticatedRepo(githubIdentityProvider[0].oauthToken, data.destinationURL)
+      let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.destinationURL)
       if (!repoPath) repoPath = data.destinationURL //public repo
       await git.addRemote('destination', repoPath)
       await git.raw(['lfs', 'fetch', '--all'])
