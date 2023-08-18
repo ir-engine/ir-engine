@@ -48,6 +48,7 @@ import {
   MediaStreamAppData,
   MediaTagType,
   NetworkState,
+  addNetwork,
   removeNetwork,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
@@ -63,16 +64,8 @@ import {
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import {
-  State,
-  dispatchAction,
-  getMutableState,
-  getState,
-  none,
-  removeActionsForTopic
-} from '@etherealengine/hyperflux'
+import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import {
   Action,
   Topic,
@@ -93,19 +86,14 @@ import {
 } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { MathUtils } from 'three'
-import {
-  LocationInstanceConnectionService,
-  LocationInstanceState
-} from '../common/services/LocationInstanceConnectionService'
-import { MediaInstanceConnectionService, MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
+import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
+import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import {
   startFaceTracking,
   startLipsyncTracking,
   stopFaceTracking,
   stopLipsyncTracking
 } from '../media/webcam/WebcamInput'
-import { ChannelState } from '../social/services/ChannelService'
-import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
@@ -147,32 +135,15 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
   })
 }
 
-const handleFailedConnection = (network: SocketWebRTCClientNetwork) => {
-  console.log('handleFailedConnection', network)
-  if (network.topic === NetworkTopics.world) {
-    const currentLocation = getMutableState(LocationState).currentLocation.location
+const handleFailedConnection = (topic: Topic, instanceID: UserID) => {
+  console.log('handleFailedConnection', topic, instanceID)
+  if (topic === NetworkTopics.world) {
     const locationInstanceConnectionState = getMutableState(LocationInstanceState)
-    if (!network.connected) {
-      locationInstanceConnectionState.instances[network.id].set(none)
-      LocationInstanceConnectionService.provisionServer(
-        currentLocation.id.value,
-        network.id || undefined,
-        currentLocation.sceneId.value
-      )
-    }
+    locationInstanceConnectionState.instances[instanceID].set(none)
   } else {
     const mediaInstanceConnectionState = getMutableState(MediaInstanceState)
-    if (!network.connected) {
-      mediaInstanceConnectionState.instances[network.id].set(none)
-      const chatState = getMutableState(ChannelState)
-      const channelState = chatState.channels
-      const channels = channelState.channels.value as Channel[]
-      const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-      const activeChannel = channelEntries.find((entry) => entry.id === chatState.targetChannelId.value)
-      if (activeChannel) MediaInstanceConnectionService.provisionServer(activeChannel?.id, true)
-    }
+    mediaInstanceConnectionState.instances[instanceID].set(none)
   }
-  return
 }
 
 export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
@@ -237,7 +208,7 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
 export type SocketWebRTCClientNetwork = ReturnType<typeof initializeNetwork>
 
 export const connectToNetwork = async (
-  network: SocketWebRTCClientNetwork,
+  instanceID: UserID,
   ipAddress: string,
   port: string,
   locationId?: string | null,
@@ -282,28 +253,39 @@ export const connectToNetwork = async (
     }
   } catch (err) {
     logger.error(err)
-    return handleFailedConnection(network)!
+    return handleFailedConnection(locationId ? NetworkTopics.world : NetworkTopics.media, instanceID)
   }
 
-  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
-
-  networkState.primus.set(primus)
-
   const connectionFailTimeout = setTimeout(() => {
-    handleFailedConnection(network)
+    handleFailedConnection(locationId ? NetworkTopics.world : NetworkTopics.media, instanceID)
   }, 3000)
 
   const onConnect = () => {
+    const topic = locationId ? NetworkTopics.world : NetworkTopics.media
+    getMutableState(NetworkState).hostIds[topic].set(instanceID)
+    const network = initializeNetwork(instanceID, instanceID, topic)
+    addNetwork(network)
+
+    const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
+
+    networkState.primus.set(primus)
+
     primus.off('incoming::open', onConnect)
     logger.info('CONNECTED to port %o', { port })
 
     clearTimeout(connectionFailTimeout)
 
     networkState.connected.set(true)
+
+    const onDisconnect = () => {
+      logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
+      leaveNetwork(network)
+    }
+    primus.on('incoming::end', onDisconnect)
   }
   primus.on('incoming::open', onConnect)
 
-  logger.info('Connecting to instance type: %o', { topic: network.topic, id: network.id })
+  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, channelId, roomCode })
 }
 
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {
@@ -370,13 +352,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     network.transport.messageToPeer(network.hostPeerID, [])
   }, 1000)
 
-  async function commonDisconnectHandler() {
-    network.primus.removeListener('data', actionDataHandler)
-    network.primus.removeListener('end', commonDisconnectHandler)
-  }
-
   network.primus.on('data', actionDataHandler)
-  network.primus.on('end', commonDisconnectHandler)
 
   // handle cached actions
   for (const action of cachedActions!) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
@@ -427,17 +403,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     logger.info('Successfully loaded routerRtpCapabilities')
   })
 
-  function reconnectHandler() {
-    network.primus.off('reconnected', reconnectHandler)
-    network.primus.removeListener('reconnected', reconnectHandler)
-    networkState.authenticated.set(false)
-    authenticateNetwork(network)
-  }
-
-  network.primus.on('reconnected', reconnectHandler)
-  network.primus.socket.addEventListener('open', reconnectHandler)
-
-  logger.info('Successfully connected to instance type: %o', { topic: network.topic, hostId: network.hostId })
+  logger.info('Successfully connected to instance type: %o', { topic: network.topic, id: network.id })
 }
 
 export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
@@ -734,7 +700,7 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
   // failed, or disconnected, leave the  and reset
   transport.on('connectionstatechange', async (state: string) => {
     if (state === 'closed' || state === 'failed' || state === 'disconnected') {
-      logger.error(new Error(`Transport ${transport} transitioned to state ${state}.`))
+      logger.error('Transport %o transitioned to state ' + state, transport)
       logger.error(
         'If this occurred unexpectedly shortly after joining a world, check that the instanceserver nodegroup has public IP addresses.'
       )
@@ -1143,48 +1109,24 @@ export const toggleScreenshareVideoPaused = async () => {
   else await stopScreenshare(mediaNetwork)
 }
 
-export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolean) {
-  const mediaStreamState = getMutableState(MediaStreamState)
+export function leaveNetwork(network: SocketWebRTCClientNetwork) {
   try {
     if (!network) return
-    // Leaving a network should close all transports from the server side.
-    // This will also destroy all the associated producers and consumers.
-    // All we need to do on the client is null all references.
     closeNetwork(network)
 
+    NetworkPeerFunctions.destroyAllPeers(network)
+    removeNetwork(network)
+
     if (network.topic === NetworkTopics.media) {
-      if (mediaStreamState.audioStream.value) {
-        const audioTracks = mediaStreamState.audioStream.value?.getTracks()
-        audioTracks.forEach((track) => track.stop())
-      }
-      if (mediaStreamState.videoStream.value) {
-        const videoTracks = mediaStreamState.videoStream.value?.getTracks()
-        videoTracks.forEach((track) => track.stop())
-      }
-      mediaStreamState.camVideoProducer.set(null)
-      mediaStreamState.camAudioProducer.set(null)
-      mediaStreamState.screenVideoProducer.set(null)
-      mediaStreamState.screenAudioProducer.set(null)
-      mediaStreamState.videoStream.set(null)
-      mediaStreamState.audioStream.set(null)
-      mediaStreamState.localScreen.set(null)
-      const networkState = getMutableState(NetworkState).networks[network.hostId]
-      networkState.consumers.set([])
       clearPeerMediaChannels()
-      removeNetwork(network)
       getMutableState(NetworkState).hostIds.media.set(none)
       getMutableState(MediaInstanceState).instances[network.id].set(none)
     } else {
-      NetworkPeerFunctions.destroyAllPeers(network)
-      removeNetwork(network)
       getMutableState(NetworkState).hostIds.world.set(none)
       getMutableState(LocationInstanceState).instances[network.id].set(none)
       // if world has a media server connection
       if (Engine.instance.mediaNetwork) {
-        const mediaState = getState(MediaInstanceState).instances[Engine.instance.mediaNetwork.hostId]
-        if (!mediaState.channelId && network.connected) {
-          leaveNetwork(Engine.instance.mediaNetwork as SocketWebRTCClientNetwork)
-        }
+        leaveNetwork(Engine.instance.mediaNetwork as SocketWebRTCClientNetwork)
       }
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
@@ -1195,7 +1137,6 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
         window.history.replaceState({}, '', parsed.toString())
       }
     }
-    removeActionsForTopic(network.hostId)
   } catch (err) {
     logger.error(err, 'Error with leave()')
   }

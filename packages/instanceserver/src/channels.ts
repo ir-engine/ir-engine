@@ -598,9 +598,11 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     await app.service('instance').patch(instanceServerState.instance.id, {
       ended: true
     })
-    if (instanceServerState.instance.channelId) {
-      await app.service('channel').remove(instanceServerState.instance.channelId)
-    }
+    try {
+      if (instanceServerState.instance.channelId) {
+        await app.service('channel').remove(instanceServerState.instance.channelId)
+      }
+    } catch (e) {}
     restartInstanceServer()
     return
   }

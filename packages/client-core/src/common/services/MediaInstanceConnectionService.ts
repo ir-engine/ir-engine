@@ -27,17 +27,11 @@ import { useEffect } from 'react'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineState, getMutableState, getState, State, useState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import {
-  connectToNetwork,
-  initializeNetwork,
-  SocketWebRTCClientNetwork
-} from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:service:media-instance' })
@@ -82,13 +76,12 @@ export const MediaInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      MediaInstanceConnectionService.serverProvisioned(
-        provisionResult.id as UserID,
-        provisionResult.ipAddress,
-        provisionResult.port,
-        channelID,
-        provisionResult.roomCode
-      )
+      getMutableState(MediaInstanceState).instances[provisionResult.id].set({
+        ipAddress: provisionResult.ipAddress,
+        port: provisionResult.port,
+        channelId: channelID,
+        roomCode: provisionResult.roomCode
+      })
     } else {
       logger.error('Failed to connect to expected instance')
       setTimeout(() => {
@@ -96,35 +89,16 @@ export const MediaInstanceConnectionService = {
       }, 1000)
     }
   },
-  serverProvisioned: (instanceID: UserID, ipAddress: string, port: string, channelID: ChannelID, roomCode: string) => {
-    const state = getMutableState(MediaInstanceState)
-    getMutableState(NetworkState).hostIds.media.set(instanceID)
-    const existingNetwork = getState(NetworkState).networks[instanceID]
-    if (existingNetwork) return
-
-    const network = initializeNetwork(instanceID, instanceID, NetworkTopics.media)
-
-    addNetwork(network)
-    state.instances[instanceID].set({
-      ipAddress: ipAddress,
-      port: port,
-      channelId: channelID,
-      roomCode: roomCode
-    })
-
-    connectToNetwork(network, ipAddress, port, undefined, channelID)
-  },
   useAPIListeners: () => {
     useEffect(() => {
       const listener = (params) => {
         if (params.channelId != null) {
-          MediaInstanceConnectionService.serverProvisioned(
-            params.instanceId,
-            params.ipAddress,
-            params.port,
-            params.channelId,
-            params.roomCode
-          )
+          getMutableState(MediaInstanceState).instances[params.instanceId].set({
+            ipAddress: params.ipAddress,
+            port: params.port,
+            channelId: params.channelId,
+            roomCode: params.roomCode
+          })
         }
       }
       Engine.instance.api.service('instance-provision').on('created', listener)

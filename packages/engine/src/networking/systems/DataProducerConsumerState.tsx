@@ -237,18 +237,18 @@ const execute = () => {
   receiveActions(DataProducerConsumerState)
 }
 
-export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
-  const { networkID, producerID } = props
-  const producerState = useHookstate(getMutableState(DataProducerConsumerState)[networkID].producers[producerID])
-  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
-  const networkProducerState = networkState.producers.find((p) => p.value.id === producerID)
+// export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
+//   const { networkID, producerID } = props
+//   const producerState = useHookstate(getMutableState(DataProducerConsumerState)[networkID].producers[producerID])
+//   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
+//   const networkProducerState = networkState.producers.find((p) => p.value.id === producerID)
 
-  useEffect(() => {
-    const network = getState(NetworkState).networks[networkID]
-  }, [])
+//   useEffect(() => {
+//     const network = getState(NetworkState).networks[networkID]
+//   }, [])
 
-  return <></>
-}
+//   return <></>
+// }
 
 export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }) => {
   const { networkID, consumerID } = props
@@ -283,9 +283,9 @@ const NetworkReactor = (props: { networkID: UserID }) => {
 
   return (
     <>
-      {Object.keys(producers.value).map((producerID: string) => (
+      {/* {Object.keys(producers.value).map((producerID: string) => (
         <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
-      ))}
+      ))} */}
       {Object.keys(consumers.value).map((consumerID: string) => (
         <NetworkConsumer key={consumerID} consumerID={consumerID} networkID={networkID} />
       ))}

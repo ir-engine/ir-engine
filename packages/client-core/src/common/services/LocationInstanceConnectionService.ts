@@ -30,17 +30,12 @@ import { useEffect } from 'react'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import logger from '@etherealengine/common/src/logger'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineAction, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
-import {
-  connectToNetwork,
-  initializeNetwork,
-  SocketWebRTCClientNetwork
-} from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
 type InstanceState = {
@@ -104,14 +99,15 @@ export const LocationInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      LocationInstanceConnectionService.joinInstance(
-        provisionResult.id as UserID,
-        provisionResult.ipAddress,
-        provisionResult.port,
-        locationId!,
-        sceneId!,
-        provisionResult.roomCode
-      )
+      getMutableState(LocationInstanceState).instances.merge({
+        [provisionResult.id]: {
+          ipAddress: provisionResult.ipAddress,
+          port: provisionResult.port,
+          locationId: locationId!,
+          sceneId: sceneId!,
+          roomCode: provisionResult.roomCode
+        }
+      })
     } else {
       logger.error('Failed to connect to expected instance')
       setTimeout(() => {
@@ -147,14 +143,15 @@ export const LocationInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      LocationInstanceConnectionService.joinInstance(
-        provisionResult.id as UserID,
-        provisionResult.ipAddress,
-        provisionResult.port,
-        locationId!,
-        sceneId!,
-        provisionResult.roomCode
-      )
+      getMutableState(LocationInstanceState).instances.merge({
+        [provisionResult.id]: {
+          ipAddress: provisionResult.ipAddress,
+          port: provisionResult.port,
+          locationId: locationId!,
+          sceneId: sceneId!,
+          roomCode: provisionResult.roomCode
+        }
+      })
     } else {
       console.warn('Failed to connect to expected existing instance')
     }
@@ -188,43 +185,18 @@ export const LocationInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      LocationInstanceConnectionService.joinInstance(
-        provisionResult.id as UserID,
-        provisionResult.ipAddress,
-        provisionResult.port,
-        locationId!,
-        sceneId!,
-        provisionResult.roomCode
-      )
+      getMutableState(LocationInstanceState).instances.merge({
+        [provisionResult.id]: {
+          ipAddress: provisionResult.ipAddress,
+          port: provisionResult.port,
+          locationId: locationId!,
+          sceneId: sceneId!,
+          roomCode: provisionResult.roomCode
+        }
+      })
     } else {
       console.warn('Failed to connect to expected existing instance')
     }
-  },
-  joinInstance: (
-    instanceID: UserID,
-    ipAddress: string,
-    port: string,
-    locationID: string,
-    sceneID: string,
-    roomCode: string
-  ) => {
-    getMutableState(NetworkState).hostIds.world.set(instanceID)
-    const network = initializeNetwork(instanceID, instanceID, NetworkTopics.world)
-
-    addNetwork(network)
-
-    const state = getMutableState(LocationInstanceState)
-    state.instances.merge({
-      [instanceID]: {
-        ipAddress: ipAddress,
-        port: port,
-        locationId: locationID,
-        sceneId: sceneID,
-        roomCode: roomCode
-      }
-    })
-
-    connectToNetwork(network, ipAddress, port, locationID, undefined, roomCode)
   },
   changeActiveConnectionHostId: (currentInstanceId: UserID, newInstanceId: UserID) => {
     const state = getMutableState(LocationInstanceState)
@@ -240,14 +212,15 @@ export const LocationInstanceConnectionService = {
     useEffect(() => {
       const instanceProvisionCreatedListener = (params) => {
         if (params.locationId != null)
-          LocationInstanceConnectionService.joinInstance(
-            params.instanceId,
-            params.ipAddress,
-            params.port,
-            params.locationId,
-            params.sceneId,
-            params.roomCode
-          )
+          getMutableState(LocationInstanceState).instances.merge({
+            [params.instanceId]: {
+              ipAddress: params.ipAddress,
+              port: params.port,
+              locationId: params.locationId,
+              sceneId: params.sceneId,
+              roomCode: params.roomCode
+            }
+          })
       }
 
       API.instance.client.service('instance-provision').on('created', instanceProvisionCreatedListener)
