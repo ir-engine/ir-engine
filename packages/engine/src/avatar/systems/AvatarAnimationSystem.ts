@@ -74,18 +74,13 @@ import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { AnimationState } from '.././AnimationManager'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import {
-  AvatarIKTargetComponent,
-  xrTargetHeadSuffix,
-  xrTargetLeftFootSuffix,
-  xrTargetLeftHandSuffix,
-  xrTargetRightFootSuffix,
-  xrTargetRightHandSuffix
-} from '.././components/AvatarIKComponents'
+import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
+import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarNetworkAction } from '../state/AvatarNetworkState'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -106,7 +101,6 @@ export const AvatarAnimationState = defineState({
 })
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
-const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
 const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
@@ -144,7 +138,7 @@ interface targetTransform {
 
 //stores raw position and rotation of the IK targets in world space
 //is set from ecs ik target components that correspond with a given avatar
-const worldSpaceTargets = {
+export const worldSpaceTargets = {
   rightHand: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   leftHand: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   rightFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
@@ -158,6 +152,8 @@ const worldSpaceTargets = {
   headHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform
 }
 let weights = {} as Record<string, number>
+
+const ikTargetSpawnQueue = defineActionQueue(AvatarNetworkAction.spawnIKTarget.matches)
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
@@ -234,17 +230,24 @@ const execute = () => {
   for (const action of sessionChangedQueue()) {
     if (!localClientEntity) continue
 
-    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
+    //todo, this needs to be optimized and scalable
+    const headUUID = (Engine.instance.userId + ikTargets.head) as EntityUUID
+    const leftHandUUID = (Engine.instance.userId + ikTargets.leftHand) as EntityUUID
+    const rightHandUUID = (Engine.instance.userId + ikTargets.rightHand) as EntityUUID
+    const leftFootUUID = (Engine.instance.userId + ikTargets.leftFoot) as EntityUUID
+    const rightFootUUID = (Engine.instance.userId + ikTargets.rightFoot) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
     const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+    const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
+    const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
 
     if (ikTargetHead) removeEntity(ikTargetHead)
     if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (ikTargetRightHand) removeEntity(ikTargetRightHand)
+    if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
+    if (ikTargetRightFoot) removeEntity(ikTargetRightFoot)
   }
 
   for (const action of ikTargetSpawnQueue()) {
@@ -274,11 +277,11 @@ const execute = () => {
     const leftHand = !!sources.find((s) => s.handedness === 'left')
     const rightHand = !!sources.find((s) => s.handedness === 'right')
 
-    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
-    const leftFootUUID = (Engine.instance.userId + xrTargetLeftFootSuffix) as EntityUUID
-    const rightFootUUID = (Engine.instance.userId + xrTargetRightFootSuffix) as EntityUUID
+    const headUUID = (Engine.instance.userId + ikTargets.head) as EntityUUID
+    const leftHandUUID = (Engine.instance.userId + ikTargets.leftHand) as EntityUUID
+    const rightHandUUID = (Engine.instance.userId + ikTargets.rightHand) as EntityUUID
+    const leftFootUUID = (Engine.instance.userId + ikTargets.leftFoot) as EntityUUID
+    const rightFootUUID = (Engine.instance.userId + ikTargets.rightFoot) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
@@ -290,15 +293,17 @@ const execute = () => {
     if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
-    if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ entityUUID: headUUID, name: 'head' }))
+    if (head && !ikTargetHead) dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head' }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(XRAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand' }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand' }))
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(XRAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand' }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand' }))
 
-    if (!ikTargetLeftFoot) dispatchAction(XRAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot' }))
+    if (!ikTargetLeftFoot)
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot' }))
 
-    if (!ikTargetRightFoot) dispatchAction(XRAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot' }))
+    if (!ikTargetRightFoot)
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot' }))
   }
 
   /**

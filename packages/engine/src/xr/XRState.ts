@@ -32,8 +32,6 @@ import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsSta
 import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
-import { NetworkTopics } from '../networking/classes/Network'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DepthDataTexture } from './DepthDataTexture'
 
 // TODO: divide this up into the systems that manage these states
@@ -107,16 +105,6 @@ export class XRAction {
     handedness: matches.literals('left', 'right'),
     value: matches.number,
     duration: matches.number
-  })
-
-  static spawnIKTarget = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'ik-target',
-    name: matches.string,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
   })
 }
 

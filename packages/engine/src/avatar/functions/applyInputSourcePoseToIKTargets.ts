@@ -37,8 +37,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRHand, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState, getCameraMode } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
+import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { xrTargetHeadSuffix, xrTargetLeftHandSuffix, xrTargetRightHandSuffix } from '../components/AvatarIKComponents'
 
 // rotate +90 around rig finger's X axis
 // rotate +90 around rig finger's Z axis
@@ -277,9 +277,9 @@ export const applyInputSourcePoseToIKTargets = () => {
 
   /** Update controller pose input sources from WebXR into the ECS */
   if (xrFrame && referenceSpace) {
-    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
+    const headUUID = (Engine.instance.userId + ikTargets.head) as EntityUUID
+    const leftHandUUID = (Engine.instance.userId + ikTargets.leftHand) as EntityUUID
+    const rightHandUUID = (Engine.instance.userId + ikTargets.rightHand) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
