@@ -238,18 +238,14 @@ export type SocketWebRTCClientNetwork = ReturnType<typeof initializeNetwork>
 
 export const connectToNetwork = async (
   network: SocketWebRTCClientNetwork,
-  args: {
-    ipAddress: string
-    port: string
-    locationId?: string | null
-    channelId?: ChannelID | null
-    roomCode?: string | null
-  }
+  ipAddress: string,
+  port: string,
+  locationId?: string | null,
+  channelId?: ChannelID | null,
+  roomCode?: string | null
 ) => {
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
-
-  const { ipAddress, port, locationId, channelId, roomCode } = args
 
   const query = {
     locationId,

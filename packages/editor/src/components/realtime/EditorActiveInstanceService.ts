@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LocationInstanceConnectionAction } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LocationInstanceConnectionService } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import logger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -71,15 +71,13 @@ export const EditorActiveInstanceService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatchAction(
-        LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserID,
-          ipAddress: provisionResult.ipAddress,
-          port: provisionResult.port,
-          roomCode: provisionResult.roomCode,
-          locationId: locationId!,
-          sceneId: sceneId!
-        })
+      LocationInstanceConnectionService.joinInstance(
+        provisionResult.id as UserID,
+        provisionResult.ipAddress,
+        provisionResult.port,
+        locationId,
+        sceneId,
+        provisionResult.roomCode
       )
     }
   },

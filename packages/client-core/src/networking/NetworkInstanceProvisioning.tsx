@@ -33,7 +33,6 @@ import {
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
-  useMediaInstance,
   useMediaNetwork
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
@@ -58,7 +57,6 @@ export const WorldInstanceProvisioning = () => {
 
   const worldNetwork = Engine.instance.worldNetwork
   const worldNetworkState = useWorldNetwork()
-  const currentLocationInstanceConnection = useWorldInstance()
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
 
   ChannelService.useAPIListeners()
@@ -68,11 +66,13 @@ export const WorldInstanceProvisioning = () => {
 
   // Once we have the location, provision the instance server
   useEffect(() => {
+    if (!engineState.sceneLoaded.value) return
+
     const currentLocation = locationState.currentLocation.location
-    const isProvisioned = worldNetwork?.hostId && currentLocationInstanceConnection?.provisioned.value
+    const hasJoined = !!worldNetwork?.hostId
 
     if (currentLocation.id?.value) {
-      if (!isUserBanned && !isProvisioned) {
+      if (!isUserBanned && !hasJoined) {
         const search = window.location.search
         let instanceId
         let roomCode
@@ -99,19 +99,7 @@ export const WorldInstanceProvisioning = () => {
         }
       }
     }
-  }, [locationState.currentLocation.location])
-
-  // Once scene is loaded and the server is provisioned, connect to the instance server
-  useEffect(() => {
-    if (
-      engineState.sceneLoaded.value &&
-      currentLocationInstanceConnection?.value &&
-      currentLocationInstanceConnection.provisioned.value &&
-      worldNetworkState &&
-      !worldNetworkState.connected.value
-    )
-      LocationInstanceConnectionService.connectToServer(worldNetwork.hostId)
-  }, [engineState.sceneLoaded, worldNetworkState?.connected, currentLocationInstanceConnection?.provisioned])
+  }, [engineState.sceneLoaded, locationState.currentLocation.location])
 
   // Populate the URL with the room code and instance id
   useEffect(() => {
@@ -138,9 +126,7 @@ export const WorldInstanceProvisioning = () => {
 export const MediaInstanceProvisioning = () => {
   const channelState = useHookstate(getMutableState(ChannelState))
 
-  const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
   const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
-  const currentChannelInstanceConnection = useMediaInstance()
   const worldNetwork = useWorldNetwork()
   const mediaNetwork = useMediaNetwork()
 
@@ -153,26 +139,9 @@ export const MediaInstanceProvisioning = () => {
         channelState.targetChannelId.value === ''
           ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkHostId)?.id
           : channelState.targetChannelId.value
-      if (!currentChannelInstanceConnection?.provisioned.value && currentChannel)
-        MediaInstanceConnectionService.provisionServer(currentChannel, true)
+      if (currentChannel && !mediaNetwork) MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
   }, [channelState.channels.channels?.length, worldNetwork?.connected, channelState.targetChannelId])
-
-  // Once the media server is provisioned, connect to it
-  useEffect(() => {
-    if (
-      mediaNetworkHostId &&
-      currentChannelInstanceConnection?.value &&
-      currentChannelInstanceConnection.provisioned.value &&
-      mediaNetwork &&
-      !mediaNetwork?.connected.value
-    ) {
-      MediaInstanceConnectionService.connectToServer(
-        mediaNetworkHostId,
-        currentChannelInstanceConnection.channelId.value!
-      )
-    }
-  }, [mediaNetwork?.connected, currentChannelInstanceConnection?.provisioned])
 
   return null
 }

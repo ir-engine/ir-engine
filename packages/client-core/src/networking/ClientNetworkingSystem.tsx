@@ -41,8 +41,6 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { MediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { LocationInstanceConnectionServiceReceptor } from '../common/services/LocationInstanceConnectionService'
-import { MediaInstanceConnectionServiceReceptor } from '../common/services/MediaInstanceConnectionService'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import {
@@ -97,14 +95,10 @@ const NetworkConnectionReactor = (props: { networkID: UserID }) => {
 
 const reactor = () => {
   useEffect(() => {
-    addActionReceptor(LocationInstanceConnectionServiceReceptor)
-    addActionReceptor(MediaInstanceConnectionServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
 
     return () => {
       // todo replace with subsystems
-      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
-      removeActionReceptor(MediaInstanceConnectionServiceReceptor)
       removeActionReceptor(FriendServiceReceptor)
     }
   }, [])
