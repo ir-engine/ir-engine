@@ -46,18 +46,22 @@ export const getSpline = makeFunctionNodeDefinition({
   category: NodeCategory.Query,
   label: 'Get Spline Entity',
   in: {
-    splineName: (_, graphApi) => {
-      const choices = splineQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
-      choices.unshift({ text: 'none', value: -1 as Entity })
+    spline: (_, graphApi) => {
+      const choices = splineQuery().map((entity) => ({
+        text: getComponent(entity, NameComponent),
+        value: getComponent(entity, UUIDComponent) as string
+      }))
+      choices.unshift({ text: 'none', value: '' as string })
       return {
-        valueType: 'entity',
+        valueType: 'string',
         choices: choices
       }
     }
   },
   out: { entity: 'entity' },
   exec: ({ read, write }) => {
-    const splineEntity = read<Entity>('splineName')
+    const splineEntityUUID = read<string>('spline')
+    const splineEntity = UUIDComponent.entitiesByUUID[splineEntityUUID]
     write('entity', splineEntity)
   }
 })
@@ -117,7 +121,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
         if (Math.floor(splineTrack.alpha) > spline!.elements.length - 1) {
           commit('trackEnd')
           finished?.()
-          disableSystem(systemUUID)
+          disableSystem(systemUUID) // we only want to run it once
           return
         }
       }
@@ -132,7 +136,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
     return state
   },
   dispose: ({ state: { systemUUID }, graph: { getDependency } }) => {
-    if (systemUUID) disableSystem(systemUUID)
+    if (systemUUID) disableSystem(systemUUID) // for if we shut down the graph early
     return initialState()
   }
 })
