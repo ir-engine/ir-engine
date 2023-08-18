@@ -414,8 +414,23 @@ export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }
 
 const NetworkReactor = (props: { networkID: UserID }) => {
   const { networkID } = props
+  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
   const producers = useHookstate(getMutableState(MediaProducerConsumerState)[networkID].producers)
   const consumers = useHookstate(getMutableState(MediaProducerConsumerState)[networkID].consumers)
+
+  useEffect(() => {
+    for (const [producerID, producer] of Object.entries(producers.value)) {
+      if (!networkState.peers.value.get(producer.peerID)) {
+        producers[producerID].set(none)
+      }
+    }
+    for (const [consumerID, consumer] of Object.entries(consumers.value)) {
+      if (!networkState.peers.value.get(consumer.peerID)) {
+        consumers[consumerID].set(none)
+      }
+    }
+  }, [networkState.peers])
+
   return (
     <>
       {Object.keys(producers.value).map((producerID: string) => (
