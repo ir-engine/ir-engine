@@ -31,7 +31,6 @@ import DropDownMenu from '../dropDownMenu'
 import { EditorNavbarProfile } from '../projects/EditorNavbarProfile'
 import { WorldInstanceConnection } from '../realtime/WorldInstanceConnection'
 import * as styles from './styles.module.scss'
-import AdvancedModeTool from './tools/AdvancedModeTool'
 import GridTool from './tools/GridTool'
 import HelperToggleTool from './tools/HelperToggleTool'
 import PlayModeTool from './tools/PlayModeTool'
@@ -51,7 +50,6 @@ export const ToolBar = (props: ToolBarProps) => {
   return (
     <div style={{ pointerEvents: 'auto' }} className={styles.toolbarContainer}>
       <DropDownMenu icon={MenuIcon} commands={props.menu} />
-      <AdvancedModeTool />
       <WorldInstanceConnection />
       <TransformTool />
       <TransformSpaceTool />
