@@ -228,27 +228,27 @@ export async function closeDataProducer(network, dataProducer): Promise<void> {
   if (peer) peer.dataProducers!.delete(dataProducer.id)
 }
 
-export async function closeTransport(
+export async function transportClosed(
   network: SocketWebRTCServerNetwork,
   transport: WebRTCTransportExtension
 ): Promise<void> {
   logger.info(`Closing transport id "${transport.id}", appData: %o`, transport.appData)
   // our producer and consumer event handlers will take care of
-  // calling closeProducer() and closeConsumer() on all the producers
+  // calling producerClosed() and consumerClosed() on all the producers
   // and consumers associated with this transport
   const dataProducers = Object.values(network.dataProducers)
   dataProducers.forEach((dataProducer) => closeDataProducer(network, dataProducer))
   const producers = Object.values(network.producers)
-  producers.forEach((producer) => closeProducer(network, producer))
+  producers.forEach((producer) => producerClosed(network, producer))
   if (transport && typeof transport.close === 'function') {
     await transport.close()
     delete network.mediasoupTransports[transport.id]
   }
 }
 
-export function closeProducer(network: SocketWebRTCServerNetwork, producer: ProducerExtension) {
+export function producerClosed(network: SocketWebRTCServerNetwork, producer: ProducerExtension) {
   dispatchAction(
-    MediaProducerActions.closeProducer({
+    MediaProducerActions.producerClosed({
       producerID: producer.id,
       $topic: network.topic,
       $network: network.id
@@ -324,7 +324,7 @@ export async function handleWebRtcTransportCreate(
     const existingTransports = Object.values(network.mediasoupTransports).filter(
       (t) => t.appData.peerID === peerID && t.appData.direction === direction && t.appData.channelId === channelId
     )
-    await Promise.all(existingTransports.map((t) => closeTransport(network, t)))
+    await Promise.all(existingTransports.map((t) => transportClosed(network, t)))
     const newTransport = await createWebRtcTransport(network, {
       peerID: peerID,
       direction,
@@ -377,7 +377,7 @@ export async function handleWebRtcTransportCreate(
       }
     }
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
-      if (dtlsState === 'closed') closeTransport(network, newTransport as unknown as WebRTCTransportExtension)
+      if (dtlsState === 'closed') transportClosed(network, newTransport as unknown as WebRTCTransportExtension)
     })
 
     dispatchAction(
@@ -581,14 +581,14 @@ export async function handleProduceData(
   }
 }
 
-export async function handleWebRtcTransportClose(action: typeof NetworkTransportActions.closeTransport.matches._TYPE) {
+export async function handleWebRtcTransportClose(action: typeof NetworkTransportActions.transportClosed.matches._TYPE) {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { transportID } = action
   const transport = network.mediasoupTransports[transportID]
   if (!transport) return
 
-  await closeTransport(network, transport).catch((err) => logger.error(err, 'Error closing WebRTC transport.'))
+  await transportClosed(network, transport).catch((err) => logger.error(err, 'Error closing WebRTC transport.'))
 }
 
 export async function handleWebRtcTransportConnect(
@@ -664,7 +664,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
   try {
     const newProducerAppData = { ...appData, peerID, transportId } as MediaStreamAppData
     const existingProducer = await network.producers.find((producer) => producer.appData === newProducerAppData)
-    if (existingProducer) throw new Error('Producer already exists for ' + peerID + ' ' + appData.mediaTag) //closeProducer(network, existingProducer)
+    if (existingProducer) throw new Error('Producer already exists for ' + peerID + ' ' + appData.mediaTag) //producerClosed(network, existingProducer)
     const producer = (await transport.produce({
       kind: kind as any,
       rtpParameters: rtpParameters as RtpParameters,
@@ -686,7 +686,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
       })
     )
 
-    producer.on('transportclose', () => closeProducer(network, producer))
+    producer.on('transportclose', () => producerClosed(network, producer))
 
     network.producers.push(producer)
     logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
@@ -765,7 +765,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
     consumer.on('transportclose', () => {
       logger.info(`Consumer's transport closed, consumer.id: "${consumer.id}".`)
       dispatchAction(
-        MediaConsumerActions.closeConsumer({
+        MediaConsumerActions.consumerClosed({
           consumerID: consumer.id,
           $network: action.$network,
           $topic: action.$topic,
@@ -776,7 +776,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
     consumer.on('producerclose', () => {
       logger.info(`Consumer's producer closed, consumer.id: "${consumer.id}".`)
       dispatchAction(
-        MediaConsumerActions.closeConsumer({
+        MediaConsumerActions.consumerClosed({
           consumerID: consumer.id,
           $network: action.$network,
           $topic: action.$topic,

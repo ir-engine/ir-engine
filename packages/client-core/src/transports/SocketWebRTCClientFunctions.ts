@@ -487,7 +487,7 @@ export async function createDataProducer(
 export function closeDataProducer(network: SocketWebRTCClientNetwork, dataChannelType: DataChannelType) {
   const producer = network.dataProducers.get(dataChannelType)
   dispatchAction(
-    MediaProducerActions.closeProducer({
+    MediaProducerActions.producerClosed({
       producerID: producer.id,
       $network: network.id,
       $topic: network.topic
@@ -995,7 +995,7 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
     else pauseConsumer(network, consumer)
   } else if (existingConsumer.track?.muted) {
     dispatchAction(
-      MediaConsumerActions.closeConsumer({
+      MediaConsumerActions.consumerClosed({
         consumerID: existingConsumer.id,
         $network: network.id,
         $topic: network.topic,
@@ -1011,7 +1011,7 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
     }
   } else {
     dispatchAction(
-      MediaConsumerActions.closeConsumer({
+      MediaConsumerActions.consumerClosed({
         consumerID: consumer.id,
         $network: network.id,
         $topic: network.topic,
@@ -1301,7 +1301,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
     await mediaStreamState.screenVideoProducer.value.pause()
     mediaStreamState.screenShareVideoPaused.set(true)
     dispatchAction(
-      MediaProducerActions.closeProducer({
+      MediaProducerActions.producerClosed({
         producerID: mediaStreamState.screenVideoProducer.value.id,
         $network: network.id,
         $topic: network.topic
@@ -1313,7 +1313,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   if (mediaStreamState.screenAudioProducer.value) {
     dispatchAction(
-      MediaProducerActions.closeProducer({
+      MediaProducerActions.producerClosed({
         producerID: mediaStreamState.screenAudioProducer.value.id,
         $network: network.id,
         $topic: network.topic

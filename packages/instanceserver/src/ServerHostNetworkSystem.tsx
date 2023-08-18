@@ -75,7 +75,7 @@ const dataRequestConsumerActionQueue = defineActionQueue(DataConsumerActions.req
 
 const requestTransportActionQueue = defineActionQueue(NetworkTransportActions.requestTransport.matches)
 const requestTransportConnectActionQueue = defineActionQueue(NetworkTransportActions.requestTransportConnect.matches)
-const transportCloseActionQueue = defineActionQueue(NetworkTransportActions.closeTransport.matches)
+const transportCloseActionQueue = defineActionQueue(NetworkTransportActions.transportClosed.matches)
 
 const execute = () => {
   for (const action of requestConsumerActionQueue()) {

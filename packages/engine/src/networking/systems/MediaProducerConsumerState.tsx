@@ -72,7 +72,7 @@ export class MediaProducerActions {
     $cache: true
   })
 
-  static closeProducer = defineAction({
+  static producerClosed = defineAction({
     type: 'ee.engine.network.MEDIA_CLOSED_PRODUCER',
     producerID: matches.string,
     $cache: true
@@ -117,7 +117,7 @@ export class MediaConsumerActions {
     layer: matches.number
   })
 
-  static closeConsumer = defineAction({
+  static consumerClosed = defineAction({
     type: 'ee.engine.network.MEDIA_CLOSED_CONSUMER',
     consumerID: matches.string
   })
@@ -178,15 +178,15 @@ export const MediaProducerConsumerState = defineState({
       }
     ],
     [
-      MediaProducerActions.closeProducer,
-      (state, action: typeof MediaProducerActions.closeProducer.matches._TYPE) => {
+      MediaProducerActions.producerClosed,
+      (state, action: typeof MediaProducerActions.producerClosed.matches._TYPE) => {
         // removed create/close cached actions for this producer
         const cachedActions = Engine.instance.store.actions.cached
         const peerCachedActions = cachedActions.filter(
           (cachedAction) =>
             (MediaProducerActions.producerCreated.matches.test(cachedAction) ||
               MediaProducerActions.producerPaused.matches.test(cachedAction) ||
-              MediaProducerActions.closeProducer.matches.test(cachedAction)) &&
+              MediaProducerActions.producerClosed.matches.test(cachedAction)) &&
             cachedAction.producerID === action.producerID
         )
         for (const cachedAction of peerCachedActions) {
@@ -250,8 +250,8 @@ export const MediaProducerConsumerState = defineState({
       }
     ],
     [
-      MediaConsumerActions.closeConsumer,
-      (state, action: typeof MediaConsumerActions.closeConsumer.matches._TYPE) => {
+      MediaConsumerActions.consumerClosed,
+      (state, action: typeof MediaConsumerActions.consumerClosed.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) return
 
@@ -333,7 +333,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
       // todo, replace this with a better check
       if (consumer && isClient) {
         dispatchAction(
-          MediaConsumerActions.closeConsumer({
+          MediaConsumerActions.consumerClosed({
             consumerID: consumer.id,
             $topic: network.topic
           })

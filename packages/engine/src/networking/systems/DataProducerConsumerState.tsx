@@ -72,7 +72,7 @@ export class DataProducerActions {
     $cache: true
   })
 
-  static closeProducer = defineAction({
+  static producerClosed = defineAction({
     type: 'ee.engine.network.DATA_CLOSED_PRODUCER',
     producerID: matches.string,
     $cache: true
@@ -96,7 +96,7 @@ export class DataConsumerActions {
     protocol: matches.string
   })
 
-  static closeConsumer = defineAction({
+  static consumerClosed = defineAction({
     type: 'ee.engine.network.DATA_CLOSED_CONSUMER',
     consumerID: matches.string
   })
@@ -149,14 +149,14 @@ export const DataProducerConsumerState = defineState({
       }
     ],
     [
-      DataProducerActions.closeProducer,
-      (state, action: typeof DataProducerActions.closeProducer.matches._TYPE) => {
+      DataProducerActions.producerClosed,
+      (state, action: typeof DataProducerActions.producerClosed.matches._TYPE) => {
         // removed create/close cached actions for this producer
         const cachedActions = Engine.instance.store.actions.cached
         const peerCachedActions = cachedActions.filter(
           (cachedAction) =>
             (DataProducerActions.producerCreated.matches.test(cachedAction) ||
-              DataProducerActions.closeProducer.matches.test(cachedAction)) &&
+              DataProducerActions.producerClosed.matches.test(cachedAction)) &&
             cachedAction.producerID === action.producerID
         )
         for (const cachedAction of peerCachedActions) {
@@ -191,8 +191,8 @@ export const DataProducerConsumerState = defineState({
       }
     ],
     [
-      DataConsumerActions.closeConsumer,
-      (state, action: typeof DataConsumerActions.closeConsumer.matches._TYPE) => {
+      DataConsumerActions.consumerClosed,
+      (state, action: typeof DataConsumerActions.consumerClosed.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) return
 

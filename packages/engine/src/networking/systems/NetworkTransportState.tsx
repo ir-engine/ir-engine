@@ -71,7 +71,7 @@ export class NetworkTransportActions {
     transportID: matches.string
   })
 
-  static closeTransport = defineAction({
+  static transportClosed = defineAction({
     type: 'ee.engine.network.TRANSPORT_CLOSED',
     transportID: matches.string
   })
@@ -116,14 +116,14 @@ export const NetworkTransportState = defineState({
       }
     ],
     [
-      NetworkTransportActions.closeTransport,
-      (state, action: typeof NetworkTransportActions.closeTransport.matches._TYPE) => {
+      NetworkTransportActions.transportClosed,
+      (state, action: typeof NetworkTransportActions.transportClosed.matches._TYPE) => {
         // removed create/close cached actions for this producer
         const cachedActions = Engine.instance.store.actions.cached
         const peerCachedActions = cachedActions.filter(
           (cachedAction) =>
             (NetworkTransportActions.transportCreated.matches.test(cachedAction) ||
-              NetworkTransportActions.closeTransport.matches.test(cachedAction)) &&
+              NetworkTransportActions.transportClosed.matches.test(cachedAction)) &&
             cachedAction.transportID === action.transportID
         )
         for (const cachedAction of peerCachedActions) {
