@@ -32,10 +32,11 @@ import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction } from '../xr/XRState'
 import { calcHips } from './solvers/PoseSolver/calcHips'
 
 import { Landmark } from '@mediapipe/holistic'
+import { ikTargets } from '../avatar/animation/Util'
+import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkState'
 import mediapipePoseNames from './MediapipePoseNames'
 
 const indices = {
@@ -82,10 +83,10 @@ const UpdateRawPose = (data: Landmark[], pose: Landmark[], bindHips, avatarRig, 
 
     for (const key of Object.keys(solvedPoses)) {
       switch (key) {
-        case 'rightHand':
-        case 'leftHand':
-        case 'leftAnkle':
-        case 'rightAnkle':
+        case ikTargets.rightHand:
+        case ikTargets.leftHand:
+        case ikTargets.leftFoot:
+        case ikTargets.rightFoot:
           /*
           var _a
           const offscreen =
@@ -114,7 +115,7 @@ const UpdateRawPose = (data: Landmark[], pose: Landmark[], bindHips, avatarRig, 
       // if (ikTarget) removeEntity(ikTarget)
 
       if (!ikTarget) {
-        dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: key }))
+        dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: key as any }))
       }
 
       const ikTransform = getComponent(ikTarget, TransformComponent)

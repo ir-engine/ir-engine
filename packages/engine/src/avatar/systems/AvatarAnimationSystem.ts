@@ -437,7 +437,7 @@ const execute = () => {
 
         rig.hips.node.quaternion.copy(new Quaternion().setFromEuler(new Euler(0, Math.PI, 0)))
         switch (ikTargetName) {
-          case 'head':
+          case ikTargets.head:
             worldSpaceTargets.head.blendWeight = 0
             if (rigComponent.ikOverride == 'xr') {
               rig.hips.node.position.copy(
@@ -462,14 +462,14 @@ const execute = () => {
               // to do: get blend weight from networked ik component
             }
             break
-          case 'leftFoot':
-          case 'rightFoot':
-          case 'leftHand':
-          case 'rightHand':
-          case 'leftKneeHint':
-          case 'rightKneeHint':
-          case 'leftElbowHint':
-          case 'rightElbowHint':
+          case ikTargets.leftFoot:
+          case ikTargets.rightFoot:
+          case ikTargets.leftHand:
+          case ikTargets.rightHand:
+          case ikTargets.leftKneeHint:
+          case ikTargets.rightKneeHint:
+          case ikTargets.leftElbowHint:
+          case ikTargets.rightElbowHint:
             worldSpaceTargets[ikTargetName].position.copy(ikTransform.position)
             worldSpaceTargets[ikTargetName].rotation.copy(ikTransform.rotation)
             // to do: get blend weight from networked ik component
