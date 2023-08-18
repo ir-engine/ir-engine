@@ -887,40 +887,6 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
   }
 }
 
-export function endVideoChat(network: SocketWebRTCClientNetwork | null, options: { endConsumers?: boolean }) {
-  if (network) {
-    try {
-      if (network.recvTransport?.closed !== true && typeof network.recvTransport?.close === 'function')
-        network.recvTransport.close()
-      if (network.sendTransport?.closed !== true && typeof network.sendTransport?.close === 'function')
-        network.sendTransport.close()
-
-      resetProducer()
-    } catch (err) {
-      logger.error(err, 'EndvideoChat error')
-    }
-  }
-}
-
-export function resetProducer(): void {
-  const mediaStreamState = getMutableState(MediaStreamState)
-  if (mediaStreamState.audioStream.value) {
-    const audioTracks = mediaStreamState.audioStream.value?.getTracks()
-    audioTracks.forEach((track) => track.stop())
-  }
-  if (mediaStreamState.videoStream.value) {
-    const videoTracks = mediaStreamState.videoStream.value?.getTracks()
-    videoTracks.forEach((track) => track.stop())
-  }
-  mediaStreamState.camVideoProducer.set(null)
-  mediaStreamState.camAudioProducer.set(null)
-  mediaStreamState.screenVideoProducer.set(null)
-  mediaStreamState.screenAudioProducer.set(null)
-  mediaStreamState.audioStream.set(null)
-  mediaStreamState.videoStream.set(null)
-  mediaStreamState.localScreen.set(null)
-}
-
 export async function subscribeToTrack(
   network: SocketWebRTCClientNetwork,
   peerID: PeerID,
