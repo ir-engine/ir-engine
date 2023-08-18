@@ -39,7 +39,7 @@ export const AnimationState = defineState({
   initial: () => ({
     ikTargetsAnimations: undefined as AnimationClip[] | undefined,
     fkAnimations: undefined as GLTF | undefined,
-    useDynamicAnimation: false
+    useDynamicAnimation: true
   })
 })
 

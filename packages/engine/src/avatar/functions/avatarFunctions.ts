@@ -146,18 +146,14 @@ export const createIKAnimator = async (entity: Entity) => {
   const manager = getState(AnimationState)
   const avatar = getComponent(entity, AvatarComponent)
 
-  console.log(rigComponent.vrm)
-
-  if (!manager.useDynamicAnimation) {
-    for (let i = 0; i < animations!.length; i++) {
-      animations[i] = retargetMixamoAnimation(animations[i], manager.fkAnimations?.scene!, rigComponent.vrm, 'glb')
-      console.log(animations[i])
-    }
+  for (let i = 0; i < animations!.length; i++) {
+    animations[i] = retargetMixamoAnimation(animations[i], manager.fkAnimations?.scene!, rigComponent.vrm, 'glb')
+    console.log(animations[i])
   }
 
   setComponent(entity, AnimationComponent, {
     animations: clone(animations),
-    mixer: new AnimationMixer(getState(AnimationState).useDynamicAnimation ? rigComponent.targets : avatar.model!)
+    mixer: new AnimationMixer(rigComponent.bindRig.hips.node.parent!)
   })
 }
 
@@ -165,29 +161,20 @@ export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
   if (!manager.ikTargetsAnimations.value || !manager.fkAnimations.value) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
-    const ikPath = 'vrm_mocap_targets.glb'
-    const fkPath = 'locomotion_pack.glb'
-    const fkAsset = (await AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/${fkPath}`
-    )) as GLTF
-    const ikAsset = (await AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/${ikPath}`
+    const asset = (await AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/locomotion_pack.glb`
     )) as GLTF
 
-    if (fkAsset && fkAsset.animations && fkAsset.animations[4] && fkAsset.animations[6]) {
+    if (asset && asset.animations && asset.animations[4] && asset.animations[6]) {
       const movement = getState(AvatarMovementSettingsState)
-      movement.runSpeed = getRootSpeed(fkAsset.animations[4]) * 0.01
-      movement.walkSpeed = getRootSpeed(fkAsset.animations[6]) * 0.01
+      movement.runSpeed = getRootSpeed(asset.animations[4]) * 0.01
+      movement.walkSpeed = getRootSpeed(asset.animations[6]) * 0.01
     }
-    manager.ikTargetsAnimations.set(ikAsset.animations)
-    manager.fkAnimations.set(fkAsset)
+
+    manager.fkAnimations.set(asset)
   }
 
-  return (
-    (!manager.useDynamicAnimation.value
-      ? cloneDeep(manager.fkAnimations.value?.animations)
-      : cloneDeep(manager.ikTargetsAnimations.value)) ?? [new AnimationClip()]
-  )
+  return cloneDeep(manager.fkAnimations.value?.animations) ?? [new AnimationClip()]
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
@@ -204,13 +191,6 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
     skinnedMeshes,
     vrm: model
   })
-
-  const rigComponent = getComponent(entity, AvatarRigComponent)
-  rigComponent.targets.name = 'IKTargets'
-  for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
-    value.name = key
-    rigComponent.targets.add(value)
-  }
 
   avatarAnimationComponent.rootYRatio = 1
 
@@ -250,14 +230,6 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
  */
 export function makeDefaultSkinnedMesh() {
   return makeSkinnedMeshFromBoneData(defaultBonesData)
-}
-
-export const useIkOverride = (entity: Entity, useDynamicAnimation: boolean = false) => {
-  getComponent(entity, AnimationComponent).mixer.stopAllAction()
-  setComponent(entity, AnimationComponent, {
-    animations: getState(AnimationState).ikTargetsAnimations!,
-    mixer: new AnimationMixer(getComponent(entity, AvatarRigComponent).targets)
-  })
 }
 
 /**

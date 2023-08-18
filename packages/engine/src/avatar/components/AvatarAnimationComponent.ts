@@ -24,13 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
-import { useEffect, useState } from 'react'
-import { AnimationClip, Euler, Matrix4, Object3D, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import { useEffect } from 'react'
+import { Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
@@ -44,8 +45,6 @@ import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
-import { AnimationState } from '../AnimationManager'
-import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
@@ -79,21 +78,6 @@ export const AvatarAnimationComponent = defineComponent({
   }
 })
 
-export interface ikTargets {
-  rightHandTarget: Object3D
-  leftHandTarget: Object3D
-  rightFootTarget: Object3D
-  leftFootTarget: Object3D
-  headTarget: Object3D
-  hipsTarget: Object3D
-
-  rightElbowHint: Object3D
-  leftElbowHint: Object3D
-  rightKneeHint: Object3D
-  leftKneeHint: Object3D
-  headHint: Object3D
-}
-
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
@@ -126,23 +110,6 @@ export const AvatarRigComponent = defineComponent({
       /** The VRM model */
       vrm: null! as VRM,
 
-      targets: new Object3D(),
-      ikTargetsMap: {
-        rightHandTarget: new Object3D(),
-        leftHandTarget: new Object3D(),
-        rightFootTarget: new Object3D(),
-        leftFootTarget: new Object3D(),
-        headTarget: new Object3D(),
-        hipsTarget: new Object3D(),
-
-        rightElbowHint: new Object3D(),
-        leftElbowHint: new Object3D(),
-        rightKneeHint: new Object3D(),
-        leftKneeHint: new Object3D(),
-        headHint: new Object3D()
-      } as ikTargets,
-
-      ikOffsetsMap: new Map<string, Vector3>(),
       rootOffset: new Vector3(),
       ikOverride: '' as 'xr' | 'mocap' | ''
     }
@@ -189,6 +156,12 @@ export const AvatarRigComponent = defineComponent({
         anim.helper.set(none)
       }
     }, [debugEnabled, pending])
+
+    useEffect(() => {
+      rigComponent.flipped.set(
+        (rigComponent.value.vrm as any).userData && (rigComponent.value.vrm as any).userData.flipped
+      )
+    }, [rigComponent.vrm])
     /**
      * Proxify the rig bones with the bitecs store
      */
@@ -204,110 +177,100 @@ export const AvatarRigComponent = defineComponent({
       }
     }, [anim.rig])
 
-    const animComponent = useComponent(entity, AnimationComponent)
-    const animationState = useState(getState(AnimationState).useDynamicAnimation)
-
-    const offset = new Vector3()
-    const foot = new Vector3()
-    //Calculate ik target offsets for retargeting
-    useEffect(() => {
-      if (
-        !animComponent.animations.value.length ||
-        !rigComponent.targets.children.length ||
-        (!getState(AnimationState).useDynamicAnimation && !rigComponent.ikOverride.value)
-      )
-        return
-
-      const bindTracks = AnimationClip.findByName(getState(AnimationState).ikTargetsAnimations!, 'BindPose').tracks
-      if (!bindTracks) return
-
-      const rig = getComponent(entity, AvatarRigComponent)
-      if (!rig.rig.hips?.node) return
-
-      const avatarComponent = getComponent(entity, AvatarComponent)
-      const scaleMultiplier = avatarComponent.scaleMultiplier
-
-      offset.y = rig.bindRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
-
-      rig.flipped = (rig.vrm as any).userData && (rig.vrm as any).userData.flipped
-
-      const direction = rig.flipped ? -1 : 1
-
-      const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, rig.flipped ? Math.PI : 0, 0))
-
-      for (let i = 0; i < bindTracks.length; i += 3) {
-        const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
-
-        //todo: find a better way to map joints to ik targets here
-        //currently hints are offset by joint forward to estimate where they should be for every rig
-        const bonePos = new Matrix4()
-        switch (key) {
-          case 'rightHandTarget':
-          case 'leftHandTarget':
-          case 'rightFootTarget':
-          case 'leftFootTarget':
-          case 'headTarget':
-            bonePos.copy(
-              rig.bindRig[key.replace('Target', '')].node.matrixWorld.multiply(
-                new Matrix4()
-                  .setPosition(rig.bindRig[key].node.getWorldDirection(new Vector3()))
-                  .multiplyScalar(direction * -1)
-              )
-            )
-            break
-          case 'rightElbowHint':
-            bonePos.copy(
-              rig.bindRig.rightLowerArm.node.matrixWorld.multiply(
-                new Matrix4()
-                  .setPosition(rig.bindRig.rightLowerArm.node.getWorldDirection(new Vector3()))
-                  .multiplyScalar(direction * -1)
-              )
-            )
-            break
-          case 'leftElbowHint':
-            bonePos.copy(
-              rig.bindRig.leftLowerArm.node.matrixWorld.multiply(
-                new Matrix4()
-                  .setPosition(rig.bindRig.leftLowerArm.node.getWorldDirection(new Vector3()))
-                  .multiplyScalar(direction * -1)
-              )
-            )
-            break
-          case 'rightKneeHint':
-            bonePos.copy(
-              rig.bindRig.rightLowerLeg.node.matrixWorld.multiply(
-                new Matrix4().setPosition(
-                  rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
-                )
-              )
-            )
-            break
-          case 'leftKneeHint':
-            bonePos.copy(
-              rig.bindRig.leftLowerLeg.node.matrixWorld.multiply(
-                new Matrix4().setPosition(
-                  rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
-                )
-              )
-            )
-            break
-          case 'headHint':
-            bonePos.copy(rig.bindRig.head.node.matrixWorld)
-          case 'hipsTarget':
-            bonePos.copy(rig.bindRig.hips.node.matrixWorld)
-        }
-        const pos = new Vector3()
-        bonePos.decompose(pos, new Quaternion(), new Vector3())
-        pos.applyQuaternion(hipsRotationoffset)
-        pos.sub(
-          new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).multiplyScalar(
-            scaleMultiplier
-          )
-        )
-        pos.sub(offset)
-        rig.ikOffsetsMap.set(key, pos)
-      }
-    }, [animComponent.animations, rigComponent.targets, animationState])
     return null
   }
 })
+
+/**Used to generate an offset map that retargets ik position animations to fit any rig */
+export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[]) => {
+  const offset = new Vector3()
+  const foot = new Vector3()
+
+  const rig = getComponent(entity, AvatarRigComponent)
+  if (!rig.rig.hips?.node) return
+
+  const avatarComponent = getComponent(entity, AvatarComponent)
+  const scaleMultiplier = avatarComponent.scaleMultiplier
+
+  offset.y = rig.bindRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
+
+  const direction = rig.flipped ? -1 : 1
+
+  const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, rig.flipped ? Math.PI : 0, 0))
+
+  const ikOffsetsMap = new Map<string, Vector3>()
+
+  for (let i = 0; i < bindTracks.length; i += 3) {
+    const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
+
+    //todo: find a better way to map joints to ik targets here
+    //currently hints are offset by joint forward to estimate where they should be for every rig
+    const bonePos = new Matrix4()
+    switch (key) {
+      case 'rightHandTarget':
+      case 'leftHandTarget':
+      case 'rightFootTarget':
+      case 'leftFootTarget':
+      case 'headTarget':
+        bonePos.copy(
+          rig.bindRig[key.replace('Target', '')].node.matrixWorld.multiply(
+            new Matrix4()
+              .setPosition(rig.bindRig[key].node.getWorldDirection(new Vector3()))
+              .multiplyScalar(direction * -1)
+          )
+        )
+        break
+      case 'rightElbowHint':
+        bonePos.copy(
+          rig.bindRig.rightLowerArm.node.matrixWorld.multiply(
+            new Matrix4()
+              .setPosition(rig.bindRig.rightLowerArm.node.getWorldDirection(new Vector3()))
+              .multiplyScalar(direction * -1)
+          )
+        )
+        break
+      case 'leftElbowHint':
+        bonePos.copy(
+          rig.bindRig.leftLowerArm.node.matrixWorld.multiply(
+            new Matrix4()
+              .setPosition(rig.bindRig.leftLowerArm.node.getWorldDirection(new Vector3()))
+              .multiplyScalar(direction * -1)
+          )
+        )
+        break
+      case 'rightKneeHint':
+        bonePos.copy(
+          rig.bindRig.rightLowerLeg.node.matrixWorld.multiply(
+            new Matrix4().setPosition(
+              rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
+            )
+          )
+        )
+        break
+      case 'leftKneeHint':
+        bonePos.copy(
+          rig.bindRig.leftLowerLeg.node.matrixWorld.multiply(
+            new Matrix4().setPosition(
+              rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
+            )
+          )
+        )
+        break
+      case 'headHint':
+        bonePos.copy(rig.bindRig.head.node.matrixWorld)
+      case 'hipsTarget':
+        bonePos.copy(rig.bindRig.hips.node.matrixWorld)
+    }
+    const pos = new Vector3()
+    bonePos.decompose(pos, new Quaternion(), new Vector3())
+    pos.applyQuaternion(hipsRotationoffset)
+    pos.sub(
+      new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).multiplyScalar(
+        scaleMultiplier
+      )
+    )
+    pos.sub(offset)
+    ikOffsetsMap.set(key, pos)
+  }
+  return ikOffsetsMap
+}

@@ -50,6 +50,7 @@ let fallWeight = 0,
 
 //This is a stateless animation blend, it is not a graph
 //To do: make a stateful blend tree
+let notplaying = false
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   if (!animationComponent.animations) return

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AxesHelper, Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { AxesHelper, Euler, MathUtils, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -69,7 +69,6 @@ import {
   compareDistanceToCamera
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { AnimationState } from '.././AnimationManager'
@@ -81,12 +80,10 @@ import {
   xrTargetLeftHandSuffix,
   xrTargetRightHandSuffix
 } from '.././components/AvatarIKComponents'
-import { LoopAnimationComponent } from '.././components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { useIkOverride } from '../functions/avatarFunctions'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -106,13 +103,6 @@ export const AvatarAnimationState = defineState({
   }
 })
 
-const loopAnimationQuery = defineQuery([
-  VisibleComponent,
-  LoopAnimationComponent,
-  AnimationComponent,
-  AvatarAnimationComponent,
-  AvatarRigComponent
-])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
 const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
@@ -136,7 +126,6 @@ let avatarSortAccumulator = 0
 const _quat = new Quaternion()
 
 const _vector3 = new Vector3()
-const _empty = new Vector3()
 const _hipVector = new Vector3()
 const _hipRot = new Quaternion()
 const leftLegVector = new Vector3()
@@ -148,23 +137,25 @@ const tipAxisRestriction = new Euler(0, 0, 0)
 interface targetTransform {
   position: Vector3
   rotation: Quaternion
+  blendWeight: number
 }
 
-//raw position and rotation of the IK targets in world space
+//stores raw position and rotation of the IK targets in world space
+//is set from ecs ik target components that correspond with a given avatar
 const worldSpaceTargets = {
-  rightHandTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  leftHandTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  rightFootTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  leftFootTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  headTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  hipsTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  rightHand: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  leftHand: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  rightFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  leftFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  head: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
 
-  rightElbowHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  leftElbowHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  rightKneeHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  leftKneeHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
-  headHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform
+  rightElbowHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  leftElbowHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  rightKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  leftKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  headHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform
 }
+let weights = {} as Record<string, number>
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
@@ -264,7 +255,6 @@ const execute = () => {
     setComponent(entity, AvatarIKTargetComponent)
 
     setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: 'xr' })
-    useIkOverride(UUIDComponent.entitiesByUUID[action.$from])
 
     const helper = new AxesHelper(0.5)
     setObjectLayers(helper, ObjectLayers.Gizmos)
@@ -343,7 +333,6 @@ const execute = () => {
    */
 
   const avatarAnimationEntities = avatarAnimationQuery().filter(filterPriorityEntities)
-  const loopAnimationEntities = loopAnimationQuery().filter(filterPriorityEntities)
   const ikEntities = ikTargetQuery()
 
   footRaycastTimer += deltaSeconds
@@ -393,8 +382,6 @@ const execute = () => {
       avatarAnimationComponent.locomotion.setScalar(0)
     }
 
-    setAvatarLocomotionAnimation(entity)
-
     /**
      * Apply procedural IK based animations or FK animations depending on the animation state
      */
@@ -402,26 +389,23 @@ const execute = () => {
     const avatarComponent = getComponent(entity, AvatarComponent)
 
     if (animationState.useDynamicAnimation || rigComponent.ikOverride != '') {
-      if (!animationState.ikTargetsAnimations) continue
       if (!rig.hips?.node) continue
 
       //calculate world positions
 
       const transform = getComponent(entity, TransformComponent)
-
-      let i = 0
-      for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
-        //if xr is active, set select targets to xr tracking data
-        worldSpaceTargets[key].position
-          .copy(value.position)
-          .multiplyScalar(avatarComponent.scaleMultiplier)
-          .add(rigComponent.ikOffsetsMap.get(key) ?? _empty)
-          .applyMatrix4(transform.matrix)
-
-        i++
-      }
+      rig.hips.node.parent!.matrix.copy(transform.matrix)
+      rig.hips.node.parent!.updateWorldMatrix(false, true)
 
       applyInputSourcePoseToIKTargets()
+
+      //clear some data
+      for (const [key, value] of Object.entries(worldSpaceTargets)) {
+        value.blendWeight = 1
+        value.position = new Vector3()
+        value.rotation.identity()
+      }
+      weights = {}
 
       for (const ikEntity of ikEntities) {
         if (ikEntities.length <= 1) continue
@@ -435,57 +419,53 @@ const execute = () => {
         const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
         const ikTransform = getComponent(ikEntity, TransformComponent)
         const hipsForward = new Vector3(0, 0, 1)
+
+        rig.hips.node.quaternion.copy(new Quaternion().setFromEuler(new Euler(0, Math.PI, 0)))
+        console.log(ikTargetName)
         switch (ikTargetName) {
-          case 'leftHand':
-            worldSpaceTargets.leftHandTarget.position.copy(ikTransform.position)
-            worldSpaceTargets.leftHandTarget.rotation.copy(ikTransform.rotation)
-            console.log()
-            break
-          case 'rightHand':
-            worldSpaceTargets.rightHandTarget.position.copy(ikTransform.position)
-            worldSpaceTargets.rightHandTarget.rotation.copy(ikTransform.rotation)
-            break
           case 'head':
-            /* temporarily comment out regressive condition intended for mocap support
-            if (rigComponent.ikOverride == 'xr') { */
-            worldSpaceTargets.hipsTarget.position.copy(
-              _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
-            )
-
-            //offset target forward to account for hips being behind the head
-            hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
-            hipsForward.multiplyScalar(0.125)
-            worldSpaceTargets.hipsTarget.position.sub(hipsForward)
-
-            //calculate head look direction and apply to head bone
-            //look direction should be set outside of the xr switch
-            rig.head.node.quaternion.copy(
-              _quat.multiplyQuaternions(
-                rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
-                ikTransform.rotation
+            worldSpaceTargets.head.blendWeight = 0
+            if (rigComponent.ikOverride == 'xr') {
+              rig.hips.node.position.copy(
+                _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
               )
-            )
-            /*} 
-            else {
-              worldSpaceTargets.headTarget.position.copy(ikTransform.position)
+
+              //offset target forward to account for hips being behind the head
+              hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
+              hipsForward.multiplyScalar(0.125)
+              rig.hips.node.position.sub(hipsForward)
+
+              //calculate head look direction and apply to head bone
+              //look direction should be set outside of the xr switch
+              rig.head.node.quaternion.copy(
+                _quat.multiplyQuaternions(
+                  rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
+                  ikTransform.rotation
+                )
+              )
+            } else {
+              worldSpaceTargets.head.position.copy(ikTransform.position)
+              // to do: get blend weight from networked ik component
             }
-            */
             break
-          case 'hips':
-            worldSpaceTargets.hipsTarget.position.copy(ikTransform.position)
-            break
-          case 'leftAnkle':
-            //worldSpaceTargets.leftFootTarget.position.copy(ikTransform.position)
-            break
-          case 'rightAnkle':
-            //worldSpaceTargets.rightFootTarget.position.copy(ikTransform.position)
-            break
+          case 'leftFoot':
+          case 'rightFoot':
+          case 'leftHand':
+          case 'rightHand':
+          case 'leftKneeHint':
+          case 'rightKneeHint':
+          case 'leftElbowHint':
+          case 'rightElbowHint':
+            worldSpaceTargets[ikTargetName].position.copy(ikTransform.position)
+            worldSpaceTargets[ikTargetName].rotation.copy(ikTransform.rotation)
+            // to do: get blend weight from networked ik component
+            worldSpaceTargets[ikTargetName].blendWeight = 0
         }
       }
 
       if (debugEnable) {
         let i = 0
-        for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
+        for (const [key, value] of Object.entries(worldSpaceTargets)) {
           //if xr is active, set select targets to xr tracking data
           const visualizerTransform = getComponent(visualizers[i], TransformComponent)
           visualizerTransform.position.copy(worldSpaceTargets[key].position)
@@ -495,117 +475,129 @@ const execute = () => {
       }
 
       const leftLegLength =
-        leftLegVector
-          .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget.position)
-          .length() + rigComponent.footHeight
+        leftLegVector.subVectors(rig.hips.node.position, worldSpaceTargets.leftFoot.position).length() +
+        rigComponent.footHeight
       const rightLegLength =
-        rightLegVector
-          .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget.position)
-          .length() + rigComponent.footHeight
+        rightLegVector.subVectors(rig.hips.node.position, worldSpaceTargets.rightFoot.position).length() +
+        rigComponent.footHeight
 
       //calculate hips to head
-      rig.hips.node.position.copy(worldSpaceTargets.hipsTarget.position.applyMatrix4(transform.matrixInverse))
-      _hipVector.subVectors(
-        rigComponent.ikTargetsMap.headTarget.position,
-        rigComponent.ikTargetsMap.hipsTarget.position
-      )
+      rig.hips.node.position.applyMatrix4(transform.matrixInverse)
+      //_hipVector.subVectors(
+      //  rigComponent.ikTargetsMap.headTarget.position,
+      //  rigComponent.ikTargetsMap.hipsTarget.position
+      //)
       rig.hips.node.quaternion
         .setFromUnitVectors(V_010, _hipVector)
         .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
 
-      //right now we only want hand rotation set if we are in xr
-      const xrValue = xrState.sessionActive ? 1 : 0
+      if (worldSpaceTargets.rightHand.blendWeight < 1) {
+        solveTwoBoneIK(
+          rig.rightUpperArm.node,
+          rig.rightLowerArm.node,
+          rig.rightHand.node,
+          worldSpaceTargets.rightHand.position,
+          worldSpaceTargets.rightHand.rotation,
+          null,
+          worldSpaceTargets.rightElbowHint.blendWeight < 1 ? worldSpaceTargets.rightElbowHint.position : null,
+          tipAxisRestriction,
+          midAxisRestriction,
+          null,
+          1
+        )
+        weights['rightUpperArm'] = worldSpaceTargets.rightHand.blendWeight
+        weights['rightLowerArm'] = worldSpaceTargets.rightHand.blendWeight
+        weights['rightHand'] = worldSpaceTargets.rightHand.blendWeight
+      }
 
-      solveTwoBoneIK(
-        rig.rightUpperArm.node,
-        rig.rightLowerArm.node,
-        rig.rightHand.node,
-        worldSpaceTargets.rightHandTarget.position,
-        worldSpaceTargets.rightHandTarget.rotation,
-        null,
-        worldSpaceTargets.rightElbowHint.position,
-        tipAxisRestriction,
-        midAxisRestriction,
-        null,
-        1,
-        xrValue
-      )
-
-      solveTwoBoneIK(
-        rig.leftUpperArm.node,
-        rig.leftLowerArm.node,
-        rig.leftHand.node,
-        worldSpaceTargets.leftHandTarget.position,
-        worldSpaceTargets.leftHandTarget.rotation,
-        null,
-        worldSpaceTargets.leftElbowHint.position,
-        tipAxisRestriction,
-        midAxisRestriction,
-        null,
-        1,
-        xrValue
-      )
-
-      setFootTarget(
-        transform.position,
-        worldSpaceTargets.rightFootTarget,
-        rightLegLength,
-        footRaycastTimer >= footRaycastInterval,
-        0
-      )
-      setFootTarget(
-        transform.position,
-        worldSpaceTargets.leftFootTarget,
-        leftLegLength,
-        footRaycastTimer >= footRaycastInterval,
-        1
-      )
+      if (worldSpaceTargets.leftHand.blendWeight < 1) {
+        solveTwoBoneIK(
+          rig.leftUpperArm.node,
+          rig.leftLowerArm.node,
+          rig.leftHand.node,
+          worldSpaceTargets.leftHand.position,
+          worldSpaceTargets.rightHand.rotation,
+          null,
+          worldSpaceTargets.leftElbowHint.blendWeight < 1 ? worldSpaceTargets.leftElbowHint.position : null,
+          tipAxisRestriction,
+          midAxisRestriction,
+          null,
+          1
+        )
+        weights['leftUpperArm'] = worldSpaceTargets.leftHand.blendWeight
+        weights['leftLowerArm'] = worldSpaceTargets.leftHand.blendWeight
+        weights['leftHand'] = worldSpaceTargets.leftHand.blendWeight
+      }
 
       if (footRaycastTimer >= footRaycastInterval) {
         footRaycastTimer = 0
       }
 
-      solveTwoBoneIK(
-        rig.rightUpperLeg.node,
-        rig.rightLowerLeg.node,
-        rig.rightFoot.node,
-        worldSpaceTargets.rightFootTarget.position.setY(
-          worldSpaceTargets.rightFootTarget.position.y + rigComponent.footHeight
-        ),
-        worldSpaceTargets.rightFootTarget.rotation,
-        null,
-        worldSpaceTargets.rightKneeHint.position,
-        tipAxisRestriction,
-        midAxisRestriction,
-        tipAxisRestriction
-      )
+      if (worldSpaceTargets.rightFoot.blendWeight < 1) {
+        setFootTarget(
+          transform.position,
+          worldSpaceTargets.rightFoot,
+          rightLegLength,
+          footRaycastTimer >= footRaycastInterval,
+          0
+        )
+        solveTwoBoneIK(
+          rig.rightUpperLeg.node,
+          rig.rightLowerLeg.node,
+          rig.rightFoot.node,
+          worldSpaceTargets.rightFoot.position.setY(worldSpaceTargets.rightFoot.position.y),
+          worldSpaceTargets.rightFoot.rotation,
+          null,
+          worldSpaceTargets.rightKneeHint.blendWeight < 1 ? worldSpaceTargets.rightKneeHint.position : null,
+          null,
+          midAxisRestriction
+        )
+        weights['rightUpperLeg'] = worldSpaceTargets.rightFoot.blendWeight
+        weights['rightLowerLeg'] = worldSpaceTargets.rightFoot.blendWeight
+        weights['rightFoot'] = worldSpaceTargets.rightFoot.blendWeight
+      }
 
-      solveTwoBoneIK(
-        rig.leftUpperLeg.node,
-        rig.leftLowerLeg.node,
-        rig.leftFoot.node,
-        worldSpaceTargets.leftFootTarget.position.setY(
-          worldSpaceTargets.leftFootTarget.position.y + rigComponent.footHeight
-        ),
-        worldSpaceTargets.leftFootTarget.rotation,
-        null,
-        worldSpaceTargets.leftKneeHint.position,
-        tipAxisRestriction,
-        midAxisRestriction,
-        tipAxisRestriction
-      )
-    } else {
-      //if we're not using dynamic animations, use fk instead
+      if (worldSpaceTargets.leftFoot.blendWeight < 1) {
+        setFootTarget(
+          transform.position,
+          worldSpaceTargets.leftFoot,
+          leftLegLength,
+          footRaycastTimer >= footRaycastInterval,
+          1
+        )
+        solveTwoBoneIK(
+          rig.leftUpperLeg.node,
+          rig.leftLowerLeg.node,
+          rig.leftFoot.node,
+          worldSpaceTargets.leftFoot.position.setY(worldSpaceTargets.leftFoot.position.y),
+          worldSpaceTargets.leftFoot.rotation,
+          null,
+          worldSpaceTargets.leftKneeHint.blendWeight < 1 ? worldSpaceTargets.leftKneeHint.position : null,
+          null,
+          midAxisRestriction
+        )
+        weights['leftUpperLeg'] = worldSpaceTargets.leftFoot.blendWeight
+        weights['leftLowerLeg'] = worldSpaceTargets.leftFoot.blendWeight
+        weights['leftFoot'] = worldSpaceTargets.leftFoot.blendWeight
+      }
+
+      if (worldSpaceTargets.head.blendWeight < 1) {
+        weights['head'] = worldSpaceTargets.head.blendWeight
+        weights['hips'] = worldSpaceTargets.head.blendWeight
+        weights['spine'] = worldSpaceTargets.head.blendWeight
+      }
     }
 
+    setAvatarLocomotionAnimation(entity)
+
+    for (const [key, animatedBone] of Object.entries(rigComponent.bindRig)) {
+      const ikBone = rigComponent.rig[key].node as Object3D
+      ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
+    }
+    //todo: lerp this
+    if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.bindRig.hips.node.position)
     rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
-
-  /**
-   * Since the scene does not automatically update the matricies for all objects, which updates bones,
-   * we need to manually do it for Loop Animation Entities
-   */
-  for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
   /** Run debug */
   for (const entity of Engine.instance.priorityAvatarEntities) {
@@ -614,11 +606,6 @@ const execute = () => {
       avatarRig.rig.hips.node.updateWorldMatrix(true, true)
       avatarRig.helper?.updateMatrixWorld(true)
     }
-  }
-
-  /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
-  for (const entity of ikEntities) {
-    // delete TransformComponent.dirtyTransforms[entity]
   }
 }
 
