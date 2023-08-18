@@ -153,6 +153,7 @@ export class ProjectPermissionService<
         },
         paginate: false
       })) as any as ProjectPermissionType[]
+      delete data.inviteCode
       return super._create({
         ...data,
         userId: users.data[0].id,
