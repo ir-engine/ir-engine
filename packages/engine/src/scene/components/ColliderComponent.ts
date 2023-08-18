@@ -108,7 +108,11 @@ export const ColliderComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+    if (
+      !getState(EngineState).sceneLoaded &&
+      hasComponent(entity, SceneObjectComponent) &&
+      !hasComponent(entity, RigidBodyComponent)
+    )
       setComponent(entity, SceneAssetPendingTagComponent)
 
     setComponent(entity, InputComponent)

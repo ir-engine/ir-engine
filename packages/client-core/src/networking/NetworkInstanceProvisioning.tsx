@@ -45,10 +45,11 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Groups } from '@mui/icons-material'
 
+import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
+import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
-import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 
 export const WorldInstanceProvisioning = () => {
   const locationState = useHookstate(getMutableState(LocationState))
@@ -182,6 +183,7 @@ export const SocialMenus = {
 }
 
 export const FriendMenus = () => {
+  const { t } = useTranslation()
   FriendService.useAPIListeners()
 
   useEffect(() => {
@@ -191,7 +193,7 @@ export const FriendMenus = () => {
       [SocialMenus.Messages]: MessagesMenu
     })
     menuState.hotbar.merge({
-      [SocialMenus.Friends]: Groups
+      [SocialMenus.Friends]: { icon: <Groups />, tooltip: t('user:menu.friends') }
     })
 
     return () => {
