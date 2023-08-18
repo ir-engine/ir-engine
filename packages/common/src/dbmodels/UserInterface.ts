@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ChannelID } from './Channel'
 
 export interface UserInterface {
   id: string
@@ -113,4 +114,9 @@ export interface UserKick {
 export interface UserSetting {
   id: string
   themeModes: string
+}
+
+export interface ChannelUserInterface {
+  id: ChannelID
+  isOwner: boolean
 }

@@ -32,8 +32,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
-import { channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { SocketWebRTCClientNetwork, endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -188,7 +187,7 @@ export const ChannelService = {
         }
       }
 
-      const channelUserRemovedListener = (params: ChannelUser) => {
+      const channelUserRemovedListener = (params: ChannelUserType) => {
         ChannelService.getChannels()
         const channelState = getMutableState(ChannelState)
         if (params.userId === Engine.instance.userID && params.channelId === channelState.targetChannelId.value) {
