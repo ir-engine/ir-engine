@@ -59,6 +59,7 @@ const updatePeersActionQueue = defineActionQueue(NetworkActions.updatePeers.matc
 const execute = () => {
   for (const action of consumerCreatedQueue()) receiveConsumerHandler(action)
   for (const action of transportCreatedActionQueue()) onTransportCreated(action)
+  // TODO replace with event sourcing
   for (const action of updatePeersActionQueue()) {
     const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
