@@ -79,7 +79,8 @@ const NetworkConnectionReactor = (props: { networkID: UserID }) => {
 
   useEffect(() => {
     networkState.ready.set(!!recvTransport.value && !!sendTransport.value)
-  }, [recvTransport, sendTransport])
+  }, [recvTransport.value, sendTransport.value])
+  // TODO - see why we have to use .value here instead of just the hookstate object
 
   return null
 }
