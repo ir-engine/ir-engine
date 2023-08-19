@@ -276,6 +276,7 @@ export const connectToNetwork = async (
     clearTimeout(connectionFailTimeout)
 
     networkState.connected.set(true)
+    authenticateNetwork(network)
 
     const onDisconnect = () => {
       logger.info('Disonnected from network %o', { topic: network.topic, id: network.id })
