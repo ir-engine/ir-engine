@@ -29,7 +29,7 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
 import { DialogActionsProps, DialogActions as MuiDialogActions } from '@mui/material'
 
-const DialogActions = ({ children, ...props }: DialogActionsProps & {}) => (
+const DialogActions = ({ children, ...props }: DialogActionsProps & any) => (
   <MuiDialogActions {...props}>{children}</MuiDialogActions>
 )
 

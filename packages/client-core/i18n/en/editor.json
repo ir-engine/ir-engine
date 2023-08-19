@@ -97,8 +97,6 @@
     }
   },
   "toolbar": {
-    "lbl-advanced": "Advanced",
-    "info-advanced": "Enables advanced editing mode",
     "lbl-publish": "Publish",
     "lbl-published": "Published",
     "command": {
@@ -629,7 +627,7 @@
     },
     "transform": {
       "title": "Transform",
-      "lbl-postition": "Position",
+      "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale"
     },
@@ -658,8 +656,18 @@
       "lbl-useLoadingEffect": "Use Loading Effect"
     },
     "spline": {
-      "description": "Dynamically create and customize curves.",
-      "lbl-addNode": "Add node to curve."
+      "name": "Spline",
+      "description": "Create and customize curves.",
+      "lbl-addNode": "Add node to curve"
+    },
+    "splinetrack": {
+      "name": "Spline Track",
+      "description": "Have an entity follow a Spline",
+      "lbl-spline": "Source Spline",
+      "lbl-velocity": "Velocity",
+      "lbl-enableRotation": "Enable Rotation",
+      "lbl-lockXZ": "Lock To XZ Plane",
+      "lbl-loop": "Loop"
     },
     "systemnode": {
       "description": "Attach script.",
@@ -750,7 +758,14 @@
       "back": "Back",
       "loadingFiles": "Loading files",
       "compress": "Compress",
-      "convert": "Convert"
+      "convert": "Convert",
+      "downloadProject": "Download Project",
+      "fileProperties": {
+        "name": "Name:",
+        "type": "Type:",
+        "size": "Size:",
+        "url": "URL:"
+      }
     }
   },
   "hierarchy": {
@@ -833,7 +848,7 @@
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
     },
-    "confirmContentDelete": "Do you want to delete this",
+    "confirmContentDelete": "Do you want to delete",
     "file": "file",
     "folder": "folder"
   },

@@ -33,7 +33,7 @@ import { FileContentType } from '@etherealengine/common/src/interfaces/FileConte
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'

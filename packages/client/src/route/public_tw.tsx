@@ -24,19 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
-import {
-  AuthSettingsService,
-  AuthSettingsState
-} from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
@@ -55,13 +50,10 @@ const CenteredLoadingCircle = () => {
 
 function PublicRouter() {
   const customRoutes = useCustomRoutes()
-  const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
-  const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
+  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const location = useLocation()
-  const [routesReady, setRoutesReady] = useState(false)
 
   useEffect(() => {
-    addActionReceptor(AuthServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
 
@@ -71,24 +63,15 @@ function PublicRouter() {
     // The client and auth settigns will not be needed on these routes
     if (!/auth\/oauth/.test(location.pathname)) {
       AuthService.doLoginAuto()
-      AuthSettingsService.fetchAuthSetting()
     }
 
     return () => {
-      removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
     }
   }, [])
 
-  useEffect(() => {
-    // For the same reason as above, we will not need to load the client and auth settings for these routes
-    if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
-    if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
-      return setRoutesReady(true)
-  }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
-
-  if (!routesReady) {
+  if (!/auth\/oauth/.test(location.pathname) && (!customRoutes.length || !isLoggedIn.value)) {
     return <CenteredLoadingCircle />
   }
 

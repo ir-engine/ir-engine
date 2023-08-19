@@ -86,7 +86,11 @@ import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
 
-export const createNewEditorNode = (entityNode: Entity, componentName: string): void => {
+export const createNewEditorNode = (
+  entityNode: Entity,
+  componentName: string,
+  parentEntity = getState(SceneState).sceneEntity as Entity
+): void => {
   const components = [
     { name: ComponentMap.get(componentName)!.jsonID! },
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
@@ -94,7 +98,7 @@ export const createNewEditorNode = (entityNode: Entity, componentName: string): 
   ]
   const name = getUniqueName(entityNode, `New ${startCase(components[0].name.toLowerCase())}`)
 
-  addEntityNodeChild(entityNode, getState(SceneState).sceneEntity)
+  addEntityNodeChild(entityNode, parentEntity)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,
@@ -119,7 +123,7 @@ export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
 
 const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
   const frontier = [data]
-  const changes: { obj: Object; property: string; nu: string }[] = []
+  const changes: { obj: object; property: string; nu: string }[] = []
   while (frontier.length > 0) {
     const item = frontier.pop()
     Object.entries(item).forEach(([key, val]) => {
@@ -173,7 +177,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
     const data = iterateReplaceID(_data, idMap)
     deserializeSceneEntity(entityMap[uuid], data)
   })
-  const result = new Array()
+  const result = [] as Entity[]
   entities.forEach(([_uuid, data]) => {
     let uuid = _uuid
     if (idMap.has(uuid)) {

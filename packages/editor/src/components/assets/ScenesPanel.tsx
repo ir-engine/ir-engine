@@ -27,7 +27,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CompressedTexture } from 'three'
 
-import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
@@ -61,7 +61,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
-  const route = useRouter()
   const editorState = useHookstate(getMutableState(EditorState))
   const [DialogComponent, setDialogComponent] = useDialog()
   const [fetched, setFetch] = useState(false)
@@ -113,7 +112,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
       if (editorState.sceneName.value === activeScene.name) {
         dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
         dispatchAction(EngineActions.sceneUnloaded({}))
-        route(`/studio/${editorState.projectName.value}`)
+        RouterService.navigate(`/studio/${editorState.projectName.value}`)
       }
 
       fetchItems()
@@ -152,7 +151,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
     dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
-    route(`/studio/${editorState.projectName.value}/${newName}`)
+    RouterService.navigate(`/studio/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
   }

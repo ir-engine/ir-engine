@@ -160,6 +160,7 @@ export const start = async (): Promise<void> => {
         const http = require('http')
         server = http.createServer(this.callback())
       }
+      // eslint-disable-next-line prefer-spread, prefer-rest-params
       return server.listen.apply(server, arguments)
     }
 

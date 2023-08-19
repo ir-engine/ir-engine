@@ -40,7 +40,9 @@ export default () => {
         foundItem.forEach(async (scp) => {
           try {
             await context.app.service('scope').remove(scp.id)
-          } catch {}
+          } catch (e) {
+            return
+          }
         })
       }
 

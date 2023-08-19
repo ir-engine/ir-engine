@@ -23,9 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { avatarMethods, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { avatarMethods, avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { AvatarService } from './avatar.class'
 import avatarDocs from './avatar.docs'
 import hooks from './avatar.hooks'
@@ -54,4 +57,23 @@ export default (app: Application): void => {
 
   const service = app.service(avatarPath)
   service.hooks(hooks)
+
+  service.publish('patched', async (data: AvatarType, context) => {
+    try {
+      const { params } = context
+      let targetIds = [params.user?.id]
+      const usersWithAvatar = (
+        (await app.service(userPath)._find({
+          query: {
+            avatarId: data.id
+          }
+        })) as Paginated<UserType>
+      ).data.map((user) => user.id)
+      targetIds = targetIds.concat(usersWithAvatar)
+      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
+  })
 }

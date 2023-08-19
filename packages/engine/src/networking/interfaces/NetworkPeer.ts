@@ -27,13 +27,13 @@ import { Spark } from 'primus'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import { DataChannelType } from '../classes/Network'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { MediaTagType, PeerMediaType } from '../NetworkState'
 
 export interface NetworkPeer {
-  userId: UserId
+  userId: UserID
   userIndex: number
   spectating?: boolean
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
@@ -44,8 +44,8 @@ export interface NetworkPeer {
   lastSeenTs?: any
   joinTs?: any
   media?: Record<MediaTagType, PeerMediaType>
-  consumerLayers?: {}
-  stats?: {}
+  consumerLayers?: any
+  stats?: any
   sendTransport?: any
   recvTransport?: any
   outgoingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer

@@ -67,7 +67,7 @@ export const isApple = () => {
   const iOS13_iPad = navigator.platform === 'MacIntel'
 
   const iOS1to12quirk = () => {
-    var audio = new Audio() // temporary Audio object
+    const audio = new Audio() // temporary Audio object
     audio.volume = 0.5 // has no effect on iOS <= 12
     return audio.volume === 1
   }

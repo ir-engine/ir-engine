@@ -31,7 +31,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
+import { InviteInterface } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -47,13 +47,14 @@ import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
-import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminInviteService } from '../../services/InviteService'
-import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
-import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -71,6 +72,7 @@ const INVITE_TYPE_TAB_MAP = {
 }
 
 const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
+  const { t } = useTranslation()
   const inviteTypeTab = useHookstate(0)
   const textValue = useHookstate('')
   const makeAdmin = useHookstate(false)
@@ -84,26 +86,20 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const timed = useHookstate(false)
   const startTime = useHookstate<Dayjs>(dayjs(null))
   const endTime = useHookstate<Dayjs>(dayjs(null))
-  const { t } = useTranslation()
-  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
-  const adminUserState = useHookstate(getMutableState(AdminUserState))
+
+  const adminInstances = useFind('instance').data
+  const adminLocations = useFind(locationPath).data
+  const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
+
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
-  const adminLocations = adminLocationState.locations
-  const adminInstances = adminInstanceState.instances
-  const adminUsers = adminUserState.users
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
     ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
+  const updateInvite = useMutation('invite').update
 
   useEffect(() => {
-    console.log('DEBUG : invite changed', invite)
-    AdminLocationService.fetchAdminLocations()
-    AdminInstanceService.fetchAdminInstances()
-    AdminUserService.setSkipGuests(true)
-    AdminUserService.fetchUsersAsAdmin()
     inviteTypeTab.set(
       invite.inviteType === 'new-user'
         ? 0
@@ -115,8 +111,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     )
     if (invite.token) textValue.set(invite.token)
     if (invite.inviteeId) {
-      const userMatch = adminUsers.find((user) => user.id.value === invite.inviteeId)
-      if (userMatch && userMatch.inviteCode.value) textValue.set(userMatch.inviteCode.value)
+      const userMatch = adminUsers.find((user) => user.id === invite.inviteeId)
+      if (userMatch && userMatch.inviteCode) textValue.set(userMatch.inviteCode)
       else textValue.set('')
     }
     if (invite.makeAdmin) makeAdmin.set(Boolean(invite.makeAdmin))
@@ -161,22 +157,22 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
 
   const locationMenu: InputMenuItem[] = adminLocations.map((el) => {
     return {
-      value: `${el.id.value}`,
-      label: `${el.name.value} (${el.sceneId.value})`
+      value: `${el.id}`,
+      label: `${el.name} (${el.sceneId})`
     }
   })
 
   const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
     return {
-      value: `${el.id.value}`,
-      label: `${el.id.value} (${el.location.name.value})`
+      value: `${el.id}`,
+      label: `${el.id} (${el.location.name})`
     }
   })
 
   const userMenu: InputMenuItem[] = adminUsers.map((el) => {
     return {
-      value: `${el.inviteCode.value}`,
-      label: `${el.name.value} (${el.inviteCode.value})`
+      value: `${el.inviteCode}`,
+      label: `${el.name} (${el.inviteCode})`
     }
   })
 
@@ -199,25 +195,25 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     spawnTypeTab.set(newValue)
   }
 
-  const handleLocationChange = (e) => {
+  const handleLocationChange = async (e) => {
     locationId.set(e.target.value)
-    const location = adminLocations.find((location) => location.id.value === e.target.value)
-    if (location && location.sceneId.value) {
-      const sceneName = location.sceneId.value.split('/')
+    const location = await Engine.instance.api.service('location').get(e.target.value)
+    if (location && location.sceneId) {
+      const sceneName = location.sceneId.split('/')
       AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
     }
   }
 
-  const handleInstanceChange = (e) => {
+  const handleInstanceChange = async (e) => {
     instanceId.set(e.target.value)
-    const instance = adminInstances.find((instance) => instance.id.value === e.target.value)
-    if (instance) {
-      const location = adminLocations.find((location) => location.id.value === instance.locationId.value)
-      if (location) {
-        const sceneName = location.sceneId.value.split('/')
-        AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
-      }
-    }
+    const instance = adminInstances.find((instance) => instance.id === e.target.value)
+
+    if (!instance) return
+    const location = await Engine.instance.api.service('location').get(instance.locationId as Id)
+
+    if (!location) return
+    const sceneName = location.sceneId.split('/')
+    AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
   }
 
   const handleUserChange = (e) => {
@@ -263,7 +259,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         sendData.startTime = startTime.value?.toDate()
         sendData.endTime = endTime.value?.toDate()
       }
-      await AdminInviteService.updateInvite(invite.id, sendData)
+      await updateInvite(invite.id, sendData)
       instanceId.set('')
       locationId.set('')
       textValue.set('')
@@ -280,7 +276,6 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
-    setTimeout(() => AdminInviteService.fetchAdminInvites(), 500)
     onClose()
   }
 

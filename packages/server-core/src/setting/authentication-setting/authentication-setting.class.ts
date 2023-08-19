@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Id, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 import * as k8s from '@kubernetes/client-node'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   AuthenticationSettingData,
   AuthenticationSettingPatch,
@@ -39,15 +38,14 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { authenticationSettingSchemaToDb } from './authentication-setting.resolvers'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {
-  user: UserInterface
-}
+export interface AuthenticationSettingParams extends RootParams<AuthenticationSettingQuery> {}
 
 /**
  * A class for AuthenticationSetting service
@@ -71,7 +69,7 @@ export class AuthenticationSettingService<
 
   async find(params?: AuthenticationSettingParams) {
     const auth = await super._find()
-    const loggedInUser = params!.user
+    const loggedInUser = params!.user!
     const data = auth.data.map((el) => {
       if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
         return {
@@ -112,7 +110,7 @@ export class AuthenticationSettingService<
       data.oauth = JSON.parse(data.oauth)
     }
 
-    let newOAuth = data.oauth!
+    const newOAuth = data.oauth!
     data.callback = authSettings.callback
 
     if (typeof data.callback === 'string') {
@@ -125,7 +123,7 @@ export class AuthenticationSettingService<
       }
     }
 
-    for (let key of Object.keys(newOAuth)) {
+    for (const key of Object.keys(newOAuth)) {
       if (config.authentication.oauth[key]?.scope) newOAuth[key].scope = config.authentication.oauth[key].scope
       if (config.authentication.oauth[key]?.custom_data)
         newOAuth[key].custom_data = config.authentication.oauth[key].custom_data

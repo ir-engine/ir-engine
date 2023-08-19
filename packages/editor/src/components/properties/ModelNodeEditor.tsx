@@ -40,6 +40,7 @@ import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import Well from '../layout/Well'
+import ErrorPopUp from '../popup/ErrorPopUp'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -107,9 +108,8 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={modelComponent.src.value} onChange={updateResources} />
-        {errors?.LOADING_ERROR && (
-          <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
-        )}
+        {errors?.LOADING_ERROR ||
+          (errors?.INVALID_URL && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput

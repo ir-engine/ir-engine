@@ -24,16 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import Paginated from '../../types/PageObject'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 
 interface AcceptInviteParams extends Params {
@@ -92,7 +100,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
             id: id
           }
         })
-      } catch (err) {}
+      } catch (err) {
+        //
+      }
 
       if (invite == null) {
         logger.info('INVALID INVITE ID')
@@ -125,35 +135,36 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.identityProviderType != null) {
-        const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
+        const inviteeIdentityProviderResult = (await this.app.service(identityProviderPath).find({
           query: {
             type: invite.identityProviderType,
             token: invite.token
           }
-        })
+        })) as Paginated<IdentityProviderType>
 
-        if ((inviteeIdentityProviderResult as any).total === 0) {
-          inviteeIdentityProvider = await this.app.service('identity-provider').create(
+        if (inviteeIdentityProviderResult.total === 0) {
+          inviteeIdentityProvider = await this.app.service(identityProviderPath).create(
             {
               type: invite.identityProviderType,
-              token: invite.token
+              token: invite.token,
+              userId: invite.userId
             },
             params
           )
         } else {
-          inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
+          inviteeIdentityProvider = inviteeIdentityProviderResult.data[0]
         }
       } else if (invite.inviteeId != null) {
-        const invitee = await this.app.service('user').get(invite.inviteeId)
+        const invitee = await this.app.service(userPath).get(invite.inviteeId)
 
-        if (invitee == null || invitee.identity_providers == null || invitee.identity_providers.length === 0) {
+        if (invitee == null || invitee.identityProviders == null || invitee.identityProviders.length === 0) {
           throw new BadRequest('Invalid invitee ID')
         }
 
-        inviteeIdentityProvider = invitee.identity_providers[0]
+        inviteeIdentityProvider = invitee.identityProviders[0]
       }
 
-      if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
+      if (params[identityProviderPath] == null) params[identityProviderPath] = inviteeIdentityProvider
 
       if (invite.makeAdmin) {
         const existingAdminScope = await this.app.service('scope').find({
@@ -170,14 +181,14 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.inviteType === 'friend') {
-        const inviter = await this.app.service('user').Model.findOne({ where: { id: invite.userId } })
+        const inviter = await this.app.service(userPath)._get(invite.userId)
 
         if (inviter == null) {
           await this.app.service('invite').remove(invite.id)
           throw new BadRequest('Invalid user ID')
         }
 
-        const existingRelationshipResult = (await this.app.service('user-relationship').find({
+        const existingRelationshipResult = await this.app.service(userRelationshipPath)._find({
           query: {
             $or: [
               {
@@ -190,10 +201,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
             userId: invite.userId,
             relatedUserId: inviteeIdentityProvider.userId
           }
-        })) as any
+        })
 
-        if ((existingRelationshipResult as any).total === 0) {
-          await this.app.service('user-relationship').create(
+        if (existingRelationshipResult.total === 0) {
+          await this.app.service(userRelationshipPath).create(
             {
               userRelationshipType: 'friend',
               userId: invite.userId,
@@ -202,7 +213,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             params
           )
         } else {
-          await this.app.service('user-relationship').patch(
+          await this.app.service(userRelationshipPath).patch(
             existingRelationshipResult.data[0].id,
             {
               userRelationshipType: 'friend'
@@ -211,7 +222,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           )
         }
 
-        const relationshipToPatch = (await this.app.service('user-relationship').find({
+        const relationshipToPatch = await this.app.service(userRelationshipPath)._find({
           query: {
             $or: [
               {
@@ -224,10 +235,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
             userId: inviteeIdentityProvider.userId,
             relatedUserId: invite.userId
           }
-        })) as any
+        })
 
         if (relationshipToPatch.data.length > 0)
-          await this.app.service('user-relationship').patch(
+          await this.app.service(userRelationshipPath).patch(
             relationshipToPatch.data[0].id,
             {
               userRelationshipType: 'friend'
@@ -262,7 +273,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
       returned.token = await this.app
         .service('authentication')
-        .createAccessToken({}, { subject: params['identity-provider'].id.toString() })
+        .createAccessToken({}, { subject: params[identityProviderPath].id.toString() })
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         let instance =
@@ -275,7 +286,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId
           if (!location.locationAuthorizedUsers.find((authUser) => authUser.userId === userId))
-            await this.app.service('location-authorized-user').create({
+            await this.app.service(locationAuthorizedUserPath).create({
               locationId: location.id,
               userId: userId
             })

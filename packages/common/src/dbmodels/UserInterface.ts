@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+
 export interface UserInterface {
   id: string
   name: string
@@ -66,5 +68,61 @@ export interface LocationSettingsInterface {
 }
 
 export interface LocationTypeInterface {
+  type: string
+}
+
+export interface LocationBanInterface {
+  id: string
+}
+
+export interface InstanceAttendanceInterface {
+  id: string
+  sceneId: string
+  isChannel: boolean
+  ended: boolean
+}
+export interface LocationAuthorizedUserInterface {
+  id: string
+}
+
+export interface LocationAdminInterface {
+  id: string
+}
+
+export interface IdentityProviderInterface {
+  id: string
+  token: string
+  accountIdentifier: string
+  password: string
+  isVerified: string
+  verifyToken: string
+  verifyShortToken: string
+  verifyExpires: string
+  verifyChanges: string
+  resetToken: string
+  resetExpires: string
+  type: string
+  userId: UserID
+  oauthToken?: string
+}
+export interface UserKick {
+  id: string
+  duration: Date
+}
+
+export interface UserSetting {
+  id: string
+  themeModes: string
+}
+
+export interface UserRelationshipInterface {
+  id: string
+  userId: string
+  relatedUserId: string
+  userRelationshipType: 'friend' | 'requested'
+  dataValues: any
+}
+
+export interface UserRelationshipTypeInterface {
   type: string
 }

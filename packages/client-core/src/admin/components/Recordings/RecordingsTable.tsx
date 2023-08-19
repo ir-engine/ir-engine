@@ -24,31 +24,36 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
-import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import {
+  RecordingID,
+  RecordingType,
+  recordingPath
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { recordingColumns } from '../../common/variables/recording'
-import { AdminRecordingService, AdminRecordingState, RECORDING_PAGE_LIMIT } from '../../services/RecordingService'
 import styles from '../../styles/admin.module.scss'
 import RecordingFilesDrawer from './RecordingsDrawer'
 
+const RECORDING_PAGE_LIMIT = 10
+
 const RecordingsTable = () => {
+  const { t } = useTranslation()
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(RECORDING_PAGE_LIMIT)
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('createdAt')
   const openConfirm = useHookstate(false)
-  const currentRecordingId = useHookstate<string | null>(null)
+  const currentRecordingId = useHookstate<RecordingID | undefined>(undefined)
   const recordingResourcesDrawerOpen = useHookstate<boolean>(false)
-  const { t } = useTranslation()
 
   const handlePageChange = (_event: unknown, newPage: number) => {
     page.set(newPage)
@@ -58,23 +63,27 @@ const RecordingsTable = () => {
     page.set(0)
   }
 
-  const adminRecordingsState = useHookstate(getMutableState(AdminRecordingState))
-
-  useEffect(() => {
-    if (adminRecordingsState.updateNeeded.value) {
-      AdminRecordingService.fetchAdminRecordings(null, page.value, sortField.value, fieldOrder.value, rowsPerPage.value)
+  const recordingsQuery = useFind(recordingPath, {
+    query: {
+      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
+      $skip: page.value * rowsPerPage.value,
+      $limit: rowsPerPage.value,
+      action: 'admin'
     }
-  }, [page.value, sortField.value, fieldOrder.value, rowsPerPage.value, adminRecordingsState.updateNeeded.value])
+  })
+
+  const removeRecording = useMutation(recordingPath).remove
 
   const handleSubmitRemove = () => {
-    if (currentRecordingId.value) {
-      AdminRecordingService.removeRecording(currentRecordingId.value)
-      openConfirm.set(false)
-      currentRecordingId.set(null)
+    if (!currentRecordingId.value) {
+      return
     }
+    removeRecording(currentRecordingId.value)
+    openConfirm.set(false)
+    currentRecordingId.set(undefined)
   }
 
-  const createData = (el: RecordingResult, id: string, user: string, ended: boolean, schema: string) => ({
+  const createData = (el: RecordingType, id: RecordingID, user: string, ended: boolean, schema: string) => ({
     el,
     id,
     user,
@@ -104,8 +113,8 @@ const RecordingsTable = () => {
     )
   })
 
-  const rows = adminRecordingsState.recordings.value.map((val) =>
-    createData(val, val.id, val['user.name'], val.ended, val.schema)
+  const rows = recordingsQuery.data.map((val) =>
+    createData(val, val.id, val.userName, val.ended, JSON.stringify(val.schema))
   )
 
   return (
@@ -119,7 +128,7 @@ const RecordingsTable = () => {
         column={recordingColumns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={adminRecordingsState.total.value}
+        count={recordingsQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
@@ -134,7 +143,7 @@ const RecordingsTable = () => {
         selectedRecordingId={currentRecordingId.value}
         onClose={() => {
           recordingResourcesDrawerOpen.set(false)
-          currentRecordingId.set(null)
+          currentRecordingId.set(undefined)
         }}
       />
     </Box>

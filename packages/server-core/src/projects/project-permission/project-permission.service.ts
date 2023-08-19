@@ -33,9 +33,6 @@ declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'project-permission': ProjectPermission
   }
-  interface Models {
-    'project-permission': ReturnType<typeof createModel>
-  }
 }
 
 export default (app: Application): void => {

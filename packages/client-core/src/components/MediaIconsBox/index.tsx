@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import {
+  MediaInstanceState,
+  useMediaNetwork
+} from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   toggleMicrophonePaused,
@@ -45,12 +47,22 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
+import { RecordingState } from '../../recording/RecordingService'
+import { RecordingTimer, RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
+import { useUserHasAccessHook } from '../../user/userHasAccess'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
+  const { t } = useTranslation()
+  const recordScopes = useUserHasAccessHook('record')
+  const recordingState = useHookstate(getMutableState(RecordingState))
+
   const location = useLocation()
   const hasAudioDevice = useHookstate(false)
   const hasVideoDevice = useHookstate(false)
@@ -59,8 +71,9 @@ export const MediaIconsBox = () => {
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
   const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
   const networkState = useHookstate(getMutableState(NetworkState))
+  const mediaNetworkState = useMediaNetwork()
   const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaNetworkReady = networkState.networks[mediaHostId]?.ready?.value
+  const mediaNetworkReady = mediaNetworkState?.ready?.value
   const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
@@ -92,12 +105,36 @@ export const MediaIconsBox = () => {
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
 
+  const toggleRecording = () => {
+    const activeRecording = recordingState.recordingID.value
+    if (activeRecording) {
+      getMutableState(RecordingUIState).mode.set('recordings')
+      ECSRecordingFunctions.stopRecording({
+        recordingID: activeRecording
+      })
+    }
+    const activePlayback = recordingState.playback.value
+    if (activePlayback) {
+      getMutableState(RecordingUIState).mode.set('recordings')
+      ECSRecordingFunctions.stopPlayback({
+        recordingID: activePlayback
+      })
+    }
+    if (!activeRecording && !activePlayback) {
+      getMutableState(RecordingUIState).mode.set('create')
+    }
+    const recordingWidget = Array.from(RegisteredWidgets.entries()).find(
+      ([_, widget]) => widget.label === 'Recording' // todo - don't hard code this
+    )!
+    dispatchAction(WidgetAppActions.showWidget({ id: recordingWidget[0], shown: true }))
+  }
+
   const xrSessionActive = xrState.sessionActive.value
   const handleExitSpectatorClick = () => dispatchAction(EngineActions.exitSpectate({}))
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
-      {networkState.config.media.value && !currentChannelInstanceConnection?.connected.value && (
+      {networkState.config.media.value && !mediaNetworkState?.ready.value && (
         <div className={styles.loader}>
           <CircularProgress />
           <div
@@ -113,13 +150,11 @@ export const MediaIconsBox = () => {
           </div>
         </div>
       )}
-      {audioEnabled &&
-      hasAudioDevice.value &&
-      mediaNetworkReady &&
-      currentChannelInstanceConnection?.connected.value ? (
+      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <button
           type="button"
           id="UserAudio"
+          title={t('user:menu.toggleMute')}
           className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')}
           onClick={toggleMicrophonePaused}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -128,14 +163,12 @@ export const MediaIconsBox = () => {
           <Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />
         </button>
       ) : null}
-      {videoEnabled &&
-      hasVideoDevice.value &&
-      mediaNetworkReady &&
-      currentChannelInstanceConnection?.connected.value ? (
+      {videoEnabled && hasVideoDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <>
           <button
             type="button"
             id="UserVideo"
+            title={t('user:menu.toggleVideo')}
             className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')}
             onClick={toggleWebcamPaused}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -147,6 +180,7 @@ export const MediaIconsBox = () => {
             <button
               type="button"
               id="FlipVideo"
+              title={t('user:menu.cycleCamera')}
               className={styles.iconContainer}
               onClick={MediaStreamService.cycleCamera}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -158,6 +192,7 @@ export const MediaIconsBox = () => {
           <button
             type="button"
             id="UserPoseTracking"
+            title={t('user:menu.poseTracking')}
             className={styles.iconContainer + ' ' + (isMotionCaptureEnabled ? styles.on : '')}
             onClick={() => window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -168,6 +203,7 @@ export const MediaIconsBox = () => {
           <button
             type="button"
             id="UserScreenSharing"
+            title={t('user:menu.shareScreen')}
             className={styles.iconContainer + ' ' + (isScreenVideoEnabled ? styles.on : '')}
             onClick={toggleScreenshare}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -181,6 +217,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="UserVR"
+          title={t('user:menu.enterVR')}
           className={styles.iconContainer + ' ' + (xrMode === 'immersive-vr' ? styles.on : '')}
           onClick={() => {
             xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-vr' })
@@ -195,6 +232,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="UserAR"
+          title={t('user:menu.enterAR')}
           className={styles.iconContainer + ' ' + (xrMode === 'immersive-ar' ? styles.on : '')}
           onClick={() => {
             xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-ar' })
@@ -209,6 +247,7 @@ export const MediaIconsBox = () => {
         <button
           type="button"
           id="ExitSpectator"
+          title={t('user:menu.exitSpectate')}
           className={styles.iconContainer}
           onClick={handleExitSpectatorClick}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -216,6 +255,35 @@ export const MediaIconsBox = () => {
         >
           Exit Spectate
         </button>
+      )}
+      {recordScopes && (
+        <>
+          {recordingState.playback.value || recordingState.recordingID.value ? (
+            <button
+              type="button"
+              id="Record"
+              title={t('user:menu.stopRecording')}
+              style={{ color: 'red' }}
+              className={styles.iconContainer}
+              onClick={toggleRecording}
+            >
+              <Icon type="StopCircle" />
+              <div style={{ position: 'absolute', marginTop: '80px' }}>
+                <RecordingTimer />
+              </div>
+            </button>
+          ) : (
+            <button
+              type="button"
+              id="Record"
+              title={t('user:menu.startRecording')}
+              className={styles.iconContainer}
+              onClick={toggleRecording}
+            >
+              <Icon type="CameraAlt" />
+            </button>
+          )}
+        </>
       )}
     </section>
   )

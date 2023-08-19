@@ -54,14 +54,14 @@ globalThis.ComponentJSONIDMap = ComponentJSONIDMap
 
 type PartialIfObject<T> = T extends object ? Partial<T> : T
 
-type OnInitValidateNotState<T> = T extends State<any, {}> ? 'onAdd must not return a State object' : T
+type OnInitValidateNotState<T> = T extends State<any, object | unknown> ? 'onInit must not return a State object' : T
 
 type SomeStringLiteral = 'a' | 'b' | 'c' // just a dummy string literal union
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 
 export interface ComponentPartial<
   ComponentType = any,
-  Schema extends bitECS.ISchema = {},
+  Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
@@ -78,7 +78,7 @@ export interface ComponentPartial<
 }
 export interface Component<
   ComponentType = any,
-  Schema extends bitECS.ISchema = {},
+  Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = string
@@ -109,7 +109,7 @@ export type ComponentErrorsType<C extends Component> = C['errors'][number]
 
 export const defineComponent = <
   ComponentType = true,
-  Schema extends bitECS.ISchema = {},
+  Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   ComponentExtras = unknown,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
@@ -150,7 +150,10 @@ export const defineComponent = <
 /**
  * @deprecated use `defineComponent`
  */
-export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.ISchema = {}>(
+export const createMappedComponent = <
+  ComponentType = object | unknown,
+  Schema extends bitECS.ISchema = Record<string, any>
+>(
   name: string,
   schema?: Schema
 ) => {
@@ -167,7 +170,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
 
 export const getOptionalMutableComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>
+  component: Component<ComponentType, Record<string, any>, unknown>
 ): State<ComponentType, Subscribable> | undefined => {
   // if (entity === UndefinedEntity) return undefined
   if (component.existenceMap[entity]) return component.stateMap[entity]
@@ -181,7 +184,7 @@ export const getOptionalComponentState = getOptionalMutableComponent
 
 export const getMutableComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>
+  component: Component<ComponentType, Record<string, any>, unknown>
 ): State<ComponentType, Subscribable> => {
   const componentState = getOptionalMutableComponent(entity, component)!
   // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
@@ -196,14 +199,14 @@ export const getComponentState = getMutableComponent
 
 export const getOptionalComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>
+  component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType | undefined => {
   return component.valueMap[entity] as ComponentType | undefined
 }
 
 export const getComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>
+  component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType => {
   return component.valueMap[entity] as ComponentType
 }

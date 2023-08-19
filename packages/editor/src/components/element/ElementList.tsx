@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { startCase } from 'lodash'
 import React, { useCallback, useEffect } from 'react'
-import { useDrag, useDrop } from 'react-dnd'
+import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
-import { Vector2 } from 'three'
 
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -50,15 +49,15 @@ import { PrefabComponent } from '@etherealengine/engine/src/scene/components/Pre
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
+import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
+import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getState } from '@etherealengine/hyperflux'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { NO_PROXY, getState, useState } from '@etherealengine/hyperflux'
+
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
@@ -66,14 +65,17 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
 import { IconButton, PopoverPosition } from '@mui/material'
 
+import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
+import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
+import { Button } from '../inputs/Button'
+import StringInput from '../inputs/StringInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
-type SceneElementType = {
+export type SceneElementType = {
   componentName: string
   label: string
   Icon: any
@@ -98,8 +100,8 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     HemisphereLightComponent
   ],
   FX: [ParticleSystemComponent],
-  Scripting: [SystemComponent],
-  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent]
+  Scripting: [SystemComponent, BehaveGraphComponent],
+  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
 }
 
 export const addSceneComponentElement = (
@@ -145,24 +147,6 @@ export function ElementList() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
-  const [{ isDragging }, dropRef] = useDrop({
-    accept: [ItemTypes.Prefab],
-    collect: (monitor) => ({ isDragging: monitor.getItem() !== null && monitor.canDrop() }),
-    drop(item: SceneElementType, monitor) {
-      const node = addSceneComponentElement(item)
-      if (!node) return
-
-      const transformComponent = getComponent(node, TransformComponent)
-      if (transformComponent) {
-        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-        const localTransformComponent = getComponent(node, LocalTransformComponent)
-        if (localTransformComponent) {
-          localTransformComponent.position.copy(transformComponent.position)
-        }
-      }
-    }
-  })
-
   const placeObject = () => {
     handleClose()
 
@@ -197,14 +181,37 @@ export function ElementList() {
     setAnchorPosition(undefined)
   }
 
+  const searchBarState = useState('')
+
+  const validElements = useState(ComponentShelfCategories)
+
+  useEffect(() => {
+    const result: Record<string, Component[]> = {}
+    if (searchBarState.value === '') {
+      validElements.set(ComponentShelfCategories)
+    } else {
+      for (const [category, items] of Object.entries(ComponentShelfCategories)) {
+        result[category] = items.filter((item) => item.name.toLowerCase().includes(searchBarState.value.toLowerCase()))
+      }
+      validElements.set(result)
+    }
+  }, [searchBarState])
+
   return (
     <>
       <div className={styles.elementListContainer}>
-        {Object.entries(ComponentShelfCategories).map(([category, items]) => (
+        <span className={styles.searchContainer}>
+          <Button onClick={() => searchBarState.set('')}>x</Button>
+          <StringInput value={searchBarState.value} onChange={searchBarState.set} placeholder={t('Search...')} />
+        </span>
+
+        {Object.entries(validElements.get(NO_PROXY)).map(([category, items]) => (
           <div className={styles.category} key={category}>
-            <Typography variant="subtitle2" className={styles.categoryTitle}>
-              {category}
-            </Typography>
+            {items.length > 0 && (
+              <Typography variant="subtitle2" className={styles.categoryTitle}>
+                {category}
+              </Typography>
+            )}
             {items.map((item) => (
               <SceneElementListItem
                 key={item.name}
@@ -221,11 +228,6 @@ export function ElementList() {
           </div>
         ))}
       </div>
-      <div
-        className={styles.elementDropZone}
-        ref={dropRef}
-        style={{ pointerEvents: isDragging ? 'auto' : 'none', border: isDragging ? '5px solid red' : 'none' }}
-      />
       <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
         <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>

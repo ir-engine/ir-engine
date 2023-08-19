@@ -23,13 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphJSON } from 'behave-graph'
 import matches, { Validator } from 'ts-matches'
 
+import { GraphJSON, IRegistry } from '@behave-graph/core'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
-import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { RuntimeGraphComponent } from './RuntimeGraphComponent'
+import { getState } from '@etherealengine/hyperflux'
+import { useEffect, useState } from 'react'
+import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useGraphRunner } from '../functions/useGraphRunner'
+import { useRegistry } from '../functions/useRegistry'
+import DefaultGraph from '../graph/default-graph.json'
+import { BehaveGraphState } from '../state/BehaveGraphState'
 
 export type GraphDomainID = OpaqueType<'GraphDomainID'> & string
 
@@ -39,34 +47,62 @@ export const BehaveGraphComponent = defineComponent({
   jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
+    const domain = 'ECS' as GraphDomainID
+    const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
+    const registry = useRegistry()
+    const systemState = getState(BehaveGraphState)
+    systemState.domains[domain]?.register(registry)
+    systemState.registry = registry
     return {
-      domain: 'ECS' as GraphDomainID,
-      graph: {} as GraphJSON
+      domain: domain,
+      graph: graph,
+      run: false,
+      disabled: false
     }
   },
 
   toJSON: (entity, component) => {
     return {
       domain: component.domain.value,
-      graph: component.graph.value
+      graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))),
+      run: component.run.value,
+      disabled: component.disabled.value
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
+    if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
+    if (typeof json.run === 'boolean') component.run.set(json.run)
     const domainValidator = matches.string as Validator<unknown, GraphDomainID>
     if (domainValidator.test(json.domain)) {
-      component.domain.value !== json.domain && component.domain.set(json.domain)
+      component.domain.value !== json.domain && component.domain.set(json.domain!)
     }
     const graphValidator = matches.object as Validator<unknown, GraphJSON>
     if (graphValidator.test(json.graph)) {
-      component.graph.value !== json.graph && component.graph.set(json.graph)
+      component.graph.set(parseStorageProviderURLs(json.graph)!)
     }
   },
 
-  onRemove: (entity, component) => {
-    if (hasComponent(entity, RuntimeGraphComponent)) {
-      removeComponent(entity, RuntimeGraphComponent)
-    }
+  // we make reactor for each component handle the engine
+  reactor: () => {
+    const entity = useEntityContext()
+    const graphComponent = useComponent(entity, BehaveGraphComponent)
+    const [graphJson, setGraphJson] = useState<GraphJSON>(graphComponent.graph.value)
+    const [registry, setRegistry] = useState<IRegistry>(getState(BehaveGraphState).registry)
+    const canPlay = graphComponent.run && !graphComponent.disabled
+    const engineState = getState(EngineState)
+    useEffect(() => {
+      if (graphComponent.disabled.value) {
+        graphRunner.pause()
+        if (graphComponent.run.value) graphComponent.run.set(false)
+      } else {
+        if (!engineState.isEditor) {
+          graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
+        }
+      }
+    }, [graphComponent.run, graphComponent.disabled])
+    const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })
+    return null
   }
 })

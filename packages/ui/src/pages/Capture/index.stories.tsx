@@ -31,7 +31,6 @@ import React, { useEffect, useRef, useState } from 'react'
 
 // import { useLocation, useNavigate } from 'react-router-dom'
 
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   NotificationAction,
   NotificationActions
@@ -48,7 +47,7 @@ import {
   LocationAction,
   LocationServiceReceptor
 } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { AudioEffectPlayer, MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -69,7 +68,6 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import Component from './index'
 
-import { AuthSettingsService } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
@@ -150,15 +148,10 @@ const decorators = [
     }, [selfUser, projectState.updateNeeded.value])
 
     useEffect(() => {
-      Engine.instance.userId = selfUser.id.value
+      Engine.instance.userID = selfUser.id.value
     }, [selfUser.id])
 
     useEffect(() => {
-      authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
-    }, [authState.isLoggedIn])
-
-    useEffect(() => {
-      addActionReceptor(AuthServiceReceptor)
       addActionReceptor(LocationServiceReceptor)
       addActionReceptor(ProjectServiceReceptor)
 
@@ -168,7 +161,6 @@ const decorators = [
       // The client and auth settigns will not be needed on these routes
       if (!/auth\/oauth/.test(location.pathname)) {
         AuthService.doLoginAuto()
-        AuthSettingsService.fetchAuthSetting()
       }
 
       getMutableState(NetworkState).config.set({
@@ -181,7 +173,6 @@ const decorators = [
 
       return () => {
         // removeActionReceptor(RouterServiceReceptor)
-        removeActionReceptor(AuthServiceReceptor)
         removeActionReceptor(LocationServiceReceptor)
         removeActionReceptor(ProjectServiceReceptor)
       }

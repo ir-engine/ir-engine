@@ -28,7 +28,7 @@ import { getEmbeddedDataURL } from './getEmbeddedDataURL'
 
 export async function getEmbeddedCSS(url: string) {
   if (WebRenderer.embeddedCSSMap.has(url)) return WebRenderer.embeddedCSSMap.get(url)!
-  const res = await fetch(url, { headers: { accept: 'text/css' } })
+  const res = await fetch(url, { mode: 'no-cors', headers: { accept: 'text/css' } })
   const css = await generateEmbeddedCSS(url, await res.text())
   WebRenderer.embeddedCSSMap.set(url, css)
   return WebRenderer.embeddedCSSMap.get(url)!

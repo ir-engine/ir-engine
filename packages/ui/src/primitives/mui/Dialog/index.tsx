@@ -32,7 +32,7 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import { DialogProps, Dialog as MuiDialog } from '@mui/material'
 
 const Dialog = ({ children, classes, ...props }: DialogProps & { classes?: any }) => (
-  <MuiDialog className={classes} {...props}>
+  <MuiDialog classes={classes} {...props}>
     {children}
   </MuiDialog>
 )

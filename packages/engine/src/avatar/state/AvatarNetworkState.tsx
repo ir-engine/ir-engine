@@ -29,10 +29,11 @@ import matches from 'ts-matches'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defineAction, defineState, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
 
-import { isClient } from '../../common/functions/getEnvironment'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -148,6 +149,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
         if (!isClient) return
 
         const entity = UUIDComponent.entitiesByUUID[entityUUID]
+        if (!entity || !entityExists(entity)) return
         loadAvatarForUser(entity, avatarDetails.modelResource?.url)
       })
   }, [state.avatarID, entityUUID])

@@ -24,9 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { Knex } from 'knex'
 
 const logger = multiLogger.child({ component: 'taskserver:collect-analytics' })
 
@@ -45,38 +48,25 @@ export default (app): void => {
       },
       isInternal: true
     })
-    const instanceUsers = await app.service('user').find({
-      query: {
-        $limit: 0
-      },
-      include: [
-        {
-          model: app.service('instance-attendance').Model,
-          as: 'instanceAttendance',
-          where: {
-            ended: false,
-            isChannel: false
-          }
-        }
-      ],
-      isInternal: true
-    })
-    const channelUsers = await app.service('user').find({
-      query: {
-        $limit: 0
-      },
-      include: [
-        {
-          model: app.service('instance-attendance').Model,
-          as: 'instanceAttendance',
-          where: {
-            ended: false,
-            isChannel: true
-          }
-        }
-      ],
-      isInternal: true
-    })
+
+    const knexClient: Knex = app.get('knexClient')
+
+    const instanceUsers = await knexClient
+      .from(userPath)
+      .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, `${userPath}.id`)
+      .where(`${instanceAttendancePath}.ended`, false)
+      .andWhere(`${instanceAttendancePath}.isChannel`, false)
+      .select()
+      .options({ nestTables: true })
+
+    const channelUsers = await knexClient
+      .from(userPath)
+      .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, `${userPath}.id`)
+      .where(`${instanceAttendancePath}.ended`, false)
+      .andWhere(`${instanceAttendancePath}.isChannel`, true)
+      .select()
+      .options({ nestTables: true })
+
     const activeInstances = await app.service('instance').find({
       query: {
         ended: {
@@ -90,13 +80,13 @@ export default (app): void => {
     const locations = (await app.service(locationPath).find({
       query: {
         id: {
-          $in: activeInstances.map((instance) => instance.locationId)
+          $in: activeInstances.data.map((instance) => instance.locationId)
         }
       },
       paginate: false
     })) as LocationType[]
 
-    for (const instance of activeInstances) {
+    for (const instance of activeInstances.data) {
       const location = locations.find((location) => location.id === instance.locationId)
       instance.location = location
 
@@ -113,11 +103,11 @@ export default (app): void => {
       }),
       app.service(analyticsPath).create({
         type: 'instanceUsers',
-        count: instanceUsers.total
+        count: instanceUsers.length
       }),
       app.service(analyticsPath).create({
         type: 'channelUsers',
-        count: channelUsers.total
+        count: channelUsers.length
       }),
       app.service(analyticsPath).create({
         type: 'activeLocations',

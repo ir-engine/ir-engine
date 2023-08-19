@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React, { ReactNode, useEffect, useRef } from 'react'
-import styled from 'styled-components'
+import './Scrubber.css'
 
 import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
 
@@ -33,29 +32,34 @@ import MultipleStopIcon from '@mui/icons-material/MultipleStop'
 
 import { getStepSize, toPrecision } from '../../functions/utils'
 import Overlay from '../layout/Overlay'
+// Import the CSS file
+import { useHookstate } from '@etherealengine/hyperflux'
 import Portal from '../layout/Portal'
 
-const ScrubberContainer = (styled as any).div`
-  cursor: ew-resize;
-  user-select: none;
-`
+type ScrubberContainerProps = {
+  tag?: keyof JSX.IntrinsicElements
+  children?: ReactNode
+  onMouseDown: any
+}
 
-const Cursor = (styled as any)(MultipleStopIcon).attrs(({ x, y }) => ({
-  style: {
-    transform: `translate(${x}px,${y}px)`
-  }
-}))`
-  position: absolute;
-  width: 20px;
+const ScrubberContainer = React.forwardRef(({ tag: Component = 'div', children, ...rest }: ScrubberContainerProps) => {
+  return (
+    <Component className="ScrubberContainer" {...rest}>
+      {children}
+    </Component>
+  )
+})
 
-  path {
-    stroke: white;
-    strokeWidth: 20px;
-    fill: black;
-  }
-`
+type CursorProps = {
+  x: number
+  y: number
+}
 
-type ScrubberProp = {
+const Cursor = ({ x, y }: CursorProps) => {
+  return <MultipleStopIcon className="Cursor" style={{ transform: `translate(${x}px,${y}px)` }} />
+}
+
+type ScrubberProps = {
   tag?: any
   children?: ReactNode
   smallStep?: number
@@ -68,8 +72,8 @@ type ScrubberProp = {
   convertFrom?: any
   convertTo?: any
   value?: any
-  onChange: Function
-  onCommit?: Function
+  onChange: (value: any) => void
+  onCommit?: (value: any) => void
 }
 
 const Scrubber = ({
@@ -88,7 +92,7 @@ const Scrubber = ({
   onChange,
   onCommit,
   ...rest
-}: ScrubberProp) => {
+}: ScrubberProps) => {
   const state = useHookstate({
     isDragging: false,
     startValue: null as number | null,
@@ -157,12 +161,12 @@ const Scrubber = ({
   }
 
   return (
-    <ScrubberContainer as={tag} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
+    <ScrubberContainer tag={tag} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
       {children}
       {state.isDragging.value && (
         <Portal>
           <Overlay pointerEvents="none">
-            <Cursor x={state.mouseX.value} y={state.mouseY.value} />
+            <Cursor x={state.mouseX.value!} y={state.mouseY.value!} />
           </Overlay>
         </Portal>
       )}
@@ -172,7 +176,6 @@ const Scrubber = ({
 
 Scrubber.defaultProps = {
   tag: 'label',
-  style: {},
   smallStep: 0.025,
   mediumStep: 0.1,
   largeStep: 0.25,

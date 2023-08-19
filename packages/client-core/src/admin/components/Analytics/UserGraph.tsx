@@ -28,43 +28,31 @@ import { t } from 'i18next'
 import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { AnalyticsQueryMap, AnalyticsQueryTypes } from './AnalyticsService'
 
-import { AdminAnalyticsState } from '../../services/AnalyticsService'
-
-const UserGraph = ({ startDate, endDate }) => {
-  const analyticsState = useHookstate(getMutableState(AdminAnalyticsState))
-
+const UserGraph = ({
+  analyticsNames,
+  startDate,
+  endDate,
+  analyticsQueryMap
+}: {
+  analyticsNames: AnalyticsQueryTypes[]
+  startDate: Date
+  endDate: Date
+  analyticsQueryMap: AnalyticsQueryMap
+}) => {
   let maxY = 0
-  let minX = new Date(startDate).getTime()
-  let maxX = new Date(endDate).getTime()
+  const minX = new Date(startDate).getTime()
+  const maxX = new Date(endDate).getTime()
 
-  const data = [
-    {
-      name: t('admin:components.analytics.dailyUsers'),
-      data: analyticsState.dailyUsers.value.map((item) => {
-        return [new Date(item.createdAt).getTime(), item.count]
-      })
-    },
-    {
-      name: t('admin:components.analytics.dailyNewUsers'),
-      data: analyticsState.dailyNewUsers.value.map((item) => {
-        return [new Date(item.createdAt).getTime(), item.count]
-      })
-    }
-  ]
+  const data = analyticsNames.map((analyticName) => ({
+    name: t(`admin:components.analytics.${analyticName}`),
+    data: analyticsQueryMap[analyticName].data.map((item) => [new Date(item.createdAt).getTime(), item.count])
+  }))
 
-  if (data) {
-    for (let analytic of data) {
-      if (analytic) {
-        for (let item of analytic.data) {
-          if (maxY < item[1]) {
-            maxY = item[1]
-          }
-        }
-      }
-    }
-  }
+  data.forEach((d) => {
+    d.data.forEach((item) => (maxY = Math.max(item[1], maxY)))
+  })
 
   const roundPower = Math.pow(10, Math.floor(Math.log10(maxY)))
   maxY = Math.ceil(maxY / roundPower) * roundPower
