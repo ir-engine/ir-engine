@@ -257,6 +257,9 @@ export const connectToNetwork = async (
   }
 
   const connectionFailTimeout = setTimeout(() => {
+    primus.off('incoming::open', onConnect)
+    primus.removeAllListeners()
+    primus.end()
     handleFailedConnection(locationId ? NetworkTopics.world : NetworkTopics.media, instanceID)
   }, 3000)
 
@@ -1268,7 +1271,7 @@ type Primus = EventEmitter & {
   clone: unknown
   critical: unknown
   decoder: unknown
-  destroy: unknown
+  destroy: () => void
   emits: unknown
   encoder: unknown
   end: () => void
