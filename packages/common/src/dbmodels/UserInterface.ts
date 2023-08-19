@@ -114,3 +114,15 @@ export interface UserSetting {
   id: string
   themeModes: string
 }
+
+export interface UserRelationshipInterface {
+  id: string
+  userId: string
+  relatedUserId: string
+  userRelationshipType: 'friend' | 'requested'
+  dataValues: any
+}
+
+export interface UserRelationshipTypeInterface {
+  type: string
+}

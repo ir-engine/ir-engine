@@ -60,24 +60,32 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
   const authState = useHookstate(getMutableState(AuthState))
   const selfId = authState.user.id?.value ?? ''
 
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
-
-  const isFriend = friendState.relationships.friend.get({ noproxy: true }).find((item) => item.id === userId)
-  const isRequested = friendState.relationships.requested.get({ noproxy: true }).find((item) => item.id === userId)
-  const isPending = friendState.relationships.pending.get({ noproxy: true }).find((item) => item.id === userId)
-  const isBlocked = friendState.relationships.blocked.get({ noproxy: true }).find((item) => item.id === userId)
-  const isBlocking = friendState.relationships.blocking.get({ noproxy: true }).find((item) => item.id === userId)
+  const isFriend = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'friend')
+  const isRequested = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'requested')
+  const isPending = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'pending')
+  const isBlocked = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'blocked')
+  const isBlocking = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'blocking')
 
   const userName = isFriend
-    ? isFriend.name
+    ? isFriend.relatedUser.name
     : isRequested
-    ? isRequested.name
+    ? isRequested.relatedUser.name
     : isPending
-    ? isPending.name
+    ? isPending.relatedUser.name
     : isBlocked
-    ? isBlocked.name
+    ? isBlocked.relatedUser.name
     : isBlocking
-    ? isBlocking.name
+    ? isBlocking.relatedUser.name
     : worldState.userNames[userId].value ?? 'A user'
 
   useEffect(() => {
