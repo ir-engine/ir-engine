@@ -79,7 +79,7 @@ const reactor = () => {
     for (const entity of defineQuery([BehaveGraphComponent])()) {
       setComponent(entity, BehaveGraphComponent, { run: true })
     }
-  }, [engineState.sceneLoaded, engineState.joinedWorld, sceneState.sceneEntity, sceneState.sceneData])
+  }, [engineState.sceneLoaded, engineState.connectedWorld, sceneState.sceneEntity, sceneState.sceneData])
   // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed
 
   return null
