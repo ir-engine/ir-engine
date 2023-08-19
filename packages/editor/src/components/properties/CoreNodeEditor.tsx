@@ -27,20 +27,25 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
-  ComponentJSONIDMap,
+  getComponent,
   hasComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import LockIcon from '@mui/icons-material/Lock'
+import UnlockIcon from '@mui/icons-material/LockOpen'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorState } from '../../services/EditorServices'
+import { EditorAction, EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import { PanelIcon } from '../layout/Panel'
 import NameInputGroup from './NameInputGroup'
 
 const propertiesHeaderStyle = {
@@ -59,6 +64,7 @@ const visibleInputGroupStyle = {
 export const CoreNodeEditor = (props) => {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
+  const selectionState = useHookstate(getMutableState(SelectionState))
 
   useOptionalComponent(props.entity, VisibleComponent)
 
@@ -69,10 +75,48 @@ export const CoreNodeEditor = (props) => {
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
-  const registeredComponents = Array.from(ComponentJSONIDMap.entries())
-
   return (
     <div style={propertiesHeaderStyle}>
+      <div
+        style={{
+          paddingRight: '1px',
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}
+      >
+        <button
+          onClick={() => {
+            const currentEntity = selectionState.selectedEntities.value[0]
+            const currentState = editorState.lockPropertiesPanel.value
+            if (currentState) {
+              dispatchAction(
+                EditorAction.lockPropertiesPanel({
+                  lockPropertiesPanel: '' as EntityUUID
+                })
+              )
+            } else {
+              if (currentEntity) {
+                dispatchAction(
+                  EditorAction.lockPropertiesPanel({
+                    lockPropertiesPanel:
+                      typeof currentEntity === 'string'
+                        ? (currentEntity as EntityUUID)
+                        : getComponent(currentEntity, UUIDComponent)
+                  })
+                )
+              }
+            }
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <PanelIcon as={editorState.lockPropertiesPanel.value ? LockIcon : UnlockIcon} size={20} />
+        </button>
+      </div>
       <div style={nameInputGroupContainerStyle}>
         <NameInputGroup entity={props.entity} key={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (

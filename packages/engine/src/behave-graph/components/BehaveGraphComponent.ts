@@ -31,6 +31,7 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect, useState } from 'react'
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useGraphRunner } from '../functions/useGraphRunner'
@@ -64,17 +65,15 @@ export const BehaveGraphComponent = defineComponent({
     return {
       domain: component.domain.value,
       graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))),
-      run: false, // we always want it to be false when saving, so scripts dont startup in the editor, we make true for runtime
+      run: component.run.value,
       disabled: component.disabled.value
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-
     if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
     if (typeof json.run === 'boolean') component.run.set(json.run)
-
     const domainValidator = matches.string as Validator<unknown, GraphDomainID>
     if (domainValidator.test(json.domain)) {
       component.domain.value !== json.domain && component.domain.set(json.domain!)
@@ -92,12 +91,15 @@ export const BehaveGraphComponent = defineComponent({
     const [graphJson, setGraphJson] = useState<GraphJSON>(graphComponent.graph.value)
     const [registry, setRegistry] = useState<IRegistry>(getState(BehaveGraphState).registry)
     const canPlay = graphComponent.run && !graphComponent.disabled
+    const engineState = getState(EngineState)
     useEffect(() => {
       if (graphComponent.disabled.value) {
         graphRunner.pause()
         if (graphComponent.run.value) graphComponent.run.set(false)
       } else {
-        graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
+        if (!engineState.isEditor) {
+          graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
+        }
       }
     }, [graphComponent.run, graphComponent.disabled])
     const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })

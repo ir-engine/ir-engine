@@ -41,12 +41,12 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { debounce } from 'lodash'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
@@ -71,14 +71,12 @@ const AvatarMenu = () => {
   }).data
   const currentAvatar = avatarsData.find((item) => item.id === selectedAvatarId.value)
 
-  const updateUserAvatarId = useMutation(userPath).patch
-
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
 
   const handleConfirmAvatar = () => {
     if (userAvatarId !== selectedAvatarId.value) {
       if (!hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent) && authState.user?.value) {
-        updateUserAvatarId(authState.user.id.value, { avatarId: selectedAvatarId.value })
+        AvatarService.updateUserAvatarId(authState.user.id.value, selectedAvatarId.value)
       }
     }
     selectedAvatarId.set('')

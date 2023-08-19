@@ -28,11 +28,13 @@ import React from 'react'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { useTranslation } from 'react-i18next'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { useFullscreen } from '../useFullscreen'
 import styles from './index.module.scss'
 
 export const Fullscreen = () => {
+  const { t } = useTranslation()
   const [fullScreenActive, setFullScreenActive] = useFullscreen()
   const { bottomShelfStyle } = useShelfStyles()
   return (
@@ -40,6 +42,7 @@ export const Fullscreen = () => {
       {fullScreenActive ? (
         <button
           type="button"
+          title={t('user:menu.exitFullScreen')}
           className={`${styles.btn} ${styles.fullScreen} ${bottomShelfStyle} `}
           onClick={() => setFullScreenActive(false)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -50,6 +53,7 @@ export const Fullscreen = () => {
       ) : (
         <button
           type="button"
+          title={t('user:menu.enterFullScreen')}
           className={`${styles.btn} ${styles.fullScreen} ${bottomShelfStyle} `}
           onClick={() => setFullScreenActive(true)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
