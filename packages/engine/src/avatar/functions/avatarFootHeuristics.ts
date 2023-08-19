@@ -23,24 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
 
-export const setIkFootTarget = () => {
+const _vec3 = new Vector3()
+//step threshold should be a function of leg length squared
+//whenever the distance squared of the foot from the next target foot step position
+//is greater than the step threshold, start a new step
+//todo step interpolation
+export const setIkFootTarget = (stepThreshold: number) => {
   const { localClientEntity, userId } = Engine.instance
 
-  const rightFoot = UUIDComponent.entitiesByUUID[userId + ikTargets.rightFoot]
-  const leftFoot = UUIDComponent.entitiesByUUID[userId + ikTargets.leftFoot]
-  const playerTransform = getComponent(localClientEntity, TransformComponent)
-  if (rightFoot) {
-    const ikTransform = getComponent(rightFoot, TransformComponent)
-    ikTransform.position.copy(playerTransform.position)
+  const feet = {
+    rightFoot: UUIDComponent.entitiesByUUID[userId + ikTargets.rightFoot],
+    leftFoot: UUIDComponent.entitiesByUUID[userId + ikTargets.leftFoot]
   }
-  if (leftFoot) {
-    const ikTransform = getComponent(leftFoot, TransformComponent)
-    ikTransform.position.copy(playerTransform.position)
+  const playerTransform = getComponent(localClientEntity, TransformComponent)
+  for (const [key, foot] of Object.entries(feet)) {
+    if (!foot) continue
+    const ikTransform = getComponent(foot, TransformComponent)
+    const squareDistance = _vec3.subVectors(ikTransform.position, playerTransform.position).lengthSq()
+    console.log(squareDistance)
+    if (squareDistance > stepThreshold) ikTransform.position.copy(playerTransform.position)
   }
 }
