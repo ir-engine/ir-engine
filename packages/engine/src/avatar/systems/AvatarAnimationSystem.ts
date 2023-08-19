@@ -80,6 +80,7 @@ import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 import { AvatarNetworkAction } from '../state/AvatarNetworkState'
 
 export const AvatarAnimationState = defineState({
@@ -413,6 +414,7 @@ const execute = () => {
       rig.hips.node.parent!.updateWorldMatrix(false, true)
 
       applyInputSourcePoseToIKTargets()
+      setIkFootTarget()
 
       //clear some data
       for (const [key, value] of Object.entries(worldSpaceTargets)) {
