@@ -26,22 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { UserParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
-import { UserParams } from '../../user/user/user.class'
 
 export type ChannelDataType = ChannelInterface
 
 export type ChannelCreateType = {
-  users?: UserId[]
-  userId?: UserId
+  users?: UserID[]
+  userId?: UserID
   instanceId?: string // InstanceID
 }
 
@@ -51,6 +51,26 @@ export class Channel<T = ChannelDataType> extends Service<T> {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+  }
+
+  async get(id: ChannelID, params?: UserParams) {
+    const channel = (await super.get(id, params)) as ChannelDataType
+
+    // TODO: Populating ChannelUser's sender property here manually. Once channel-user service is moved to feathers 5. This should be part of its resolver.
+    if (channel.channel_users && channel.channel_users.length > 0) {
+      for (const channelUser of channel.channel_users) {
+        channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
+      }
+    }
+
+    // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+    for (const message of channel.messages) {
+      if (message && message.senderId && !message.sender) {
+        message.sender = await this.app.service(userPath)._get(message.senderId)
+      }
+    }
+
+    return channel as T
   }
 
   // @ts-ignore
@@ -123,12 +143,12 @@ export class Channel<T = ChannelDataType> extends Service<T> {
    * @returns {@Array} which contains list of channel
    */
 
-  async find(params?: UserParams & {}): Promise<T[] | Paginated<T>> {
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     try {
       if (!params) params = {}
       const query = params.query!
 
-      const loggedInUser = params!.user as UserInterface
+      const loggedInUser = params!.user as UserType
       const userId = loggedInUser?.id
 
       if (!userId) return []
@@ -198,23 +218,26 @@ export class Channel<T = ChannelDataType> extends Service<T> {
               include: [
                 /** @todo - couldn't figure out how to include active users */
                 // {
-                //   model: this.app.service('user').Model,
+                //   model: this.app.service(userPath).Model,
                 // },
               ]
             },
             {
               model: this.app.service('message').Model,
               limit: 20,
-              order: [['createdAt', 'DESC']],
-              include: [
-                {
-                  model: this.app.service('user').Model,
-                  as: 'sender'
-                }
-              ]
+              order: [['createdAt', 'DESC']]
             }
           ]
         })
+
+        // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+        for (const channel of channels) {
+          for (const message of channel.dataValues.messages) {
+            if (message && message.senderId && !message.sender) {
+              message.sender = await this.app.service(userPath)._get(message.senderId)
+            }
+          }
+        }
 
         return channels
 
@@ -223,7 +246,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         // })
       }
 
-      const allChannels = await this.app.service('channel').Model.findAll({
+      let allChannels = await this.app.service('channel').Model.findAll({
         where: {
           [Op.or]: [
             {
@@ -236,23 +259,12 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         },
         include: [
           {
-            model: this.app.service('channel-user').Model,
-            include: [
-              {
-                model: this.app.service('user').Model
-              }
-            ]
+            model: this.app.service('channel-user').Model
           },
           {
             model: this.app.service('message').Model,
             limit: 20,
-            order: [['createdAt', 'DESC']],
-            include: [
-              {
-                model: this.app.service('user').Model,
-                as: 'sender'
-              }
-            ]
+            order: [['createdAt', 'DESC']]
           },
           {
             model: this.app.service('instance').Model
@@ -262,9 +274,25 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
       /** @todo figure out how to do this as part of the query */
 
-      return allChannels.filter((channel) => {
+      allChannels = allChannels.filter((channel) => {
         return channel.channel_users.find((channelUser) => channelUser.userId === userId)
       })
+
+      for (const channel of allChannels) {
+        // TODO: Populating ChannelUser's sender property here manually. Once channel-user service is moved to feathers 5. This should be part of its resolver.
+        if (channel.dataValues.channel_users && channel.dataValues.channel_users.length > 0) {
+          for (const channelUser of channel.dataValues.channel_users) {
+            channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
+          }
+        }
+
+        // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+        if (channel.dataValues.message && channel.dataValues.message.senderId && !channel.dataValues.message.sender) {
+          channel.dataValues.message.sender = await this.app.service(userPath)._get(channel.dataValues.message.senderId)
+        }
+      }
+
+      return allChannels
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)
       throw err

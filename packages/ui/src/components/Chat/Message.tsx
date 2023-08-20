@@ -30,7 +30,7 @@ import { useFind, useGet, useMutation } from '@etherealengine/engine/src/common/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
@@ -38,9 +38,8 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { Resizable } from 're-resizable'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
@@ -61,7 +60,7 @@ export const getChannelName = (channel: Channel) => {
   return (
     channel.name ||
     channel.channel_users
-      .filter((channelUser) => channelUser.user?.id !== Engine.instance.userId)
+      .filter((channelUser) => channelUser.user?.id !== Engine.instance.userID)
       .map((channelUser) => channelUser.user?.name)
       .filter(Boolean)
       .join(', ')
@@ -69,7 +68,7 @@ export const getChannelName = (channel: Channel) => {
 }
 
 export const MessageList = (props: { channelID: ChannelID }) => {
-  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userID)
 
   const { data: messages } = useFind('message', {
     query: {
@@ -187,7 +186,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
         style={{ height: height }}
       >
         {messages.map((message, index) => {
-          if (message.sender?.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
+          if (message.sender?.id === Engine.instance.userID) return <SelfMessage key={index} message={message} />
           else return <OtherMessage key={index} message={message} />
         })}
       </div>
@@ -221,14 +220,10 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
     ChannelService.getChannels()
   }, [])
 
-  const currentChannelInstanceConnection = useMediaInstance()
-  const networkState = useHookstate(getMutableState(NetworkState))
+  const mediaNetworkState = useMediaNetwork()
   const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaConnected =
-    mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
-  const connecting =
-    mediaHostId &&
-    (currentChannelInstanceConnection?.connecting?.value || !networkState.networks[mediaHostId]?.ready?.value)
+  const mediaConnected = mediaHostId && mediaNetworkState?.connected.value
+  const connecting = mediaHostId && !mediaNetworkState?.connected?.value
 
   return (
     <>
@@ -301,11 +296,9 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
 export const MessageContainer = () => {
   const selectedChannelID = useHookstate(getMutableState(ChatState).selectedChannelID).value
 
-  const currentChannelInstanceConnection = useMediaInstance()
-  const networkState = useHookstate(getMutableState(NetworkState))
+  const mediaNetworkState = useMediaNetwork()
   const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaConnected =
-    mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
+  const mediaConnected = mediaHostId && mediaNetworkState?.connected.value
 
   return (
     <>

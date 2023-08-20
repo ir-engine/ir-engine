@@ -342,11 +342,9 @@ export class DualQuaternion {
     this.real.x = -this.real.x
     this.real.y = -this.real.y
     this.real.z = -this.real.z
-    this.real.w = this.real.w
     this.dual.x = -this.dual.x
     this.dual.y = -this.dual.y
     this.dual.z = -this.dual.z
-    this.dual.w = this.dual.w
     return this
   }
 

@@ -59,11 +59,11 @@ export function writeFileSyncRecursive(filename, content, charset = undefined) {
 }
 
 export function deleteFolderRecursive(path) {
-  var files: any[] = []
+  let files: any[] = []
   if (fs.existsSync(path)) {
     files = fs.readdirSync(path)
     files.forEach(function (file, index) {
-      var curPath = path + '/' + file
+      const curPath = path + '/' + file
       if (fs.lstatSync(curPath).isDirectory()) {
         // recurse
         deleteFolderRecursive(curPath)
@@ -94,7 +94,7 @@ export function getFilesRecursive(path, includeDirs = false) {
 }
 
 export function copyFileSync(source, target) {
-  var targetFile = target
+  let targetFile = target
 
   // If target is a directory, a new file with the same name will be created
   if (fs.existsSync(target)) {
@@ -107,10 +107,10 @@ export function copyFileSync(source, target) {
 }
 
 export function copyFolderRecursiveSync(source, target) {
-  var files: any[] = []
+  let files: any[] = []
 
   // Check if folder needs to be created or integrated
-  var targetFolder = path.join(target, path.basename(source))
+  const targetFolder = path.join(target, path.basename(source))
   if (!fs.existsSync(targetFolder)) {
     fs.mkdirSync(targetFolder, { recursive: true })
   }
@@ -119,7 +119,7 @@ export function copyFolderRecursiveSync(source, target) {
   if (fs.lstatSync(source).isDirectory()) {
     files = fs.readdirSync(source)
     files.forEach(function (file) {
-      var curSource = path.join(source, file)
+      const curSource = path.join(source, file)
       if (fs.lstatSync(curSource).isDirectory()) {
         copyFolderRecursiveSync(curSource, targetFolder)
       } else {

@@ -75,9 +75,7 @@ export const EulerInput = (props: EulerInputProps) => {
             onChange={onSetEuler('x')}
             axis="x"
             onPointerUp={props.onRelease}
-          >
-            X
-          </Vector3Scrubber>
+          />
         }
       />
       <NumericInput
@@ -92,9 +90,7 @@ export const EulerInput = (props: EulerInputProps) => {
             onChange={onSetEuler('y')}
             axis="y"
             onPointerUp={props.onRelease}
-          >
-            Y
-          </Vector3Scrubber>
+          />
         }
       />
       <NumericInput
@@ -109,9 +105,7 @@ export const EulerInput = (props: EulerInputProps) => {
             onChange={onSetEuler('z')}
             axis="z"
             onPointerUp={props.onRelease}
-          >
-            Z
-          </Vector3Scrubber>
+          />
         }
       />
     </Vector3InputContainer>

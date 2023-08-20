@@ -30,7 +30,6 @@ import { useParams } from 'react-router-dom'
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
@@ -43,22 +42,20 @@ import {
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import {
-  receiveJoinWorld,
-  spawnLocalAvatarInWorld
-} from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { NotificationService } from '../../common/services/NotificationService'
-import { useRouter } from '../../common/services/RouterService'
+import { RouterService } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AvatarService } from '../../user/services/AvatarService'
@@ -102,13 +99,12 @@ export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const authState = useHookstate(getMutableState(AuthState))
 
-  const spectateParam = useParams<{ spectate: UserId }>().spectate
+  const spectateParam = useParams<{ spectate: UserID }>().spectate
 
   useEffect(() => {
     if (spectate) {
       if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
       dispatchAction(EngineActions.spectateUser({}))
-      dispatchAction(EngineActions.joinedWorld({}))
       return
     }
 
@@ -127,13 +123,13 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
-      ? getSpawnPoint(spawnPoint, Engine.instance.userId)
-      : getRandomSpawnPoint(Engine.instance.userId)
+      ? getSpawnPoint(spawnPoint, Engine.instance.userID)
+      : getRandomSpawnPoint(Engine.instance.userID)
 
     if (avatarDetails.modelResource?.url)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
-        avatarID: user.avatar.id.value,
+        avatarID: user.avatar.id.value!,
         name: user.name.value
       })
     else fetchMissingAvatar(user, avatarSpawnPose)
@@ -141,7 +137,6 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 }
 
 export const usePortalTeleport = () => {
-  const route = useRouter()
   const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useHookstate(getMutableState(LocationState))
 
@@ -171,7 +166,7 @@ export const usePortalTeleport = () => {
         return
       }
 
-      route('/location/' + activePortal.location)
+      RouterService.navigate('/location/' + activePortal.location)
       LocationService.getLocationByName(activePortal.location)
 
       // shut down connection with existing world instance server
@@ -223,20 +218,20 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
   const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
-    dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
+    engineState.connectedWorld.set(true)
   }, [])
 
   /** OFFLINE */
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
-      const userId = Engine.instance.userId
+      const userId = Engine.instance.userID
       const peerID = Engine.instance.peerID
       const userIndex = 1
       const peerIndex = 1
 
       const networkState = getMutableState(NetworkState)
       networkState.hostIds.world.set(userId)
-      addNetwork(createNetwork(userId, NetworkTopics.world))
+      addNetwork(createNetwork(userId, userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(
@@ -247,14 +242,6 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
         userIndex,
         authState.user.name.value
       )
-
-      if (props?.spectate) return
-
-      receiveJoinWorld({
-        cachedActions: [],
-        peerIndex,
-        routerRtpCapabilities: undefined
-      })
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 }

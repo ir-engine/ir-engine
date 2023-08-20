@@ -29,25 +29,27 @@ import { IoMdAddCircle } from 'react-icons/io'
 import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { FriendService, FriendState } from '@etherealengine/client-core/src/social/services/FriendService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 export const DrawerCreateChannel = () => {
   const friendState = useHookstate(getMutableState(FriendState))
 
   useEffect(() => {
-    FriendService.getUserRelationship(Engine.instance.userId)
+    FriendService.getUserRelationship(Engine.instance.userID)
   }, [])
 
-  const selectedFriends = useHookstate<UserId[]>([])
+  const selectedFriends = useHookstate<UserID[]>([])
 
-  const friends = friendState.relationships.friend.value.map((friend) => {
-    return {
-      id: friend.id,
-      name: friend.name
-    }
-  })
+  const friends = friendState.relationships.value
+    .filter((friend) => friend.userRelationshipType === 'friend')
+    .map((friend) => {
+      return {
+        id: friend.relatedUserId,
+        name: friend.relatedUser.name
+      }
+    })
 
   const createChannel = () => {
     ChannelService.createChannel(selectedFriends.get(NO_PROXY))

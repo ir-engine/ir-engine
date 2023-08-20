@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  chargebeeSettingDataSchema,
-  chargebeeSettingPatchSchema,
-  chargebeeSettingQuerySchema,
-  chargebeeSettingSchema
+  chargebeeSettingDataValidator,
+  chargebeeSettingPatchValidator,
+  chargebeeSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -44,12 +41,6 @@ import {
   chargebeeSettingQueryResolver,
   chargebeeSettingResolver
 } from './chargebee-setting.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const chargebeeSettingValidator = getValidator(chargebeeSettingSchema, dataValidator)
-const chargebeeSettingDataValidator = getValidator(chargebeeSettingDataSchema, dataValidator)
-const chargebeeSettingPatchValidator = getValidator(chargebeeSettingPatchSchema, dataValidator)
-const chargebeeSettingQueryValidator = getValidator(chargebeeSettingQuerySchema, queryValidator)
 
 export default {
   around: {

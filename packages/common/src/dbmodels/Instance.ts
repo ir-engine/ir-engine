@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '../interfaces/ChannelUser'
+import { ChannelID } from './Channel'
 
 export interface InstanceInterface {
   id: string
@@ -47,4 +47,8 @@ interface LocationInterface {
   isLobby: boolean
   isFeatured: boolean
   maxUsersPerInstance: number
+}
+
+export interface InstanceAuthorizedUserInterface {
+  id: string
 }

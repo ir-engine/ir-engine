@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const authenticationSettingPath = 'authentication-setting'
 
@@ -179,3 +180,15 @@ export const authenticationSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type AuthenticationSettingQuery = Static<typeof authenticationSettingQuerySchema>
+
+export const authAppCredentialsValidator = getValidator(authAppCredentialsSchema, dataValidator)
+export const authBearerTokenValidator = getValidator(authBearerTokenSchema, dataValidator)
+export const authCallbackValidator = getValidator(authCallbackSchema, dataValidator)
+export const authDefaultsValidator = getValidator(authDefaultsSchema, dataValidator)
+export const authJwtOptionsValidator = getValidator(authJwtOptionsSchema, dataValidator)
+export const authOauthValidator = getValidator(authOauthSchema, dataValidator)
+export const authStrategiesValidator = getValidator(authStrategiesSchema, dataValidator)
+export const authenticationSettingValidator = getValidator(authenticationSettingSchema, dataValidator)
+export const authenticationSettingDataValidator = getValidator(authenticationSettingDataSchema, dataValidator)
+export const authenticationSettingPatchValidator = getValidator(authenticationSettingPatchSchema, dataValidator)
+export const authenticationSettingQueryValidator = getValidator(authenticationSettingQuerySchema, queryValidator)

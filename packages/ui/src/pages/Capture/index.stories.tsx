@@ -31,7 +31,6 @@ import React, { useEffect, useRef, useState } from 'react'
 
 // import { useLocation, useNavigate } from 'react-router-dom'
 
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   NotificationAction,
   NotificationActions
@@ -69,7 +68,6 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import Component from './index'
 
-import { AuthSettingsService } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
@@ -150,12 +148,8 @@ const decorators = [
     }, [selfUser, projectState.updateNeeded.value])
 
     useEffect(() => {
-      Engine.instance.userId = selfUser.id.value
+      Engine.instance.userID = selfUser.id.value
     }, [selfUser.id])
-
-    useEffect(() => {
-      authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
-    }, [authState.isLoggedIn])
 
     useEffect(() => {
       addActionReceptor(LocationServiceReceptor)
@@ -167,7 +161,6 @@ const decorators = [
       // The client and auth settigns will not be needed on these routes
       if (!/auth\/oauth/.test(location.pathname)) {
         AuthService.doLoginAuto()
-        AuthSettingsService.fetchAuthSetting()
       }
 
       getMutableState(NetworkState).config.set({

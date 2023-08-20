@@ -68,11 +68,7 @@ const _quat = new Quaternion()
  * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
  * On 'standard' mapping, get thumbstick input [0,1]
  */
-export function getThumbstickOrThumbpadAxes(
-  inputSource: XRInputSource,
-  thumstick: XRHandedness,
-  deadZone: number = 0.05
-) {
+export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, thumstick: XRHandedness, deadZone = 0.05) {
   const gamepad = inputSource.gamepad
   const axes = gamepad!.axes
   const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || thumstick === 'right' ? 2 : 0

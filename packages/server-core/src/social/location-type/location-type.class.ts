@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
 import { KnexService } from '@feathersjs/knex'
 
 import {
@@ -33,9 +32,10 @@ import {
   LocationTypeQuery,
   LocationTypeType
 } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LocationTypeParams extends KnexAdapterParams<LocationTypeQuery> {}
+export interface LocationTypeParams extends RootParams<LocationTypeQuery> {}
 
 export class LocationTypeService<
   T = LocationTypeType,

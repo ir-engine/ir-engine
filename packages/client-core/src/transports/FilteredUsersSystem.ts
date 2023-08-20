@@ -23,45 +23,42 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { AuthState } from '../user/services/AuthService'
-import { closeConsumer, promisedRequest, SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 
 export const FilteredUsersState = defineState({
   name: 'FilteredUsersState',
   initial: () => ({
-    nearbyLayerUsers: [] as UserId[]
+    nearbyLayerUsers: [] as UserID[]
   })
 })
 
 export const FilteredUsersService = {
   updateNearbyLayerUsers: () => {
+    if (!Engine.instance.worldNetwork) return
     const mediaState = getMutableState(FilteredUsersState)
     const selfUserId = getMutableState(AuthState).user.id.value
-    const peers = Engine.instance.worldNetworkState.peers
-      ? Array.from(Engine.instance.worldNetworkState.peers?.get({ noproxy: true }).values())
-      : []
+    const peers = Engine.instance.worldNetwork.peers ? Array.from(Engine.instance.worldNetwork.peers.values()) : []
     const worldUserIds = peers
       ? peers.filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId).map((peer) => peer.userId)
       : []
-    const nearbyUsers = getNearbyUsers(Engine.instance.userId, worldUserIds)
+    const nearbyUsers = getNearbyUsers(Engine.instance.userID, worldUserIds)
     mediaState.nearbyLayerUsers.set(nearbyUsers)
   }
 }
 
 export const updateNearbyAvatars = () => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  if (!network) return
 
   FilteredUsersService.updateNearbyLayerUsers()
-
-  if (!network) return
 
   const channelConnectionState = getState(MediaInstanceState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
@@ -70,18 +67,19 @@ export const updateNearbyAvatars = () => {
   const filteredUsersState = getState(FilteredUsersState)
   const nearbyUserIds = filteredUsersState.nearbyLayerUsers
 
-  promisedRequest(network, MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    userIds: nearbyUserIds,
-    channelId: currentChannelInstanceConnection.channelId
-  })
-
   if (!nearbyUserIds.length) return
 
-  for (const consumer of network.consumers) {
-    if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
-      closeConsumer(network, consumer)
-    }
-  }
+  // for (const consumer of network.consumers) {
+  //   if (consumer.appData.peerID === Engine.instance.peerID) continue
+  //   if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
+  //     dispatchAction(
+  //       MediaConsumerActions.consumerClosed({
+  //         consumerID: consumer.id,
+  //         $topic: network.topic
+  //       })
+  //     )
+  //   }
+  // }
 }
 
 // every 5 seconds

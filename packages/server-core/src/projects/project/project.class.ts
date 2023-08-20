@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Params } from '@feathersjs/feathers'
+import { Id, Paginated, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
@@ -37,27 +37,31 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import {
-  githubRepoAccessPath,
-  GithubRepoAccessType
+  GithubRepoAccessType,
+  githubRepoAccessPath
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
+import { UserParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
-import logger from '../../ServerLogger'
-import { ServerState } from '../../ServerState'
-import { UserParams } from '../../user/user/user.class'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
@@ -93,7 +97,7 @@ export type ProjectQueryParams = {
 }
 
 export type ProjectParams = {
-  user: UserInterface
+  user: UserType
 } & Params<ProjectQueryParams>
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
@@ -177,7 +181,7 @@ export const uploadLocalProjectToProvider = async (
   const results = [] as (string | null)[]
   for (let file of filtered) {
     try {
-      const fileResult = await uploadSceneToStaticResources(app, projectName, file, storageProviderName)
+      const fileResult = await uploadSceneToStaticResources(app, projectName, file)
       const filePathRelative = processFileName(file.slice(projectPath.length))
       await storageProvider.putObject(
         {
@@ -217,7 +221,9 @@ export class Project extends Service {
       commitSHA = await git.revparse(['HEAD'])
       const commit = await git.log(['-1'])
       commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
-    } catch (err) {}
+    } catch (err) {
+      //
+    }
     return {
       commitSHA,
       commitDate
@@ -412,14 +418,17 @@ export class Project extends Service {
 
     const userId = params!.user?.id || project.updateUserId
 
-    const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
-      where: {
+    const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
+      query: {
         userId: userId,
-        type: 'github'
+        type: 'github',
+        $limit: 1
       }
-    })
+    })) as Paginated<IdentityProviderType>
 
-    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.sourceURL)
+    if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
+
+    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.sourceURL)
     if (!repoPath) repoPath = data.sourceURL //public repo
 
     const gitCloner = useGit(projectLocalDirectory)
@@ -432,7 +441,9 @@ export class Project extends Service {
       if (branchExists.length === 0 || data.reset) {
         try {
           await git.deleteLocalBranch(branchName)
-        } catch (err) {}
+        } catch (err) {
+          //
+        }
         await git.checkoutLocalBranch(branchName)
       } else await git.checkout(branchName)
     } catch (err) {
@@ -503,7 +514,7 @@ export class Project extends Service {
       })
 
     if (data.reset) {
-      let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.destinationURL)
+      let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.destinationURL)
       if (!repoPath) repoPath = data.destinationURL //public repo
       await git.addRemote('destination', repoPath)
       await git.raw(['lfs', 'fetch', '--all'])
@@ -538,27 +549,31 @@ export class Project extends Service {
     if (data.repositoryPath) {
       const repoPath = data.repositoryPath
       const user = params!.user!
-      const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
-        where: {
+
+      const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
+        query: {
           userId: user.id,
-          type: 'github'
+          type: 'github',
+          $limit: 1
         }
-      })
+      })) as Paginated<IdentityProviderType>
+
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
-      if (!githubIdentityProvider) throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
+      if (githubIdentityProvider.data.length === 0)
+        throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
       const split = githubPathRegexExec[2].split('/')
       const org = split[0]
       const repo = split[1].replace('.git', '')
-      const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.oauthToken)
+      const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
       if (!appOrgAccess)
         throw new Forbidden(
           `The organization ${org} needs to install the GitHub OAuth app ${config.authentication.oauth.github.key} in order to push code to its repositories`
         )
-      const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.oauthToken)
+      const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.data[0].oauthToken)
       if (repoWriteStatus !== 200) {
         if (repoWriteStatus === 404) {
-          const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider.oauthToken)
+          const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider.data[0].oauthToken)
           if (orgWriteStatus !== 200) throw new Forbidden('You do not have write access to that organization')
         } else {
           throw new Forbidden('You do not have write access to that repo')
@@ -669,12 +684,14 @@ export class Project extends Service {
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
-      const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
-        where: {
+
+      const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
+        query: {
           userId: params.user!.id,
-          type: 'github'
+          type: 'github',
+          $limit: 1
         }
-      })
+      })) as Paginated<IdentityProviderType>
 
       // Get all of the projects that this user has permissions for, then calculate push status by whether the user
       // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
@@ -684,14 +701,15 @@ export class Project extends Service {
         paginate: false
       })) as any
       const allowedProjects = await projectPermissions.map((permission) => permission.project)
-      const repoAccess = githubIdentityProvider
-        ? ((await this.app.service(githubRepoAccessPath).find({
-            query: {
-              identityProviderId: githubIdentityProvider.id
-            },
-            paginate: false
-          })) as any as GithubRepoAccessType[])
-        : []
+      const repoAccess =
+        githubIdentityProvider.data.length > 0
+          ? ((await this.app.service(githubRepoAccessPath).find({
+              query: {
+                identityProviderId: githubIdentityProvider.data[0].id
+              },
+              paginate: false
+            })) as any as GithubRepoAccessType[])
+          : []
       const pushRepoPaths = repoAccess.filter((repo) => repo.hasWriteAccess).map((item) => item.repo.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
       allowedProjectGithubRepos = await Promise.all(
@@ -741,8 +759,7 @@ export class Project extends Service {
       if (!params.sequelize) params.sequelize = { raw: false }
       if (!params.sequelize.include) params.sequelize.include = []
       params.sequelize.include.push({
-        model: this.app.service('project-permission').Model,
-        include: [this.app.service('user').Model]
+        model: this.app.service('project-permission').Model
       })
     }
     params = {
@@ -766,10 +783,11 @@ export class Project extends Service {
     }
 
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
-    data.forEach((item) => {
+    for (const item of data) {
       const values = (item as any).dataValues
         ? ((item as any).dataValues as ProjectInterface)
         : (item as ProjectInterface)
+
       try {
         const packageJson = getProjectPackageJson(values.name)
         const config = getProjectConfig(values.name)
@@ -778,8 +796,16 @@ export class Project extends Service {
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
-      } catch (err) {}
-    })
+
+        // TODO: Following can be moved to project permission hook once its service is moved to feathers 5.
+        for (const permissions of values.project_permissions || []) {
+          if (!permissions.user && permissions.userId)
+            permissions.user = await this.app.service(userPath)._get(permissions.userId)
+        }
+      } catch (err) {
+        //
+      }
+    }
 
     return {
       data,

@@ -31,6 +31,7 @@ import {
   AvatarSimulationSystemGroup
 } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
 import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
+import { BehaveGraphSystem } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/CameraInputSystem'
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
@@ -49,7 +50,10 @@ import { InteractiveSystem } from '@etherealengine/engine/src/interaction/system
 import { MediaControlSystem } from '@etherealengine/engine/src/interaction/systems/MediaControlSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
+import { DataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
+import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { NetworkTransportStateSystem } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
@@ -63,9 +67,12 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const startClientSystems = () => {
   /** Input */
-  startSystems([XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem], {
-    with: InputSystemGroup
-  })
+  startSystems(
+    [XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem],
+    {
+      with: InputSystemGroup
+    }
+  )
 
   /** Fixed */
   startSystems([IncomingNetworkSystem, EntityNetworkStateSystem, GrabbableSystem, AvatarSimulationSystemGroup], {
@@ -97,7 +104,19 @@ export const startClientSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ButtonCleanupSystem, PortalSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup], {
-    after: PresentationSystemGroup
-  })
+  startSystems(
+    [
+      ButtonCleanupSystem,
+      PortalSystem,
+      ECSSerializerSystem,
+      PositionalAudioSystem,
+      SceneSystemLoadGroup,
+      NetworkTransportStateSystem,
+      MediaProducerConsumerStateSystem,
+      DataProducerConsumerStateSystem
+    ],
+    {
+      after: PresentationSystemGroup
+    }
+  )
 }

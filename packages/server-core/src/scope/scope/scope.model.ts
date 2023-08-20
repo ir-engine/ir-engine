@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { ScopeInterface, ScopeTypeInterface } from '@etherealengine/common/src/dbmodels/Scope'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -50,7 +51,7 @@ export default (app: Application) => {
     }
   )
   ;(Scope as any).associate = (models: any): void => {
-    ;(Scope as any).belongsTo(models.user, { foreignKey: 'userId', allowNull: true, onDelete: 'cascade' })
+    ;(Scope as any).belongsTo(createUserModel(app), { foreignKey: 'userId', allowNull: true, onDelete: 'cascade' })
     ;(Scope as any).belongsTo(createScopeTypeModel(app), {
       foreignKey: 'type'
     })

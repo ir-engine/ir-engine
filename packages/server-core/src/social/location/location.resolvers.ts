@@ -28,13 +28,14 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { LocationQuery, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { LocationAuthorizedUserType } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
-import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 import { LocationParams } from './location.class'
 
@@ -59,7 +60,7 @@ export const locationResolver = resolve<LocationType, HookContext>({
       (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
     ) {
       //TODO: We should replace `as any as LocationAdminType[]` with `as LocationAdminType[]` once location-admin service is migrated to feathers 5.
-      const locationAdmin = (await context.app.service('location-admin').find({
+      const locationAdmin = (await context.app.service(locationAdminPath).find({
         query: {
           locationId: location.id,
           userId: loggedInUser.id
@@ -83,8 +84,7 @@ export const locationResolver = resolve<LocationType, HookContext>({
     return locationAuthorizedUser
   }),
   locationBans: virtual(async (location, context) => {
-    //TODO: We should replace `as any as LocationBanType[]` with `as LocationBanType[]` once location-admin service is migrated to feathers 5.
-    const locationBan = (await context.app.service('location-ban').find({
+    const locationBan = (await context.app.service(locationBanPath).find({
       query: {
         locationId: location.id
       },
@@ -118,7 +118,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       ...location.locationAdmin,
       id: v4(),
       locationId: '',
-      userId: '',
+      userId: '' as UserID,
       createdAt: await getDateTimeSql(),
       updatedAt: await getDateTimeSql()
     }

@@ -139,6 +139,7 @@ import {
   Shuffle,
   SportsScore,
   SquareFoot,
+  StopCircle,
   StopScreenShare,
   Storage,
   SupervisorAccount,
@@ -185,6 +186,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Download {...props} />
     case 'CameraAlt':
       return <CameraAlt {...props} />
+    case 'StopCircle':
+      return <StopCircle {...props} />
     case 'ChevronLeft':
       return <ChevronLeft {...props} />
     case 'ChevronRight':

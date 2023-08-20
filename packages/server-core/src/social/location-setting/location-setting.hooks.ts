@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  locationSettingDataSchema,
-  locationSettingPatchSchema,
-  locationSettingQuerySchema,
-  locationSettingSchema
+  locationSettingDataValidator,
+  locationSettingPatchValidator,
+  locationSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import {
   locationSettingDataResolver,
@@ -42,12 +39,6 @@ import {
   locationSettingQueryResolver,
   locationSettingResolver
 } from './location-setting.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const locationSettingValidator = getValidator(locationSettingSchema, dataValidator)
-const locationSettingDataValidator = getValidator(locationSettingDataSchema, dataValidator)
-const locationSettingPatchValidator = getValidator(locationSettingPatchSchema, dataValidator)
-const locationSettingQueryValidator = getValidator(locationSettingQuerySchema, queryValidator)
 
 export default {
   around: {

@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { ChannelID } from './ChannelUser'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ChannelID } from '../dbmodels/Channel'
 
 export interface Instance {
   id: string
@@ -40,7 +41,6 @@ export interface Instance {
   ended?: boolean
   assigned?: boolean
   assignedAt?: Date
-  instanceserver_subdomain_provision?: InstanceServerSubdomainProvision
 }
 
 export const InstanceSeed: Instance = {
@@ -57,7 +57,7 @@ export const InstanceSeed: Instance = {
       {
         id: '',
         locationId: '',
-        userId: '',
+        userId: '' as UserID,
         createdAt: '',
         updatedAt: ''
       }
@@ -79,13 +79,6 @@ export const InstanceSeed: Instance = {
   podName: '',
   locationId: '',
   channelId: '' as ChannelID
-}
-
-export interface InstanceServerSubdomainProvision {
-  id: number
-  is_id: string
-  is_number: string
-  allocated: boolean
 }
 
 export interface InstanceServerPatch {

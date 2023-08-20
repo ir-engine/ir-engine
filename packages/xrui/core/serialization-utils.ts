@@ -30,6 +30,7 @@ import { WebLayer } from './WebLayer'
 import { WebRenderer } from './WebRenderer'
 
 function removeInvalidCharacters(content: string) {
+  // eslint-disable-next-line no-control-regex
   return content.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
 }
 
@@ -101,7 +102,7 @@ async function serializeTag(node: Element, options: Options) {
 }
 
 function serializeText(node: Text) {
-  var text = node.nodeValue || ''
+  const text = node.nodeValue || ''
   return serializeTextContent(text)
 }
 

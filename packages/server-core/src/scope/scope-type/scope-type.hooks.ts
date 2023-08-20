@@ -23,16 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  scopeTypeDataSchema,
-  scopeTypePatchSchema,
-  scopeTypeQuerySchema,
-  scopeTypeSchema
+  scopeTypeDataValidator,
+  scopeTypePatchValidator,
+  scopeTypeQueryValidator
 } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import {
   scopeTypeDataResolver,
@@ -41,12 +38,6 @@ import {
   scopeTypeQueryResolver,
   scopeTypeResolver
 } from './scope-type.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const scopeTypeValidator = getValidator(scopeTypeSchema, dataValidator)
-const scopeTypeDataValidator = getValidator(scopeTypeDataSchema, dataValidator)
-const scopeTypePatchValidator = getValidator(scopeTypePatchSchema, dataValidator)
-const scopeTypeQueryValidator = getValidator(scopeTypeQuerySchema, queryValidator)
 
 export default {
   around: {

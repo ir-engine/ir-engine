@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceInterface } from '@etherealengine/common/src/dbmodels/StaticResource'
-
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -37,9 +35,6 @@ declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'static-resource': StaticResource
     'static-resource-filters': { get: (data?: any, params?: any) => ReturnType<typeof getFilters> }
-  }
-  interface Models {
-    static_resource: ReturnType<typeof createModel> & StaticResourceInterface
   }
 }
 

@@ -1,0 +1,68 @@
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+}
+
+.react-flow__handle-right {
+  right: -6px;
+}
+
+.react-flow__handle-left {
+  left: -6px;
+}
+
+/* Styling for the edges in react flow */
+.react-flow__edge-path {
+  stroke: #b1b1b7;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+/* Styling for number input */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/* Default stroke color for react flow edges */
+.react-flow__edge-path {
+  stroke: #555;
+}
+
+/* Styling for selected react flow edges */
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #fff;
+}
+
+/* Styling for selected react flow nodes */
+.react-flow__nodes .react-flow__node::selection {
+  outline: 1px white solid;
+}
+
+/* Styling for the title of react flow nodes */
+.react-flow__nodes .react-flow__node .title {
+  background-color: #aac;
+  color: #fff;
+  padding: 0.5rem 0.25rem;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+/* Styling for the content of react flow nodes */
+.react-flow__nodes .react-flow__node .content {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Styling for the react flow controls */
+.react-flow .react-flow__controls {
+  display: flex;
+}

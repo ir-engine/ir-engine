@@ -24,19 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import Paginated from '../../types/PageObject'
 import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
-import { IdentityProvider } from '../identity-provider/identity-provider.class'
+import { IdentityProviderService } from '../identity-provider/identity-provider.class'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
@@ -123,7 +127,7 @@ export class Magiclink implements ServiceMethods<Data> {
     toEmail: string,
     token: string,
     type: 'connection' | 'login',
-    identityProvider: IdentityProvider,
+    identityProvider: IdentityProviderService,
     subscriptionId?: string
   ): Promise<void> {
     const hashLink = getLink(type, token, subscriptionId ?? '')
@@ -138,7 +142,7 @@ export class Magiclink implements ServiceMethods<Data> {
         throw new BadRequest('Invalid subscription')
       }
 
-      const subscriptionUser = await this.app.service('user').get(subscription.data[0].userId)
+      const subscriptionUser = await this.app.service(userPath).get(subscription.data[0].userId)
 
       username = subscriptionUser.name
     }
@@ -198,7 +202,7 @@ export class Magiclink implements ServiceMethods<Data> {
    */
 
   async create(data: any, params?: Params): Promise<Data> {
-    const identityProviderService = this.app.service('identity-provider')
+    const identityProviderService = this.app.service(identityProviderPath)
 
     // check magiclink type
     let token = ''
@@ -220,7 +224,8 @@ export class Magiclink implements ServiceMethods<Data> {
         {
           token: token,
           type: data.type,
-          accountIdentifier: token
+          accountIdentifier: token,
+          userId: data.userId
         },
         params
       )
@@ -229,7 +234,7 @@ export class Magiclink implements ServiceMethods<Data> {
     }
 
     if (identityProvider) {
-      const loginToken = await this.app.service('login-token').create({
+      const loginToken = await this.app.service(loginTokenPath).create({
         identityProviderId: identityProvider.id
       })
 

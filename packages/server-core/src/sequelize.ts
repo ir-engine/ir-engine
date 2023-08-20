@@ -81,6 +81,7 @@ export default (app: Application): void => {
           `select table_schema as etherealengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
         )
         const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
+
         // Sync to the database
         for (const model of Object.keys(sequelize.models)) {
           const sequelizeModel = sequelize.models[model]
@@ -106,7 +107,9 @@ export default (app: Application): void => {
                     if (value.unique)
                       try {
                         await sequelize.getQueryInterface().removeIndex(model, value.fieldName)
-                      } catch (err) {}
+                      } catch (err) {
+                        //
+                      }
                     await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
                   }
                 } catch (err) {
@@ -129,7 +132,11 @@ export default (app: Application): void => {
             initProcess.once('disconnect', resolve)
             initProcess.stdout.on('data', (data) => console.log(data.toString()))
           })
-            .then(console.log)
+            .then((exitCode) => {
+              if (exitCode !== 0) {
+                throw new Error(`Knex migration exited with: ${exitCode}`)
+              }
+            })
             .catch((err) => {
               logger.error('Knex migration error')
               logger.error(err)

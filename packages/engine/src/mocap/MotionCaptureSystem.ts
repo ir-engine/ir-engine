@@ -32,6 +32,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { isClient } from '../common/functions/getEnvironment'
@@ -40,9 +41,9 @@ import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
-import { DataChannelType, Network } from '../networking/classes/Network'
+import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataProducerConsumerState'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAction } from '../xr/XRState'
@@ -61,18 +62,17 @@ export interface NormalizedLandmark {
 export const sendResults = (landmarks: NormalizedLandmark[]) => {
   return encode({
     timestamp: Date.now(),
-    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.peerID)!,
+    peerID: Engine.instance.peerID,
     landmarks
   })
 }
 
 export const receiveResults = (results: ArrayBuffer) => {
-  const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
+  const { timestamp, peerID, landmarks } = decode(new Uint8Array(results)) as {
     timestamp: number
-    peerIndex: number
+    peerID: PeerID
     landmarks: NormalizedLandmark[]
   }
-  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
   return { timestamp, peerID, landmarks }
 }
 
@@ -119,9 +119,6 @@ const rightHandPos = new Vector3()
 
 const execute = () => {
   const engineState = getState(EngineState)
-
-  const localClientEntity = Engine.instance.localClientEntity
-
   const network = Engine.instance.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
@@ -131,13 +128,13 @@ const execute = () => {
     }
   }
 
-  const userPeers = network?.users?.get(Engine.instance.userId)
+  const userPeers = network?.users?.get(Engine.instance.userID)
 
   // Stop mocap by removing entities if data doesnt exist
-  if (isClient && (!localClientEntity || !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID)))) {
-    const headUUID = (Engine.instance.userId + motionCaptureHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + motionCaptureLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + motionCaptureRightHandSuffix) as EntityUUID
+  if (isClient && !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID))) {
+    const headUUID = (Engine.instance.userID + motionCaptureHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userID + motionCaptureLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userID + motionCaptureRightHandSuffix) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
@@ -152,7 +149,7 @@ const execute = () => {
     const userID = network.peers.get(peerID)!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
-    if (entity && entity === localClientEntity) {
+    if (entity) {
       const data = mocapData.popLast()
       if (!data) continue
 
