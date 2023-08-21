@@ -29,7 +29,6 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
-import { scopeSchema } from '../scope/scope.schema'
 import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
 import { userSettingSchema } from '../user/user-setting.schema'
@@ -42,9 +41,12 @@ export const userPath = 'user'
 
 export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 
-export const userScopeSchema = Type.Pick(scopeSchema, ['type'], {
-  $id: 'UserScope'
-})
+export const userScopeSchema = Type.Object(
+  {
+    type: Type.String()
+  },
+  { $id: 'UserScope', additionalProperties: false }
+)
 
 export type UserID = OpaqueType<'UserID'> & string
 
