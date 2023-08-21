@@ -28,7 +28,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import styles from './styles.module.scss'
 
-const labelRenderer = (data: Object) => {
+const labelRenderer = (data: Record<string | number, any>) => {
   return (keyPath: (string | number)[]) => {
     const key = keyPath[0]
     if (keyPath.length === 2 && typeof key === 'number') {
