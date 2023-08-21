@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ProjectPermission from './project-permission/project-permission.service'
+import ProjectPermission from './project-permission/project-permission'
 import Project from './project/project.service'
 import Scene from './scene/scene.service'
 

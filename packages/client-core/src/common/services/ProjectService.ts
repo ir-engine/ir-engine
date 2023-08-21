@@ -35,6 +35,7 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
@@ -173,7 +174,7 @@ export const ProjectService = {
 
   createPermission: async (userInviteCode: string, projectId: string) => {
     try {
-      await API.instance.client.service('project-permission').create({
+      await API.instance.client.service(projectPermissionPath).create({
         inviteCode: userInviteCode,
         projectId: projectId
       })
@@ -185,7 +186,7 @@ export const ProjectService = {
 
   patchPermission: async (id: string, type: string) => {
     try {
-      await API.instance.client.service('project-permission').patch(id, {
+      await API.instance.client.service(projectPermissionPath).patch(id, {
         type: type
       })
     } catch (err) {
@@ -196,7 +197,7 @@ export const ProjectService = {
 
   removePermission: async (id: string) => {
     try {
-      await API.instance.client.service('project-permission').remove(id)
+      await API.instance.client.service(projectPermissionPath).remove(id)
     } catch (err) {
       logger.error('Error with removing project-permission', err)
       throw err

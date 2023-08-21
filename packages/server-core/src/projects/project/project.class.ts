@@ -49,10 +49,15 @@ import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
 import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -502,7 +507,7 @@ export class Project extends Service {
     returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
     if (!existingProjectResult) {
-      await this.app.service('project-permission').create({
+      await this.app.service(projectPermissionPath).create({
         projectId: returned.id,
         userId
       })
@@ -680,6 +685,7 @@ export class Project extends Service {
   //@ts-ignore
   async find(params?: UserParams): Promise<{ data: ProjectInterface[]; errors: any[] }> {
     let projectPushIds: string[] = []
+    let populateProjectPermissions = false
     const errors = [] as any
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
@@ -695,11 +701,14 @@ export class Project extends Service {
 
       // Get all of the projects that this user has permissions for, then calculate push status by whether the user
       // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
-      const projectPermissions = (await this.app.service('project-permission').Model.findAll({
-        where: { userId: params.user!.id },
-        include: [{ model: this.app.service('project').Model }],
-        paginate: false
-      })) as any
+      const knexClient: Knex = this.app.get('knexClient')
+      const projectPermissions = await knexClient
+        .from(projectPermissionPath)
+        .join('project', 'project.id', `${projectPermissionPath}.projectId`)
+        .where({ userId: params.user!.id })
+        .select()
+        .options({ nestTables: true })
+
       const allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repoAccess =
         githubIdentityProvider.data.length > 0
@@ -756,12 +765,10 @@ export class Project extends Service {
       if (!params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
         params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
       delete params.query.allowed
-      if (!params.sequelize) params.sequelize = { raw: false }
-      if (!params.sequelize.include) params.sequelize.include = []
-      params.sequelize.include.push({
-        model: this.app.service('project-permission').Model
-      })
+
+      populateProjectPermissions = true
     }
+
     params = {
       ...params,
       query: {
@@ -797,10 +804,19 @@ export class Project extends Service {
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
 
-        // TODO: Following can be moved to project permission hook once its service is moved to feathers 5.
-        for (const permissions of values.project_permissions || []) {
-          if (!permissions.user && permissions.userId)
-            permissions.user = await this.app.service(userPath)._get(permissions.userId)
+        if (populateProjectPermissions) {
+          // TODO: Following can be moved to project resolver once this service is moved to feathers 5.
+          values.project_permissions = (await this.app.service(projectPermissionPath)._find({
+            query: {
+              projectId: values.id
+            },
+            paginate: false
+          })) as ProjectPermissionType[]
+
+          for (const permissions of values.project_permissions || []) {
+            if (!permissions.user && permissions.userId)
+              permissions.user = await this.app.service(userPath)._get(permissions.userId)
+          }
         }
       } catch (err) {
         //
