@@ -25,14 +25,25 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { identityProviderTypes } from '../user/identity-provider.schema'
 import { UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const invitePath = 'invite'
 
 export const inviteMethods = ['create', 'find', 'get', 'remove', 'patch'] as const
+
+export const spawnDetailsSchema = Type.Object(
+  {
+    inviteCode: Type.String(),
+    spawnPoint: Type.String(),
+    spectate: Type.String()
+  },
+  { $id: 'SpawnDetails', additionalProperties: false }
+)
+export type SpawnDetailsType = Static<typeof spawnDetailsSchema>
 
 // Main data model schema
 export const inviteSchema = Type.Object(
@@ -41,21 +52,21 @@ export const inviteSchema = Type.Object(
       format: 'uuid'
     }),
     token: Type.String(),
-    identityProviderType: Type.String(),
+    identityProviderType: StringEnum(identityProviderTypes),
     passcode: Type.String(),
     targetObjectId: Type.String(),
     deleteOnUse: Type.Boolean(),
     makeAdmin: Type.Boolean(),
     spawnType: Type.String(),
-    spawnDetails: Type.String(),
+    spawnDetails: Type.Ref(spawnDetailsSchema),
     timed: Type.Boolean(),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    inviteeId: TypedString<UserID>({
+    inviteeId: Type.String({
       format: 'uuid'
     }),
-    inviteType: Type.String(),
+    inviteType: StringEnum(['friend', 'channel', 'location', 'instance', 'new-user']),
     user: Type.Ref(userSchema),
     startTime: Type.String({ format: 'date-time' }),
     endTime: Type.String({ format: 'date-time' }),
