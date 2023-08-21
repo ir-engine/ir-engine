@@ -34,6 +34,7 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
+  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -74,11 +75,12 @@ export const LoopAnimationComponent = defineComponent({
     if (!isClient) return null
     const entity = useEntityContext()
 
+    const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
+
     const modelComponent = useOptionalComponent(entity, ModelComponent)
 
     const animComponent = useOptionalComponent(entity, AnimationComponent)
 
-    const loopAnimationComponent = useOptionalComponent(entity, LoopAnimationComponent)
     /**
      * Callback functions
      */
@@ -156,7 +158,7 @@ export const LoopAnimationComponent = defineComponent({
       }
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [animComponent?.animations, loopAnimationComponent?.hasAvatarAnimations])
+    }, [animComponent?.animations, loopAnimationComponent.hasAvatarAnimations])
 
     return null
   }
