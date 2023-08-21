@@ -34,6 +34,7 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -188,7 +189,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           throw new BadRequest('Invalid user ID')
         }
 
-        const existingRelationshipResult = (await this.app.service('user-relationship').find({
+        const existingRelationshipResult = await this.app.service(userRelationshipPath)._find({
           query: {
             $or: [
               {
@@ -201,10 +202,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
             userId: invite.userId,
             relatedUserId: inviteeIdentityProvider.userId
           }
-        })) as any
+        })
 
         if (existingRelationshipResult.total === 0) {
-          await this.app.service('user-relationship').create(
+          await this.app.service(userRelationshipPath).create(
             {
               userRelationshipType: 'friend',
               userId: invite.userId,
@@ -213,7 +214,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             params
           )
         } else {
-          await this.app.service('user-relationship').patch(
+          await this.app.service(userRelationshipPath).patch(
             existingRelationshipResult.data[0].id,
             {
               userRelationshipType: 'friend'
@@ -222,7 +223,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           )
         }
 
-        const relationshipToPatch = (await this.app.service('user-relationship').find({
+        const relationshipToPatch = await this.app.service(userRelationshipPath)._find({
           query: {
             $or: [
               {
@@ -235,10 +236,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
             userId: inviteeIdentityProvider.userId,
             relatedUserId: invite.userId
           }
-        })) as any
+        })
 
         if (relationshipToPatch.data.length > 0)
-          await this.app.service('user-relationship').patch(
+          await this.app.service(userRelationshipPath).patch(
             relationshipToPatch.data[0].id,
             {
               userRelationshipType: 'friend'

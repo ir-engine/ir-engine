@@ -36,13 +36,12 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, State } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -61,9 +60,9 @@ import {
 import { userKickPath, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
-import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
+import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
+import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -299,9 +298,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
 
-  network.ready = true
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  networkState.authenticated.set(true)
+  networkState.connected.set(true)
+  networkState.ready.set(true)
 
-  dispatchAction(EngineActions.joinedWorld({}))
+  getMutableState(EngineState).connectedWorld.set(true)
 }
 
 /**
@@ -399,10 +401,10 @@ const createOrUpdateInstance = async (
     await loadEngine(app, sceneId)
   } else {
     try {
-      if (!getState(EngineState).joinedWorld)
+      if (!getState(EngineState).connectedWorld)
         await new Promise<void>((resolve) => {
           const interval = setInterval(() => {
-            if (getState(EngineState).joinedWorld) {
+            if (getState(EngineState).connectedWorld) {
               clearInterval(interval)
               resolve()
             }
@@ -596,8 +598,12 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     await app.service('instance').patch(instanceServerState.instance.id, {
       ended: true
     })
-    if (instanceServerState.instance.channelId) {
-      await app.service('channel').remove(instanceServerState.instance.channelId)
+    try {
+      if (instanceServerState.instance.channelId) {
+        await app.service('channel').remove(instanceServerState.instance.channelId)
+      }
+    } catch (e) {
+      //
     }
     restartInstanceServer()
     return
@@ -728,13 +734,10 @@ export default (app: Application): void => {
     const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
     if (!peer || !peer.spark) return
 
-    peer.spark.write({ type: MessageTypes.Kick.toString(), data: '' })
+    handleDisconnect(getServerNetwork(app), peer.peerID)
   }
 
   app.service(userKickPath).on('created', kickCreatedListener)
-
-  logger.info('registered kickCreatedListener')
-
   app.service(channelUserPath).on('removed', handleChannelUserRemoved(app))
 
   app.on('connection', onConnection(app))

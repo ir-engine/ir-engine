@@ -29,8 +29,11 @@ import addAssociations from '@etherealengine/server-core/src/hooks/add-associati
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import {
+  UserRelationshipType,
+  userRelationshipPath
+} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { Paginated } from '@feathersjs/feathers'
-import { Op } from 'sequelize'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 
@@ -96,15 +99,16 @@ export default {
 
         if (!users || !userId) return context
 
-        const userRelationships = await context.app.service('user-relationship').Model.findAll({
-          where: {
-            userId: userId,
+        const userRelationships = (await context.app.service(userRelationshipPath)._find({
+          query: {
+            userId,
             userRelationshipType: 'friend',
             relatedUserId: {
-              [Op.in]: users
+              $in: users
             }
-          }
-        })
+          },
+          paginate: false
+        })) as any as UserRelationshipType[]
 
         if (userRelationships.length !== users.length) {
           throw new Error('Must be friends with all users to create channel!')

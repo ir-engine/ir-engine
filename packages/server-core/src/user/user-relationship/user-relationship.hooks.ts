@@ -27,14 +27,47 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+
+import {
+  userRelationshipDataValidator,
+  userRelationshipPatchValidator,
+  userRelationshipQueryValidator
+} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+
+import {
+  userRelationshipDataResolver,
+  userRelationshipExternalResolver,
+  userRelationshipPatchResolver,
+  userRelationshipQueryResolver,
+  userRelationshipResolver
+} from './user-relationship.resolvers'
+
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(userRelationshipExternalResolver),
+      schemaHooks.resolveResult(userRelationshipResolver)
+    ]
+  },
+
   before: {
-    all: [iff(isProvider('external'), authenticate() as any)],
+    all: [
+      iff(isProvider('external'), authenticate() as any),
+      () => schemaHooks.validateQuery(userRelationshipQueryValidator),
+      schemaHooks.resolveQuery(userRelationshipQueryResolver)
+    ],
     find: [],
     get: [disallow()],
-    create: [],
+    create: [
+      () => schemaHooks.validateData(userRelationshipDataValidator),
+      schemaHooks.resolveData(userRelationshipDataResolver)
+    ],
     update: [],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(userRelationshipPatchValidator),
+      schemaHooks.resolveData(userRelationshipPatchResolver)
+    ],
     remove: []
   },
 

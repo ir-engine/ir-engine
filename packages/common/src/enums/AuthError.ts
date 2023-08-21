@@ -22,10 +22,3 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-export enum AuthError {
-  MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',
-  USER_NOT_FOUND = 'USER_NOT_FOUND',
-  USER_NOT_AUTHORIZED = 'USER_NOT_AUTHORIZED',
-  INTERNAL_ERROR = 'INTERNAL_ERROR'
-}

@@ -50,7 +50,6 @@ async function addMediaComponent(url: string, parent?: Entity | null, before?: E
   console.log(url)
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-
   let componentName: string | null = null
   let updateFunc = null! as any
 
@@ -77,7 +76,7 @@ async function addMediaComponent(url: string, parent?: Entity | null, before?: E
   }
 
   if (componentName) {
-    node = addEntityToScene(componentName, parent, before)
+    node = addEntityToScene(componentName, parent || undefined, before || undefined)
 
     if (node) updateFunc()
   }
