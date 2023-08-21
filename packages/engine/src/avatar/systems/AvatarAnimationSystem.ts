@@ -497,6 +497,9 @@ const execute = () => {
         rightLegVector.subVectors(rig.hips.node.position, worldSpaceTargets.rightFoot.position).length() +
         rigComponent.footHeight
 
+      const forward = new Vector3(0, 0, 5).applyQuaternion(transform.rotation)
+      const right = new Vector3(5, 0, 0).applyQuaternion(transform.rotation)
+
       //calculate hips to head
       rig.hips.node.position.applyMatrix4(transform.matrixInverse)
       //_hipVector.subVectors(
@@ -515,7 +518,9 @@ const execute = () => {
           worldSpaceTargets.rightHand.position,
           worldSpaceTargets.rightHand.rotation,
           null,
-          worldSpaceTargets.rightElbowHint.blendWeight < 1 ? worldSpaceTargets.rightElbowHint.position : null,
+          worldSpaceTargets.rightElbowHint.blendWeight < 1
+            ? worldSpaceTargets.rightElbowHint.position
+            : new Vector3().copy(transform.position).sub(right),
           tipAxisRestriction,
           midAxisRestriction,
           null,
@@ -534,7 +539,9 @@ const execute = () => {
           worldSpaceTargets.leftHand.position,
           worldSpaceTargets.rightHand.rotation,
           null,
-          worldSpaceTargets.leftElbowHint.blendWeight < 1 ? worldSpaceTargets.leftElbowHint.position : null,
+          worldSpaceTargets.leftElbowHint.blendWeight < 1
+            ? worldSpaceTargets.leftElbowHint.position
+            : new Vector3().copy(transform.position).add(right),
           tipAxisRestriction,
           midAxisRestriction,
           null,
@@ -564,7 +571,9 @@ const execute = () => {
           worldSpaceTargets.rightFoot.position.setY(worldSpaceTargets.rightFoot.position.y),
           worldSpaceTargets.rightFoot.rotation,
           null,
-          worldSpaceTargets.rightKneeHint.blendWeight < 1 ? worldSpaceTargets.rightKneeHint.position : null,
+          worldSpaceTargets.rightKneeHint.blendWeight < 1
+            ? worldSpaceTargets.rightKneeHint.position
+            : new Vector3().copy(transform.position).add(forward),
           null,
           midAxisRestriction
         )
@@ -588,7 +597,9 @@ const execute = () => {
           worldSpaceTargets.leftFoot.position.setY(worldSpaceTargets.leftFoot.position.y),
           worldSpaceTargets.leftFoot.rotation,
           null,
-          worldSpaceTargets.leftKneeHint.blendWeight < 1 ? worldSpaceTargets.leftKneeHint.position : null,
+          worldSpaceTargets.leftKneeHint.blendWeight < 1
+            ? worldSpaceTargets.leftKneeHint.position
+            : new Vector3().copy(transform.position).add(forward),
           null,
           midAxisRestriction
         )

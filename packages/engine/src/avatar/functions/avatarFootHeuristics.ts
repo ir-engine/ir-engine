@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getState } from '@etherealengine/hyperflux'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -34,7 +34,7 @@ import { ikTargets } from '../animation/Util'
 
 const walkDirection = new Vector3()
 const stepDirection = new Vector3()
-const nextStep = new Vector3()
+const nextStep = { position: new Vector3(), rotation: new Quaternion() }
 const footOffset = new Vector3()
 const lastPlayerPosition = new Vector3()
 const ikTargetToPlayer = new Vector3()
@@ -65,12 +65,15 @@ export const setIkFootTarget = (stepThreshold: number, walkThreshold: number) =>
     const ikDistanceSqFromPlayer = ikTargetToPlayer.subVectors(ikTransform.position, offsetPosition).lengthSq()
 
     //get distance from the next step position
-    const ikDistanceSqFromWalkTarget = stepDirection.subVectors(ikTransform.position, nextStep).lengthSq()
+    const ikDistanceSqFromWalkTarget = stepDirection.subVectors(ikTransform.position, nextStep.position).lengthSq()
 
     //if the foot is further than the foot threshold
     if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold) {
-      nextStep.copy(offsetPosition).sub(walkDirection.normalize().multiplyScalar(stepThreshold * stepThreshold))
-      nextStep.add(footOffset)
+      nextStep.position
+        .copy(offsetPosition)
+        .sub(walkDirection.normalize().multiplyScalar(stepThreshold * stepThreshold))
+      nextStep.rotation.identity().setFromUnitVectors(new Vector3(0, 1, 0), walkDirection.normalize())
+      //nextStep.add(footOffset)
     }
 
     //if we're at the target, switch to the other foot
@@ -80,7 +83,8 @@ export const setIkFootTarget = (stepThreshold: number, walkThreshold: number) =>
     }
 
     //interpolate foot to next step position
-    ikTransform.position.lerp(nextStep, getState(EngineState).deltaSeconds * (3 + playerSpeed))
+    ikTransform.position.lerp(nextStep.position, getState(EngineState).deltaSeconds * (3 + playerSpeed))
+    ikTransform.rotation.slerp(nextStep.rotation, getState(EngineState).deltaSeconds * (3 + playerSpeed))
   }
 
   lastPlayerPosition.copy(playerTransform.position)
