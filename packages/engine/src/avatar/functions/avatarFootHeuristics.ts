@@ -23,19 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getState } from '@etherealengine/hyperflux'
 import { Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-const _vec3 = new Vector3()
-//step threshold should be a function of leg length squared
-//whenever the distance squared of the foot from the next target foot step position
-//is greater than the step threshold, start a new step
-//todo step interpolation
-export const setIkFootTarget = (stepThreshold: number) => {
+const walkDirection = new Vector3()
+const stepDirection = new Vector3()
+const nextStep = new Vector3()
+let standingStillTimer = 0
+let currentStep = ikTargets.leftFoot
+//step threshold should be a function of leg length
+//walk threshold to determine when to move the feet back into standing position, should be
+export const setIkFootTarget = (stepThreshold: number, walkThreshold: number) => {
   const { localClientEntity, userId } = Engine.instance
 
   const feet = {
@@ -43,11 +48,30 @@ export const setIkFootTarget = (stepThreshold: number) => {
     leftFoot: UUIDComponent.entitiesByUUID[userId + ikTargets.leftFoot]
   }
   const playerTransform = getComponent(localClientEntity, TransformComponent)
+  const playerSpeed = 3 + getComponent(localClientEntity, AvatarControllerComponent).speedVelocity * 2500
   for (const [key, foot] of Object.entries(feet)) {
-    if (!foot) continue
+    if (!foot || key != currentStep) continue
     const ikTransform = getComponent(foot, TransformComponent)
-    const squareDistance = _vec3.subVectors(ikTransform.position, playerTransform.position).lengthSq()
-    console.log(squareDistance)
-    if (squareDistance > stepThreshold) ikTransform.position.copy(playerTransform.position)
+    //calculate walk direction
+    walkDirection.subVectors(ikTransform.position, playerTransform.position)
+
+    const ikDistanceSqFromPlayer = walkDirection.lengthSq()
+
+    if (ikDistanceSqFromPlayer < walkThreshold * walkThreshold) continue
+
+    //get distance from the next step position
+    const ikDistanceSqFromWalkTarget = stepDirection.subVectors(ikTransform.position, nextStep).lengthSq()
+
+    //interpolate foot to next step position
+    ikTransform.position.lerp(nextStep, getState(EngineState).deltaSeconds * playerSpeed)
+
+    //if the foot is further than the foot threshold
+    if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold || standingStillTimer > 1) {
+      nextStep.copy(playerTransform.position).sub(walkDirection.normalize().multiplyScalar(stepThreshold))
+    }
+    //if we're at the target, switch to the other foot
+    if (ikDistanceSqFromWalkTarget < 0.025) {
+      currentStep = key == ikTargets.leftFoot ? ikTargets.rightFoot : ikTargets.leftFoot
+    }
   }
 }
