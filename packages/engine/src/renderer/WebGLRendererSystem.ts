@@ -222,7 +222,7 @@ export class EngineRenderer {
     } else {
       const state = getState(RendererState)
       const engineState = getState(EngineState)
-      if (!engineState.isEditor && state.automatic && engineState.joinedWorld) this.changeQualityLevel()
+      if (!engineState.isEditor && state.automatic && engineState.connectedWorld) this.changeQualityLevel()
       if (this.needsResize) {
         const curPixelRatio = this.renderer.getPixelRatio()
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor

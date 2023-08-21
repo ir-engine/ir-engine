@@ -112,7 +112,7 @@ export const Debug = ({ showingStateRef }) => {
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
     Engine.instance.localClientEntity &&
-    engineState.joinedWorld.value &&
+    engineState.connectedWorld.value &&
     hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   const networks = getMutableState(NetworkState).networks

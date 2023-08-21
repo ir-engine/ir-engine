@@ -88,8 +88,8 @@ const PeerMedia = (props: { consumerID: string; networkID: UserID }) => {
   }, [consumerState.paused])
 
   useEffect(() => {
-    const globalMute = !!producerState.globalMute.value
-    const paused = !!producerState.paused.value
+    const globalMute = !!producerState.globalMute?.value
+    const paused = !!producerState.paused?.value
 
     const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
     if (!peerMediaChannelState) return
