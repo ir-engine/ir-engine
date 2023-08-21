@@ -22,23 +22,55 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
+import {
+  staticResourceDataValidator,
+  staticResourcePatchValidator,
+  staticResourceQueryValidator
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
-
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import {
+  staticResourceDataResolver,
+  staticResourceExternalResolver,
+  staticResourcePatchResolver,
+  staticResourceQueryResolver,
+  staticResourceResolver
+} from './static-resource.resolvers'
+
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(staticResourceExternalResolver),
+      schemaHooks.resolveResult(staticResourceResolver)
+    ]
+  },
+
   before: {
-    all: [],
+    all: [
+      () => schemaHooks.validateQuery(staticResourceQueryValidator),
+      schemaHooks.resolveQuery(staticResourceQueryResolver)
+    ],
     find: [collectAnalytics()],
     get: [disallow('external')],
-    create: [authenticate(), verifyScope('admin', 'admin')],
+    create: [
+      authenticate(),
+      verifyScope('admin', 'admin'),
+      () => schemaHooks.validateData(staticResourceDataValidator),
+      schemaHooks.resolveData(staticResourceDataResolver)
+    ],
     update: [authenticate(), verifyScope('admin', 'admin')],
-    patch: [authenticate(), verifyScope('admin', 'admin')],
+    patch: [
+      authenticate(),
+      verifyScope('admin', 'admin'),
+      () => schemaHooks.validateData(staticResourcePatchValidator),
+      schemaHooks.resolveData(staticResourcePatchResolver)
+    ],
     remove: [
       authenticate(),
       // iff(isProvider('external'), verifyScope('admin', 'admin') as any),
