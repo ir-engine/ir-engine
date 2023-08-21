@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Id } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
-import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 
@@ -67,9 +66,6 @@ import createModel from './project.model'
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    projects: {
-      find: () => ReturnType<typeof getProjectsList>
-    }
     project: Project
     'project-build': {
       find: ReturnType<typeof projectBuildFind>
@@ -103,15 +99,6 @@ declare module '@etherealengine/common/declarations' {
       get: ReturnType<typeof projectUnfetchedCommitGet>
     }
   }
-}
-
-/**
- * returns a list of projects installed by name from their folder names
- */
-export const getProjectsList = async () => {
-  return fs
-    .readdirSync(projectsRootFolder)
-    .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
 }
 
 export const projectBuildFind = (app: Application) => async () => {
@@ -238,16 +225,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('projects', {
-    find: getProjectsList
-  })
-
-  app.service('projects').hooks({
-    before: {
-      find: [authenticate()]
-    }
-  })
 
   app.use('project-build', {
     find: projectBuildFind(app),
