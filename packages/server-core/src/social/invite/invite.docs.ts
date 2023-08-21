@@ -33,9 +33,14 @@ import {
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
 
 export default createSwaggerServiceOptions({
-  schemas: { inviteDataSchema, invitePatchSchema, inviteQuerySchema, inviteSchema },
+  schemas: {
+    inviteDataSchema,
+    invitePatchSchema,
+    inviteQuerySchema,
+    inviteSchema
+  },
   docs: {
-    description: 'User service description',
+    description: 'Invite service description',
     securities: ['all']
   }
 })
