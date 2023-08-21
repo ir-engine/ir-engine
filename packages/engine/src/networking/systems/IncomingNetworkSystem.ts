@@ -50,24 +50,20 @@ export const IncomingNetworkState = defineState({
   name: 'ee.core.network.IncomingNetworkState',
   initial: {
     jitterBufferTaskList: [] as JitterBufferEntry[],
-    jitterBufferDelay: 100
+    jitterBufferDelay: 100,
+    incomingMessageQueueUnreliableIDs: new RingBuffer<PeerID>(100),
+    incomingMessageQueueUnreliable: new RingBuffer<any>(100)
   }
 })
 
 export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
-
-/** Buffer holding all incoming Messages. */
-const incomingMessageQueueUnreliableIDs = new RingBuffer<PeerID>(100)
-
-/** Buffer holding all incoming Messages. */
-const incomingMessageQueueUnreliable = new RingBuffer<any>(100)
-
 const handleNetworkdata = (
   network: Network,
   dataChannel: DataChannelType,
   fromPeerID: PeerID,
   message: ArrayBufferLike
 ) => {
+  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = getState(IncomingNetworkState)
   if (network.isHosting) {
     incomingMessageQueueUnreliable.add(toArrayBuffer(message))
     incomingMessageQueueUnreliableIDs.add(fromPeerID)
@@ -76,7 +72,7 @@ const handleNetworkdata = (
     network.transport.bufferToAll(ecsDataChannelType, message)
   } else {
     incomingMessageQueueUnreliable.add(message)
-    incomingMessageQueueUnreliableIDs.add(fromPeerID) // todo, assume it
+    incomingMessageQueueUnreliableIDs.add(fromPeerID)
   }
 }
 
@@ -88,7 +84,8 @@ const execute = () => {
   const engineState = getState(EngineState)
   if (!engineState.isEngineInitialized) return
 
-  const { jitterBufferTaskList, jitterBufferDelay } = getState(IncomingNetworkState)
+  const { jitterBufferTaskList, jitterBufferDelay, incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } =
+    getState(IncomingNetworkState)
 
   const network = Engine.instance.worldNetwork
   if (!network) return
