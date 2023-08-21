@@ -97,8 +97,6 @@
     }
   },
   "toolbar": {
-    "lbl-advanced": "Advanced",
-    "info-advanced": "Enables advanced editing mode",
     "lbl-publish": "Publish",
     "lbl-published": "Published",
     "command": {

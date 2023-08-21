@@ -26,7 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import {
+  MediaInstanceState,
+  useMediaNetwork
+} from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import {
   toggleMicrophonePaused,
@@ -68,8 +71,9 @@ export const MediaIconsBox = () => {
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
   const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
   const networkState = useHookstate(getMutableState(NetworkState))
+  const mediaNetworkState = useMediaNetwork()
   const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaNetworkReady = networkState.networks[mediaHostId]?.ready?.value
+  const mediaNetworkReady = mediaNetworkState?.ready?.value
   const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
@@ -130,7 +134,7 @@ export const MediaIconsBox = () => {
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
-      {networkState.config.media.value && !currentChannelInstanceConnection?.connected.value && (
+      {networkState.config.media.value && !mediaNetworkState?.ready.value && (
         <div className={styles.loader}>
           <CircularProgress />
           <div
@@ -146,10 +150,7 @@ export const MediaIconsBox = () => {
           </div>
         </div>
       )}
-      {audioEnabled &&
-      hasAudioDevice.value &&
-      mediaNetworkReady &&
-      currentChannelInstanceConnection?.connected.value ? (
+      {audioEnabled && hasAudioDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <button
           type="button"
           id="UserAudio"
@@ -162,10 +163,7 @@ export const MediaIconsBox = () => {
           <Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />
         </button>
       ) : null}
-      {videoEnabled &&
-      hasVideoDevice.value &&
-      mediaNetworkReady &&
-      currentChannelInstanceConnection?.connected.value ? (
+      {videoEnabled && hasVideoDevice.value && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <>
           <button
             type="button"

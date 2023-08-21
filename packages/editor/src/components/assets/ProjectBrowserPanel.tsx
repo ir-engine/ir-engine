@@ -30,7 +30,6 @@ import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPrevi
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 
 import { DockContainer } from '../EditorContainer'
-import './ProjectBrowserPanel.css'
 
 /**
  * ProjectBrowserPanel used to render view for Project Panel.
