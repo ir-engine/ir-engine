@@ -84,7 +84,7 @@ export class StaticResourceService<
       throw new Forbidden('You are not the creator of this resource')
 
     if (resource.key) {
-      const storageProvider = getStorageProvider(params?.query?.storageProviderName)
+      const storageProvider = getStorageProvider()
       await storageProvider.deleteResources([resource.key])
     }
     return await super._remove(id)
