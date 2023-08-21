@@ -44,8 +44,8 @@ const streamToPretty = pretty({
 const streamToElastic = pinoElastic({
   index: 'xr-engine',
   node: node,
-  'esVersion': 7,
-  'flushBytes': 1000
+  esVersion: 7,
+  flushBytes: 1000
 })
 
 const streams = [streamToPretty, streamToElastic]
