@@ -23,46 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `invite` service on path `/invite`
+import { Application } from '../../../declarations'
+
+import { inviteMethods, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { Invite, InviteDataType } from './invite.class'
+import { InviteDataType, InviteService } from './invite.class'
 import inviteDocs from './invite.docs'
 import hooks from './invite.hooks'
-import createModel from './invite.model'
 
-// Add this service to the service type index
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    invite: Invite
+    [invitePath]: InviteService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: invitePath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Invite(options, app)
-  event.docs = inviteDocs
-  app.use('invite', event)
+  app.use(invitePath, new InviteService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: inviteMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: inviteDocs
+  })
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('invite')
-
+  const service = app.service(invitePath)
   service.hooks(hooks)
 
   /**

@@ -23,38 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default {
-  definitions: {
-    invite: {
-      type: 'object',
-      properties: {
-        token: {
-          type: 'string'
-        },
-        identityProviderType: {
-          type: 'string'
-        },
-        passcode: {
-          type: 'string'
-        },
-        targetObjectId: {
-          type: 'string'
-        }
-      }
-    },
-    invite_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/invite' }
-    }
-  },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+import {
+  inviteDataSchema,
+  invitePatchSchema,
+  inviteQuerySchema,
+  inviteSchema
+} from '@etherealengine/engine/src/schemas/social/invite.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: { inviteDataSchema, invitePatchSchema, inviteQuerySchema, inviteSchema },
+  docs: {
+    description: 'User service description',
+    securities: ['all']
   }
-}
+})

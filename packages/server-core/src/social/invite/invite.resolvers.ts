@@ -23,21 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InviteInterface {
-  id: string
-  token: string
-  identityProviderType: string
-  passcode: string
-  targetObjectId: string
-  deleteOnUse: boolean
-  makeAdmin: boolean
-  spawnType: string
-  spawnDetails: object
-  timed?: boolean
-  startTime?: string
-  endTime?: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export interface InviteTypeInterface {
-  type: string
-}
+import { InviteQuery, InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const inviteResolver = resolve<InviteType, HookContext>({})
+
+export const inviteExternalResolver = resolve<InviteType, HookContext>({})
+
+export const inviteDataResolver = resolve<InviteType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const invitePatchResolver = resolve<InviteType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const inviteQueryResolver = resolve<InviteQuery, HookContext>({})
