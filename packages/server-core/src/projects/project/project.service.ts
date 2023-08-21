@@ -33,6 +33,7 @@ import path from 'path'
 import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -360,10 +361,11 @@ export default (app: Application): void => {
   service.publish('patched', async (data: UserType) => {
     try {
       let targetIds: string[] = []
-      const projectOwners = await app.service('project-permission').Model.findAll({
-        where: {
+      const projectOwners = await app.service(projectPermissionPath)._find({
+        query: {
           projectId: data.id
-        }
+        },
+        paginate: false
       })
       targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
 
