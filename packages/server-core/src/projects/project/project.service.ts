@@ -45,7 +45,6 @@ import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { pushProjectToGithub } from './github-helper'
 import {
-  checkBuilderService,
   checkDestination,
   checkProjectDestinationMatch,
   checkUnfetchedSourceCommit,
@@ -55,8 +54,7 @@ import {
   getEnginePackageJson,
   getProjectCommits,
   privateECRTagRegex,
-  publicECRTagRegex,
-  updateBuilder
+  publicECRTagRegex
 } from './project-helper'
 import { Project, ProjectParams, ProjectParamsClient } from './project.class'
 import projectDocs from './project.docs'
@@ -67,10 +65,6 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'project-build': {
-      find: ReturnType<typeof projectBuildFind>
-      patch: ReturnType<typeof projectBuildPatch>
-    }
     'project-invalidate': {
       patch: ReturnType<typeof projectInvalidatePatch>
     }
@@ -99,14 +93,6 @@ declare module '@etherealengine/common/declarations' {
       get: ReturnType<typeof projectUnfetchedCommitGet>
     }
   }
-}
-
-export const projectBuildFind = (app: Application) => async () => {
-  return await checkBuilderService(app)
-}
-
-export const projectBuildPatch = (app: Application) => async (tag: string, data: any, params?: ProjectParamsClient) => {
-  return await updateBuilder(app, tag, data, params as ProjectParams)
 }
 
 type InvalidateProps = {
@@ -225,18 +211,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('project-build', {
-    find: projectBuildFind(app),
-    patch: projectBuildPatch(app)
-  })
-
-  app.service('project-build').hooks({
-    before: {
-      find: [authenticate(), verifyScope('admin', 'admin')],
-      patch: [authenticate(), verifyScope('admin', 'admin')]
-    }
-  })
 
   app.use('project-invalidate', {
     patch: projectInvalidatePatch(app)
