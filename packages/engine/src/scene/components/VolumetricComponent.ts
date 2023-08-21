@@ -35,7 +35,6 @@ import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/compo
 import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { AudioState } from '../../audio/AudioState'
 import { isClient } from '../../common/functions/getEnvironment'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -170,10 +169,28 @@ export function VolumetricReactor() {
           )
           addObjectToGroup(entity, volumetric.player.value.mesh)
 
+          const handleAutoplay = () => {
+            if (!volumetric.player.value.paused) volumetric.player.value.play()
+          }
+
+          if (isClient) {
+            window.addEventListener('pointerdown', handleAutoplay)
+            window.addEventListener('keypress', handleAutoplay)
+            window.addEventListener('touchstart', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
+          }
+
           element.addEventListener('playing', () => {
             if (audioContext.state == 'suspended') {
               audioContext.resume()
             }
+
+            window.removeEventListener('pointerdown', handleAutoplay)
+            window.removeEventListener('keypress', handleAutoplay)
+            window.removeEventListener('touchstart', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
 
             const transform = getComponent(entity, TransformComponent)
             if (!transform) return
@@ -193,18 +210,6 @@ export function VolumetricReactor() {
             const audioNodes = createAudioNodeGroup(element, source, gainNodeMixBuses.soundEffects)
 
             audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
-          }
-
-          if (isClient && !getState(EngineState).isEditor) {
-            const handleAutoplay = () => {
-              if (!volumetric.player.value.paused) volumetric.player.value.play()
-            }
-            // TODO: add destroy callbacks
-            window.addEventListener('pointerdown', handleAutoplay)
-            window.addEventListener('keypress', handleAutoplay)
-            window.addEventListener('touchstart', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
           }
         })
     }
