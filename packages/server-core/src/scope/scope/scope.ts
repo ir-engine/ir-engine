@@ -23,17 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// TODO: Once moved to feathers 5. Remove this interfaces folder
+import { scopeMethods, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { UserType } from '../user/user.schema'
+import { Application } from '../../../declarations'
+import { ScopeService } from './scope.class'
+import scopeDocs from './scope.docs'
+import hooks from './scope.hooks'
 
-/* @deprecated */
-export interface Relationship {
-  userId: UserID
-  friend: UserType[]
-  requested: UserType[]
-  pending: UserType[]
-  blocking: UserType[]
-  blocked: UserType[]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [scopePath]: ScopeService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: scopePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(scopePath, new ScopeService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: scopeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: scopeDocs
+  })
+
+  const service = app.service(scopePath)
+  service.hooks(hooks)
 }

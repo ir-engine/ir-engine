@@ -33,6 +33,8 @@ import { FileContentType } from '@etherealengine/common/src/interfaces/FileConte
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
@@ -121,12 +123,14 @@ export class FileBrowserService implements ServiceMethods<any> {
     result = result.slice(skip, skip + limit)
 
     if (params.provider && !isAdmin) {
-      const projectPermissions = await this.app.service('project-permission').Model.findAll({
-        include: ['project'],
-        where: {
-          userId: params.user!.id
-        }
-      })
+      const knexClient: Knex = this.app.get('knexClient')
+      const projectPermissions = await knexClient
+        .from(projectPermissionPath)
+        .join('project', `${projectPermissionPath}.projectId`, 'project.id')
+        .where(`${projectPermissionPath}.userId`, params.user!.id)
+        .select()
+        .options({ nestTables: true })
+
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
       result = result.filter((item) => {
         const projectRegexExec = /projects\/(.+)$/.exec(item.key)

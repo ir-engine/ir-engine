@@ -42,6 +42,7 @@ import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/en
 
 import { DataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { NetworkTransportStateSystem } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 import { ServerRecordingSystem } from './ServerRecordingSystem'
 
@@ -50,6 +51,7 @@ export const startMediaServerSystems = () => {
   startSystems(
     [
       EntityNetworkStateSystem,
+      NetworkTransportStateSystem,
       MediaProducerConsumerStateSystem,
       DataProducerConsumerStateSystem,
       ServerHostNetworkSystem
@@ -74,6 +76,7 @@ export const startWorldServerSystems = () => {
     [
       IncomingNetworkSystem,
       EntityNetworkStateSystem,
+      NetworkTransportStateSystem,
       MediaProducerConsumerStateSystem,
       DataProducerConsumerStateSystem,
       ServerHostNetworkSystem,

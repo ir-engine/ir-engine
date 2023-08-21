@@ -31,7 +31,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { AuthState } from '../../user/services/AuthService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -48,10 +48,10 @@ const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
 
 export const useMediaWindows = () => {
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
-  const mediaNetworkInstanceState = useMediaInstance()
+  const mediaNetworkInstanceState = useMediaNetwork()
   const mediaNetwork = Engine.instance.mediaNetwork
   const selfUser = useHookstate(getMutableState(AuthState).user)
-  const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.connected?.value
+  const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
     PeerID,
