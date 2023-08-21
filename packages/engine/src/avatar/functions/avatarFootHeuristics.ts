@@ -25,66 +25,77 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
+import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ikTargets } from '../animation/Util'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 
 const walkDirection = new Vector3()
 const stepDirection = new Vector3()
-const nextStep = { position: new Vector3(), rotation: new Quaternion() }
+const nextStep = {
+  rightFoot: { position: new Vector3(), rotation: new Quaternion() },
+  leftFoot: { position: new Vector3(), rotation: new Quaternion() }
+}
 const footOffset = new Vector3()
 const lastPlayerPosition = new Vector3()
 const ikTargetToPlayer = new Vector3()
-const offsetPosition = new Vector3()
 let currentStep = ikTargets.leftFoot
+const speedMultiplier = 75
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
-export const setIkFootTarget = (stepThreshold: number, walkThreshold: number) => {
+export const setIkFootTarget = (stepThreshold: number) => {
   const { localClientEntity, userId } = Engine.instance
+
+  if (!localClientEntity) return
 
   const feet = {
     rightFoot: UUIDComponent.entitiesByUUID[userId + ikTargets.rightFoot],
     leftFoot: UUIDComponent.entitiesByUUID[userId + ikTargets.leftFoot]
   }
   const playerTransform = getComponent(localClientEntity, TransformComponent)
-
+  const playerRig = getComponent(localClientEntity, AvatarRigComponent)
   for (const [key, foot] of Object.entries(feet)) {
     if (!foot || key != currentStep) continue
 
-    footOffset.set(currentStep == ikTargets.leftFoot ? 0.1 : -0.1, 0, 0)
+    //calculate foot offset so both feet aren't at the transform's center
+    footOffset.set(currentStep == ikTargets.leftFoot ? 0.2 : -0.2, 0, 0)
     footOffset.applyQuaternion(playerTransform.rotation)
-    offsetPosition.copy(playerTransform.position).add(footOffset)
-    walkDirection.subVectors(lastPlayerPosition, playerTransform.position).multiplyScalar(100)
+    footOffset.add(playerTransform.position)
+
+    //calculate movement direction and use it to get speed
+    walkDirection.subVectors(lastPlayerPosition, playerTransform.position).multiplyScalar(speedMultiplier)
     const playerSpeed = walkDirection.lengthSq()
 
     const ikTransform = getComponent(foot, TransformComponent)
 
-    const ikDistanceSqFromPlayer = ikTargetToPlayer.subVectors(ikTransform.position, offsetPosition).lengthSq()
+    //get distance from the player
+    const ikDistanceSqFromPlayer = ikTargetToPlayer.subVectors(ikTransform.position, footOffset).lengthSq()
 
     //get distance from the next step position
-    const ikDistanceSqFromWalkTarget = stepDirection.subVectors(ikTransform.position, nextStep.position).lengthSq()
+    const ikDistanceSqFromWalkTarget = stepDirection.subVectors(ikTransform.position, nextStep[key].position).lengthSq()
 
-    //if the foot is further than the foot threshold
-    if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold) {
-      nextStep.position
-        .copy(offsetPosition)
+    //if the foot is further than the foot threshold, start a new step
+    if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold * 0.5) {
+      nextStep[key].position
+        .copy(footOffset)
         .sub(walkDirection.normalize().multiplyScalar(stepThreshold * stepThreshold))
-      nextStep.rotation.identity().setFromUnitVectors(new Vector3(0, 1, 0), walkDirection.normalize())
-      //nextStep.add(footOffset)
+
+      nextStep[key].rotation.identity().setFromUnitVectors(V_010, walkDirection.normalize())
     }
 
     //if we're at the target, switch to the other foot
-    if (ikDistanceSqFromWalkTarget < 0.05) {
+    if (ikDistanceSqFromWalkTarget < 0.01) {
       currentStep = key == ikTargets.leftFoot ? ikTargets.rightFoot : ikTargets.leftFoot
       continue
     }
 
     //interpolate foot to next step position
-    ikTransform.position.lerp(nextStep.position, getState(EngineState).deltaSeconds * (3 + playerSpeed))
-    ikTransform.rotation.slerp(nextStep.rotation, getState(EngineState).deltaSeconds * (3 + playerSpeed))
+    ikTransform.position.lerp(nextStep[key].position, getState(EngineState).deltaSeconds * (3 + playerSpeed))
+    ikTransform.rotation.slerp(playerTransform.rotation, getState(EngineState).deltaSeconds * (1 + playerSpeed))
   }
 
   lastPlayerPosition.copy(playerTransform.position)

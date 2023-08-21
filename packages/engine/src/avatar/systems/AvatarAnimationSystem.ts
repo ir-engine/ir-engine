@@ -414,7 +414,7 @@ const execute = () => {
       rig.hips.node.parent!.updateWorldMatrix(false, true)
 
       applyInputSourcePoseToIKTargets()
-      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, 0.2)
+      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength)
 
       //clear some data
       for (const [key, value] of Object.entries(worldSpaceTargets)) {
@@ -520,10 +520,11 @@ const execute = () => {
           null,
           worldSpaceTargets.rightElbowHint.blendWeight < 1
             ? worldSpaceTargets.rightElbowHint.position
-            : new Vector3().copy(transform.position).sub(right),
+            : _vector3.copy(transform.position).sub(right),
           tipAxisRestriction,
           midAxisRestriction,
           null,
+          1,
           1
         )
         weights['rightUpperArm'] = worldSpaceTargets.rightHand.blendWeight
@@ -537,14 +538,15 @@ const execute = () => {
           rig.leftLowerArm.node,
           rig.leftHand.node,
           worldSpaceTargets.leftHand.position,
-          worldSpaceTargets.rightHand.rotation,
+          worldSpaceTargets.leftHand.rotation,
           null,
           worldSpaceTargets.leftElbowHint.blendWeight < 1
             ? worldSpaceTargets.leftElbowHint.position
-            : new Vector3().copy(transform.position).add(right),
+            : _vector3.copy(transform.position).add(right),
           tipAxisRestriction,
           midAxisRestriction,
           null,
+          1,
           1
         )
         weights['leftUpperArm'] = worldSpaceTargets.leftHand.blendWeight
@@ -573,7 +575,7 @@ const execute = () => {
           null,
           worldSpaceTargets.rightKneeHint.blendWeight < 1
             ? worldSpaceTargets.rightKneeHint.position
-            : new Vector3().copy(transform.position).add(forward),
+            : _vector3.copy(transform.position).add(forward),
           null,
           midAxisRestriction
         )
@@ -599,7 +601,7 @@ const execute = () => {
           null,
           worldSpaceTargets.leftKneeHint.blendWeight < 1
             ? worldSpaceTargets.leftKneeHint.position
-            : new Vector3().copy(transform.position).add(forward),
+            : _vector3.copy(transform.position).add(forward),
           null,
           midAxisRestriction
         )
