@@ -140,3 +140,10 @@ export interface ProjectPermissionType {
   type: string
   updatedAt: string
 }
+
+export interface ScopeInterface {
+  id: string
+}
+export interface ScopeTypeInterface {
+  type: string
+}
