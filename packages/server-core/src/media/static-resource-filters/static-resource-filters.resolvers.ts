@@ -23,8 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface StaticResourceVariantInterface {
-  id: string
-  url: string
-  metadata: Record<string, string | number>
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+
+import {
+  StaticResourceFiltersQuery,
+  StaticResourceFiltersType
+} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const staticResourceFiltersResolver = resolve<StaticResourceFiltersType, HookContext>({})
+
+export const staticResourceFiltersExternalResolver = resolve<StaticResourceFiltersType, HookContext>({})
+
+export const staticResourceFiltersDataResolver = resolve<StaticResourceFiltersType, HookContext>({})
+
+export const staticResourceFiltersPatchResolver = resolve<StaticResourceFiltersType, HookContext>({})
+
+export const staticResourceFiltersQueryResolver = resolve<StaticResourceFiltersQuery, HookContext>({})
