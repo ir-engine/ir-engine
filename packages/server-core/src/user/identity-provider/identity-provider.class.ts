@@ -40,8 +40,7 @@ import { v1 as uuidv1 } from 'uuid'
 import { isDev } from '@etherealengine/common/src/config'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 
@@ -203,7 +202,7 @@ export class IdentityProviderService<
       query: {
         type: 'admin:admin'
       }
-    })) as Paginated<AdminScope>
+    })) as Paginated<ScopeType>
 
     const avatars = (await this.app
       .service(avatarPath)
@@ -250,7 +249,7 @@ export class IdentityProviderService<
             userId
           }
         })
-        await this.app.service('scope').create(data)
+        await this.app.service(scopePath).create(data)
       }
 
       result.accessToken = await this.app
@@ -261,7 +260,7 @@ export class IdentityProviderService<
       const data = scopeTypeSeed.map(({ type }) => {
         return { userId, type }
       })
-      await this.app.service('scope').create(data)
+      await this.app.service(scopePath).create(data)
 
       result.accessToken = await this.app
         .service('authentication')

@@ -24,6 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import ScopeType from './scope-type/scope-type'
-import Scope from './scope/scope.service'
+import Scope from './scope/scope'
 
 export default [Scope, ScopeType]

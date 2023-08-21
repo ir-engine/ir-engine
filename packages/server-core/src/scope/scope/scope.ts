@@ -23,18 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../ecs/classes/Engine'
-import { NetworkTopics } from '../classes/Network'
-import { JoinWorldProps } from './receiveJoinWorld'
+import { scopeMethods, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 
-export const receiveJoinMediaServer = (props: JoinWorldProps) => {
-  if (!props) return
-  const { cachedActions } = props
-  console.log('RECEIVED JOIN MEDIA RESPONSE', cachedActions)
+import { Application } from '../../../declarations'
+import { ScopeService } from './scope.class'
+import scopeDocs from './scope.docs'
+import hooks from './scope.hooks'
 
-  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [scopePath]: ScopeService
+  }
+}
 
-  Engine.instance.store.actions.outgoing[NetworkTopics.media].queue.push(
-    ...Engine.instance.store.actions.outgoing[NetworkTopics.media].history
-  )
+export default (app: Application): void => {
+  const options = {
+    name: scopePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(scopePath, new ScopeService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: scopeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: scopeDocs
+  })
+
+  const service = app.service(scopePath)
+  service.hooks(hooks)
 }

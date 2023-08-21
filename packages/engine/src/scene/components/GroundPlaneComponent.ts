@@ -40,6 +40,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -72,7 +73,11 @@ export const GroundPlaneComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+    if (
+      !getState(EngineState).sceneLoaded &&
+      hasComponent(entity, SceneObjectComponent) &&
+      !hasComponent(entity, RigidBodyComponent)
+    )
       setComponent(entity, SceneAssetPendingTagComponent)
   },
 

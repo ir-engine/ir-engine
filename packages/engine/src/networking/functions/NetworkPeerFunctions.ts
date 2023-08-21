@@ -34,10 +34,10 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
-import { updateNetwork } from '../NetworkState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 function createPeer(
@@ -66,14 +66,15 @@ function createPeer(
     if (!network.users.get(userID)!.includes(peerID)) network.users.get(userID)!.push(peerID)
   }
 
-  //TODO: remove this once all network state properties are reactively set
-  updateNetwork(network)
-
   // TODO: we probably want an explicit config for detecting a non-user peer
   if (peerID !== 'server') {
     const worldState = getMutableState(WorldState)
     worldState.userNames[userID].set(name)
   }
+
+  // reactively set
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers.set(network.peers)
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {
@@ -99,8 +100,9 @@ function destroyPeer(network: Network, peerID: PeerID) {
   userPeers.splice(peerIndexInUserPeers, 1)
   if (!userPeers.length) network.users.delete(userID)
 
-  //TODO: remove this once all network state properties are reactively set
-  updateNetwork(network)
+  // reactively set
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers.set(network.peers)
 
   /**
    * if no other connections exist for this user, and this action is occurring on the world network,
