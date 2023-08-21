@@ -36,7 +36,6 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 const walkDirection = new Vector3()
 const stepDirection = new Vector3()
 const nextStep = new Vector3()
-let standingStillTimer = 0
 let currentStep = ikTargets.leftFoot
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
@@ -48,7 +47,7 @@ export const setIkFootTarget = (stepThreshold: number, walkThreshold: number) =>
     leftFoot: UUIDComponent.entitiesByUUID[userId + ikTargets.leftFoot]
   }
   const playerTransform = getComponent(localClientEntity, TransformComponent)
-  const playerSpeed = 3 + getComponent(localClientEntity, AvatarControllerComponent).speedVelocity * 2500
+  const playerSpeed = getComponent(localClientEntity, AvatarControllerComponent).speedVelocity * 2500
   for (const [key, foot] of Object.entries(feet)) {
     if (!foot || key != currentStep) continue
     const ikTransform = getComponent(foot, TransformComponent)
@@ -57,18 +56,17 @@ export const setIkFootTarget = (stepThreshold: number, walkThreshold: number) =>
 
     const ikDistanceSqFromPlayer = walkDirection.lengthSq()
 
-    if (ikDistanceSqFromPlayer < walkThreshold * walkThreshold) continue
-
     //get distance from the next step position
     const ikDistanceSqFromWalkTarget = stepDirection.subVectors(ikTransform.position, nextStep).lengthSq()
 
     //interpolate foot to next step position
-    ikTransform.position.lerp(nextStep, getState(EngineState).deltaSeconds * playerSpeed)
+    ikTransform.position.lerp(nextStep, getState(EngineState).deltaSeconds * (2.5 + playerSpeed))
 
     //if the foot is further than the foot threshold
-    if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold || standingStillTimer > 1) {
-      nextStep.copy(playerTransform.position).sub(walkDirection.normalize().multiplyScalar(stepThreshold))
+    if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold) {
+      nextStep.copy(playerTransform.position).sub(walkDirection.multiplyScalar(stepThreshold * stepThreshold))
     }
+
     //if we're at the target, switch to the other foot
     if (ikDistanceSqFromWalkTarget < 0.025) {
       currentStep = key == ikTargets.leftFoot ? ikTargets.rightFoot : ikTargets.leftFoot

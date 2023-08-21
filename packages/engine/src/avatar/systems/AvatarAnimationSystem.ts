@@ -414,7 +414,7 @@ const execute = () => {
       rig.hips.node.parent!.updateWorldMatrix(false, true)
 
       applyInputSourcePoseToIKTargets()
-      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, 0.1)
+      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, 0.2)
 
       //clear some data
       for (const [key, value] of Object.entries(worldSpaceTargets)) {
