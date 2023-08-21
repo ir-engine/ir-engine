@@ -125,6 +125,10 @@ export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, ext
     /**
      * The network is ready for sending messages and data
      */
+    connected: false,
+
+    authenticated: false,
+
     ready: false,
 
     /**

@@ -115,6 +115,18 @@ export interface UserSetting {
   themeModes: string
 }
 
+export interface UserRelationshipInterface {
+  id: string
+  userId: string
+  relatedUserId: string
+  userRelationshipType: 'friend' | 'requested'
+  dataValues: any
+}
+
+export interface UserRelationshipTypeInterface {
+  type: string
+}
+
 export interface ProjectPermissionInterface {
   id: string
   projectId?: string

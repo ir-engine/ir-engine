@@ -36,6 +36,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -277,7 +278,7 @@ export class Invite extends Service<InviteDataType> {
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
       const selfUser = params!.user as UserType
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
-      await this.app.service('user-relationship').remove(relatedUserId, params)
+      await this.app.service(userRelationshipPath).remove(relatedUserId, params)
     }
     return (await super.remove(id)) as InviteDataType
   }

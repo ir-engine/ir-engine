@@ -47,7 +47,7 @@ export class DataProducerActions {
   static requestProducer = defineAction({
     type: 'ee.engine.network.DATA_REQUEST_PRODUCER',
     requestID: matches.string,
-    transportId: matches.string,
+    transportID: matches.string,
     protocol: matches.string,
     sctpStreamParameters: matches.object as Validator<unknown, any>,
     dataChannel: matches.string as Validator<unknown, DataChannelType>,
@@ -64,7 +64,7 @@ export class DataProducerActions {
     type: 'ee.engine.network.DATA_PRODUCER_CREATED',
     requestID: matches.string,
     producerID: matches.string,
-    transportId: matches.string,
+    transportID: matches.string,
     protocol: matches.string,
     sctpStreamParameters: matches.object as Validator<unknown, any>,
     dataChannel: matches.string as Validator<unknown, DataChannelType>,
@@ -72,7 +72,7 @@ export class DataProducerActions {
     $cache: true
   })
 
-  static closeProducer = defineAction({
+  static producerClosed = defineAction({
     type: 'ee.engine.network.DATA_CLOSED_PRODUCER',
     producerID: matches.string,
     $cache: true
@@ -96,7 +96,7 @@ export class DataConsumerActions {
     protocol: matches.string
   })
 
-  static closeConsumer = defineAction({
+  static consumerClosed = defineAction({
     type: 'ee.engine.network.DATA_CLOSED_CONSUMER',
     consumerID: matches.string
   })
@@ -133,13 +133,13 @@ export const DataProducerConsumerState = defineState({
     [
       DataProducerActions.producerCreated,
       (state, action: typeof DataProducerActions.producerCreated.matches._TYPE) => {
-        const hostId = Engine.instance.worldNetwork.hostId
-        if (!state.value[hostId]) {
-          state.merge({ [hostId]: { producers: {}, consumers: {} } })
+        const networkID = action.$network
+        if (!state.value[networkID]) {
+          state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
-        state[hostId].producers.merge({
+        state[networkID].producers.merge({
           [action.producerID]: {
-            transportId: action.transportId,
+            transportId: action.transportID,
             protocol: action.protocol,
             sctpStreamParameters: action.sctpStreamParameters as any,
             dataChannel: action.dataChannel,
@@ -149,26 +149,38 @@ export const DataProducerConsumerState = defineState({
       }
     ],
     [
-      DataProducerActions.closeProducer,
-      (state, action: typeof DataProducerActions.closeProducer.matches._TYPE) => {
-        const hostId = Engine.instance.worldNetwork.hostId
-        if (!state.value[hostId]) return
+      DataProducerActions.producerClosed,
+      (state, action: typeof DataProducerActions.producerClosed.matches._TYPE) => {
+        // removed create/close cached actions for this producer
+        const cachedActions = Engine.instance.store.actions.cached
+        const peerCachedActions = cachedActions.filter(
+          (cachedAction) =>
+            (DataProducerActions.producerCreated.matches.test(cachedAction) ||
+              DataProducerActions.producerClosed.matches.test(cachedAction)) &&
+            cachedAction.producerID === action.producerID
+        )
+        for (const cachedAction of peerCachedActions) {
+          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
+        }
 
-        state[hostId].producers[action.producerID].set(none)
+        const networkID = action.$network
+        if (!state.value[networkID]) return
 
-        if (!Object.keys(state[hostId].producers).length && !Object.keys(state[hostId].consumers).length) {
-          state[hostId].set(none)
+        state[networkID].producers[action.producerID].set(none)
+
+        if (!Object.keys(state[networkID].producers).length && !Object.keys(state[networkID].consumers).length) {
+          state[networkID].set(none)
         }
       }
     ],
     [
       DataConsumerActions.consumerCreated,
       (state, action: typeof DataConsumerActions.consumerCreated.matches._TYPE) => {
-        const hostId = Engine.instance.worldNetwork.hostId
-        if (!state.value[hostId]) {
-          state.merge({ [hostId]: { producers: {}, consumers: {} } })
+        const networkID = action.$network
+        if (!state.value[networkID]) {
+          state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
-        state[hostId].consumers.merge({
+        state[networkID].consumers.merge({
           [action.consumerID]: {
             dataChannel: action.dataChannel,
             sctpStreamParameters: action.sctpStreamParameters as any,
@@ -179,15 +191,15 @@ export const DataProducerConsumerState = defineState({
       }
     ],
     [
-      DataConsumerActions.closeConsumer,
-      (state, action: typeof DataConsumerActions.closeConsumer.matches._TYPE) => {
-        const hostId = Engine.instance.worldNetwork.hostId
-        if (!state.value[hostId]) return
+      DataConsumerActions.consumerClosed,
+      (state, action: typeof DataConsumerActions.consumerClosed.matches._TYPE) => {
+        const networkID = action.$network
+        if (!state.value[networkID]) return
 
-        state[hostId].consumers[action.consumerID].set(none)
+        state[networkID].consumers[action.consumerID].set(none)
 
-        if (!Object.keys(state[hostId].consumers).length && !Object.keys(state[hostId].consumers).length) {
-          state[hostId].set(none)
+        if (!Object.keys(state[networkID].consumers).length && !Object.keys(state[networkID].consumers).length) {
+          state[networkID].set(none)
         }
       }
     ]
@@ -225,24 +237,22 @@ const execute = () => {
   receiveActions(DataProducerConsumerState)
 }
 
-export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
-  const { networkID, producerID } = props
-  const producerState = useHookstate(getMutableState(DataProducerConsumerState)[networkID].producers[producerID])
-  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
-  const networkProducerState = networkState.producers.find((p) => p.value.id === producerID)
+// export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
+//   const { networkID, producerID } = props
+//   const producerState = useHookstate(getMutableState(DataProducerConsumerState)[networkID].producers[producerID])
+//   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
+//   const networkProducerState = networkState.producers.find((p) => p.value.id === producerID)
 
-  useEffect(() => {
-    const network = getState(NetworkState).networks[networkID]
-  }, [])
+//   useEffect(() => {
+//     const network = getState(NetworkState).networks[networkID]
+//   }, [])
 
-  return <></>
-}
+//   return <></>
+// }
 
 export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }) => {
   const { networkID, consumerID } = props
-  const consumerState = useHookstate(getMutableState(DataProducerConsumerState)[networkID].consumers[consumerID])
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
-  const networkConsumerState = networkState.consumers.find((p) => p.value.id === consumerID)
 
   useEffect(() => {
     return () => {
@@ -273,9 +283,9 @@ const NetworkReactor = (props: { networkID: UserID }) => {
 
   return (
     <>
-      {Object.keys(producers.value).map((producerID: string) => (
+      {/* {Object.keys(producers.value).map((producerID: string) => (
         <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
-      ))}
+      ))} */}
       {Object.keys(consumers.value).map((consumerID: string) => (
         <NetworkConsumer key={consumerID} consumerID={consumerID} networkID={networkID} />
       ))}
