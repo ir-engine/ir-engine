@@ -26,9 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -45,7 +46,21 @@ const toArrayBuffer = (buf) => {
   return ab
 }
 
+export const IncomingNetworkState = defineState({
+  name: 'ee.core.network.IncomingNetworkState',
+  initial: {
+    jitterBufferTaskList: [] as JitterBufferEntry[],
+    jitterBufferDelay: 100
+  }
+})
+
 export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
+
+/** Buffer holding all incoming Messages. */
+const incomingMessageQueueUnreliableIDs = new RingBuffer<PeerID>(100)
+
+/** Buffer holding all incoming Messages. */
+const incomingMessageQueueUnreliable = new RingBuffer<any>(100)
 
 const handleNetworkdata = (
   network: Network,
@@ -54,14 +69,14 @@ const handleNetworkdata = (
   message: ArrayBufferLike
 ) => {
   if (network.isHosting) {
-    network.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
-    network.incomingMessageQueueUnreliableIDs.add(fromPeerID)
+    incomingMessageQueueUnreliable.add(toArrayBuffer(message))
+    incomingMessageQueueUnreliableIDs.add(fromPeerID)
     // forward data to clients in world immediately
     // TODO: need to include the userId (or index), so consumers can validate
     network.transport.bufferToAll(ecsDataChannelType, message)
   } else {
-    network.incomingMessageQueueUnreliable.add(message)
-    network.incomingMessageQueueUnreliableIDs.add(fromPeerID) // todo, assume it
+    incomingMessageQueueUnreliable.add(message)
+    incomingMessageQueueUnreliableIDs.add(fromPeerID) // todo, assume it
   }
 }
 
@@ -73,27 +88,27 @@ const execute = () => {
   const engineState = getState(EngineState)
   if (!engineState.isEngineInitialized) return
 
+  const { jitterBufferTaskList, jitterBufferDelay } = getState(IncomingNetworkState)
+
   const network = Engine.instance.worldNetwork
   if (!network) return
-
-  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = network
 
   while (incomingMessageQueueUnreliable.getBufferLength() > 0) {
     // we may need producer IDs at some point, likely for p2p netcode, for now just consume it
     incomingMessageQueueUnreliableIDs.pop()
     const packet = incomingMessageQueueUnreliable.pop()
 
-    readDataPacket(network, packet)
+    readDataPacket(network, packet, jitterBufferTaskList)
   }
 
-  network.jitterBufferTaskList.sort(oldestFirstComparator)
+  jitterBufferTaskList.sort(oldestFirstComparator)
 
-  const targetFixedTime = engineState.simulationTime + network.jitterBufferDelay
+  const targetFixedTime = engineState.simulationTime + jitterBufferDelay
 
-  for (const [index, { simulationTime, read }] of network.jitterBufferTaskList.slice().entries()) {
+  for (const [index, { simulationTime, read }] of jitterBufferTaskList.slice().entries()) {
     if (simulationTime <= targetFixedTime) {
       read()
-      network.jitterBufferTaskList.splice(index, 1)
+      jitterBufferTaskList.splice(index, 1)
     }
   }
 }
