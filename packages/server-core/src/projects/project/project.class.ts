@@ -48,6 +48,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import {
   ProjectPermissionType,
   projectPermissionPath
@@ -642,23 +643,24 @@ export class Project extends Service {
       })
     )
 
-    const staticResourceItems = await (this.app.service('static-resource') as any).Model.findAll({
-      where: {
-        [Op.and]: [
+    const staticResourceItems = (await this.app.service(staticResourcePath).find({
+      query: {
+        $and: [
           {
             project: name
           },
           {
             project: {
-              [Op.ne]: null
+              $ne: null
             }
           }
         ]
-      }
-    })
+      },
+      paginate: false
+    })) as StaticResourceType[]
     staticResourceItems.length &&
       staticResourceItems.forEach(async (staticResource) => {
-        await this.app.service('static-resource').remove(staticResource.dataValues.id)
+        await this.app.service(staticResourcePath).remove(staticResource.id)
       })
 
     await removeProjectUpdateJob(this.app, name)
