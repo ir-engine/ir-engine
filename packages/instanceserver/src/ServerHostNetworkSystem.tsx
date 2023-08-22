@@ -34,14 +34,14 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
-  MediaConsumerActions,
-  MediaProducerActions
-} from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
-import {
   MediasoupDataConsumerActions,
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+import {
+  MediaConsumerActions,
+  MediaProducerActions
+} from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'

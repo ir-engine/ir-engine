@@ -51,8 +51,8 @@ import { MediaControlSystem } from '@etherealengine/engine/src/interaction/syste
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
-import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { MediasoupDataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+import { MediasoupMediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { NetworkTransportStateSystem } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
@@ -112,7 +112,7 @@ export const startClientSystems = () => {
       PositionalAudioSystem,
       SceneSystemLoadGroup,
       NetworkTransportStateSystem,
-      MediaProducerConsumerStateSystem,
+      MediasoupMediaProducerConsumerStateSystem,
       MediasoupDataProducerConsumerStateSystem
     ],
     {

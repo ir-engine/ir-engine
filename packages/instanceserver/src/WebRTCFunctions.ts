@@ -50,14 +50,14 @@ import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/Web
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
-  MediaConsumerActions,
-  MediaProducerActions
-} from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
-import {
   MediasoupDataConsumerActions,
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+import {
+  MediaConsumerActions,
+  MediaProducerActions
+} from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
