@@ -259,11 +259,6 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
         </div>
       </div>
       <StatsPanel show={showingStateRef.current} />
-      <ActionsPanel />
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.get(NO_PROXY)} />
-      </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
         <JSONTree
@@ -275,12 +270,17 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
         />
       </div>
       <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.entities')}</h1>
+        <JSONTree data={namedEntities.get(NO_PROXY)} />
+      </div>
+      <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
           postprocessValue={(v: any) => (v?.value && v?.get(NO_PROXY)) ?? v}
         />
       </div>
+      <ActionsPanel />
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.systems')}</h1>
         <JSONTree
@@ -311,7 +311,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
               </>
             )
           }}
-          shouldExpandNodeInitially={() => true}
+          shouldExpandNodeInitially={() => false}
         />
       </div>
     </div>
