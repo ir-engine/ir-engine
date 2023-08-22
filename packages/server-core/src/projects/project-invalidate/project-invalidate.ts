@@ -39,14 +39,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: projectInvalidatePath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(projectInvalidatePath, new ProjectInvalidateService(options, app), {
+  app.use(projectInvalidatePath, new ProjectInvalidateService(app), {
     // A list of all methods this service exposes externally
     methods: projectInvalidateMethods,
     // You can add additional custom events to be sent to clients here
