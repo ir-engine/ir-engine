@@ -25,9 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer } from 'three'
 
-import { useEffect } from 'react'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
@@ -35,8 +33,7 @@ export const AnimationComponent = defineComponent({
   onInit: (entity) => {
     return {
       mixer: null! as AnimationMixer,
-      animations: [] as AnimationClip[],
-      animationSpeed: 1
+      animations: [] as AnimationClip[]
     }
   },
 
@@ -45,19 +42,5 @@ export const AnimationComponent = defineComponent({
 
     if (json.mixer) component.mixer.set(json.mixer)
     if (json.animations) component.animations.set(json.animations as AnimationClip[])
-    if (json.animationSpeed) component.animationSpeed.set(json.animationSpeed)
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-
-    const animationComponent = useComponent(entity, AnimationComponent)
-
-    useEffect(() => {
-      if (!animationComponent.mixer.value) return
-      animationComponent.mixer.timeScale.set(animationComponent.animationSpeed.value)
-    }, [animationComponent.animationSpeed, animationComponent.mixer])
-
-    return null
   }
 })

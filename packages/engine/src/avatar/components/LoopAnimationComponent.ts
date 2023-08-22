@@ -52,6 +52,7 @@ export const LoopAnimationComponent = defineComponent({
   onInit: (entity) => {
     return {
       activeClipIndex: -1,
+      animationSpeed: 1,
       hasAvatarAnimations: false,
       action: null as AnimationAction | null
     }
@@ -59,7 +60,7 @@ export const LoopAnimationComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-
+    if (typeof json.animationSpeed === 'number') component.animationSpeed.set(json.animationSpeed)
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
     if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
   },
@@ -67,6 +68,7 @@ export const LoopAnimationComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       activeClipIndex: component.activeClipIndex.value,
+      animationSpeed: component.animationSpeed.value,
       hasAvatarAnimations: component.hasAvatarAnimations.value
     }
   },
@@ -79,7 +81,7 @@ export const LoopAnimationComponent = defineComponent({
 
     const modelComponent = useOptionalComponent(entity, ModelComponent)
 
-    const animComponent = useOptionalComponent(entity, AnimationComponent)
+    const animComponent = useComponent(entity, AnimationComponent)
 
     /**
      * Callback functions
@@ -113,11 +115,16 @@ export const LoopAnimationComponent = defineComponent({
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
           mixer: new AnimationMixer(scene),
-          animationSpeed: 1,
           animations: []
         })
+        getComponent(entity, AnimationComponent).mixer.timeScale = loopAnimationComponent.animationSpeed.value
       }
     }, [modelComponent?.scene])
+
+    useEffect(() => {
+      if (!animComponent) return
+      animComponent.mixer.timeScale.set(loopAnimationComponent.animationSpeed.value)
+    }, [loopAnimationComponent.animationSpeed])
 
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
@@ -153,12 +160,12 @@ export const LoopAnimationComponent = defineComponent({
         if (hasComponent(entity, AvatarAnimationComponent)) {
           removeComponent(entity, AvatarAnimationComponent)
         }
-        animationComponent.mixer = new AnimationMixer(scene)
-        animationComponent.animations = scene.animations
+        animComponent.mixer.set(new AnimationMixer(scene))
+        animComponent.animations.set(scene.animations)
       }
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [animComponent?.animations, loopAnimationComponent.hasAvatarAnimations])
+    }, [animComponent.animations, loopAnimationComponent.hasAvatarAnimations])
 
     return null
   }
@@ -174,6 +181,7 @@ export const playAnimationClip = (
     animationComponent.animations[loopAnimationComponent.activeClipIndex]
   ) {
     animationComponent.mixer.stopAllAction()
+    animationComponent.mixer.time = 0
     loopAnimationComponent.action = animationComponent.mixer
       .clipAction(
         AnimationClip.findByName(

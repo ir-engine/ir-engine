@@ -35,7 +35,6 @@ import { useState } from '@etherealengine/hyperflux'
 
 import AnimationIcon from '@mui/icons-material/Animation'
 
-import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
@@ -53,7 +52,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
-  const animationComponent = useComponent(entity, AnimationComponent)
   const animationOptions = useState([] as { label: string; value: number }[])
 
   useEffect(() => {
@@ -96,8 +94,8 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Playback Speed" label={t('editor:properties.loopAnimation.lbl-playbackSpeed')}>
         <NumericInput
-          value={animationComponent.animationSpeed.value}
-          onChange={updateProperty(AnimationComponent, 'animationSpeed')}
+          value={loopAnimationComponent.animationSpeed.value}
+          onChange={updateProperty(LoopAnimationComponent, 'animationSpeed')}
         />
       </InputGroup>
     </NodeEditor>
