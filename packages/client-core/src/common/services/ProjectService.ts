@@ -37,6 +37,7 @@ import { defineAction, defineState, dispatchAction, getMutableState } from '@eth
 
 import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
+import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { API } from '../../API'
@@ -168,7 +169,7 @@ export const ProjectService = {
 
   pushProject: async (id: string) => {
     try {
-      await API.instance.client.service('project-github-push').patch(id, {})
+      await API.instance.client.service(projectGithubPushPath).patch(id, {})
     } catch (err) {
       logger.error('Error with project push', err)
       throw err

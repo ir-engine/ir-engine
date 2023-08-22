@@ -23,22 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ProjectBuild from './project-build/project-build'
-import ProjectCheckSourceDestinationMatch from './project-check-source-destination-match/project-check-source-destination-match'
-import ProjectGithubPush from './project-github-push/project-github-push'
-import ProjectInvalidate from './project-invalidate/project-invalidate'
-import ProjectPermission from './project-permission/project-permission'
-import Project from './project/project.service'
-import Projects from './projects/projects'
-import Scene from './scene/scene.service'
+import {
+  projectGithubPushMethods,
+  projectGithubPushPath
+} from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
+import { Application } from '../../../declarations'
+import { ProjectGithubPushService } from './project-github-push.class'
+import projectGithubPushDocs from './project-github-push.docs'
+import hooks from './project-github-push.hooks'
 
-export default [
-  Project,
-  Projects,
-  ProjectBuild,
-  ProjectInvalidate,
-  ProjectPermission,
-  ProjectGithubPush,
-  ProjectCheckSourceDestinationMatch,
-  Scene
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectGithubPushPath]: ProjectGithubPushService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(projectGithubPushPath, new ProjectGithubPushService(app), {
+    // A list of all methods this service exposes externally
+    methods: projectGithubPushMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectGithubPushDocs
+  })
+
+  const service = app.service(projectGithubPushPath)
+  service.hooks(hooks)
+}

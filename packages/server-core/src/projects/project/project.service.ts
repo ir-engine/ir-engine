@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 import _ from 'lodash'
 
@@ -35,12 +34,9 @@ import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/s
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ServerState } from '../../ServerState'
-import { UserParams } from '../../api/root-params'
 import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
-import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { pushProjectToGithub } from './github-helper'
 import {
   checkDestination,
   checkUnfetchedSourceCommit,
@@ -60,9 +56,6 @@ import createModel from './project.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'project-github-push': {
-      patch: ReturnType<typeof projectGithubPushPatch>
-    }
     'project-destination-check': {
       get: ReturnType<typeof projectDestinationCheckGet>
     }
@@ -82,15 +75,6 @@ declare module '@etherealengine/common/declarations' {
       get: ReturnType<typeof projectUnfetchedCommitGet>
     }
   }
-}
-
-export const projectGithubPushPatch = (app: Application) => async (id: Id, data: any, params?: UserParams) => {
-  const project = await app.service('project').Model.findOne({
-    where: {
-      id
-    }
-  })
-  return pushProjectToGithub(app, project, params!.user!)
 }
 
 export const projectDestinationCheckGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
@@ -191,19 +175,6 @@ export default (app: Application): void => {
   app.service('project-check-unfetched-commit').hooks({
     before: {
       get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
-
-  app.use('project-github-push', {
-    patch: projectGithubPushPatch(app)
-  })
-
-  app.service('project-github-push').hooks({
-    before: {
-      patch: [
-        authenticate(),
-        iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate('write'))
-      ]
     }
   })
 
