@@ -39,14 +39,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: projectCheckSourceDestinationMatchPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(projectCheckSourceDestinationMatchPath, new ProjectCheckSourceDestinationMatchService(options, app), {
+  app.use(projectCheckSourceDestinationMatchPath, new ProjectCheckSourceDestinationMatchService(app), {
     // A list of all methods this service exposes externally
     methods: projectCheckSourceDestinationMatchMethods,
     // You can add additional custom events to be sent to clients here

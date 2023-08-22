@@ -36,14 +36,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: projectBuildPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(projectBuildPath, new ProjectBuildService(options, app), {
+  app.use(projectBuildPath, new ProjectBuildService(app), {
     // A list of all methods this service exposes externally
     methods: projectBuildMethods,
     // You can add additional custom events to be sent to clients here

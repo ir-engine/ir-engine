@@ -18,10 +18,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 
 import { ProjectsQuery, ProjectsType } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
@@ -32,11 +32,10 @@ export interface ProjectsParams extends RootParams<ProjectsQuery> {}
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-export class ProjectsService extends KnexAdapter<ProjectsType, ProjectsParams> {
+export class ProjectsService implements ServiceInterface<ProjectsType, ProjectsParams> {
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 
@@ -44,8 +43,10 @@ export class ProjectsService extends KnexAdapter<ProjectsType, ProjectsParams> {
    * returns a list of projects installed by name from their folder names
    */
   async find() {
-    return fs
+    let projectsList = fs
       .readdirSync(projectsRootFolder)
       .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
+
+    return { projectsList: projectsList }
   }
 }

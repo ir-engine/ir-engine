@@ -109,7 +109,7 @@ const AppPage = () => {
           .service(projectsPath)
           .find()
           .then((projects) => {
-            loadWebappInjection(projects).then((result) => {
+            loadWebappInjection(projects.projectsList).then((result) => {
               setProjectComponents(result)
             })
           })

@@ -70,7 +70,7 @@ export const initClient = async () => {
   const projects = Engine.instance.api.service(projectsPath).find()
 
   startClientSystems()
-  await loadEngineInjection(await projects)
+  await loadEngineInjection((await projects).projectsList)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }

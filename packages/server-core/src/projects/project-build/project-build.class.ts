@@ -18,10 +18,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 
 import { ProjectBuildQuery, ProjectBuildType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { ServiceInterface } from '@feathersjs/feathers'
 import { RootParams } from '../../api/root-params'
 import { checkBuilderService, updateBuilder } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'
@@ -29,11 +29,10 @@ import { ProjectParams, ProjectParamsClient } from '../project/project.class'
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ProjectBuildParams extends RootParams<ProjectBuildQuery> {}
 
-export class ProjectBuildService extends KnexAdapter<ProjectBuildType, ProjectBuildParams> {
+export class ProjectBuildService implements ServiceInterface<ProjectBuildType, ProjectBuildParams> {
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 
@@ -41,7 +40,7 @@ export class ProjectBuildService extends KnexAdapter<ProjectBuildType, ProjectBu
     return await checkBuilderService(this.app)
   }
 
-  async patch(tag: string, data: any, params?: ProjectParamsClient) {
+  async patch(tag: string, data: any, params?: ProjectParamsClient): Promise<any> {
     return await updateBuilder(this.app, tag, data, params as ProjectParams)
   }
 }

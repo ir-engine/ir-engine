@@ -138,7 +138,7 @@ const decorators = [
             // @ts-ignore
             .find()
             .then((projects) => {
-              loadEngineInjection(projects).then((result) => {
+              loadEngineInjection(projects.projectsList).then((result) => {
                 dispatchAction(LocationAction.setLocationName({ locationName }))
                 initializeEngineForRecorder()
                 setProjectComponents(result)
