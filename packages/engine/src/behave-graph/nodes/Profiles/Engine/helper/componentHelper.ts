@@ -24,16 +24,57 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { toQuat, toVector3, toVector4 } from '@behave-graph/scene'
+import { Color, Matrix3, Matrix4, Quaternion, Vector2, Vector3, Vector4 } from 'three'
+import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
+import { CameraComponent } from '../../../../../camera/components/CameraComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
-import { Component, ComponentMap, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  Component,
+  ComponentMap,
+  EntityRemovedComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
+import { DirectionalLightComponent } from '../../../../../scene/components/DirectionalLightComponent'
+import { FogSettingsComponent } from '../../../../../scene/components/FogSettingsComponent'
+import { HemisphereLightComponent } from '../../../../../scene/components/HemisphereLightComponent'
+import { MediaSettingsComponent } from '../../../../../scene/components/MediaSettingsComponent'
+import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
+import { RenderSettingsComponent } from '../../../../../scene/components/RenderSettingsComponent'
+import { SpotLightComponent } from '../../../../../scene/components/SpotLightComponent'
 
+const skipComponents = [
+  EntityRemovedComponent.name,
+  PostProcessingComponent.name,
+  AvatarAnimationComponent.name,
+  CameraComponent.name,
+  FogSettingsComponent.name,
+  DirectionalLightComponent.name,
+  SpotLightComponent.name,
+  HemisphereLightComponent.name,
+  MediaSettingsComponent.name,
+  RenderSettingsComponent.name,
+  'EE_behaveGraph'
+]
+// behave graph is initialized last
+// this function runs before it fully initialized
+// must be initialized first to use it as a component,therefore must hardcode, else infinite loop
 export function generateComponentNodeschema(component: Component) {
-  const schema = component.onInit(UndefinedEntity)
   const nodeschema = {}
-  for (const [name, value] of schema) {
+  if (skipComponents.includes(component.name)) return nodeschema
+
+  const schema = component.schema ? component.schema : component.onInit(UndefinedEntity)
+  if (!schema) {
+    return nodeschema
+  }
+  //console.log("DEBUG", component.name )
+  for (const [name, value] of Object.entries(schema)) {
     switch (typeof value) {
       case 'number':
-        nodeschema[name] = 'float'
+        if (name.toLowerCase().includes('entity')) nodeschema[name] = 'entity'
+        else {
+          nodeschema[name] = 'float'
+        }
         // use float
         break
       case 'boolean':
@@ -42,36 +83,92 @@ export function generateComponentNodeschema(component: Component) {
         break
       case 'string':
         nodeschema[name] = 'string'
-        // use boolean
+      // use boolean
+      case 'undefined':
+        nodeschema[name] = 'string'
+      case 'object':
+        if (value instanceof Vector2) {
+          nodeschema[name] = 'vec2'
+        } else if (value instanceof Vector3) {
+          nodeschema[name] = 'vec3'
+        } else if (value instanceof Vector4) {
+          nodeschema[name] = 'vec4'
+        } else if (value instanceof Quaternion) {
+          nodeschema[name] = 'quat'
+        } else if (value instanceof Matrix4) {
+          nodeschema[name] = 'mat4'
+        } else if (value instanceof Matrix3) {
+          nodeschema[name] = 'mat3'
+        } else if (value instanceof Color) {
+          nodeschema[name] = 'color'
+        }
+        break
+      case 'function':
         break
       default: // for objects will handle them later maybe decompose furthur?
-        // skip for now
         break
       // use string
     }
   }
+  //console.log("DEBUG", nodeschema )
   return nodeschema
+}
+
+export function NodetoEnginetype(value, valuetype) {
+  switch (valuetype) {
+    case 'float':
+    case 'integer':
+      return Number(value)
+      break
+    case 'string':
+      return String(value)
+    case 'vec3':
+    case 'vec2':
+      return toVector3(value)
+    case 'quat':
+      return toQuat(value)
+    case 'vec4':
+      return toVector4(value)
+    case 'mat4':
+      return new Matrix4().fromArray(value.elements)
+    case 'mat3':
+      return new Matrix3().fromArray(value.elements)
+    case 'color':
+      return new Color().setFromVector3(value)
+    case 'boolean':
+      typeof Boolean
+      return Boolean(value)
+    default:
+  }
 }
 
 export function getComponentSetters() {
   const setters: NodeDefinition[] = []
   for (const [componentName, component] of ComponentMap) {
+    if (skipComponents.includes(componentName)) continue
+    const inputsockets = generateComponentNodeschema(component)
+    if (Object.keys(inputsockets).length === 0) continue
     const node = makeFlowNodeDefinition({
       typeName: `engine/component/set${componentName}`,
       category: NodeCategory.Action,
-      label: 'Add Component',
+      label: `set ${componentName}`,
       in: {
         flow: 'flow',
         entity: 'entity',
-        ...generateComponentNodeschema(component)
+        ...inputsockets
       },
       out: { flow: 'flow', entity: 'entity' },
       initialState: undefined,
       triggered: ({ read, write, commit, graph }) => {
         const entity = Number.parseInt(read('entity')) as Entity
         //read from the read and set dict acccordingly
+        const inputs = Object.entries(node.in).splice(2)
+        //console.log("DEBUG",inputs)
         const values = {}
-
+        for (const [input, type] of inputs) {
+          values[input] = NodetoEnginetype(read(input as any), type)
+        }
+        //console.log("DEBUG",values)
         setComponent(entity, component, values)
         write('entity', entity)
         commit('flow')
@@ -79,5 +176,6 @@ export function getComponentSetters() {
     })
     setters.push(node)
   }
+  console.log('DEBUG', setters)
   return setters
 }

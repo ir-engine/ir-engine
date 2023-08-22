@@ -103,7 +103,7 @@ export const addComponent = makeFlowNodeDefinition({
   out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
-    const entity: Entity = read('entity')
+    const entity = Number.parseInt(read('entity')) as Entity
     const componentName: string = read('componentName')
     const component = ComponentMap.get(componentName)!
     setComponent(entity, component)
