@@ -110,7 +110,7 @@ export const DataProducerConsumerState = defineState({
     {
       producers: {
         [producerID: string]: {
-          producer?: any
+          producer?: unknown // TODO make common type interface
           producerID: string
           transportId: string
           protocol: string
@@ -121,8 +121,8 @@ export const DataProducerConsumerState = defineState({
       }
       consumers: {
         [consumerID: string]: {
+          consumer?: unknown // TODO make common type interface
           consumerID: string
-          consumer?: any
           dataChannel: DataChannelType
           sctpStreamParameters: any
           appData: any

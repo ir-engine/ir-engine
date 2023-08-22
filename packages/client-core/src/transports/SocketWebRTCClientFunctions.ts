@@ -627,6 +627,9 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
               addActionReceptor(onAction)
             }
           )
+
+          console.log({ producerPromise })
+
           callback({ id: producerPromise.producerID })
         } catch (e) {
           errback(e)

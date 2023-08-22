@@ -221,11 +221,20 @@ export const handleConsumeData = async (action: typeof DataConsumerActions.reque
   }
 }
 
-export async function closeDataProducer(network, dataProducer): Promise<void> {
-  network.dataProducers.delete(dataProducer.id)
-  logger.info("data producer's transport closed: " + dataProducer.id)
+export async function closeDataProducer(
+  network: SocketWebRTCServerNetwork,
+  dataProducer: DataProducer,
+  peerID: PeerID
+): Promise<void> {
+  dispatchAction(
+    DataProducerActions.producerClosed({
+      producerID: dataProducer.id,
+      $topic: network.topic,
+      $network: network.id
+    })
+  )
   dataProducer.close()
-  const peer = network.peers.get(dataProducer.appData.peerID)
+  const peer = network.peers.get(peerID)
   if (peer) peer.dataProducers!.delete(dataProducer.id)
 }
 
@@ -238,7 +247,10 @@ export async function transportClosed(
   // calling producerClosed() and consumerClosed() on all the producers
   // and consumers associated with this transport
   const dataProducers = Object.values(getState(DataProducerConsumerState)[network.id].producers)
-  dataProducers.forEach((dataProducer) => dataProducer.producer && closeDataProducer(network, dataProducer.producer))
+  dataProducers.forEach(
+    (dataProducer) =>
+      dataProducer.producer && closeDataProducer(network, dataProducer.producer as any, dataProducer.appData.peerID)
+  )
   const producers = Object.values(network.producers)
   producers.forEach((producer) => producerClosed(network, producer))
   if (transport && typeof transport.close === 'function') {
@@ -524,7 +536,7 @@ export async function handleProduceData(
     )
 
     // if our associated transport closes, close ourself, too
-    dataProducer.on('transportclose', () => closeDataProducer(network, dataProducer))
+    dataProducer.on('transportclose', () => closeDataProducer(network, dataProducer, peerID))
     const internalConsumer = await createInternalDataConsumer(network, dataProducer, peerID)
     if (!internalConsumer) {
       logger.error('Invalid data producer.')

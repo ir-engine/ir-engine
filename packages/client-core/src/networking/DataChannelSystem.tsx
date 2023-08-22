@@ -82,7 +82,8 @@ export async function createDataProducer(
     dataProducer.close()
   })
 
-  getMutableState(DataProducerConsumerState)[network.id][dataProducer.id].producer.set(dataProducer)
+  const state = getMutableState(DataProducerConsumerState)[network.id].producers[dataProducer.id]
+  state.producer.set(dataProducer)
 }
 
 export const consumerData = async (action: typeof DataConsumerActions.consumerCreated.matches._TYPE) => {
@@ -116,7 +117,8 @@ export const consumerData = async (action: typeof DataConsumerActions.consumerCr
     dataConsumer.close()
   })
 
-  getMutableState(DataProducerConsumerState)[network.id][dataConsumer.id].consumer.set(dataConsumer)
+  const state = getMutableState(DataProducerConsumerState)[network.id].consumers[dataConsumer.id]
+  state.consumer.set(dataConsumer)
 }
 
 const dataConsumerCreatedActionQueue = defineActionQueue(DataConsumerActions.consumerCreated.matches)

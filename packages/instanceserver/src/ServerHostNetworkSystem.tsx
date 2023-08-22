@@ -75,6 +75,7 @@ const requestProducerActionQueue = defineActionQueue(MediaProducerActions.reques
 const dataRequestProducerActionQueue = defineActionQueue(DataProducerActions.requestProducer.matches)
 const dataProducerCreatedActionQueue = defineActionQueue(DataProducerActions.producerCreated.matches)
 const dataRequestConsumerActionQueue = defineActionQueue(DataConsumerActions.requestConsumer.matches)
+const dataConsumerCreatedActionQueue = defineActionQueue(DataConsumerActions.consumerCreated.matches)
 
 const requestTransportActionQueue = defineActionQueue(NetworkTransportActions.requestTransport.matches)
 const requestTransportConnectActionQueue = defineActionQueue(NetworkTransportActions.requestTransportConnect.matches)
@@ -102,10 +103,21 @@ const execute = () => {
     if (!producer) {
       logger.warn('dataProducerCreatedActionQueue: producer not found', action.producerID)
     }
-    getMutableState(DataProducerConsumerState)[network.id][action.producerID].producer.set(producer)
+    getMutableState(DataProducerConsumerState)[network.id].producers[action.producerID].producer.set(producer)
   }
   for (const action of dataRequestConsumerActionQueue()) {
     handleConsumeData(action)
+  }
+
+  for (const action of dataConsumerCreatedActionQueue()) {
+    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+    const consumer = Array.from(network.peers.values())
+      .map((peer) => peer.outgoingDataConsumers?.get(action.dataChannel))
+      .filter(Boolean)?.[0]
+    if (!consumer) {
+      logger.warn('dataConsumerCreatedActionQueue: consumer not found', action.dataChannel)
+    }
+    getMutableState(DataProducerConsumerState)[network.id].consumers[action.consumerID].consumer.set(consumer)
   }
 
   for (const action of requestTransportActionQueue()) {
