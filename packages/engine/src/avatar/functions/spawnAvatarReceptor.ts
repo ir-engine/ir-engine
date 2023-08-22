@@ -98,8 +98,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(new Object3D()),
-    animations: [] as AnimationClip[],
-    animationSpeed: 1
+    animations: [] as AnimationClip[]
   })
 
   addComponent(entity, AvatarAnimationComponent, {
