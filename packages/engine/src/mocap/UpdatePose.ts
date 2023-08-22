@@ -23,15 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// - clean up hips, head, shoulders landmarks calc
-// - draw landmarks and draw estimated orientations
-// - are landmarks changing in size??? -> how do we correct for that? do we renormalize?
-// - are landmarks ever missing?
-// - can we estimate rotation better - it seems flakey
-
-// - can we pass enhanced information to the animation system?
-// - for example we may want to pass information about the landmark derived poses
-
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
@@ -62,7 +53,8 @@ import {
 
 const strategies: any = []
 
-strategies[0] = { color: 0xffffff, key: 'head', ik: true, rest: { x: 0, y: -0.6, z: -0.2 } }
+//strategies[0] = { color: 0xffffff, key: 'head', ik: true, rest: { x: 0, y: -0.6, z: -0.2 } }
+
 strategies[1] = { color: 0xffffff, key: 'chest' }
 strategies[2] = { color: 0xffffff, key: 'hips' }
 
@@ -99,7 +91,7 @@ const rotationOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 // a helper for applying a landmark to pose using various strategies
 const helper = (part, landmark, position, rotation) => {
-  // noise reduction; apply to everything for now
+  // noise reduction
   if (!part.kfx) part.kfx = new KalmanFilter()
   if (!part.kfy) part.kfy = new KalmanFilter()
   if (!part.kfz) part.kfz = new KalmanFilter()
@@ -338,31 +330,27 @@ issues:
 - rotate head
 - pivot hips
 
-notes: 
+notes re normalized data:
+  - all points are centered on the avatar as a vitrivian man with radius 0.5 or diameter 1
+  - for example the left shoulder is often at 0.14 in the x axis and the right shoulder is at -0.14
+  - raw data y is negative upwards, so the shoulder y is at -0.45; which is the opposite of the 3js convention
+
+notes re z depth
+  - z pose estimates are poor from the front, we don't really know exactly where the wrists are in 3d space; you could be punching forward for example at full extent, or have a hand on your chest
+  - raw z data doesn't seem to really change - it is unclear
+  - but we *do* have an elbow; and we also know that the elbow typically is forward of the chest because the shoulder joint doesn't go back very far; we can estimate elbow pose
+  - given an elbow pose it is arguable that we could estimate the wrist z position also???
+
+notes re scaling to real puppet
+  - we have to make sure that we multiply by the real world wingspan of a real person - definitely larger than 1 meter? but it doesn't seem to be much larger?
+
+notes re visibility
+  - there is pretty much always data; just a threshhold, 0.3 seems like a good throw-away threshhold
 
 https://github.com/kimgooq/MoCap-Rigging
 https://www.mdpi.com/2076-3417/13/4/2700
 https://github.com/digital-standard/ThreeDPoseUnityBarracuda/blob/f4ad45e83e72bf140128d95b668aef97037c1379/Assets/Scripts/VNectBarracudaRunner.cs <- very impressive
-wdddddhttps://github.com/Kariaro/VRigUnity/tree/main
-
-normalized data:
-
-all points are centered on the avatar as a vitrivian man with radius 0.5 or diameter 1
-for example the left shoulder is often at 0.14 in the x axis and the right shoulder is at -0.14
-raw data y is negative upwards, so the shoulder y is at -0.45; which is the opposite of the 3js convention
-
-z depth
-z pose estimates are poor from the front, we don't really know exactly where the wrists are in 3d space; you could be punching forward for example at full extent, or have a hand on your chest
-raw z data doesn't seem to really change - it is unclear
-  - but we *do* have an elbow; and we also know that the elbow typically is forward of the chest because the shoulder joint doesn't go back very far; we can estimate elbow pose
-   - given an elbow pose it is arguable that we could estimate the wrist z position also???
-
-scaling to real puppet
-we have to make sure that we multiply by the real world wingspan of a real person - definitely larger than 1 meter? but it doesn't seem to be much larger?
-
-visibility
-there is pretty much always data; just a threshhold, 0.3 seems like a good throw-away threshhold
-
+https://github.com/Kariaro/VRigUnity/tree/main
 
 */
 
