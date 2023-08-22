@@ -2,7 +2,7 @@
 FROM node:18-buster-slim
 
 RUN apt-get update
-RUN apt-get install -y build-essential meson python3-testresources python3-venv python3-pip git procps
+RUN apt-get install -y build-essential meson python3-testresources python3-venv python3-pip git procps git-lfs
 # Create app directory
 WORKDIR /app
 
@@ -83,6 +83,8 @@ RUN npx cross-env ts-node --swc scripts/check-db-exists.ts
 RUN npm run build-client
 
 RUN rm -r packages/client/public
+
+RUN bash ./scripts/setup_helm.sh
 
 ENV APP_ENV=production
 

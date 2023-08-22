@@ -37,7 +37,11 @@ import { promisify } from 'util'
 
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
-import { ProjectInterface, ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import {
+  ProjectInterface,
+  ProjectPackageJsonType,
+  ProjectUpdateType
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
@@ -870,12 +874,94 @@ export const getLatestProjectTaggedCommitInBranch = async (
   return latestTaggedCommitInBranch
 }
 
+export const getProjectUpdateJobBody = (
+  data: {
+    sourceURL: string
+    destinationURL: string
+    name: string
+    needsRebuild?: boolean
+    reset?: boolean
+    commitSHA?: string
+    sourceBranch: string
+    updateType: ProjectUpdateType
+    updateSchedule: string
+  },
+  image: string,
+  userId: string
+): object => {
+  return {
+    metadata: {
+      name: `${process.env.RELEASE_NAME}-${data.name}-update`,
+      labels: {
+        'etherealengine/projectUpdater': 'true',
+        'etherealengine/autoUpdate': 'false',
+        'etherealengine/projectField': data.name,
+        'etherealengine/release': process.env.RELEASE_NAME
+      }
+    },
+    spec: {
+      template: {
+        metadata: {
+          labels: {
+            'etherealengine/projectUpdater': 'true',
+            'etherealengine/autoUpdate': 'false',
+            'etherealengine/projectField': data.name,
+            'etherealengine/release': process.env.RELEASE_NAME
+          }
+        },
+        spec: {
+          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
+          containers: [
+            {
+              name: `${process.env.RELEASE_NAME}-${data.name}-update`,
+              image,
+              imagePullPolicy: 'IfNotPresent',
+              command: [
+                'npx',
+                'cross-env',
+                'ts-node',
+                '--swc',
+                'scripts/update-project.ts',
+                `--userId`,
+                `${userId}`,
+                '--sourceURL',
+                `${data.sourceURL}`,
+                '--destinationURL',
+                `${data.destinationURL}`,
+                '--name',
+                `${data.name}`,
+                '--needsRebuild',
+                `${data.needsRebuild}`,
+                '--reset',
+                `${data.reset}`,
+                '--commitSHA',
+                `${data.commitSHA}`,
+                '--sourceBranch',
+                `${data.sourceBranch}`,
+                '--updateType',
+                `${data.updateType}`,
+                '--updateSchedule',
+                `${data.updateSchedule}`
+              ],
+              env: Object.entries(process.env).map(([key, value]) => {
+                return { name: key, value: value }
+              })
+            }
+          ],
+          restartPolicy: 'Never'
+        }
+      }
+    }
+  }
+}
+
 export const getCronJobBody = (project: ProjectInterface, image: string): object => {
   return {
     metadata: {
       name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
+        'etherealengine/autoUpdate': 'true',
         'etherealengine/projectField': project.name,
         'etherealengine/projectId': project.id,
         'etherealengine/release': process.env.RELEASE_NAME
@@ -892,6 +978,7 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
             metadata: {
               labels: {
                 'etherealengine/projectUpdater': 'true',
+                'etherealengine/autoUpdate': 'true',
                 'etherealengine/projectField': project.name,
                 'etherealengine/projectId': project.id,
                 'etherealengine/release': process.env.RELEASE_NAME
@@ -909,7 +996,7 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
                     'cross-env',
                     'ts-node',
                     '--swc',
-                    'scripts/update-project.ts',
+                    'scripts/auto-update-project.ts',
                     '--projectName',
                     `${project.name}`
                   ],
