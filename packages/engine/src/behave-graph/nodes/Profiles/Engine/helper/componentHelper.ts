@@ -27,7 +27,6 @@ import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-gr
 import { toQuat, toVector3, toVector4 } from '@behave-graph/scene'
 import { Color, Matrix3, Matrix4, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
-import { CameraComponent } from '../../../../../camera/components/CameraComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import {
   Component,
@@ -35,26 +34,13 @@ import {
   EntityRemovedComponent,
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
-import { DirectionalLightComponent } from '../../../../../scene/components/DirectionalLightComponent'
-import { FogSettingsComponent } from '../../../../../scene/components/FogSettingsComponent'
-import { HemisphereLightComponent } from '../../../../../scene/components/HemisphereLightComponent'
-import { MediaSettingsComponent } from '../../../../../scene/components/MediaSettingsComponent'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
-import { RenderSettingsComponent } from '../../../../../scene/components/RenderSettingsComponent'
-import { SpotLightComponent } from '../../../../../scene/components/SpotLightComponent'
 
 const skipComponents = [
-  EntityRemovedComponent.name,
-  PostProcessingComponent.name,
-  AvatarAnimationComponent.name,
-  CameraComponent.name,
-  FogSettingsComponent.name,
-  DirectionalLightComponent.name,
-  SpotLightComponent.name,
-  HemisphereLightComponent.name,
-  MediaSettingsComponent.name,
-  RenderSettingsComponent.name,
-  'EE_behaveGraph'
+  EntityRemovedComponent.name, // pointless
+  PostProcessingComponent.name, //needs special attention
+  AvatarAnimationComponent.name, // needs special attention
+  'EE_behaveGraph' // infinite loop
 ]
 // behave graph is initialized last
 // this function runs before it fully initialized
