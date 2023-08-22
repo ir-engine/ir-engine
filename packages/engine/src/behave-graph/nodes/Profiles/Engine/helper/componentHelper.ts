@@ -130,6 +130,7 @@ export function NodetoEnginetype(value, valuetype) {
 
 export function getComponentSetters() {
   const setters: NodeDefinition[] = []
+
   for (const [componentName, component] of ComponentMap) {
     if (skipComponents.includes(componentName)) continue
     const inputsockets = generateComponentNodeschema(component)
@@ -162,6 +163,5 @@ export function getComponentSetters() {
     })
     setters.push(node)
   }
-  console.log('DEBUG', setters)
   return setters
 }
