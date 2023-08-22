@@ -106,10 +106,12 @@ export const DataProducerConsumerState = defineState({
   name: 'ee.engine.network.DataProducerConsumerState',
 
   initial: {} as Record<
-    UserID, // NetworkID
+    string, // NetworkID
     {
       producers: {
         [producerID: string]: {
+          producer?: any
+          producerID: string
           transportId: string
           protocol: string
           sctpStreamParameters: any
@@ -119,6 +121,8 @@ export const DataProducerConsumerState = defineState({
       }
       consumers: {
         [consumerID: string]: {
+          consumerID: string
+          consumer?: any
           dataChannel: DataChannelType
           sctpStreamParameters: any
           appData: any
@@ -127,6 +131,26 @@ export const DataProducerConsumerState = defineState({
       }
     }
   >,
+
+  getProducerByPeer: (networkID: string, peerID: string) => {
+    const state = getState(DataProducerConsumerState)[networkID]
+    if (!state) return
+
+    const producer = Object.values(state.producers).find((p) => p.appData.peerID === peerID)
+    if (!producer) return
+
+    return producer.producer
+  },
+
+  getProducerByDataChannel: (networkID: string, dataChannel: DataChannelType) => {
+    const state = getState(DataProducerConsumerState)[networkID]
+    if (!state) return
+
+    const producer = Object.values(state.producers).find((p) => p.dataChannel === dataChannel)
+    if (!producer) return
+
+    return producer.producer
+  },
 
   // TODO: support multiple networks
   receptors: [
@@ -139,6 +163,7 @@ export const DataProducerConsumerState = defineState({
         }
         state[networkID].producers.merge({
           [action.producerID]: {
+            producerID: action.producerID,
             transportId: action.transportID,
             protocol: action.protocol,
             sctpStreamParameters: action.sctpStreamParameters as any,
@@ -182,6 +207,7 @@ export const DataProducerConsumerState = defineState({
         }
         state[networkID].consumers.merge({
           [action.consumerID]: {
+            consumerID: action.consumerID,
             dataChannel: action.dataChannel,
             sctpStreamParameters: action.sctpStreamParameters as any,
             appData: action.appData as any,

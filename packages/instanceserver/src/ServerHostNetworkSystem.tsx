@@ -29,12 +29,14 @@ import { updatePeers } from '@etherealengine/engine/src/networking/systems/Outgo
 import React, { useEffect } from 'react'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import logger from '@etherealengine/common/src/logger'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import {
   DataChannelRegistryState,
   DataConsumerActions,
-  DataProducerActions
+  DataProducerActions,
+  DataProducerConsumerState
 } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import {
   MediaConsumerActions,
@@ -71,6 +73,7 @@ const consumerLayersActionQueue = defineActionQueue(MediaConsumerActions.consume
 const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
 
 const dataRequestProducerActionQueue = defineActionQueue(DataProducerActions.requestProducer.matches)
+const dataProducerCreatedActionQueue = defineActionQueue(DataProducerActions.producerCreated.matches)
 const dataRequestConsumerActionQueue = defineActionQueue(DataConsumerActions.requestConsumer.matches)
 
 const requestTransportActionQueue = defineActionQueue(NetworkTransportActions.requestTransport.matches)
@@ -90,6 +93,16 @@ const execute = () => {
 
   for (const action of dataRequestProducerActionQueue()) {
     handleProduceData(action)
+  }
+  for (const action of dataProducerCreatedActionQueue()) {
+    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
+    const producer = Array.from(network.peers.values())
+      .map((peer) => peer.dataProducers?.get(action.producerID))
+      .filter(Boolean)?.[0]
+    if (!producer) {
+      logger.warn('dataProducerCreatedActionQueue: producer not found', action.producerID)
+    }
+    getMutableState(DataProducerConsumerState)[network.id][action.producerID].producer.set(producer)
   }
   for (const action of dataRequestConsumerActionQueue()) {
     handleConsumeData(action)

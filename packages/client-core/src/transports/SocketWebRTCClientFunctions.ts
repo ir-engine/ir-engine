@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
-  DataConsumer,
   DataProducer,
   DtlsParameters,
   MediaKind,
@@ -77,8 +76,8 @@ import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
-  DataConsumerActions,
-  DataProducerActions
+  DataProducerActions,
+  DataProducerConsumerState
 } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import {
   MediaConsumerActions,
@@ -179,7 +178,9 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
     },
 
     bufferToAll: (dataChannelType: DataChannelType, data: any) => {
-      const dataProducer = network.dataProducers.get(dataChannelType)
+      const dataProducer = DataProducerConsumerState.getProducerByDataChannel(network.id, dataChannelType) as
+        | DataProducer
+        | undefined
       if (!dataProducer) return
       if (!dataProducer.closed && dataProducer.readyState === 'open') dataProducer.send(data)
     }
@@ -192,9 +193,6 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
     recvTransport: null! as MediaSoupTransport,
     sendTransport: null! as MediaSoupTransport,
     primus: null! as Primus,
-    /** List of data producer nodes. */
-    dataProducers: new Map<DataChannelType, DataProducer>(),
-    dataConsumers: new Map<DataChannelType, DataConsumer>(),
 
     heartbeat: null! as NodeJS.Timer, // is there an equivalent browser type for this?
 
@@ -421,67 +419,6 @@ export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
     }, 100)
   })
   return promise
-}
-
-/**
- *
- * @param network
- * @param dataChannelType
- * @param type
- * @param customInitInfo
- */
-export async function createDataProducer(
-  network: SocketWebRTCClientNetwork,
-  dataChannelType: DataChannelType,
-  type = 'raw',
-  customInitInfo: any = {}
-): Promise<void> {
-  console.log('createDataProducer', dataChannelType, network)
-  if (network.dataProducers.has(dataChannelType)) return
-  await waitForTransports(network)
-  const sendTransport = network.sendTransport!
-  const dataProducer = await sendTransport.produceData({
-    appData: { data: customInitInfo },
-    ordered: false,
-    label: dataChannelType,
-    // maxPacketLifeTime: 0,
-    maxRetransmits: 1,
-    protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
-  })
-  dataProducer.on('transportclose', () => {
-    dataProducer.close()
-  })
-  network.dataProducers.set(dataChannelType, dataProducer)
-}
-
-export function closeDataProducer(network: SocketWebRTCClientNetwork, dataChannelType: DataChannelType) {
-  const producer = network.dataProducers.get(dataChannelType)
-  dispatchAction(
-    MediaProducerActions.producerClosed({
-      producerID: producer.id,
-      $network: network.id,
-      $topic: network.topic
-    })
-  )
-}
-
-/**
- *
- * @param network
- * @param dataChannel
- */
-export async function createDataConsumer(
-  network: SocketWebRTCClientNetwork,
-  dataChannel: DataChannelType
-): Promise<void> {
-  dispatchAction(
-    DataConsumerActions.requestConsumer({
-      dataChannel,
-      $network: network.id,
-      $topic: network.topic,
-      $to: network.hostPeerID
-    })
-  )
 }
 
 export const onTransportCreated = async (action: typeof NetworkTransportActions.transportCreated.matches._TYPE) => {

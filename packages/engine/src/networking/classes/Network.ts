@@ -60,9 +60,6 @@ export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, ext
     producers: [] as any[],
     consumers: [] as any[],
 
-    /** List of data producer nodes. */
-    dataProducers: new Map<string, any>(),
-
     /** Connected peers */
     peers: new Map() as Map<PeerID, NetworkPeer>,
 

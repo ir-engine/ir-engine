@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
-import { DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -219,8 +218,7 @@ export const handleConnectingPeer = (
     consumerLayers: {},
     stats: {},
     incomingDataConsumers: new Map<DataChannelType, any>(),
-    outgoingDataConsumers: new Map<DataChannelType, any>(),
-    dataProducers: new Map<string, DataProducer>()
+    outgoingDataConsumers: new Map<DataChannelType, any>()
   })
 
   if (!network.users.has(userId)) {

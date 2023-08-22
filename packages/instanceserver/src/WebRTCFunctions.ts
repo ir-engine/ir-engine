@@ -51,7 +51,8 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import {
   DataChannelRegistryState,
   DataConsumerActions,
-  DataProducerActions
+  DataProducerActions,
+  DataProducerConsumerState
 } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import {
   MediaConsumerActions,
@@ -236,8 +237,8 @@ export async function transportClosed(
   // our producer and consumer event handlers will take care of
   // calling producerClosed() and consumerClosed() on all the producers
   // and consumers associated with this transport
-  const dataProducers = Object.values(network.dataProducers)
-  dataProducers.forEach((dataProducer) => closeDataProducer(network, dataProducer))
+  const dataProducers = Object.values(getState(DataProducerConsumerState)[network.id].producers)
+  dataProducers.forEach((dataProducer) => dataProducer.producer && closeDataProducer(network, dataProducer.producer))
   const producers = Object.values(network.producers)
   producers.forEach((producer) => producerClosed(network, producer))
   if (transport && typeof transport.close === 'function') {
@@ -366,11 +367,11 @@ export async function handleWebRtcTransportCreate(
         'default',
         'gameservers'
       )
-      const thisGs = (serverResult?.body! as any).items.find(
+      const thisGs = (serverResult?.body as any).items.find(
         (server) => server.metadata.name === instanceServerState.instanceServer.objectMeta.name
       )
 
-      for (let [index, candidate] of iceCandidates.entries()) {
+      for (const [index, candidate] of iceCandidates.entries()) {
         iceCandidates[index].port = thisGs.spec?.ports?.find(
           (portMapping) => portMapping.containerPort === candidate.port
         ).hostPort
@@ -493,7 +494,6 @@ export async function handleProduceData(
     }
     logger.info('Data producer params: %o', options)
     const dataProducer = await transport.produceData(options)
-    network.dataProducers.set(dataProducer.id, dataProducer)
 
     logger.info(`User ${userId} producing data on ${label}`)
     if (!network.peers.has(peerID)) {
