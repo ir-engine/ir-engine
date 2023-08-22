@@ -75,7 +75,6 @@ const reactor = () => {
   const sceneState = getState(SceneState)
 
   useEffect(() => {
-    console.log('DEBUG running reactor')
     for (const entity of defineQuery([BehaveGraphComponent])()) {
       setComponent(entity, BehaveGraphComponent, { run: true })
     }

@@ -28,6 +28,7 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { checkProjectAutoUpdate } from '@etherealengine/server-core/src/projects/project/project-helper'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
@@ -50,27 +51,14 @@ db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.ho
 cli.enable('status')
 
 const options = cli.parse({
-  userId: [false, 'ID of user updating project', 'string'],
-  sourceURL: [false, 'Source URL of project to update', 'string'],
-  destinationURL: [false, 'Destination URL of project to update', 'string'],
-  name: [false, 'Name of project', 'string'],
-  needsRebuild: [false, 'Whether the project needs to be rebuilt', 'string'],
-  reset: [false, 'Whether to force reset the project', 'string'],
-  commitSHA: [false, 'Commit SHA to use for project', 'string'],
-  sourceBranch: [false, 'Branch to use for project source', 'string'],
-  updateType: [false, 'Type of updating for project', 'string'],
-  updateSchedule: [false, 'Schedule for auto-updating project', 'string']
+  projectName: [false, 'Name of project to update', 'string']
 })
 
 cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    const { userId, ...data } = options
-    data.reset = data.reset === 'true'
-    data.needsRebuild = data.needsRebuild === true
-    const user = await app.service('user').get(userId)
-    await app.service('project').update(data, null, { user: user, isJob: true })
+    await checkProjectAutoUpdate(app, options.projectName)
     cli.exit(0)
   } catch (err) {
     console.log(err)

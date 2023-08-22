@@ -61,9 +61,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const mediaEntities = useQuery([MediaComponent])
 
-  const mediaOptions = mediaEntities.map((entity) => {
-    return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
-  })
+  const mediaOptions = mediaEntities
+    .filter((entity) => entity !== props.entity)
+    .map((entity) => {
+      return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
+    })
   mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
 
   return (
