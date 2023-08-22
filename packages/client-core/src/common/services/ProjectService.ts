@@ -36,6 +36,7 @@ import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { API } from '../../API'
@@ -284,7 +285,7 @@ export const ProjectService = {
     existingProject: boolean
   }) => {
     try {
-      return API.instance.client.service('project-check-source-destination-match').find({
+      return API.instance.client.service(projectCheckSourceDestinationMatchPath).find({
         query: {
           sourceURL,
           selectedSHA,

@@ -43,7 +43,6 @@ import verifyScope from '../../hooks/verify-scope'
 import { pushProjectToGithub } from './github-helper'
 import {
   checkDestination,
-  checkProjectDestinationMatch,
   checkUnfetchedSourceCommit,
   dockerHubRegex,
   findBuilderTags,
@@ -61,9 +60,6 @@ import createModel from './project.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'project-check-source-destination-match': {
-      find: ReturnType<typeof projectCheckSourceDestinationMatchFind>
-    }
     'project-github-push': {
       patch: ReturnType<typeof projectGithubPushPatch>
     }
@@ -86,10 +82,6 @@ declare module '@etherealengine/common/declarations' {
       get: ReturnType<typeof projectUnfetchedCommitGet>
     }
   }
-}
-
-export const projectCheckSourceDestinationMatchFind = (app: Application) => (params?: ProjectParamsClient) => {
-  return checkProjectDestinationMatch(app, params as ProjectParams)
 }
 
 export const projectGithubPushPatch = (app: Application) => async (id: Id, data: any, params?: UserParams) => {
@@ -199,16 +191,6 @@ export default (app: Application): void => {
   app.service('project-check-unfetched-commit').hooks({
     before: {
       get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
-
-  app.use('project-check-source-destination-match', {
-    find: projectCheckSourceDestinationMatchFind(app)
-  })
-
-  app.service('project-check-source-destination-match').hooks({
-    before: {
-      find: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
     }
   })
 
