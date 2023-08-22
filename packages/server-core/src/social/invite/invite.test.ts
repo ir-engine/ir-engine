@@ -85,7 +85,8 @@ describe.skip('invite service', () => {
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!
+      inviteeId: null!,
+      deleteOnUse: true
     })) as InviteType
     invites.push(item)
 
@@ -107,7 +108,8 @@ describe.skip('invite service', () => {
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!
+      inviteeId: null!,
+      deleteOnUse: true
     })) as InviteType
     invites.push(item)
 
@@ -129,7 +131,8 @@ describe.skip('invite service', () => {
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!
+      inviteeId: null!,
+      deleteOnUse: true
     })) as InviteType
     invites.push(item)
 

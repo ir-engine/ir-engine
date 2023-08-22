@@ -124,7 +124,8 @@ export const inviteQueryProperties = Type.Pick(inviteSchema, [
   'makeAdmin',
   'spawnType',
   'spawnDetails',
-  'timed'
+  'timed',
+  'userId'
 ])
 export const inviteQuerySchema = Type.Intersect(
   [
