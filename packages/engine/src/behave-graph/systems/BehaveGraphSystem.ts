@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Validator, matches } from 'ts-matches'
 
-import { defineAction, defineActionQueue, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -71,15 +71,16 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const engineState = getState(EngineState)
-  const sceneState = getState(SceneState)
-
+  const engineState = useHookstate(getMutableState(EngineState))
+  const sceneState = useHookstate(getMutableState(SceneState))
+  console.log('BehaveGraphSystem reactor')
   useEffect(() => {
-    console.log('DEBUG running reactor')
+    if (!engineState.sceneLoaded.value) return
     for (const entity of defineQuery([BehaveGraphComponent])()) {
+      console.log('UseEffect BG')
       setComponent(entity, BehaveGraphComponent, { run: true })
     }
-  }, [engineState.sceneLoaded, engineState.connectedWorld, sceneState.sceneEntity, sceneState.sceneData])
+  }, [engineState.sceneLoaded, sceneState.sceneData])
   // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed
 
   return null

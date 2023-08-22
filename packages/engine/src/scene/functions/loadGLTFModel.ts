@@ -161,7 +161,6 @@ export const parseGLTFModel = (entity: Entity) => {
     if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
     setComponent(entity, AnimationComponent, {
       mixer: new AnimationMixer(scene),
-      animationSpeed: 1,
       animations: scene.animations
     })
   }
