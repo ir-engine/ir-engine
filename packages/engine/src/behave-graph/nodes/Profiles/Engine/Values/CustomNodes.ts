@@ -47,7 +47,7 @@ export const playVideo = makeFlowNodeDefinition({
     flow: 'flow',
     entity: 'entity',
     mediaPath: 'string',
-    paused: 'boolean',
+    autoplay: 'boolean',
     volume: 'float',
     playMode: (_, graphApi) => {
       const choices = Object.keys(PlayMode).map((key) => ({
@@ -85,13 +85,18 @@ export const playVideo = makeFlowNodeDefinition({
     setComponent(entity, PositionalAudioComponent)
     const media = read<string>('mediaPath')
     resources = media ? [media, ...resources] : resources
-    const paused = read<boolean>('paused')
+    const autoplay = read<boolean>('autoplay')
     volume = MathUtils.clamp(read('volume') ?? volume, 0, 1)
     const videoFit: ContentFitType = read('videoFit')
     const playMode = read<PlayMode>('playMode')
 
     setComponent(entity, VideoComponent, { fit: videoFit }) // play
-    setComponent(entity, MediaComponent, { paused: paused, resources: resources, volume: volume, playMode: playMode! }) // play
+    setComponent(entity, MediaComponent, {
+      autoplay: autoplay,
+      resources: resources,
+      volume: volume,
+      playMode: playMode!
+    }) // play
     commit('flow')
   }
 })
@@ -104,7 +109,7 @@ export const playAudio = makeFlowNodeDefinition({
     flow: 'flow',
     entity: 'entity',
     mediaPath: 'string',
-    paused: 'boolean',
+    autoplay: 'boolean',
     isMusic: 'boolean',
     volume: 'float',
     playMode: (_, graphApi) => {
@@ -131,10 +136,15 @@ export const playAudio = makeFlowNodeDefinition({
     setComponent(entity, PositionalAudioComponent)
     const media = read<string>('mediaPath')
     resources = media ? [media, ...resources] : resources
-    const paused = read<boolean>('paused')
+    const autoplay = read<boolean>('autoplay')
     volume = MathUtils.clamp(read('volume') ?? volume, 0, 1)
     const playMode = read<PlayMode>('playMode')
-    setComponent(entity, MediaComponent, { paused: paused, resources: resources, volume: volume, playMode: playMode! }) // play
+    setComponent(entity, MediaComponent, {
+      autoplay: autoplay,
+      resources: resources,
+      volume: volume,
+      playMode: playMode!
+    }) // play
     const component = getComponent(entity, MediaComponent)
     commit('flow')
   }
