@@ -254,7 +254,7 @@ export const playAnimation = makeFlowNodeDefinition({
     const animation = read<string>('animationName')
     const action = read<string>('action')
     const animationSpeed = read<number>('animationSpeed')
-    setComponent(entity, AnimationComponent, { animationSpeed: animationSpeed })
+    setComponent(entity, LoopAnimationComponent, { animationSpeed: animationSpeed })
 
     if (animation.length > 0) {
       const isAvatar: boolean = read('isAvatar')
@@ -315,7 +315,7 @@ export const setAnimationAction = makeFlowNodeDefinition({
     const zeroSlopeAtStart = read<boolean>('zeroSlopeAtStart')
     const zeroSlopeAtEnd = read<boolean>('zeroSlopeAtEnd')
     const weight = read<number>('weight')
-    setComponent(entity, AnimationComponent, { animationSpeed: animationSpeed })
+    setComponent(entity, LoopAnimationComponent, { animationSpeed: animationSpeed })
     const animAction = getComponent(entity, LoopAnimationComponent).action
     if (animAction) {
       animAction!.blendMode = blendMode
