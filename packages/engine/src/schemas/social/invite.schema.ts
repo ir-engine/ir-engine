@@ -54,7 +54,7 @@ export const inviteSchema = Type.Object(
     }),
     token: Type.Optional(Type.String()),
     identityProviderType: Type.Optional(StringEnum(identityProviderTypes)),
-    passcode: Type.String(),
+    passcode: Type.Optional(Type.String()),
     targetObjectId: Type.Optional(Type.String()),
     deleteOnUse: Type.Boolean(),
     makeAdmin: Type.Optional(Type.Boolean()),
@@ -88,7 +88,7 @@ export const inviteDataSchema = Type.Pick(
   [
     'token',
     'identityProviderType',
-    // 'passcode',
+    'passcode',
     'targetObjectId',
     'deleteOnUse',
     'makeAdmin',
@@ -130,7 +130,12 @@ export const inviteQuerySchema = Type.Intersect(
   [
     querySyntax(inviteQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        type: StringEnum(['received', 'sent'])
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

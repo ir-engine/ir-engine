@@ -31,7 +31,6 @@ import { KnexAdapterParams } from '@feathersjs/knex'
 export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
   user?: UserType
   isInternal?: boolean
-  preventUserRelationshipRemoval?: boolean
 }
 
 /* @deprecated */

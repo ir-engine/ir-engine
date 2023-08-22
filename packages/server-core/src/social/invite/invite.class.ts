@@ -49,12 +49,13 @@ import { Forbidden } from '@feathersjs/errors'
 import { Service } from 'feathers-sequelize'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
-import { InviteDataType } from '../../hooks/send-invite'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InviteParams extends RootParams<InviteQuery> {}
+export interface InviteParams extends RootParams<InviteQuery> {
+  preventUserRelationshipRemoval?: boolean
+}
 
-const afterInviteFind = async (app: Application, result: Paginated<InviteDataType>) => {
+const afterInviteFind = async (app: Application, result: Paginated<InviteType>) => {
   try {
     await Promise.all(
       result.data.map(async (item) => {
@@ -125,7 +126,7 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
         }
       ]
     }
-  })) as Paginated<InviteDataType>
+  })) as Paginated<InviteType>
 
   await Promise.all(
     result.data.map(async (invite) => {
@@ -168,7 +169,7 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
       ...query,
       userId: query.userId
     }
-  })) as Paginated<InviteDataType>
+  })) as Paginated<InviteType>
 
   await Promise.all(
     result.data.map(async (invite) => {
@@ -215,7 +216,7 @@ export const inviteAll = async (inviteService: InviteService, query: Query, user
       // userId: query.userId,
       ...query
     }
-  })) as Paginated<InviteDataType>
+  })) as Paginated<InviteType>
 
   await Promise.all(
     result.data.map(async (invite) => {
@@ -255,7 +256,7 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
     const user = params!.user!
     if (!user.scopes?.find((scope) => scope.type === 'admin:admin')) delete data.makeAdmin
     data.passcode = crypto.randomBytes(8).toString('hex')
-    const result = (await super._create(data)) as InviteDataType
+    const result = (await super._create(data)) as InviteType
     await sendInvite(this.app, result, params!)
     return result
   }
@@ -267,7 +268,7 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
    * @returns invite data
    */
   async find(params?: InviteParams) {
-    let result: Paginated<InviteDataType> = null!
+    let result: Paginated<InviteType> = null!
     if (params && params.query) {
       const query = params.query
       if (query.type === 'received') {
@@ -278,7 +279,7 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
         result = await inviteAll(this, query, params.user!)
       }
     } else {
-      result = (await super._find(params)) as Paginated<InviteDataType>
+      result = (await super._find(params)) as Paginated<InviteType>
     }
     await afterInviteFind(this.app, result)
     return result
@@ -290,8 +291,8 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
       const selfUser = params!.user as UserType
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
-      await this.app.service(userRelationshipPath).remove(relatedUserId, params)
+      await this.app.service(userRelationshipPath).remove(relatedUserId, params as any)
     }
-    return (await super._remove(id)) as InviteDataType
+    return (await super._remove(id)) as InviteType
   }
 }

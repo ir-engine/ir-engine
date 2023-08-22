@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { InviteDataType } from './invite.class'
 
 let invites: any = []
 let user: any = null
@@ -87,7 +86,7 @@ describe.skip('invite service', () => {
       targetObjectId: user.userId,
       identityProviderType,
       inviteeId: null!
-    })) as InviteDataType
+    })) as InviteType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -109,7 +108,7 @@ describe.skip('invite service', () => {
       targetObjectId: user.userId,
       identityProviderType,
       inviteeId: null!
-    })) as InviteDataType
+    })) as InviteType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -131,7 +130,7 @@ describe.skip('invite service', () => {
       targetObjectId: user.userId,
       identityProviderType,
       inviteeId: null!
-    })) as InviteDataType
+    })) as InviteType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
