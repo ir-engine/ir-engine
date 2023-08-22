@@ -193,18 +193,7 @@ export const InviteService = {
 
     try {
       const params = {
-        inviteType: data.inviteType,
-        token: data.token,
-        targetObjectId: data.targetObjectId,
-        identityProviderType: data.identityProviderType,
-        inviteeId: data.inviteeId,
-        makeAdmin: data.makeAdmin,
-        deleteOnUse: data.deleteOnUse,
-        spawnType: data.spawnType,
-        spawnDetails: data.spawnDetails,
-        timed: data.timed,
-        startTime: data.startTime,
-        endTime: data.endTime,
+        ...data,
         existenceCheck: true
       }
 

@@ -50,6 +50,7 @@ import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHoo
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
@@ -179,7 +180,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         const isPhone = PHONE_REGEX.test(target)
         const isEmail = EMAIL_REGEX.test(target)
         const sendData = {
-          inviteType: inviteType,
+          inviteType,
           token: target.length === 8 ? null : target,
           inviteCode: target.length === 8 ? target : null,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
@@ -196,8 +197,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         }
         sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
         if (sendData.timed) {
-          sendData.startTime = startTime.value?.toDate()
-          sendData.endTime = endTime.value?.toDate()
+          sendData.startTime = toDateTimeSql(startTime.value?.toDate())
+          sendData.endTime = toDateTimeSql(endTime.value?.toDate())
         }
         await InviteService.sendInvite(sendData)
         instanceId.set('')
