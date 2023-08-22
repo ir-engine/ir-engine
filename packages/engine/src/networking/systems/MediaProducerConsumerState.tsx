@@ -133,7 +133,7 @@ export const MediaProducerConsumerState = defineState({
   name: 'ee.engine.network.MediaProducerConsumerState',
 
   initial: {} as Record<
-    UserID, // NetworkID
+    string, // NetworkID
     {
       producers: {
         [producerID: string]: {

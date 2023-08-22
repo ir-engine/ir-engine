@@ -103,8 +103,6 @@ export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { a
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
 export type ConsumerExtension = Omit<Consumer, 'appData'> & {
   appData: MediaStreamAppData
-  /** @deprecated - use MediaProducerConsumerState */
-  producerPaused: boolean
 }
 
 let id = 0
@@ -853,8 +851,6 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
     kind: action.kind!,
     appData: { peerID, mediaTag, channelId: channelID }
   })) as unknown as ConsumerExtension
-
-  consumer.producerPaused = paused
 
   // if we do already have a consumer, we shouldn't have called this method
   const existingConsumer = network.consumers.find(

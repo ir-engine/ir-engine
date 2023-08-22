@@ -58,6 +58,7 @@ import { createTransitionState } from '@etherealengine/engine/src/xrui/functions
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { MediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
@@ -227,7 +228,9 @@ const execute = () => {
           (consumer) =>
             consumer.appData.peerID === peer?.peerID && consumer.appData.mediaTag === webcamVideoDataChannelType
         ) as Consumer
-        const paused = consumer && (consumer as any).producerPaused
+        const paused =
+          consumer &&
+          getState(MediaProducerConsumerState)[Engine.instance.mediaNetwork.id].consumers[consumer.id].paused
         if (videoPreviewMesh.material.map) {
           if (!consumer || paused) {
             videoPreviewMesh.material.map = null!
