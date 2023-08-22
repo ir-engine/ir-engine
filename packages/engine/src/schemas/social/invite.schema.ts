@@ -33,7 +33,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const invitePath = 'invite'
 
-export const inviteMethods = ['create', 'find', 'get', 'remove', 'patch'] as const
+export const inviteMethods = ['create', 'find', 'remove'] as const
 
 export const spawnDetailsSchema = Type.Object(
   {
@@ -54,7 +54,7 @@ export const inviteSchema = Type.Object(
     token: Type.Optional(Type.String()),
     identityProviderType: Type.Optional(StringEnum(identityProviderTypes)),
     passcode: Type.String(),
-    targetObjectId: Type.String(),
+    targetObjectId: Type.Optional(Type.String()),
     deleteOnUse: Type.Boolean(),
     makeAdmin: Type.Optional(Type.Boolean()),
     spawnType: Type.Optional(Type.String()),
@@ -64,12 +64,12 @@ export const inviteSchema = Type.Object(
       format: 'uuid'
     }),
     inviteeId: Type.Optional(
-      Type.String({
+      TypedString<UserID>({
         format: 'uuid'
       })
     ),
     inviteType: StringEnum(['friend', 'channel', 'location', 'instance', 'new-user']),
-    user: Type.Ref(userSchema),
+    user: Type.Optional(Type.Ref(userSchema)),
     invitee: Type.Optional(Type.Ref(userSchema)),
     channelName: Type.Optional(Type.String()),
     startTime: Type.Optional(Type.String({ format: 'date-time' })),

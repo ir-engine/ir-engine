@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { inviteMethods, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { InviteType, inviteMethods, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -33,7 +33,7 @@ import {
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import logger from '../../ServerLogger'
-import { InviteDataType, InviteService } from './invite.class'
+import { InviteService } from './invite.class'
 import inviteDocs from './invite.docs'
 import hooks from './invite.hooks'
 
@@ -68,7 +68,7 @@ export default (app: Application): void => {
    * @param data which is parsed to create invite
    * @returns created invite data
    */
-  service.publish('created', async (data: InviteDataType): Promise<any> => {
+  service.publish('created', async (data: InviteType): Promise<any> => {
     try {
       const targetIds = [data.userId]
       if (data.inviteeId) {
@@ -99,7 +99,7 @@ export default (app: Application): void => {
    * @returns deleted channel with invite data
    */
 
-  service.publish('removed', async (data: InviteDataType): Promise<any> => {
+  service.publish('removed', async (data: InviteType): Promise<any> => {
     try {
       const targetIds = [data.userId]
       if (data.inviteeId) {
