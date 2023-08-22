@@ -65,7 +65,7 @@ export const BehaveGraphComponent = defineComponent({
     return {
       domain: component.domain.value,
       graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))),
-      run: component.run.value,
+      run: false,
       disabled: component.disabled.value
     }
   },
@@ -97,9 +97,7 @@ export const BehaveGraphComponent = defineComponent({
         graphRunner.pause()
         if (graphComponent.run.value) graphComponent.run.set(false)
       } else {
-        if (!engineState.isEditor) {
-          graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
-        }
+        graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
       }
     }, [graphComponent.run, graphComponent.disabled])
     const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })
