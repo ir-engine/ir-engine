@@ -32,12 +32,13 @@ import path from 'path'
 import probe from 'probe-image-size'
 import { Readable } from 'stream'
 
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -150,15 +151,16 @@ export const addAssetFromProject = async (
 
   const key = getKeyForAsset(mainURL, project, isFromProject)
 
-  const existingResource = (await app.service('static-resource').Model.findOne({
-    where: {
+  const existingResource = (await app.service(staticResourcePath).find({
+    query: {
       hash,
       project,
-      mimeType
+      mimeType,
+      $limit: 1
     }
-  })) as StaticResourceInterface
+  })) as Paginated<StaticResourceType>
 
-  if (existingResource) return existingResource
+  if (existingResource.data.length > 0) return existingResource.data[0]
 
   const forceDownload = isFromProject ? false : download
 

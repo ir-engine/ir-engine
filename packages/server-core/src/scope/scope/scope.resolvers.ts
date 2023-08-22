@@ -27,25 +27,24 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
+import { ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import {
-  RecordingResourceQuery,
-  RecordingResourceType
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
-  staticResource: virtual(async (recordingResource, context) => {
-    const staticResource = await context.app.service(staticResourcePath).get(recordingResource.staticResourceId)
-    return staticResource
+export const scopeResolver = resolve<ScopeType, HookContext>({})
+
+export const scopeExternalResolver = resolve<ScopeType, HookContext>({
+  user: virtual(async (scope, context) => {
+    if (scope.userId) {
+      const user = await context.app.service(userPath)._get(scope.userId)
+      return user
+    }
   })
 })
 
-export const recordingResourceExternalResolver = resolve<RecordingResourceType, HookContext>({})
-
-export const recordingResourceDataResolver = resolve<RecordingResourceType, HookContext>({
+export const scopeDataResolver = resolve<ScopeType, HookContext>({
   id: async () => {
     return v4()
   },
@@ -53,8 +52,8 @@ export const recordingResourceDataResolver = resolve<RecordingResourceType, Hook
   updatedAt: getDateTimeSql
 })
 
-export const recordingResourcePatchResolver = resolve<RecordingResourceType, HookContext>({
+export const scopePatchResolver = resolve<ScopeType, HookContext>({
   updatedAt: getDateTimeSql
 })
 
-export const recordingResourceQueryResolver = resolve<RecordingResourceQuery, HookContext>({})
+export const scopeQueryResolver = resolve<ScopeQuery, HookContext>({})

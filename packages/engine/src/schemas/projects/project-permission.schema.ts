@@ -24,59 +24,73 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserID, userSchema } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
-export const scopePath = 'scope'
+export const projectPermissionPath = 'project-permission'
 
-export const scopeMethods = ['create', 'find', 'remove'] as const
+export const projectPermissionMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const scopeSchema = Type.Object(
+export const projectPermissionSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
-    type: Type.String(),
+    projectId: Type.String({
+      format: 'uuid'
+    }),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
+    type: Type.String(),
     user: Type.Ref(userSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'Scope', additionalProperties: false }
+  { $id: 'ProjectPermission', additionalProperties: false }
 )
-export type ScopeType = Static<typeof scopeSchema>
+export type ProjectPermissionType = Static<typeof projectPermissionSchema>
 
 // Schema for creating new entries
-export const scopeDataSchema = Type.Pick(scopeSchema, ['type', 'userId'], {
-  $id: 'ScopeData'
-})
-export type ScopeData = Static<typeof scopeDataSchema>
+export const projectPermissionDataProperties = Type.Partial(projectPermissionSchema)
+
+export const projectPermissionDataSchema = Type.Intersect(
+  [projectPermissionDataProperties, Type.Object({ inviteCode: Type.Optional(Type.String()) })],
+  {
+    $id: 'ProjectPermissionData',
+    additionalProperties: false
+  }
+)
+export type ProjectPermissionData = Static<typeof projectPermissionDataSchema>
 
 // Schema for updating existing entries
-export const scopePatchSchema = Type.Partial(scopeSchema, {
-  $id: 'ScopePatch'
+export const projectPermissionPatchSchema = Type.Partial(projectPermissionSchema, {
+  $id: 'ProjectPermissionPatch'
 })
-export type ScopePatch = Static<typeof scopePatchSchema>
+export type ProjectPermissionPatch = Static<typeof projectPermissionPatchSchema>
 
 // Schema for allowed query properties
-export const scopeQueryProperties = Type.Pick(scopeSchema, ['id', 'type', 'userId'])
-export const scopeQuerySchema = Type.Intersect(
+export const projectPermissionQueryProperties = Type.Pick(projectPermissionSchema, [
+  'id',
+  'projectId',
+  'userId',
+  'type'
+])
+export const projectPermissionQuerySchema = Type.Intersect(
   [
-    querySyntax(scopeQueryProperties),
+    querySyntax(projectPermissionQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type ScopeQuery = Static<typeof scopeQuerySchema>
+export type ProjectPermissionQuery = Static<typeof projectPermissionQuerySchema>
 
-export const scopeValidator = getValidator(scopeSchema, dataValidator)
-export const scopeDataValidator = getValidator(scopeDataSchema, dataValidator)
-export const scopePatchValidator = getValidator(scopePatchSchema, dataValidator)
-export const scopeQueryValidator = getValidator(scopeQuerySchema, queryValidator)
+export const projectPermissionValidator = getValidator(projectPermissionSchema, dataValidator)
+export const projectPermissionDataValidator = getValidator(projectPermissionDataSchema, dataValidator)
+export const projectPermissionPatchValidator = getValidator(projectPermissionPatchSchema, dataValidator)
+export const projectPermissionQueryValidator = getValidator(projectPermissionQuerySchema, queryValidator)
