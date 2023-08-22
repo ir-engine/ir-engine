@@ -40,6 +40,8 @@ import { AnimationManager } from '../../../../../avatar/AnimationManager'
 import { AnimationComponent } from '../../../../../avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { CameraActions } from '../../../../../camera/CameraState'
+import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
+import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneServices } from '../../../../../ecs/classes/Scene'
 import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
@@ -341,6 +343,24 @@ export const fadeCamera = makeFlowNodeDefinition({
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     dispatchAction(CameraActions.fadeToBlack({ in: read('toBlack') }))
+    commit('flow')
+  }
+})
+
+export const setCameraZoom = makeFlowNodeDefinition({
+  typeName: 'engine/camera/setCameraZoom',
+  category: NodeCategory.Action,
+  label: 'Set camera zoom',
+  in: {
+    flow: 'flow',
+    zoom: 'float'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const entity = Engine.instance.cameraEntity
+    const zoom = read<number>('zoom')
+    setComponent(entity, FollowCameraComponent, { zoomLevel: zoom })
     commit('flow')
   }
 })
