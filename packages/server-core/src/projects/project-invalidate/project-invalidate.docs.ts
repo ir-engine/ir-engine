@@ -1,5 +1,6 @@
 /*
 CPAL-1.0 License
+
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
@@ -8,44 +9,26 @@ The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
 Exhibit A has been modified to be consistent with Exhibit B.
+
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
+
 The Original Code is Ethereal Engine.
+
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
+
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
-import { Application } from '../../../declarations'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { ProjectsQuery, ProjectsType } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import appRootPath from 'app-root-path'
-import fs from 'fs'
-import path from 'path'
-import { RootParams } from '../../api/root-params'
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectsParams extends RootParams<ProjectsQuery> {}
-
-const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
-
-export class ProjectsService extends KnexAdapter<ProjectsType, ProjectsParams> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Project invalidate service description',
+    securities: ['all']
   }
-
-  /**
-   * returns a list of projects installed by name from their folder names
-   */
-  async find() {
-    return fs
-      .readdirSync(projectsRootFolder)
-      .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
-  }
-}
+})

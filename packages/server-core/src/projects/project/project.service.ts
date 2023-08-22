@@ -24,10 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id } from '@feathersjs/feathers'
-import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
 import _ from 'lodash'
-import path from 'path'
 
 import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
@@ -42,7 +40,6 @@ import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { pushProjectToGithub } from './github-helper'
 import {
   checkDestination,
@@ -61,13 +58,9 @@ import projectDocs from './project.docs'
 import hooks from './project.hooks'
 import createModel from './project.model'
 
-const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'project-invalidate': {
-      patch: ReturnType<typeof projectInvalidatePatch>
-    }
     'project-check-source-destination-match': {
       find: ReturnType<typeof projectCheckSourceDestinationMatchFind>
     }
@@ -94,19 +87,6 @@ declare module '@etherealengine/common/declarations' {
     }
   }
 }
-
-type InvalidateProps = {
-  projectName?: string
-  storageProviderName?: string
-}
-
-export const projectInvalidatePatch =
-  (app: Application) =>
-  async ({ projectName, storageProviderName }: InvalidateProps) => {
-    if (projectName) {
-      return await getStorageProvider(storageProviderName).createInvalidation([`projects/${projectName}*`])
-    }
-  }
 
 export const projectCheckSourceDestinationMatchFind = (app: Application) => (params?: ProjectParamsClient) => {
   return checkProjectDestinationMatch(app, params as ProjectParams)
@@ -211,16 +191,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('project-invalidate', {
-    patch: projectInvalidatePatch(app)
-  })
-
-  app.service('project-invalidate').hooks({
-    before: {
-      patch: [authenticate(), verifyScope('admin', 'admin')]
-    }
-  })
 
   app.use('project-check-unfetched-commit', {
     get: projectUnfetchedCommitGet(app)

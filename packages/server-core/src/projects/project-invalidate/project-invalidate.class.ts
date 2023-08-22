@@ -21,18 +21,18 @@ Ethereal Engine. All Rights Reserved.
 import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 
-import { ProjectsQuery, ProjectsType } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import appRootPath from 'app-root-path'
-import fs from 'fs'
-import path from 'path'
+import {
+  ProjectInvalidatePatch,
+  ProjectInvalidateQuery,
+  ProjectInvalidateType
+} from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { RootParams } from '../../api/root-params'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectsParams extends RootParams<ProjectsQuery> {}
+export interface ProjectInvalidateParams extends RootParams<ProjectInvalidateQuery> {}
 
-const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
-
-export class ProjectsService extends KnexAdapter<ProjectsType, ProjectsParams> {
+export class ProjectInvalidateService extends KnexAdapter<ProjectInvalidateType, ProjectInvalidateParams> {
   app: Application
 
   constructor(options: KnexAdapterOptions, app: Application) {
@@ -40,12 +40,9 @@ export class ProjectsService extends KnexAdapter<ProjectsType, ProjectsParams> {
     this.app = app
   }
 
-  /**
-   * returns a list of projects installed by name from their folder names
-   */
-  async find() {
-    return fs
-      .readdirSync(projectsRootFolder)
-      .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
+  async patch(data: ProjectInvalidatePatch) {
+    if (data.projectName) {
+      return await getStorageProvider(data.storageProviderName).createInvalidation([`projects/${data.projectName}*`])
+    }
   }
 }

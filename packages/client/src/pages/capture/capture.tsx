@@ -40,6 +40,7 @@ import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functi
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
@@ -56,7 +57,7 @@ const startCaptureSystems = () => {
 export const initializeEngineForRecorder = async () => {
   if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  const projects = API.instance.client.service('projects').find()
+  const projects = API.instance.client.service(projectsPath).find()
 
   startCaptureSystems()
   await loadEngineInjection(await projects)

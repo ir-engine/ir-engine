@@ -35,6 +35,8 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -123,7 +125,7 @@ export const ProjectService = {
       .update({ sourceURL, destinationURL, name, reset, commitSHA, sourceBranch, updateType, updateSchedule })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
-    await API.instance.client.service('project-invalidate').patch({ projectName: name })
+    await API.instance.client.service(projectInvalidatePath).patch({ projectName: name })
     await ProjectService.fetchProjects()
   },
 
@@ -136,7 +138,7 @@ export const ProjectService = {
 
   // restricted to admin scope
   checkReloadStatus: async () => {
-    const result = await API.instance.client.service('project-build').find()
+    const result = await API.instance.client.service(projectBuildPath).find()
     logger.info({ result }, 'Check reload projects result')
     dispatchAction(ProjectAction.reloadStatusFetched({ status: result }))
   },
@@ -144,7 +146,7 @@ export const ProjectService = {
   // restricted to admin scope
   invalidateProjectCache: async (projectName: string) => {
     try {
-      await API.instance.client.service('project-invalidate').patch({ projectName })
+      await API.instance.client.service(projectInvalidatePath).patch({ projectName })
       await ProjectService.fetchProjects()
     } catch (err) {
       logger.error(err, 'Error invalidating project cache.')
@@ -206,7 +208,7 @@ export const ProjectService = {
   useAPIListeners: () => {
     useEffect(() => {
       // TODO #7254
-      // API.instance.client.service('project-build').on('patched', (params) => {
+      // API.instance.client.service(projectBuildPath).on('patched', (params) => {
       //   store.dispatch(ProjectAction.buildProgress(params.message))
       // })
 
@@ -299,7 +301,7 @@ export const ProjectService = {
   updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: UpdateProjectInterface[]) => {
     try {
       console.log('projectToUpdate', projectsToUpdate)
-      await API.instance.client.service('project-build').patch(
+      await API.instance.client.service(projectBuildPath).patch(
         tag,
         {
           updateProjects,
