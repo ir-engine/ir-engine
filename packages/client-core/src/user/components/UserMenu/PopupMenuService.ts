@@ -32,7 +32,7 @@ export const PopupMenuState = defineState({
     openMenu: null as string | null,
     params: null as object | null,
     menus: {} as { [id: string]: UserMenuPanelType },
-    hotbar: {} as { [id: string]: any }
+    hotbar: {} as { [id: string]: { icon: React.ReactNode; tooltip: string } }
   })
 })
 
@@ -51,7 +51,7 @@ export const PopupMenuServiceReceptor = (action) => {
         s.hotbar.merge({ [action.id]: none })
       } else {
         if (action.menu) s.menus.merge({ [action.id]: action.menu })
-        if (action.icon) s.hotbar.merge({ [action.id]: action.icon })
+        if (action.icon) s.hotbar.merge({ [action.id]: { icon: action.icon, tooltip: action.tooltip } })
       }
     })
 }
@@ -73,6 +73,7 @@ export class PopupMenuActions {
     type: 'ee.client.PopupMenu.registerPopupMenu',
     id: matches.string,
     menu: matches.any.optional() as Validator<unknown, UserMenuPanelType>,
+    tooltip: matches.string,
     icon: matches.any.optional(),
     unregister: matches.boolean.optional()
   })

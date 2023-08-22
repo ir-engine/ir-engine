@@ -23,37 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'static-resource': {
-      type: 'object',
-      properties: {
-        sid: {
-          type: 'string'
-        },
-        name: {
-          type: 'string'
-        },
-        description: {
-          type: 'string'
-        },
-        url: {
-          type: 'string'
-        },
-        mimeType: {
-          type: 'string'
-        },
-        metadata: {
-          type: 'string'
-        }
-      }
-    },
-    'static-resource_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/static-resource' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  staticResourceDataSchema,
+  staticResourcePatchSchema,
+  staticResourceQuerySchema,
+  staticResourceSchema
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    staticResourceDataSchema,
+    staticResourcePatchSchema,
+    staticResourceQuerySchema,
+    staticResourceSchema
+  },
+  docs: {
+    description: 'Static resource service description',
+    securities: ['all']
   }
-}
+})

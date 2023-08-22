@@ -28,6 +28,7 @@ import assert from 'assert'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Forbidden } from '@feathersjs/errors'
@@ -98,7 +99,7 @@ describe('verify-scope', () => {
       scopes: []
     })
 
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'location:read',
       userId: user.id
     })
@@ -126,7 +127,7 @@ describe('verify-scope', () => {
       scopes: []
     })
 
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'location:read',
       userId: user.id
     })
@@ -162,12 +163,12 @@ describe('verify-scope', () => {
       scopes: []
     })
 
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'location:read',
       userId: user.id
     })
 
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'admin:admin',
       userId: user.id
     })

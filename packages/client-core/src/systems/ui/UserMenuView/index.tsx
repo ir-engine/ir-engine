@@ -70,11 +70,21 @@ const AvatarContextMenu = () => {
   const user = peers ? Array.from(peers).find((peer) => peer.userId === detailState.id.value) || undefined : undefined
   const { t } = useTranslation()
 
-  const isFriend = friendState.relationships.friend.value.find((item) => item.id === user?.userId)
-  const isRequested = friendState.relationships.requested.value.find((item) => item.id === user?.userId)
-  const isPending = friendState.relationships.pending.value.find((item) => item.id === user?.userId)
-  const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.userId)
-  const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.userId)
+  const isFriend = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'friend'
+  )
+  const isRequested = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'requested'
+  )
+  const isPending = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'pending'
+  )
+  const isBlocked = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'blocked'
+  )
+  const isBlocking = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'blocking'
+  )
 
   const handleMute = () => {
     console.log('Mute pressed')

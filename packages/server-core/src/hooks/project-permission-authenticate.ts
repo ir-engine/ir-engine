@@ -29,6 +29,10 @@ import { HookContext, Paginated } from '@feathersjs/feathers'
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 
 import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
@@ -58,12 +62,14 @@ export default (writeAccess) => {
       else throw new BadRequest('Invalid Project name')
     }
     if (!projectId) projectId = params.id || context.id
-    const projectPermissionResult = await (app.service('project-permission') as any).Model.findOne({
-      where: {
+    // @ts-ignore
+    const projectPermissionResult = (await app.service(projectPermissionPath)._find({
+      query: {
         projectId: projectId,
-        userId: loggedInUser.id
+        userId: loggedInUser.id,
+        $limit: 1
       }
-    })
+    })) as Paginated<ProjectPermissionType>
     if (projectPermissionResult == null) {
       const githubIdentityProvider = (await app.service(identityProviderPath).find({
         query: {

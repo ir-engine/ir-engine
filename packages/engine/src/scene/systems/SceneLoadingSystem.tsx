@@ -86,7 +86,11 @@ import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
 
-export const createNewEditorNode = (entityNode: Entity, componentName: string): void => {
+export const createNewEditorNode = (
+  entityNode: Entity,
+  componentName: string,
+  parentEntity = getState(SceneState).sceneEntity as Entity
+): void => {
   const components = [
     { name: ComponentMap.get(componentName)!.jsonID! },
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
@@ -94,7 +98,7 @@ export const createNewEditorNode = (entityNode: Entity, componentName: string): 
   ]
   const name = getUniqueName(entityNode, `New ${startCase(components[0].name.toLowerCase())}`)
 
-  addEntityNodeChild(entityNode, getState(SceneState).sceneEntity)
+  addEntityNodeChild(entityNode, parentEntity)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,

@@ -97,8 +97,6 @@
     }
   },
   "toolbar": {
-    "lbl-advanced": "Advanced",
-    "info-advanced": "Enables advanced editing mode",
     "lbl-publish": "Publish",
     "lbl-published": "Published",
     "command": {
@@ -252,7 +250,8 @@
     "loopAnimation": {
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
-      "lbl-loopAnimation": "Loop Animation"
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-playbackSpeed": "Playback Speed"
     },
     "variant": {
       "name": "Variant",

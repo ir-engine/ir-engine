@@ -51,7 +51,7 @@ export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStre
 export const initializeNetwork = async (app: Application, id: string, hostId: UserID, topic: Topic) => {
   const { workers, routers } = await startWebRTC()
 
-  const outgoingDataTransport = await routers.instance[0].createDirectTransport()
+  const outgoingDataTransport = await routers[0].createDirectTransport()
   logger.info('Server transport initialized.')
 
   const transport = {

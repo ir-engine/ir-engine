@@ -38,12 +38,16 @@ import {
   LocationInterface,
   LocationSettingsInterface,
   LocationTypeInterface,
+  ProjectPermissionInterface,
   UserApiKeyInterface,
   UserInterface,
   UserKick,
+  UserRelationshipInterface,
+  UserRelationshipTypeInterface,
   UserSetting
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
+import { ProjectPermissionTypeData } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 import { Application } from '../declarations'
 import { createInstanceAuthorizedUserModel } from './networking/instance/instance.model'
 
@@ -94,9 +98,9 @@ export const createUserModel = (app: Application) => {
     ;(User as any).hasOne(createUserSettingModel(app))
     ;(User as any).belongsToMany(createUserModel(app), {
       as: 'relatedUser',
-      through: models.user_relationship
+      through: createUserRelationshipModel(app)
     })
-    ;(User as any).hasMany(models.user_relationship, { onDelete: 'cascade' })
+    ;(User as any).hasMany(createUserRelationshipModel(app), { onDelete: 'cascade' })
     ;(User as any).hasMany(createIdentityProviderModel(app), { onDelete: 'cascade' })
     ;(User as any).hasMany(models.channel)
     ;(User as any).belongsToMany(createLocationModel(app), { through: 'location-admin' })
@@ -604,4 +608,138 @@ export const createIdentityProviderModel = (app: Application) => {
   }
 
   return identityProvider
+}
+
+const createUserRelationshipTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const userRelationshipType = sequelizeClient.define<Model<UserRelationshipTypeInterface>>(
+    'user-relationship-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        },
+        beforeUpdate(instance: any, options: any): void {
+          throw new Error("Can't update a type!")
+        }
+      },
+      timestamps: false
+    }
+  )
+
+  ;(userRelationshipType as any).associate = (models: any): void => {
+    ;(userRelationshipType as any).hasMany(createUserRelationshipModel(app), { foreignKey: 'userRelationshipType' })
+  }
+
+  return userRelationshipType
+}
+
+export const createUserRelationshipModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const userRelationship = sequelizeClient.define<Model<UserRelationshipInterface>>(
+    'user-relationship',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    } as any,
+    {
+      hooks: {
+        beforeCount(options: any): any {
+          options.raw = true
+        }
+      },
+      indexes: [
+        {
+          unique: true,
+          fields: ['id']
+        }
+      ]
+    }
+  )
+
+  ;(userRelationship as any).associate = (models: any): void => {
+    ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'user', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'relatedUser', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserRelationshipTypeModel(app), { foreignKey: 'userRelationshipType' })
+  }
+
+  return userRelationship
+}
+
+export const createProjectPermissionModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const ProjectPermission = sequelizeClient.define<Model<ProjectPermissionInterface>>(
+    'project-permission',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(ProjectPermission as any).associate = (models: any): void => {
+    ;(ProjectPermission as any).belongsTo(createUserModel(app), {
+      foreignKey: 'userId',
+      allowNull: false,
+      onDelete: 'cascade'
+    })
+    ;(ProjectPermission as any).belongsTo(models.project, {
+      foreignKey: 'projectId',
+      allowNull: false,
+      onDelete: 'cascade'
+    })
+    ;(ProjectPermission as any).belongsTo(createProjectPermissionTypeModel(app), { foreignKey: 'type' })
+  }
+
+  return ProjectPermission
+}
+
+export const createProjectPermissionTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const ProjectPermissionType = sequelizeClient.define<Model<ProjectPermissionTypeData>>(
+    'project-permission-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      },
+      timestamps: false
+    }
+  )
+  ;(ProjectPermissionType as any).associate = (models: any): void => {
+    ;(ProjectPermissionType as any).hasMany(createProjectPermissionModel(app), { foreignKey: 'type' })
+  }
+
+  return ProjectPermissionType
 }

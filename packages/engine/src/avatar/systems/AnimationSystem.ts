@@ -46,7 +46,7 @@ const execute = () => {
 
   for (const entity of animationQuery()) {
     const animationComponent = getComponent(entity, AnimationComponent)
-    const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
+    const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
     TransformComponent.dirtyTransforms[entity] = true
   }

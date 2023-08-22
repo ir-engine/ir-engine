@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
@@ -34,9 +33,8 @@ import {
 } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
-import { useHookstate } from '@hookstate/core'
+import { State, useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
-import { useWorldInstance } from '../common/services/LocationInstanceConnectionService'
 import {
   SocketWebRTCClientNetwork,
   createDataConsumer,
@@ -72,24 +70,26 @@ export const consumerData = async (action: typeof DataConsumerActions.consumerCr
   dataConsumer.on('close', () => {
     dataConsumer.close()
   })
+
+  network.dataConsumers.set(action.dataChannel, dataConsumer)
 }
 
-const dataRequestProducerActionQueue = defineActionQueue(DataConsumerActions.consumerCreated.matches)
+const dataConsumerCreatedActionQueue = defineActionQueue(DataConsumerActions.consumerCreated.matches)
 
 const execute = () => {
-  for (const action of dataRequestProducerActionQueue()) {
+  for (const action of dataConsumerCreatedActionQueue()) {
     consumerData(action)
   }
 }
 
 export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
-  const currentLocationInstanceConnection = useWorldInstance()
-  // replace connectedToWorld with nework specific state
-  const connectedToWorld = useHookstate(getMutableState(EngineState).connectedWorld)
+  const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
+  const recvTransport = useHookstate(networkState.recvTransport)
+  const sendTransport = useHookstate(networkState.sendTransport)
 
   useEffect(() => {
-    if (!currentLocationInstanceConnection?.connected?.value || !connectedToWorld.value) return
+    if (!recvTransport.value || !sendTransport.value) return
 
     const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
     createDataProducer(network, dataChannelType)
@@ -98,7 +98,7 @@ export const DataChannel = (props: { networkID: UserID; dataChannelType: DataCha
     return () => {
       // todo - cleanup
     }
-  }, [currentLocationInstanceConnection?.connected, connectedToWorld])
+  }, [recvTransport.value, sendTransport.value])
 
   return null
 }
