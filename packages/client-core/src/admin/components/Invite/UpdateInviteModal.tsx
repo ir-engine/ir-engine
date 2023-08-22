@@ -48,9 +48,10 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { InvitePatch, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -144,7 +145,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         )
       }
     }
-    if (invite.timed || invite.timed === 1) {
+    if (invite.timed) {
       timed.set(true)
       startTime.set(dayjs(invite.startTime))
       endTime.set(dayjs(invite.endTime))
@@ -246,7 +247,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         invitee: undefined,
         user: undefined,
         userId: invite.userId
-      } as any as InviteType
+      } as InvitePatch
       if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
         sendData.spawnType = 'inviteCode'
         sendData.spawnDetails = { inviteCode: userInviteCode.value }
@@ -256,8 +257,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       }
       sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
       if (sendData.timed) {
-        sendData.startTime = startTime.value?.toDate()
-        sendData.endTime = endTime.value?.toDate()
+        sendData.startTime = toDateTimeSql(startTime.value?.toDate())
+        sendData.endTime = toDateTimeSql(endTime.value?.toDate())
       }
       await updateInvite(invite.id, sendData)
       instanceId.set('')

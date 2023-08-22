@@ -38,9 +38,9 @@ export const inviteMethods = ['create', 'find', 'remove'] as const
 
 export const spawnDetailsSchema = Type.Object(
   {
-    inviteCode: Type.String(),
-    spawnPoint: Type.String(),
-    spectate: Type.String()
+    inviteCode: Type.Optional(Type.String()),
+    spawnPoint: Type.Optional(Type.String()),
+    spectate: Type.Optional(Type.String())
   },
   { $id: 'SpawnDetails', additionalProperties: false }
 )

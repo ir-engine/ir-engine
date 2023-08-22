@@ -91,7 +91,7 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
   })) as Paginated<IdentityProviderType>
   const identityProviderTokens = identityProviders.data.map((provider) => provider.token)
 
-  const { $sort, search } = query
+  const { search } = query
 
   if (search) {
     query = {
@@ -123,10 +123,7 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
             $in: identityProviderTokens
           }
         }
-      ],
-      $sort: $sort,
-      $limit: query.$limit,
-      $skip: query.$skip
+      ]
     }
   })) as Paginated<InviteDataType>
 
@@ -146,7 +143,7 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
 }
 
 export const inviteSent = async (inviteService: InviteService, query: Query) => {
-  const { $sort, search } = query
+  const { search } = query
 
   if (search) {
     query = {
@@ -154,12 +151,12 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
       $or: [
         {
           inviteType: {
-            $like: '%' + search.toLowerCase() + '%'
+            $like: '%' + search + '%'
           }
         },
         {
           passcode: {
-            $like: '%' + search.toLowerCase() + '%'
+            $like: '%' + search + '%'
           }
         }
       ]
@@ -169,10 +166,7 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
   const result = (await Service.prototype.find.call(inviteService, {
     query: {
       ...query,
-      userId: query.userId,
-      $sort: $sort,
-      $limit: query.$limit,
-      $skip: query.$skip
+      userId: query.userId
     }
   })) as Paginated<InviteDataType>
 
@@ -195,7 +189,7 @@ export const inviteAll = async (inviteService: InviteService, query: Query, user
   if ((!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) && !query.existenceCheck)
     throw new Forbidden('Must be admin to search invites in this way')
 
-  const { $sort, search } = query
+  const { search } = query
 
   if (search) {
     query = {
@@ -203,12 +197,12 @@ export const inviteAll = async (inviteService: InviteService, query: Query, user
       $or: [
         {
           inviteType: {
-            $like: '%' + search.toLowerCase() + '%'
+            $like: '%' + search + '%'
           }
         },
         {
           passcode: {
-            $like: '%' + search.toLowerCase() + '%'
+            $like: '%' + search + '%'
           }
         }
       ]
@@ -219,10 +213,7 @@ export const inviteAll = async (inviteService: InviteService, query: Query, user
   const result = (await Service.prototype.find.call(inviteService, {
     query: {
       // userId: query.userId,
-      ...query,
-      $sort: $sort || {},
-      $limit: query.$limit || 10,
-      $skip: query.$skip || 0
+      ...query
     }
   })) as Paginated<InviteDataType>
 
