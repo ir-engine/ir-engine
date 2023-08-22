@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
-import { Mesh, MeshBasicMaterial, Object3D, SphereGeometry } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
@@ -44,14 +43,13 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
-import UpdateRawPose from './UpdateRawPose'
-import UpdateSolvedFace from './UpdateSolvedFace'
-import UpdateSolvedHand from './UpdateSolvedHand'
-import UpdateSolvedPose from './UpdateSolvedPose'
+//import UpdateRawPose from './UpdateRawPose'
+//import UpdateSolvedFace from './UpdateSolvedFace'
+//import UpdateSolvedHand from './UpdateSolvedHand'
+//import UpdateSolvedPose from './UpdateSolvedPose'
 
-const debugPoseObjs: Object3D[] = []
-const debugHandObjs: Object3D[] = []
-const debug = true
+import { UpdatePose } from './UpdatePose'
+
 const useSolvers = false
 
 export interface MotionCaptureStream extends Results {
@@ -122,14 +120,18 @@ const execute = () => {
     if (!data) continue
     timeSeriesMocapLastSeen.set(peerID, Date.now())
 
-    if (!data?.poseLandmarks || !data?.za) continue
+    if (!data.za || !data.poseLandmarks) continue
 
     const avatarRig = getComponent(entity, AvatarRigComponent)
-    const avatarTransform = getComponent(entity, TransformComponent)
     if (!avatarRig) continue
 
+    const avatarTransform = getComponent(entity, TransformComponent)
     const avatarHips = avatarRig?.bindRig?.hips?.node
     const bindHipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
+
+    UpdatePose(data.za, bindHipsPos, avatarTransform.rotation)
+
+    /*
 
     if (useSolvers) {
       // Use solvers to update the avatar
@@ -141,31 +143,7 @@ const execute = () => {
       // Use ik targets to update the avatar
       UpdateRawPose(data?.za, data?.poseLandmarks, bindHipsPos.clone(), avatarRig, avatarTransform)
     }
-
-    if (debug) {
-      data.za.forEach((landmark, idx) => {
-        if (debugPoseObjs[idx] === undefined) {
-          const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial())
-          debugPoseObjs.push(mesh)
-          Engine.instance.scene.add(mesh)
-        }
-        debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
-        debugPoseObjs[idx].updateMatrixWorld()
-      })
-      /*
-      if (data.leftHandLandmarks && data.rightHandLandmarks) {
-        ;[...data.leftHandLandmarks, ...data.rightHandLandmarks].forEach((landmark, idx) => {
-          if (debugHandObjs[idx] === undefined) {
-            const mesh = new Mesh(new SphereGeometry(0.0125), new MeshBasicMaterial())
-            debugHandObjs[idx] = mesh
-            Engine?.instance?.scene?.add(mesh)
-          }
-          debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
-          debugPoseObjs[idx].updateMatrixWorld()
-        })
-      }
-      */
-    }
+    */
   }
 }
 

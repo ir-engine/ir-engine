@@ -475,10 +475,10 @@ const execute = () => {
             worldSpaceTargets.hipsTarget.position.copy(ikTransform.position)
             break
           case 'leftAnkle':
-            //worldSpaceTargets.leftFootTarget.position.copy(ikTransform.position)
+            worldSpaceTargets.leftFootTarget.position.copy(ikTransform.position)
             break
           case 'rightAnkle':
-            //worldSpaceTargets.rightFootTarget.position.copy(ikTransform.position)
+            worldSpaceTargets.rightFootTarget.position.copy(ikTransform.position)
             break
         }
       }

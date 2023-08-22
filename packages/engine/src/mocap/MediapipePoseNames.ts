@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 const mediapipePoseNames = [
   'nose',
   'left_eye_inner',
-  'left_eve',
+  'left_eye',
   'left_eye_outer',
   'right_eye_inner',
   'right_eye',
@@ -46,7 +46,7 @@ const mediapipePoseNames = [
   'right_pinky',
   'left_index',
   'right_index',
-  'left thumb',
+  'left_thumb',
   'right_thumb',
   'left_hip',
   'right_hip',

@@ -35,92 +35,70 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAction } from '../xr/XRState'
 import { calcHips } from './solvers/PoseSolver/calcHips'
 
-import { Landmark } from '@mediapipe/holistic'
-import mediapipePoseNames from './MediapipePoseNames'
-
-const indices = {
-  rightEar: mediapipePoseNames.indexOf('right_ear'),
-  leftEar: mediapipePoseNames.indexOf('left_ear'),
-  rightHand: mediapipePoseNames.indexOf('right_wrist'),
-  leftHand: mediapipePoseNames.indexOf('left_wrist'),
-  rightAnkle: mediapipePoseNames.indexOf('right_ankle'),
-  leftAnkle: mediapipePoseNames.indexOf('left_ankle')
-}
-
-const solvedPoses = {
-  head: new Vector3(),
-  hips: new Vector3(),
-  leftHand: new Vector3(),
-  rightHand: new Vector3(),
-  leftAnkle: new Vector3(),
-  rightAnkle: new Vector3()
-}
-
-const rawPoses = {
-  leftHand: {} as Landmark,
-  rightHand: {} as Landmark
-}
+//import landmarks from './MediapipeLandmarks'
+import { Landmark, POSE_LANDMARKS, POSE_LANDMARKS_LEFT, POSE_LANDMARKS_RIGHT } from '@mediapipe/holistic'
 
 const rotationOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
-const UpdateRawPose = (data: Landmark[], pose: Landmark[], bindHips, avatarRig, avatarTransform) => {
-  if (data && pose) {
-    const rightEar = data[indices.rightEar]
-    const leftEar = data[indices.leftEar]
+const UpdateRawPose = (lm3d: Landmark[], lm2d: Landmark[], bindHips, avatarRig, avatarTransform) => {
+  if (!lm3d || !lm2d) return
 
-    const hipsCalc = calcHips(data, pose)
-
-    const world = (hipsCalc.Hips.position as Vector3) || new Vector3(0, 0, 0)
-
-    solvedPoses.hips.copy(world).multiplyScalar(-1).applyQuaternion(avatarTransform.rotation).add(bindHips)
-
-    solvedPoses.head
-      .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
-      .multiplyScalar(-1)
-      .applyQuaternion(avatarTransform.rotation)
-      .add(bindHips)
-
-    for (const key of Object.keys(solvedPoses)) {
-      switch (key) {
-        case 'rightHand':
-        case 'leftHand':
-        case 'leftAnkle':
-        case 'rightAnkle':
-          /*
-          var _a
-          const offscreen =
-          data[indices[key]].y > 0.1 ||
-          ((_a = data[indices[key]].visibility) !== null && _a !== void 0 ? _a : 0) < 0.23 ||
-          0.995 < pose[indices[key]].y
-
-          console.log(offscreen, key)
-        */
-
-          rawPoses[key] = data[indices[key]]
-
-          solvedPoses[key] = new Vector3(rawPoses[key].x, rawPoses[key].y, rawPoses[key].z)
-            .multiplyScalar(-1)
-            .applyQuaternion(rotationOffset)
-            .applyQuaternion(avatarTransform.rotation)
-            .add(world)
-            .add(bindHips)
-            .sub(new Vector3(0, 0, 0.5))
-
-          break
-      }
-
-      const entityUUID = `${Engine?.instance?.userId}_mocap_${key}` as EntityUUID
-      const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
-      // if (ikTarget) removeEntity(ikTarget)
-
-      if (!ikTarget) {
-        dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: key }))
-      }
-
-      const ikTransform = getComponent(ikTarget, TransformComponent)
-      ikTransform.position.copy(solvedPoses[key])
+  const targetSet = (key: string, xyz: Vector3) => {
+    const entityUUID = `${Engine?.instance?.userId}_mocap_${key}` as EntityUUID
+    const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
+    if (!ikTarget) {
+      dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: key }))
     }
+    const ikTransform = getComponent(ikTarget, TransformComponent)
+    ikTransform.position.copy(xyz)
   }
+
+  const landmarkToPose = (landmark3d) => {
+    /*
+    var _a
+    const offscreen =
+    data[indices[key]].y > 0.1 ||
+    ((_a = data[indices[key]].visibility) !== null && _a !== void 0 ? _a : 0) < 0.23 ||
+    0.995 < pose[indices[key]].y
+
+    console.log(offscreen, key)
+    */
+
+    const xyz = new Vector3(landmark3d.x, landmark3d.y, landmark3d.z)
+      .multiplyScalar(-1)
+      .applyQuaternion(rotationOffset)
+      .applyQuaternion(avatarTransform.rotation)
+      .add(world)
+      .add(bindHips)
+      .sub(new Vector3(0, 0, 0.5))
+
+    return xyz
+  }
+
+  // calculate hip ik target
+  const hips = calcHips(lm3d, lm2d)
+  const world = (hips.Hips.position as Vector3) || new Vector3(0, 0, 0)
+  targetSet(
+    'hips',
+    new Vector3().copy(world).multiplyScalar(-1).applyQuaternion(avatarTransform.rotation).add(bindHips)
+  )
+
+  // calculate head ik target
+  const leftEar = lm3d[POSE_LANDMARKS.LEFT_EAR]
+  const rightEar = lm3d[POSE_LANDMARKS.RIGHT_EAR]
+  const head = new Vector3()
+    .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
+    .multiplyScalar(-1)
+    .applyQuaternion(avatarTransform.rotation)
+    .add(bindHips)
+
+  targetSet('head', head)
+
+  // set these extremities as ik targets - and don't set knees or elbows at all for now
+  targetSet('leftHand', landmarkToPose(lm3d[POSE_LANDMARKS_LEFT.LEFT_WRIST]))
+  targetSet('rightHand', landmarkToPose(lm3d[POSE_LANDMARKS_RIGHT.RIGHT_WRIST]))
+  targetSet('leftAnkle', landmarkToPose(lm3d[POSE_LANDMARKS_LEFT.LEFT_ANKLE]))
+  targetSet('rightAnkle', landmarkToPose(lm3d[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE]))
 }
 
 export default UpdateRawPose
