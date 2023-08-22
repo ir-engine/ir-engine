@@ -82,19 +82,19 @@ export const setIkFootTarget = (stepThreshold: number) => {
     if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold * 0.5) {
       nextStep[key].position
         .copy(footOffset)
-        .sub(walkDirection.normalize().multiplyScalar(stepThreshold * stepThreshold))
+        .sub(walkDirection.normalize().multiplyScalar(stepThreshold * stepThreshold * 1.5))
 
       nextStep[key].rotation.identity().setFromUnitVectors(V_010, walkDirection.normalize())
     }
 
     //if we're at the target, switch to the other foot
-    if (ikDistanceSqFromWalkTarget < 0.01) {
+    if (ikDistanceSqFromWalkTarget < 0.05) {
       currentStep = key == ikTargets.leftFoot ? ikTargets.rightFoot : ikTargets.leftFoot
       continue
     }
 
     //interpolate foot to next step position
-    ikTransform.position.lerp(nextStep[key].position, getState(EngineState).deltaSeconds * (3 + playerSpeed))
+    ikTransform.position.lerp(nextStep[key].position, getState(EngineState).deltaSeconds * (2 + playerSpeed))
     ikTransform.rotation.slerp(playerTransform.rotation, getState(EngineState).deltaSeconds * (1 + playerSpeed))
   }
 
