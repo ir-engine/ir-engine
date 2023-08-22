@@ -47,7 +47,7 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -186,7 +186,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           targetObjectId: instanceId.value || locationId.value || null,
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
-        } as InviteType
+        } as InviteData
         if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
           sendData.spawnDetails = { inviteCode: userInviteCode.value }

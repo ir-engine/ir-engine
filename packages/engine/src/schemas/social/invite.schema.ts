@@ -30,18 +30,17 @@ import { TypedString } from '../../common/types/TypeboxUtils'
 import { identityProviderTypes } from '../user/identity-provider.schema'
 import { UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
+import { inviteTypes } from './invite-type.schema'
 
 export const invitePath = 'invite'
 
 export const inviteMethods = ['create', 'find', 'remove'] as const
 
-export const inviteTypes = ['friend', 'channel', 'location', 'instance', 'new-user']
-
 export const spawnDetailsSchema = Type.Object(
   {
-    inviteCode: Type.Optional(Type.String()),
-    spawnPoint: Type.Optional(Type.String()),
-    spectate: Type.Optional(Type.String())
+    inviteCode: Type.String(),
+    spawnPoint: Type.String(),
+    spectate: Type.String()
   },
   { $id: 'SpawnDetails', additionalProperties: false }
 )
