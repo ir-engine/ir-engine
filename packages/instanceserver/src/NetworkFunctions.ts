@@ -48,7 +48,6 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
@@ -217,8 +216,9 @@ export const handleConnectingPeer = (
     media: {} as any,
     consumerLayers: {},
     stats: {},
-    incomingDataConsumers: new Map<DataChannelType, any>(),
-    outgoingDataConsumers: new Map<DataChannelType, any>()
+    incomingDataConsumers: new Map(),
+    outgoingDataConsumers: new Map(),
+    dataProducers: new Map()
   })
 
   if (!network.users.has(userId)) {

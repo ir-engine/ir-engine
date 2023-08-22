@@ -48,12 +48,12 @@ const toArrayBuffer = (buf) => {
 
 export const IncomingNetworkState = defineState({
   name: 'ee.core.network.IncomingNetworkState',
-  initial: {
+  initial: () => ({
     jitterBufferTaskList: [] as JitterBufferEntry[],
     jitterBufferDelay: 100,
     incomingMessageQueueUnreliableIDs: new RingBuffer<PeerID>(100),
     incomingMessageQueueUnreliable: new RingBuffer<any>(100)
-  }
+  })
 })
 
 export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
