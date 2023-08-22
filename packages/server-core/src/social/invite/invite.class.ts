@@ -23,31 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Forbidden } from '@feathersjs/errors'
-import { Paginated, Query } from '@feathersjs/feathers'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Id, Paginated, Query } from '@feathersjs/feathers'
 import crypto from 'crypto'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import Sequelize, { Op } from 'sequelize'
+import { Application } from '../../../declarations'
+import { sendInvite } from '../../hooks/send-invite'
 
-import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
+import { Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
+
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import {
+  InviteData,
+  InvitePatch,
+  InviteQuery,
+  InviteType
+} from '@etherealengine/engine/src/schemas/social/invite.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Application } from '../../../declarations'
+import { Forbidden } from '@feathersjs/errors'
+import { Service } from 'feathers-sequelize'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../api/root-params'
-import { sendInvite } from '../../hooks/send-invite'
+import { RootParams } from '../../api/root-params'
+import { InviteDataType } from '../../hooks/send-invite'
 
-interface InviteRemoveParams extends UserParams {
-  preventUserRelationshipRemoval?: boolean
-}
-
-export type InviteDataType = InviteType
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InviteParams extends RootParams<InviteQuery> {}
 
 const afterInviteFind = async (app: Application, result: Paginated<InviteDataType>) => {
   try {
@@ -78,7 +83,7 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
   }
 }
 
-export const inviteReceived = async (inviteService: Invite, query) => {
+export const inviteReceived = async (inviteService: InviteService, query) => {
   const identityProviders = (await inviteService.app.service(identityProviderPath).find({
     query: {
       userId: query.userId
@@ -88,23 +93,27 @@ export const inviteReceived = async (inviteService: Invite, query) => {
 
   const { $sort, search } = query
 
-  let q = {} as any
-
   if (search) {
-    q = {
-      [Op.or]: [
-        Sequelize.where(Sequelize.fn('lower', Sequelize.col('inviteType')), {
-          [Op.like]: '%' + search.toLowerCase() + '%'
-        }),
-        Sequelize.where(Sequelize.fn('lower', Sequelize.col('passcode')), {
-          [Op.like]: '%' + search.toLowerCase() + '%'
-        })
+    query = {
+      ...query,
+      $or: [
+        {
+          inviteType: {
+            $like: '%' + search.toLowerCase() + '%'
+          }
+        },
+        {
+          passcode: {
+            $like: '%' + search.toLowerCase() + '%'
+          }
+        }
       ]
     }
   }
 
   const result = (await Service.prototype.find.call(inviteService, {
     query: {
+      ...query,
       $or: [
         {
           inviteeId: query.userId
@@ -115,7 +124,6 @@ export const inviteReceived = async (inviteService: Invite, query) => {
           }
         }
       ],
-      ...q,
       $sort: $sort,
       $limit: query.$limit,
       $skip: query.$skip
@@ -137,26 +145,31 @@ export const inviteReceived = async (inviteService: Invite, query) => {
   return result
 }
 
-export const inviteSent = async (inviteService: Invite, query: Query) => {
+export const inviteSent = async (inviteService: InviteService, query: Query) => {
   const { $sort, search } = query
-  let q = {}
 
   if (search) {
-    q = {
-      [Op.or]: [
-        Sequelize.where(Sequelize.fn('lower', Sequelize.col('inviteType')), {
-          [Op.like]: '%' + search.toLowerCase() + '%'
-        }),
-        Sequelize.where(Sequelize.fn('lower', Sequelize.col('passcode')), {
-          [Op.like]: '%' + search.toLowerCase() + '%'
-        })
+    query = {
+      ...query,
+      $or: [
+        {
+          inviteType: {
+            $like: '%' + search.toLowerCase() + '%'
+          }
+        },
+        {
+          passcode: {
+            $like: '%' + search.toLowerCase() + '%'
+          }
+        }
       ]
     }
   }
+
   const result = (await Service.prototype.find.call(inviteService, {
     query: {
+      ...query,
       userId: query.userId,
-      ...q,
       $sort: $sort,
       $limit: query.$limit,
       $skip: query.$skip
@@ -178,22 +191,26 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
   return result
 }
 
-export const inviteAll = async (inviteService: Invite, query: Query, user: UserType) => {
+export const inviteAll = async (inviteService: InviteService, query: Query, user: UserType) => {
   if ((!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) && !query.existenceCheck)
     throw new Forbidden('Must be admin to search invites in this way')
 
   const { $sort, search } = query
-  let q = {}
 
   if (search) {
-    q = {
-      [Op.or]: [
-        Sequelize.where(Sequelize.fn('lower', Sequelize.col('inviteType')), {
-          [Op.like]: '%' + search.toLowerCase() + '%'
-        }),
-        Sequelize.where(Sequelize.fn('lower', Sequelize.col('passcode')), {
-          [Op.like]: '%' + search.toLowerCase() + '%'
-        })
+    query = {
+      ...query,
+      $or: [
+        {
+          inviteType: {
+            $like: '%' + search.toLowerCase() + '%'
+          }
+        },
+        {
+          passcode: {
+            $like: '%' + search.toLowerCase() + '%'
+          }
+        }
       ]
     }
   }
@@ -203,7 +220,6 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserT
     query: {
       // userId: query.userId,
       ...query,
-      ...q,
       $sort: $sort || {},
       $limit: query.$limit || 10,
       $skip: query.$skip || 0
@@ -230,20 +246,25 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserT
 /**
  * A class for Invite service
  */
-export class Invite extends Service<InviteDataType> {
-  app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+export class InviteService<T = InviteType, ServiceParams extends Params = InviteParams> extends KnexAdapter<
+  InviteType,
+  InviteData,
+  InviteParams,
+  InvitePatch
+> {
+  app: Application
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async create(data: any, params?: UserParams): Promise<InviteDataType | InviteDataType[]> {
+  async create(data: InviteData, params?: InviteParams) {
     const user = params!.user!
     if (!user.scopes?.find((scope) => scope.type === 'admin:admin')) delete data.makeAdmin
     data.passcode = crypto.randomBytes(8).toString('hex')
-    const result = (await super.create(data)) as InviteDataType
+    const result = (await super._create(data)) as InviteDataType
     await sendInvite(this.app, result, params!)
     return result
   }
@@ -254,7 +275,7 @@ export class Invite extends Service<InviteDataType> {
    * @param params of query with type and userId
    * @returns invite data
    */
-  async find(params?: UserParams): Promise<InviteDataType[] | Paginated<InviteDataType>> {
+  async find(params?: InviteParams) {
     let result: Paginated<InviteDataType> = null!
     if (params && params.query) {
       const query = params.query
@@ -266,20 +287,20 @@ export class Invite extends Service<InviteDataType> {
         result = await inviteAll(this, query, params.user!)
       }
     } else {
-      result = (await super.find(params)) as Paginated<InviteDataType>
+      result = (await super._find(params)) as Paginated<InviteDataType>
     }
     await afterInviteFind(this.app, result)
     return result
   }
 
-  async remove(id: string, params?: InviteRemoveParams): Promise<InviteDataType[] | InviteDataType> {
-    if (!id) return super.remove(id, params)
-    const invite = await this.app.service('invite').get(id)
+  async remove(id: Id, params?: InviteParams) {
+    if (!id) return super._remove(id, params)
+    const invite = await super._get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
       const selfUser = params!.user as UserType
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
       await this.app.service(userRelationshipPath).remove(relatedUserId, params)
     }
-    return (await super.remove(id)) as InviteDataType
+    return (await super._remove(id)) as InviteDataType
   }
 }

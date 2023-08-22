@@ -27,7 +27,6 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
-import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
   IdentityProviderType,
@@ -35,8 +34,9 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import logger from '../ServerLogger'
@@ -170,7 +170,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
               }
             ],
             userId: result.userId,
-            relatedUserId: result.inviteeId
+            relatedUserId: result.inviteeId as UserID
           }
         })
         if (existingRelationshipStatus.total === 0) {
@@ -178,7 +178,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
             {
               userRelationshipType: 'requested',
               userId: result.userId,
-              relatedUserId: result.inviteeId
+              relatedUserId: result.inviteeId as UserID
             },
             {}
           )
@@ -187,7 +187,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
 
       const emailIdentityProviderResult = (await app.service(identityProviderPath).find({
         query: {
-          userId: result.inviteeId,
+          userId: result.inviteeId as UserID,
           type: 'email'
         }
       })) as Paginated<IdentityProviderType>
@@ -204,7 +204,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
       } else {
         const SMSIdentityProviderResult = (await app.service(identityProviderPath).find({
           query: {
-            userId: result.inviteeId,
+            userId: result.inviteeId as UserID,
             type: 'sms'
           }
         })) as Paginated<IdentityProviderType>

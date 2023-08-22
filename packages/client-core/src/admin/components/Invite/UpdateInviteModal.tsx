@@ -31,7 +31,6 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { InviteInterface } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -49,6 +48,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Id } from '@feathersjs/feathers'
@@ -60,7 +60,7 @@ import styles from '../../styles/admin.module.scss'
 interface Props {
   open: boolean
   onClose: () => void
-  invite: InviteInterface
+  invite: InviteType
 }
 
 const INVITE_TYPE_TAB_MAP = {
@@ -97,7 +97,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-  const updateInvite = useMutation('invite').update
+  const updateInvite = useMutation(invitePath).update
 
   useEffect(() => {
     inviteTypeTab.set(
@@ -246,7 +246,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         invitee: undefined,
         user: undefined,
         userId: invite.userId
-      } as InviteInterface
+      } as any as InviteType
       if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
         sendData.spawnType = 'inviteCode'
         sendData.spawnDetails = { inviteCode: userInviteCode.value }

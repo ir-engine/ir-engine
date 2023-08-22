@@ -34,10 +34,10 @@ import {
 } from '@etherealengine/common/src/constants/IdConstants'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Invite, SendInvite } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { InviteData, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -48,13 +48,13 @@ export const InviteState = defineState({
   name: 'InviteState',
   initial: () => ({
     receivedInvites: {
-      invites: [] as Array<Invite>,
+      invites: [] as Array<InviteType>,
       skip: 0,
       limit: 100,
       total: 0
     },
     sentInvites: {
-      invites: [] as Array<Invite>,
+      invites: [] as Array<InviteType>,
       skip: 0,
       limit: 100,
       total: 0
@@ -132,7 +132,7 @@ export const InviteServiceReceptor = (action) => {
 
 //Service
 export const InviteService = {
-  sendInvite: async (data: SendInvite) => {
+  sendInvite: async (data: InviteData) => {
     if (data.identityProviderType === 'email') {
       if (!data.token || !EMAIL_REGEX.test(data.token)) {
         NotificationService.dispatchNotify(`Invalid email address: ${data.token}`, { variant: 'error' })
@@ -152,20 +152,24 @@ export const InviteService = {
       return
     }
 
-    if (data.inviteCode != null) {
-      if (!INVITE_CODE_REGEX.test(data.inviteCode)) {
-        NotificationService.dispatchNotify(`Invalid Invite Code: ${data.inviteCode}`, { variant: 'error' })
+    if (data.spawnDetails?.inviteCode != null) {
+      if (!INVITE_CODE_REGEX.test(data.spawnDetails?.inviteCode)) {
+        NotificationService.dispatchNotify(`Invalid Invite Code: ${data.spawnDetails?.inviteCode}`, {
+          variant: 'error'
+        })
         return
       } else {
         try {
           const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
             query: {
-              inviteCode: data.inviteCode
+              inviteCode: data.spawnDetails?.inviteCode
             }
           })
 
           if (inviteCodeLookups.length === 0) {
-            NotificationService.dispatchNotify(`No user has the invite code ${data.inviteCode}`, { variant: 'error' })
+            NotificationService.dispatchNotify(`No user has the invite code ${data.spawnDetails?.inviteCode}`, {
+              variant: 'error'
+            })
             return
           }
           data.inviteeId = inviteCodeLookups[0].id
@@ -204,12 +208,12 @@ export const InviteService = {
         existenceCheck: true
       }
 
-      const existingInviteResult = (await Engine.instance.api.service('invite').find({
+      const existingInviteResult = (await Engine.instance.api.service(invitePath).find({
         query: params
-      })) as Paginated<Invite>
+      })) as Paginated<InviteType>
 
       let inviteResult
-      if (existingInviteResult.total === 0) inviteResult = await Engine.instance.api.service('invite').create(params)
+      if (existingInviteResult.total === 0) inviteResult = await Engine.instance.api.service(invitePath).create(params)
 
       NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
       dispatchAction(
@@ -244,7 +248,7 @@ export const InviteService = {
     }
 
     try {
-      const inviteResult = (await Engine.instance.api.service('invite').find({
+      const inviteResult = (await Engine.instance.api.service(invitePath).find({
         query: {
           $sort: sortData,
           type: 'received',
@@ -252,7 +256,7 @@ export const InviteService = {
           $limit: limit,
           search: search
         }
-      })) as Paginated<Invite>
+      })) as Paginated<InviteType>
       dispatchAction(
         InviteAction.retrievedReceivedInvites({
           invites: inviteResult.data,
@@ -287,7 +291,7 @@ export const InviteService = {
       }
     }
     try {
-      const inviteResult = (await Engine.instance.api.service('invite').find({
+      const inviteResult = (await Engine.instance.api.service(invitePath).find({
         query: {
           $sort: sortData,
           type: 'sent',
@@ -295,7 +299,7 @@ export const InviteService = {
           $limit: limit,
           search: search
         }
-      })) as Paginated<Invite>
+      })) as Paginated<InviteType>
       dispatchAction(
         InviteAction.retrievedSentInvites({
           invites: inviteResult.data,
@@ -310,13 +314,13 @@ export const InviteService = {
   },
   removeInvite: async (inviteId: string) => {
     try {
-      await Engine.instance.api.service('invite').remove(inviteId)
+      await Engine.instance.api.service(invitePath).remove(inviteId)
       dispatchAction(InviteAction.removedSentInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  acceptInvite: async (invite: Invite) => {
+  acceptInvite: async (invite: InviteType) => {
     try {
       await Engine.instance.api.service('a-i').get(invite.id, {
         query: {
@@ -328,9 +332,9 @@ export const InviteService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  declineInvite: async (invite: Invite) => {
+  declineInvite: async (invite: InviteType) => {
     try {
-      await Engine.instance.api.service('invite').remove(invite.id)
+      await Engine.instance.api.service(invitePath).remove(invite.id)
       dispatchAction(InviteAction.declinedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -361,12 +365,12 @@ export const InviteService = {
         }
       }
 
-      Engine.instance.api.service('invite').on('created', inviteCreatedListener)
-      Engine.instance.api.service('invite').on('removed', inviteRemovedListener)
+      Engine.instance.api.service(invitePath).on('created', inviteCreatedListener)
+      Engine.instance.api.service(invitePath).on('removed', inviteRemovedListener)
 
       return () => {
-        Engine.instance.api.service('invite').off('created', inviteCreatedListener)
-        Engine.instance.api.service('invite').off('removed', inviteRemovedListener)
+        Engine.instance.api.service(invitePath).off('created', inviteCreatedListener)
+        Engine.instance.api.service(invitePath).off('removed', inviteRemovedListener)
       }
     }, [])
   }
@@ -381,7 +385,7 @@ export class InviteAction {
 
   static retrievedSentInvites = defineAction({
     type: 'ee.client.Invite.SENT_INVITES_RETRIEVED' as const,
-    invites: matches.array as Validator<unknown, Invite[]>,
+    invites: matches.array as Validator<unknown, InviteType[]>,
     total: matches.number,
     limit: matches.number,
     skip: matches.number
@@ -389,7 +393,7 @@ export class InviteAction {
 
   static retrievedReceivedInvites = defineAction({
     type: 'ee.client.Invite.RECEIVED_INVITES_RETRIEVED' as const,
-    invites: matches.array as Validator<unknown, Invite[]>,
+    invites: matches.array as Validator<unknown, InviteType[]>,
     total: matches.number,
     limit: matches.number,
     skip: matches.number

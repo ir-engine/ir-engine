@@ -37,9 +37,9 @@ export const inviteMethods = ['create', 'find', 'get', 'remove', 'patch'] as con
 
 export const spawnDetailsSchema = Type.Object(
   {
-    inviteCode: Type.String(),
-    spawnPoint: Type.String(),
-    spectate: Type.String()
+    inviteCode: Type.Optional(Type.String()),
+    spawnPoint: Type.Optional(Type.String()),
+    spectate: Type.Optional(Type.String())
   },
   { $id: 'SpawnDetails', additionalProperties: false }
 )
@@ -51,25 +51,29 @@ export const inviteSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    token: Type.String(),
-    identityProviderType: StringEnum(identityProviderTypes),
+    token: Type.Optional(Type.String()),
+    identityProviderType: Type.Optional(StringEnum(identityProviderTypes)),
     passcode: Type.String(),
     targetObjectId: Type.String(),
     deleteOnUse: Type.Boolean(),
-    makeAdmin: Type.Boolean(),
-    spawnType: Type.String(),
-    spawnDetails: Type.Ref(spawnDetailsSchema),
-    timed: Type.Boolean(),
+    makeAdmin: Type.Optional(Type.Boolean()),
+    spawnType: Type.Optional(Type.String()),
+    spawnDetails: Type.Optional(Type.Ref(spawnDetailsSchema)),
+    timed: Type.Optional(Type.Boolean()),
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    inviteeId: Type.String({
-      format: 'uuid'
-    }),
+    inviteeId: Type.Optional(
+      Type.String({
+        format: 'uuid'
+      })
+    ),
     inviteType: StringEnum(['friend', 'channel', 'location', 'instance', 'new-user']),
     user: Type.Ref(userSchema),
-    startTime: Type.String({ format: 'date-time' }),
-    endTime: Type.String({ format: 'date-time' }),
+    invitee: Type.Optional(Type.Ref(userSchema)),
+    channelName: Type.Optional(Type.String()),
+    startTime: Type.Optional(Type.String({ format: 'date-time' })),
+    endTime: Type.Optional(Type.String({ format: 'date-time' })),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -89,7 +93,12 @@ export const inviteDataSchema = Type.Pick(
     'makeAdmin',
     'spawnType',
     'spawnDetails',
-    'timed'
+    'timed',
+    'userId',
+    'inviteeId',
+    'inviteType',
+    'startTime',
+    'endTime'
   ],
   {
     $id: 'InviteData'

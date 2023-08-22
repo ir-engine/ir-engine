@@ -31,7 +31,6 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { SendInvite } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -48,6 +47,7 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -186,7 +186,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           targetObjectId: instanceId.value || locationId.value || null,
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
-        } as SendInvite
+        } as InviteType
         if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
           sendData.spawnDetails = { inviteCode: userInviteCode.value }
