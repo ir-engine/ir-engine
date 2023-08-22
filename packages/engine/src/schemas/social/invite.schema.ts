@@ -133,7 +133,8 @@ export const inviteQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        type: StringEnum(['received', 'sent'])
+        type: Type.Optional(StringEnum(['received', 'sent'])),
+        search: Type.Optional(Type.String())
       },
       { additionalProperties: false }
     )
