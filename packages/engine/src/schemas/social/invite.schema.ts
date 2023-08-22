@@ -35,6 +35,8 @@ export const invitePath = 'invite'
 
 export const inviteMethods = ['create', 'find', 'remove'] as const
 
+export const inviteTypes = ['friend', 'channel', 'location', 'instance', 'new-user']
+
 export const spawnDetailsSchema = Type.Object(
   {
     inviteCode: Type.Optional(Type.String()),
@@ -68,7 +70,7 @@ export const inviteSchema = Type.Object(
         format: 'uuid'
       })
     ),
-    inviteType: StringEnum(['friend', 'channel', 'location', 'instance', 'new-user']),
+    inviteType: StringEnum(inviteTypes),
     user: Type.Optional(Type.Ref(userSchema)),
     invitee: Type.Optional(Type.Ref(userSchema)),
     channelName: Type.Optional(Type.String()),
