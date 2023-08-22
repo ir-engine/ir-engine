@@ -42,6 +42,7 @@ import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
+import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -349,11 +350,13 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       projectVersion: content.version,
       engineVersion: content.etherealEngine?.version,
       commitSHA: commit.data.sha,
+      error: '',
+      text: '',
       datetime: commit.data.commit.committer.date,
       matchesEngineVersion: content.etherealEngine?.version
         ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
         : false
-    }
+    } as ProjectCheckUnfetchedCommitType
   } catch (err) {
     logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
     return Promise.reject(err)

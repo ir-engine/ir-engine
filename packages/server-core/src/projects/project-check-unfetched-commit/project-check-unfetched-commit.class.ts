@@ -20,7 +20,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { ProjectCheckUnfetchedCommitQuery } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import {
+  ProjectCheckUnfetchedCommitQuery,
+  ProjectCheckUnfetchedCommitType
+} from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { RootParams } from '../../api/root-params'
 import { checkUnfetchedSourceCommit } from '../project/project-helper'
@@ -29,7 +32,9 @@ import { ProjectParams, ProjectParamsClient } from '../project/project.class'
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ProjectCheckUnfetchedCommitParams extends RootParams<ProjectCheckUnfetchedCommitQuery> {}
 
-export class ProjectCheckUnfetchedCommitService implements ServiceInterface<any> {
+export class ProjectCheckUnfetchedCommitService
+  implements ServiceInterface<ProjectCheckUnfetchedCommitType, ProjectCheckUnfetchedCommitParams>
+{
   app: Application
 
   constructor(app: Application) {
@@ -37,6 +42,6 @@ export class ProjectCheckUnfetchedCommitService implements ServiceInterface<any>
   }
 
   async get(url: string, params?: ProjectParamsClient) {
-    return checkUnfetchedSourceCommit(this.app, url, params as ProjectParams)
+    return await checkUnfetchedSourceCommit(this.app, url, params as ProjectParams)
   }
 }

@@ -128,7 +128,7 @@ export const ProjectService = {
       .update({ sourceURL, destinationURL, name, reset, commitSHA, sourceBranch, updateType, updateSchedule })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
-    await API.instance.client.service(projectInvalidatePath).patch({ projectName: name })
+    await API.instance.client.service(projectInvalidatePath).patch(null, { projectName: name })
     await ProjectService.fetchProjects()
   },
 
@@ -149,7 +149,7 @@ export const ProjectService = {
   // restricted to admin scope
   invalidateProjectCache: async (projectName: string) => {
     try {
-      await API.instance.client.service(projectInvalidatePath).patch({ projectName })
+      await API.instance.client.service(projectInvalidatePath).patch(null, { projectName })
       await ProjectService.fetchProjects()
     } catch (err) {
       logger.error(err, 'Error invalidating project cache.')

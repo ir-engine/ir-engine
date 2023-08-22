@@ -38,7 +38,6 @@ import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
-  checkDestination,
   dockerHubRegex,
   findBuilderTags,
   getBranches,
@@ -55,9 +54,6 @@ import createModel from './project.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'project-destination-check': {
-      get: ReturnType<typeof projectDestinationCheckGet>
-    }
     'project-branches': {
       get: ReturnType<typeof projectBranchesGet>
     }
@@ -71,10 +67,6 @@ declare module '@etherealengine/common/declarations' {
       get: ReturnType<typeof builderInfoGet>
     }
   }
-}
-
-export const projectDestinationCheckGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
-  return checkDestination(app, url, params as ProjectParams)
 }
 
 export const projectBranchesGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
@@ -159,16 +151,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('project-destination-check', {
-    get: projectDestinationCheckGet(app)
-  })
-
-  app.service('project-destination-check').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
 
   app.use('project-branches', {
     get: projectBranchesGet(app)

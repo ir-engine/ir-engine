@@ -18,26 +18,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ProjectGithubPushQuery,
-  ProjectGithubPushType
-} from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
+import { ProjectGithubPushPatch } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 import { pushProjectToGithub } from '../project/github-helper'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectGithubPushParams extends RootParams<ProjectGithubPushQuery> {}
-
-export class ProjectGithubPushService implements ServiceInterface<ProjectGithubPushType, ProjectGithubPushParams> {
+export class ProjectGithubPushService implements ServiceInterface<ProjectGithubPushPatch> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async patch(id: NullableId, data: any, params?: ProjectGithubPushParams): Promise<any> {
+  async patch(id: NullableId, data: any, params?: RootParams): Promise<any> {
     const project = await this.app.service('project').Model.findOne({
       where: {
         id

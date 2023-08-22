@@ -23,26 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ProjectBuild from './project-build/project-build'
-import ProjectCheckSourceDestinationMatch from './project-check-source-destination-match/project-check-source-destination-match'
-import ProjectCheckUnfetchedCommit from './project-check-unfetched-commit/project-check-unfetched-commit'
-import ProjectDestinationCheck from './project-destination-check/project-destination-check'
-import ProjectGithubPush from './project-github-push/project-github-push'
-import ProjectInvalidate from './project-invalidate/project-invalidate'
-import ProjectPermission from './project-permission/project-permission'
-import Project from './project/project.service'
-import Projects from './projects/projects'
-import Scene from './scene/scene.service'
+import {
+  projectDestinationCheckMethods,
+  projectDestinationCheckPath
+} from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
+import { Application } from '../../../declarations'
+import { ProjectDestinationCheckService } from './project-destination-check.class'
+import projectDestinationCheckDocs from './project-destination-check.docs'
+import hooks from './project-destination-check.hooks'
 
-export default [
-  Project,
-  Projects,
-  ProjectBuild,
-  ProjectInvalidate,
-  ProjectPermission,
-  ProjectGithubPush,
-  ProjectDestinationCheck,
-  ProjectCheckUnfetchedCommit,
-  ProjectCheckSourceDestinationMatch,
-  Scene
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectDestinationCheckPath]: ProjectDestinationCheckService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(projectDestinationCheckPath, new ProjectDestinationCheckService(app), {
+    // A list of all methods this service exposes externally
+    methods: projectDestinationCheckMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectDestinationCheckDocs
+  })
+
+  const service = app.service(projectDestinationCheckPath)
+  service.hooks(hooks)
+}

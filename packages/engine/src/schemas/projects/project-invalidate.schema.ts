@@ -20,45 +20,24 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
 export const projectInvalidatePath = 'project-invalidate'
 
 export const projectInvalidateMethods = ['patch'] as const
 
-// Main data model schema
-export const projectInvalidateSchema = Type.Object(
+// Schema for updating existing entries
+export const projectInvalidatePatchSchema = Type.Object(
   {
     projectName: Type.Optional(Type.String()),
     storageProviderName: Type.Optional(Type.String())
   },
-  { $id: 'ProjectInvalidate', additionalProperties: false }
+  {
+    $id: 'ProjectInvalidatePatch'
+  }
 )
-export type ProjectInvalidateType = Static<typeof projectInvalidateSchema>
-
-// Schema for allowed query properties
-export const projectInvalidateQueryProperties = Type.Pick(projectInvalidateSchema, [
-  'projectName',
-  'storageProviderName'
-])
-
-// Schema for updating existing entries
-export const projectInvalidatePatchSchema = Type.Partial(projectInvalidateSchema, {
-  $id: 'ProjectInvalidatePatch'
-})
 
 export type ProjectInvalidatePatch = Static<typeof projectInvalidatePatchSchema>
 
-export const projectInvalidateQuerySchema = Type.Intersect(
-  [
-    querySyntax(projectInvalidateQueryProperties),
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
-)
-export type ProjectInvalidateQuery = Static<typeof projectInvalidateQuerySchema>
-
-export const projectInvalidateValidator = getValidator(projectInvalidateSchema, dataValidator)
-export const projectInvalidateQueryValidator = getValidator(projectInvalidateQuerySchema, queryValidator)
+export const projectInvalidatePatchValidator = getValidator(projectInvalidatePatchSchema, dataValidator)

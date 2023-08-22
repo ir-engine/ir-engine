@@ -37,7 +37,7 @@ export const projectCheckUnfetchedCommitSchema = Type.Object(
     engineVersion: Type.Optional(Type.String()),
     commitSHA: Type.Optional(Type.String()),
     datetime: Type.Optional(Type.String()),
-    matchesEngineVersion: Type.Optional(Type.String())
+    matchesEngineVersion: Type.Optional(Type.Boolean())
   },
   { $id: 'ProjectCheckUnfetchedCommit', additionalProperties: false }
 )

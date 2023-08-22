@@ -18,7 +18,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectGithubPushQueryValidator } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
+import { projectGithubPushPatchValidator } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
 
@@ -27,7 +27,7 @@ import projectPermissionAuthenticate from '../../hooks/project-permission-authen
 import verifyScope from '../../hooks/verify-scope'
 import {
   projectGithubPushExternalResolver,
-  projectGithubPushQueryResolver,
+  projectGithubPushPatchResolver,
   projectGithubPushResolver
 } from './project-github-push.resolvers'
 
@@ -40,15 +40,14 @@ export default {
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(projectGithubPushQueryValidator),
-      schemaHooks.resolveQuery(projectGithubPushQueryResolver)
-    ],
+    all: [],
     find: [],
     get: [],
     create: [],
     update: [],
     patch: [
+      () => schemaHooks.validateData(projectGithubPushPatchValidator),
+      schemaHooks.resolveData(projectGithubPushPatchResolver),
       authenticate(),
       iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate('write'))
     ],

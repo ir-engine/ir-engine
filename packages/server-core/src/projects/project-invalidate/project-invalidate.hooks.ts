@@ -18,35 +18,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectInvalidateQueryValidator } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
 
+import { projectInvalidatePatchValidator } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import verifyScope from '../../hooks/verify-scope'
-import {
-  projectInvalidateExternalResolver,
-  projectInvalidateQueryResolver,
-  projectInvalidateResolver
-} from './project-invalidate.resolvers'
+import { projectInvalidatePatchResolver } from './project-invalidate.resolvers'
 
 export default {
   around: {
-    all: [
-      schemaHooks.resolveExternal(projectInvalidateExternalResolver),
-      schemaHooks.resolveResult(projectInvalidateResolver)
-    ]
+    all: []
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(projectInvalidateQueryValidator),
-      schemaHooks.resolveQuery(projectInvalidateQueryResolver)
-    ],
+    all: [],
     find: [],
     get: [],
     create: [],
     update: [],
-    patch: [authenticate(), verifyScope('admin', 'admin')],
+    patch: [
+      () => schemaHooks.validateData(projectInvalidatePatchValidator),
+      schemaHooks.resolveData(projectInvalidatePatchResolver),
+      authenticate(),
+      authenticate(),
+      verifyScope('admin', 'admin')
+    ],
     remove: []
   },
   after: {

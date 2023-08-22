@@ -24,20 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { ProjectInvalidatePatch } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 import { resolve } from '@feathersjs/schema'
 
-import {
-  ProjectInvalidateQuery,
-  ProjectInvalidateType
-} from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
-export const projectInvalidateResolver = resolve<ProjectInvalidateType, HookContext>({})
-
-export const projectInvalidateExternalResolver = resolve<ProjectInvalidateType, HookContext>({})
-
-export const projectInvalidateDataResolver = resolve<ProjectInvalidateType, HookContext>({})
-
-export const projectInvalidatePatchResolver = resolve<ProjectInvalidateType, HookContext>({})
-
-export const projectInvalidateQueryResolver = resolve<ProjectInvalidateQuery, HookContext>({})
+export const projectInvalidatePatchResolver = resolve<ProjectInvalidatePatch, HookContext>({})

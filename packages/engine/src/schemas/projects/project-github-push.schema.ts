@@ -20,41 +20,18 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
 export const projectGithubPushPath = 'project-github-push'
 
 export const projectGithubPushMethods = ['patch'] as const
 
-// Main data model schema
-export const projectGithubPushSchema = Type.Object(
-  {
-    data: Type.Any()
-  },
-  { $id: 'ProjectGithubPush', additionalProperties: false }
-)
-export type ProjectGithubPushType = Static<typeof projectGithubPushSchema>
-
-// Schema for allowed query properties
-export const projectGithubPushQueryProperties = Type.Pick(projectGithubPushSchema, ['data'])
-
 // Schema for updating existing entries
-export const projectGithubPushPatchSchema = Type.Partial(projectGithubPushSchema, {
+export const projectGithubPushPatchSchema = Type.Partial(Type.Object({ data: Type.Any() }), {
   $id: 'ProjectGithubPushPatch'
 })
 
 export type ProjectGithubPushPatch = Static<typeof projectGithubPushPatchSchema>
 
-export const projectGithubPushQuerySchema = Type.Intersect(
-  [
-    querySyntax(projectGithubPushQueryProperties),
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
-)
-export type ProjectGithubPushQuery = Static<typeof projectGithubPushQuerySchema>
-
-export const projectGithubPushValidator = getValidator(projectGithubPushSchema, dataValidator)
-export const projectGithubPushQueryValidator = getValidator(projectGithubPushQuerySchema, queryValidator)
+export const projectGithubPushPatchValidator = getValidator(projectGithubPushPatchSchema, dataValidator)

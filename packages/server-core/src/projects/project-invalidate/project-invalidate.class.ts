@@ -18,29 +18,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
+import { ProjectInvalidatePatch } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
+import { NullableId, ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
-
-import {
-  ProjectInvalidatePatch,
-  ProjectInvalidateQuery,
-  ProjectInvalidateType
-} from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
-import { RootParams } from '../../api/root-params'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectInvalidateParams extends RootParams<ProjectInvalidateQuery> {}
+//export interface ProjectInvalidateParams extends RootParams<ProjectInvalidateQuery> {}
 
-export class ProjectInvalidateService extends KnexAdapter<ProjectInvalidateType, ProjectInvalidateParams> {
+export class ProjectInvalidateService implements ServiceInterface<ProjectInvalidatePatch> {
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 
-  async patch(data: ProjectInvalidatePatch) {
+  async patch(id: NullableId, data: ProjectInvalidatePatch) {
     if (data.projectName) {
       return await getStorageProvider(data.storageProviderName).createInvalidation([`projects/${data.projectName}*`])
     }
