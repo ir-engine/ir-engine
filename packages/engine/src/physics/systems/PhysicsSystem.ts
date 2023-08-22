@@ -49,23 +49,6 @@ import {
 import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
-export function teleportObject(entity: Entity, position: Vector3, rotation: Quaternion) {
-  const rigidbody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
-  transform.position.copy(position)
-  transform.rotation.copy(rotation)
-  if (rigidbody) {
-    rigidbody.position.copy(transform.position)
-    rigidbody.rotation.copy(transform.rotation)
-    rigidbody.targetKinematicPosition.copy(transform.position)
-    rigidbody.targetKinematicRotation.copy(transform.rotation)
-    rigidbody.body.setTranslation(rigidbody.position, true)
-    rigidbody.body.setRotation(rigidbody.rotation, true)
-    rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
-    rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
-  }
-}
-
 export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, substep: number) {
   const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
   if (rigidbodyComponent.targetKinematicLerpMultiplier === 0) {
