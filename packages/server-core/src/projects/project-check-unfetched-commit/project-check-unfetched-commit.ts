@@ -23,24 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ProjectBuild from './project-build/project-build'
-import ProjectCheckSourceDestinationMatch from './project-check-source-destination-match/project-check-source-destination-match'
-import ProjectCheckUnfetchedCommit from './project-check-unfetched-commit/project-check-unfetched-commit'
-import ProjectGithubPush from './project-github-push/project-github-push'
-import ProjectInvalidate from './project-invalidate/project-invalidate'
-import ProjectPermission from './project-permission/project-permission'
-import Project from './project/project.service'
-import Projects from './projects/projects'
-import Scene from './scene/scene.service'
+import {
+  projectCheckUnfetchedCommitMethods,
+  projectCheckUnfetchedCommitPath
+} from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { Application } from '../../../declarations'
+import { ProjectCheckUnfetchedCommitService } from './project-check-unfetched-commit.class'
+import projectCheckUnfetchedCommitDocs from './project-check-unfetched-commit.docs'
+import hooks from './project-check-unfetched-commit.hooks'
 
-export default [
-  Project,
-  Projects,
-  ProjectBuild,
-  ProjectInvalidate,
-  ProjectPermission,
-  ProjectGithubPush,
-  ProjectCheckUnfetchedCommit,
-  ProjectCheckSourceDestinationMatch,
-  Scene
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectCheckUnfetchedCommitPath]: ProjectCheckUnfetchedCommitService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(projectCheckUnfetchedCommitPath, new ProjectCheckUnfetchedCommitService(app), {
+    // A list of all methods this service exposes externally
+    methods: projectCheckUnfetchedCommitMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectCheckUnfetchedCommitDocs
+  })
+
+  const service = app.service(projectCheckUnfetchedCommitPath)
+  service.hooks(hooks)
+}

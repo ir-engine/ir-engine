@@ -23,24 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ProjectBuild from './project-build/project-build'
-import ProjectCheckSourceDestinationMatch from './project-check-source-destination-match/project-check-source-destination-match'
-import ProjectCheckUnfetchedCommit from './project-check-unfetched-commit/project-check-unfetched-commit'
-import ProjectGithubPush from './project-github-push/project-github-push'
-import ProjectInvalidate from './project-invalidate/project-invalidate'
-import ProjectPermission from './project-permission/project-permission'
-import Project from './project/project.service'
-import Projects from './projects/projects'
-import Scene from './scene/scene.service'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [
-  Project,
-  Projects,
-  ProjectBuild,
-  ProjectInvalidate,
-  ProjectPermission,
-  ProjectGithubPush,
-  ProjectCheckUnfetchedCommit,
-  ProjectCheckSourceDestinationMatch,
-  Scene
-]
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Project check unfetched commit service description',
+    securities: ['all']
+  }
+})

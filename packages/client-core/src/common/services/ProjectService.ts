@@ -37,6 +37,7 @@ import { defineAction, defineState, dispatchAction, getMutableState } from '@eth
 
 import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
+import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
@@ -263,7 +264,7 @@ export const ProjectService = {
 
   checkUnfetchedCommit: async ({ url, selectedSHA }: { url: string; selectedSHA?: string }) => {
     try {
-      return API.instance.client.service('project-check-unfetched-commit').get(url, {
+      return API.instance.client.service(projectCheckUnfetchedCommitPath).get(url, {
         query: {
           selectedSHA
         }

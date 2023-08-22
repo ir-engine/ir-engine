@@ -39,7 +39,6 @@ import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   checkDestination,
-  checkUnfetchedSourceCommit,
   dockerHubRegex,
   findBuilderTags,
   getBranches,
@@ -71,18 +70,11 @@ declare module '@etherealengine/common/declarations' {
     'builder-info': {
       get: ReturnType<typeof builderInfoGet>
     }
-    'project-check-unfetched-commit': {
-      get: ReturnType<typeof projectUnfetchedCommitGet>
-    }
   }
 }
 
 export const projectDestinationCheckGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
   return checkDestination(app, url, params as ProjectParams)
-}
-
-export const projectUnfetchedCommitGet = (app: Application) => (url: string, params?: ProjectParamsClient) => {
-  return checkUnfetchedSourceCommit(app, url, params as ProjectParams)
 }
 
 export const projectBranchesGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
@@ -167,16 +159,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('project-check-unfetched-commit', {
-    get: projectUnfetchedCommitGet(app)
-  })
-
-  app.service('project-check-unfetched-commit').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
 
   app.use('project-destination-check', {
     get: projectDestinationCheckGet(app)
