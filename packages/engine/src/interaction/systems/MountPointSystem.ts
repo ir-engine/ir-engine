@@ -27,7 +27,6 @@ import { Box3, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
-import { AvatarStates } from '../../avatar/animation/Util'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -106,8 +105,8 @@ const execute = () => {
       )
       rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
       addComponent(avatarEntity, SittingComponent, {
-        mountPointEntity: action.targetEntity!,
-        state: AvatarStates.SIT_ENTER
+        mountPointEntity: action.targetEntity!
+        //state: AvatarStates.SIT_ENTER
       })
       const sitting = getComponent(avatarEntity, SittingComponent)
       getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
@@ -115,7 +114,7 @@ const execute = () => {
       const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
 
       // changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
-      sitting.state = AvatarStates.SIT_IDLE
+      //sitting.state = AvatarStates.SIT_IDLE
     }
   }
 
@@ -126,7 +125,7 @@ const execute = () => {
     const sitting = getComponent(entity, SittingComponent)
 
     if (controller.gamepadWorldMovement.lengthSq() > 0.1) {
-      sitting.state = AvatarStates.SIT_LEAVE
+      //sitting.state = AvatarStates.SIT_LEAVE
 
       // changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
 

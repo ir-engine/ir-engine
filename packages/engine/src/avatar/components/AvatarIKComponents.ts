@@ -34,12 +34,6 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
-export const xrTargetHeadSuffix = '_xr_target_head'
-export const xrTargetLeftHandSuffix = '_xr_target_left_hand'
-export const xrTargetRightHandSuffix = '_xr_target_right_hand'
-export const xrTargetLeftAnkleSuffix = '_xr_target_left_ankle'
-export const xrTargetRightAnkleSuffix = '_xr_target_right_ankle'
-
 const EPSILON = 1e-6
 
 export const AvatarHeadDecapComponent = defineComponent({

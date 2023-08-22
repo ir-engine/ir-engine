@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 // - clean up hips, head, shoulders landmarks calc
 // - draw landmarks and draw estimated orientations
 // - are landmarks changing in size??? -> how do we correct for that? do we renormalize?
@@ -14,7 +39,6 @@ import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction } from '../xr/XRState'
 
 import { Landmark, POSE_LANDMARKS } from '@mediapipe/holistic'
 
@@ -67,6 +91,7 @@ strategies[POSE_LANDMARKS.RIGHT_WRIST] = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkState'
 import KalmanFilter from './kalman'
 
 const debug = 1 | 2
@@ -112,7 +137,7 @@ const helper = (part, landmark, position, rotation) => {
     const entityUUID = `${Engine?.instance?.userId}_mocap_${part.key}` as EntityUUID
     const target = UUIDComponent.entitiesByUUID[entityUUID]
     if (!target) {
-      dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: part.key }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: part.key as any }))
     }
     const transform = getComponent(target, TransformComponent)
 
@@ -137,14 +162,15 @@ const helper = (part, landmark, position, rotation) => {
   part.mesh.updateMatrixWorld()
 }
 
-export const UpdatePose = (lm3d: Landmark[], position: Vector3, rotation: Quaternion) => {
+export const UpdatePose = (lm3d: Landmark[], lm2d: Landmark[], position: Vector3, rotation: Quaternion) => {
   // estimate head rotation
   // https://medium.com/@susanne.thierfelder/head-pose-estimation-with-mediapipe-and-opencv-in-javascript-c87980df3acb
   // https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Blendshape%20V2.pdf
   // https://stevehazen.wordpress.com/2010/02/15/matrix-basics-how-to-step-away-from-storing-an-orientation-as-3-angles/
   // https://discourse.threejs.org/t/get-a-triangle-rotation-x-y-z-from-its-vertices/22860/13
 
-  if (strategies[0]) {
+  const OrientHead = false
+  if (OrientHead) {
     const v1 = new Vector3(
       lm3d[POSE_LANDMARKS.LEFT_EAR].x,
       lm3d[POSE_LANDMARKS.LEFT_EAR].y,
@@ -210,9 +236,9 @@ export const UpdatePose = (lm3d: Landmark[], position: Vector3, rotation: Quater
   }
 
   // debugging
-  if (debug & 4) {
+  if (debug & 2) {
     // estimate head position from ears
-    lm3d[0].x = (lm3d[POSEdddddddddw_LANDMARKS.LEFT_EAR].x + lm3d[POSE_LANDMARKS.RIGHT_EAR].x) / 2
+    lm3d[0].x = (lm3d[POSE_LANDMARKS.LEFT_EAR].x + lm3d[POSE_LANDMARKS.RIGHT_EAR].x) / 2
     lm3d[0].y = (lm3d[POSE_LANDMARKS.LEFT_EAR].y + lm3d[POSE_LANDMARKS.RIGHT_EAR].y) / 2
     lm3d[0].z = (lm3d[POSE_LANDMARKS.LEFT_EAR].z + lm3d[POSE_LANDMARKS.RIGHT_EAR].z) / 2
     lm3d[0].visibility =
@@ -234,6 +260,7 @@ export const UpdatePose = (lm3d: Landmark[], position: Vector3, rotation: Quater
 
     const dec = 3
     console.log(
+      /*
       // typically around 0.009 -0.609 -0.157
       ' -- HEAD ',
       lm3d[0].x.toFixed(dec),
@@ -252,6 +279,7 @@ export const UpdatePose = (lm3d: Landmark[], position: Vector3, rotation: Quater
       lm3d[2].y.toFixed(dec),
       lm3d[2].z.toFixed(dec),
       lm3d[2].visibility?.toFixed(dec),
+  */
       /*      // seems to be typically at around 0.155 -0.433 -0.098
       "-- LS ",
       lm3d[11].x.toFixed(dec),
@@ -286,7 +314,17 @@ export const UpdatePose = (lm3d: Landmark[], position: Vector3, rotation: Quater
       lm3d[16].x.toFixed(dec),
       lm3d[16].y.toFixed(dec),
       lm3d[16].z.toFixed(dec),
-      lm3d[16].visibility?.toFixed(dec)
+      lm3d[16].visibility?.toFixed(dec),
+      '-- LW2 ',
+      lm2d[15].x.toFixed(dec),
+      lm2d[15].y.toFixed(dec),
+      lm2d[15].z.toFixed(dec),
+      lm2d[15].visibility?.toFixed(dec),
+      ' -- RW2 ',
+      lm2d[16].x.toFixed(dec),
+      lm2d[16].y.toFixed(dec),
+      lm2d[16].z.toFixed(dec),
+      lm2d[16].visibility?.toFixed(dec)
     )
   }
 }

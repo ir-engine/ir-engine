@@ -129,7 +129,7 @@ const execute = () => {
     const avatarHips = avatarRig?.bindRig?.hips?.node
     const bindHipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
 
-    UpdatePose(data.za, bindHipsPos, avatarTransform.rotation)
+    UpdatePose(data.za, data.poseLandmarks, bindHipsPos, avatarTransform.rotation)
 
     /*
 

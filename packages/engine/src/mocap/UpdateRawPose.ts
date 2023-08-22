@@ -32,11 +32,34 @@ import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction } from '../xr/XRState'
 import { calcHips } from './solvers/PoseSolver/calcHips'
 
-//import landmarks from './MediapipeLandmarks'
 import { Landmark, POSE_LANDMARKS, POSE_LANDMARKS_LEFT, POSE_LANDMARKS_RIGHT } from '@mediapipe/holistic'
+import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkState'
+import mediapipePoseNames from './MediapipePoseNames'
+
+const indices = {
+  rightEar: mediapipePoseNames.indexOf('right_ear'),
+  leftEar: mediapipePoseNames.indexOf('left_ear'),
+  rightHand: mediapipePoseNames.indexOf('right_wrist'),
+  leftHand: mediapipePoseNames.indexOf('left_wrist'),
+  rightAnkle: mediapipePoseNames.indexOf('right_ankle'),
+  leftAnkle: mediapipePoseNames.indexOf('left_ankle')
+}
+
+const solvedPoses = {
+  head: new Vector3(),
+  hips: new Vector3(),
+  leftHand: new Vector3(),
+  rightHand: new Vector3(),
+  leftAnkle: new Vector3(),
+  rightAnkle: new Vector3()
+}
+
+const rawPoses = {
+  leftHand: {} as Landmark,
+  rightHand: {} as Landmark
+}
 
 const rotationOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
@@ -47,7 +70,7 @@ const UpdateRawPose = (lm3d: Landmark[], lm2d: Landmark[], bindHips, avatarRig, 
     const entityUUID = `${Engine?.instance?.userId}_mocap_${key}` as EntityUUID
     const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
     if (!ikTarget) {
-      dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: key }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: key as any }))
     }
     const ikTransform = getComponent(ikTarget, TransformComponent)
     ikTransform.position.copy(xyz)
