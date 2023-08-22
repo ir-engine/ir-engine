@@ -105,10 +105,10 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup
         name="Auto Play"
-        label={t('editor:properties.media.lbl-paused')}
-        info={t('editor:properties.media.info-paused')}
+        label={t('editor:properties.media.lbl-autoplay')}
+        info={t('editor:properties.media.info-autoplay')}
       >
-        <BooleanInput value={media.paused.value} onChange={updateProperty(MediaComponent, 'paused')} />
+        <BooleanInput value={media.autoplay.value} onChange={updateProperty(MediaComponent, 'autoplay')} />
       </InputGroup>
       <InputGroup
         name="Synchronize"
@@ -133,9 +133,9 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           value={media.playMode.value}
           onChange={updateProperty(MediaComponent, 'playMode')}
         />
-        {media.resources && media.resources.length > 0 && media.resources[0] && (
+        {media.resources.length > 0 && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
-            {media.paused ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
+            {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
           </Button>
         )}
       </InputGroup>
