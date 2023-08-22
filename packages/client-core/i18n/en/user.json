@@ -358,8 +358,8 @@
     "avatarName": "Avatar Name"
   },
   "menu": {
-    "settings": "Settings",
-    "sendLocation": "Send Location",
+    "settings": "Profile",
+    "sendLocation": "Share",
     "emote": "Emote",
     "friends": "Friends",
     "toggleMute": "Toggle Mute",
@@ -374,7 +374,9 @@
     "stopRecording": "Stop Recording",
     "toggleChat": "Toggle Chat",
     "enterFullScreen": "Enter FullScreen",
-    "exitFullScreen": "Exit FullScreen"
+    "exitFullScreen": "Exit FullScreen",
+    "hide": "Hide",
+    "show": "Show"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",

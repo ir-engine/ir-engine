@@ -28,6 +28,7 @@ import React from 'react'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { useTranslation } from 'react-i18next'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { useFullscreen } from '../useFullscreen'
@@ -40,27 +41,26 @@ export const Fullscreen = () => {
   return (
     <>
       {fullScreenActive ? (
-        <button
+        <IconButton
           type="button"
           title={t('user:menu.exitFullScreen')}
           className={`${styles.btn} ${styles.fullScreen} ${bottomShelfStyle} `}
+          background="white"
           onClick={() => setFullScreenActive(false)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        >
-          <Icon type="FullscreenExit" />
-        </button>
+          icon={<Icon type="FullscreenExit" />}
+        />
       ) : (
-        <button
-          type="button"
+        <IconButton
           title={t('user:menu.enterFullScreen')}
           className={`${styles.btn} ${styles.fullScreen} ${bottomShelfStyle} `}
+          background="white"
           onClick={() => setFullScreenActive(true)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        >
-          <Icon type="ZoomOutMap" />
-        </button>
+          icon={<Icon type="ZoomOutMap" />}
+        />
       )}
     </>
   )

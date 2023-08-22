@@ -49,6 +49,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { RecordingState } from '../../recording/RecordingService'
@@ -273,15 +274,14 @@ export const MediaIconsBox = () => {
               </div>
             </button>
           ) : (
-            <button
+            <IconButton
               type="button"
               id="Record"
               title={t('user:menu.startRecording')}
               className={styles.iconContainer}
               onClick={toggleRecording}
-            >
-              <Icon type="CameraAlt" />
-            </button>
+              icon={<Icon type="CameraAlt" />}
+            ></IconButton>
           )}
         </>
       )}
