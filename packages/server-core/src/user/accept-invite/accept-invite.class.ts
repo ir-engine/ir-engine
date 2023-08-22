@@ -97,11 +97,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       params.provider = null!
       let invite
       try {
-        invite = await this.app.service(invitePath).Model.findOne({
-          where: {
-            id: id
-          }
-        })
+        invite = await this.app.service(invitePath)._get(id)
       } catch (err) {
         //
       }
@@ -271,7 +267,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       params.preventUserRelationshipRemoval = true
-      if (invite.deleteOnUse) await this.app.service(invitePath).remove(invite.id, params)
+      if (invite.deleteOnUse) await this.app.service(invitePath).remove(invite.id, params as any)
 
       returned.token = await this.app
         .service('authentication')
