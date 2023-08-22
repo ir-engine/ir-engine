@@ -25,15 +25,25 @@ Ethereal Engine. All Rights Reserved.
 
 import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { MathUtils } from 'three'
+import {
+  AdditiveAnimationBlendMode,
+  AnimationActionLoopStyles,
+  AnimationBlendMode,
+  LoopOnce,
+  LoopPingPong,
+  LoopRepeat,
+  MathUtils,
+  NormalAnimationBlendMode
+} from 'three'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { AnimationManager } from '../../../../../avatar/AnimationManager'
+import { AnimationComponent } from '../../../../../avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { CameraActions } from '../../../../../camera/CameraState'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneServices } from '../../../../../ecs/classes/Scene'
 import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
-import { getCallback } from '../../../../../scene/components/CallbackComponent'
+import { StandardCallbacks, getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
@@ -220,20 +230,101 @@ export const playAnimation = makeFlowNodeDefinition({
   in: {
     flow: 'flow',
     entity: 'entity',
+    action: (_, graphApi) => {
+      const choices = [
+        { text: 'play', value: StandardCallbacks.PLAY },
+        { text: 'pause', value: StandardCallbacks.PAUSE },
+        { text: 'stop', value: StandardCallbacks.STOP }
+      ]
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    },
     animationName: 'string',
+    animationSpeed: 'float',
     isAvatar: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const entity = read<Entity>('entity')
-    const animation: string = read('animationName')
-    const animations = AnimationManager.instance._animations
-    const isAvatar: boolean = read('isAvatar')
-    const animIndex: number = animations.findIndex((clip) => clip.name === animation)
-    setComponent(entity, LoopAnimationComponent, { activeClipIndex: animIndex, hasAvatarAnimations: isAvatar })
-    const play = getCallback(entity, 'xre.play')
-    play!()
+    const animation = read<string>('animationName')
+    const action = read<string>('action')
+    const animationSpeed = read<number>('animationSpeed')
+    setComponent(entity, AnimationComponent, { animationSpeed: animationSpeed })
+
+    if (animation.length > 0) {
+      const isAvatar: boolean = read('isAvatar')
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const animations = isAvatar ? AnimationManager.instance._animations : animationComponent.animations
+      const animIndex: number = animations.findIndex((clip) => clip.name === animation)
+      setComponent(entity, LoopAnimationComponent, { activeClipIndex: animIndex, hasAvatarAnimations: isAvatar })
+      const trigger = getCallback(entity, action)
+      trigger?.()
+    }
+
+    commit('flow')
+  }
+})
+
+export const setAnimationAction = makeFlowNodeDefinition({
+  typeName: 'engine/media/setAnimationAction',
+  category: NodeCategory.Action,
+  label: 'Set animation action',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    animationSpeed: 'float',
+    blendMode: (_, graphApi) => {
+      const choices = [
+        { text: 'normal', value: NormalAnimationBlendMode },
+        { text: 'additive', value: AdditiveAnimationBlendMode }
+      ]
+      return {
+        valueType: 'number',
+        choices: choices
+      }
+    },
+    loopMode: (_, graphApi) => {
+      const choices = [
+        { text: 'once', value: LoopOnce },
+        { text: 'repeat', value: LoopRepeat },
+        { text: 'pingpong', value: LoopPingPong }
+      ]
+      return {
+        valueType: 'number',
+        choices: choices
+      }
+    },
+    weight: 'float',
+    clampWhenFinished: 'boolean',
+    zeroSlopeAtStart: 'boolean',
+    zeroSlopeAtEnd: 'boolean'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const entity = read<Entity>('entity')
+    const animationSpeed = read<number>('animationSpeed')
+    const blendMode = read<AnimationBlendMode>('blendMode')
+    const loopMode = read<AnimationActionLoopStyles>('loopMode')
+    const clampWhenFinished = read<boolean>('clampWhenFinished')
+    const zeroSlopeAtStart = read<boolean>('zeroSlopeAtStart')
+    const zeroSlopeAtEnd = read<boolean>('zeroSlopeAtEnd')
+    const weight = read<number>('weight')
+    setComponent(entity, AnimationComponent, { animationSpeed: animationSpeed })
+    const animAction = getComponent(entity, LoopAnimationComponent).action
+    if (animAction) {
+      animAction!.blendMode = blendMode
+      animAction!.loop = loopMode
+      animAction!.clampWhenFinished = clampWhenFinished
+      animAction!.zeroSlopeAtStart = zeroSlopeAtStart
+      animAction!.zeroSlopeAtEnd = zeroSlopeAtEnd
+      animAction!.weight = weight
+      setComponent(entity, LoopAnimationComponent, { action: animAction })
+    }
+
     commit('flow')
   }
 })
