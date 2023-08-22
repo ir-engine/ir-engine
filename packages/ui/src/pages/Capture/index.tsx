@@ -49,8 +49,8 @@ import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideo
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { DataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
@@ -67,7 +67,7 @@ import { DataProducer } from 'mediasoup-client/lib/DataProducer'
  */
 export const startPlayback = async (recordingID: RecordingID, twin = true) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-  const dataProducer = DataProducerConsumerState.getProducerByDataChannel(
+  const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
     network.id,
     mocapDataChannelType
   ) as DataProducer
@@ -90,7 +90,7 @@ let creatingProducer = false
 const sendResults = (results: NormalizedLandmarkList) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.sendTransport) return
-  const dataProducer = DataProducerConsumerState.getProducerByDataChannel(
+  const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
     network.id,
     mocapDataChannelType
   ) as DataProducer

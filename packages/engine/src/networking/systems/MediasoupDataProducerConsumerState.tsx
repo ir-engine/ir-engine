@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import {
   defineAction,
   defineState,
@@ -41,11 +40,10 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
 import { NetworkState } from '../NetworkState'
-import { Network } from '../classes/Network'
 
-export class DataProducerActions {
+export class MediasoupDataProducerActions {
   static requestProducer = defineAction({
-    type: 'ee.engine.network.DATA_REQUEST_PRODUCER',
+    type: 'ee.engine.network.mediasoup.DATA_REQUEST_PRODUCER',
     requestID: matches.string,
     transportID: matches.string,
     protocol: matches.string,
@@ -55,13 +53,13 @@ export class DataProducerActions {
   })
 
   static requestProducerError = defineAction({
-    type: 'ee.engine.network.DATA_REQUEST_PRODUCER_ERROR',
+    type: 'ee.engine.network.mediasoup.DATA_REQUEST_PRODUCER_ERROR',
     requestID: matches.string,
     error: matches.string
   })
 
   static producerCreated = defineAction({
-    type: 'ee.engine.network.DATA_PRODUCER_CREATED',
+    type: 'ee.engine.network.mediasoup.DATA_PRODUCER_CREATED',
     requestID: matches.string,
     producerID: matches.string,
     transportID: matches.string,
@@ -73,20 +71,20 @@ export class DataProducerActions {
   })
 
   static producerClosed = defineAction({
-    type: 'ee.engine.network.DATA_CLOSED_PRODUCER',
+    type: 'ee.engine.network.mediasoup.DATA_CLOSED_PRODUCER',
     producerID: matches.string,
     $cache: true
   })
 }
 
-export class DataConsumerActions {
+export class MediasoupDataConsumerActions {
   static requestConsumer = defineAction({
-    type: 'ee.engine.network.DATA_REQUEST_CONSUMER',
+    type: 'ee.engine.network.mediasoup.DATA_REQUEST_CONSUMER',
     dataChannel: matches.string as Validator<unknown, DataChannelType>
   })
 
   static consumerCreated = defineAction({
-    type: 'ee.engine.network.DATA_CREATED_CONSUMER',
+    type: 'ee.engine.network.mediasoup.DATA_CREATED_CONSUMER',
     consumerID: matches.string,
     peerID: matchesPeerID,
     producerID: matches.string,
@@ -97,13 +95,13 @@ export class DataConsumerActions {
   })
 
   static consumerClosed = defineAction({
-    type: 'ee.engine.network.DATA_CLOSED_CONSUMER',
+    type: 'ee.engine.network.mediasoup.DATA_CLOSED_CONSUMER',
     consumerID: matches.string
   })
 }
 
-export const DataProducerConsumerState = defineState({
-  name: 'ee.engine.network.DataProducerConsumerState',
+export const MediasoupDataProducerConsumerState = defineState({
+  name: 'ee.engine.network.mediasoup.DataProducerConsumerState',
 
   initial: {} as Record<
     string, // NetworkID
@@ -133,7 +131,7 @@ export const DataProducerConsumerState = defineState({
   >,
 
   getProducerByPeer: (networkID: string, peerID: string) => {
-    const state = getState(DataProducerConsumerState)[networkID]
+    const state = getState(MediasoupDataProducerConsumerState)[networkID]
     if (!state) return
 
     const producer = Object.values(state.producers).find((p) => p.appData.peerID === peerID)
@@ -143,7 +141,7 @@ export const DataProducerConsumerState = defineState({
   },
 
   getProducerByDataChannel: (networkID: string, dataChannel: DataChannelType) => {
-    const state = getState(DataProducerConsumerState)[networkID]
+    const state = getState(MediasoupDataProducerConsumerState)[networkID]
     if (!state) return
 
     const producer = Object.values(state.producers).find((p) => p.dataChannel === dataChannel)
@@ -155,8 +153,8 @@ export const DataProducerConsumerState = defineState({
   // TODO: support multiple networks
   receptors: [
     [
-      DataProducerActions.producerCreated,
-      (state, action: typeof DataProducerActions.producerCreated.matches._TYPE) => {
+      MediasoupDataProducerActions.producerCreated,
+      (state, action: typeof MediasoupDataProducerActions.producerCreated.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
@@ -174,14 +172,14 @@ export const DataProducerConsumerState = defineState({
       }
     ],
     [
-      DataProducerActions.producerClosed,
-      (state, action: typeof DataProducerActions.producerClosed.matches._TYPE) => {
+      MediasoupDataProducerActions.producerClosed,
+      (state, action: typeof MediasoupDataProducerActions.producerClosed.matches._TYPE) => {
         // removed create/close cached actions for this producer
         const cachedActions = Engine.instance.store.actions.cached
         const peerCachedActions = cachedActions.filter(
           (cachedAction) =>
-            (DataProducerActions.producerCreated.matches.test(cachedAction) ||
-              DataProducerActions.producerClosed.matches.test(cachedAction)) &&
+            (MediasoupDataProducerActions.producerCreated.matches.test(cachedAction) ||
+              MediasoupDataProducerActions.producerClosed.matches.test(cachedAction)) &&
             cachedAction.producerID === action.producerID
         )
         for (const cachedAction of peerCachedActions) {
@@ -199,8 +197,8 @@ export const DataProducerConsumerState = defineState({
       }
     ],
     [
-      DataConsumerActions.consumerCreated,
-      (state, action: typeof DataConsumerActions.consumerCreated.matches._TYPE) => {
+      MediasoupDataConsumerActions.consumerCreated,
+      (state, action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
@@ -217,8 +215,8 @@ export const DataProducerConsumerState = defineState({
       }
     ],
     [
-      DataConsumerActions.consumerClosed,
-      (state, action: typeof DataConsumerActions.consumerClosed.matches._TYPE) => {
+      MediasoupDataConsumerActions.consumerClosed,
+      (state, action: typeof MediasoupDataConsumerActions.consumerClosed.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) return
 
@@ -232,35 +230,8 @@ export const DataProducerConsumerState = defineState({
   ]
 })
 
-type RegistryFunction = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => void
-
-export const DataChannelRegistryState = defineState({
-  name: 'ee.engine.network.DataChannelRegistryState',
-  initial: {} as Record<DataChannelType, RegistryFunction[]>
-})
-
-export const addDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
-  if (!getState(DataChannelRegistryState)[dataChannelType]) {
-    getMutableState(DataChannelRegistryState).merge({ [dataChannelType]: [] })
-  }
-  getState(DataChannelRegistryState)[dataChannelType].push(handler)
-}
-
-export const removeDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
-  if (!getState(DataChannelRegistryState)[dataChannelType]) return
-
-  const index = getState(DataChannelRegistryState)[dataChannelType].indexOf(handler)
-  if (index === -1) return
-
-  getState(DataChannelRegistryState)[dataChannelType].splice(index, 1)
-
-  if (getState(DataChannelRegistryState)[dataChannelType].length === 0) {
-    getMutableState(DataChannelRegistryState)[dataChannelType].set(none)
-  }
-}
-
 const execute = () => {
-  receiveActions(DataProducerConsumerState)
+  receiveActions(MediasoupDataProducerConsumerState)
 }
 
 // export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
@@ -304,8 +275,8 @@ export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }
 
 const NetworkReactor = (props: { networkID: UserID }) => {
   const { networkID } = props
-  const producers = useHookstate(getMutableState(DataProducerConsumerState)[networkID].producers)
-  const consumers = useHookstate(getMutableState(DataProducerConsumerState)[networkID].consumers)
+  const producers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].producers)
+  const consumers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].consumers)
 
   return (
     <>
@@ -320,7 +291,7 @@ const NetworkReactor = (props: { networkID: UserID }) => {
 }
 
 const reactor = () => {
-  const networkIDs = useHookstate(getMutableState(DataProducerConsumerState))
+  const networkIDs = useHookstate(getMutableState(MediasoupDataProducerConsumerState))
   return (
     <>
       {Object.keys(networkIDs.value).map((hostId: UserID) => (
@@ -330,8 +301,8 @@ const reactor = () => {
   )
 }
 
-export const DataProducerConsumerStateSystem = defineSystem({
-  uuid: 'ee.engine.DataProducerConsumerStateSystem',
+export const MediasoupDataProducerConsumerStateSystem = defineSystem({
+  uuid: 'ee.engine.network.MediasoupDataProducerConsumerStateSystem',
   execute,
   reactor
 })

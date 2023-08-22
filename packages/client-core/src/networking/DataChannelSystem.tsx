@@ -27,11 +27,11 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
-  DataChannelRegistryState,
-  DataConsumerActions,
-  DataProducerConsumerState
-} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+  MediasoupDataConsumerActions,
+  MediasoupDataProducerConsumerState
+} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { State, useHookstate } from '@hookstate/core'
@@ -44,7 +44,7 @@ export async function createDataConsumer(
   dataChannel: DataChannelType
 ): Promise<void> {
   dispatchAction(
-    DataConsumerActions.requestConsumer({
+    MediasoupDataConsumerActions.requestConsumer({
       dataChannel,
       $network: network.id,
       $topic: network.topic,
@@ -66,7 +66,7 @@ export async function createDataProducer(
   }
 ): Promise<void> {
   console.log('createDataProducer', args.label, network)
-  const producer = DataProducerConsumerState.getProducerByDataChannel(network.id, args.label) as DataProducer
+  const producer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, args.label) as DataProducer
   if (producer) return
 
   const dataProducer = await network.sendTransport.produceData({
@@ -82,11 +82,11 @@ export async function createDataProducer(
     dataProducer.close()
   })
 
-  const state = getMutableState(DataProducerConsumerState)[network.id].producers[dataProducer.id]
+  const state = getMutableState(MediasoupDataProducerConsumerState)[network.id].producers[dataProducer.id]
   state.producer.set(dataProducer)
 }
 
-export const consumerData = async (action: typeof DataConsumerActions.consumerCreated.matches._TYPE) => {
+export const consumerData = async (action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
   const dataConsumer = await network.recvTransport.consumeData({
@@ -117,11 +117,11 @@ export const consumerData = async (action: typeof DataConsumerActions.consumerCr
     dataConsumer.close()
   })
 
-  const state = getMutableState(DataProducerConsumerState)[network.id].consumers[dataConsumer.id]
+  const state = getMutableState(MediasoupDataProducerConsumerState)[network.id].consumers[dataConsumer.id]
   state.consumer.set(dataConsumer)
 }
 
-const dataConsumerCreatedActionQueue = defineActionQueue(DataConsumerActions.consumerCreated.matches)
+const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
 
 const execute = () => {
   for (const action of dataConsumerCreatedActionQueue()) {

@@ -50,9 +50,9 @@ import { InteractiveSystem } from '@etherealengine/engine/src/interaction/system
 import { MediaControlSystem } from '@etherealengine/engine/src/interaction/systems/MediaControlSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
-import { DataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
 import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import { MediasoupDataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { NetworkTransportStateSystem } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
@@ -113,7 +113,7 @@ export const startClientSystems = () => {
       SceneSystemLoadGroup,
       NetworkTransportStateSystem,
       MediaProducerConsumerStateSystem,
-      DataProducerConsumerStateSystem
+      MediasoupDataProducerConsumerStateSystem
     ],
     {
       after: PresentationSystemGroup

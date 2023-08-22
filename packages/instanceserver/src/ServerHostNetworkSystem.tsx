@@ -32,16 +32,16 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import logger from '@etherealengine/common/src/logger'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import {
-  DataChannelRegistryState,
-  DataConsumerActions,
-  DataProducerActions,
-  DataProducerConsumerState
-} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import {
+  MediasoupDataConsumerActions,
+  MediasoupDataProducerActions,
+  MediasoupDataProducerConsumerState
+} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -72,10 +72,10 @@ const requestConsumerActionQueue = defineActionQueue(MediaConsumerActions.reques
 const consumerLayersActionQueue = defineActionQueue(MediaConsumerActions.consumerLayers.matches)
 const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
 
-const dataRequestProducerActionQueue = defineActionQueue(DataProducerActions.requestProducer.matches)
-const dataProducerCreatedActionQueue = defineActionQueue(DataProducerActions.producerCreated.matches)
-const dataRequestConsumerActionQueue = defineActionQueue(DataConsumerActions.requestConsumer.matches)
-const dataConsumerCreatedActionQueue = defineActionQueue(DataConsumerActions.consumerCreated.matches)
+const dataRequestProducerActionQueue = defineActionQueue(MediasoupDataProducerActions.requestProducer.matches)
+const dataProducerCreatedActionQueue = defineActionQueue(MediasoupDataProducerActions.producerCreated.matches)
+const dataRequestConsumerActionQueue = defineActionQueue(MediasoupDataConsumerActions.requestConsumer.matches)
+const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
 
 const requestTransportActionQueue = defineActionQueue(NetworkTransportActions.requestTransport.matches)
 const requestTransportConnectActionQueue = defineActionQueue(NetworkTransportActions.requestTransportConnect.matches)
@@ -103,7 +103,7 @@ const execute = () => {
     if (!producer) {
       logger.warn('dataProducerCreatedActionQueue: producer not found', action.producerID)
     }
-    getMutableState(DataProducerConsumerState)[network.id].producers[action.producerID].producer.set(producer)
+    getMutableState(MediasoupDataProducerConsumerState)[network.id].producers[action.producerID].producer.set(producer)
   }
   for (const action of dataRequestConsumerActionQueue()) {
     handleConsumeData(action)
@@ -117,7 +117,7 @@ const execute = () => {
     if (!consumer) {
       logger.warn('dataConsumerCreatedActionQueue: consumer not found', action.dataChannel)
     }
-    getMutableState(DataProducerConsumerState)[network.id].consumers[action.consumerID].consumer.set(consumer)
+    getMutableState(MediasoupDataProducerConsumerState)[network.id].consumers[action.consumerID].consumer.set(consumer)
   }
 
   for (const action of requestTransportActionQueue()) {

@@ -48,16 +48,16 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import {
-  DataChannelRegistryState,
-  DataConsumerActions,
-  DataProducerActions,
-  DataProducerConsumerState
-} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import {
+  MediasoupDataConsumerActions,
+  MediasoupDataProducerActions,
+  MediasoupDataProducerConsumerState
+} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -156,7 +156,7 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
   network.outgoingDataProducers[dataChannel] = outgoingDataProducer
 }
 
-export const handleConsumeData = async (action: typeof DataConsumerActions.requestConsumer.matches._TYPE) => {
+export const handleConsumeData = async (action: typeof MediasoupDataConsumerActions.requestConsumer.matches._TYPE) => {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { $peer: peerID, dataChannel } = action
@@ -202,7 +202,7 @@ export const handleConsumeData = async (action: typeof DataConsumerActions.reque
 
     // Data consumers are all consuming the single producer that outputs from the server's message queue
     dispatchAction(
-      DataConsumerActions.consumerCreated({
+      MediasoupDataConsumerActions.consumerCreated({
         consumerID: dataConsumer.id,
         peerID,
         producerID: outgoingDataProducer.id,
@@ -227,7 +227,7 @@ export async function closeDataProducer(
   peerID: PeerID
 ): Promise<void> {
   dispatchAction(
-    DataProducerActions.producerClosed({
+    MediasoupDataProducerActions.producerClosed({
       producerID: dataProducer.id,
       $topic: network.topic,
       $network: network.id
@@ -246,7 +246,7 @@ export async function transportClosed(
   // our producer and consumer event handlers will take care of
   // calling producerClosed() and consumerClosed() on all the producers
   // and consumers associated with this transport
-  const dataProducers = Object.values(getState(DataProducerConsumerState)[network.id].producers)
+  const dataProducers = Object.values(getState(MediasoupDataProducerConsumerState)[network.id].producers)
   dataProducers.forEach(
     (dataProducer) =>
       dataProducer.producer && closeDataProducer(network, dataProducer.producer as any, dataProducer.appData.peerID)
@@ -433,7 +433,7 @@ export async function handleWebRtcTransportCreate(
  * - Sends the producer to the client that created it
  */
 export async function handleProduceData(
-  action: typeof DataProducerActions.requestProducer.matches._TYPE
+  action: typeof MediasoupDataProducerActions.requestProducer.matches._TYPE
 ): Promise<any> {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
@@ -459,7 +459,7 @@ export async function handleProduceData(
       const errorMessage = 'Invalid data producer label (i.e. channel name) provided:' + label
       logger.error(errorMessage)
       return dispatchAction(
-        DataProducerActions.requestProducerError({
+        MediasoupDataProducerActions.requestProducerError({
           requestID,
           error: errorMessage,
           $network: action.$network,
@@ -473,7 +473,7 @@ export async function handleProduceData(
       const errorMessage = `Client no longer exists for userId "${userId}".`
       logger.error(errorMessage)
       return dispatchAction(
-        DataProducerActions.requestProducerError({
+        MediasoupDataProducerActions.requestProducerError({
           requestID,
           error: errorMessage,
           $network: action.$network,
@@ -488,7 +488,7 @@ export async function handleProduceData(
     if (!transport) {
       logger.error('Invalid transport.')
       return dispatchAction(
-        DataProducerActions.requestProducerError({
+        MediasoupDataProducerActions.requestProducerError({
           requestID,
           error: 'Invalid transport',
           $network: action.$network,
@@ -511,7 +511,7 @@ export async function handleProduceData(
     if (!network.peers.has(peerID)) {
       logger.error('Client no longer exists.')
       return dispatchAction(
-        DataProducerActions.requestProducerError({
+        MediasoupDataProducerActions.requestProducerError({
           requestID,
           error: 'Client no longer exists',
           $network: action.$network,
@@ -541,7 +541,7 @@ export async function handleProduceData(
     if (!internalConsumer) {
       logger.error('Invalid data producer.')
       return dispatchAction(
-        DataProducerActions.requestProducerError({
+        MediasoupDataProducerActions.requestProducerError({
           requestID,
           error: 'Invalid data producer',
           $network: action.$network,
@@ -553,7 +553,7 @@ export async function handleProduceData(
     if (!network.peers.has(peerID)) {
       logger.error('Client no longer exists.')
       return dispatchAction(
-        DataProducerActions.requestProducerError({
+        MediasoupDataProducerActions.requestProducerError({
           requestID,
           error: 'Client no longer exists',
           $network: action.$network,
@@ -566,7 +566,7 @@ export async function handleProduceData(
     // Possibly do stuff with appData here
     logger.info('Sending dataproducer id to client: ' + dataProducer.id)
     return dispatchAction(
-      DataProducerActions.producerCreated({
+      MediasoupDataProducerActions.producerCreated({
         requestID,
         transportID: transportId,
         producerID: dataProducer.id,
@@ -582,7 +582,7 @@ export async function handleProduceData(
   } catch (err) {
     logger.error(err)
     return dispatchAction(
-      DataProducerActions.requestProducerError({
+      MediasoupDataProducerActions.requestProducerError({
         requestID,
         error: err.message,
         $network: action.$network,

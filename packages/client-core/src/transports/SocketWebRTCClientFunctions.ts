@@ -76,13 +76,13 @@ import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
-  DataProducerActions,
-  DataProducerConsumerState
-} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
-import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import {
+  MediasoupDataProducerActions,
+  MediasoupDataProducerConsumerState
+} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
@@ -176,7 +176,7 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
     },
 
     bufferToAll: (dataChannelType: DataChannelType, data: any) => {
-      const dataProducer = DataProducerConsumerState.getProducerByDataChannel(network.id, dataChannelType) as
+      const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, dataChannelType) as
         | DataProducer
         | undefined
       if (!dataProducer) return
@@ -594,7 +594,7 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
 
         const requestID = MathUtils.generateUUID()
         dispatchAction(
-          DataProducerActions.requestProducer({
+          MediasoupDataProducerActions.requestProducer({
             requestID,
             transportID: transportOptions.id,
             sctpStreamParameters,
@@ -609,16 +609,16 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
 
         //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
         try {
-          const producerPromise = await new Promise<typeof DataProducerActions.producerCreated.matches._TYPE>(
+          const producerPromise = await new Promise<typeof MediasoupDataProducerActions.producerCreated.matches._TYPE>(
             (resolve, reject) => {
               const onAction = (action) => {
                 if (action.requestID !== requestID) return
                 matches(action)
-                  .when(DataProducerActions.producerCreated.matches, (action) => {
+                  .when(MediasoupDataProducerActions.producerCreated.matches, (action) => {
                     removeActionReceptor(onAction)
                     resolve(action)
                   })
-                  .when(DataProducerActions.requestProducerError.matches, (action) => {
+                  .when(MediasoupDataProducerActions.requestProducerError.matches, (action) => {
                     removeActionReceptor(onAction)
                     logger.error(action.error)
                     reject(new Error(action.error))
