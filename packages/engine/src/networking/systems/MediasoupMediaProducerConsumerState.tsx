@@ -43,7 +43,7 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
-import { MediaStreamAppData, NetworkState } from '../NetworkState'
+import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
 
 export class MediaProducerActions {
   static requestProducer = defineAction({
@@ -137,6 +137,8 @@ export const MediasoupMediaProducerConsumerState = defineState({
     {
       producers: {
         [producerID: string]: {
+          producerID: string
+          producer?: unknown
           peerID: PeerID
           mediaTag: DataChannelType
           channelID: ChannelID
@@ -146,6 +148,8 @@ export const MediasoupMediaProducerConsumerState = defineState({
       }
       consumers: {
         [consumerID: string]: {
+          consumerID: string
+          consumer?: unknown
           peerID: PeerID
           mediaTag: DataChannelType
           channelID: ChannelID
@@ -159,6 +163,26 @@ export const MediasoupMediaProducerConsumerState = defineState({
     }
   >,
 
+  getProducerByPeerIdAndMediaTag: (networkID: string, peerID: string, mediaTag: MediaTagType) => {
+    const state = getState(MediasoupMediaProducerConsumerState)[networkID]
+    if (!state) return
+
+    const producer = Object.values(state.producers).find((p) => p.peerID === peerID && p.mediaTag === mediaTag)
+    if (!producer) return
+
+    return producer.producer
+  },
+
+  getConsumerByPeerIdAndMediaTag: (networkID: string, peerID: string, tag: MediaTagType) => {
+    const state = getState(MediasoupMediaProducerConsumerState)[networkID]
+    if (!state) return
+
+    const consumer = Object.values(state.consumers).find((p) => p.peerID === peerID && p.mediaTag === tag)
+    if (!consumer) return
+
+    return consumer.consumer
+  },
+
   receptors: [
     [
       MediaProducerActions.producerCreated,
@@ -167,8 +191,11 @@ export const MediasoupMediaProducerConsumerState = defineState({
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
+        // TODO - this is to allow server side consumers to not be overridden
+        if (state[networkID].producers.value[action.producerID]) return
         state[networkID].producers.merge({
           [action.producerID]: {
+            producerID: action.producerID,
             peerID: action.peerID,
             mediaTag: action.mediaTag,
             channelID: action.channelID
@@ -208,22 +235,22 @@ export const MediasoupMediaProducerConsumerState = defineState({
         const networkID = action.$network
         if (!state.value[networkID]?.producers[action.producerID]) return
 
-        state[networkID].producers[action.producerID].merge({
+        const producerState = state[networkID].producers[action.producerID]
+
+        producerState.merge({
           paused: action.paused,
           globalMute: action.globalMute
         })
 
-        const peerID = state[networkID].producers[action.producerID].peerID.value
+        const peerID = producerState.peerID.value
+        const mediatag = producerState.mediaTag.value
 
-        const { producerID: producerId, globalMute, paused } = action
+        const { globalMute, paused } = action
         const network = getState(NetworkState).networks[networkID]
-        const producer = network.producers.find((p) => p.id === producerId)
-        if (producer) {
-          const media = network.peers.get(peerID)?.media
-          if (media && media[producer.appData.mediaTag]) {
-            media[producer.appData.mediaTag].paused = paused
-            media[producer.appData.mediaTag].globalMute = globalMute
-          }
+        const media = network.peers.get(peerID)?.media
+        if (media && media[mediatag]) {
+          media[mediatag].paused = paused
+          media[mediatag].globalMute = globalMute
         }
       }
     ],
@@ -234,8 +261,11 @@ export const MediasoupMediaProducerConsumerState = defineState({
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
+        // TODO - this is to allow server side consumers to not be overridden
+        if (state[networkID].consumers.value[action.consumerID]) return
         state[networkID].consumers.merge({
           [action.consumerID]: {
+            consumerID: action.consumerID,
             peerID: action.peerID,
             mediaTag: action.mediaTag,
             channelID: action.channelID,
@@ -285,13 +315,17 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
   )
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
-  const networkProducerState = networkState.producers.find((p) => p.value.id === producerID)
 
   useEffect(() => {
     const peerID = producerState.peerID.value
     const mediaTag = producerState.mediaTag.value
     const channelID = producerState.channelID.value
     const network = getState(NetworkState).networks[networkID]
+    const producer = producerState.producer.value as any
+
+    console.log(producer)
+
+    if (!producer) return
 
     // todo, replace this with a better check
     if (isClient) {
@@ -309,19 +343,9 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
 
     return () => {
       const network = getState(NetworkState).networks[networkID]
-      const producer = network.producers.find((p) => p.id === producerID)
       if (!producer || producer.closed || producer._closed) return
 
       producer.close()
-
-      // remove from the network state
-      networkState.producers.set((p) => {
-        const index = p.findIndex((c) => c.id === producer.id)
-        if (index > -1) {
-          p.splice(index, 1)
-        }
-        return p
-      })
 
       // remove from the peer state
       const media = network.peers.get(peerID)?.media
@@ -330,7 +354,12 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
       }
 
       // close the consumer
-      const consumer = network.consumers.find((c) => c.appData.peerID === peerID && c.appData.mediaTag === mediaTag)
+      const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+        networkID,
+        peerID,
+        mediaTag
+      ) as any
+
       // todo, replace this with a better check
       if (consumer && isClient) {
         dispatchAction(
@@ -341,11 +370,10 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
         )
       }
     }
-  }, [])
+  }, [producerState.producer])
 
   useEffect(() => {
-    const network = getState(NetworkState).networks[networkID]
-    const producer = network.producers.find((p) => p.id === producerID)
+    const producer = producerState.producer.value as any
     if (!producer) return
 
     if (producer.closed || producer._closed) return
@@ -363,10 +391,10 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
       MediaConsumerActions.consumerPaused({
         consumerID: consumer[0],
         paused: !!producerState.paused.value,
-        $topic: network.topic
+        $topic: networkState.topic.value
       })
     )
-  }, [producerState.paused, networkProducerState])
+  }, [producerState.paused, producerState.producer])
 
   return <></>
 }
@@ -377,40 +405,32 @@ export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers[consumerID]
   )
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
-  const networkConsumerState = networkState.consumers.find((p) => p.value.id === consumerID)
 
   useEffect(() => {
-    return () => {
-      const network = getState(NetworkState).networks[networkID]
-      const consumer = network.consumers.find((p) => p.id === consumerID)
-      if (!consumer || consumer.closed || consumer._closed) return
+    const consumer = consumerState.consumer.value as any
+    if (!consumer) return
 
-      // remove from the network state
-      networkState.consumers.set((p) => {
-        const index = p.findIndex((c) => c.id === consumer.id)
-        if (index > -1) {
-          p.splice(index, 1)
-        }
-        return p
-      })
+    return () => {
+      if (!consumer.closed || consumer._closed) return
+
+      const network = getState(NetworkState).networks[networkID]
 
       consumer.close()
 
       // remove from the peer state
       delete network.peers.get(consumer.appData.peerID)?.consumerLayers?.[consumer.id]
     }
-  }, [])
+  }, [consumerState.consumer])
 
   useEffect(() => {
-    const network = getState(NetworkState).networks[networkID]
-    const consumer = network.consumers.find((p) => p.id === consumerID)
+    const consumer = consumerState.consumer.value as any
     if (!consumer) return
 
     if (consumer.closed || consumer._closed) return
 
     if (consumerState.paused.value && consumer.pause) consumer.pause()
     if (!consumerState.paused.value && consumer.resume) consumer.resume()
-  }, [consumerState.paused, networkConsumerState, networkState.consumers.length])
+  }, [consumerState.paused, consumerState.consumer])
 
   return <></>
 }

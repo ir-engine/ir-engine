@@ -40,7 +40,7 @@ import os from 'os'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -56,7 +56,8 @@ import {
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaConsumerActions,
-  MediaProducerActions
+  MediaProducerActions,
+  MediasoupMediaProducerConsumerState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceServerState } from './InstanceServerState'
@@ -251,8 +252,8 @@ export async function transportClosed(
     (dataProducer) =>
       dataProducer.producer && closeDataProducer(network, dataProducer.producer as any, dataProducer.appData.peerID)
   )
-  const producers = Object.values(network.producers)
-  producers.forEach((producer) => producerClosed(network, producer))
+  const mediaProducers = Object.values(getState(MediasoupMediaProducerConsumerState)[network.id].producers)
+  mediaProducers.forEach((producer) => producerClosed(network, producer.producer as any))
   if (transport && typeof transport.close === 'function') {
     await transport.close()
     delete network.mediasoupTransports[transport.id]
@@ -676,9 +677,13 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
   }
 
   try {
+    const existingProducer = MediasoupMediaProducerConsumerState.getProducerByPeerIdAndMediaTag(
+      network.id,
+      peerID,
+      appData.mediaTag
+    ) as ProducerExtension
+    if (existingProducer) throw new Error('Producer already exists for ' + peerID + ' ' + appData.mediaTag)
     const newProducerAppData = { ...appData, peerID, transportId } as MediaStreamAppData
-    const existingProducer = await network.producers.find((producer) => producer.appData === newProducerAppData)
-    if (existingProducer) throw new Error('Producer already exists for ' + peerID + ' ' + appData.mediaTag) //producerClosed(network, existingProducer)
     const producer = (await transport.produce({
       kind: kind as any,
       rtpParameters: rtpParameters as RtpParameters,
@@ -702,7 +707,6 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
 
     producer.on('transportclose', () => producerClosed(network, producer))
 
-    network.producers.push(producer)
     logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
 
     if (userId && network.peers.has(peerID)) {
@@ -725,6 +729,22 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
         $topic: action.$topic
       })
     )
+
+    const networkID = action.$network
+    if (!getMutableState(MediasoupMediaProducerConsumerState).value[networkID]) {
+      getMutableState(MediasoupMediaProducerConsumerState).merge({ [networkID]: { producers: {}, consumers: {} } })
+    }
+    getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers.merge({
+      [producer.id]: {
+        producer,
+        producerID: producer.id,
+        peerID: peerID,
+        mediaTag: appData.mediaTag,
+        channelID: appData.channelId
+      }
+    })
+
+    // TODO: this must be done after producerCreated action is processed and the state exists - how can we improve this?
   } catch (err) {
     logger.error(err, 'Error with sendTrack.')
     dispatchAction(
@@ -745,8 +765,10 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
   const { peerID: mediaPeerId, mediaTag, rtpCapabilities, channelID } = action
   const peerID = action.$peer
 
-  const producer = network.producers.find(
-    (p) => p.appData.mediaTag === mediaTag && p.appData.peerID === mediaPeerId && p.appData.channelId === channelID
+  console.log(getState(MediasoupMediaProducerConsumerState)[network.id].producers)
+
+  const producer = Object.values(getState(MediasoupMediaProducerConsumerState)[network.id].producers).find(
+    (p) => p.peerID === peerID && p.mediaTag === mediaTag
   )
 
   const transport = Object.values(network.mediasoupTransports).find(
@@ -759,8 +781,8 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
 
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
   const router = network.routers.find((router) => router.id === transport?.internal.routerId)
-  if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
-    const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.id}`
+  if (!producer || !router || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
+    const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.producerID}`
     logger.error(`recv-track: ${peerID} ${msg}`)
     return
   }
@@ -768,7 +790,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
   if (!transport) return
   try {
     const consumer = (await transport.consume({
-      producerId: producer.id,
+      producerId: producer.producerID,
       rtpCapabilities,
       paused: true, // see note above about always starting paused
       appData: { peerID, mediaPeerId, mediaTag, channelId: channelID }
@@ -799,9 +821,6 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
       )
     })
 
-    // stick this consumer in our list of consumers to keep track of
-    network.consumers.push(consumer)
-
     if (network.peers.has(peerID)) {
       network.peers.get(peerID)!.consumerLayers![consumer.id] = {
         currentLayer: null,
@@ -822,7 +841,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
         consumerID: consumer.id,
         peerID: mediaPeerId,
         mediaTag,
-        producerID: producer.id,
+        producerID: producer.producerID,
         kind: consumer.kind,
         rtpParameters: consumer.rtpParameters,
         consumerType: consumer.type,
@@ -832,6 +851,22 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
         $to: peerID
       })
     )
+
+    // TODO: this must be done here to ensure consumer exists - how can we do this better?
+    getMutableState(MediasoupMediaProducerConsumerState)[action.$network].consumers.merge({
+      [consumer.id]: {
+        consumer,
+        channelID,
+        consumerID: consumer.id,
+        peerID: mediaPeerId,
+        mediaTag,
+        producerID: producer.producerID,
+        kind: consumer.kind,
+        rtpParameters: consumer.rtpParameters,
+        type: consumer.type,
+        paused: consumer.producerPaused
+      }
+    })
   } catch (err) {
     logger.error(err, 'Error consuming transport %o.', transport)
   }
@@ -843,11 +878,14 @@ export async function handleConsumerSetLayers(
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { consumerID, layer } = action
-  const consumer = network.consumers.find((c) => c.id === consumerID)!
-  if (!consumer) return logger.warn('consumer-set-layers: consumer not found ' + action.consumerID)
-  logger.info('consumer-set-layers: %o, %o', layer, consumer.appData)
+  console.log(getState(MediasoupMediaProducerConsumerState)[network.id].consumers)
+  const consumerState = getState(MediasoupMediaProducerConsumerState)[network.id].consumers[consumerID]?.consumer as
+    | ConsumerExtension
+    | undefined
+  if (!consumerState) return logger.warn('consumer-set-layers: consumer not found ' + action.consumerID)
+  logger.info('consumer-set-layers: %o, %o', layer, consumerState.appData)
   try {
-    await consumer.setPreferredLayers({ spatialLayer: layer })
+    await consumerState.setPreferredLayers({ spatialLayer: layer })
   } catch (err) {
     logger.warn(err)
     logger.warn('consumer-set-layers: failed to set preferred layers ' + action.consumerID)

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
-import { Consumer } from 'mediasoup-client/lib/Consumer'
 import { useEffect } from 'react'
 import { Group, Vector3 } from 'three'
 
@@ -189,6 +188,7 @@ const execute = () => {
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
+  const mediaNetwork = Engine.instance.mediaNetwork
 
   /** Render immersive media bubbles */
   for (const userEntity of userQuery()) {
@@ -217,27 +217,26 @@ const execute = () => {
     xruiTransform.position.copy(_vector3)
     xruiTransform.rotation.copy(cameraTransform.rotation)
 
-    if (Engine.instance.mediaNetwork)
+    if (mediaNetwork)
       if (immersiveMedia && videoPreviewTimer === 0) {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-        const peers = Engine.instance.mediaNetwork.peers ? Array.from(Engine.instance.mediaNetwork.peers.values()) : []
+        const peers = mediaNetwork.peers ? Array.from(mediaNetwork.peers.values()) : []
         const peer = peers.find((peer) => {
           return peer.userId === ownerId
         })
-        const consumer = Engine.instance.mediaNetwork!.consumers.find(
-          (consumer) =>
-            consumer.appData.peerID === peer?.peerID && consumer.appData.mediaTag === webcamVideoDataChannelType
-        ) as Consumer
-        const paused =
-          consumer &&
-          getState(MediasoupMediaProducerConsumerState)[Engine.instance.mediaNetwork.id].consumers[consumer.id].paused
+        const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+          mediaNetwork.id,
+          peer!.peerID,
+          webcamVideoDataChannelType
+        ) as any
+        const active = !consumer?.paused
         if (videoPreviewMesh.material.map) {
-          if (!consumer || paused) {
+          if (!active) {
             videoPreviewMesh.material.map = null!
             videoPreviewMesh.visible = false
           }
         } else {
-          if (consumer && !paused && !applyingVideo.has(ownerId)) {
+          if (active && !applyingVideo.has(ownerId)) {
             applyingVideo.set(ownerId, true)
             const track = (consumer as any).track
             const newVideoTrack = track.clone()

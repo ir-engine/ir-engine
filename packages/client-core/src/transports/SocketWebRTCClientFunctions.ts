@@ -81,7 +81,8 @@ import {
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaConsumerActions,
-  MediaProducerActions
+  MediaProducerActions,
+  MediasoupMediaProducerConsumerState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { MathUtils } from 'three'
@@ -192,10 +193,7 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
     sendTransport: null! as MediaSoupTransport,
     primus: null! as Primus,
 
-    heartbeat: null! as NodeJS.Timer, // is there an equivalent browser type for this?
-
-    producers: [] as ProducerExtension[],
-    consumers: [] as ConsumerExtension[]
+    heartbeat: null! as NodeJS.Timer // is there an equivalent browser type for this?
   })
 
   return network
@@ -719,8 +717,10 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
                 codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
                 appData: { mediaTag: webcamVideoDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
-              const networkState = getMutableState(NetworkState).networks[network.hostId]
-              networkState.producers.merge([producer])
+              console.log('producer', producer, getState(MediasoupMediaProducerConsumerState)[network.id].producers)
+              getMutableState(MediasoupMediaProducerConsumerState)[network.id].producers[producer.id].producer.set(
+                producer
+              )
               mediaStreamState.camVideoProducer.set(producer)
             }
           } else {
@@ -774,8 +774,9 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
                 track: mediaStreamState.audioStream.value!.getAudioTracks()[0],
                 appData: { mediaTag: webcamAudioDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
-              const networkState = getMutableState(NetworkState).networks[network.hostId]
-              networkState.producers.merge([producer])
+              getMutableState(MediasoupMediaProducerConsumerState)[network.id].producers[producer.id].producer.set(
+                producer
+              )
               mediaStreamState.camAudioProducer.set(producer)
             }
           } else {
@@ -811,9 +812,13 @@ export async function subscribeToTrack(
   const channelConnectionState = getState(MediaInstanceState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
 
-  const consumerMatch = network.consumers.find(
-    (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
-  )
+  const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+    network.id,
+    peerID,
+    mediaTag
+  ) as ConsumerExtension
+  const consumerMatch = !!existingConsumer && existingConsumer?.id === producerId
+
   if (
     !producerId ||
     selfProducerIds.includes(producerId) ||
@@ -856,12 +861,14 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
   })) as unknown as ConsumerExtension
 
   // if we do already have a consumer, we shouldn't have called this method
-  const existingConsumer = network.consumers.find(
-    (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag
-  )
-  const networkState = getMutableState(NetworkState).networks[network.hostId]
+  const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+    network.id,
+    peerID,
+    mediaTag
+  ) as ConsumerExtension
+
   if (!existingConsumer) {
-    networkState.consumers.merge([consumer])
+    getMutableState(MediasoupMediaProducerConsumerState)[network.id].consumers[consumer.id].consumer.set(consumer)
     // okay, we're ready. let's ask the peer to send us media
     if (!paused) resumeConsumer(network, consumer)
     else pauseConsumer(network, consumer)
@@ -874,7 +881,7 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
         $to: peerID
       })
     )
-    networkState.consumers.merge([consumer])
+    getMutableState(MediasoupMediaProducerConsumerState)[network.id].consumers[consumer.id].consumer.set(consumer)
     // okay, we're ready. let's ask the peer to send us media
     if (!paused) {
       resumeConsumer(network, consumer)
@@ -1113,8 +1120,10 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     })) as any as ProducerExtension
   )
 
-  const networkState = getMutableState(NetworkState).networks[network.hostId]
-  networkState.producers.merge([mediaStreamState.screenVideoProducer.value!])
+  const mediaProducerState = getMutableState(MediasoupMediaProducerConsumerState)[network.id].producers[
+    mediaStreamState.screenVideoProducer.value!.id
+  ]
+  mediaProducerState.producer.set(mediaStreamState.screenVideoProducer.value)
 
   console.log('screen producer', mediaStreamState.screenVideoProducer.value)
 
@@ -1127,7 +1136,10 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
       })) as any as ProducerExtension
     )
     mediaStreamState.screenShareAudioPaused.set(false)
-    networkState.producers.merge([mediaStreamState.screenAudioProducer.value!])
+    const mediaProducerState = getMutableState(MediasoupMediaProducerConsumerState)[network.id].producers[
+      mediaStreamState.screenAudioProducer.value!.id
+    ]
+    mediaProducerState.producer.set(mediaStreamState.screenAudioProducer.value)
   }
 
   // handler for screen share stopped event (triggered by the

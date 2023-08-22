@@ -91,16 +91,6 @@ export const MediasoupTransportState = defineState({
     }
   >,
 
-  // getTransportByPeer: (networkID: string, peerID: string) => {
-  //   const state = getState(MediasoupTransportState)[networkID]
-  //   if (!state) return
-
-  //   const producer = Object.values(state.producers).find((p) => p.appData.peerID === peerID)
-  //   if (!producer) return
-
-  //   return producer.producer
-  // },
-
   receptors: [
     [
       MediasoupTransportActions.transportCreated,

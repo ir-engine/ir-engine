@@ -56,10 +56,6 @@ export interface JitterBufferEntry {
 export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, extension: Ext = {} as Ext) => {
   addOutgoingTopicIfNecessary(topic)
   const network = {
-    /** Consumers and producers have separate types on client and server */
-    producers: [] as any[],
-    consumers: [] as any[],
-
     /** Connected peers */
     peers: new Map() as Map<PeerID, NetworkPeer>,
 

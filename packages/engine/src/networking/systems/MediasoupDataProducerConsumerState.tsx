@@ -39,7 +39,6 @@ import { Validator, matches, matchesPeerID } from '../../common/functions/Matche
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { UserID } from '../../schemas/user/user.schema'
-import { NetworkState } from '../NetworkState'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({
@@ -248,33 +247,26 @@ const execute = () => {
 
 export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }) => {
   const { networkID, consumerID } = props
-  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
+  const consumerState = useHookstate(
+    getMutableState(MediasoupDataProducerConsumerState)[networkID].consumers[consumerID]
+  )
 
   useEffect(() => {
+    const consumer = consumerState.consumer.value as any
+    if (!consumer) return
+
     return () => {
-      const network = getState(NetworkState).networks[networkID]
-      const consumer = network.consumers.find((p) => p.id === consumerID)
-      if (!consumer || consumer.closed || consumer._closed) return
-
-      // remove from the network state
-      networkState.consumers.set((p) => {
-        const index = p.findIndex((c) => c.id === consumer.id)
-        if (index > -1) {
-          p.splice(index, 1)
-        }
-        return p
-      })
-
+      if (!consumer.closed || consumer._closed) return
       consumer.close()
     }
-  }, [])
+  }, [consumerState.consumer])
 
-  return <></>
+  return null
 }
 
 const NetworkReactor = (props: { networkID: UserID }) => {
   const { networkID } = props
-  const producers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].producers)
+  // const producers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].producers)
   const consumers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].consumers)
 
   return (
