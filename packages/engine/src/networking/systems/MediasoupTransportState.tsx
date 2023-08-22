@@ -27,23 +27,22 @@ import { defineAction, defineState, none, receiveActions } from '@etherealengine
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { UserID } from '../../schemas/user/user.schema'
 
-export class NetworkTransportActions {
+export class MediasoupTransportActions {
   static requestTransport = defineAction({
-    type: 'ee.engine.network.TRANSPORT_REQUEST_CREATE',
+    type: 'ee.engine.network.mediasoup.TRANSPORT_REQUEST_CREATE',
     direction: matches.literals('send', 'recv'),
     sctpCapabilities: matches.object
   })
 
   static requestTransportError = defineAction({
-    type: 'ee.engine.network.TRANSPORT_REQUEST_ERROR_CREATE',
+    type: 'ee.engine.network.mediasoup.TRANSPORT_REQUEST_ERROR_CREATE',
     error: matches.string,
     direction: matches.literals('send', 'recv')
   })
 
   static transportCreated = defineAction({
-    type: 'ee.engine.network.TRANSPORT_CREATED',
+    type: 'ee.engine.network.mediasoup.TRANSPORT_CREATED',
     transportID: matches.string,
     direction: matches.literals('send', 'recv'),
     sctpParameters: matches.object,
@@ -53,48 +52,59 @@ export class NetworkTransportActions {
   })
 
   static requestTransportConnect = defineAction({
-    type: 'ee.engine.network.TRANSPORT_REQUEST_CONNECT',
+    type: 'ee.engine.network.mediasoup.TRANSPORT_REQUEST_CONNECT',
     requestID: matches.string,
     transportID: matches.string,
     dtlsParameters: matches.object
   })
 
   static requestTransportConnectError = defineAction({
-    type: 'ee.engine.network.TRANSPORT_REQUEST_ERROR_CONNECT',
+    type: 'ee.engine.network.mediasoup.TRANSPORT_REQUEST_ERROR_CONNECT',
     requestID: matches.string,
     error: matches.string
   })
 
   static transportConnected = defineAction({
-    type: 'ee.engine.network.TRANSPORT_CONNECTED',
+    type: 'ee.engine.network.mediasoup.TRANSPORT_CONNECTED',
     requestID: matches.string,
     transportID: matches.string
   })
 
   static transportClosed = defineAction({
-    type: 'ee.engine.network.TRANSPORT_CLOSED',
+    type: 'ee.engine.network.mediasoup.TRANSPORT_CLOSED',
     transportID: matches.string
   })
 }
 
-export const NetworkTransportState = defineState({
-  name: 'ee.engine.network.NetworkTransportState',
+export const MediasoupTransportState = defineState({
+  name: 'ee.engine.network.MediasoupTransportState',
 
   initial: {} as Record<
-    UserID, // NetworkID
+    string, // NetworkID
     {
       [transportID: string]: {
+        // peerID: PeerID // TODO
+        // transport: Transport // TODO
         direction: 'send' | 'recv'
         connected: boolean
       }
     }
   >,
 
-  // TODO: support multiple networks
+  // getTransportByPeer: (networkID: string, peerID: string) => {
+  //   const state = getState(MediasoupTransportState)[networkID]
+  //   if (!state) return
+
+  //   const producer = Object.values(state.producers).find((p) => p.appData.peerID === peerID)
+  //   if (!producer) return
+
+  //   return producer.producer
+  // },
+
   receptors: [
     [
-      NetworkTransportActions.transportCreated,
-      (state, action: typeof NetworkTransportActions.transportCreated.matches._TYPE) => {
+      MediasoupTransportActions.transportCreated,
+      (state, action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) {
           state.merge({ [networkID]: {} })
@@ -108,22 +118,22 @@ export const NetworkTransportState = defineState({
       }
     ],
     [
-      NetworkTransportActions.transportConnected,
-      (state, action: typeof NetworkTransportActions.transportConnected.matches._TYPE) => {
+      MediasoupTransportActions.transportConnected,
+      (state, action: typeof MediasoupTransportActions.transportConnected.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) return
         state[networkID][action.transportID].connected.set(true)
       }
     ],
     [
-      NetworkTransportActions.transportClosed,
-      (state, action: typeof NetworkTransportActions.transportClosed.matches._TYPE) => {
+      MediasoupTransportActions.transportClosed,
+      (state, action: typeof MediasoupTransportActions.transportClosed.matches._TYPE) => {
         // removed create/close cached actions for this producer
         const cachedActions = Engine.instance.store.actions.cached
         const peerCachedActions = cachedActions.filter(
           (cachedAction) =>
-            (NetworkTransportActions.transportCreated.matches.test(cachedAction) ||
-              NetworkTransportActions.transportClosed.matches.test(cachedAction)) &&
+            (MediasoupTransportActions.transportCreated.matches.test(cachedAction) ||
+              MediasoupTransportActions.transportClosed.matches.test(cachedAction)) &&
             cachedAction.transportID === action.transportID
         )
         for (const cachedAction of peerCachedActions) {
@@ -144,10 +154,10 @@ export const NetworkTransportState = defineState({
 })
 
 const execute = () => {
-  receiveActions(NetworkTransportState)
+  receiveActions(MediasoupTransportState)
 }
 
-export const NetworkTransportStateSystem = defineSystem({
-  uuid: 'ee.engine.NetworkTransportStateSystem',
+export const MediasoupTransportStateSystem = defineSystem({
+  uuid: 'ee.engine.network.MediasoupTransportStateSystem',
   execute
 })

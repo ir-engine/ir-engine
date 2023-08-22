@@ -58,7 +58,7 @@ import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
+import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
@@ -324,7 +324,7 @@ export async function createInternalDataConsumer(
 }
 
 export async function handleWebRtcTransportCreate(
-  action: typeof NetworkTransportActions.requestTransport.matches._TYPE
+  action: typeof MediasoupTransportActions.requestTransport.matches._TYPE
 ): Promise<any> {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
@@ -347,7 +347,7 @@ export async function handleWebRtcTransportCreate(
 
     if (!newTransport)
       return dispatchAction(
-        NetworkTransportActions.requestTransportError({
+        MediasoupTransportActions.requestTransportError({
           error: 'No transport was created',
           direction,
           $network: network.id,
@@ -394,7 +394,7 @@ export async function handleWebRtcTransportCreate(
     })
 
     dispatchAction(
-      NetworkTransportActions.transportCreated({
+      MediasoupTransportActions.transportCreated({
         transportID: id,
         direction,
         sctpParameters: {
@@ -414,7 +414,7 @@ export async function handleWebRtcTransportCreate(
     logger.error(err)
 
     return dispatchAction(
-      NetworkTransportActions.requestTransportError({
+      MediasoupTransportActions.requestTransportError({
         error: err,
         direction,
         $network: network.id,
@@ -593,7 +593,9 @@ export async function handleProduceData(
   }
 }
 
-export async function handleWebRtcTransportClose(action: typeof NetworkTransportActions.transportClosed.matches._TYPE) {
+export async function handleWebRtcTransportClose(
+  action: typeof MediasoupTransportActions.transportClosed.matches._TYPE
+) {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { transportID } = action
@@ -604,7 +606,7 @@ export async function handleWebRtcTransportClose(action: typeof NetworkTransport
 }
 
 export async function handleWebRtcTransportConnect(
-  action: typeof NetworkTransportActions.requestTransportConnect.matches._TYPE
+  action: typeof MediasoupTransportActions.requestTransportConnect.matches._TYPE
 ) {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
@@ -616,7 +618,7 @@ export async function handleWebRtcTransportConnect(
     pending
       .then(() => {
         dispatchAction(
-          NetworkTransportActions.transportConnected({
+          MediasoupTransportActions.transportConnected({
             transportID,
             requestID,
             $network: action.$network,
@@ -628,7 +630,7 @@ export async function handleWebRtcTransportConnect(
       .catch((err) => {
         logger.error(err, 'handleWebRtcTransportConnect, data: %o', action)
         dispatchAction(
-          NetworkTransportActions.requestTransportConnectError({
+          MediasoupTransportActions.requestTransportConnectError({
             requestID,
             error: err.message,
             $network: action.$network,
@@ -641,7 +643,7 @@ export async function handleWebRtcTransportConnect(
   } else {
     logger.error('Invalid transport.')
     dispatchAction(
-      NetworkTransportActions.requestTransportConnectError({
+      MediasoupTransportActions.requestTransportConnectError({
         requestID,
         error: 'Invalid transport',
         $network: action.$network,

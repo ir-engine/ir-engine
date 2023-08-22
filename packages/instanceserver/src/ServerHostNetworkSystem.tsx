@@ -42,7 +42,7 @@ import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
+import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -77,9 +77,9 @@ const dataProducerCreatedActionQueue = defineActionQueue(MediasoupDataProducerAc
 const dataRequestConsumerActionQueue = defineActionQueue(MediasoupDataConsumerActions.requestConsumer.matches)
 const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
 
-const requestTransportActionQueue = defineActionQueue(NetworkTransportActions.requestTransport.matches)
-const requestTransportConnectActionQueue = defineActionQueue(NetworkTransportActions.requestTransportConnect.matches)
-const transportCloseActionQueue = defineActionQueue(NetworkTransportActions.transportClosed.matches)
+const requestTransportActionQueue = defineActionQueue(MediasoupTransportActions.requestTransport.matches)
+const requestTransportConnectActionQueue = defineActionQueue(MediasoupTransportActions.requestTransportConnect.matches)
+const transportCloseActionQueue = defineActionQueue(MediasoupTransportActions.transportClosed.matches)
 
 const execute = () => {
   for (const action of requestConsumerActionQueue()) {

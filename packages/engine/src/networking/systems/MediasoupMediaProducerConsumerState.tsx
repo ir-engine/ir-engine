@@ -159,7 +159,6 @@ export const MediasoupMediaProducerConsumerState = defineState({
     }
   >,
 
-  // TODO: support multiple networks
   receptors: [
     [
       MediaProducerActions.producerCreated,

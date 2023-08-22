@@ -38,7 +38,7 @@ export interface NetworkPeer {
   spectating?: boolean
   networkId?: NetworkId // to easily retrieve the network object correspending to this client
   // The following properties are only present on the server
-  spark?: Spark
+  spark?: Spark // todo change this to socket and create a socket transport abstraction
   peerIndex: number
   peerID: PeerID
   lastSeenTs?: any

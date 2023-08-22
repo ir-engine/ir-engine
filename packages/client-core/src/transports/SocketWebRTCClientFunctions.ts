@@ -83,7 +83,7 @@ import {
   MediaConsumerActions,
   MediaProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
+import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -381,7 +381,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   ).then(() => {
     networkState.mediasoupLoaded.set(true)
     dispatchAction(
-      NetworkTransportActions.requestTransport({
+      MediasoupTransportActions.requestTransport({
         direction: 'send',
         sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
         $network: network.id,
@@ -391,7 +391,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     )
 
     dispatchAction(
-      NetworkTransportActions.requestTransport({
+      MediasoupTransportActions.requestTransport({
         direction: 'recv',
         sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
         $network: network.id,
@@ -419,7 +419,7 @@ export const waitForTransports = async (network: SocketWebRTCClientNetwork) => {
   return promise
 }
 
-export const onTransportCreated = async (action: typeof NetworkTransportActions.transportCreated.matches._TYPE) => {
+export const onTransportCreated = async (action: typeof MediasoupTransportActions.transportCreated.matches._TYPE) => {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
   const { transportID, direction, sctpParameters, iceParameters, iceCandidates, dtlsParameters } = action
@@ -462,7 +462,7 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
     ) => {
       const requestID = MathUtils.generateUUID()
       dispatchAction(
-        NetworkTransportActions.requestTransportConnect({
+        MediasoupTransportActions.requestTransportConnect({
           requestID,
           transportID,
           dtlsParameters,
@@ -474,16 +474,16 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
 
       //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
       try {
-        const transportConnected = await new Promise<typeof NetworkTransportActions.transportConnected.matches._TYPE>(
+        const transportConnected = await new Promise<typeof MediasoupTransportActions.transportConnected.matches._TYPE>(
           (resolve, reject) => {
             const onAction = (action) => {
               if (action.requestID !== requestID) return
               matches(action)
-                .when(NetworkTransportActions.transportConnected.matches, (action) => {
+                .when(MediasoupTransportActions.transportConnected.matches, (action) => {
                   removeActionReceptor(onAction)
                   resolve(action)
                 })
-                .when(NetworkTransportActions.requestTransportConnectError.matches, (action) => {
+                .when(MediasoupTransportActions.requestTransportConnectError.matches, (action) => {
                   removeActionReceptor(onAction)
                   logger.error(action.error)
                   reject(new Error(action.error))
@@ -656,7 +656,7 @@ export const onTransportCreated = async (action: typeof NetworkTransportActions.
         if (!getState(NetworkState).networks[network.id] || !network.primus || network.primus.disconnect) return
 
         dispatchAction(
-          NetworkTransportActions.requestTransport({
+          MediasoupTransportActions.requestTransport({
             direction,
             sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
             $network: network.id,
