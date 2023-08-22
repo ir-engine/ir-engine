@@ -30,10 +30,10 @@ import { VRMExpressionPresetName } from '@pixiv/three-vrm'
 import { Face } from './solvers'
 import { FaceSolver } from './solvers/FaceSolver'
 
-import { updateRigRotation } from './UpdateRig'
+import { updateRigRotation } from './UpdateUtils'
 
 const oldLookTarget = new Euler()
-const UpdateSolvedFace = (data, avatarRig, avatarTransform) => {
+const UpdateSolvedFace = (data, avatarRig) => {
   if (data) {
     const faceData = FaceSolver.solve(data)
     if (faceData) {

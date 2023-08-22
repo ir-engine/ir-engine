@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { updateRigRotation } from './UpdateRig'
+import { updateRigRotation } from './UpdateUtils'
 
 import mediapipeHandNames from './MediapipeHandNames'
 import { HandSolver } from './solvers/HandSolver'

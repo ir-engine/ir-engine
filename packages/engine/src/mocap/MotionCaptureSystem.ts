@@ -29,26 +29,23 @@ import { useEffect } from 'react'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
 
 import { Engine } from '../ecs/classes/Engine'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
-//import UpdateRawPose from './UpdateRawPose'
-//import UpdateSolvedFace from './UpdateSolvedFace'
-//import UpdateSolvedHand from './UpdateSolvedHand'
-//import UpdateSolvedPose from './UpdateSolvedPose'
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../transform/components/TransformComponent'
 
-import { UpdatePose } from './UpdatePose'
+import UpdateIkPose from './UpdateIkPose'
+import UpdateSolvedFace from './UpdateSolvedFace'
 
 const useSolvers = false
 
@@ -117,33 +114,30 @@ const execute = () => {
     if (!entity) continue
 
     const data = mocapData.popLast()
-    if (!data) continue
     timeSeriesMocapLastSeen.set(peerID, Date.now())
 
-    if (!data.za || !data.poseLandmarks) continue
+    if (!data || !data.za || !data.poseLandmarks || !data.faceLandmarks) continue
 
     const avatarRig = getComponent(entity, AvatarRigComponent)
-    if (!avatarRig) continue
-
     const avatarTransform = getComponent(entity, TransformComponent)
+    if (!avatarRig || !avatarTransform) continue
+
     const avatarHips = avatarRig?.bindRig?.hips?.node
-    const bindHipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
+    const position = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
+    const rotation = avatarTransform.rotation
 
-    UpdatePose(data.za, data.poseLandmarks, bindHipsPos, avatarTransform.rotation)
+    // incomplete
+    //UpdateSolvedHand(data.rightHandLandmarks, 'right', avatarRig, avatarTransform)
+    //UpdateSolvedHand(data.leftHandLandmarks, 'left', avatarRig, avatarTransform)
 
-    /*
+    // solve pose without ik
+    //UpdateSolvedPose(data.za,data.poseLandmarks,position,rotation,avatarRig)
 
-    if (useSolvers) {
-      // Use solvers to update the avatar
-      UpdateSolvedPose(data?.za, data?.poseLandmarks, bindHipsPos.clone(), avatarRig, avatarTransform)
-      UpdateSolvedHand(data?.rightHandLandmarks, 'right', avatarRig, avatarTransform)
-      UpdateSolvedHand(data?.leftHandLandmarks, 'left', avatarRig, avatarTransform)
-      UpdateSolvedFace(data?.faceLandmarks, avatarRig, avatarTransform)
-    } else {
-      // Use ik targets to update the avatar
-      UpdateRawPose(data?.za, data?.poseLandmarks, bindHipsPos.clone(), avatarRig, avatarTransform)
-    }
-    */
+    // resolve these parts using ik
+    UpdateIkPose(data.za, position, rotation)
+
+    // orient head
+    UpdateSolvedFace(data.faceLandmarks, avatarRig)
   }
 }
 

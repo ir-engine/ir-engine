@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Vector3 } from 'three'
-import { updateRigPosition, updateRigRotation } from './UpdateRig'
+import { updateRigPosition, updateRigRotation } from './UpdateUtils'
 
 import { RestingDefault } from './solvers/utils/helpers'
 
@@ -32,24 +32,19 @@ import { calcArms } from './solvers/PoseSolver/calcArms'
 import { calcHips } from './solvers/PoseSolver/calcHips'
 import { calcLegs } from './solvers/PoseSolver/calcLegs'
 
-const UpdateSolvedPose = (lm3d, lm2d, _hipsPos, avatarRig, avatarTransform) => {
-  //const head = calcHead(lm2d)
+const UpdateSolvedPose = (lm3d, lm2d, position, rotation, avatarRig) => {
   const arms = calcArms(lm3d)
   const hips = calcHips(lm3d, lm2d)
   const legs = calcLegs(lm3d)
 
-  // move hips above leg - clearly of course this is specialized to standing avatars
   const world = hips.Hips.worldPosition! as Vector3
   const hipsPos = {
     x: -world?.x,
-    y: 2, //Math.min(leftFoot.y, rightFoot.y), // foot y is how far below the hip center the foot is, with positive being downwards
+    y: Math.min(lm3d[31].y, lm3d[32].y),
     z: -world?.z
   }
 
-  // detect off screen optionally
-  /// @todo should not use resting defaults but rather last valid data; or simply don't touch
-  const testLimits = true
-  if (testLimits) {
+  {
     const rightHandOffscreen = lm3d[15].y > 0.1 || (lm3d[15].visibility ?? 0) < 0.23 || 0.995 < lm2d[15].y
     const leftHandOffscreen = lm3d[16].y > 0.1 || (lm3d[16].visibility ?? 0) < 0.23 || 0.995 < lm2d[16].y
     const leftFootOffscreen = lm3d[23].y > 0.1 || (lm3d[23].visibility ?? 0) < 0.63 || hips.Hips.position.z > -0.4
@@ -72,14 +67,10 @@ const UpdateSolvedPose = (lm3d, lm2d, _hipsPos, avatarRig, avatarTransform) => {
     legs.LowerLeg.r = legs.LowerLeg.r.multiply(leftFootOffscreen ? 0 : 1)
   }
 
-  updateRigPosition('Hips', hipsPos, 1, 0.07, avatarRig)
-
-  updateRigRotation('Hips', hips.Hips.rotation, 1, 0.7, avatarRig)
-
+  updateRigPosition('Hips', position, 1, 0.07, avatarRig)
+  updateRigRotation('Hips', rotation, 1, 0.7, avatarRig)
   updateRigRotation('Chest', hips.Spine, 0.25, 0.3, avatarRig)
-
   updateRigPosition('Spine', hips.Spine, 0.45, 0.3, avatarRig)
-
   updateRigRotation('RightUpperArm', arms.UpperArm.r, 1, 0.3, avatarRig)
   updateRigRotation('RightLowerArm', arms.LowerArm.r, 1, 0.3, avatarRig)
   updateRigRotation('LeftUpperArm', arms.UpperArm.l, 1, 0.3, avatarRig)

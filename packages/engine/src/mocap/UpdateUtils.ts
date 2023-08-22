@@ -52,7 +52,7 @@ const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
     )
   )
 
-  console.log(rotation)
+  //console.log(rotation)
 
   const Part = rig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName[name])
   if (!Part) {
