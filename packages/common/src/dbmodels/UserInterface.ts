@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export interface UserInterface {
   id: string
@@ -124,5 +124,26 @@ export interface UserRelationshipInterface {
 }
 
 export interface UserRelationshipTypeInterface {
+  type: string
+}
+
+export interface ProjectPermissionInterface {
+  id: string
+  projectId?: string
+  userId?: UserID
+  type?: string
+  user?: UserType
+}
+
+export interface ProjectPermissionType {
+  createdAt: string
+  type: string
+  updatedAt: string
+}
+
+export interface ScopeInterface {
+  id: string
+}
+export interface ScopeTypeInterface {
   type: string
 }

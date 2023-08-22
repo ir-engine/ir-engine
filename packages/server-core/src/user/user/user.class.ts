@@ -29,6 +29,7 @@ import { KnexAdapter } from '@feathersjs/knex'
 
 import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -180,7 +181,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
           }
         })
 
-        await app.service('scope').create(data)
+        await app.service(scopePath).create(data)
       }
 
       if (result && !result.isGuest) {

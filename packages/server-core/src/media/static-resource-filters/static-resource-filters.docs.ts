@@ -23,18 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface StaticResourceInterface {
-  id: string
-  sid: string
-  url: string
-  key: string
-  hash?: string
-  mimeType: string
-  metadata: any
-  project?: string
-  driver?: string
-  attribution?: string
-  licensing?: string
-  tags?: string[]
-  stats?: Record<string, any>
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Static resource filters service description',
+    securities: ['all']
+  }
+})

@@ -1,6 +1,5 @@
 /*
 CPAL-1.0 License
-
 The contents of this file are subject to the Common Public Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
@@ -9,45 +8,47 @@ The License is based on the Mozilla Public License Version 1.1, but Sections 14
 and 15 have been added to cover use of software over a computer network and 
 provide for limited attribution for the Original Developer. In addition, 
 Exhibit A has been modified to be consistent with Exhibit B.
-
 Software distributed under the License is distributed on an "AS IS" basis,
 WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
-
 The Original Code is Ethereal Engine.
-
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
-
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
 
+import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { ProjectPermission } from './project-permission.class'
-import projectPermissionDocs from './project-permission.docs'
-import hooks from './project-permission.hooks'
-import createModel from './project-permission.model'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'project-permission': ProjectPermission
+import {
+  StaticResourceFiltersQuery,
+  StaticResourceFiltersType
+} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { Knex } from 'knex'
+import { RootParams } from '../../api/root-params'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface StaticResourceFiltersParams extends RootParams<StaticResourceFiltersQuery> {}
+
+export class StaticResourceFiltersService extends KnexAdapter<StaticResourceFiltersType, StaticResourceFiltersParams> {
+  app: Application
+
+  constructor(options: KnexAdapterOptions, app: Application) {
+    super(options)
+    this.app = app
   }
-}
 
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
+  async get() {
+    const knexClient: Knex = this.app.get('knexClient')
+
+    const mimeTypes = await knexClient
+      .select('mimeType')
+      .groupBy('mimeType')
+      .from<StaticResourceType>(staticResourcePath)
+
+    const filters: StaticResourceFiltersType = { mimeTypes: mimeTypes.map((el) => el.mimeType) }
+    return filters
   }
-
-  const projectPermissionClass = new ProjectPermission(options, app)
-  projectPermissionClass.docs = projectPermissionDocs
-
-  app.use('project-permission', projectPermissionClass)
-
-  const service = app.service('project-permission')
-
-  service.hooks(hooks)
 }

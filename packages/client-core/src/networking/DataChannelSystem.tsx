@@ -98,7 +98,7 @@ export const DataChannel = (props: { networkID: UserID; dataChannelType: DataCha
     return () => {
       // todo - cleanup
     }
-  }, [recvTransport, sendTransport])
+  }, [recvTransport.value, sendTransport.value])
 
   return null
 }

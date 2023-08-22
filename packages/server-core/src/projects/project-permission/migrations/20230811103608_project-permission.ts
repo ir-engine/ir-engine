@@ -23,15 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import type { Knex } from 'knex'
+
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'recording_resource'
+  const oldTableName = 'project_permission'
 
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
@@ -39,56 +40,39 @@ export async function up(knex: Knex): Promise<void> {
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
   const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
-  let tableExists = await trx.schema.hasTable(recordingResourcePath)
-
+  let tableExists = await trx.schema.hasTable(projectPermissionPath)
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await trx.schema.dropTable(recordingResourcePath)
-    await trx.schema.renameTable(oldTableName, recordingResourcePath)
+    if (tableExists) await trx.schema.dropTable(projectPermissionPath)
+    await trx.schema.renameTable(oldTableName, projectPermissionPath)
   }
 
-  tableExists = await trx.schema.hasTable(recordingResourcePath)
-
-  if (tableExists) {
-    const hasIdColum = await trx.schema.hasColumn(recordingResourcePath, 'id')
-    const hasRecordingIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'recordingId')
-    const hasStaticResourcesIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'staticResourceId')
-    if (!(hasRecordingIdColumn && hasIdColum && hasStaticResourcesIdColumn)) {
-      await trx.schema.dropTable(recordingResourcePath)
-      tableExists = false
-    }
-  }
-
+  tableExists = await trx.schema.hasTable(projectPermissionPath)
   if (!tableExists && !oldNamedTableExists) {
-    await trx.schema.createTable(recordingResourcePath, (table) => {
+    await trx.schema.createTable(projectPermissionPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
-      table.uuid('recordingId').collate('utf8mb4_bin').nullable()
+      table.uuid('projectId').collate('utf8mb4_bin').defaultTo(null).index()
       //@ts-ignore
-      table.uuid('staticResourceId').collate('utf8mb4_bin').nullable().index()
+      table.uuid('userId').collate('utf8mb4_bin').defaultTo(null).index()
+      table.string('type', 255).defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      // Foreign keys
-      table.unique(['recordingId', 'staticResourceId'], {
-        indexName: 'recording_resource_recordingId_staticResourceId_unique'
-      })
-
-      table.foreign('recordingId').references('id').inTable('recording').onDelete('CASCADE').onUpdate('CASCADE')
-
+      table.foreign('projectId').references('id').inTable('project').onDelete('CASCADE').onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
       table
-        .foreign('staticResourceId')
-        .references('id')
-        .inTable('static-resource')
-        .onDelete('CASCADE')
+        .foreign('type')
+        .references('type')
+        .inTable('project-permission-type')
+        .onDelete('SET NULL')
         .onUpdate('CASCADE')
     })
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
@@ -96,9 +80,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(recordingResourcePath)
+  const tableExists = await knex.schema.hasTable(projectPermissionPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(recordingResourcePath)
+    await knex.schema.dropTable(projectPermissionPath)
   }
 }

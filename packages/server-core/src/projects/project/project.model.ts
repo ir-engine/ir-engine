@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { ProjectInterface } from '@etherealengine/common/src/dbmodels/Project'
 
 import { Application } from '../../../declarations'
+import { createProjectPermissionModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -84,7 +85,7 @@ export default (app: Application) => {
   )
 
   ;(Project as any).associate = (models: any): void => {
-    ;(Project as any).hasMany(models.project_permission, {
+    ;(Project as any).hasMany(createProjectPermissionModel(app), {
       foreignKey: 'projectId',
       allowNull: false,
       onDelete: 'cascade'
