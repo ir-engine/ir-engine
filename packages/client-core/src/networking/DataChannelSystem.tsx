@@ -30,11 +30,12 @@ import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Net
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
   MediasoupDataConsumerActions,
-  MediasoupDataProducerConsumerState
+  MediasoupDataProducerConsumerState,
+  MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { State, useHookstate } from '@hookstate/core'
+import { State, none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import React, { useEffect } from 'react'
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
@@ -82,8 +83,11 @@ export async function createDataProducer(
     dataProducer.close()
   })
 
-  const state = getMutableState(MediasoupDataProducerConsumerState)[network.id].producers[dataProducer.id]
-  state.producer.set(dataProducer)
+  dataProducer.observer.on('close', () => {
+    getMutableState(MediasoupDataProducersConsumersObjectsState).producers[dataProducer.id].set(none)
+  })
+
+  getMutableState(MediasoupDataProducersConsumersObjectsState).producers[dataProducer.id].set(dataProducer)
 }
 
 export const consumerData = async (action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
@@ -117,8 +121,11 @@ export const consumerData = async (action: typeof MediasoupDataConsumerActions.c
     dataConsumer.close()
   })
 
-  const state = getMutableState(MediasoupDataProducerConsumerState)[network.id].consumers[dataConsumer.id]
-  state.consumer.set(dataConsumer)
+  dataConsumer.observer.on('close', () => {
+    getMutableState(MediasoupDataProducersConsumersObjectsState).consumers[dataConsumer.id].set(none)
+  })
+
+  getMutableState(MediasoupDataProducersConsumersObjectsState).consumers[dataConsumer.id].set(dataConsumer)
 }
 
 const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)

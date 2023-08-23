@@ -425,7 +425,6 @@ export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }
       if (consumerObjectState.value || consumer.closed || consumer._closed) return
 
       const network = getState(NetworkState).networks[networkID]
-      console.log('closing consumer', consumerID, consumer)
       consumer.close()
 
       // remove from the peer state

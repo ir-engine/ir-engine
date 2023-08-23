@@ -52,7 +52,8 @@ import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/
 import {
   MediasoupDataConsumerActions,
   MediasoupDataProducerActions,
-  MediasoupDataProducerConsumerState
+  MediasoupDataProducerConsumerState,
+  MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaConsumerActions,
@@ -225,9 +226,10 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
 
 export async function closeDataProducer(
   network: SocketWebRTCServerNetwork,
-  dataProducer: DataProducer,
+  dataProducerID: string,
   peerID: PeerID
 ): Promise<void> {
+  const dataProducer = getState(MediasoupDataProducersConsumersObjectsState).producers[dataProducerID]
   dispatchAction(
     MediasoupDataProducerActions.producerClosed({
       producerID: dataProducer.id,
@@ -252,7 +254,7 @@ export async function transportClosed(
     const dataProducers = Object.values(getState(MediasoupDataProducerConsumerState)[network.id].producers)
     dataProducers.forEach(
       (dataProducer) =>
-        dataProducer.producer && closeDataProducer(network, dataProducer.producer as any, dataProducer.appData.peerID)
+        dataProducer.producerID && closeDataProducer(network, dataProducer.producerID, dataProducer.appData.peerID)
     )
   }
   if (getState(MediasoupMediaProducerConsumerState)[network.id]) {
@@ -443,7 +445,6 @@ export async function handleProduceData(
 ): Promise<any> {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
-  console.log('handleProduceData', action)
   const {
     $peer: peerID,
     transportID: transportId,
@@ -542,7 +543,14 @@ export async function handleProduceData(
     )
 
     // if our associated transport closes, close ourself, too
-    dataProducer.on('transportclose', () => closeDataProducer(network, dataProducer, peerID))
+    dataProducer.on('transportclose', () => closeDataProducer(network, dataProducer.id, peerID))
+
+    getMutableState(MediasoupDataProducersConsumersObjectsState).producers[dataProducer.id].set(dataProducer)
+
+    dataProducer.observer.on('close', () => {
+      getMutableState(MediasoupDataProducersConsumersObjectsState).producers[dataProducer.id].set(none)
+    })
+
     const internalConsumer = await createInternalDataConsumer(network, dataProducer, peerID)
     if (!internalConsumer) {
       logger.error('Invalid data producer.')
@@ -759,9 +767,6 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
 
   const { peerID: mediaPeerId, mediaTag, rtpCapabilities, channelID } = action
   const forPeerID = action.$peer
-
-  console.log('handleRequestConsumer', network.id, forPeerID, mediaPeerId)
-  console.log(getState(MediasoupMediaProducerConsumerState)[network.id])
 
   const producer = Object.values(getState(MediasoupMediaProducerConsumerState)[network.id].producers).find(
     (p) => p.peerID === mediaPeerId && p.mediaTag === mediaTag

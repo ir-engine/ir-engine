@@ -29,14 +29,12 @@ import { updatePeers } from '@etherealengine/engine/src/networking/systems/Outgo
 import React, { useEffect } from 'react'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import logger from '@etherealengine/common/src/logger'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
   MediasoupDataConsumerActions,
-  MediasoupDataProducerActions,
-  MediasoupDataProducerConsumerState
+  MediasoupDataProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaConsumerActions,
@@ -73,9 +71,7 @@ const consumerLayersActionQueue = defineActionQueue(MediaConsumerActions.consume
 const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
 
 const dataRequestProducerActionQueue = defineActionQueue(MediasoupDataProducerActions.requestProducer.matches)
-const dataProducerCreatedActionQueue = defineActionQueue(MediasoupDataProducerActions.producerCreated.matches)
 const dataRequestConsumerActionQueue = defineActionQueue(MediasoupDataConsumerActions.requestConsumer.matches)
-const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
 
 const requestTransportActionQueue = defineActionQueue(MediasoupTransportActions.requestTransport.matches)
 const requestTransportConnectActionQueue = defineActionQueue(MediasoupTransportActions.requestTransportConnect.matches)
@@ -95,29 +91,8 @@ const execute = () => {
   for (const action of dataRequestProducerActionQueue()) {
     handleProduceData(action)
   }
-  for (const action of dataProducerCreatedActionQueue()) {
-    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
-    const producer = Array.from(network.peers.values())
-      .map((peer) => peer.dataProducers?.get(action.producerID))
-      .filter(Boolean)?.[0]
-    if (!producer) {
-      logger.warn('dataProducerCreatedActionQueue: producer not found', action.producerID)
-    }
-    getMutableState(MediasoupDataProducerConsumerState)[network.id].producers[action.producerID].producer.set(producer)
-  }
   for (const action of dataRequestConsumerActionQueue()) {
     handleConsumeData(action)
-  }
-
-  for (const action of dataConsumerCreatedActionQueue()) {
-    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
-    const consumer = Array.from(network.peers.values())
-      .map((peer) => peer.outgoingDataConsumers?.get(action.dataChannel))
-      .filter(Boolean)?.[0]
-    if (!consumer) {
-      logger.warn('dataConsumerCreatedActionQueue: consumer not found', action.dataChannel)
-    }
-    getMutableState(MediasoupDataProducerConsumerState)[network.id].consumers[action.consumerID].consumer.set(consumer)
   }
 
   for (const action of requestTransportActionQueue()) {

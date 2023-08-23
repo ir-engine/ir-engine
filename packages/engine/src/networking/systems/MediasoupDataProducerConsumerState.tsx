@@ -23,22 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import {
-  defineAction,
-  defineState,
-  getMutableState,
-  getState,
-  none,
-  receiveActions,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineAction, defineState, getState, none, receiveActions } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { UserID } from '../../schemas/user/user.schema'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({
@@ -116,7 +105,6 @@ export const MediasoupDataProducerConsumerState = defineState({
     {
       producers: {
         [producerID: string]: {
-          producer?: unknown // TODO make common type interface
           producerID: string
           transportId: string
           protocol: string
@@ -127,7 +115,6 @@ export const MediasoupDataProducerConsumerState = defineState({
       }
       consumers: {
         [consumerID: string]: {
-          consumer?: unknown // TODO make common type interface
           consumerID: string
           dataChannel: DataChannelType
           sctpStreamParameters: any
@@ -145,7 +132,7 @@ export const MediasoupDataProducerConsumerState = defineState({
     const producer = Object.values(state.producers).find((p) => p.appData.peerID === peerID)
     if (!producer) return
 
-    return producer.producer
+    return getState(MediasoupDataProducersConsumersObjectsState).producers[producer.producerID]
   },
 
   getProducerByDataChannel: (networkID: string, dataChannel: DataChannelType) => {
@@ -155,7 +142,7 @@ export const MediasoupDataProducerConsumerState = defineState({
     const producer = Object.values(state.producers).find((p) => p.dataChannel === dataChannel)
     if (!producer) return
 
-    return producer.producer
+    return getState(MediasoupDataProducersConsumersObjectsState).producers[producer.producerID]
   },
 
   receptors: [
@@ -241,68 +228,7 @@ const execute = () => {
   receiveActions(MediasoupDataProducerConsumerState)
 }
 
-// export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
-//   const { networkID, producerID } = props
-//   const producerState = useHookstate(getMutableState(DataProducerConsumerState)[networkID].producers[producerID])
-//   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
-//   const networkProducerState = networkState.producers.find((p) => p.value.id === producerID)
-
-//   useEffect(() => {
-//     const network = getState(NetworkState).networks[networkID]
-//   }, [])
-
-//   return <></>
-// }
-
-export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }) => {
-  const { networkID, consumerID } = props
-  const consumerState = useHookstate(
-    getMutableState(MediasoupDataProducerConsumerState)[networkID].consumers[consumerID]
-  )
-
-  useEffect(() => {
-    const consumer = consumerState.consumer.value as any
-    if (!consumer) return
-
-    return () => {
-      if (!consumer.closed || consumer._closed) return
-      consumer.close()
-    }
-  }, [consumerState.consumer])
-
-  return null
-}
-
-const NetworkReactor = (props: { networkID: UserID }) => {
-  const { networkID } = props
-  // const producers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].producers)
-  const consumers = useHookstate(getMutableState(MediasoupDataProducerConsumerState)[networkID].consumers)
-
-  return (
-    <>
-      {/* {Object.keys(producers.value).map((producerID: string) => (
-        <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
-      ))} */}
-      {Object.keys(consumers.value).map((consumerID: string) => (
-        <NetworkConsumer key={consumerID} consumerID={consumerID} networkID={networkID} />
-      ))}
-    </>
-  )
-}
-
-const reactor = () => {
-  const networkIDs = useHookstate(getMutableState(MediasoupDataProducerConsumerState))
-  return (
-    <>
-      {Object.keys(networkIDs.value).map((hostId: UserID) => (
-        <NetworkReactor key={hostId} networkID={hostId} />
-      ))}
-    </>
-  )
-}
-
 export const MediasoupDataProducerConsumerStateSystem = defineSystem({
   uuid: 'ee.engine.network.MediasoupDataProducerConsumerStateSystem',
-  execute,
-  reactor
+  execute
 })
