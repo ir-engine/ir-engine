@@ -32,7 +32,7 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
@@ -69,7 +69,7 @@ export const UserMenu = () => {
                 const hotbarItem = hotbarItems[id]
                 if (!hotbarItem) return null
                 return (
-                  <IconButton
+                  <IconButtonWithTooltip
                     key={index}
                     type="solid"
                     title={hotbarItem.tooltip}
