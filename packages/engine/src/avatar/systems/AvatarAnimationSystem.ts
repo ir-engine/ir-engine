@@ -179,7 +179,7 @@ const execute = () => {
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
 
     const delta = elapsedSeconds - avatarAnimationComponent.deltaAccumulator
-    const deltaTime = delta * animationComponent.animationSpeed
+    const deltaTime = delta
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
 
     if (rigidbodyComponent) {
