@@ -31,7 +31,6 @@ import CloseIcon from '@mui/icons-material/Close'
 import { IconButtonProps, default as MUIIconButton } from '@mui/material/IconButton'
 
 // @ts-ignore
-import { Tooltip } from '@mui/material'
 import styles from './index.module.scss'
 
 const IconButton = ({
@@ -67,29 +66,27 @@ const IconButton = ({
   }
 
   return (
-    <Tooltip id={id} title={title}>
-      <MUIIconButton
-        id={id}
-        className={`${baseStyle} ${background ? styles.backgroundStyle : ''} ${className ?? ''}`}
-        disabled={disabled}
-        disableRipple={disableRipple}
-        size={size}
-        edge={edge}
-        sx={{
-          height: sizePx ? `${sizePx}px` : 'auto',
-          width: sizePx ? `${sizePx}px` : 'auto',
-          background: background ? `${background} !important` : 'auto',
-          ...sx
-        }}
-        title={title}
-        onClick={onClick}
-        onPointerUp={handleSoundEffect}
-        onPointerEnter={handleSoundEffect}
-        {...props}
-      >
-        {icon}
-      </MUIIconButton>
-    </Tooltip>
+    <MUIIconButton
+      id={id}
+      className={`${baseStyle} ${background ? styles.backgroundStyle : ''} ${className ?? ''}`}
+      disabled={disabled}
+      disableRipple={disableRipple}
+      size={size}
+      edge={edge}
+      sx={{
+        height: sizePx ? `${sizePx}px` : 'auto',
+        width: sizePx ? `${sizePx}px` : 'auto',
+        background: background ? `${background} !important` : 'auto',
+        ...sx
+      }}
+      title={title}
+      onClick={onClick}
+      onPointerUp={handleSoundEffect}
+      onPointerEnter={handleSoundEffect}
+      {...props}
+    >
+      {icon}
+    </MUIIconButton>
   )
 }
 

@@ -28,7 +28,7 @@ import React from 'react'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { useFullscreen } from '../useFullscreen'
@@ -41,10 +41,10 @@ export const Fullscreen = () => {
   return (
     <>
       {fullScreenActive ? (
-        <IconButton
-          type="button"
+        <IconButtonWithTooltip
           title={t('user:menu.exitFullScreen')}
-          className={`${styles.btn} ${styles.fullScreen} ${bottomShelfStyle} `}
+          className={`${styles.btn} ${bottomShelfStyle} `}
+          tooltipClassName={styles.fullScreen}
           background="white"
           onClick={() => setFullScreenActive(false)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -52,9 +52,10 @@ export const Fullscreen = () => {
           icon={<Icon type="FullscreenExit" />}
         />
       ) : (
-        <IconButton
+        <IconButtonWithTooltip
           title={t('user:menu.enterFullScreen')}
-          className={`${styles.btn} ${styles.fullScreen} ${bottomShelfStyle} `}
+          className={`${styles.btn} ${bottomShelfStyle} `}
+          tooltipClassName={styles.fullScreen}
           background="white"
           onClick={() => setFullScreenActive(true)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}

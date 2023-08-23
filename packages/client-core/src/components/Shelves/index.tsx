@@ -35,7 +35,7 @@ import {
 } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
 import { AppAction, AppServiceReceptor, AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'
@@ -64,20 +64,20 @@ export const Shelves = () => {
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
-      <IconButton
-        className={`${showTopShelf ? styles.btn : styles.smBtn} ${showTopShelf ? styles.rotate : styles.rotateBack} ${
-          styles.showIconMedia
-        } `}
+      <IconButtonWithTooltip
+        className={`${showTopShelf ? styles.btn : styles.smBtn} ${showTopShelf ? styles.rotate : styles.rotateBack}`}
+        tooltipClassName={styles.showIconMedia}
         title={showTopShelf ? t('user:menu.hide') : t('user:menu.show')}
         onClick={handleShowMediaIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         icon={<Icon type={showTopShelf ? 'KeyboardDoubleArrowUp' : 'KeyboardDoubleArrowDown'} />}
       />
-      <IconButton
+      <IconButtonWithTooltip
         className={`${showBottomShelf ? styles.btn : styles.smBtn} ${
           showBottomShelf ? styles.rotate : styles.rotateBack
-        } ${styles.showIcon} `}
+        } `}
+        tooltipClassName={styles.showIcon}
         title={showBottomShelf ? t('user:menu.hide') : t('user:menu.show')}
         onClick={handleShowBottomIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
