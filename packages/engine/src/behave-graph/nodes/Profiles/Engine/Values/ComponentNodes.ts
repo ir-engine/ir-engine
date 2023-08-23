@@ -25,7 +25,35 @@ Ethereal Engine. All Rights Reserved.
 
 import { NodeCategory, makeFlowNodeDefinition } from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { ComponentMap, removeComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { ComponentMap, removeComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+
+export const addComponent = makeFlowNodeDefinition({
+  typeName: 'engine/component/addComponent',
+  category: NodeCategory.Action,
+  label: 'Add Component',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    componentName: (_, graphApi) => {
+      const choices = Array.from(ComponentMap.keys()).sort()
+      choices.unshift('none')
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
+  },
+  out: { flow: 'flow', entity: 'entity' },
+  initialState: undefined,
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    const entity = Number.parseInt(read('entity')) as Entity
+    const componentName = read<string>('componentName')
+    const component = ComponentMap.get(componentName)!
+    setComponent(entity, component)
+    write('entity', entity)
+    commit('flow')
+  }
+})
 
 export const deleteComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/deleteComponent',
