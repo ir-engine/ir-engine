@@ -64,7 +64,9 @@
     "state": "State",
     "systems": "Systems",
     "entities": "Entities",
-    "networks": "Networks"
+    "networks": "Networks",
+    "actionsHistory": "Actions History",
+    "actionsCached": "Actions Cached"
   },
   "recording": {
     "videoRecorder": "Video recorder",
