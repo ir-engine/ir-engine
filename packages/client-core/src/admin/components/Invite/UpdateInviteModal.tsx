@@ -98,7 +98,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-  const updateInvite = useMutation(invitePath).update
+  const updateInvite = useMutation(invitePath).update as (id: string, data: InvitePatch) => Promise<InviteType>
 
   useEffect(() => {
     inviteTypeTab.set(

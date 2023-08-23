@@ -55,7 +55,7 @@ const defaultInvite = {
   createdAt: new Date().toJSON(),
   updatedAt: new Date().toJSON(),
   userId: '' as UserID
-}
+} as InviteType
 
 const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props) => {
   const { t } = useTranslation()
