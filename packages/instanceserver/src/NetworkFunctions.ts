@@ -212,14 +212,8 @@ export const handleConnectingPeer = (
     spark: spark,
     peerIndex,
     peerID,
-    lastSeenTs: Date.now(),
-    joinTs: Date.now(),
-    media: {} as any,
-    consumerLayers: {},
-    stats: {},
-    incomingDataConsumers: new Map(),
-    outgoingDataConsumers: new Map(),
-    dataProducers: new Map()
+    media: {},
+    lastSeenTs: Date.now()
   })
 
   if (!network.users.has(userId)) {
@@ -246,7 +240,7 @@ export const handleConnectingPeer = (
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 
   return {
-    routerRtpCapabilities: network.routers[0].rtpCapabilities,
+    routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
     peerIndex: network.peerIDToPeerIndex.get(peerID)!,
     cachedActions
   }

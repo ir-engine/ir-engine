@@ -39,7 +39,7 @@ import os from 'os'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MediaStreamAppData, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, none, State } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -66,6 +66,7 @@ import {
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceServerState } from './InstanceServerState'
+import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
   ConsumerExtension,
@@ -134,11 +135,13 @@ export async function startWebRTC() {
  * Creates a new WebRTC transport for the given data channel.
  */
 export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetwork, dataChannel: DataChannelType) => {
-  if (network.outgoingDataProducers[dataChannel]) return
+  if (network.transport.outgoingDataProducers[dataChannel]) return
 
   logger.info('createOutgoingDataProducer %o', dataChannel)
 
-  const outgoingDataProducer = await network.outgoingDataTransport.produceData({
+  const transport = network.transport.outgoingDataTransport
+
+  const outgoingDataProducer = await transport.produceData({
     label: dataChannel,
     protocol: 'raw',
     // sctpStreamParameters: {
@@ -149,17 +152,21 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
     }
   })
 
-  const currentRouter = network.routers[0]
+  const currentRouter = network.transport.routers[0]
 
   await Promise.all(
-    network.routers.map(async (router) => {
+    network.transport.routers.map(async (router) => {
       if (router.id !== currentRouter.id)
         return currentRouter.pipeToRouter({ dataProducerId: outgoingDataProducer.id, router: router })
       else return Promise.resolve()
     })
   )
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  networkState.transport.outgoingDataProducers[dataChannel].set(outgoingDataProducer)
 
-  network.outgoingDataProducers[dataChannel] = outgoingDataProducer
+  outgoingDataProducer.observer.on('close', () => {
+    networkState.transport.outgoingDataProducers[dataChannel].set(none)
+  })
 }
 
 export const handleConsumeData = async (action: typeof MediasoupDataConsumerActions.requestConsumer.matches._TYPE) => {
@@ -176,7 +183,11 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
   const userId = getUserIdFromPeerID(network, peerID)!
   logger.info('Data Consumer being created on server by client: ' + userId)
 
-  if (peer.outgoingDataConsumers!.has(dataChannel)) {
+  const existingDataConsumer = getState(MediasoupInternalWebRTCDataChannelState)[peerID]?.outgoingDataConsumers?.[
+    dataChannel
+  ]
+
+  if (existingDataConsumer) {
     return logger.info('Data consumer already exists for dataChannel: ' + dataChannel)
   }
 
@@ -186,7 +197,7 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
   }
 
   try {
-    const outgoingDataProducer = network.outgoingDataProducers[dataChannel]
+    const outgoingDataProducer = network.transport.outgoingDataProducers[dataChannel]
     const dataConsumer = await newTransport.consumeData({
       dataProducerId: outgoingDataProducer.id,
       appData: { peerID, transportId: newTransport.id }
@@ -194,17 +205,34 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
 
     dataConsumer.on('dataproducerclose', () => {
       dataConsumer.close()
-      if (network.peers.has(peerID)) network.peers.get(peerID)!.outgoingDataConsumers!.delete(dataChannel)
+    })
+
+    dataConsumer.on('transportclose', () => {
+      dataConsumer.close()
+    })
+
+    if (!getState(MediasoupInternalWebRTCDataChannelState)[peerID]) {
+      getMutableState(MediasoupInternalWebRTCDataChannelState)[peerID].set({
+        outgoingDataConsumers: {},
+        incomingDataConsumers: {}
+      })
+    }
+
+    getMutableState(MediasoupInternalWebRTCDataChannelState)[peerID].outgoingDataConsumers[dataChannel].set(
+      dataConsumer
+    )
+
+    dataConsumer.observer.on('close', () => {
+      getMutableState(MediasoupInternalWebRTCDataChannelState)[peerID].outgoingDataConsumers[dataChannel].set(none)
     })
 
     const peer = network.peers.get(peerID)
 
     logger.info('Setting data consumer to network state.')
     if (!peer) {
+      dataConsumer.close()
       return logger.warn('No peer found for peerID: ' + peerID)
     }
-
-    peer.outgoingDataConsumers!.set(dataChannel, dataConsumer)
 
     // Data consumers are all consuming the single producer that outputs from the server's message queue
     dispatchAction(
@@ -241,8 +269,6 @@ export async function closeDataProducer(
     })
   )
   dataProducer.close()
-  const peer = network.peers.get(peerID)
-  if (peer) peer.dataProducers!.delete(dataProducer.id)
 }
 
 export function transportClosed(network: SocketWebRTCServerNetwork, transport: WebRTCTransportExtension) {
@@ -286,7 +312,7 @@ export async function createWebRtcTransport(
   { peerID, direction, sctpCapabilities, channelId }: WebRtcTransportParams
 ): Promise<WebRTCTransportExtension> {
   const { initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
-  const routerList = network.routers
+  const routerList = network.transport.routers
 
   const dumps = await Promise.all(routerList.map(async (item) => await item.dump()))
   const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
@@ -315,20 +341,47 @@ export async function createInternalDataConsumer(
   peerID: PeerID
 ): Promise<DataConsumer | null> {
   try {
-    const consumer = await network.outgoingDataTransport.consumeData({
+    const transport = network.transport.outgoingDataTransport
+    const dataConsumer = await transport.consumeData({
       dataProducerId: dataProducer.id,
-      appData: { peerID, transportId: network.outgoingDataTransport.id },
+      appData: { peerID, transportId: transport.id },
       maxPacketLifeTime: dataProducer.sctpStreamParameters!.maxPacketLifeTime,
       maxRetransmits: dataProducer.sctpStreamParameters!.maxRetransmits,
       ordered: false
     })
-    consumer.on('message', (message) => {
+    dataConsumer.on('message', (message) => {
       const DataChannelFunctions = getState(DataChannelRegistryState)[dataProducer.label as DataChannelType]
       if (DataChannelFunctions) {
         for (const func of DataChannelFunctions) func(network, dataProducer.label as DataChannelType, peerID, message)
       }
     })
-    return consumer
+
+    if (!getState(MediasoupInternalWebRTCDataChannelState)[peerID]) {
+      getMutableState(MediasoupInternalWebRTCDataChannelState)[peerID].set({
+        outgoingDataConsumers: {},
+        incomingDataConsumers: {}
+      })
+    }
+
+    getMutableState(MediasoupInternalWebRTCDataChannelState)[peerID].incomingDataConsumers[dataProducer.label].set(
+      dataConsumer
+    )
+
+    dataConsumer.observer.on('close', () => {
+      getMutableState(MediasoupInternalWebRTCDataChannelState)[peerID].incomingDataConsumers[dataProducer.label].set(
+        none
+      )
+    })
+
+    dataConsumer.on('transportclose', () => {
+      dataConsumer.close()
+    })
+
+    dataConsumer.on('dataproducerclose', () => {
+      dataConsumer.close()
+    })
+
+    return dataConsumer
   } catch (err) {
     logger.error(err, 'Error creating internal data consumer. dataProducer: %o', dataProducer)
   }
@@ -529,12 +582,10 @@ export async function handleProduceData(
       )
     }
 
-    network.peers.get(peerID)!.dataProducers!.set(dataProducer.id, dataProducer)
-
-    const currentRouter = network.routers.find((router) => router.id === transport.internal.routerId)!
+    const currentRouter = network.transport.routers.find((router) => router.id === transport.internal.routerId)!
 
     await Promise.all(
-      network.routers.map(async (router) => {
+      network.transport.routers.map(async (router) => {
         if (router.id !== transport.internal.routerId)
           return currentRouter.pipeToRouter({
             dataProducerId: dataProducer.id,
@@ -577,7 +628,7 @@ export async function handleProduceData(
         })
       )
     }
-    // network.peers.get(peerID)!.incomingDataConsumers!.set(label, internalConsumer)
+
     // Possibly do stuff with appData here
     logger.info('Sending dataproducer id to client: ' + dataProducer.id)
     return dispatchAction(
@@ -620,18 +671,19 @@ export async function handleWebRtcTransportClose(
   transportClosed(network, transport)
 }
 
+const transportsConnectPending = {} as { [transportID: string]: Promise<void> }
+
 export async function handleWebRtcTransportConnect(
   action: typeof MediasoupTransportActions.requestTransportConnect.matches._TYPE
 ) {
-  const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
-
   const { transportID, requestID, dtlsParameters } = action
   const transport = getState(MediasoupTransportObjectsState)[transportID]
   if (transport) {
     const pending =
-      network.transportsConnectPending[transportID] ?? transport.connect({ dtlsParameters: dtlsParameters as any })
+      transportsConnectPending[transportID] ?? transport.connect({ dtlsParameters: dtlsParameters as any })
     pending
       .then(() => {
+        // delete transportsConnectPending[transportID]
         dispatchAction(
           MediasoupTransportActions.transportConnected({
             transportID,
@@ -644,6 +696,7 @@ export async function handleWebRtcTransportConnect(
       })
       .catch((err) => {
         logger.error(err, 'handleWebRtcTransportConnect, data: %o', action)
+        // delete transportsConnectPending[transportID]
         dispatchAction(
           MediasoupTransportActions.requestTransportConnectError({
             requestID,
@@ -654,7 +707,7 @@ export async function handleWebRtcTransportConnect(
           })
         )
       })
-    network.transportsConnectPending[transportID] = pending
+    transportsConnectPending[transportID] = pending
   } else {
     logger.error('Invalid transport.')
     dispatchAction(
@@ -705,7 +758,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
       appData: newProducerAppData
     })) as unknown as ProducerExtension
 
-    const routers = network.routers
+    const routers = network.transport.routers
     const currentRouter = routers.find((router) => router.id === transport?.internal.routerId)!
 
     await Promise.all(
@@ -778,7 +831,7 @@ export const handleRequestConsumer = async (
   const transport = MediasoupTransportState.getTransport(network.id, 'recv', forPeerID) as WebRTCTransportExtension
 
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
-  const router = network.routers.find((router) => router.id === transport?.internal.routerId)
+  const router = network.transport.routers.find((router) => router.id === transport?.internal.routerId)
   if (!producer || !router || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.producerID}`
     logger.error(`recv-track: ${forPeerID} ${msg}`)
@@ -825,20 +878,6 @@ export const handleRequestConsumer = async (
           $to: forPeerID
         })
       )
-    })
-
-    if (network.peers.has(forPeerID)) {
-      network.peers.get(forPeerID)!.consumerLayers![consumer.id] = {
-        currentLayer: null,
-        clientSelectedLayer: null
-      }
-    }
-
-    // update above data structure when layer changes.
-    consumer.on('layerschange', (layers) => {
-      if (network.peers.has(forPeerID) && network.peers.get(forPeerID)!.consumerLayers![consumer.id]) {
-        network.peers.get(forPeerID)!.consumerLayers![consumer.id].currentLayer = layers && layers.spatialLayer
-      }
     })
 
     dispatchAction(

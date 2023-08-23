@@ -55,6 +55,7 @@ export const initializeNetwork = async (app: Application, id: string, hostId: Us
   const { workers, routers } = await startWebRTC()
 
   const outgoingDataTransport = await routers[0].createDirectTransport()
+
   logger.info('Server transport initialized.')
 
   const transport = {
@@ -78,24 +79,22 @@ export const initializeNetwork = async (app: Application, id: string, hostId: Us
      * @param data
      */
     bufferToAll: (dataChannelType: DataChannelType, data: any) => {
-      const dataProducer = network.outgoingDataProducers[dataChannelType]
+      const dataProducer = network.transport.outgoingDataProducers[dataChannelType]
       if (!dataProducer) return
       dataProducer.send(Buffer.from(new Uint8Array(data)))
-    }
+    },
+
+    workers,
+    routers,
+    outgoingDataTransport,
+    outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
   }
 
   startSystem(MediasoupServerSystem, {
     before: ServerHostNetworkSystem
   })
 
-  const network = createNetwork(id, hostId, topic, {
-    workers,
-    routers,
-    transport,
-    outgoingDataTransport,
-    outgoingDataProducers: {} as Record<DataChannelType, DataProducer>,
-    transportsConnectPending: [] as Promise<void>[]
-  })
+  const network = createNetwork(id, hostId, topic, transport)
 
   return network
 }

@@ -325,27 +325,6 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
   useEffect(() => {
     const peerID = producerState.peerID.value
     const mediaTag = producerState.mediaTag.value
-    const channelID = producerState.channelID.value
-    const network = getState(NetworkState).networks[networkID]
-
-    // todo, replace this with a better check
-    if (isClient) {
-      dispatchAction(
-        MediasoupMediaConsumerActions.requestConsumer({
-          mediaTag,
-          peerID,
-          rtpCapabilities: (network as any).mediasoupDevice.rtpCapabilities,
-          channelID,
-          $topic: network.topic,
-          $to: network.hostPeerID
-        })
-      )
-    }
-  }, [])
-
-  useEffect(() => {
-    const peerID = producerState.peerID.value
-    const mediaTag = producerState.mediaTag.value
     const producer = producerObjectState.value as any
 
     if (!producer) return
@@ -426,9 +405,6 @@ export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }
 
       const network = getState(NetworkState).networks[networkID]
       consumer.close()
-
-      // remove from the peer state
-      delete network.peers.get(consumer.appData.peerID)?.consumerLayers?.[consumer.id]
     }
   }, [consumerObjectState])
 
@@ -466,10 +442,10 @@ const NetworkReactor = (props: { networkID: UserID }) => {
 
   return (
     <>
-      {Object.keys(producers.value).map((producerID: string) => (
+      {producers.keys.map((producerID: string) => (
         <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
       ))}
-      {Object.keys(consumers.value).map((consumerID: string) => (
+      {consumers.keys.map((consumerID: string) => (
         <NetworkConsumer key={consumerID} consumerID={consumerID} networkID={networkID} />
       ))}
     </>
@@ -480,7 +456,7 @@ const reactor = () => {
   const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
   return (
     <>
-      {Object.keys(networkIDs.value).map((hostId: UserID) => (
+      {networkIDs.keys.map((hostId: UserID) => (
         <NetworkReactor key={hostId} networkID={hostId} />
       ))}
     </>

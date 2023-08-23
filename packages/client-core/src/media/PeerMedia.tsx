@@ -33,9 +33,10 @@ import {
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
+  MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -166,12 +167,43 @@ export const PeerMediaChannels = (props: { networkID: UserID }) => {
   return null
 }
 
+export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
+  const { networkID, producerID } = props
+  const producerState = useHookstate(
+    getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
+  )
+
+  useEffect(() => {
+    const peerID = producerState.peerID.value
+    const mediaTag = producerState.mediaTag.value
+    const channelID = producerState.channelID.value
+    const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
+
+    dispatchAction(
+      MediasoupMediaConsumerActions.requestConsumer({
+        mediaTag,
+        peerID,
+        rtpCapabilities: network.transport.mediasoupDevice.rtpCapabilities,
+        channelID,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
+  }, [])
+
+  return null
+}
+
 const NetworkConsumers = (props: { networkID: UserID }) => {
   const { networkID } = props
   const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)
+  const producers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers)
   return (
     <>
       <PeerMediaChannels key={'PeerMediaChannels'} networkID={networkID} />
+      {producers.keys.map((producerID: string) => (
+        <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
+      ))}
       {consumers.keys.map((consumerID: string) => (
         <PeerMedia key={consumerID} consumerID={consumerID} networkID={networkID} />
       ))}

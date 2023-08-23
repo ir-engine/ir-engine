@@ -40,7 +40,6 @@ export const NetworkTopics = {
 }
 
 export interface TransportInterface {
-  get peers(): PeerID[]
   messageToPeer: (peerId: PeerID, data: any) => void
   messageToAll: (data: any) => void
   bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => void
@@ -53,7 +52,17 @@ export interface JitterBufferEntry {
 }
 
 /** Interface for the Transport. */
-export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, extension: Ext = {} as Ext) => {
+export const createNetwork = <Ext>(
+  id: string,
+  hostId: UserID,
+  topic: Topic,
+  transport = {
+    messageToPeer: (peerId: PeerID, data: any) => {},
+    messageToAll: (data: any) => {},
+    bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => {},
+    bufferToAll: (dataChannelType: DataChannelType, data: any) => {}
+  } as TransportInterface & Ext
+) => {
   addOutgoingTopicIfNecessary(topic)
   const network = {
     /** Connected peers */
@@ -123,12 +132,7 @@ export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, ext
     /**
      * The transport used by this network.
      */
-    transport: {
-      messageToPeer: (peerId: PeerID, data: any) => {},
-      messageToAll: (data: any) => {},
-      bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => {},
-      bufferToAll: (dataChannelType: DataChannelType, data: any) => {}
-    } as TransportInterface,
+    transport,
 
     /**
      * Check if this user is hosting the world.
@@ -139,8 +143,8 @@ export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, ext
 
     topic
   }
-  Object.assign(network, extension)
-  return network as typeof network & Ext
+
+  return network
 }
 
 export type Network = ReturnType<typeof createNetwork>

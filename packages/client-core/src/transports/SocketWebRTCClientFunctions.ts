@@ -54,7 +54,7 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import { NetworkTopics, TransportInterface, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
   CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
@@ -123,7 +123,7 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
     const responseFunction = (data) => {
       if (data.type.toString() === message.type.toString() && message.id === data.id) {
         resolve(data.data)
-        network.primus.removeListener('data', responseFunction)
+        network.transport.primus.removeListener('data', responseFunction)
       }
     }
     Object.defineProperty(responseFunction, 'name', { value: `responseFunction${id}`, writable: true })
@@ -132,9 +132,9 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
       data: data,
       id: id++
     }
-    network.primus.write(message)
+    network.transport.primus.write(message)
 
-    network.primus.on('data', responseFunction)
+    network.transport.primus.on('data', responseFunction)
   })
 }
 
@@ -161,10 +161,10 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
       transport.close()
     }
   }
-  network.heartbeat && clearInterval(network.heartbeat)
-  network.primus?.end()
-  network.primus?.removeAllListeners()
-  networkState.primus.set(null!)
+  network.transport.heartbeat && clearInterval(network.transport.heartbeat)
+  network.transport.primus?.end()
+  network.transport.primus?.removeAllListeners()
+  networkState.transport.primus.set(null!)
 }
 
 export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
@@ -174,11 +174,11 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
 
   const transport = {
     messageToPeer: (peerId: PeerID, data: any) => {
-      network.primus?.write(data)
+      network.transport.primus?.write(data)
     },
 
     messageToAll: (data: any) => {
-      network.primus?.write(data)
+      network.transport.primus?.write(data)
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
@@ -191,17 +191,15 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
         | undefined
       if (!dataProducer) return
       if (!dataProducer.closed && dataProducer.readyState === 'open') dataProducer.send(data)
-    }
-  } as TransportInterface
-
-  const network = createNetwork(id, hostId, topic, {
-    transport,
+    },
     mediasoupDevice,
     mediasoupLoaded: false,
     primus: null! as Primus,
 
     heartbeat: null! as NodeJS.Timer // is there an equivalent browser type for this?
-  })
+  }
+
+  const network = createNetwork(id, hostId, topic, transport)
 
   return network
 }
@@ -272,7 +270,7 @@ export const connectToNetwork = async (
 
     const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
 
-    networkState.primus.set(primus)
+    networkState.transport.primus.set(primus)
 
     primus.off('incoming::open', onConnect)
     logger.info('CONNECTED to port %o', { port })
@@ -327,21 +325,21 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
       if (response.status !== 'pending') {
         clearInterval(interval)
         resolve(response)
-        network.primus.off('data', onAuthentication)
+        network.transport.primus.off('data', onAuthentication)
       }
     }
 
-    network.primus.on('data', onAuthentication)
+    network.transport.primus.on('data', onAuthentication)
 
     const interval = setInterval(() => {
       // ensure we're still connected
-      if (!network.primus) {
+      if (!network.transport.primus) {
         clearInterval(interval)
         resolve({ status: 'fail' })
         return
       }
 
-      network.primus.write(payload)
+      network.transport.primus.write(payload)
     }, 100)
   })
 
@@ -353,11 +351,11 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   networkState.authenticated.set(true)
 
   // must be in an interval so that it runs outside of the animation frame loop
-  network.heartbeat = setInterval(() => {
+  network.transport.heartbeat = setInterval(() => {
     network.transport.messageToPeer(network.hostPeerID, [])
   }, 1000)
 
-  network.primus.on('data', actionDataHandler)
+  network.transport.primus.on('data', actionDataHandler)
 
   // handle cached actions
   for (const action of cachedActions!) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
@@ -378,18 +376,18 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     getMutableState(EngineState).connectedWorld.set(true)
   }
 
-  ;(network.mediasoupDevice.loaded
+  ;(network.transport.mediasoupDevice.loaded
     ? Promise.resolve()
-    : network.mediasoupDevice.load({
+    : network.transport.mediasoupDevice.load({
         routerRtpCapabilities
       })
   ).then(() => {
-    networkState.mediasoupLoaded.set(true)
+    networkState.transport.mediasoupLoaded.set(true)
     dispatchAction(
       MediasoupTransportActions.requestTransport({
         peerID: Engine.instance.peerID,
         direction: 'send',
-        sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+        sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
         $network: network.id,
         $topic: network.topic,
         $to: network.hostPeerID
@@ -400,7 +398,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
       MediasoupTransportActions.requestTransport({
         peerID: Engine.instance.peerID,
         direction: 'recv',
-        sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+        sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
         $network: network.id,
         $topic: network.topic,
         $to: network.hostPeerID
@@ -447,9 +445,9 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   }
 
   if (direction === 'recv') {
-    transport = await network.mediasoupDevice.createRecvTransport(transportOptions)
+    transport = await network.transport.mediasoupDevice.createRecvTransport(transportOptions)
   } else if (direction === 'send') {
-    transport = await network.mediasoupDevice.createSendTransport(transportOptions)
+    transport = await network.transport.mediasoupDevice.createSendTransport(transportOptions)
   } else throw new Error(`bad transport 'direction': ${direction}`)
 
   getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
@@ -658,13 +656,18 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
           channelId
         })
         // ensure the network still exists and we want to re-create the transport
-        if (!getState(NetworkState).networks[network.id] || !network.primus || network.primus.disconnect) return
+        if (
+          !getState(NetworkState).networks[network.id] ||
+          !network.transport.primus ||
+          network.transport.primus.disconnect
+        )
+          return
 
         dispatchAction(
           MediasoupTransportActions.requestTransport({
             peerID: Engine.instance.peerID,
             direction,
-            sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
+            sctpCapabilities: network.transport.mediasoupDevice.sctpCapabilities,
             $network: network.id,
             $topic: network.topic,
             $to: network.hostPeerID
@@ -806,7 +809,7 @@ export async function subscribeToTrack(
   producerId: string,
   channelId: ChannelID
 ) {
-  const primus = network.primus
+  const primus = network.transport.primus
   if (primus?.disconnect) return
 
   const mediaStreamState = getState(MediaStreamState)
@@ -839,7 +842,7 @@ export async function subscribeToTrack(
     MediasoupMediaConsumerActions.requestConsumer({
       mediaTag,
       peerID,
-      rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
+      rtpCapabilities: network.transport.mediasoupDevice.rtpCapabilities,
       channelID: channelId,
       $network: network.id,
       $topic: network.topic,
