@@ -49,10 +49,6 @@ export const BehaveGraphComponent = defineComponent({
   onInit: (entity) => {
     const domain = 'ECS' as GraphDomainID
     const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
-    const registry = useRegistry()
-    const systemState = getState(BehaveGraphState)
-    systemState.domains[domain]?.register(registry)
-    systemState.registry = registry
     return {
       domain: domain,
       graph: graph,
@@ -92,6 +88,14 @@ export const BehaveGraphComponent = defineComponent({
     const [registry, setRegistry] = useState<IRegistry>(getState(BehaveGraphState).registry)
     const canPlay = graphComponent.run && !graphComponent.disabled
     const engineState = getState(EngineState)
+
+    useEffect(() => {
+      const registry = useRegistry()
+      const systemState = getState(BehaveGraphState)
+      systemState.domains[graphComponent.domain.value]?.register(registry)
+      systemState.registry = registry
+    }, [])
+
     useEffect(() => {
       if (graphComponent.disabled.value) {
         graphRunner.pause()

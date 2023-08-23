@@ -39,8 +39,7 @@ import { PostProcessingComponent } from '../../../../../scene/components/PostPro
 const skipComponents = [
   EntityRemovedComponent.name, // pointless
   PostProcessingComponent.name, //needs special attention
-  AvatarAnimationComponent.name, // needs special attention
-  'EE_behaveGraph' // infinite loop
+  AvatarAnimationComponent.name // needs special attention
 ]
 // behave graph is initialized last
 // this function runs before it fully initialized
@@ -49,7 +48,7 @@ export function generateComponentNodeschema(component: Component) {
   const nodeschema = {}
   if (skipComponents.includes(component.name)) return nodeschema
 
-  const schema = component.schema ? component.schema : component.onInit(UndefinedEntity)
+  const schema = component.onInit(UndefinedEntity)
   if (!schema) {
     return nodeschema
   }
