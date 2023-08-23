@@ -89,7 +89,7 @@ export class MediaProducerActions {
   })
 }
 
-export class MediaConsumerActions {
+export class MediasoupMediaConsumerActions {
   static requestConsumer = defineAction({
     type: 'ee.engine.network.mediasoup.MEDIA_REQUEST_CONSUMER',
     peerID: matchesPeerID,
@@ -260,8 +260,8 @@ export const MediasoupMediaProducerConsumerState = defineState({
       }
     ],
     [
-      MediaConsumerActions.consumerCreated,
-      (state, action: typeof MediaConsumerActions.consumerCreated.matches._TYPE) => {
+      MediasoupMediaConsumerActions.consumerCreated,
+      (state, action: typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
@@ -282,8 +282,8 @@ export const MediasoupMediaProducerConsumerState = defineState({
       }
     ],
     [
-      MediaConsumerActions.consumerClosed,
-      (state, action: typeof MediaConsumerActions.consumerClosed.matches._TYPE) => {
+      MediasoupMediaConsumerActions.consumerClosed,
+      (state, action: typeof MediasoupMediaConsumerActions.consumerClosed.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]) return
 
@@ -295,8 +295,8 @@ export const MediasoupMediaProducerConsumerState = defineState({
       }
     ],
     [
-      MediaConsumerActions.consumerPaused,
-      (state, action: typeof MediaConsumerActions.consumerPaused.matches._TYPE) => {
+      MediasoupMediaConsumerActions.consumerPaused,
+      (state, action: typeof MediasoupMediaConsumerActions.consumerPaused.matches._TYPE) => {
         const networkID = action.$network
         if (!state.value[networkID]?.consumers[action.consumerID]) return
 
@@ -331,7 +331,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
     // todo, replace this with a better check
     if (isClient) {
       dispatchAction(
-        MediaConsumerActions.requestConsumer({
+        MediasoupMediaConsumerActions.requestConsumer({
           mediaTag,
           peerID,
           rtpCapabilities: (network as any).mediasoupDevice.rtpCapabilities,
@@ -371,7 +371,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
       // todo, replace this with a better check
       if (consumer && isClient) {
         dispatchAction(
-          MediaConsumerActions.consumerClosed({
+          MediasoupMediaConsumerActions.consumerClosed({
             consumerID: consumer.consumerID,
             $topic: network.topic
           })
@@ -396,7 +396,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
     if (!consumer) return console.warn('No consumer found for paused producer', producerID)
 
     dispatchAction(
-      MediaConsumerActions.consumerPaused({
+      MediasoupMediaConsumerActions.consumerPaused({
         consumerID: consumer[0],
         paused: !!producerState.paused.value,
         $topic: networkState.topic.value
@@ -488,7 +488,7 @@ const reactor = () => {
 }
 
 export const MediasoupMediaProducerConsumerStateSystem = defineSystem({
-  uuid: 'ee.engine.MediasoupMediaProducerConsumerStateSystem',
+  uuid: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerStateSystem',
   execute,
   reactor
 })

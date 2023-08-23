@@ -229,6 +229,6 @@ const execute = () => {
 }
 
 export const MediasoupDataProducerConsumerStateSystem = defineSystem({
-  uuid: 'ee.engine.network.MediasoupDataProducerConsumerStateSystem',
+  uuid: 'ee.engine.network.mediasoup.MediasoupDataProducerConsumerStateSystem',
   execute
 })

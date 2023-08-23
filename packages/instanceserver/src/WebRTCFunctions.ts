@@ -56,8 +56,8 @@ import {
   MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediaConsumerActions,
   MediaProducerActions,
+  MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -762,7 +762,9 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
   }
 }
 
-export const handleRequestConsumer = async (action: typeof MediaConsumerActions.requestConsumer.matches._TYPE) => {
+export const handleRequestConsumer = async (
+  action: typeof MediasoupMediaConsumerActions.requestConsumer.matches._TYPE
+) => {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
   const { peerID: mediaPeerId, mediaTag, rtpCapabilities, channelID } = action
@@ -810,7 +812,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
     consumer.on('transportclose', () => {
       logger.info(`Consumer's transport closed, consumer.id: "${consumer.id}".`)
       dispatchAction(
-        MediaConsumerActions.consumerClosed({
+        MediasoupMediaConsumerActions.consumerClosed({
           consumerID: consumer.id,
           $network: action.$network,
           $topic: action.$topic,
@@ -821,7 +823,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
     consumer.on('producerclose', () => {
       logger.info(`Consumer's producer closed, consumer.id: "${consumer.id}".`)
       dispatchAction(
-        MediaConsumerActions.consumerClosed({
+        MediasoupMediaConsumerActions.consumerClosed({
           consumerID: consumer.id,
           $network: action.$network,
           $topic: action.$topic,
@@ -845,7 +847,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
     })
 
     dispatchAction(
-      MediaConsumerActions.consumerCreated({
+      MediasoupMediaConsumerActions.consumerCreated({
         channelID,
         consumerID: consumer.id,
         peerID: mediaPeerId,
@@ -866,7 +868,7 @@ export const handleRequestConsumer = async (action: typeof MediaConsumerActions.
 }
 
 export async function handleConsumerSetLayers(
-  action: typeof MediaConsumerActions.consumerLayers.matches._TYPE
+  action: typeof MediasoupMediaConsumerActions.consumerLayers.matches._TYPE
 ): Promise<any> {
   const { consumerID, layer } = action
   const consumer = getState(MediasoupMediaProducersConsumersObjectsState).consumers[consumerID] as

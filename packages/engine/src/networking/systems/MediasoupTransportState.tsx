@@ -77,7 +77,7 @@ export class MediasoupTransportActions {
 }
 
 export const MediasoupTransportState = defineState({
-  name: 'ee.engine.network.MediasoupTransportState',
+  name: 'ee.engine.network.mediasoup.MediasoupTransportState',
 
   initial: {} as Record<
     string, // NetworkID
@@ -148,6 +148,6 @@ const execute = () => {
 }
 
 export const MediasoupTransportStateSystem = defineSystem({
-  uuid: 'ee.engine.network.MediasoupTransportStateSystem',
+  uuid: 'ee.engine.network.mediasoup.MediasoupTransportStateSystem',
   execute
 })

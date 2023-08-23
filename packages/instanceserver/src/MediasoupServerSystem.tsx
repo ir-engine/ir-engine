@@ -34,8 +34,8 @@ import {
   MediasoupDataProducerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediaConsumerActions,
-  MediaProducerActions
+  MediaProducerActions,
+  MediasoupMediaConsumerActions
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -53,8 +53,8 @@ import {
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
 
-const requestConsumerActionQueue = defineActionQueue(MediaConsumerActions.requestConsumer.matches)
-const consumerLayersActionQueue = defineActionQueue(MediaConsumerActions.consumerLayers.matches)
+const requestConsumerActionQueue = defineActionQueue(MediasoupMediaConsumerActions.requestConsumer.matches)
+const consumerLayersActionQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerLayers.matches)
 const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
 
 const dataRequestProducerActionQueue = defineActionQueue(MediasoupDataProducerActions.requestProducer.matches)

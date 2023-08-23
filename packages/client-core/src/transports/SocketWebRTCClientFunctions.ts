@@ -80,8 +80,8 @@ import {
   MediasoupDataProducerConsumerState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
-  MediaConsumerActions,
   MediaProducerActions,
+  MediasoupMediaConsumerActions,
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -829,7 +829,7 @@ export async function subscribeToTrack(
 
   // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
   dispatchAction(
-    MediaConsumerActions.requestConsumer({
+    MediasoupMediaConsumerActions.requestConsumer({
       mediaTag,
       peerID,
       rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
@@ -841,7 +841,9 @@ export async function subscribeToTrack(
   )
 }
 
-export const receiveConsumerHandler = async (action: typeof MediaConsumerActions.consumerCreated.matches._TYPE) => {
+export const receiveConsumerHandler = async (
+  action: typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE
+) => {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
   const { peerID, mediaTag, channelID, paused } = action
@@ -870,7 +872,7 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
     else pauseConsumer(network, consumer)
   } else if (existingConsumer.track?.muted) {
     dispatchAction(
-      MediaConsumerActions.consumerClosed({
+      MediasoupMediaConsumerActions.consumerClosed({
         consumerID: existingConsumer.id,
         $network: network.id,
         $topic: network.topic,
@@ -886,7 +888,7 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
     }
   } else {
     dispatchAction(
-      MediaConsumerActions.consumerClosed({
+      MediasoupMediaConsumerActions.consumerClosed({
         consumerID: consumer.id,
         $network: network.id,
         $topic: network.topic,
@@ -898,7 +900,7 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
 
 export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   dispatchAction(
-    MediaConsumerActions.consumerPaused({
+    MediasoupMediaConsumerActions.consumerPaused({
       consumerID: consumer.id,
       paused: true,
       $network: network.id,
@@ -910,7 +912,7 @@ export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: Cons
 
 export function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   dispatchAction(
-    MediaConsumerActions.consumerPaused({
+    MediasoupMediaConsumerActions.consumerPaused({
       consumerID: consumer.id,
       paused: false,
       $network: network.id,
@@ -974,7 +976,7 @@ export function setPreferredConsumerLayer(
   layer: number
 ) {
   dispatchAction(
-    MediaConsumerActions.consumerLayers({
+    MediasoupMediaConsumerActions.consumerLayers({
       consumerID: consumer.id,
       layer,
       $network: network.id,

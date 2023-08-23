@@ -38,7 +38,7 @@ import {
 
 import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { MediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { MediasoupMediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { PeerMediaConsumers } from '../media/PeerMedia'
@@ -51,7 +51,7 @@ import {
 import { DataChannelSystem } from './DataChannelSystem'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
-const consumerCreatedQueue = defineActionQueue(MediaConsumerActions.consumerCreated.matches)
+const consumerCreatedQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerCreated.matches)
 const transportCreatedActionQueue = defineActionQueue(MediasoupTransportActions.transportCreated.matches)
 const updatePeersActionQueue = defineActionQueue(NetworkActions.updatePeers.matches)
 
