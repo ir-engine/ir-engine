@@ -99,6 +99,15 @@ export class MediasoupDataConsumerActions {
   })
 }
 
+export const MediasoupDataProducersConsumersObjectsState = defineState({
+  name: 'ee.engine.network.mediasoup.MediasoupDataProducersAndConsumersObjectsState',
+
+  initial: {
+    producers: {} as Record<string, any>,
+    consumers: {} as Record<string, any>
+  }
+})
+
 export const MediasoupDataProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.DataProducerConsumerState',
 

@@ -82,7 +82,8 @@ import {
 import {
   MediaConsumerActions,
   MediaProducerActions,
-  MediasoupMediaProducerConsumerState
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { MathUtils } from 'three'
@@ -717,10 +718,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
                 codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
                 appData: { mediaTag: webcamVideoDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
-              console.log('producer', producer, getState(MediasoupMediaProducerConsumerState)[network.id].producers)
-              getMutableState(MediasoupMediaProducerConsumerState)[network.id].producers[producer.id].producer.set(
-                producer
-              )
+              getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(producer)
               mediaStreamState.camVideoProducer.set(producer)
             }
           } else {
@@ -774,9 +772,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
                 track: mediaStreamState.audioStream.value!.getAudioTracks()[0],
                 appData: { mediaTag: webcamAudioDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
-              getMutableState(MediasoupMediaProducerConsumerState)[network.id].producers[producer.id].producer.set(
-                producer
-              )
+              getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producer.id].set(producer)
               mediaStreamState.camAudioProducer.set(producer)
             }
           } else {
@@ -868,7 +864,7 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
   ) as ConsumerExtension
 
   if (!existingConsumer) {
-    getMutableState(MediasoupMediaProducerConsumerState)[network.id].consumers[consumer.id].consumer.set(consumer)
+    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
     // okay, we're ready. let's ask the peer to send us media
     if (!paused) resumeConsumer(network, consumer)
     else pauseConsumer(network, consumer)
@@ -881,7 +877,7 @@ export const receiveConsumerHandler = async (action: typeof MediaConsumerActions
         $to: peerID
       })
     )
-    getMutableState(MediasoupMediaProducerConsumerState)[network.id].consumers[consumer.id].consumer.set(consumer)
+    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
     // okay, we're ready. let's ask the peer to send us media
     if (!paused) {
       resumeConsumer(network, consumer)
@@ -1111,35 +1107,27 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   const transport = network.sendTransport!
 
   // create a producer for video
-  mediaStreamState.screenVideoProducer.set(
-    (await transport.produce({
-      track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
-      encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
-      codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
-      appData: { mediaTag: screenshareVideoDataChannelType, channelId }
-    })) as any as ProducerExtension
-  )
+  const videoProducer = (await transport.produce({
+    track: mediaStreamState.localScreen.value!.getVideoTracks()[0],
+    encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
+    codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
+    appData: { mediaTag: screenshareVideoDataChannelType, channelId }
+  })) as any as ProducerExtension
+  mediaStreamState.screenVideoProducer.set(videoProducer)
 
-  const mediaProducerState = getMutableState(MediasoupMediaProducerConsumerState)[network.id].producers[
-    mediaStreamState.screenVideoProducer.value!.id
-  ]
-  mediaProducerState.producer.set(mediaStreamState.screenVideoProducer.value)
+  getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[videoProducer.id].set(videoProducer)
 
   console.log('screen producer', mediaStreamState.screenVideoProducer.value)
 
   // create a producer for audio, if we have it
   if (mediaStreamState.localScreen.value!.getAudioTracks().length) {
-    mediaStreamState.screenAudioProducer.set(
-      (await transport.produce({
-        track: mediaStreamState.localScreen.value!.getAudioTracks()[0],
-        appData: { mediaTag: screenshareAudioDataChannelType, channelId }
-      })) as any as ProducerExtension
-    )
+    const audioProducer = (await transport.produce({
+      track: mediaStreamState.localScreen.value!.getAudioTracks()[0],
+      appData: { mediaTag: screenshareAudioDataChannelType, channelId }
+    })) as any as ProducerExtension
+    mediaStreamState.screenAudioProducer.set(audioProducer)
     mediaStreamState.screenShareAudioPaused.set(false)
-    const mediaProducerState = getMutableState(MediasoupMediaProducerConsumerState)[network.id].producers[
-      mediaStreamState.screenAudioProducer.value!.id
-    ]
-    mediaProducerState.producer.set(mediaStreamState.screenAudioProducer.value)
+    getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[audioProducer.id].set(audioProducer)
   }
 
   // handler for screen share stopped event (triggered by the

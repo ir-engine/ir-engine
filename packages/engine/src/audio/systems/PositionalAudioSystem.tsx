@@ -38,7 +38,10 @@ import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunc
 import { MediaSettingsState } from '../../networking/MediaSettingsState'
 import { webcamAudioDataChannelType } from '../../networking/NetworkState'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
-import { MediasoupMediaProducerConsumerState } from '../../networking/systems/MediasoupMediaProducerConsumerState'
+import {
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState
+} from '../../networking/systems/MediasoupMediaProducerConsumerState'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioSettingAction, AudioState } from '../AudioState'
@@ -94,12 +97,16 @@ const execute = () => {
 
     if (!consumers) continue
 
-    const consumer = Object.values(consumers).find(
+    const consumerState = Object.values(consumers).find(
       (c) => c.mediaTag === webcamAudioDataChannelType && peers.find((peer) => c.peerID === peer.peerID)
     )
 
+    const consumer =
+      consumerState &&
+      (getState(MediasoupMediaProducersConsumersObjectsState).consumers[consumerState.consumerID] as any)
+
     // avatar still exists but audio stream does not
-    if (!consumer?.consumer) {
+    if (consumer) {
       if (avatarAudioStreams.has(networkObject)) avatarAudioStreams.delete(networkObject)
       continue
     }
@@ -128,7 +135,7 @@ const execute = () => {
     })
 
     // audio streams exists but has not been handled
-    const mediaTrack = (consumer.consumer as any).track as MediaStreamTrack
+    const mediaTrack = consumer.track as MediaStreamTrack
     const stream = new MediaStream([mediaTrack.clone()])
 
     const audioNodes = createAudioNodeGroup(
