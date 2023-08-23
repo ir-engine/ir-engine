@@ -37,6 +37,7 @@ import AnimationIcon from '@mui/icons-material/Animation'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperties, updateProperty } from './Util'
@@ -51,7 +52,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
-
   const animationOptions = useState([] as { label: string; value: number }[])
 
   useEffect(() => {
@@ -90,6 +90,12 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <BooleanInput
           value={loopAnimationComponent.value.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
+        />
+      </InputGroup>
+      <InputGroup name="Playback Speed" label={t('editor:properties.loopAnimation.lbl-playbackSpeed')}>
+        <NumericInput
+          value={loopAnimationComponent.animationSpeed.value}
+          onChange={updateProperty(LoopAnimationComponent, 'animationSpeed')}
         />
       </InputGroup>
     </NodeEditor>
