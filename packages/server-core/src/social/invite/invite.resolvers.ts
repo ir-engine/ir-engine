@@ -24,17 +24,37 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { InviteQuery, InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const inviteResolver = resolve<InviteType, HookContext>({})
 
-export const inviteExternalResolver = resolve<InviteType, HookContext>({})
+export const inviteExternalResolver = resolve<InviteType, HookContext>({
+  user: virtual(async (invite, context) => {
+    if (invite.userId) {
+      const user = await context.app.service(userPath)._get(invite.userId)
+      return user
+    }
+  }),
+
+  invitee: virtual(async (invite, context) => {
+    if (invite.inviteeId) {
+      const user = await context.app.service(userPath)._get(invite.inviteeId)
+      return user
+    }
+  }),
+  channelName: virtual(async (invite, context) => {
+    const channel = await context.app.service('channel')._get(invite.userId)
+
+    return channel.name
+  })
+})
 
 export const inviteDataResolver = resolve<InviteType, HookContext>({
   id: async () => {
