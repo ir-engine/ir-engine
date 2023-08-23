@@ -76,12 +76,10 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
     if (!data.instanceId && users?.length) {
       // get channel that contains the same users
-      const userIds = users
-
+      const userIds = users.filter(Boolean)
       if (userId) userIds.push(userId)
 
       const knexClient: Knex = this.app.get('knexClient')
-
       const existingChannel = await knexClient('channel')
         .select('channel.*')
         .leftJoin(channelUserPath, 'channel.id', '=', `${channelUserPath}.channelId`)
