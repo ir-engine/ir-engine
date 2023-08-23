@@ -28,32 +28,17 @@ import { toQuat, toVector3, toVector4 } from '@behave-graph/scene'
 import { Color, Matrix3, Matrix4, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
-import {
-  Component,
-  ComponentMap,
-  EntityRemovedComponent,
-  setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
+import { Component, ComponentMap, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
 
 const skipComponents = [
-  EntityRemovedComponent.name, // pointless
   PostProcessingComponent.name, //needs special attention
   AvatarAnimationComponent.name // needs special attention
 ]
-// behave graph is initialized last
-// this function runs before it fully initialized
-// must be initialized first to use it as a component,therefore must hardcode, else infinite loop
+
 export function generateComponentNodeschema(component: Component) {
   const nodeschema = {}
-  if (skipComponents.includes(component.name)) return nodeschema
-
-  const schema = component.onInit(UndefinedEntity)
-  if (!schema) {
-    return nodeschema
-  }
-  //console.log("DEBUG", component.name )
-  for (const [name, value] of Object.entries(schema)) {
+  const getType = (name, value) => {
     switch (typeof value) {
       case 'number':
         if (name.toLowerCase().includes('entity')) nodeschema[name] = 'entity'
@@ -67,8 +52,6 @@ export function generateComponentNodeschema(component: Component) {
         // use boolean
         break
       case 'string':
-        nodeschema[name] = 'string'
-      // use boolean
       case 'undefined':
         nodeschema[name] = 'string'
       case 'object':
@@ -94,6 +77,22 @@ export function generateComponentNodeschema(component: Component) {
         break
       // use string
     }
+  }
+  if (skipComponents.includes(component.name)) return nodeschema
+
+  const schema = component.onInit(UndefinedEntity)
+  if (schema === null || schema === undefined) {
+    return nodeschema
+  }
+  if (typeof schema !== 'object') {
+    const tag = component.name.replace('Component', '')
+    console.log('DEBUG', tag, schema)
+    getType(tag, schema)
+    return nodeschema
+  }
+  //console.log("DEBUG", component.name )
+  for (const [name, value] of Object.entries(schema)) {
+    getType(name, value)
   }
   //console.log("DEBUG", nodeschema )
   return nodeschema
@@ -129,11 +128,17 @@ export function NodetoEnginetype(value, valuetype) {
 
 export function getComponentSetters() {
   const setters: NodeDefinition[] = []
-
+  const skipped: string[] = []
   for (const [componentName, component] of ComponentMap) {
-    if (skipComponents.includes(componentName)) continue
+    if (skipComponents.includes(componentName)) {
+      skipped.push(componentName)
+      continue
+    }
     const inputsockets = generateComponentNodeschema(component)
-    if (Object.keys(inputsockets).length === 0) continue
+    if (Object.keys(inputsockets).length === 0) {
+      skipped.push(componentName)
+      continue
+    }
     const node = makeFlowNodeDefinition({
       typeName: `engine/component/set${componentName}`,
       category: NodeCategory.Action,
