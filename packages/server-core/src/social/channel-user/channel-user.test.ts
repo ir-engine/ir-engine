@@ -135,7 +135,8 @@ describe('channel-user service', () => {
 
     const channelUser = (await app.service(channelUserPath).find({
       query: {
-        channelId: channel.id
+        channelId: channel.id,
+        $sort: { isOwner: -1 }
       },
       user
     })) as Paginated<ChannelUserType>
