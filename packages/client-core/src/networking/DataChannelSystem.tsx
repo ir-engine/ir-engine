@@ -33,12 +33,16 @@ import {
   MediasoupDataProducerConsumerState,
   MediasoupDataProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+import {
+  MediasoupTransportObjectsState,
+  MediasoupTransportState
+} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { State, none, useHookstate } from '@hookstate/core'
+import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import React, { useEffect } from 'react'
-import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
 
 export async function createDataConsumer(
   network: SocketWebRTCClientNetwork,
@@ -70,7 +74,9 @@ export async function createDataProducer(
   const producer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, args.label) as DataProducer
   if (producer) return
 
-  const dataProducer = await network.sendTransport.produceData({
+  const sendTransport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
+
+  const dataProducer = await sendTransport.produceData({
     label: args.label,
     ordered: args.ordered,
     appData: args.appData,
@@ -93,7 +99,9 @@ export async function createDataProducer(
 export const consumerData = async (action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
-  const dataConsumer = await network.recvTransport.consumeData({
+  const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv') as WebRTCTransportExtension
+
+  const dataConsumer = await recvTransport.consumeData({
     id: action.consumerID,
     sctpStreamParameters: action.sctpStreamParameters,
     label: action.dataChannel,
@@ -138,12 +146,12 @@ const execute = () => {
 
 export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
-  const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
-  const recvTransport = useHookstate(networkState.recvTransport)
-  const sendTransport = useHookstate(networkState.sendTransport)
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
   useEffect(() => {
-    if (!recvTransport.value || !sendTransport.value) return
+    const recvTransport = MediasoupTransportState.getTransport(networkID, 'recv') as WebRTCTransportExtension
+    const sendTransport = MediasoupTransportState.getTransport(networkID, 'send') as WebRTCTransportExtension
+    if (!recvTransport || !sendTransport) return
 
     const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
     createDataProducer(network, { label: dataChannelType })
@@ -152,7 +160,7 @@ export const DataChannel = (props: { networkID: UserID; dataChannelType: DataCha
     return () => {
       // todo - cleanup
     }
-  }, [recvTransport.value, sendTransport.value])
+  }, [transportState.keys])
 
   return null
 }

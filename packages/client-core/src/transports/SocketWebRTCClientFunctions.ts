@@ -85,7 +85,11 @@ import {
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import {
+  MediasoupTransportActions,
+  MediasoupTransportObjectsState,
+  MediasoupTransportState
+} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -149,10 +153,14 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
   networkState.connected.set(false)
   networkState.authenticated.set(false)
-  network.recvTransport?.close()
-  network.sendTransport?.close()
-  networkState.recvTransport.set(null!)
-  networkState.sendTransport.set(null!)
+  networkState.ready.set(false)
+  const transportState = getState(MediasoupTransportState)[network.id]
+  if (transportState) {
+    for (const { transportID } of Object.values(transportState)) {
+      const transport = getState(MediasoupTransportObjectsState)[transportID]
+      transport.close()
+    }
+  }
   network.heartbeat && clearInterval(network.heartbeat)
   network.primus?.end()
   network.primus?.removeAllListeners()
@@ -187,11 +195,9 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
   } as TransportInterface
 
   const network = createNetwork(id, hostId, topic, {
+    transport,
     mediasoupDevice,
     mediasoupLoaded: false,
-    transport,
-    recvTransport: null! as MediaSoupTransport,
-    sendTransport: null! as MediaSoupTransport,
     primus: null! as Primus,
 
     heartbeat: null! as NodeJS.Timer // is there an equivalent browser type for this?
@@ -381,6 +387,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     networkState.mediasoupLoaded.set(true)
     dispatchAction(
       MediasoupTransportActions.requestTransport({
+        peerID: Engine.instance.peerID,
         direction: 'send',
         sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
         $network: network.id,
@@ -391,6 +398,7 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
 
     dispatchAction(
       MediasoupTransportActions.requestTransport({
+        peerID: Engine.instance.peerID,
         direction: 'recv',
         sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
         $network: network.id,
@@ -438,15 +446,13 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
     iceServers
   }
 
-  const networkState = getMutableState(NetworkState).networks[action.$network] as State<SocketWebRTCClientNetwork>
-
   if (direction === 'recv') {
     transport = await network.mediasoupDevice.createRecvTransport(transportOptions)
-    networkState.recvTransport.set(transport)
   } else if (direction === 'send') {
     transport = await network.mediasoupDevice.createSendTransport(transportOptions)
-    networkState.sendTransport.set(transport)
   } else throw new Error(`bad transport 'direction': ${direction}`)
+
+  getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
 
   // mediasoup-client will emit a connect event when media needs to
   // start flowing for the first time. send dtlsParameters to the
@@ -656,6 +662,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
 
         dispatchAction(
           MediasoupTransportActions.requestTransport({
+            peerID: Engine.instance.peerID,
             direction,
             sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
             $network: network.id,
@@ -703,7 +710,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
   const mediaStreamState = getMutableState(MediaStreamState)
   if (mediaStreamState.videoStream.value !== null) {
     await waitForTransports(network)
-    const transport = network.sendTransport!
+    const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
     try {
       let produceInProgress = false
@@ -758,7 +765,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
     // same thing for audio, but we can use our already-created
 
     await waitForTransports(network)
-    const transport = network.sendTransport!
+    const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
     try {
       // Create a new transport for audio and start producing
@@ -849,8 +856,9 @@ export const receiveConsumerHandler = async (
   const { peerID, mediaTag, channelID, paused } = action
 
   await waitForTransports(network)
+  const transport = MediasoupTransportState.getTransport(network.id, 'recv') as WebRTCTransportExtension
 
-  const consumer = (await network.recvTransport!.consume({
+  const consumer = (await transport.consume({
     id: action.consumerID,
     producerId: action.producerID,
     rtpParameters: action.rtpParameters as any,
@@ -1106,7 +1114,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   const channelId = currentChannelInstanceConnection.channelId
 
   await waitForTransports(network)
-  const transport = network.sendTransport!
+  const transport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
 
   // create a producer for video
   const videoProducer = (await transport.produce({

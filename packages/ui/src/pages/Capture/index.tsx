@@ -89,7 +89,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true) => {
 let creatingProducer = false
 const sendResults = (results: NormalizedLandmarkList) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-  if (!network?.sendTransport) return
+  if (!network?.ready) return
   const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
     network.id,
     mocapDataChannelType

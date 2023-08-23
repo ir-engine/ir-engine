@@ -23,14 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState, none, receiveActions } from '@etherealengine/hyperflux'
-import { matches } from '../../common/functions/MatchesUtils'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { defineAction, defineState, getState, none, receiveActions } from '@etherealengine/hyperflux'
+import { matches, matchesPeerID } from '../../common/functions/MatchesUtils'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkState } from '../NetworkState'
+import { Network } from '../classes/Network'
 
 export class MediasoupTransportActions {
   static requestTransport = defineAction({
     type: 'ee.engine.network.mediasoup.TRANSPORT_REQUEST_CREATE',
+    peerID: matchesPeerID,
     direction: matches.literals('send', 'recv'),
     sctpCapabilities: matches.object
   })
@@ -43,6 +48,7 @@ export class MediasoupTransportActions {
 
   static transportCreated = defineAction({
     type: 'ee.engine.network.mediasoup.TRANSPORT_CREATED',
+    peerID: matchesPeerID,
     transportID: matches.string,
     direction: matches.literals('send', 'recv'),
     sctpParameters: matches.object,
@@ -76,6 +82,12 @@ export class MediasoupTransportActions {
   })
 }
 
+export const MediasoupTransportObjectsState = defineState({
+  name: 'ee.engine.network.mediasoup.MediasoupTransportObjectsState',
+
+  initial: {} as Record<string, any>
+})
+
 export const MediasoupTransportState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupTransportState',
 
@@ -83,13 +95,29 @@ export const MediasoupTransportState = defineState({
     string, // NetworkID
     {
       [transportID: string]: {
-        // peerID: PeerID // TODO
-        // transport: Transport // TODO
+        transportID: string
+        peerID: PeerID
         direction: 'send' | 'recv'
         connected: boolean
       }
     }
   >,
+
+  getTransport: (
+    networkID: string,
+    direction: 'send' | 'recv',
+    peerID = getState(NetworkState).networks[networkID].hostPeerID
+  ) => {
+    const state = getState(MediasoupTransportState)[networkID]
+    if (!state) return
+
+    const transport = Object.values(state).find(
+      (transport) => transport.direction === direction && transport.peerID === peerID
+    )
+    if (!transport) return
+
+    return getState(MediasoupTransportObjectsState)[transport.transportID]
+  },
 
   receptors: [
     [
@@ -99,8 +127,12 @@ export const MediasoupTransportState = defineState({
         if (!state.value[networkID]) {
           state.merge({ [networkID]: {} })
         }
+        const network = getState(NetworkState).networks[networkID] as Network
         state[networkID].merge({
           [action.transportID]: {
+            /** Mediasoup is always client-server, so the peerID is always the host for clients */
+            peerID: isClient ? network.hostPeerID : action.peerID,
+            transportID: action.transportID,
             direction: action.direction,
             connected: false
           }

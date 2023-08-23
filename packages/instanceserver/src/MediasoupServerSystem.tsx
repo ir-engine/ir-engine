@@ -31,13 +31,18 @@ import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Net
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
   MediasoupDataConsumerActions,
-  MediasoupDataProducerActions
+  MediasoupDataProducerActions,
+  MediasoupDataProducerConsumerStateSystem
 } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import {
   MediaProducerActions,
-  MediasoupMediaConsumerActions
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerConsumerStateSystem
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import {
+  MediasoupTransportActions,
+  MediasoupTransportStateSystem
+} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -136,5 +141,10 @@ export const reactor = () => {
 export const MediasoupServerSystem = defineSystem({
   uuid: 'ee.instanceserver.MediasoupServerSystem',
   execute,
-  reactor
+  reactor,
+  preSystems: [
+    MediasoupTransportStateSystem,
+    MediasoupMediaProducerConsumerStateSystem,
+    MediasoupDataProducerConsumerStateSystem
+  ]
 })

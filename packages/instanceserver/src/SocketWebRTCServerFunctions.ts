@@ -36,11 +36,9 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MediasoupDataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
-import { MediasoupMediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { MediasoupTransportStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InstanceServerState } from './InstanceServerState'
+import { MediasoupServerSystem } from './MediasoupServerSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 import { startWebRTC } from './WebRTCFunctions'
 
@@ -86,16 +84,9 @@ export const initializeNetwork = async (app: Application, id: string, hostId: Us
     }
   }
 
-  startSystems(
-    [
-      MediasoupTransportStateSystem,
-      MediasoupMediaProducerConsumerStateSystem,
-      MediasoupDataProducerConsumerStateSystem
-    ],
-    {
-      before: ServerHostNetworkSystem
-    }
-  )
+  startSystem(MediasoupServerSystem, {
+    before: ServerHostNetworkSystem
+  })
 
   const network = createNetwork(id, hostId, topic, {
     workers,
@@ -103,7 +94,6 @@ export const initializeNetwork = async (app: Application, id: string, hostId: Us
     transport,
     outgoingDataTransport,
     outgoingDataProducers: {} as Record<DataChannelType, DataProducer>,
-    mediasoupTransports: {} as Record<string, WebRTCTransportExtension>,
     transportsConnectPending: [] as Promise<void>[]
   })
 

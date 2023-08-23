@@ -39,12 +39,17 @@ import {
 import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { MediasoupMediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { MediasoupTransportActions } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import {
+  MediasoupTransportActions,
+  MediasoupTransportObjectsState,
+  MediasoupTransportState
+} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import {
   SocketWebRTCClientNetwork,
+  WebRTCTransportExtension,
   onTransportCreated,
   receiveConsumerHandler
 } from '../transports/SocketWebRTCClientFunctions'
@@ -74,12 +79,13 @@ const execute = () => {
 
 const NetworkConnectionReactor = (props: { networkID: UserID }) => {
   const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
-  const recvTransport = useHookstate(networkState.recvTransport)
-  const sendTransport = useHookstate(networkState.sendTransport)
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
   useEffect(() => {
-    networkState.ready.set(!!recvTransport.value && !!sendTransport.value)
-  }, [recvTransport.value, sendTransport.value])
+    const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
+    const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
+    networkState.ready.set(!!recvTransport && !!sendTransport)
+  }, [transportState.keys])
   // TODO - see why we have to use .value here instead of just the hookstate object
 
   return null

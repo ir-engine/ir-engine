@@ -49,13 +49,14 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
+import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
@@ -372,8 +373,10 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
-    if (disconnectedClient?.recvTransport) disconnectedClient.recvTransport.close()
-    if (disconnectedClient?.sendTransport) disconnectedClient.sendTransport.close()
+    const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
+    const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
+    if (recvTransport) recvTransport.close()
+    if (sendTransport) sendTransport.close()
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }
