@@ -36,7 +36,12 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { MediasoupDataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+import { MediasoupMediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { MediasoupTransportStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceServerState } from './InstanceServerState'
+import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
@@ -80,6 +85,17 @@ export const initializeNetwork = async (app: Application, id: string, hostId: Us
       dataProducer.send(Buffer.from(new Uint8Array(data)))
     }
   }
+
+  startSystems(
+    [
+      MediasoupTransportStateSystem,
+      MediasoupMediaProducerConsumerStateSystem,
+      MediasoupDataProducerConsumerStateSystem
+    ],
+    {
+      before: ServerHostNetworkSystem
+    }
+  )
 
   const network = createNetwork(id, hostId, topic, {
     workers,
