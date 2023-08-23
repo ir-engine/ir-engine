@@ -81,18 +81,15 @@ export function generateComponentNodeschema(component: Component) {
     }
   }
   if (skipComponents.includes(component.name)) return nodeschema
-
   const schema = component?.onInit(UndefinedEntity)
   if (schema === null) {
     return nodeschema
   }
   if (schema === undefined) {
-    console.log('DEBUG', component.name, schema)
     return nodeschema
   }
   if (typeof schema !== 'object') {
     const tag = component.name.replace('Component', '')
-    console.log('DEBUG', tag, schema)
     getType(tag, schema)
     return nodeschema
   }

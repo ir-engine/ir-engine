@@ -37,7 +37,6 @@ import { OnButtonState } from './Events/onButtonState'
 import { onLoadAsset } from './Events/onLoadAsset'
 import { triggerLoadAsset } from './Events/triggerLoadAsset'
 import * as ComponentNodes from './Values/ComponentNodes'
-import { ComponentValue } from './Values/ComponentValue'
 import * as CustomNodes from './Values/CustomNodes'
 import * as EntityNodes from './Values/EntityNodes'
 import { EntityValue } from './Values/EntityValue'
@@ -48,7 +47,7 @@ import { getComponentGetters, getComponentSetters } from './helper/componentHelp
 export const makeEngineDependencies = () => ({})
 
 export const getEngineValuesMap = memo<ValueTypeMap>(() => {
-  const valueTypes = [EntityValue, ComponentValue, StateValue]
+  const valueTypes = [EntityValue, StateValue]
   return Object.fromEntries(valueTypes.map((valueType) => [valueType.name, valueType]))
 })
 
