@@ -34,7 +34,6 @@ import { Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import {
   InviteData,
   InvitePatch,
@@ -100,12 +99,12 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
       $or: [
         {
           inviteType: {
-            $like: '%' + search.toLowerCase() + '%'
+            $like: '%' + search + '%'
           }
         },
         {
           passcode: {
-            $like: '%' + search.toLowerCase() + '%'
+            $like: '%' + search + '%'
           }
         }
       ]
@@ -127,19 +126,6 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
       ]
     }
   })) as Paginated<InviteType>
-
-  await Promise.all(
-    result.data.map(async (invite) => {
-      if (invite.inviteType === 'channel' && invite.targetObjectId) {
-        try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
-          invite.channelName = channel.name
-        } catch (err) {
-          invite.channelName = '<A deleted channel>'
-        }
-      }
-    })
-  )
   return result
 }
 
@@ -170,19 +156,6 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
       userId: query.userId
     }
   })) as Paginated<InviteType>
-
-  await Promise.all(
-    result.data.map(async (invite) => {
-      if (invite.inviteType === 'channel' && invite.targetObjectId) {
-        try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
-          invite.channelName = channel.name
-        } catch (err) {
-          invite.channelName = '<A deleted channel>'
-        }
-      }
-    })
-  )
   return result
 }
 
@@ -218,20 +191,6 @@ export const inviteAll = async (inviteService: InviteService, query: Query, user
     }
   })) as Paginated<InviteType>
 
-  await Promise.all(
-    result.data.map(async (invite) => {
-      if (invite.inviteType === 'channel' && invite.targetObjectId) {
-        try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
-          if (!channel) throw new Error()
-          invite.channelName = channel.name
-        } catch (err) {
-          invite.channelName = '<A deleted channel>'
-        }
-      }
-    })
-  )
-
   return result
 }
 
@@ -256,7 +215,7 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
     const user = params!.user!
     if (!user.scopes?.find((scope) => scope.type === 'admin:admin')) delete data.makeAdmin
     data.passcode = crypto.randomBytes(8).toString('hex')
-    const result = (await super._create(data)) as InviteType
+    const result = await super._create(data)
     await sendInvite(this.app, result, params!)
     return result
   }
@@ -293,6 +252,10 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
       await this.app.service(userRelationshipPath).remove(relatedUserId, params as any)
     }
-    return (await super._remove(id)) as InviteType
+    return await super._remove(id)
+  }
+
+  async patch(id: Id, data: InvitePatch, params?: InviteParams) {
+    return await super._patch(id, data, params)
   }
 }

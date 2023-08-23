@@ -98,7 +98,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-  const updateInvite = useMutation(invitePath).update as (id: string, data: InvitePatch) => Promise<InviteType>
+  const updateInvite = useMutation(invitePath).patch
 
   useEffect(() => {
     inviteTypeTab.set(
@@ -240,8 +240,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         inviteCode: target.length === 8 ? target : null,
         identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
         targetObjectId: instanceId.value || locationId.value || null,
-        createdAt: invite.createdAt || new Date().toJSON(),
-        updatedAt: invite.updatedAt || new Date().toJSON(),
+        createdAt: invite.createdAt || toDateTimeSql(new Date()),
+        updatedAt: invite.updatedAt || toDateTimeSql(new Date()),
         makeAdmin: makeAdmin.value,
         deleteOnUse: oneTimeUse.value,
         invitee: undefined,

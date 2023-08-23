@@ -35,8 +35,6 @@ import {
   invitePatchValidator,
   inviteQueryValidator
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -46,43 +44,6 @@ import {
   inviteQueryResolver,
   inviteResolver
 } from './invite.resolvers'
-
-// TODO: Populating Invite's user property here manually. Once invite service is moved to feathers 5. This should be part of its resolver.
-const populateUsers = async (context: HookContext) => {
-  const { result } = context
-
-  const data = result.data ? result.data : result
-
-  const userIds = data.filter((item) => item.userId).map((item) => item.userId)
-
-  if (userIds.length > 0) {
-    //@ts-ignore
-    const users = (await context.app.service(userPath)._find({
-      query: {
-        id: {
-          $in: userIds
-        }
-      },
-      paginate: false
-    })) as any as UserType[]
-
-    for (const invite of data) {
-      if (invite.userId && !invite.user) {
-        invite.user = users.find((user) => user.id === invite.userId)
-      }
-    }
-  }
-}
-
-// TODO: Populating Invite's user property here manually. Once invite service is moved to feathers 5. This should be part of its resolver.
-const populateUser = async (context: HookContext) => {
-  const { result } = context
-
-  if (result.userId && !result.user) {
-    //@ts-ignore
-    result.user = (await context.app.service(userPath)._get(result.userId)) as UserType
-  }
-}
 
 export default {
   around: {
@@ -110,8 +71,8 @@ export default {
 
   after: {
     all: [],
-    find: [populateUsers],
-    get: [populateUser],
+    find: [],
+    get: [],
     create: [],
     update: [],
     patch: [],

@@ -34,6 +34,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
 import TableComponent from '../../common/Table'
 import { InviteColumn, inviteColumns } from '../../common/variables/invite'
@@ -52,8 +53,8 @@ const defaultInvite = {
   inviteType: 'new-user',
   makeAdmin: false,
   deleteOnUse: true,
-  createdAt: new Date().toJSON(),
-  updatedAt: new Date().toJSON(),
+  createdAt: toDateTimeSql(new Date()),
+  updatedAt: toDateTimeSql(new Date()),
   userId: '' as UserID
 } as InviteType
 

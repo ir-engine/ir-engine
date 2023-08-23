@@ -43,7 +43,8 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -91,9 +92,9 @@ export const useShareMenuHooks = ({ refLink }) => {
       inviteCode: token.length === 8 ? token : null,
       identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
       targetObjectId: params.get('instanceId'),
-      inviteeId: null,
+      inviteeId: '' as UserID,
       deleteOnUse: true
-    } as any as InviteType
+    } as InviteData
 
     if (isSpectatorMode) {
       sendData.spawnType = 'spectate'

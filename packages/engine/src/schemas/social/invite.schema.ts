@@ -34,7 +34,7 @@ import { inviteTypes } from './invite-type.schema'
 
 export const invitePath = 'invite'
 
-export const inviteMethods = ['create', 'find', 'remove'] as const
+export const inviteMethods = ['create', 'find', 'remove', 'patch'] as const
 
 export const spawnDetailsSchema = Type.Object(
   {
@@ -56,7 +56,7 @@ export const inviteSchema = Type.Object(
     identityProviderType: Type.Optional(StringEnum(identityProviderTypes)),
     passcode: Type.Optional(Type.String()),
     targetObjectId: Type.Optional(Type.String()),
-    deleteOnUse: Type.Boolean(),
+    deleteOnUse: Type.Optional(Type.Boolean()),
     makeAdmin: Type.Optional(Type.Boolean()),
     spawnType: Type.Optional(Type.String()),
     spawnDetails: Type.Optional(Type.Ref(spawnDetailsSchema)),
@@ -97,7 +97,6 @@ export const inviteDataSchema = Type.Pick(
     'spawnType',
     'spawnDetails',
     'timed',
-    // 'userId',
     'inviteeId',
     'inviteType',
     'startTime',

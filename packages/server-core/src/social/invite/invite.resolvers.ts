@@ -35,6 +35,7 @@ import {
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
@@ -71,9 +72,14 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>(
       }
     }),
     channelName: virtual(async (invite, context) => {
-      const channel = await context.app.service('channel')._get(invite.userId)
-
-      return channel.name
+      if (invite.inviteType === 'channel' && invite.targetObjectId) {
+        try {
+          const channel = await context.app.service('channel')._get(invite.targetObjectId as ChannelID)
+          return channel.name
+        } catch (err) {
+          return '<A deleted channel>'
+        }
+      }
     })
   },
   {

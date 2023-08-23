@@ -152,7 +152,7 @@ export const InviteService = {
       return
     }
 
-    if (data.spawnDetails?.inviteCode != null) {
+    if (data.spawnDetails?.inviteCode) {
       if (!INVITE_CODE_REGEX.test(data.spawnDetails?.inviteCode)) {
         NotificationService.dispatchNotify(`Invalid Invite Code: ${data.spawnDetails?.inviteCode}`, {
           variant: 'error'
