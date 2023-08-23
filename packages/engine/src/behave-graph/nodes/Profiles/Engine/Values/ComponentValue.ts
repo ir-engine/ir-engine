@@ -26,6 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { ValueType } from '@behave-graph/core'
 import { Component } from '../../../../../ecs/functions/ComponentFunctions'
 
+/**
+ * @deprecated Kinda pointless now we have getter and setter methods now
+ */
 export const ComponentValue: ValueType = {
   name: 'component',
   creator: () => null,

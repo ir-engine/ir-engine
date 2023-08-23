@@ -28,10 +28,12 @@ import { toQuat, toVector3, toVector4 } from '@behave-graph/scene'
 import { Color, Matrix3, Matrix4, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
-import { Component, ComponentMap, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { Component, ComponentMap, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
+import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 
 const skipComponents = [
+  TransformComponent.name, // already implemented
   PostProcessingComponent.name, //needs special attention
   AvatarAnimationComponent.name // needs special attention
 ]
@@ -80,8 +82,12 @@ export function generateComponentNodeschema(component: Component) {
   }
   if (skipComponents.includes(component.name)) return nodeschema
 
-  const schema = component.onInit(UndefinedEntity)
-  if (schema === null || schema === undefined) {
+  const schema = component?.onInit(UndefinedEntity)
+  if (schema === null) {
+    return nodeschema
+  }
+  if (schema === undefined) {
+    console.log('DEBUG', component.name, schema)
     return nodeschema
   }
   if (typeof schema !== 'object') {
@@ -123,6 +129,17 @@ export function NodetoEnginetype(value, valuetype) {
       return Boolean(value)
     default:
   }
+}
+
+export function EnginetoNodetype(value) {
+  if (typeof value === 'object') {
+    if (value instanceof Color) {
+      const style = value.getStyle() // 'rgb(255, 0, 0)'
+      const rgbValues = style.match(/\d+/g)!.map(Number)
+      return new Vector3(rgbValues[0], rgbValues[1], rgbValues[2])
+    }
+  }
+  return value
 }
 
 export function getComponentSetters() {
@@ -167,4 +184,53 @@ export function getComponentSetters() {
     setters.push(node)
   }
   return setters
+}
+
+export function getComponentGetters() {
+  const getters: NodeDefinition[] = []
+  const skipped: string[] = []
+  for (const [componentName, component] of ComponentMap) {
+    if (skipComponents.includes(componentName)) {
+      skipped.push(componentName)
+      continue
+    }
+    const outputsockets = generateComponentNodeschema(component)
+    if (Object.keys(outputsockets).length === 0) {
+      skipped.push(componentName)
+      continue
+    }
+    const node = makeFlowNodeDefinition({
+      typeName: `engine/component/get${componentName}`,
+      category: NodeCategory.Query,
+      label: `get ${componentName}`,
+      in: {
+        flow: 'flow',
+        entity: 'entity'
+      },
+      out: {
+        flow: 'flow',
+        entity: 'entity',
+        ...outputsockets
+      },
+      initialState: undefined,
+      triggered: ({ read, write, commit, graph }) => {
+        const entity = Number.parseInt(read('entity')) as Entity
+        const props = getComponent(entity, component)
+        const outputs = Object.entries(node.out).splice(2)
+        console.log('DEBUG props ', props, 'outputs ', outputs)
+        if (typeof props !== 'object') {
+          console.log(outputs[outputs.length - 1][0], props)
+          write(outputs[outputs.length - 1][0] as any, EnginetoNodetype(props))
+        } else {
+          for (const [output, type] of outputs) {
+            write(output as any, EnginetoNodetype(props[output]))
+          }
+        }
+        write('entity', entity)
+        commit('flow')
+      }
+    })
+    getters.push(node)
+  }
+  return getters
 }

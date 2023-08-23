@@ -38,6 +38,9 @@ import {
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
 
+/**
+ * @deprecated This function is no longer recommended for use. Please use the getter methods instead instead
+ */
 export const getComponentFromRegistry = makeFunctionNodeDefinition({
   typeName: 'engine/component/getComponentfromRegistry',
   category: NodeCategory.Query,
@@ -58,7 +61,9 @@ export const getComponentFromRegistry = makeFunctionNodeDefinition({
     write('component', ComponentType)
   }
 })
-
+/**
+ * @deprecated This function is no longer recommended for use. Please use the getter methods instead instead
+ */
 export const getComponentFromEntity = makeFunctionNodeDefinition({
   typeName: 'engine/component/getComponentfromEntity',
   category: NodeCategory.Query,
@@ -83,7 +88,9 @@ export const getComponentFromEntity = makeFunctionNodeDefinition({
     write('component', componentType)
   }
 })
-
+/**
+ * @deprecated This function is no longer recommended for use. Please use the setter methods instead.
+ */
 export const addComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/addComponent',
   category: NodeCategory.Action,
@@ -131,8 +138,8 @@ export const deleteComponent = makeFlowNodeDefinition({
   out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
-    const entity: Entity = Number.parseInt(read('entity')) as Entity
-    const componentName: string = read('componentName')
+    const entity = Number.parseInt(read('entity')) as Entity
+    const componentName = read<string>('componentName')
     const component = ComponentMap.get(componentName)!
     removeComponent(entity, component)
     write('entity', entity)
@@ -140,6 +147,9 @@ export const deleteComponent = makeFlowNodeDefinition({
   }
 })
 
+/**
+ * @deprecated pointless now
+ */
 export const Constant = makeInNOutFunctionDesc({
   name: 'engine/component',
   label: 'Component',
@@ -148,6 +158,9 @@ export const Constant = makeInNOutFunctionDesc({
   exec: (a: Component) => a
 })
 
+/**
+ * @deprecated pointless now
+ */
 export const Equal = makeInNOutFunctionDesc({
   name: 'engine/equal/component',
   label: 'Component =',

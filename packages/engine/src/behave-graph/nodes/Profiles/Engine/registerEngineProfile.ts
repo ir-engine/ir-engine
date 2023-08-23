@@ -43,7 +43,7 @@ import * as EntityNodes from './Values/EntityNodes'
 import { EntityValue } from './Values/EntityValue'
 import * as StateNodes from './Values/StateNodes'
 import { StateValue } from './Values/StateValue'
-import { getComponentSetters } from './helper/componentHelper'
+import { getComponentGetters, getComponentSetters } from './helper/componentHelper'
 
 export const makeEngineDependencies = () => ({})
 
@@ -86,7 +86,8 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // flow control
 
     ...getEngineStringConversions(getEngineValuesMap()),
-    ...getComponentSetters()
+    ...getComponentSetters(),
+    ...getComponentGetters()
   ]
   return Object.fromEntries(nodeDefinitions.map((nodeDefinition) => [nodeDefinition.typeName, nodeDefinition]))
 })
