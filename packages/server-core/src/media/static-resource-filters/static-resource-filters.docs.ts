@@ -23,17 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// TODO: Once moved to feathers 5. Remove this interfaces folder
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { UserType } from '../user/user.schema'
-
-/* @deprecated */
-export interface Relationship {
-  userId: UserID
-  friend: UserType[]
-  requested: UserType[]
-  pending: UserType[]
-  blocking: UserType[]
-  blocked: UserType[]
-}
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Static resource filters service description',
+    securities: ['all']
+  }
+})

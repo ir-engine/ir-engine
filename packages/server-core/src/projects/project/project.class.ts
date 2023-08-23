@@ -29,7 +29,7 @@ import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
 import path from 'path'
-import Sequelize, { Op } from 'sequelize'
+import { Op } from 'sequelize'
 
 import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import {
@@ -48,11 +48,17 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -79,9 +85,14 @@ import {
   getEnginePackageJson,
   getProjectConfig,
   getProjectPackageJson,
+  getProjectUpdateJobBody,
   onProjectEvent,
   removeProjectUpdateJob
 } from './project-helper'
+
+import { getPodsData } from '../../cluster/server-info/server-info-helper'
+
+const UPDATE_JOB_TIMEOUT = 60 * 5 //5 minute timeout on project update jobs completing or failing
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -94,6 +105,11 @@ export type ProjectQueryParams = {
   inputProjectURL?: string
   branchName?: string
   selectedSHA?: string
+}
+
+export type ProjectUpdateParams = {
+  user?: UserType
+  isJob?: boolean
 }
 
 export type ProjectParams = {
@@ -135,6 +151,194 @@ const getGitProjectData = (project) => {
   }
 
   return response
+}
+
+export const updateProject = async (
+  app: Application,
+  data: {
+    sourceURL: string
+    destinationURL: string
+    name?: string
+    needsRebuild?: boolean
+    reset?: boolean
+    commitSHA?: string
+    sourceBranch: string
+    updateType: ProjectUpdateType
+    updateSchedule: string
+  },
+  params?: ProjectUpdateParams
+) => {
+  if (data.sourceURL === 'default-project') {
+    copyDefaultProject()
+    await uploadLocalProjectToProvider(app, 'default-project')
+    return
+  }
+
+  const urlParts = data.sourceURL.split('/')
+  let projectName = data.name || urlParts.pop()
+  if (!projectName) throw new Error('Git repo must be plain URL')
+  projectName = projectName.toLowerCase()
+  if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+  if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
+
+  const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/`)
+  const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+
+  // if project exists already, remove it and re-clone it
+  if (fs.existsSync(projectDirectory)) {
+    // if (isDev) throw new Error('Cannot create project - already exists')
+    deleteFolderRecursive(projectDirectory)
+  }
+
+  const projectResult = await app.service('project').find({
+    query: {
+      name: projectName
+    }
+  })
+
+  let project
+  if (projectResult.data.length > 0) project = projectResult.data[0]
+
+  const userId = params!.user?.id || project?.updateUserId
+  if (!userId) throw new BadRequest('No user ID from call or existing project owner')
+
+  const githubIdentityProvider = (await app.service(identityProviderPath).find({
+    query: {
+      userId: userId,
+      type: 'github',
+      $limit: 1
+    }
+  })) as Paginated<IdentityProviderType>
+
+  if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
+
+  let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.sourceURL)
+  if (!repoPath) repoPath = data.sourceURL //public repo
+
+  const gitCloner = useGit(projectLocalDirectory)
+  await gitCloner.clone(repoPath, projectDirectory)
+  const git = useGit(projectDirectory)
+  const branchName = `${config.server.releaseName}-deployment`
+  try {
+    const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
+    if (data.commitSHA) await git.checkout(data.commitSHA)
+    if (branchExists.length === 0 || data.reset) {
+      try {
+        await git.deleteLocalBranch(branchName)
+      } catch (err) {
+        //
+      }
+      await git.checkoutLocalBranch(branchName)
+    } else await git.checkout(branchName)
+  } catch (err) {
+    logger.error(err)
+    throw err
+  }
+
+  await uploadLocalProjectToProvider(app, projectName)
+
+  const projectConfig = getProjectConfig(projectName) ?? {}
+
+  // when we have successfully re-installed the project, remove the database entry if it already exists
+  const existingProjectResult = await app.service('project')._find({
+    query: {
+      name: {
+        $like: `%${projectName}%`
+      }
+    }
+  })
+  const existingProject = existingProjectResult.total > 0 ? existingProjectResult.data[0] : null
+  let repositoryPath = data.destinationURL || data.sourceURL
+  const publicSignedExec = PUBLIC_SIGNED_REGEX.exec(repositoryPath)
+  //In testing, intermittently the signed URL was being entered into the database, which made matching impossible.
+  //Stripping the signed portion out if it's about to be inserted.
+  if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
+  const { commitSHA, commitDate } = await getCommitSHADate(projectName)
+  const returned = !existingProject
+    ? // Add to DB
+      await app.service('project')._create(
+        {
+          thumbnail: projectConfig.thumbnail,
+          name: projectName,
+          repositoryPath,
+          needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+          sourceRepo: data.sourceURL,
+          sourceBranch: data.sourceBranch,
+          updateType: data.updateType,
+          updateSchedule: data.updateSchedule,
+          updateUserId: userId,
+          commitSHA,
+          commitDate
+        },
+        params || {}
+      )
+    : await app.service('project')._patch(existingProject.id, {
+        commitSHA,
+        commitDate,
+        sourceRepo: data.sourceURL,
+        sourceBranch: data.sourceBranch,
+        updateType: data.updateType,
+        updateSchedule: data.updateSchedule,
+        updateUserId: userId
+      })
+
+  returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
+
+  if (!existingProject) {
+    await app.service(projectPermissionPath).create({
+      projectId: returned.id,
+      userId
+    })
+  }
+
+  if (returned.name !== projectName)
+    await app.service('project')._patch(existingProject.id, {
+      name: projectName
+    })
+
+  if (data.reset) {
+    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.destinationURL)
+    if (!repoPath) repoPath = data.destinationURL //public repo
+    await git.addRemote('destination', repoPath)
+    await git.raw(['lfs', 'fetch', '--all'])
+    await git.push('destination', branchName, ['-f', '--tags'])
+    const { commitSHA, commitDate } = await getCommitSHADate(projectName)
+    await app.service('project')._patch(returned.id, {
+      commitSHA,
+      commitDate
+    })
+  }
+  // run project install script
+  if (projectConfig.onEvent) {
+    await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
+  }
+
+  const k8BatchClient = getState(ServerState).k8BatchClient
+
+  if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
+    await createOrUpdateProjectUpdateJob(app, projectName)
+  } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
+    await removeProjectUpdateJob(app, projectName)
+
+  return returned
+}
+
+const getCommitSHADate = async (projectName: string): Promise<{ commitSHA: string; commitDate: Date }> => {
+  const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+  const git = useGit(projectDirectory)
+  let commitSHA = ''
+  let commitDate
+  try {
+    commitSHA = await git.revparse(['HEAD'])
+    const commit = await git.log(['-1'])
+    commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
+  } catch (err) {
+    //
+  }
+  return {
+    commitSHA,
+    commitDate
+  }
 }
 
 export const deleteProjectFilesInStorageProvider = async (projectName: string, storageProviderName?: string) => {
@@ -212,24 +416,6 @@ export class Project extends Service {
     this.app.isSetup.then(() => this._callOnLoad())
   }
 
-  async _getCommitSHADate(projectName: string): Promise<{ commitSHA: string; commitDate: Date }> {
-    const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
-    const git = useGit(projectDirectory)
-    let commitSHA = ''
-    let commitDate
-    try {
-      commitSHA = await git.revparse(['HEAD'])
-      const commit = await git.log(['-1'])
-      commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
-    } catch (err) {
-      //
-    }
-    return {
-      commitSHA,
-      commitDate
-    }
-  }
-
   async _callOnLoad() {
     const projects = (
       (await super.find({
@@ -250,7 +436,7 @@ export class Project extends Service {
     const projectConfig = getProjectConfig(projectName) ?? {}
 
     const gitData = getGitProjectData(projectName)
-    const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
+    const { commitSHA, commitDate } = await getCommitSHADate(projectName)
     await super.create({
       thumbnail: projectConfig.thumbnail,
       name: projectName,
@@ -297,7 +483,7 @@ export class Project extends Service {
         }
       }
 
-      const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
+      const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
       await this.Model.update(
         { commitSHA, commitDate },
@@ -377,7 +563,7 @@ export class Project extends Service {
     data: {
       sourceURL: string
       destinationURL: string
-      name?: string
+      name: string
       needsRebuild?: boolean
       reset?: boolean
       commitSHA?: string
@@ -386,163 +572,89 @@ export class Project extends Service {
       updateSchedule: string
     },
     placeholder?: null,
-    params?: UserParams
+    params?: ProjectUpdateParams
   ) {
-    if (data.sourceURL === 'default-project') {
-      copyDefaultProject()
-      await uploadLocalProjectToProvider(this.app, 'default-project')
-      return
-    }
-
-    const urlParts = data.sourceURL.split('/')
-    let projectName = data.name || urlParts.pop()
-    if (!projectName) throw new Error('Git repo must be plain URL')
-    projectName = projectName.toLowerCase()
-    if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
-    if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
-
-    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/`)
-    const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
-
-    // if project exists already, remove it and re-clone it
-    if (fs.existsSync(projectDirectory)) {
-      // if (isDev) throw new Error('Cannot create project - already exists')
-      deleteFolderRecursive(projectDirectory)
-    }
-
-    const project = await this.app.service('project').Model.findOne({
-      where: {
-        name: projectName
-      }
-    })
-
-    const userId = params!.user?.id || project.updateUserId
-
-    const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
-      query: {
-        userId: userId,
-        type: 'github',
-        $limit: 1
-      }
-    })) as Paginated<IdentityProviderType>
-
-    if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
-
-    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.sourceURL)
-    if (!repoPath) repoPath = data.sourceURL //public repo
-
-    const gitCloner = useGit(projectLocalDirectory)
-    await gitCloner.clone(repoPath, projectDirectory)
-    const git = useGit(projectDirectory)
-    const branchName = `${config.server.releaseName}-deployment`
-    try {
-      const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
-      if (data.commitSHA) await git.checkout(data.commitSHA)
-      if (branchExists.length === 0 || data.reset) {
-        try {
-          await git.deleteLocalBranch(branchName)
-        } catch (err) {
-          //
-        }
-        await git.checkoutLocalBranch(branchName)
-      } else await git.checkout(branchName)
-    } catch (err) {
-      logger.error(err)
-      throw err
-    }
-
-    await uploadLocalProjectToProvider(this.app, projectName)
-
-    const projectConfig = getProjectConfig(projectName) ?? {}
-
-    // when we have successfully re-installed the project, remove the database entry if it already exists
-    const existingProjectResult = await this.Model.findOne({
-      where: {
-        [Op.or]: [
-          Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {
-            [Op.like]: '%' + projectName + '%'
-          })
-        ]
-      }
-    })
-    let repositoryPath = data.destinationURL || data.sourceURL
-    const publicSignedExec = PUBLIC_SIGNED_REGEX.exec(repositoryPath)
-    //In testing, intermittently the signed URL was being entered into the database, which made matching impossible.
-    //Stripping the signed portion out if it's about to be inserted.
-    if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
-    const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
-    const returned = !existingProjectResult
-      ? // Add to DB
-        await super.create(
-          {
-            thumbnail: projectConfig.thumbnail,
-            name: projectName,
-            repositoryPath,
-            needsRebuild: data.needsRebuild ? data.needsRebuild : true,
-            sourceRepo: data.sourceURL,
-            sourceBranch: data.sourceBranch,
-            updateType: data.updateType,
-            updateSchedule: data.updateSchedule,
-            updateUserId: userId,
-            commitSHA,
-            commitDate
-          },
-          params || {}
-        )
-      : await super.patch(existingProjectResult.id, {
-          commitSHA,
-          commitDate,
-          sourceRepo: data.sourceURL,
-          sourceBranch: data.sourceBranch,
-          updateType: data.updateType,
-          updateSchedule: data.updateSchedule,
-          updateUserId: userId
-        })
-
-    returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
-
-    if (!existingProjectResult) {
-      await this.app.service('project-permission').create({
-        projectId: returned.id,
-        userId
-      })
-    }
-
-    if (returned.name !== projectName)
-      await super.patch(existingProjectResult.id, {
-        name: projectName
-      })
-
-    if (data.reset) {
-      let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.destinationURL)
-      if (!repoPath) repoPath = data.destinationURL //public repo
-      await git.addRemote('destination', repoPath)
-      await git.raw(['lfs', 'fetch', '--all'])
-      await git.push('destination', branchName, ['-f', '--tags'])
-      const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
-      await super.patch(returned.id, {
-        commitSHA,
-        commitDate
-      })
-    }
-    // run project install script
-    if (projectConfig.onEvent) {
-      await onProjectEvent(
-        this.app,
-        projectName,
-        projectConfig.onEvent,
-        existingProjectResult ? 'onUpdate' : 'onInstall'
+    if (!config.kubernetes.enabled || params?.isJob) return updateProject(this.app, data, params)
+    else {
+      const k8BatchClient = getState(ServerState).k8BatchClient
+      const urlParts = data.sourceURL.split('/')
+      let projectName = data.name || urlParts.pop()
+      if (!projectName) throw new Error('Git repo must be plain URL')
+      projectName = projectName.toLowerCase()
+      if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+      if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
+      const apiPods = await getPodsData(
+        `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
+        'api',
+        'Api',
+        this.app
       )
+
+      const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+      try {
+        await k8BatchClient.deleteNamespacedJob(
+          `${process.env.RELEASE_NAME}-${data.name}-update`,
+          'default',
+          undefined,
+          undefined,
+          0,
+          undefined,
+          'Background'
+        )
+      } catch (err) {
+        console.log('Old update job did not exist, continuing...')
+      }
+      const job = await k8BatchClient.createNamespacedJob(
+        'default',
+        getProjectUpdateJobBody(data, image, params!.user!.id)
+      )
+      let counter = 0
+      const jobFinishedPromise = new Promise((resolve, reject) => {
+        const interval = setInterval(async () => {
+          counter++
+          const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+
+          const updateJob = await k8BatchClient.listNamespacedJob(
+            'default',
+            undefined,
+            false,
+            undefined,
+            undefined,
+            jobLabelSelector
+          )
+
+          if (updateJob && updateJob.body.items.length > 0) {
+            const succeeded = updateJob.body.items.filter((item) => item.status && item.status.succeeded === 1)
+            const failed = updateJob.body.items.filter((item) => item.status && item.status.failed === 1)
+            if (succeeded.length > 0 || failed.length > 0) clearInterval(interval)
+            if (succeeded.length > 0) resolve(null)
+            if (failed.length > 0) reject()
+          }
+          if (counter >= UPDATE_JOB_TIMEOUT) {
+            clearInterval(interval)
+            reject('Project update timed out; try again later or check error logs of update job')
+          }
+        }, 1000)
+      })
+      try {
+        await jobFinishedPromise
+        const result = (await super._find({
+          query: {
+            name: {
+              $like: `${projectName}%`
+            }
+          }
+        })) as Paginated<ProjectInterface>
+        let returned = {} as ProjectInterface
+        if (result.total > 0) returned = result.data[0]
+        else throw new BadRequest('Project did not exist after update')
+        returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
+        return returned
+      } catch (err) {
+        console.log('Error: project did not exist after completing update', projectName, err)
+        throw err
+      }
     }
-
-    const k8BatchClient = getState(ServerState).k8BatchClient
-
-    if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
-      await createOrUpdateProjectUpdateJob(this.app, projectName)
-    } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
-      await removeProjectUpdateJob(this.app, projectName)
-
-    return returned
   }
 
   async patch(id: Id, data: any, params?: UserParams) {
@@ -637,23 +749,24 @@ export class Project extends Service {
       })
     )
 
-    const staticResourceItems = await (this.app.service('static-resource') as any).Model.findAll({
-      where: {
-        [Op.and]: [
+    const staticResourceItems = (await this.app.service(staticResourcePath).find({
+      query: {
+        $and: [
           {
             project: name
           },
           {
             project: {
-              [Op.ne]: null
+              $ne: null
             }
           }
         ]
-      }
-    })
+      },
+      paginate: false
+    })) as StaticResourceType[]
     staticResourceItems.length &&
       staticResourceItems.forEach(async (staticResource) => {
-        await this.app.service('static-resource').remove(staticResource.dataValues.id)
+        await this.app.service(staticResourcePath).remove(staticResource.id)
       })
 
     await removeProjectUpdateJob(this.app, name)
@@ -680,6 +793,7 @@ export class Project extends Service {
   //@ts-ignore
   async find(params?: UserParams): Promise<{ data: ProjectInterface[]; errors: any[] }> {
     let projectPushIds: string[] = []
+    let populateProjectPermissions = false
     const errors = [] as any
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
@@ -695,11 +809,14 @@ export class Project extends Service {
 
       // Get all of the projects that this user has permissions for, then calculate push status by whether the user
       // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
-      const projectPermissions = (await this.app.service('project-permission').Model.findAll({
-        where: { userId: params.user!.id },
-        include: [{ model: this.app.service('project').Model }],
-        paginate: false
-      })) as any
+      const knexClient: Knex = this.app.get('knexClient')
+      const projectPermissions = await knexClient
+        .from(projectPermissionPath)
+        .join('project', 'project.id', `${projectPermissionPath}.projectId`)
+        .where({ userId: params.user!.id })
+        .select()
+        .options({ nestTables: true })
+
       const allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repoAccess =
         githubIdentityProvider.data.length > 0
@@ -756,12 +873,10 @@ export class Project extends Service {
       if (!params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
         params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
       delete params.query.allowed
-      if (!params.sequelize) params.sequelize = { raw: false }
-      if (!params.sequelize.include) params.sequelize.include = []
-      params.sequelize.include.push({
-        model: this.app.service('project-permission').Model
-      })
+
+      populateProjectPermissions = true
     }
+
     params = {
       ...params,
       query: {
@@ -797,10 +912,19 @@ export class Project extends Service {
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
 
-        // TODO: Following can be moved to project permission hook once its service is moved to feathers 5.
-        for (const permissions of values.project_permissions || []) {
-          if (!permissions.user && permissions.userId)
-            permissions.user = await this.app.service(userPath)._get(permissions.userId)
+        if (populateProjectPermissions) {
+          // TODO: Following can be moved to project resolver once this service is moved to feathers 5.
+          values.project_permissions = (await this.app.service(projectPermissionPath)._find({
+            query: {
+              projectId: values.id
+            },
+            paginate: false
+          })) as ProjectPermissionType[]
+
+          for (const permissions of values.project_permissions || []) {
+            if (!permissions.user && permissions.userId)
+              permissions.user = await this.app.service(userPath)._get(permissions.userId)
+          }
         }
       } catch (err) {
         //

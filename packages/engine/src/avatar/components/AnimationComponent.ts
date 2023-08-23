@@ -33,8 +33,7 @@ export const AnimationComponent = defineComponent({
   onInit: (entity) => {
     return {
       mixer: null! as AnimationMixer,
-      animations: [] as AnimationClip[],
-      animationSpeed: 1
+      animations: [] as AnimationClip[]
     }
   },
 
@@ -43,6 +42,5 @@ export const AnimationComponent = defineComponent({
 
     if (json.mixer) component.mixer.set(json.mixer)
     if (json.animations) component.animations.set(json.animations as AnimationClip[])
-    if (json.animationSpeed) component.animationSpeed.set(json.animationSpeed)
   }
 })

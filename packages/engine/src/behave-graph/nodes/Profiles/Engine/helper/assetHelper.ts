@@ -39,7 +39,6 @@ export async function addMediaComponent(url: string, parent?: Entity | null, bef
   console.log(url)
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-
   let componentName: string | null = null
   let updateFunc = null! as any
 
@@ -53,20 +52,20 @@ export async function addMediaComponent(url: string, parent?: Entity | null, bef
     updateFunc = () => setComponent(node!, ModelComponent, { src: url })
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     componentName = VideoComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
+    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
   } else if (contentType.startsWith('image/')) {
     componentName = ImageComponent.name
     updateFunc = () => setComponent(node!, ImageComponent, { source: url })
   } else if (contentType.startsWith('audio/')) {
     componentName = PositionalAudioComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
+    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
   } else if (url.includes('.uvol')) {
     componentName = VolumetricComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
+    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
   }
 
   if (componentName) {
-    node = addEntityToScene(componentName, parent, before)
+    node = addEntityToScene(componentName, parent || undefined, before || undefined)
 
     if (node) updateFunc()
   }

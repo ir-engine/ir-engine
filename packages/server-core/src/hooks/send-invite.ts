@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
@@ -36,13 +35,14 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import logger from '../ServerLogger'
 import { UserParams } from '../api/root-params'
 import config from '../appconfig'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
-import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
 
 export type InviteDataType = InviteType
 
@@ -159,7 +159,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
       await generateSMS(app, result, token, inviteType, authUser.name, targetObjectId)
     } else if (result.inviteeId != null) {
       if (inviteType === 'friend') {
-        const existingRelationshipStatus = (await app.service('user-relationship').find({
+        const existingRelationshipStatus = await app.service(userRelationshipPath)._find({
           query: {
             $or: [
               {
@@ -172,9 +172,9 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
             userId: result.userId,
             relatedUserId: result.inviteeId
           }
-        })) as Paginated<UserRelationshipDataType>
+        })
         if (existingRelationshipStatus.total === 0) {
-          await app.service('user-relationship').create(
+          await app.service(userRelationshipPath).create(
             {
               userRelationshipType: 'requested',
               userId: result.userId,

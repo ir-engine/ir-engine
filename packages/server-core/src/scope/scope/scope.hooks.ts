@@ -23,20 +23,50 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import {
+  scopeDataValidator,
+  scopePatchValidator,
+  scopeQueryValidator
+} from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  scopeDataResolver,
+  scopeExternalResolver,
+  scopePatchResolver,
+  scopeQueryResolver,
+  scopeResolver
+} from '../../scope/scope/scope.resolvers'
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(scopeExternalResolver), schemaHooks.resolveResult(scopeResolver)]
+  },
+
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    find: [iff(isProvider('external'), verifyScope('user', 'read') as any)],
-    get: [iff(isProvider('external'), verifyScope('user', 'read') as any)],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
+    all: [
+      authenticate(),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(scopeQueryValidator),
+      schemaHooks.resolveQuery(scopeQueryResolver)
+    ],
+    find: [iff(isProvider('external'), verifyScope('user', 'read'))],
+    get: [iff(isProvider('external'), verifyScope('user', 'read'))],
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
+      () => schemaHooks.validateData(scopeDataValidator),
+      schemaHooks.resolveData(scopeDataResolver)
+    ],
     update: [disallow()],
-    patch: [disallow()],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)]
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(scopePatchValidator),
+      schemaHooks.resolveData(scopePatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))]
   },
 
   after: {

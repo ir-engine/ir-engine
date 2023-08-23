@@ -30,12 +30,11 @@ import { addActionReceptor, getMutableState, getState } from '@etherealengine/hy
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
-import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
 import { VolumetricComponent, endLoadingEffect } from '../../scene/components/VolumetricComponent'
 import { AudioSettingReceptor, AudioState } from '../AudioState'
@@ -171,17 +170,16 @@ const reactor = () => {
       if (audioContext.state === 'suspended') audioContext.resume()
     }
 
-    if (isClient && !getState(EngineState).isEditor) {
+    if (isClient) {
       // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
       // in order to ensure media will play programmatically
-      const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
       const handleAutoplay = () => {
         enableAudioContext()
-        for (const entity of mediaQuery()) {
-          const mediaElement = getComponent(entity, MediaElementComponent)
-          const media = getComponent(entity, MediaComponent)
-          if (!media.paused && mediaElement?.element.paused) mediaElement.element.play()
-        }
+        window.removeEventListener('pointerdown', handleAutoplay)
+        window.removeEventListener('keypress', handleAutoplay)
+        window.removeEventListener('touchstart', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
       }
       // TODO: add destroy callbacks
       window.addEventListener('pointerdown', handleAutoplay)

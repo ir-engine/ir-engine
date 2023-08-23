@@ -30,7 +30,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const userRelationshipTypePath = 'user-relationship-type'
 
-export const userRelationshipTypeMethods = ['find', 'get'] as const
+export const userRelationshipTypeMethods = ['find'] as const
 
 export const userRelationshipTypes = [
   'requested', // Default state of relatedUser. Friend request send to another user

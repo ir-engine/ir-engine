@@ -28,7 +28,7 @@ import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three
 
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { defineActionQueue, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
@@ -302,7 +302,6 @@ const execute = () => {
     const cameraEntity = Engine.instance.cameraEntity
     removeComponent(cameraEntity, SpectatorComponent)
     deleteSearchParams('spectate')
-    dispatchAction(EngineActions.leaveWorld({}))
   }
 
   for (const cameraEntity of followCameraQuery.enter()) {
