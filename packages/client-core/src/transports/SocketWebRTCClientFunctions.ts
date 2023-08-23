@@ -631,8 +631,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
             }
           )
 
-          console.log({ producerPromise })
-
           callback({ id: producerPromise.producerID })
         } catch (e) {
           errback(e)
@@ -1110,8 +1108,6 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     })
   )
 
-  console.log('local screen', mediaStreamState.localScreen.value)
-
   const channelConnectionState = getState(MediaInstanceState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
   const channelId = currentChannelInstanceConnection.channelId
@@ -1129,8 +1125,6 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   mediaStreamState.screenVideoProducer.set(videoProducer)
 
   getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[videoProducer.id].set(videoProducer)
-
-  console.log('screen producer', mediaStreamState.screenVideoProducer.value)
 
   // create a producer for audio, if we have it
   if (mediaStreamState.localScreen.value!.getAudioTracks().length) {

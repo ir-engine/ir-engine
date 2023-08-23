@@ -70,7 +70,6 @@ export async function createDataProducer(
     label: DataChannelType
   }
 ): Promise<void> {
-  console.log('createDataProducer', args.label, network)
   const producer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, args.label) as DataProducer
   if (producer) return
 
