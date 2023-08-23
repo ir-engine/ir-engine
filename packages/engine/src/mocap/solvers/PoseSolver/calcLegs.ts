@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Results, Side } from '../Types'
+import { LEFT, RIGHT, Results, Side } from '../Types'
 import Euler from '../utils/euler'
 import { clamp } from '../utils/helpers'
 import Vector from '../utils/vector'
-import { LEFT, PI, RIGHT } from './../constants'
 
 export const offsets = {
   upperLeg: {
@@ -112,15 +111,15 @@ export const rigLeg = (UpperLeg: Vector, LowerLeg: Vector, side: Side = RIGHT) =
   const invert = side === RIGHT ? 1 : -1
 
   const rigedUpperLeg = new Euler({
-    x: clamp(UpperLeg.x, 0, 0.5) * PI,
-    y: clamp(UpperLeg.y, -0.25, 0.25) * PI,
-    z: clamp(UpperLeg.z, -0.5, 0.5) * PI + invert * offsets.upperLeg.z,
+    x: clamp(UpperLeg.x, 0, 0.5) * Math.PI,
+    y: clamp(UpperLeg.y, -0.25, 0.25) * Math.PI,
+    z: clamp(UpperLeg.z, -0.5, 0.5) * Math.PI + invert * offsets.upperLeg.z,
     rotationOrder: 'XYZ'
   })
   const rigedLowerLeg = new Euler({
-    x: LowerLeg.x * PI,
-    y: LowerLeg.y * PI,
-    z: LowerLeg.z * PI
+    x: LowerLeg.x * Math.PI,
+    y: LowerLeg.y * Math.PI,
+    z: LowerLeg.z * Math.PI
   })
 
   return {

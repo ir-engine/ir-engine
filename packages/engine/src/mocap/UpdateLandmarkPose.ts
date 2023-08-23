@@ -23,27 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Landmark } from '@mediapipe/holistic'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Vector3 } from 'three'
-import { updateRigPosition, updateRigRotation } from './UpdateUtils'
-
-import { RestingDefault } from './solvers/utils/helpers'
-
 import { calcArms } from './solvers/PoseSolver/calcArms'
 import { calcHips } from './solvers/PoseSolver/calcHips'
 import { calcLegs } from './solvers/PoseSolver/calcLegs'
+import { RestingDefault } from './solvers/utils/helpers'
 
-const UpdateSolvedPose = (lm3d, lm2d, position, rotation, avatarRig) => {
-  const arms = calcArms(lm3d)
+const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], changes) => {
+  if (!lm3d || !lm2d) return
+
   const hips = calcHips(lm3d, lm2d)
+  const arms = calcArms(lm3d)
   const legs = calcLegs(lm3d)
 
-  const world = hips.Hips.worldPosition! as Vector3
-  const hipsPos = {
-    x: -world?.x,
-    y: Math.min(lm3d[31].y, lm3d[32].y),
-    z: -world?.z
-  }
-
+  // hack: a strategy for off screen parts is to go to a rest pose
   {
     const rightHandOffscreen = lm3d[15].y > 0.1 || (lm3d[15].visibility ?? 0) < 0.23 || 0.995 < lm2d[15].y
     const leftHandOffscreen = lm3d[16].y > 0.1 || (lm3d[16].visibility ?? 0) < 0.23 || 0.995 < lm2d[16].y
@@ -67,20 +62,32 @@ const UpdateSolvedPose = (lm3d, lm2d, position, rotation, avatarRig) => {
     legs.LowerLeg.r = legs.LowerLeg.r.multiply(leftFootOffscreen ? 0 : 1)
   }
 
-  updateRigPosition('Hips', position, 1, 0.07, avatarRig)
-  updateRigRotation('Hips', rotation, 1, 0.7, avatarRig)
-  updateRigRotation('Chest', hips.Spine, 0.25, 0.3, avatarRig)
-  updateRigPosition('Spine', hips.Spine, 0.45, 0.3, avatarRig)
-  updateRigRotation('RightUpperArm', arms.UpperArm.r, 1, 0.3, avatarRig)
-  updateRigRotation('RightLowerArm', arms.LowerArm.r, 1, 0.3, avatarRig)
-  updateRigRotation('LeftUpperArm', arms.UpperArm.l, 1, 0.3, avatarRig)
-  updateRigRotation('LeftLowerArm', arms.LowerArm.l, 1, 0.3, avatarRig)
-  updateRigPosition('LeftHand', arms.Hand.l, 1, 0.3, avatarRig)
-  updateRigPosition('RightHand', arms.Hand.r, 1, 0.3, avatarRig)
-  updateRigRotation('LeftUpperLeg', legs.UpperLeg.l, 1, 0.3, avatarRig)
-  updateRigRotation('LeftLowerLeg', legs.LowerLeg.l, 1, 0.3, avatarRig)
-  updateRigRotation('RightUpperLeg', legs.UpperLeg.r, 1, 0.3, avatarRig)
-  updateRigRotation('RightLowerLeg', legs.LowerLeg.r, 1, 0.3, avatarRig)
+  // hack: estimate where ground is using feet
+  const world = hips.Hips.worldPosition! as Vector3
+  const hipsPos = {
+    x: -world?.x,
+    y: Math.min(lm3d[31].y, lm3d[32].y),
+    z: -world?.z
+  }
+
+  changes[VRMHumanBoneName.Hips] = { xyz: hipsPos, euler: hips.Hips.rotation, dampener: 1, lerp: 0.07 }
+
+  changes[VRMHumanBoneName.Chest] = { euler: hips.Spine, dampener: 0.25, lerp: 0.3 }
+
+  changes[VRMHumanBoneName.Spine] = { xyz: hips.Spine, dampener: 0.45, lerp: 0.3 }
+
+  changes[VRMHumanBoneName.LeftUpperArm] = { euler: arms.UpperArm.l, dampener: 1, lerp: 0.3 }
+  changes[VRMHumanBoneName.LeftLowerArm] = { euler: arms.LowerArm.l, dampener: 1, lerp: 0.3 }
+  changes[VRMHumanBoneName.RightUpperArm] = { euler: arms.UpperArm.r, dampener: 1, lerp: 0.3 }
+  changes[VRMHumanBoneName.RightLowerArm] = { euler: arms.LowerArm.r, dampener: 1, lerp: 0.3 }
+
+  changes[VRMHumanBoneName.LeftHand] = { xyz: arms.Hand.l, dampener: 1, lerp: 0.3 }
+  changes[VRMHumanBoneName.RightHand] = { xyz: arms.Hand.r, dampener: 1, lerp: 0.3 }
+
+  changes[VRMHumanBoneName.LeftUpperLeg] = { euler: legs.UpperLeg.l, dampener: 1, lerp: 0.3 }
+  changes[VRMHumanBoneName.LeftLowerLeg] = { euler: legs.LowerLeg.l, dampener: 1, lerp: 0.3 }
+  changes[VRMHumanBoneName.RightUpperLeg] = { euler: legs.UpperLeg.r, dampener: 1, lerp: 0.3 }
+  changes[VRMHumanBoneName.RightLowerLeg] = { euler: legs.LowerLeg.r, dampener: 1, lerp: 0.3 }
 }
 
 export default UpdateSolvedPose

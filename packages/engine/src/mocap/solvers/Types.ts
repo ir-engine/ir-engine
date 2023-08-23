@@ -23,9 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LEFT, RIGHT } from './constants'
 import Euler from './utils/euler'
 import Vector from './utils/vector'
+
+export const RIGHT = 'Right'
+export const LEFT = 'Left'
+
 export interface ISolveOptions {
   /**
    * Runtime for the solver.

@@ -23,26 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Euler, Quaternion, Vector3 } from 'three'
 
 const useIk = true
-const updateRigPosition = (name, position, dampener, lerpAmount, rig) => {
+const updateRigPosition = (rig, key, position, dampener = 1, lerpAmount = 0.1) => {
   const vector = new Vector3(
     (position?.x || 0) * dampener,
     (position?.y || 0) * dampener,
     (position?.z || 0) * dampener
   )
 
-  const Part = rig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName[name])
+  const Part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
   if (!Part) {
-    console.log(`can't position ${name}`)
+    //console.warn(`can't position ${key}`)
     return
   }
   Part.position.lerp(vector, lerpAmount) // interpolate
 }
 
-const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
+const updateRigRotation = (rig, key, rotation, dampener = 1, lerpAmount = 0.3) => {
   const quaternion = new Quaternion().setFromEuler(
     new Euler(
       (rotation?.x || 0) * dampener,
@@ -52,11 +51,9 @@ const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
     )
   )
 
-  //console.log(rotation)
-
-  const Part = rig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName[name])
+  const Part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
   if (!Part) {
-    console.log(`can't rotate ${name} - ${VRMHumanBoneName[name]}`)
+    //console.warn(`can't rotate ${key}`)
     return
   }
 
