@@ -82,6 +82,8 @@ export const inviteSchema = Type.Object(
 )
 export type InviteType = Static<typeof inviteSchema>
 
+export type InviteDatabaseType = Omit<InviteType, 'spawnDetails'> & { spawnDetails: string }
+
 // Schema for creating new entries
 export const inviteDataSchema = Type.Pick(
   inviteSchema,

@@ -27,7 +27,12 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { InviteQuery, InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import {
+  InviteDatabaseType,
+  InviteQuery,
+  InviteType,
+  SpawnDetailsType
+} from '@etherealengine/engine/src/schemas/social/invite.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -35,26 +40,49 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const inviteResolver = resolve<InviteType, HookContext>({})
 
-export const inviteExternalResolver = resolve<InviteType, HookContext>({
-  user: virtual(async (invite, context) => {
-    if (invite.userId) {
-      const user = await context.app.service(userPath)._get(invite.userId)
-      return user
-    }
-  }),
+export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
+  let spawnDetails = JSON.parse(rawData.spawnDetails) as SpawnDetailsType
 
-  invitee: virtual(async (invite, context) => {
-    if (invite.inviteeId) {
-      const user = await context.app.service(userPath)._get(invite.inviteeId)
-      return user
-    }
-  }),
-  channelName: virtual(async (invite, context) => {
-    const channel = await context.app.service('channel')._get(invite.userId)
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof spawnDetails === 'string') {
+    spawnDetails = JSON.parse(spawnDetails)
+  }
 
-    return channel.name
-  })
-})
+  return {
+    ...rawData,
+    spawnDetails
+  }
+}
+
+export const inviteExternalResolver = resolve<InviteType, HookContext>(
+  {
+    user: virtual(async (invite, context) => {
+      if (invite.userId) {
+        const user = await context.app.service(userPath)._get(invite.userId)
+        return user
+      }
+    }),
+
+    invitee: virtual(async (invite, context) => {
+      if (invite.inviteeId) {
+        const user = await context.app.service(userPath)._get(invite.inviteeId)
+        return user
+      }
+    }),
+    channelName: virtual(async (invite, context) => {
+      const channel = await context.app.service('channel')._get(invite.userId)
+
+      return channel.name
+    })
+  },
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return inviteDbToSchema(rawData)
+    }
+  }
+)
 
 export const inviteDataResolver = resolve<InviteType, HookContext>({
   id: async () => {
