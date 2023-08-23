@@ -92,7 +92,7 @@ export const getCameraEntity = makeFunctionNodeDefinition({
 })
 
 export const getEntityTransform = makeFunctionNodeDefinition({
-  typeName: 'engine/entity/getComponentfromEntity',
+  typeName: 'engine/entity/getEntityTransform',
   category: NodeCategory.Query,
   label: 'Get entity transform',
   in: {
