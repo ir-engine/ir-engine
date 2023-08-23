@@ -120,7 +120,6 @@ export function NodetoEnginetype(value, valuetype) {
     case 'color':
       return new Color().setFromVector3(value)
     case 'boolean':
-      typeof Boolean
       return Boolean(value)
     default:
   }
