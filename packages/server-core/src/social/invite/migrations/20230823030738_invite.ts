@@ -49,7 +49,7 @@ export async function up(knex: Knex): Promise<void> {
       table.tinyint('deleteOnUse').defaultTo(1)
       table.tinyint('makeAdmin').defaultTo(0)
       table.string('spawnType', 255).defaultTo(null)
-      table.json('spawnDetails').defaultTo(null)
+      table.json('spawnDetails').nullable()
       table.tinyint('timed').defaultTo(0)
       table.dateTime('startTime').defaultTo(null)
       table.dateTime('endTime').defaultTo(null)

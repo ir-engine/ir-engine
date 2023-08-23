@@ -125,7 +125,6 @@ export const inviteQueryProperties = Type.Pick(inviteSchema, [
   'deleteOnUse',
   'makeAdmin',
   'spawnType',
-  'spawnDetails',
   'timed',
   'userId'
 ])
