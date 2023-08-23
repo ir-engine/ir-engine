@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import FileBrowser from './file-browser/file-browser.service'
 import OEmbed from './oembed/oembed.service'
 import Archiver from './recursive-archiver/archiver.service'
-import StaticResource from './static-resource/static-resource.service'
+import StaticResourceFilters from './static-resource-filters/static-resource-filters'
+import StaticResource from './static-resource/static-resource'
 import Upload from './upload-asset/upload-asset.service'
 
-export default [StaticResource, FileBrowser, OEmbed, Upload, Archiver]
+export default [StaticResource, StaticResourceFilters, FileBrowser, OEmbed, Upload, Archiver]

@@ -80,7 +80,7 @@ export async function up(knex: Knex): Promise<void> {
       table
         .foreign('staticResourceId')
         .references('id')
-        .inTable('static_resource')
+        .inTable('static-resource')
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
     })

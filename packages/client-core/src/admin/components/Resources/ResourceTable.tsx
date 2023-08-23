@@ -27,10 +27,10 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
+import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { resourceColumns, ResourceData } from '../../common/variables/resource'
@@ -58,7 +58,7 @@ const ResourceTable = ({ className, search }: Props) => {
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('key')
   const openResourceDrawer = useHookstate(false)
-  const resourceData = useHookstate<StaticResourceInterface | null>(null)
+  const resourceData = useHookstate<StaticResourceType | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     ResourceService.fetchAdminResources(newPage, search, sortField.value, fieldOrder.value)
@@ -80,7 +80,7 @@ const ResourceTable = ({ className, search }: Props) => {
     ResourceService.fetchAdminResources(0, search, sortField.value, fieldOrder.value)
   }, [user?.id, search, adminResourceState.updateNeeded.value])
 
-  const createData = (el: StaticResourceInterface): ResourceData => {
+  const createData = (el: StaticResourceType): ResourceData => {
     return {
       el,
       id: el.id,

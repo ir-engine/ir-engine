@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { AvatarDatabaseType, AvatarQuery, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
@@ -35,18 +35,16 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
   modelResource: virtual(async (avatar, context) => {
-    //TODO: We should replace `as any as StaticResourceType` with `as StaticResourceType` once static-resource service is migrated to feathers 5.
-    const modelStaticResource = (await context.app
-      .service(staticResourcePath)
-      .get(avatar.modelResourceId)) as any as StaticResourceType
-    return modelStaticResource
+    if (avatar.modelResourceId) {
+      const modelStaticResource = await context.app.service(staticResourcePath).get(avatar.modelResourceId)
+      return modelStaticResource
+    }
   }),
   thumbnailResource: virtual(async (avatar, context) => {
-    //TODO: We should replace `as any as StaticResourceType` with `as StaticResourceType` once static-resource service is migrated to feathers 5.
-    const thumbnailStaticResource = (await context.app
-      .service(staticResourcePath)
-      .get(avatar.thumbnailResourceId)) as any as StaticResourceType
-    return thumbnailStaticResource
+    if (avatar.thumbnailResourceId) {
+      const thumbnailStaticResource = await context.app.service(staticResourcePath).get(avatar.thumbnailResourceId)
+      return thumbnailStaticResource
+    }
   })
 })
 

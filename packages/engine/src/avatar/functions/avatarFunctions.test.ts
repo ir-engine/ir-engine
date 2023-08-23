@@ -109,8 +109,7 @@ describe('avatarFunctions Unit', async () => {
 
       const animationComponentData = {
         mixer: null!,
-        animations: [] as AnimationClip[],
-        animationSpeed: 1
+        animations: [] as AnimationClip[]
       }
 
       addComponent(entity, AnimationComponent, animationComponentData)
