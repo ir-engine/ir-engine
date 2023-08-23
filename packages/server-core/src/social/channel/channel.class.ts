@@ -31,6 +31,7 @@ import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -75,21 +76,22 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
     if (!data.instanceId && users?.length) {
       // get channel that contains the same users
-      const existingChannel = (await this.app.service('channel').Model.findOne({
-        where: {
-          instanceId: null
-        },
-        include: [
-          {
-            model: this.app.service(channelUserPath),
-            required: true,
-            as: 'channel_users',
-            where: {
-              [Op.and]: [userId, ...users].filter(Boolean).map((user) => ({ userId: user }))
-            }
-          }
-        ]
-      })) as ChannelDataType | null
+      const userIds = users
+
+      if (userId) userIds.push(userId)
+
+      const knexClient: Knex = this.app.get('knexClient')
+
+      const existingChannel = await knexClient('channel')
+        .select('channel.*')
+        .leftJoin(channelUserPath, 'channel.id', '=', `${channelUserPath}.channelId`)
+        .whereNull('channel.instanceId')
+        .andWhere((builder) => {
+          builder.whereIn(`${channelUserPath}.userId`, userIds)
+        })
+        .groupBy('channel.id')
+        .havingRaw('count(*) = ?', [userIds.length])
+        .first()
 
       if (existingChannel) {
         return existingChannel
