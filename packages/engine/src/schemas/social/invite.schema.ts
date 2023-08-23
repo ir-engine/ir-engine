@@ -145,6 +145,7 @@ export const inviteQuerySchema = Type.Intersect(
 )
 export type InviteQuery = Static<typeof inviteQuerySchema>
 
+export const spawnDetailsValidator = getValidator(spawnDetailsSchema, dataValidator)
 export const inviteValidator = getValidator(inviteSchema, dataValidator)
 export const inviteDataValidator = getValidator(inviteDataSchema, dataValidator)
 export const invitePatchValidator = getValidator(invitePatchSchema, dataValidator)
