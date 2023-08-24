@@ -42,7 +42,7 @@ import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { BotData, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -115,7 +115,7 @@ const CreateBot = () => {
   }, [state.location.value, instanceData])
 
   const handleSubmit = () => {
-    const data: BotType = {
+    const data: BotData = {
       name: state.name.value,
       instanceId: state.instance.value || '',
       userId: user.id.value,

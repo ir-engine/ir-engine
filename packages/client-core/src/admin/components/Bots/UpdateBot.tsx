@@ -39,7 +39,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { BotPatch, BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -73,7 +73,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
 
-  const updateBot = useMutation(botPath).update
+  const updateBot = useMutation(botPath).patch
   const user = useHookstate(getMutableState(AuthState).user)
 
   useEffect(() => {
@@ -136,7 +136,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   }, [state.location.value, instancesData])
 
   const handleUpdate = () => {
-    const data: BotType = {
+    const data: BotPatch = {
       name: state.name.value,
       instanceId: state.instance.value || '',
       userId: user.id.value,
