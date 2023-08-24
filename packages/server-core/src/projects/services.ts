@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import BuilderInfo from './builder-info/builder-info'
 import ProjectBranches from './project-branches/project-branches'
 import ProjectBuild from './project-build/project-build'
 import ProjectBuilderTags from './project-builder-tags/project-builder-tags'
@@ -38,6 +39,7 @@ import Projects from './projects/projects'
 import Scene from './scene/scene.service'
 
 export default [
+  BuilderInfo,
   Project,
   Projects,
   ProjectBuild,

@@ -23,27 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
 import _ from 'lodash'
 
 import logger from '@etherealengine/common/src/logger'
-import { getState } from '@etherealengine/hyperflux'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { ServerState } from '../../ServerState'
-import config from '../../appconfig'
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import {
-  dockerHubRegex,
-  findBuilderTags,
-  getEnginePackageJson,
-  privateECRTagRegex,
-  publicECRTagRegex
-} from './project-helper'
 import { Project } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
@@ -52,72 +39,7 @@ import createModel from './project.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'builder-info': {
-      get: ReturnType<typeof builderInfoGet>
-    }
   }
-}
-export const projectBuilderTagsGet = () => async () => {
-  return findBuilderTags()
-}
-
-export const builderInfoGet = (app: Application) => async () => {
-  const returned = {
-    engineVersion: getEnginePackageJson().version || '',
-    engineCommit: ''
-  }
-
-  const k8AppsClient = getState(ServerState).k8AppsClient
-  const k8BatchClient = getState(ServerState).k8BatchClient
-
-  if (k8AppsClient) {
-    const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
-
-    const builderJob = await k8BatchClient.listNamespacedJob(
-      'default',
-      undefined,
-      false,
-      undefined,
-      undefined,
-      builderLabelSelector
-    )
-
-    let builderContainer
-    if (builderJob && builderJob.body.items.length > 0) {
-      builderContainer = builderJob?.body?.items[0]?.spec?.template?.spec?.containers?.find(
-        (container) => container.name === 'etherealengine-builder'
-      )
-    } else {
-      const builderDeployment = await k8AppsClient.listNamespacedDeployment(
-        'default',
-        'false',
-        false,
-        undefined,
-        undefined,
-        builderLabelSelector
-      )
-      builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
-        (container) => container.name === 'etherealengine-builder'
-      )
-    }
-    if (builderContainer) {
-      const image = builderContainer.image
-      if (image && typeof image === 'string') {
-        const dockerHubRegexExec = dockerHubRegex.exec(image)
-        const publicECRRegexExec = publicECRTagRegex.exec(image)
-        const privateECRRegexExec = privateECRTagRegex.exec(image)
-        returned.engineCommit =
-          dockerHubRegexExec && !publicECRRegexExec
-            ? dockerHubRegexExec[1]
-            : publicECRRegexExec
-            ? publicECRRegexExec[1]
-            : privateECRRegexExec
-            ? privateECRRegexExec[0]
-            : ''
-      }
-    }
-  }
-  return returned
 }
 
 export default (app: Application): void => {
@@ -131,16 +53,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('builder-info', {
-    get: builderInfoGet(app)
-  })
-
-  app.service('builder-info').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
 
   const service = app.service('project')
 

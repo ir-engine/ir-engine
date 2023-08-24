@@ -35,6 +35,7 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
 import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { projectBuilderTagsPath } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
@@ -333,8 +334,8 @@ export const ProjectService = {
 
   getBuilderInfo: async () => {
     try {
-      const result = await API.instance.client.service('builder-info').get()
-      dispatchAction(ProjectAction.builderInfoFetched({ builderInfo: result }))
+      const result = await API.instance.client.service(builderInfoPath).get()
+      dispatchAction(ProjectAction.builderInfoFetched({ builderInfo: result.info }))
     } catch (err) {
       logger.error('Error with getting engine info', err)
       throw err
