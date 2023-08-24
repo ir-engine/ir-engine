@@ -23,30 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { botMethods, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+
 import { Application } from '../../../declarations'
-import { Bot } from './bot.class'
-import docs from './bot.docs'
+import { BotService } from './bot.class'
+import botDocs from './bot.docs'
 import hooks from './bot.hooks'
-import createModel from './bot.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    bot: Bot
+    [botPath]: BotService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: botPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new Bot(options, app)
-  event.docs = docs
-  app.use('bot', event)
+  app.use(botPath, new BotService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: botMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: botDocs
+  })
 
-  const service = app.service('bot')
-
+  const service = app.service(botPath)
   service.hooks(hooks)
 }

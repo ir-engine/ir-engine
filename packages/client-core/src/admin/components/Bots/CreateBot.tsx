@@ -29,7 +29,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
@@ -43,6 +42,7 @@ import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -79,7 +79,7 @@ const CreateBot = () => {
   const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
 
-  const createBotData = useMutation('bot').create
+  const createBotData = useMutation(botPath).create
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
@@ -115,11 +115,11 @@ const CreateBot = () => {
   }, [state.location.value, instanceData])
 
   const handleSubmit = () => {
-    const data: CreateBotAsAdmin = {
+    const data: BotType = {
       name: state.name.value,
-      instanceId: state.instance.value || null,
+      instanceId: state.instance.value || '',
       userId: user.id.value,
-      command: commandData.get({ noproxy: true }),
+      botCommands: commandData.get({ noproxy: true }),
       description: state.description.value,
       locationId: state.location.value
     }

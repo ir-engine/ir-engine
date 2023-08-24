@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
 import { BotCommandData, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
+import { BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { Application } from '../../../declarations'
 
-export const createBotCommands = async (app: Application, bot: AdminBot, commands: BotCommandData[]) => {
+export const createBotCommands = async (app: Application, bot: BotType, commands: BotCommandData[]) => {
   const botId = bot.id
 
   for (let element of commands) {

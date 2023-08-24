@@ -35,7 +35,7 @@ import { botCommandDataSchema } from './bot-command.schema'
 
 export const botPath = 'bot'
 
-export const botMethods = ['create', 'find', 'get', 'patch', 'remove'] as const
+export const botMethods = ['create', 'find', 'patch', 'remove'] as const
 
 // Main data model schema
 export const botSchema = Type.Object(
@@ -65,9 +65,13 @@ export const botSchema = Type.Object(
 export type BotType = Static<typeof botSchema>
 
 // Schema for creating new entries
-export const botDataSchema = Type.Pick(botSchema, ['name', 'description', 'instanceId', 'locationId', 'userId'], {
-  $id: 'BotData'
-})
+export const botDataSchema = Type.Pick(
+  botSchema,
+  ['name', 'description', 'instanceId', 'locationId', 'userId', 'botCommands'],
+  {
+    $id: 'BotData'
+  }
+)
 export type BotData = Static<typeof botDataSchema>
 
 // Schema for updating existing entries
