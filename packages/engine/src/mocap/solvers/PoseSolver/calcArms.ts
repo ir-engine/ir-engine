@@ -76,12 +76,6 @@ export const calcArms = (lm: Results) => {
     Hand: {
       r: rightArmRig.Hand,
       l: leftArmRig.Hand
-    },
-    //Unscaled
-    Unscaled: {
-      UpperArm: UpperArm,
-      LowerArm: LowerArm,
-      Hand: Hand
     }
   }
 }

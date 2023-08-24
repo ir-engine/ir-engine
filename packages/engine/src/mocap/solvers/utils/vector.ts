@@ -355,10 +355,10 @@ export default class Vector {
     return radians / PI
   }
   static find2DAngle(cx: number, cy: number, ex: number, ey: number) {
-    const dy = ey - cy
-    const dx = ex - cx
-    const theta = Math.atan2(dy, dx)
-    return theta
+    return Math.atan2(ey - cy, ex - cx)
+  }
+  static findMiddle(a: Vector | XYZ, b: Vector | XYZ) {
+    return new Vector((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2)
   }
   /**
    * Find 3D rotation between two vectors

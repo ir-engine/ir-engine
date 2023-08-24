@@ -92,11 +92,6 @@ export const calcLegs = (lm: Results) => {
     LowerLeg: {
       r: rightLegRig.LowerLeg,
       l: leftLegRig.LowerLeg
-    },
-    //Unscaled
-    Unscaled: {
-      UpperLeg,
-      LowerLeg
     }
   }
 }

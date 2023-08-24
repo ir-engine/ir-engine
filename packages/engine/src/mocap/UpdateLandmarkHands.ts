@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Landmark } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Euler } from 'three'
 import { HandSolver } from './solvers/HandSolver'
 import { LEFT, RIGHT } from './solvers/Types'
 
@@ -37,8 +36,9 @@ export default function UpdateLandmarkHands(leftHandLandmarks: Landmark[], right
     const side = LEFT
     const solved = HandSolver.solve(leftHandLandmarks, side)
     if (solved) {
-      const euler = new Euler(solved[side + 'Wrist']?.x, solved[side + 'Wrist']?.y, solved[0]?.z)
-      changes[VRMHumanBoneName.LeftHand] = { euler, dampener, lerp }
+      // turned off for now - see pose - need to mix euler and position together
+      //const euler = new Euler(solved[side + 'Wrist']?.x, solved[side + 'Wrist']?.y, solved[0]?.z)
+      //changes[VRMHumanBoneName.LeftHand] = { euler, dampener, lerp }
 
       changes[VRMHumanBoneName.LeftThumbProximal] = { euler: solved[side + 'ThumbProximal'], dampener, lerp }
       changes[VRMHumanBoneName.LeftThumbMetacarpal] = { euler: solved[side + 'ThumbIntermediate'], dampener, lerp }
@@ -63,11 +63,13 @@ export default function UpdateLandmarkHands(leftHandLandmarks: Landmark[], right
   }
 
   if (rightHandLandmarks) {
+    console.log('right')
     const side = RIGHT
     const solved = HandSolver.solve(rightHandLandmarks, side)
     if (solved) {
-      const euler = new Euler(solved[side + 'Wrist']?.x, solved[side + 'Wrist']?.y, solved[0]?.z)
-      changes[VRMHumanBoneName.RightHand] = { euler, dampener, lerp }
+      // turned off for now - see pose - need to mix euler and position together
+      //const euler = new Euler(solved[side + 'Wrist']?.x, solved[side + 'Wrist']?.y, solved[0]?.z)
+      //changes[VRMHumanBoneName.RightHand] = { euler, dampener, lerp }
 
       changes[VRMHumanBoneName.RightThumbProximal] = { euler: solved[side + 'ThumbProximal'], dampener, lerp }
       changes[VRMHumanBoneName.RightThumbMetacarpal] = { euler: solved[side + 'ThumbIntermediate'], dampener, lerp }

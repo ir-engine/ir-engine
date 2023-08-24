@@ -22,35 +22,3 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import { Euler, Quaternion, Vector3 } from 'three'
-
-const useIk = true
-const updateRigPosition = (rig, key, xyz, dampener = 1, lerpAmount = 0.1) => {
-  const vector = new Vector3((xyz?.x || 0) * dampener, (xyz?.y || 0) * dampener, (xyz?.z || 0) * dampener)
-  const part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
-  if (!part) {
-    //console.warn(`can't position ${key}`)
-    return
-  }
-  part.position.lerp(vector, lerpAmount) // interpolate
-}
-
-const updateRigRotation = (rig, key, euler, dampener = 1, lerpAmount = 0.3) => {
-  const quaternion = new Quaternion().setFromEuler(
-    new Euler(
-      (euler?.x || 0) * dampener,
-      (euler?.y || 0) * dampener,
-      (euler?.z || 0) * dampener,
-      euler?.rotationOrder || 'XYZ'
-    )
-  )
-  const part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
-  if (!part) {
-    //console.warn(`can't rotate ${key}`)
-    return
-  }
-  part.quaternion.slerp(quaternion.clone(), lerpAmount) // interpolate
-}
-
-export { updateRigPosition, updateRigRotation }

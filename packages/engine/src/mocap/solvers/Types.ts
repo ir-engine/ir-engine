@@ -87,8 +87,7 @@ export type AxisMap = Record<'x' | 'y' | 'z', 'x' | 'y' | 'z'>
 
 export interface IHips {
   position: XYZ
-  rotation?: Vector
-  worldPosition?: XYZ
+  rotation: Vector
 }
 
 export type TPose = {

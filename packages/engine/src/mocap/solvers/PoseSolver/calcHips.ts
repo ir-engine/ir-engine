@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { IHips, TFVectorPose, XYZ } from '../Types'
-import { clamp, remap } from '../utils/helpers'
+import { remap } from '../utils/helpers'
 import Vector from '../utils/vector'
 
 /**
@@ -44,19 +44,13 @@ export const calcHips = (lm3d: TFVectorPose, lm2d: Omit<TFVectorPose, 'z'>) => {
 
   const hips: IHips = {
     position: {
-      x: clamp(hipCenter2d.x - 0.4, -1, 1), //subtract .4 to bring closer to 0,0 center
+      x: 0, // clamp(hipCenter2d.x - 0.4, -1, 1), //subtract .4 to bring closer to 0,0 center
       y: 0,
-      z: 0 //clamp(spineLength - 1, -2, 0)
-    }
+      z: 0 // clamp(spineLength - 1, -2, 0)
+    },
+    rotation: Vector.rollPitchYaw(lm3d[23], lm3d[24])
   }
-  hips.worldPosition = {
-    x: hips.position.x,
-    y: hips.position.y,
-    z: hips.position.z // * Math.pow(hips.position.z * -2, 2),
-  }
-  hips.worldPosition.x *= hips.worldPosition.z
 
-  hips.rotation = Vector.rollPitchYaw(lm3d[23], lm3d[24])
   //fix -PI, PI jumping
   if (hips.rotation.y > 0.5) {
     hips.rotation.y -= 2
