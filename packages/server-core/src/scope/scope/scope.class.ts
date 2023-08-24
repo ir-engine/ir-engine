@@ -23,84 +23,71 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Id, Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 
-import { AdminScope as AdminScopeInterface } from '@etherealengine/common/src/interfaces/AdminScope'
+import { ScopeData, ScopePatch, ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 
 import { Application } from '../../../declarations'
-import { createScopeTypeModel } from './scope.model'
+import { RootParams } from '../../api/root-params'
 
-export type AdminScopeDataType = AdminScopeInterface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ScopeParams extends RootParams<ScopeQuery> {}
 
-export class Scope<T = AdminScopeDataType> extends Service<T> {
+/**
+ * A class for Scope service
+ */
+
+export class ScopeService<T = ScopeType, ServiceParams extends Params = ScopeParams> extends KnexAdapter<
+  ScopeType,
+  ScopeData,
+  ScopeParams,
+  ScopePatch
+> {
   app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async find(params?: Params): Promise<Paginated<T>> {
-    const skip = params?.query?.$skip ? params.query.$skip : 0
-    const limit = params?.query?.$limit ? params.query.$limit : 10
-    const scope = await (this.app.service('scope') as any).Model.findAndCountAll({
-      offset: skip,
-      limit: limit,
-      include: [
-        {
-          model: createScopeTypeModel(this.app),
-          required: false
-        },
-        {
-          model: (this.app.service('user') as any).Model,
-          required: false
-        }
-      ],
-      raw: true,
-      nest: true
-    })
-    return {
-      skip: skip,
-      limit: limit,
-      total: scope.count,
-      data: scope.rows
-    }
+  async find(params?: ScopeParams) {
+    return super._find(params)
   }
 
-  async create(data): Promise<T | T[]> {
-    const isArray = Array.isArray(data)
-    const whereParams = isArray ? { userId: data[0].userId } : { userId: data.userId }
+  async create(data: ScopeData | ScopeData[], params?: ScopeParams) {
+    if (!Array.isArray(data)) {
+      data = [data]
+    }
+    const queryParams = { userId: data[0].userId }
 
-    const oldScopes = await super.Model.findAll({
-      where: whereParams
-    })
+    const oldScopes = (await super._find({
+      query: queryParams,
+      paginate: false
+    })) as any as ScopeType[]
 
-    if (isArray) {
-      let existingData: any = []
-      let createData: any = []
+    let existingData: ScopeData[] = []
+    let createData: ScopeData[] = []
 
-      for (const item of data) {
-        const existingScope = oldScopes && (oldScopes as any).find((el) => el.type === item.type)
-        if (existingScope) {
-          existingData.push(existingScope)
-        } else {
-          createData.push(item)
-        }
-      }
-
-      if (createData) {
-        const createdData: any = await super.create(data)
-        return [...existingData, ...createdData]
+    for (const item of data) {
+      const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
+      if (existingScope) {
+        existingData.push(existingScope)
+      } else {
+        createData.push(item)
       }
     }
 
-    const existingScope = (oldScopes as any).find((el) => el.type === data.type)
-    if (existingScope) {
-      return existingScope
-    } else {
-      return await super.create(data)
+    if (createData.length > 0) {
+      const createdData: any = await super._create(data)
+      return [...existingData, ...createdData]
     }
+
+    return existingData
+  }
+
+  async remove(id: Id, _params?: ScopeParams) {
+    return super._remove(id, _params)
   }
 }

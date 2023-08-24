@@ -28,7 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { InstanceAuthorizedUserInterface, InstanceInterface } from '@etherealengine/common/src/dbmodels/Instance'
 
 import { Application } from '../../../declarations'
-import { createLocationModel } from '../../user/user/user.model'
+import { createLocationModel, createUserKickModel, createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -82,9 +82,9 @@ export default (app: Application) => {
   ;(instance as any).associate = (models: any): void => {
     ;(instance as any).belongsTo(createLocationModel(app), { foreignKey: { allowNull: true } })
     ;(instance as any).hasMany(models.bot, { foreignKey: { allowNull: true } })
-    ;(instance as any).belongsToMany(models.user, { through: 'instance-authorized-user' })
+    ;(instance as any).belongsToMany(createUserModel(app), { through: 'instance-authorized-user' })
     ;(instance as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
-    ;(instance as any).hasMany(models.user_kick, { onDelete: 'cascade' })
+    ;(instance as any).hasMany(createUserKickModel(app), { onDelete: 'cascade' })
   }
   return instance
 }
@@ -112,7 +112,10 @@ export const createInstanceAuthorizedUserModel = (app: Application) => {
 
   ;(instanceAuthorizedUser as any).associate = (models: any): void => {
     ;(instanceAuthorizedUser as any).belongsTo(models.instance, { required: true, foreignKey: { allowNull: true } })
-    ;(instanceAuthorizedUser as any).belongsTo(models.user, { required: true, foreignKey: { allowNull: true } })
+    ;(instanceAuthorizedUser as any).belongsTo(createUserModel(app), {
+      required: true,
+      foreignKey: { allowNull: true }
+    })
   }
   return instanceAuthorizedUser
 }

@@ -49,7 +49,7 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   const ents = getState(EngineState).isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
-    const userID = Engine.instance.userId
+    const userID = Engine.instance.userID
     const network = Engine.instance.worldNetwork as Network
     const peerID = Engine.instance.peerID
     const data = serialize(network, userID, peerID, ents)

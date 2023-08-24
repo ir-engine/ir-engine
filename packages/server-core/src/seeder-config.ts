@@ -59,18 +59,14 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       .flat()
   : []
 
-export const sequelizeSeeds: Array<ServicesSeedConfig> = [
-  ...mediaSeeds,
-  ...networkingSeeds,
-  ...userSeeds,
-  ...installedProjects
-]
+export const sequelizeSeeds: Array<ServicesSeedConfig> = [...mediaSeeds, ...networkingSeeds, ...installedProjects]
 
 export const knexSeeds: Array<KnexSeed> = [
   ...routeSeeds,
   ...analyticsSeeds,
   ...settingSeeds,
   ...scopeSeeds,
+  ...userSeeds,
   ...socialSeeds,
   ...projectSeeds
 ]

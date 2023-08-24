@@ -26,15 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from './../../declarations'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
     const { params, app } = context
-    const loggedInUser = params.user as UserInterface
+    const loggedInUser = params.user as UserType
     const userId = loggedInUser.id
     if (!params.query!.channelId) {
       throw new BadRequest('Must provide a channel ID')

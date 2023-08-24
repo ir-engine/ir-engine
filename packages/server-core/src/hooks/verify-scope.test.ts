@@ -26,16 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Forbidden } from '@feathersjs/errors'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
-import { UnauthorizedException } from '../util/exceptions/exception'
 import verifyScope from './verify-scope'
 
-const mockUserHookContext = (user: UserInterface, app: Application) => {
+const mockUserHookContext = (user: UserType, app: Application) => {
   return {
     app,
     params: {
@@ -59,12 +60,15 @@ describe('verify-scope', () => {
     const name = `Test #${Math.random()}`
     const isGuest = true
 
-    let user = (await app.service('user').create({
+    let user = await app.service(userPath).create({
       name,
-      isGuest
-    })) as UserInterface
+      isGuest,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
 
-    user = await app.service('user').get(user.id, { user })
+    user = await app.service(userPath).get(user.id, { user })
 
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
       query: {
@@ -77,27 +81,30 @@ describe('verify-scope', () => {
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
-    assert.rejects(() => verifyLocationReadScope(hookContext), UnauthorizedException)
+    assert.rejects(() => verifyLocationReadScope(hookContext), Forbidden)
 
     // cleanup
-    await app.service('user').remove(user.id!)
+    await app.service(userPath).remove(user.id!)
   })
 
   it('should verify guest has scope', async () => {
     const name = `Test #${Math.random()}`
     const isGuest = true
 
-    let user = (await app.service('user').create({
+    let user = await app.service(userPath).create({
       name,
-      isGuest
-    })) as UserInterface
+      isGuest,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
 
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'location:read',
       userId: user.id
     })
 
-    user = await app.service('user').get(user.id, { user })
+    user = await app.service(userPath).get(user.id, { user })
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -105,24 +112,27 @@ describe('verify-scope', () => {
     assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
 
     // cleanup
-    await app.service('user').remove(user.id!)
+    await app.service(userPath).remove(user.id!)
   })
 
   it('should verify user has scope', async () => {
     const name = `Test #${Math.random()}`
     const isGuest = false
 
-    let user = (await app.service('user').create({
+    let user = await app.service(userPath).create({
       name,
-      isGuest
-    })) as UserInterface
+      isGuest,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
 
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'location:read',
       userId: user.id
     })
 
-    user = await app.service('user').get(user.id, { user })
+    user = await app.service(userPath).get(user.id, { user })
 
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
       query: {
@@ -138,29 +148,32 @@ describe('verify-scope', () => {
     assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
 
     // cleanup
-    await app.service('user').remove(user.id!)
+    await app.service(userPath).remove(user.id!)
   })
 
   it('should verify admin', async () => {
     const name = `Test #${Math.random()}`
     const isGuest = false
 
-    let user = (await app.service('user').create({
+    let user = await app.service(userPath).create({
       name,
-      isGuest
-    })) as UserInterface
+      isGuest,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
 
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'location:read',
       userId: user.id
     })
 
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'admin:admin',
       userId: user.id
     })
 
-    user = await app.service('user').get(user.id, { user })
+    user = await app.service(userPath).get(user.id, { user })
 
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
       query: {
@@ -176,7 +189,7 @@ describe('verify-scope', () => {
     assert.doesNotThrow(() => verifyLocationReadScope(hookContext))
 
     // cleanup
-    await app.service('user').remove(user.id!)
+    await app.service(userPath).remove(user.id!)
   })
 
   it('should verify if isInternal', () => {

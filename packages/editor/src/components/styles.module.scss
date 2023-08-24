@@ -59,7 +59,7 @@
 
 .checkbox {
   &:global(.Mui-checked) {
-    color: var(--iconButtonColor);
+    color: var(--iconButtonColor)!important;
   }
 }
 
@@ -84,7 +84,8 @@
 
   img {
     opacity: 0.8;
-    //filter: unquote($string: "invert()");
+
+    // filter: unquote($string: "invert()");
     margin-top: -50px;
   }
 
@@ -99,20 +100,4 @@
 
 .dockableTab {
   display: flex;
-
-  .dockableTabButtons {
-    display: flex;
-    position: absolute;
-    width: 100%;
-    padding-left: 110px;
-    align-items: center;
-
-    button {
-      margin: auto;
-      background: none;
-      border: none;
-      display: flex;
-      align-items: center;
-    }
-  }
 }

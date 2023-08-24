@@ -36,7 +36,7 @@ import {
 } from '@mediapipe/holistic'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
-import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
 import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
@@ -45,11 +45,11 @@ import {
   closeDataProducer,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
@@ -84,11 +84,11 @@ const startDataProducer = async () => {
 export const startPlayback = async (recordingID: RecordingID, twin = true) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
-    await closeDataProducer(network, mocapDataChannelType)
+    closeDataProducer(network, mocapDataChannelType)
   }
   ECSRecordingFunctions.startPlayback({
     recordingID,
-    targetUser: twin ? undefined : Engine.instance.userId
+    targetUser: twin ? undefined : Engine.instance.userID
   })
 }
 
@@ -134,7 +134,7 @@ const CaptureDashboard = () => {
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
-  const mediaConnection = useMediaInstance()
+  const mediaNetworkState = useMediaNetwork()
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const recordingState = useHookstate(getMutableState(RecordingState))
 
@@ -322,7 +322,7 @@ const CaptureDashboard = () => {
   const isCamVideoEnabled =
     mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState?.videoPaused?.value === false
   const videoStatus =
-    !mediaConnection?.connected?.value && !videoActive?.value
+    !mediaNetworkState?.connected?.value && !videoActive?.value
       ? 'loading'
       : isCamVideoEnabled !== true
       ? 'ready'
@@ -458,11 +458,11 @@ const CaptureDashboard = () => {
               {videoStatus !== 'active' ? (
                 <button
                   onClick={() => {
-                    if (mediaConnection?.connected?.value) toggleWebcamPaused()
+                    if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
                   }}
                   className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0"
                 >
-                  <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
+                  <h1>{mediaNetworkState?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
                 </button>
               ) : null}
             </div>

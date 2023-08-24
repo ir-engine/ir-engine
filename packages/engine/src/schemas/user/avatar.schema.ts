@@ -25,9 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
+import { dataValidator, queryValidator } from '../validators'
 
 export const avatarPath = 'avatar'
 
@@ -48,12 +51,12 @@ export const avatarSchema = Type.Object(
       format: 'uuid'
     }),
     isPublic: Type.Boolean(),
-    userId: Type.String({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     project: Type.String(),
-    modelResource: Type.Ref(staticResourceSchema),
-    thumbnailResource: Type.Ref(staticResourceSchema),
+    modelResource: Type.Optional(Type.Ref(staticResourceSchema)),
+    thumbnailResource: Type.Optional(Type.Ref(staticResourceSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -109,3 +112,8 @@ export const avatarQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type AvatarQuery = Static<typeof avatarQuerySchema>
+
+export const avatarValidator = getValidator(avatarSchema, dataValidator)
+export const avatarDataValidator = getValidator(avatarDataSchema, dataValidator)
+export const avatarPatchValidator = getValidator(avatarPatchSchema, dataValidator)
+export const avatarQueryValidator = getValidator(avatarQuerySchema, queryValidator)

@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import { defineActionQueue, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
@@ -288,7 +288,7 @@ const execute = () => {
 
   for (const action of spectateUserActions()) {
     const cameraEntity = Engine.instance.cameraEntity
-    if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
+    if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
     else
       setComponent(cameraEntity, FlyControlComponent, {
         boostSpeed: 4,
@@ -302,7 +302,6 @@ const execute = () => {
     const cameraEntity = Engine.instance.cameraEntity
     removeComponent(cameraEntity, SpectatorComponent)
     deleteSearchParams('spectate')
-    dispatchAction(EngineActions.leaveWorld({}))
   }
 
   for (const cameraEntity of followCameraQuery.enter()) {

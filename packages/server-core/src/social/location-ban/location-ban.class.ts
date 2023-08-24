@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
 import { KnexService } from '@feathersjs/knex'
 
 import {
@@ -33,9 +32,10 @@ import {
   LocationBanQuery,
   LocationBanType
 } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LocationBanParams extends KnexAdapterParams<LocationBanQuery> {}
+export interface LocationBanParams extends RootParams<LocationBanQuery> {}
 
 export class LocationBanService<
   T = LocationBanType,

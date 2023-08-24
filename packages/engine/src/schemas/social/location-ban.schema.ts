@@ -24,8 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const locationBanPath = 'location-ban'
 
@@ -37,7 +40,7 @@ export const locationBanSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    userId: Type.String({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     locationId: Type.String({
@@ -74,3 +77,8 @@ export const locationBanQuerySchema = Type.Intersect(
 )
 
 export type LocationBanQuery = Static<typeof locationBanQuerySchema>
+
+export const locationBanValidator = getValidator(locationBanSchema, dataValidator)
+export const locationBanDataValidator = getValidator(locationBanDataSchema, dataValidator)
+export const locationBanPatchValidator = getValidator(locationBanPatchSchema, dataValidator)
+export const locationBanQueryValidator = getValidator(locationBanQuerySchema, queryValidator)

@@ -23,28 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
 } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowserContentPanel'
-import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
+import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import DrawerView from '../../common/DrawerView'
-import { AdminSingleRecordingService, AdminSingleRecordingState } from '../../services/RecordingService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  selectedRecordingId: RecordingResult['id'] | null
+  selectedRecordingId: RecordingID | undefined
   onClose: () => void
 }
 
@@ -52,24 +50,19 @@ const RecordingFilesDrawer = ({ open, onClose, selectedRecordingId }: Props) => 
   const assetsPreviewPanelRef = React.useRef()
 
   const { t } = useTranslation()
-  const adminSingleRecording = useHookstate(getMutableState(AdminSingleRecordingState))
+
+  const recordingData = useGet(recordingPath, selectedRecordingId).data
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef.current as any)?.onSelectionChanged?.(props)
   }
-
-  useEffect(() => {
-    if (selectedRecordingId) {
-      AdminSingleRecordingService.fetchSingleAdminRecording(selectedRecordingId)
-    }
-  }, [selectedRecordingId])
 
   return (
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
         <>
           <DialogTitle className={styles.textAlign}>
-            {`${t('admin:components.recording.recordingFiles')} ${adminSingleRecording.recording.value?.id}`}
+            {`${t('admin:components.recording.recordingFiles')} ${recordingData?.id}`}
           </DialogTitle>
 
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>

@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  locationBanDataSchema,
-  locationBanPatchSchema,
-  locationBanQuerySchema,
-  locationBanSchema
+  locationBanDataValidator,
+  locationBanPatchValidator,
+  locationBanQueryValidator
 } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyLocationAdmin from '../../hooks/verify-location-admin'
@@ -44,12 +41,6 @@ import {
   locationBanQueryResolver,
   locationBanResolver
 } from './location-ban.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const locationBanValidator = getValidator(locationBanSchema, dataValidator)
-const locationBanDataValidator = getValidator(locationBanDataSchema, dataValidator)
-const locationBanPatchValidator = getValidator(locationBanPatchSchema, dataValidator)
-const locationBanQueryValidator = getValidator(locationBanQuerySchema, queryValidator)
 
 export default {
   around: {
