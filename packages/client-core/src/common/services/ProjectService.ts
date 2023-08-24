@@ -37,6 +37,7 @@ import { defineAction, defineState, dispatchAction, getMutableState } from '@eth
 
 import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { projectBuilderTagsPath } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { projectCommitsPath } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
@@ -322,8 +323,8 @@ export const ProjectService = {
 
   fetchBuilderTags: async () => {
     try {
-      const result = await API.instance.client.service('project-builder-tags').find()
-      dispatchAction(ProjectAction.builderTagsFetched({ builderTags: result }))
+      const result = await API.instance.client.service(projectBuilderTagsPath).find()
+      dispatchAction(ProjectAction.builderTagsFetched({ builderTags: result.builderTags }))
     } catch (err) {
       logger.error('Error with getting builder tags', err)
       throw err

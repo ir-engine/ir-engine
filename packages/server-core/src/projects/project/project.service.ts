@@ -52,9 +52,6 @@ import createModel from './project.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'project-builder-tags': {
-      find: ReturnType<typeof projectBuilderTagsGet>
-    }
     'builder-info': {
       get: ReturnType<typeof builderInfoGet>
     }
@@ -134,16 +131,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('project-builder-tags', {
-    find: projectBuilderTagsGet()
-  })
-
-  app.service('project-builder-tags').hooks({
-    before: {
-      find: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
 
   app.use('builder-info', {
     get: builderInfoGet(app)

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import ProjectBranches from './project-branches/project-branches'
 import ProjectBuild from './project-build/project-build'
+import ProjectBuilderTags from './project-builder-tags/project-builder-tags'
 import ProjectCheckSourceDestinationMatch from './project-check-source-destination-match/project-check-source-destination-match'
 import ProjectCheckUnfetchedCommit from './project-check-unfetched-commit/project-check-unfetched-commit'
 import ProjectCommits from './project-commits/project-commits'
@@ -43,6 +44,7 @@ export default [
   ProjectInvalidate,
   ProjectPermission,
   ProjectGithubPush,
+  ProjectBuilderTags,
   ProjectBranches,
   ProjectCommits,
   ProjectDestinationCheck,
