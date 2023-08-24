@@ -23,13 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Spark } from 'primus'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { defineState } from '@etherealengine/hyperflux'
+import { DataConsumer } from 'mediasoup/node/lib/DataConsumer'
 
-export interface Client {
-  spark: Spark
-  lastSeenTs: number
-  joinTs: number
-  media: any
-  consumerLayers: any
-  stats: any
-}
+export const MediasoupInternalWebRTCDataChannelState = defineState({
+  name: 'ee.instanceserver.mediasoup.MediasoupInternalWebRTCDataChannelState',
+
+  initial: {} as Record<
+    PeerID,
+    {
+      incomingDataConsumers: Record<DataChannelType, DataConsumer>
+      outgoingDataConsumers: Record<DataChannelType, DataConsumer>
+    }
+  >
+})

@@ -28,7 +28,6 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkPeer } from '../interfaces/NetworkPeer'
 
@@ -41,7 +40,6 @@ export const NetworkTopics = {
 }
 
 export interface TransportInterface {
-  get peers(): PeerID[]
   messageToPeer: (peerId: PeerID, data: any) => void
   messageToAll: (data: any) => void
   bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => void
@@ -54,28 +52,19 @@ export interface JitterBufferEntry {
 }
 
 /** Interface for the Transport. */
-export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, extension: Ext = {} as Ext) => {
+export const createNetwork = <Ext>(
+  id: string,
+  hostId: UserID,
+  topic: Topic,
+  transport = {
+    messageToPeer: (peerId: PeerID, data: any) => {},
+    messageToAll: (data: any) => {},
+    bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => {},
+    bufferToAll: (dataChannelType: DataChannelType, data: any) => {}
+  } as TransportInterface & Ext
+) => {
   addOutgoingTopicIfNecessary(topic)
   const network = {
-    /** Consumers and producers have separate types on client and server */
-    producers: [] as any[],
-    consumers: [] as any[],
-
-    /** buffer of incoming packet read tasks */
-    jitterBufferTaskList: [] as JitterBufferEntry[],
-
-    /** The jitter buffer delay in milliseconds */
-    jitterBufferDelay: 100,
-
-    /** List of data producer nodes. */
-    dataProducers: new Map<string, any>(),
-
-    /** Buffer holding all incoming Messages. */
-    incomingMessageQueueUnreliableIDs: new RingBuffer<PeerID>(100),
-
-    /** Buffer holding all incoming Messages. */
-    incomingMessageQueueUnreliable: new RingBuffer<any>(100),
-
     /** Connected peers */
     peers: new Map() as Map<PeerID, NetworkPeer>,
 
@@ -120,27 +109,30 @@ export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, ext
      */
     hostId,
 
+    /**
+     * The ID of this network, equivalent to the InstanceID of an instance
+     */
     id,
+
+    /**
+     * The network socket connection is active
+     */
+    connected: false,
+
+    /**
+     * The network is authenticated
+     */
+    authenticated: false,
 
     /**
      * The network is ready for sending messages and data
      */
-    connected: false,
-
-    authenticated: false,
-
     ready: false,
 
     /**
      * The transport used by this network.
-     * @todo non null this
      */
-    transport: {
-      messageToPeer: (peerId: PeerID, data: any) => {},
-      messageToAll: (data: any) => {},
-      bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => {},
-      bufferToAll: (dataChannelType: DataChannelType, data: any) => {}
-    } as TransportInterface,
+    transport,
 
     /**
      * Check if this user is hosting the world.
@@ -151,8 +143,8 @@ export const createNetwork = <Ext>(id: string, hostId: UserID, topic: Topic, ext
 
     topic
   }
-  Object.assign(network, extension)
-  return network as typeof network & Ext
+
+  return network
 }
 
 export type Network = ReturnType<typeof createNetwork>
