@@ -589,11 +589,6 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       instanceServerState.instance.channelId != channelId ||
       (roomCode && instanceServerState.instance.roomCode != roomCode))
 
-  console.log(isLocalServerNeedingNewLocation)
-  console.log(instanceServerState?.instance?.locationId, locationId)
-  console.log(instanceServerState?.instance?.channelId, channelId)
-  console.log(instanceServerState?.instance?.id, instanceID)
-
   logger.info(
     `current id: ${instanceServerState.instance?.locationId ?? instanceServerState.instance?.channelId} and new id: ${
       locationId ?? channelId
