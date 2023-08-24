@@ -32,6 +32,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { screenshareVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import ConferenceModeParticipant from './ConferenceModeParticipant'
 import styles from './index.module.scss'
@@ -48,9 +49,9 @@ const ConferenceMode = (): JSX.Element => {
         ) || []
       : []
 
-  const consumers = network.consumers
+  const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[network.id].consumers)
   const screenShareConsumers =
-    consumers?.filter((consumer) => consumer.appData.mediaTag === screenshareVideoDataChannelType) || []
+    Object.values(consumers).filter((consumer) => consumer.mediaTag.value === screenshareVideoDataChannelType) || []
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const isScreenVideoEnabled =
@@ -67,7 +68,7 @@ const ConferenceMode = (): JSX.Element => {
   for (let user of displayedUsers) {
     totalScreens += 1
     const peerID = Array.from(network.peers.values()).find((peer) => peer.userId === user.userId)?.peerID
-    if (screenShareConsumers.find((consumer) => consumer.appData.peerID === peerID)) {
+    if (screenShareConsumers.find((consumer) => consumer.peerID.value === peerID)) {
       totalScreens += 1
     }
   }
@@ -89,9 +90,9 @@ const ConferenceMode = (): JSX.Element => {
         />
       )}
       <ConferenceModeParticipant type={'cam'} peerID={Engine.instance.peerID} key={'cam_' + Engine.instance.peerID} />
-      {consumers.map((consumer) => {
-        const peerID = consumer.appData.peerID
-        const type = consumer.appData.mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
+      {Object.values(consumers.value).map((consumer) => {
+        const peerID = consumer.peerID
+        const type = consumer.mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
         return <ConferenceModeParticipant type={type} peerID={peerID} key={type + '_' + peerID} />
       })}
     </div>
