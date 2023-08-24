@@ -45,11 +45,11 @@ export async function up(knex: Knex): Promise<void> {
       table.string('name', 255).notNullable()
       table.string('description', 255).defaultTo(null)
       //@ts-ignore
-      table.string('instanceId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.uuid('instanceId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       //@ts-ignore
-      table.string('locationId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.uuid('locationId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       //@ts-ignore
-      table.string('userId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.uuid('userId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 

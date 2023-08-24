@@ -29,9 +29,9 @@ import { KnexAdapter } from '@feathersjs/knex'
 
 import { BotData, BotPatch, BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 
+import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
-import { createBotCommands } from './bot.functions'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface BotParams extends RootParams<BotQuery> {}
@@ -59,8 +59,20 @@ export class BotService<T = BotType, ServiceParams extends Params = BotParams> e
 
   async create(data: BotData, params?: BotParams) {
     data.instanceId = data.instanceId ? data.instanceId : ''
-    const result = await super._create(data)
-    createBotCommands(this.app, result, data.botCommands)
+
+    const dataWithoutExtras = { ...data } as any
+    delete dataWithoutExtras.botCommands
+
+    const result = await super._create(dataWithoutExtras)
+    result.botCommands = []
+
+    for (let element of data.botCommands) {
+      const command = await this.app.service(botCommandPath).create({
+        ...element,
+        botId: result.id
+      })
+      result.botCommands.push(command)
+    }
     return result
   }
 

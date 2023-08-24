@@ -30,10 +30,15 @@ import { v4 } from 'uuid'
 import { BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { BotCommandType, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import {
+  BotCommandData,
+  BotCommandType,
+  botCommandPath
+} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { botCommandDataResolver } from '../bot-command/bot-command.resolvers'
 
 export const botResolver = resolve<BotType, HookContext>({})
 
@@ -55,8 +60,9 @@ export const botExternalResolver = resolve<BotType, HookContext>({
       const botCommands = (await context.app.service(botCommandPath)._find({
         query: {
           botId: bot.id
-        }
-      })) as any as BotCommandType[]
+        },
+        paginate: false
+      })) as BotCommandType[]
       return botCommands
     }
   })
@@ -65,6 +71,14 @@ export const botExternalResolver = resolve<BotType, HookContext>({
 export const botDataResolver = resolve<BotType, HookContext>({
   id: async () => {
     return v4()
+  },
+  botCommands: async (value, bot, context) => {
+    const botCommands: BotCommandData[] = []
+    for (const element of bot.botCommands) {
+      const resolvedElement = await botCommandDataResolver.resolve(element, context)
+      botCommands.push(resolvedElement)
+    }
+    return botCommands
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
