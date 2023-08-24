@@ -18,23 +18,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-
-import {
-  ProjectCheckSourceDestinationMatchQuery,
-  ProjectCheckSourceDestinationMatchType
-} from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
-import { RootParams } from '../../api/root-params'
+import { Application } from '../../../declarations'
 import { checkProjectDestinationMatch } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectCheckSourceDestinationMatchParams extends RootParams<ProjectCheckSourceDestinationMatchQuery> {}
-
-export class ProjectCheckSourceDestinationMatchService
-  implements ServiceInterface<ProjectCheckSourceDestinationMatchType, ProjectCheckSourceDestinationMatchParams>
-{
+export class ProjectCheckSourceDestinationMatchService implements ServiceInterface<any> {
   app: Application
 
   constructor(app: Application) {

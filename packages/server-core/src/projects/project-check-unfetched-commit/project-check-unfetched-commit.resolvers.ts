@@ -26,10 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 
-import {
-  ProjectCheckUnfetchedCommitQuery,
-  ProjectCheckUnfetchedCommitType
-} from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const projectCheckUnfetchedCommitResolver = resolve<ProjectCheckUnfetchedCommitType, HookContext>({})
@@ -37,7 +34,3 @@ export const projectCheckUnfetchedCommitResolver = resolve<ProjectCheckUnfetched
 export const projectCheckUnfetchedCommitExternalResolver = resolve<ProjectCheckUnfetchedCommitType, HookContext>({})
 
 export const projectCheckUnfetchedCommitDataResolver = resolve<ProjectCheckUnfetchedCommitType, HookContext>({})
-
-export const projectCheckUnfetchedCommitPatchResolver = resolve<ProjectCheckUnfetchedCommitType, HookContext>({})
-
-export const projectCheckUnfetchedCommitQueryResolver = resolve<ProjectCheckUnfetchedCommitQuery, HookContext>({})

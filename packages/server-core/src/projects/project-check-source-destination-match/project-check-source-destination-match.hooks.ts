@@ -18,31 +18,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectCheckSourceDestinationMatchQueryValidator } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
-import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
 
 import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
-import {
-  projectCheckSourceDestinationMatchExternalResolver,
-  projectCheckSourceDestinationMatchQueryResolver,
-  projectCheckSourceDestinationMatchResolver
-} from './project-check-source-destination-match.resolvers'
 
 export default {
   around: {
-    all: [
-      schemaHooks.resolveExternal(projectCheckSourceDestinationMatchExternalResolver),
-      schemaHooks.resolveResult(projectCheckSourceDestinationMatchResolver)
-    ]
+    all: []
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(projectCheckSourceDestinationMatchQueryValidator),
-      schemaHooks.resolveQuery(projectCheckSourceDestinationMatchQueryResolver)
-    ],
+    all: [],
     find: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any],
     get: [],
     create: [],

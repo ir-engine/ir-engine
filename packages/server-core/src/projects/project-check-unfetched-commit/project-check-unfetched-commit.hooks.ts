@@ -18,7 +18,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectCheckUnfetchedCommitQueryValidator } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
 
@@ -26,7 +25,6 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
 import {
   projectCheckUnfetchedCommitExternalResolver,
-  projectCheckUnfetchedCommitQueryResolver,
   projectCheckUnfetchedCommitResolver
 } from './project-check-unfetched-commit.resolvers'
 
@@ -39,10 +37,7 @@ export default {
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(projectCheckUnfetchedCommitQueryValidator),
-      schemaHooks.resolveQuery(projectCheckUnfetchedCommitQueryResolver)
-    ],
+    all: [],
     find: [],
     get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any],
     create: [],

@@ -20,8 +20,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
 export const projectCheckUnfetchedCommitPath = 'project-check-unfetched-commit'
 
@@ -43,37 +43,4 @@ export const projectCheckUnfetchedCommitSchema = Type.Object(
 )
 export type ProjectCheckUnfetchedCommitType = Static<typeof projectCheckUnfetchedCommitSchema>
 
-// Schema for allowed query properties
-export const projectCheckUnfetchedCommitQueryProperties = Type.Pick(projectCheckUnfetchedCommitSchema, [
-  'error',
-  'text',
-  'projectName',
-  'projectVersion',
-  'engineVersion',
-  'commitSHA',
-  'datetime',
-  'matchesEngineVersion'
-])
-
-// Schema for updating existing entries
-export const projectCheckUnfetchedCommitPatchSchema = Type.Partial(projectCheckUnfetchedCommitSchema, {
-  $id: 'ProjectCheckUnfetchedCommitPatch'
-})
-
-export type ProjectCheckUnfetchedCommitPatch = Static<typeof projectCheckUnfetchedCommitPatchSchema>
-
-export const projectCheckUnfetchedCommitQuerySchema = Type.Intersect(
-  [
-    querySyntax(projectCheckUnfetchedCommitQueryProperties),
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
-)
-export type ProjectCheckUnfetchedCommitQuery = Static<typeof projectCheckUnfetchedCommitQuerySchema>
-
 export const projectCheckUnfetchedCommitValidator = getValidator(projectCheckUnfetchedCommitSchema, dataValidator)
-export const projectCheckUnfetchedCommitQueryValidator = getValidator(
-  projectCheckUnfetchedCommitQuerySchema,
-  queryValidator
-)

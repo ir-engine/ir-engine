@@ -19,50 +19,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
 
 export const projectCheckSourceDestinationMatchPath = 'project-check-source-destination-match'
 
 export const projectCheckSourceDestinationMatchMethods = ['find'] as const
-
-// Main data model schema
-export const projectCheckSourceDestinationMatchSchema = Type.Object(
-  {
-    projectCheckDestinationMatchReturn: Type.Any()
-  },
-  { $id: 'ProjectCheckSourceDestinationMatch', additionalProperties: false }
-)
-export type ProjectCheckSourceDestinationMatchType = Static<typeof projectCheckSourceDestinationMatchSchema>
-
-// Schema for allowed query properties
-export const projectCheckSourceDestinationMatchQueryProperties = Type.Pick(projectCheckSourceDestinationMatchSchema, [
-  'projectCheckDestinationMatchReturn'
-])
-
-// Schema for updating existing entries
-export const projectCheckSourceDestinationMatchPatchSchema = Type.Partial(projectCheckSourceDestinationMatchSchema, {
-  $id: 'ProjectCheckSourceDestinationMatchPatch'
-})
-
-export type ProjectCheckSourceDestinationMatchPatch = Static<typeof projectCheckSourceDestinationMatchPatchSchema>
-
-export const projectCheckSourceDestinationMatchQuerySchema = Type.Intersect(
-  [
-    querySyntax(projectCheckSourceDestinationMatchQueryProperties),
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
-)
-export type ProjectCheckSourceDestinationMatchQuery = Static<typeof projectCheckSourceDestinationMatchQuerySchema>
-
-export const projectCheckSourceDestinationMatchValidator = getValidator(
-  projectCheckSourceDestinationMatchSchema,
-  dataValidator
-)
-export const projectCheckSourceDestinationMatchQueryValidator = getValidator(
-  projectCheckSourceDestinationMatchQuerySchema,
-  queryValidator
-)

@@ -20,19 +20,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { ProjectsQuery, ProjectsType } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { ProjectsType } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
-import { RootParams } from '../../api/root-params'
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectsParams extends RootParams<ProjectsQuery> {}
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-export class ProjectsService implements ServiceInterface<ProjectsType, ProjectsParams> {
+export class ProjectsService implements ServiceInterface<ProjectsType> {
   app: Application
 
   constructor(app: Application) {

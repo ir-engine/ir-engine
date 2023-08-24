@@ -18,11 +18,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectsQueryValidator } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
 
-import { projectsExternalResolver, projectsQueryResolver, projectsResolver } from './projects.resolvers'
+import { projectsExternalResolver, projectsResolver } from './projects.resolvers'
 
 export default {
   around: {
@@ -30,7 +29,7 @@ export default {
   },
 
   before: {
-    all: [() => schemaHooks.validateQuery(projectsQueryValidator), schemaHooks.resolveQuery(projectsQueryResolver)],
+    all: [],
     find: [authenticate()],
     get: [],
     create: [],
