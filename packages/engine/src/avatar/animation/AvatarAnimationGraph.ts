@@ -61,7 +61,7 @@ let currentAction = undefined as undefined | AnimationAction
 //blend between locomotion and animation overrides
 export const updateAnimationGraphForEntity = (entity: Entity) => {
   for (const newAnimation of animationQueue()) {
-    const anim = loadAvatarAnimation(entity, newAnimation.animationState)
+    loadAvatarAnimation(entity, newAnimation.animationState)
   }
 
   setAvatarLocomotionAnimation(entity)
@@ -146,7 +146,6 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   walk.setEffectiveWeight(walkWeight)
   fall.setEffectiveWeight(fallWeight)
   idle.setEffectiveWeight(idleWeight - locomotionBlend)
-  console.log(idleWeight - locomotionBlend, locomotionBlend)
 }
 
 export const getRootSpeed = (clip: AnimationClip) => {
