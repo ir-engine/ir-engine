@@ -40,7 +40,6 @@ import verifyScope from '../../hooks/verify-scope'
 import {
   dockerHubRegex,
   findBuilderTags,
-  getBranches,
   getEnginePackageJson,
   getProjectCommits,
   privateECRTagRegex,
@@ -64,10 +63,6 @@ declare module '@etherealengine/common/declarations' {
       get: ReturnType<typeof builderInfoGet>
     }
   }
-}
-
-export const projectBranchesGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
-  return getBranches(app, url, params as ProjectParams)
 }
 
 export const projectCommitsGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
