@@ -25,18 +25,11 @@ import authenticate from '../../hooks/authenticate'
 import { iff, isProvider } from 'feathers-hooks-common'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import {
-  projectGithubPushExternalResolver,
-  projectGithubPushPatchResolver,
-  projectGithubPushResolver
-} from './project-github-push.resolvers'
+import { projectGithubPushPatchResolver } from './project-github-push.resolvers'
 
 export default {
   around: {
-    all: [
-      schemaHooks.resolveExternal(projectGithubPushExternalResolver),
-      schemaHooks.resolveResult(projectGithubPushResolver)
-    ]
+    all: []
   },
 
   before: {
