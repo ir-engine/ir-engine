@@ -18,14 +18,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectBuildQueryValidator } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
 
+import { projectBuildPatchValidator } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import verifyScope from '../../hooks/verify-scope'
 import {
   projectBuildExternalResolver,
-  projectBuildQueryResolver,
+  projectBuildPatchResolver,
   projectBuildResolver
 } from './project-build.resolvers'
 
@@ -35,15 +35,17 @@ export default {
   },
 
   before: {
-    all: [
-      () => schemaHooks.validateQuery(projectBuildQueryValidator),
-      schemaHooks.resolveQuery(projectBuildQueryResolver)
-    ],
+    all: [],
     find: [authenticate(), verifyScope('admin', 'admin')],
     get: [],
     create: [],
     update: [],
-    patch: [authenticate(), verifyScope('admin', 'admin')],
+    patch: [
+      () => schemaHooks.validateData(projectBuildPatchValidator),
+      schemaHooks.resolveData(projectBuildPatchResolver),
+      authenticate(),
+      verifyScope('admin', 'admin')
+    ],
     remove: []
   },
   after: {

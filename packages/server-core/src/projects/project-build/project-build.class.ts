@@ -20,16 +20,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { ProjectBuildQuery, ProjectBuildType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { ProjectBuildType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
-import { RootParams } from '../../api/root-params'
 import { checkBuilderService, updateBuilder } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectBuildParams extends RootParams<ProjectBuildQuery> {}
-
-export class ProjectBuildService implements ServiceInterface<ProjectBuildType, ProjectBuildParams> {
+export class ProjectBuildService implements ServiceInterface<ProjectBuildType> {
   app: Application
 
   constructor(app: Application) {

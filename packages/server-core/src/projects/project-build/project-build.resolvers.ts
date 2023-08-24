@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 
-import { ProjectBuildQuery, ProjectBuildType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { ProjectBuildPatch, ProjectBuildType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 export const projectBuildResolver = resolve<ProjectBuildType, HookContext>({})
@@ -35,6 +35,4 @@ export const projectBuildExternalResolver = resolve<ProjectBuildType, HookContex
 
 export const projectBuildDataResolver = resolve<ProjectBuildType, HookContext>({})
 
-export const projectBuildPatchResolver = resolve<ProjectBuildType, HookContext>({})
-
-export const projectBuildQueryResolver = resolve<ProjectBuildQuery, HookContext>({})
+export const projectBuildPatchResolver = resolve<ProjectBuildPatch, HookContext>({})

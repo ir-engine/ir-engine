@@ -20,8 +20,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { dataValidator, queryValidator } from '../validators'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
 export const projectBuildPath = 'project-build'
 
@@ -37,9 +37,6 @@ export const projectBuildSchema = Type.Object(
 )
 export type ProjectBuildType = Static<typeof projectBuildSchema>
 
-// Schema for allowed query properties
-export const projectBuildQueryProperties = Type.Pick(projectBuildSchema, ['failed', 'succeeded'])
-
 // Schema for updating existing entries
 export const projectBuildPatchSchema = Type.Partial(projectBuildSchema, {
   $id: 'ProjectBuildPatch'
@@ -47,15 +44,5 @@ export const projectBuildPatchSchema = Type.Partial(projectBuildSchema, {
 
 export type ProjectBuildPatch = Static<typeof projectBuildPatchSchema>
 
-export const projectBuildQuerySchema = Type.Intersect(
-  [
-    querySyntax(projectBuildQueryProperties),
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
-)
-export type ProjectBuildQuery = Static<typeof projectBuildQuerySchema>
-
 export const projectBuildValidator = getValidator(projectBuildSchema, dataValidator)
-export const projectBuildQueryValidator = getValidator(projectBuildQuerySchema, queryValidator)
+export const projectBuildPatchValidator = getValidator(projectBuildPatchSchema, dataValidator)

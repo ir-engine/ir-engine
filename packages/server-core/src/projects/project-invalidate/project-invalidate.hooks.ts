@@ -40,7 +40,6 @@ export default {
       () => schemaHooks.validateData(projectInvalidatePatchValidator),
       schemaHooks.resolveData(projectInvalidatePatchResolver),
       authenticate(),
-      authenticate(),
       verifyScope('admin', 'admin')
     ],
     remove: []
