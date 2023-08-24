@@ -218,11 +218,13 @@ export const connectToNetwork = async (
   const token = authState.authUser.accessToken
 
   const query = {
+    instanceID,
     locationId,
     channelId,
     roomCode,
     token
   } as {
+    instanceID: string
     locationId?: string
     channelId?: ChannelID
     roomCode?: string
