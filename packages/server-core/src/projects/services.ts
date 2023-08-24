@@ -27,6 +27,7 @@ import ProjectBranches from './project-branches/project-branches'
 import ProjectBuild from './project-build/project-build'
 import ProjectCheckSourceDestinationMatch from './project-check-source-destination-match/project-check-source-destination-match'
 import ProjectCheckUnfetchedCommit from './project-check-unfetched-commit/project-check-unfetched-commit'
+import ProjectCommits from './project-commits/project-commits'
 import ProjectDestinationCheck from './project-destination-check/project-destination-check'
 import ProjectGithubPush from './project-github-push/project-github-push'
 import ProjectInvalidate from './project-invalidate/project-invalidate'
@@ -43,6 +44,7 @@ export default [
   ProjectPermission,
   ProjectGithubPush,
   ProjectBranches,
+  ProjectCommits,
   ProjectDestinationCheck,
   ProjectCheckUnfetchedCommit,
   ProjectCheckSourceDestinationMatch,

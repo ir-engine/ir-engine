@@ -41,11 +41,10 @@ import {
   dockerHubRegex,
   findBuilderTags,
   getEnginePackageJson,
-  getProjectCommits,
   privateECRTagRegex,
   publicECRTagRegex
 } from './project-helper'
-import { Project, ProjectParams, ProjectParamsClient } from './project.class'
+import { Project } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
 import createModel from './project.model'
@@ -53,9 +52,6 @@ import createModel from './project.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'project-commits': {
-      get: ReturnType<typeof projectCommitsGet>
-    }
     'project-builder-tags': {
       find: ReturnType<typeof projectBuilderTagsGet>
     }
@@ -64,11 +60,6 @@ declare module '@etherealengine/common/declarations' {
     }
   }
 }
-
-export const projectCommitsGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {
-  return getProjectCommits(app, url, params as ProjectParams)
-}
-
 export const projectBuilderTagsGet = () => async () => {
   return findBuilderTags()
 }
@@ -143,16 +134,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('project-commits', {
-    get: projectCommitsGet(app)
-  })
-
-  app.service('project-commits').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
 
   app.use('project-builder-tags', {
     find: projectBuilderTagsGet()

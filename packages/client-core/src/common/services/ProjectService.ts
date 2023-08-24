@@ -39,6 +39,7 @@ import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects
 import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { projectCommitsPath } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
@@ -239,7 +240,7 @@ export const ProjectService = {
 
   fetchProjectCommits: async (url: string, branchName: string) => {
     try {
-      return API.instance.client.service('project-commits').get(url, {
+      return API.instance.client.service(projectCommitsPath).get(url, {
         query: {
           branchName: branchName
         }

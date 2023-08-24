@@ -181,10 +181,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       ProjectUpdateService.resetSourceState(project, { resetSourceURL: false, resetBranch: false })
       ProjectUpdateService.setSelectedBranch(project, e.target.value)
       ProjectUpdateService.setCommitsProcessing(project, true)
-      const projectResponse = (await ProjectService.fetchProjectCommits(
-        projectUpdateStatus.value.sourceURL,
-        e.target.value
-      )) as any
+      const projectResponse = (
+        await ProjectService.fetchProjectCommits(projectUpdateStatus.value.sourceURL, e.target.value)
+      ).commits as any
       ProjectUpdateService.setCommitsProcessing(project, false)
       if (projectResponse.error) {
         ProjectUpdateService.setShowCommitSelector(project, false)
