@@ -23,29 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// https://developers.google.com/mediapipe/solutions/vision/hand_landmarker
-const mediapipeHandNames = [
-  'WRIST',
-  'THUMB_CMC',
-  'THUMB_MCP',
-  'THUMB_IP',
-  'THUMB_TIP',
-  'INDEX_FINGER_MCP',
-  'INDEX_FINGER_PIP',
-  'INDEX_FINGER_DIP',
-  'INDEX_FINGER_TIP',
-  'MIDDLE_FINGER_MCP',
-  'MIDDLE_FINGER_PIP',
-  'MIDDLE_FINGER_DIP',
-  'MIDDLE_FINGER_TIP',
-  'RING_FINGER_MCP',
-  'RING_FINGER_PIP',
-  'RING_FINGER_DIP',
-  'RING_FINGER_TIP',
-  'PINKY_MCP',
-  'PINKY_PIP',
-  'PINKY_DIP',
-  'PINKY_TIP'
-]
+import { Euler, Quaternion, Vector3 } from 'three'
 
-export default mediapipeHandNames
+const useIk = true
+const updateRigPosition = (rig, key, position, dampener = 1, lerpAmount = 0.1) => {
+  const vector = new Vector3(
+    (position?.x || 0) * dampener,
+    (position?.y || 0) * dampener,
+    (position?.z || 0) * dampener
+  )
+
+  const Part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
+  if (!Part) {
+    //console.warn(`can't position ${key}`)
+    return
+  }
+  Part.position.lerp(vector, lerpAmount) // interpolate
+}
+
+const updateRigRotation = (rig, key, rotation, dampener = 1, lerpAmount = 0.3) => {
+  const quaternion = new Quaternion().setFromEuler(
+    new Euler(
+      (rotation?.x || 0) * dampener,
+      (rotation?.y || 0) * dampener,
+      (rotation?.z || 0) * dampener,
+      rotation?.rotationOrder || 'XYZ'
+    )
+  )
+
+  const Part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
+  if (!Part) {
+    //console.warn(`can't rotate ${key}`)
+    return
+  }
+
+  Part.quaternion.slerp(quaternion.clone(), lerpAmount) // interpolate
+}
+
+export { updateRigPosition, updateRigRotation }

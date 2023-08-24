@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Results, Side, THand, THandUnsafe } from '../Types'
+import { LEFT, RIGHT, Results, Side, THand, THandUnsafe } from '../Types'
 import { clamp } from '../utils/helpers'
 import Vector from '../utils/vector'
-import { LEFT, PI, RIGHT } from './../constants'
 
 /** Class representing hand solver. */
 export class HandSolver {
@@ -103,27 +102,31 @@ const rigFingers = (hand: THandUnsafe<typeof side>, side: Side = RIGHT): THand<t
         const newThumb = { x: 0, y: 0, z: 0 }
         if (j === 'Proximal') {
           newThumb.z = clamp(
-            startPos.z + trackedFinger.z * -PI * dampener.z * invert,
+            startPos.z + trackedFinger.z * -Math.PI * dampener.z * invert,
             side === RIGHT ? -0.6 : -0.3,
             side === RIGHT ? 0.3 : 0.6
           )
-          newThumb.x = clamp(startPos.x + trackedFinger.z * -PI * dampener.x, -0.6, 0.3)
+          newThumb.x = clamp(startPos.x + trackedFinger.z * -Math.PI * dampener.x, -0.6, 0.3)
           newThumb.y = clamp(
-            startPos.y + trackedFinger.z * -PI * dampener.y * invert,
+            startPos.y + trackedFinger.z * -Math.PI * dampener.y * invert,
             side === RIGHT ? -1 : -0.3,
             side === RIGHT ? 0.3 : 1
           )
         } else {
-          newThumb.z = clamp(startPos.z + trackedFinger.z * -PI * dampener.z * invert, -2, 2)
-          newThumb.x = clamp(startPos.x + trackedFinger.z * -PI * dampener.x, -2, 2)
-          newThumb.y = clamp(startPos.y + trackedFinger.z * -PI * dampener.y * invert, -2, 2)
+          newThumb.z = clamp(startPos.z + trackedFinger.z * -Math.PI * dampener.z * invert, -2, 2)
+          newThumb.x = clamp(startPos.x + trackedFinger.z * -Math.PI * dampener.x, -2, 2)
+          newThumb.y = clamp(startPos.y + trackedFinger.z * -Math.PI * dampener.y * invert, -2, 2)
         }
         trackedFinger.x = newThumb.x
         trackedFinger.y = newThumb.y
         trackedFinger.z = newThumb.z
       } else {
         //will document human limits later
-        trackedFinger.z = clamp(trackedFinger.z * -PI * invert, side === RIGHT ? -PI : 0, side === RIGHT ? 0 : PI)
+        trackedFinger.z = clamp(
+          trackedFinger.z * -Math.PI * invert,
+          side === RIGHT ? -Math.PI : 0,
+          side === RIGHT ? 0 : Math.PI
+        )
       }
     })
   })

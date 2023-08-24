@@ -24,7 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AxisMap, EulerRotation, XYZ } from '../Types'
-import { PI, TWO_PI } from './../constants'
+
+const PI = Math.PI
+const TWO_PI = PI * 2
 
 /** Vector Math class. */
 export default class Vector {

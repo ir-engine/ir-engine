@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { IHips, TFVectorPose, XYZ } from '../Types'
 import { clamp, remap } from '../utils/helpers'
 import Vector from '../utils/vector'
-import { PI } from './../constants'
 
 /**
  * Calculates Hip rotation and world position
@@ -108,9 +107,9 @@ export const rigHips = (hips: IHips, spine: Vector | XYZ) => {
     hips.rotation.z *= Math.PI
   }
 
-  spine.x *= PI
-  spine.y *= PI
-  spine.z *= PI
+  spine.x *= Math.PI
+  spine.y *= Math.PI
+  spine.z *= Math.PI
 
   return {
     Hips: hips,

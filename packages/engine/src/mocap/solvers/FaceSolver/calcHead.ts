@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Results } from '../Types'
 import Vector from '../utils/vector'
-import { PI } from './../constants'
+const PI = Math.PI
 
 /**
  * Calculate stable plane (triangle) from 4 face landmarks
@@ -60,6 +60,7 @@ export const calcHead = (lm: Results) => {
   const height = midPoint.distance(plane[2])
   //flip
   rotate.x *= -1
+  rotate.y *= -1
   rotate.z *= -1
 
   return {

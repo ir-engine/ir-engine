@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Results, Side, XYZ } from '../Types'
+import { LEFT, RIGHT, Results, Side, XYZ } from '../Types'
 import { clamp, remap } from '../utils/helpers'
 import Vector from '../utils/vector'
-import { LEFT, RIGHT } from './../constants'
 
 /**
  * Landmark points labeled for eye, brow, and pupils
