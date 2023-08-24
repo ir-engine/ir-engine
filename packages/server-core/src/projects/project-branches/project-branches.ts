@@ -23,28 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ProjectBranches from './project-branches/project-branches'
-import ProjectBuild from './project-build/project-build'
-import ProjectCheckSourceDestinationMatch from './project-check-source-destination-match/project-check-source-destination-match'
-import ProjectCheckUnfetchedCommit from './project-check-unfetched-commit/project-check-unfetched-commit'
-import ProjectDestinationCheck from './project-destination-check/project-destination-check'
-import ProjectGithubPush from './project-github-push/project-github-push'
-import ProjectInvalidate from './project-invalidate/project-invalidate'
-import ProjectPermission from './project-permission/project-permission'
-import Project from './project/project.service'
-import Projects from './projects/projects'
-import Scene from './scene/scene.service'
+import {
+  projectBranchesMethods,
+  projectBranchesPath
+} from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import { Application } from '../../../declarations'
+import { ProjectBranchesService } from './project-branches.class'
+import projectBranchesDocs from './project-branches.docs'
+import hooks from './project-branches.hooks'
 
-export default [
-  Project,
-  Projects,
-  ProjectBuild,
-  ProjectInvalidate,
-  ProjectPermission,
-  ProjectGithubPush,
-  ProjectBranches,
-  ProjectDestinationCheck,
-  ProjectCheckUnfetchedCommit,
-  ProjectCheckSourceDestinationMatch,
-  Scene
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectBranchesPath]: ProjectBranchesService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(projectBranchesPath, new ProjectBranchesService(app), {
+    // A list of all methods this service exposes externally
+    methods: projectBranchesMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectBranchesDocs
+  })
+
+  const service = app.service(projectBranchesPath)
+  service.hooks(hooks)
+}

@@ -54,9 +54,6 @@ import createModel from './project.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     project: Project
-    'project-branches': {
-      get: ReturnType<typeof projectBranchesGet>
-    }
     'project-commits': {
       get: ReturnType<typeof projectCommitsGet>
     }
@@ -151,16 +148,6 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
-
-  app.use('project-branches', {
-    get: projectBranchesGet(app)
-  })
-
-  app.service('project-branches').hooks({
-    before: {
-      get: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any]
-    }
-  })
 
   app.use('project-commits', {
     get: projectCommitsGet(app)

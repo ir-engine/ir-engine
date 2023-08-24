@@ -35,6 +35,7 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
@@ -229,7 +230,7 @@ export const ProjectService = {
 
   fetchProjectBranches: async (url: string) => {
     try {
-      return API.instance.client.service('project-branches').get(url)
+      return (await API.instance.client.service(projectBranchesPath).get(url)).branches
     } catch (err) {
       logger.error('Error with fetching tags for a project', err)
       throw err

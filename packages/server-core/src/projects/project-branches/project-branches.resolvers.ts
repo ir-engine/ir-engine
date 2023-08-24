@@ -23,28 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ProjectBranches from './project-branches/project-branches'
-import ProjectBuild from './project-build/project-build'
-import ProjectCheckSourceDestinationMatch from './project-check-source-destination-match/project-check-source-destination-match'
-import ProjectCheckUnfetchedCommit from './project-check-unfetched-commit/project-check-unfetched-commit'
-import ProjectDestinationCheck from './project-destination-check/project-destination-check'
-import ProjectGithubPush from './project-github-push/project-github-push'
-import ProjectInvalidate from './project-invalidate/project-invalidate'
-import ProjectPermission from './project-permission/project-permission'
-import Project from './project/project.service'
-import Projects from './projects/projects'
-import Scene from './scene/scene.service'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-export default [
-  Project,
-  Projects,
-  ProjectBuild,
-  ProjectInvalidate,
-  ProjectPermission,
-  ProjectGithubPush,
-  ProjectBranches,
-  ProjectDestinationCheck,
-  ProjectCheckUnfetchedCommit,
-  ProjectCheckSourceDestinationMatch,
-  Scene
-]
+import { ProjectBranchesType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const projectBranchesResolver = resolve<ProjectBranchesType, HookContext>({})
+
+export const projectBranchesExternalResolver = resolve<ProjectBranchesType, HookContext>({})
+
+export const projectBranchesDataResolver = resolve<ProjectBranchesType, HookContext>({})
