@@ -63,8 +63,7 @@ const DisplayBots = () => {
       $sort: {
         name: 1
       },
-      $limit: BOTS_PAGE_LIMIT,
-      action: 'admin'
+      $limit: BOTS_PAGE_LIMIT
     }
   })
   const botRemove = useMutation(botPath).remove
