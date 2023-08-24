@@ -32,13 +32,27 @@ Ethereal Engine. All Rights Reserved.
 import os from 'os'
 import pino from 'pino'
 import pinoElastic from 'pino-elasticsearch'
+import pinoOpensearch from 'pino-opensearch'
 import pretty from 'pino-pretty'
 
 const node = process.env.ELASTIC_HOST || 'http://localhost:9200'
+const nodeOpensearch = process.env.OPENSEARCH_HOST || 'http://localhost:9200'
 const useLogger = !process.env.DISABLE_SERVER_LOG
 
 const streamToPretty = pretty({
   colorize: true
+})
+
+const streamToOpenSearch = pinoOpensearch({
+  index: 'ethereal',
+  consistency: 'one',
+  node: nodeOpensearch,
+  auth: {
+    username: process.env.OPENSEARCH_USER | 'admin',
+    password: process.env.OPENSEARCH_PASSWORD | 'admin'
+  },
+  'es-version': 7,
+  'flush-bytes': 1000
 })
 
 const streamToElastic = pinoElastic({
@@ -48,7 +62,19 @@ const streamToElastic = pinoElastic({
   flushBytes: 1000
 })
 
-const streams = [streamToPretty, streamToElastic]
+const streams = [streamToPretty, streamToElastic, streamToOpenSearch]
+
+export const opensearchOnlyLogger = pino(
+  {
+    level: 'debug',
+    enable: useLogger,
+    base: {
+      hostname: os.hostname,
+      component: 'server-core'
+    }
+  },
+  streamToOpenSearch
+)
 
 export const logger = pino(
   {
@@ -73,5 +99,6 @@ export const elasticOnlyLogger = pino(
   },
   streamToElastic
 )
+logger.debug('Debug message for testing')
 
 export default logger
