@@ -23,17 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DtlsParameters, IceCandidate, IceParameters, SctpParameters } from 'mediasoup/node/lib/types'
+import CloseIcon from '@mui/icons-material/Close'
+import React from 'react'
 
-export type MediasoupClientTransportOptions = {
-  id: string
-  iceParameters: IceParameters
-  iceCandidates: IceCandidate[]
-  dtlsParameters: DtlsParameters
-  sctpParameters?: SctpParameters
-  iceServers?: RTCIceServer[]
-  iceTransportPolicy?: RTCIceTransportPolicy
-  additionalSettings?: any
-  proprietaryConstraints?: any
-  appData?: any
+import IconButton from '../IconButton'
+import Tooltip from '../Tooltip'
+
+const IconButtonWithTooltip = ({
+  id,
+  title,
+  icon,
+  tooltipClassName,
+  ...props
+}: Parameters<typeof IconButton>[0] & { tooltipClassName?: string }) => {
+  return (
+    <Tooltip id={id} title={title} className={tooltipClassName}>
+      <IconButton id={id} icon={icon} {...props} />
+    </Tooltip>
+  )
 }
+
+IconButtonWithTooltip.displayName = 'IconButtonWithTooltip'
+
+IconButtonWithTooltip.defaultProps = {
+  icon: <CloseIcon />
+}
+
+export default IconButtonWithTooltip
