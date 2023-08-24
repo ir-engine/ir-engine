@@ -147,7 +147,12 @@ export const createIKAnimator = async (entity: Entity) => {
   const avatar = getComponent(entity, AvatarComponent)
 
   for (let i = 0; i < animations!.length; i++) {
-    animations[i] = retargetMixamoAnimation(animations[i], manager.fkAnimations?.scene!, rigComponent.vrm, 'glb')
+    animations[i] = retargetMixamoAnimation(
+      animations[i],
+      manager.locomotionAnimations?.scene!,
+      rigComponent.vrm,
+      'glb'
+    )
     console.log(animations[i])
   }
 
@@ -159,7 +164,7 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.ikTargetsAnimations.value || !manager.fkAnimations.value) {
+  if (!manager.locomotionAnimations.value) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const asset = (await AssetLoader.loadAsync(
       `${config.client.fileServer}/projects/default-project/assets/locomotion_pack.glb`
@@ -171,10 +176,10 @@ export const getAnimations = async () => {
       movement.walkSpeed = getRootSpeed(asset.animations[6]) * 0.01
     }
 
-    manager.fkAnimations.set(asset)
+    manager.locomotionAnimations.set(asset)
   }
 
-  return cloneDeep(manager.fkAnimations.value?.animations) ?? [new AnimationClip()]
+  return cloneDeep(manager.locomotionAnimations.value?.animations) ?? [new AnimationClip()]
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {

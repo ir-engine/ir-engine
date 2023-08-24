@@ -48,8 +48,7 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
 
   avatar.avatarHeight = height
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
-  const animationsRigHeight = 1.56
-  avatar.scaleMultiplier = height / animationsRigHeight
+
   if (!rig.hips?.node) return console.warn('No hips node found on rig', entity)
   rig.hips.node.updateWorldMatrix(true, true)
   rigComponent.torsoLength = rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y
@@ -58,6 +57,9 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
     rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y
   rigComponent.footHeight = rig.leftFoot.node.getWorldPosition(vec3).y - transform.position.y
   rigComponent.armLength = rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
+  rigComponent.footGap = vec3_2
+    .subVectors(rig.leftFoot.node.getWorldPosition(vec3), rig.rightFoot.node.getWorldPosition(vec3))
+    .length()
   if (!hasComponent(entity, RigidBodyComponent)) return
 
   Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)

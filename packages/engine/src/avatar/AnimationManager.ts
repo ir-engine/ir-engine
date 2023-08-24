@@ -37,9 +37,8 @@ import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 export const AnimationState = defineState({
   name: 'animationManager',
   initial: () => ({
-    ikTargetsAnimations: undefined as AnimationClip[] | undefined,
-    fkAnimations: undefined as GLTF | undefined,
-    useDynamicAnimation: true
+    locomotionAnimations: undefined as GLTF | undefined,
+    loadedAnimations: {} as Record<string, GLTF>
   })
 })
 

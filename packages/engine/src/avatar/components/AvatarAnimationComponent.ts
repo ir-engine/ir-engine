@@ -103,6 +103,8 @@ export const AvatarRigComponent = defineComponent({
 
       armLength: 0,
 
+      footGap: 0,
+
       flipped: false,
 
       /** Cache of the skinned meshes currently on the rig */
@@ -123,6 +125,7 @@ export const AvatarRigComponent = defineComponent({
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
     if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
+    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
     if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
     if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
     if (matches.string.test(json.ikOverride)) component.ikOverride.set(json.ikOverride)
@@ -182,7 +185,7 @@ export const AvatarRigComponent = defineComponent({
 })
 
 /**Used to generate an offset map that retargets ik position animations to fit any rig */
-export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[]) => {
+export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], height: number) => {
   const offset = new Vector3()
   const foot = new Vector3()
 
@@ -190,7 +193,7 @@ export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[]) =
   if (!rig.rig.hips?.node) return
 
   const avatarComponent = getComponent(entity, AvatarComponent)
-  const scaleMultiplier = avatarComponent.scaleMultiplier
+  const scaleMultiplier = height / avatarComponent.avatarHeight
 
   offset.y = rig.bindRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
 

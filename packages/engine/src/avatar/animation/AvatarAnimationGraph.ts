@@ -24,21 +24,27 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { clamp } from 'lodash'
-import { AnimationClip, AnimationMixer, Vector3 } from 'three'
+import { AnimationAction, AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
+import config from '@etherealengine/common/src/config'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+
+const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.matches)
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
-  const clip = AnimationClip.findByName(animations ?? manager.ikTargetsAnimations!, name)
+  const clip = AnimationClip.findByName(animations ?? manager.locomotionAnimations!.animations, name)
   return mixer.clipAction(clip)
 }
 
@@ -46,11 +52,68 @@ const moveLength = new Vector3()
 let fallWeight = 0,
   runWeight = 0,
   walkWeight = 0,
-  idleWeight = 1
+  idleWeight = 1,
+  locomotionBlend = 0
+
+//only support blending from one action at the moment
+let currentAction = undefined as undefined | AnimationAction
+
+//blend between locomotion and animation overrides
+export const updateAnimationGraphForEntity = (entity: Entity) => {
+  for (const newAnimation of animationQueue()) {
+    const anim = loadAvatarAnimation(entity, newAnimation.animationState)
+  }
+
+  setAvatarLocomotionAnimation(entity)
+  if (currentAction) {
+    const deltaSeconds = getState(EngineState).deltaSeconds
+    currentAction.setEffectiveWeight(locomotionBlend)
+    if (currentAction.time >= currentAction.getClip().duration - 0.1) {
+      currentAction.timeScale = 0
+      locomotionBlend = Math.max(locomotionBlend - deltaSeconds, 0)
+      if (locomotionBlend <= 0) currentAction = undefined
+    } else {
+      locomotionBlend = Math.min(locomotionBlend + deltaSeconds, 1)
+    }
+  }
+}
+
+/**Attempts to get animation by name from animation manager if already loaded, or from
+ * default-project/assets/animations if not.*/
+export const loadAvatarAnimation = (entity: Entity, name: string) => {
+  const animationState = getState(AnimationState)
+  if (animationState.loadedAnimations[name]) return animationState.loadedAnimations[name]
+  else {
+    //load from default-project/assets/animations
+    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/animations/${name}.fbx`).then(
+      (animation) => {
+        playAvatarAnimationFromMixamo(entity, animation.scene)
+      }
+    )
+  }
+}
+
+/** Retargets an fbx mixamo animation to the entity's avatar model, then blends in and out of the default locomotion state. */
+export const playAvatarAnimationFromMixamo = (entity: Entity, animation: Object3D) => {
+  const animationComponent = getComponent(entity, AnimationComponent)
+  const rigComponent = getComponent(entity, AvatarRigComponent)
+  //if animation is already present on animation component, use it instead of retargeting again
+  let retargetedAnimation = undefined as undefined | AnimationClip
+  animationComponent.animations.forEach((clip) => {
+    if (clip.name == animation.animations[0].name) retargetedAnimation = clip
+  })
+  //otherwise retarget and push to animation component's animations
+  if (!retargetedAnimation) {
+    retargetedAnimation = retargetMixamoAnimation(animation.animations[0], animation, rigComponent.vrm, 'fbx')
+    animationComponent.animations.push(retargetedAnimation)
+  }
+  //now blend and play the animation
+  currentAction = getAnimationAction(retargetedAnimation.name, animationComponent.mixer, animationComponent.animations)
+  currentAction.play()
+}
 
 //This is a stateless animation blend, it is not a graph
 //To do: make a stateful blend tree
-let notplaying = false
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   if (!animationComponent.animations) return
@@ -82,7 +145,8 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   run.setEffectiveWeight(runWeight)
   walk.setEffectiveWeight(walkWeight)
   fall.setEffectiveWeight(fallWeight)
-  idle.setEffectiveWeight(idleWeight)
+  idle.setEffectiveWeight(idleWeight - locomotionBlend)
+  console.log(idleWeight - locomotionBlend, locomotionBlend)
 }
 
 export const getRootSpeed = (clip: AnimationClip) => {
@@ -97,6 +161,5 @@ export const getRootSpeed = (clip: AnimationClip) => {
     rootTrack.values[rootTrack.values.length - 1]
   )
   const speed = new Vector3().subVectors(endPos, startPos).length() / clip.duration
-  console.log(speed)
   return speed
 }

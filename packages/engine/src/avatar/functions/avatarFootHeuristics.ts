@@ -62,7 +62,7 @@ export const setIkFootTarget = (stepThreshold: number) => {
     if (!foot || key != currentStep) continue
 
     //calculate foot offset so both feet aren't at the transform's center
-    footOffset.set(currentStep == ikTargets.leftFoot ? 0.2 : -0.2, 0, 0)
+    footOffset.set(currentStep == ikTargets.leftFoot ? playerRig.footGap : -playerRig.footGap, 0, 0)
     footOffset.applyQuaternion(playerTransform.rotation)
     footOffset.add(playerTransform.position)
 

@@ -32,6 +32,11 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import { emotes } from '@etherealengine/engine/src/avatar/animation/Util'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
 
@@ -67,7 +72,7 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Dance1.svg" alt="Dance 1" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DANCE1)
+        onClick: () => runAnimation(emotes.dance1)
       }
     },
     {
@@ -145,6 +150,13 @@ export const useEmoteMenuHooks = () => {
 
   const runAnimation = (stateName: string) => {
     const entity = Engine.instance.localClientEntity
+    dispatchAction(
+      AvatarNetworkAction.setAnimationState({
+        animationState: stateName,
+        entityUUID: getComponent(entity, UUIDComponent)
+      })
+    )
+    console.log(stateName)
     // close Menu after playing animation
     PopupMenuServices.showPopupMenu()
   }

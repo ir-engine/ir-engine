@@ -36,7 +36,7 @@ import { calcHips } from './solvers/PoseSolver/calcHips'
 
 import { Landmark } from '@mediapipe/holistic'
 import { ikTargets } from '../avatar/animation/Util'
-import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
 import mediapipePoseNames from './MediapipePoseNames'
 
 const indices = {

@@ -71,17 +71,15 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
-import { AnimationState } from '.././AnimationManager'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
-import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
+import { updateAnimationGraphForEntity } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
-import { AvatarComponent } from '../components/AvatarComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
-import { AvatarNetworkAction } from '../state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -127,6 +125,7 @@ const _hipVector = new Vector3()
 const _hipRot = new Quaternion()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
+const hipsForward = new Vector3(0, 0, 1)
 
 const midAxisRestriction = new Euler(0, 0, 0)
 const tipAxisRestriction = new Euler(0, 0, 0)
@@ -374,9 +373,6 @@ const execute = () => {
       }
     }
 
-    /**
-     * Apply motion to velocity controlled animations
-     */
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
 
@@ -401,10 +397,8 @@ const execute = () => {
     /**
      * Apply procedural IK based animations or FK animations depending on the animation state
      */
-    const animationState = getState(AnimationState)
-    const avatarComponent = getComponent(entity, AvatarComponent)
 
-    if (animationState.useDynamicAnimation || rigComponent.ikOverride != '') {
+    if (rigComponent.ikOverride != '') {
       if (!rig.hips?.node) continue
 
       //calculate world positions
@@ -435,8 +429,7 @@ const execute = () => {
 
         const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
         const ikTransform = getComponent(ikEntity, TransformComponent)
-        const hipsForward = new Vector3(0, 0, 1)
-
+        hipsForward.set(0, 0, 1)
         rig.hips.node.quaternion.copy(new Quaternion().setFromEuler(new Euler(0, Math.PI, 0)))
         switch (ikTargetName) {
           case ikTargets.head:
@@ -617,7 +610,7 @@ const execute = () => {
       }
     }
 
-    setAvatarLocomotionAnimation(entity)
+    updateAnimationGraphForEntity(entity)
 
     for (const [key, animatedBone] of Object.entries(rigComponent.bindRig)) {
       const ikBone = rigComponent.rig[key].node as Object3D
