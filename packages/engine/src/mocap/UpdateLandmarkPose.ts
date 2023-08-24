@@ -112,10 +112,13 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   // this can leave the user in a bad position if the hips disappear off camera and they rotate heavily
   // however this does permit the user to correct the situation by simply moving back into view, setting their hips, and then leaving the view
   //
+  // @todo i want to latch this transition once rather than hammering on it
+  //
 
   if (!state.hips.visible || !state.shoulders.visible) {
     state.hips.euler = restpose[VRMHumanBoneName.Hips].euler // new Vector(0,Math.PI,0)
     state.hips.xyz = restpose[VRMHumanBoneName.Hips].position // new Vector(0,waist,0)
+    changes[VRMHumanBoneName.Hips] = state.hips
   }
 
   //
