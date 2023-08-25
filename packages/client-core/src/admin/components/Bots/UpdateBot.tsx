@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -40,6 +39,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { BotPatch, BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -48,7 +48,7 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  bot?: AdminBot
+  bot?: BotType
   onClose: () => void
 }
 
@@ -73,7 +73,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
 
-  const updateBot = useMutation('bot').update
+  const updateBot = useMutation(botPath).patch
   const user = useHookstate(getMutableState(AuthState).user)
 
   useEffect(() => {
@@ -136,9 +136,9 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   }, [state.location.value, instancesData])
 
   const handleUpdate = () => {
-    const data: CreateBotAsAdmin = {
+    const data: BotPatch = {
       name: state.name.value,
-      instanceId: state.instance.value || null,
+      instanceId: state.instance.value || '',
       userId: user.id.value,
       description: state.description.value,
       locationId: state.location.value
