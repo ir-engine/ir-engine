@@ -75,6 +75,40 @@ export default (app: Application): void => {
 
     app.setup = async function (...args) {
       try {
+        if (forceRefresh || appConfig.testEnabled) {
+          // We are running our migration:rollback here, so that tables in db are dropped 1st using knex.
+          // TODO: Once sequelize is removed, we should add migrate:rollback as part of `dev-reinit-db` script in package.json
+          const initPromise = new Promise((resolve, reject) => {
+            const initProcess = spawn('npm', ['run', 'migrate:rollback'])
+            initProcess.once('exit', resolve)
+            initProcess.once('error', reject)
+            initProcess.once('disconnect', resolve)
+            initProcess.stdout.on('data', (data) => console.log(data.toString()))
+          })
+            .then((exitCode) => {
+              logger.info(`Knex migrate:rollback exited with: ${exitCode}`)
+            })
+            .catch((err) => {
+              logger.error('Knex migrate:rollback error')
+              logger.error(err)
+              promiseReject()
+              throw err
+            })
+
+          await Promise.race([
+            initPromise,
+            new Promise<void>((resolve) => {
+              setTimeout(
+                () => {
+                  console.log('WARNING: Knex migrations took too long to run!')
+                  resolve()
+                },
+                2 * 60 * 1000
+              ) // timeout after 2 minutes
+            })
+          ])
+        }
+
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
 
         const tableCount = await sequelize.query(
@@ -135,6 +169,8 @@ export default (app: Application): void => {
             .then((exitCode) => {
               if (exitCode !== 0) {
                 throw new Error(`Knex migration exited with: ${exitCode}`)
+              } else {
+                logger.info('Knex migration completed')
               }
             })
             .catch((err) => {
