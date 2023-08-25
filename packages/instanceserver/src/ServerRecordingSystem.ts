@@ -53,7 +53,7 @@ import {
   addDataChannelHandler,
   DataChannelRegistryState,
   removeDataChannelHandler
-} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+} from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'

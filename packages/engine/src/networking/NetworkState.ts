@@ -102,6 +102,7 @@ export type PeerMediaType = {
     parameters: any
     rtcpFeedback: any[]
   }>
+  /** @deprecated */
   channelId: ChannelID
 }
 
