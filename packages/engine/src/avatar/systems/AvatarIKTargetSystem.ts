@@ -40,15 +40,14 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
-import {
-  AvatarIKTargetComponent,
-  xrTargetHeadSuffix,
-  xrTargetLeftHandSuffix,
-  xrTargetRightHandSuffix
-} from '../components/AvatarIKComponents'
+import { ikTargets } from '../animation/Util'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
-const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
+const ikTargetSpawnQueue = defineActionQueue(AvatarNetworkAction.spawnIKTarget.matches)
 const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const inputSourceQuery = defineQuery([InputSourceComponent])
@@ -58,19 +57,26 @@ const execute = () => {
   const { localClientEntity } = Engine.instance
 
   for (const action of sessionChangedQueue()) {
-    if (!localClientEntity || xrState.sessionActive) continue
+    if (!localClientEntity) continue
 
-    const headUUID = (Engine.instance.userID + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userID + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userID + xrTargetRightHandSuffix) as EntityUUID
+    //todo, this needs to be optimized and scalable
+    const headUUID = (Engine.instance.userID + ikTargets.head) as EntityUUID
+    const leftHandUUID = (Engine.instance.userID + ikTargets.leftHand) as EntityUUID
+    const rightHandUUID = (Engine.instance.userID + ikTargets.rightHand) as EntityUUID
+    const leftFootUUID = (Engine.instance.userID + ikTargets.leftFoot) as EntityUUID
+    const rightFootUUID = (Engine.instance.userID + ikTargets.rightFoot) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
     const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+    const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
+    const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
 
     if (ikTargetHead) removeEntity(ikTargetHead)
     if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (ikTargetRightHand) removeEntity(ikTargetRightHand)
+    if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
+    if (ikTargetRightFoot) removeEntity(ikTargetRightFoot)
   }
 
   for (const action of ikTargetSpawnQueue()) {
@@ -79,12 +85,17 @@ const execute = () => {
       console.warn('Could not find entity for networkId', action.$from, action.networkId)
       continue
     }
-    setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
-    setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
+    setComponent(entity, NameComponent, action.$from + '_' + action.name)
+    setComponent(entity, AvatarIKTargetComponent)
+
+    setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: 'xr' })
+
     const helper = new AxesHelper(0.5)
     setObjectLayers(helper, ObjectLayers.Gizmos)
     addObjectToGroup(entity, helper)
     setComponent(entity, VisibleComponent)
+
+    setTrackingSpace()
   }
 
   // todo - remove ik targets when session ends
@@ -95,23 +106,33 @@ const execute = () => {
     const leftHand = !!sources.find((s) => s.handedness === 'left')
     const rightHand = !!sources.find((s) => s.handedness === 'right')
 
-    const headUUID = (Engine.instance.userID + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userID + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userID + xrTargetRightHandSuffix) as EntityUUID
+    const headUUID = (Engine.instance.userID + ikTargets.head) as EntityUUID
+    const leftHandUUID = (Engine.instance.userID + ikTargets.leftHand) as EntityUUID
+    const rightHandUUID = (Engine.instance.userID + ikTargets.rightHand) as EntityUUID
+    const leftFootUUID = (Engine.instance.userID + ikTargets.leftFoot) as EntityUUID
+    const rightFootUUID = (Engine.instance.userID + ikTargets.rightFoot) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
     const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+    const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
+    const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
 
     if (!head && ikTargetHead) removeEntity(ikTargetHead)
     if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
-    if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID }))
+    if (head && !ikTargetHead) dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head' }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand' }))
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand' }))
+
+    if (!ikTargetLeftFoot)
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot' }))
+
+    if (!ikTargetRightFoot)
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot' }))
   }
 }
 
