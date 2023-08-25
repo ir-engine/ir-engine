@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { clamp } from 'lodash'
-import { AnimationAction, AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
@@ -33,7 +33,8 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -52,28 +53,38 @@ const moveLength = new Vector3()
 let fallWeight = 0,
   runWeight = 0,
   walkWeight = 0,
-  idleWeight = 1,
-  locomotionBlend = 0
+  idleWeight = 1
 
-//only support blending from one action at the moment
-let currentAction = undefined as undefined | AnimationAction
+const currentActionBlendSpeed = 2
 
 //blend between locomotion and animation overrides
-export const updateAnimationGraphForEntity = (entity: Entity) => {
+export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
-    loadAvatarAnimation(entity, newAnimation.animationState)
+    const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
+
+    getComponent(targetEntity, AvatarAnimationComponent).animationGraph.blendAnimation = undefined
+    loadAvatarAnimation(targetEntity, newAnimation.animationState)
   }
 
-  setAvatarLocomotionAnimation(entity)
-  if (currentAction) {
-    const deltaSeconds = getState(EngineState).deltaSeconds
-    currentAction.setEffectiveWeight(locomotionBlend)
-    if (currentAction.time >= currentAction.getClip().duration - 0.1) {
-      currentAction.timeScale = 0
-      locomotionBlend = Math.max(locomotionBlend - deltaSeconds, 0)
-      if (locomotionBlend <= 0) currentAction = undefined
-    } else {
-      locomotionBlend = Math.min(locomotionBlend + deltaSeconds, 1)
+  for (const entity of avatarEntities) {
+    const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+    console.log(entity)
+
+    setAvatarLocomotionAnimation(entity)
+
+    const currentAction = avatarAnimationComponent.animationGraph.blendAnimation
+
+    if (currentAction.value) {
+      const deltaSeconds = getState(EngineState).deltaSeconds
+      const locomotionBlend = avatarAnimationComponent.animationGraph.blendStrength
+      currentAction.value.setEffectiveWeight(locomotionBlend.value)
+      if (currentAction.value.time >= currentAction.value.getClip().duration - 0.1) {
+        currentAction.value.timeScale = 0
+        locomotionBlend.set(Math.max(locomotionBlend.value - deltaSeconds * currentActionBlendSpeed, 0))
+        if (locomotionBlend.value <= 0) currentAction.set(undefined)
+      } else {
+        locomotionBlend.set(Math.min(locomotionBlend.value + deltaSeconds * currentActionBlendSpeed, 1))
+      }
     }
   }
 }
@@ -82,11 +93,14 @@ export const updateAnimationGraphForEntity = (entity: Entity) => {
  * default-project/assets/animations if not.*/
 export const loadAvatarAnimation = (entity: Entity, name: string) => {
   const animationState = getState(AnimationState)
-  if (animationState.loadedAnimations[name]) return animationState.loadedAnimations[name]
+
+  if (animationState.loadedAnimations[name])
+    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[name].scene)
   else {
     //load from default-project/assets/animations
     AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/animations/${name}.fbx`).then(
       (animation) => {
+        animation.scene.animations[0].name = name
         playAvatarAnimationFromMixamo(entity, animation.scene)
       }
     )
@@ -96,6 +110,7 @@ export const loadAvatarAnimation = (entity: Entity, name: string) => {
 /** Retargets an fbx mixamo animation to the entity's avatar model, then blends in and out of the default locomotion state. */
 export const playAvatarAnimationFromMixamo = (entity: Entity, animation: Object3D) => {
   const animationComponent = getComponent(entity, AnimationComponent)
+  const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
   const rigComponent = getComponent(entity, AvatarRigComponent)
   //if animation is already present on animation component, use it instead of retargeting again
   let retargetedAnimation = undefined as undefined | AnimationClip
@@ -107,9 +122,17 @@ export const playAvatarAnimationFromMixamo = (entity: Entity, animation: Object3
     retargetedAnimation = retargetMixamoAnimation(animation.animations[0], animation, rigComponent.vrm, 'fbx')
     animationComponent.animations.push(retargetedAnimation)
   }
+  const currentAction = avatarAnimationComponent.animationGraph.blendAnimation
+
   //now blend and play the animation
-  currentAction = getAnimationAction(retargetedAnimation.name, animationComponent.mixer, animationComponent.animations)
-  currentAction.play()
+  currentAction.set(
+    getAnimationAction(retargetedAnimation.name, animationComponent.mixer, animationComponent.animations)
+  )
+  if (currentAction.value) {
+    currentAction.value.timeScale = 1
+    currentAction.value.time = 0
+    currentAction.value.play()
+  }
 }
 
 //This is a stateless animation blend, it is not a graph
@@ -145,7 +168,7 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   run.setEffectiveWeight(runWeight)
   walk.setEffectiveWeight(walkWeight)
   fall.setEffectiveWeight(fallWeight)
-  idle.setEffectiveWeight(idleWeight - locomotionBlend)
+  idle.setEffectiveWeight(idleWeight - avatarAnimationComponent.animationGraph.blendStrength)
 }
 
 export const getRootSpeed = (clip: AnimationClip) => {

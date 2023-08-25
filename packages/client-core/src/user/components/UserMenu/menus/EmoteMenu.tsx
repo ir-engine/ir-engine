@@ -66,7 +66,7 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/clap1.svg" alt="Clap" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.CLAP)
+        onClick: () => runAnimation(emotes.clap)
       }
     },
     {
@@ -78,19 +78,19 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Dance2.svg" alt="Dance 2" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DANCE2)
+        onClick: () => runAnimation(emotes.dance2)
       }
     },
     {
       body: <img src="/static/Dance3.svg" alt="Dance 3" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DANCE3)
+        onClick: () => runAnimation(emotes.dance3)
       }
     },
     {
       body: <img src="/static/Dance4.svg" alt="Dance 4" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DANCE4)
+        onClick: () => runAnimation(emotes.dance4)
       }
     },
     {
@@ -156,7 +156,6 @@ export const useEmoteMenuHooks = () => {
         entityUUID: getComponent(entity, UUIDComponent)
       })
     )
-    console.log(stateName)
     // close Menu after playing animation
     PopupMenuServices.showPopupMenu()
   }

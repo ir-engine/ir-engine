@@ -75,7 +75,7 @@ import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
-import { updateAnimationGraphForEntity } from '../animation/AvatarAnimationGraph'
+import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
@@ -351,6 +351,7 @@ const execute = () => {
   const ikEntities = ikTargetQuery()
 
   footRaycastTimer += deltaSeconds
+  updateAnimationGraph(avatarAnimationEntities)
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
@@ -609,8 +610,6 @@ const execute = () => {
         weights['spine'] = worldSpaceTargets.head.blendWeight
       }
     }
-
-    updateAnimationGraphForEntity(entity)
 
     for (const [key, animatedBone] of Object.entries(rigComponent.bindRig)) {
       const ikBone = rigComponent.rig[key].node as Object3D
