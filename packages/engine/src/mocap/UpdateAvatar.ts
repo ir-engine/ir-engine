@@ -161,9 +161,15 @@ on lm3d normalized data:
   - raw z data does exist but fairly weak; good enough for hips pirouette however
   - note that 'visibility' also is slightly unclear as a concept; tensorflow appears to speculate even if no visibility
 
-MAIN GOALS
+FRONT BURNER
 
-  - flip hands? I tried to do this but failed; failed to flip some coordinate somewhere in the math
+  - why are wrists pose wrong
+  - can hips be ik
+  - can i pre-set knee and elbow using landmarks and have ik do minimum drift from that?
+
+
+  - would be nice to flip the hands as they are backwards in the kaliko code
+  - would be nice to clean up the concept of a change list a bit
   - merge change list with restpose logic?
   - support the concept of jumping by using latency of ground pose estimation
   - support real wingspan estimation
@@ -171,8 +177,8 @@ MAIN GOALS
 HEAD ISSUES
 
   x head pose works ok
-  ? it could possibly be improved though; maybe slower updates?
   ? maybe write to neck as well as the head?
+  ? write head pose to the ik system
 
 HIPS ISSUES
 

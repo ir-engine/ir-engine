@@ -87,7 +87,7 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
     }
     const transform = getComponent(target, TransformComponent)
     transform?.position.copy(xyz)
-    transform?.rotation.copy(props.quaternion)
+    if (props.quaternion) transform?.rotation.copy(props.quaternion)
   }
 
   // visualize for debugging
@@ -105,7 +105,7 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
     }
     strategy.mesh.material.color.setHex(props.color && hide == false ? props.color : 0x000000)
     strategy.mesh.position.copy(xyz)
-    strategy.mesh.rotation.setFromQuaternion(props.quaternion)
+    if (props.quaternion) strategy.mesh.rotation.setFromQuaternion(props.quaternion)
     strategy.mesh.updateMatrixWorld()
   }
 }
@@ -169,24 +169,33 @@ const UpdateIkPose = (data, avatarPosition: Vector3, avatarRotation: Quaternion,
   ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
     id: POSE_LANDMARKS.LEFT_WRIST,
     landmark: lm3d[15],
-    quaternion: q, //new Quaternion().setFromEuler(new Euler(l.x,l.y,l.z)),
+    //quaternion: q, //new Quaternion().setFromEuler(new Euler(l.x,l.y,l.z)),
     color: 0xee0000,
     key: 'leftHand',
     ik: true,
     rest: { x: 0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
   })
 
-  const r = Vector.findRotation(
+  const r2 = Vector.findRotation(
     Vector.fromArray(lm3d[16]),
     Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
   )
+
+  const r = new Vector(0, 0, 0)
+  const unused = Vector.findRotation(
+    Vector.fromArray(lm3d[16]),
+    Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
+  )
+  const qr = new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z))
+  qr.multiply(demirror)
+  qr.multiply(avatarRotation)
 
   // @todo mysteriously if i don't set BOTH ik then no ik is processed
 
   ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
     id: POSE_LANDMARKS.RIGHT_WRIST,
     landmark: lm3d[16],
-    quaternion: new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z)),
+    //quaternion: new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z)),
     color: 0xee00ee,
     key: 'rightHand',
     ik: true,
