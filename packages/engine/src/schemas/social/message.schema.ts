@@ -34,7 +34,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const messagePath = 'message'
 
-export const messageMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const messageMethods = ['create'] as const
 
 // Main data model schema
 export const messageSchema = Type.Object(
@@ -59,9 +59,24 @@ export const messageSchema = Type.Object(
 export type MessageType = Static<typeof messageSchema>
 
 // Schema for creating new entries
-export const messageDataSchema = Type.Pick(messageSchema, ['text', 'isNotification', 'channelId', 'senderId'], {
-  $id: 'MessageData'
-})
+export const messageDataProperties = Type.Pick(messageSchema, ['text', 'isNotification', 'channelId', 'senderId'])
+
+export const messageDataSchema = Type.Intersect(
+  [
+    messageDataProperties,
+    Type.Object({
+      instanceId: Type.Optional(
+        Type.String({
+          format: 'uuid'
+        })
+      )
+    })
+  ],
+  {
+    $id: 'MessageData',
+    additionalProperties: false
+  }
+)
 export type MessageData = Static<typeof messageDataSchema>
 
 // Schema for updating existing entries

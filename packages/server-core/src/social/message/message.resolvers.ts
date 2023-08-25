@@ -24,15 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { MessageQuery, MessageType } from '@etherealengine/engine/src/schemas/social/message.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export const messageResolver = resolve<MessageType, HookContext>({})
+export const messageResolver = resolve<MessageType, HookContext>({
+  sender: virtual(async (message, context) => {
+    if (message.senderId) {
+      const sender = await context.app.service(userPath)._get(message.senderId)
+      return sender
+    }
+  })
+})
 
 export const messageExternalResolver = resolve<MessageType, HookContext>({})
 
