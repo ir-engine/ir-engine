@@ -182,6 +182,7 @@
   },
   "properties": {
     "title": "Properties",
+    "info": "Propeties let you access and edit detailed information about objects in your scene.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
@@ -846,6 +847,8 @@
     }
   },
   "hierarchy": {
+    "lbl": "Hierarchy",
+    "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
@@ -854,6 +857,10 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "isseus": "Issues:"
+  },
+  "materialLibrary": {
+    "lbl": "Material Library",
+    "info": "Location of an assets materials and where you can select and edit them."
   },
   "dnd": {
     "nodes": "{{count}} Nodes Selected",
