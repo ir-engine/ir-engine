@@ -44,7 +44,9 @@ import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponen
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
-import UpdateLandmarkPose from './UpdateLandmarkPose'
+import UpdateLandmarkFace from './UpdateLandmarkFace'
+import UpdateLandmarkHands from './UpdateLandmarkHands'
+import { ApplyPoseChanges, CaptureRestEnsemble, UpdateLandmarkPose } from './UpdateLandmarkPose'
 
 const useSolvers = false
 
@@ -122,8 +124,6 @@ function updatePose(userID, data: MotionCaptureStream) {
   const avatarTransform = getComponent(entity, TransformComponent)
   if (!avatarRig || !avatarTransform) return
 
-  const restPose: any = captureRestPose(userID, avatarRig)
-
   //const avatarHips = avatarRig?.bindRig?.hips?.node
   //const avatarHipsPosition = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
   //const avatarRotation = avatarTransform.rotation
@@ -131,65 +131,17 @@ function updatePose(userID, data: MotionCaptureStream) {
   // get a mapping of landmarks to idealized target positions; this is basically the kalikokit approach
   const changes = {}
 
-  //UpdateLandmarkFace(data?.faceLandmarks, changes)
-  //UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, changes)
-  UpdateLandmarkPose(data?.za, data?.poseLandmarks, restPose, changes)
+  const restEnsemble: any = CaptureRestEnsemble(userID, avatarRig)
+
+  UpdateLandmarkPose(data?.za, data?.poseLandmarks, restEnsemble, changes)
+  UpdateLandmarkFace(data?.faceLandmarks, changes)
+  UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, changes)
 
   // test
-  applyChanges(changes, avatarRig)
+  ApplyPoseChanges(changes, avatarRig)
 
   // resolve these parts using ik
   //UpdateIkPose(data.za, position, rotation)
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// @todo move this code
-
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Euler } from 'three'
-import { updateRigPosition, updateRigRotation } from './UpdateUtils'
-
-function applyChanges(changes, rig) {
-  Object.entries(changes).forEach(([key, args]) => {
-    const scratch: any = args
-    const dampener = scratch.dampener || 1
-    const lerp = scratch.lerp || 1
-    if (scratch.euler) {
-      updateRigRotation(rig, key, scratch.euler, scratch.dampener, scratch.lerp)
-    }
-    if (scratch.xyz) {
-      updateRigPosition(rig, key, scratch.xyz, scratch.dampener, scratch.lerp)
-    }
-  })
-}
-
-const rigs = {}
-function captureRestPose(userID, rig) {
-  let parts = rigs[userID]
-  if (parts) return parts
-  parts = rigs[userID] = {}
-  Object.entries(VRMHumanBoneName).forEach(([key, key2]) => {
-    const part = rig.vrm.humanoid!.getNormalizedBoneNode(key2)
-    if (!part) return
-    parts[key2] = {
-      vrmkey: key2,
-      xyz: part.position.clone(),
-      quaternion: part.quaternion.clone(),
-      euler: new Euler().setFromQuaternion(part.quaternion)
-    }
-    /*
-    console.log(
-      key2,
-      parts[key2].xyz.x.toFixed(3),
-      parts[key2].xyz.y.toFixed(3),
-      parts[key2].xyz.z.toFixed(3),
-      parts[key2].euler.x.toFixed(3),
-      parts[key2].euler.y.toFixed(3),
-      parts[key2].euler.z.toFixed(3)
-      )
-    */
-  })
-  return parts
 }
 
 ////////////////////////////////////////////////////////////////////////////////

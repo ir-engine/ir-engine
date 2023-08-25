@@ -25,12 +25,74 @@ Ethereal Engine. All Rights Reserved.
 
 import { Landmark } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Vector3 } from 'three'
-import { calcArms } from './solvers/PoseSolver/calcArms'
 import { RestingDefault } from './solvers/utils/helpers'
 import Vector from './solvers/utils/vector'
 
-const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, changes: any) => {
+import { Euler, Vector3 } from 'three'
+import { updateRigPosition, updateRigRotation } from './UpdateUtils'
+
+import { calcArms } from './solvers/PoseSolver/calcArms'
+import { calcLegs } from './solvers/PoseSolver/calcLegs'
+
+///
+/// A helper to apply all changes at once to allow for most post processing
+///
+
+export function ApplyPoseChanges(changes, rig) {
+  Object.entries(changes).forEach(([key, args]) => {
+    const scratch: any = args
+    const dampener = scratch.dampener || 1
+    const lerp = scratch.lerp || 1
+    if (scratch.euler) {
+      updateRigRotation(rig, key, scratch.euler, scratch.dampener, scratch.lerp)
+    }
+    if (scratch.xyz) {
+      updateRigPosition(rig, key, scratch.xyz, scratch.dampener, scratch.lerp)
+    }
+  })
+}
+
+///
+/// A helper to catch early pose at rest to help with returning to rest pose if no landmarks
+///
+
+const rigs = {}
+export function CaptureRestEnsemble(userID, rig) {
+  let ensemble = rigs[userID]
+  if (ensemble) return ensemble
+  ensemble = rigs[userID] = {
+    lowest: 999,
+    parts: {}
+  }
+  Object.entries(VRMHumanBoneName).forEach(([key, key2]) => {
+    const part = rig.vrm.humanoid!.getNormalizedBoneNode(key2)
+    if (!part) return
+    if (part.position.y < ensemble.lowest) ensemble.lowest = part.position.y
+    ensemble.parts[key2] = {
+      xyz: part.position.clone(),
+      quaternion: part.quaternion.clone(),
+      euler: new Euler().setFromQuaternion(part.quaternion)
+    }
+    /*
+    console.log(
+      key2,
+      parts[key2].xyz.x.toFixed(3),
+      parts[key2].xyz.y.toFixed(3),
+      parts[key2].xyz.z.toFixed(3),
+      parts[key2].euler.x.toFixed(3),
+      parts[key2].euler.y.toFixed(3),
+      parts[key2].euler.z.toFixed(3)
+      )
+    */
+  })
+  return ensemble
+}
+
+///
+/// A helper to carefully update the puppet larger pose features from landmarks using basic math and understanding of human bodies
+///
+
+export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], restEnsemble: any, changes: any) => {
   if (!lm3d || !lm2d) return
 
   const threshhold = 0.6
@@ -38,12 +100,12 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
     head: {
       dampener: 1,
       lerp: 0.3,
-      visible: lm3d[0] && lm3d[0].visibility && lm3d[0].visibility > threshhold
+      shown: lm3d[0] && lm3d[0].visibility && lm3d[0].visibility > threshhold
     },
     hips: {
       dampener: 1,
       lerp: 0.3,
-      visible:
+      shown:
         lm3d[23] &&
         lm3d[23].visibility &&
         lm3d[23].visibility > threshhold &&
@@ -54,7 +116,7 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
     shoulders: {
       dampener: 1,
       lerp: 0.1,
-      visible:
+      shown:
         lm3d[11] &&
         lm3d[11].visibility &&
         lm3d[11].visibility > threshhold &&
@@ -63,70 +125,25 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
         lm3d[12].visibility > threshhold
     },
     leftHand: {
-      visible: lm3d[15] && lm3d[15].visibility && lm3d[15].visibility > threshhold
+      shown: lm3d[15] && lm3d[15].visibility && lm3d[15].visibility > threshhold
     },
     rightHand: {
-      visible: lm3d[16] && lm3d[16].visibility && lm3d[16].visibility > threshhold
+      shown: lm3d[16] && lm3d[16].visibility && lm3d[16].visibility > threshhold
     },
-    leftLeg: {
-      // uses hips for visibility test
-      visible: lm3d[23] && lm3d[23].visibility && lm3d[23].visibility > threshhold
+    leftFoot: {
+      shown: lm3d[31] && lm3d[31].visibility && lm3d[31].visibility > threshhold
     },
-    rightLeg: {
-      // uses hips for visibility test
-      visible: lm3d[24] && lm3d[24].visibility && lm3d[24].visibility > threshhold
+    rightFoot: {
+      shown: lm3d[32] && lm3d[32].visibility && lm3d[32].visibility > threshhold
     }
   }
+
+  // ghost floater mode; no feet?
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //
-  // ground estimation
-  //
-  // @todo have some inter frame persistence of lowest feature to allow jumping
-  // @todo populate waist from default if no ground estimation
-  //
-
-  const waist = 1.84 / 2.0
-  let ground = waist
-  lm3d.forEach((landmark) => {
-    // if(landmark.visibility && landmark.visibility > threshhold) ??? does this matter
-    if (ground > landmark.y) {
-      ground = landmark.y
-    }
-  })
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //
-  // hips and shoulders
-  //
-
-  //
-  // strategy for dealing with neither shoulder nor hips being visible
-  //
-  // if neither the shoulders or the hips are visible then switch to a head only mode; effectively the user has implied this by not providing shoulders
-  // note that the actual visibility itself is not exactly the same as "no data" since tensorflow will speculatively predict poses; but i think this is what the user wants
-  //
-  // we have a variety of options for dealing with visibility
-  // one strategy is to always reset the hips to a rest position if the hips are not visible
-  // this may however confound the user intention
-  // another strategy, the one used here, is to only update the hips if they are visible
-  // this can leave the user in a bad position if the hips disappear off camera and they rotate heavily
-  // however this does permit the user to correct the situation by simply moving back into view, setting their hips, and then leaving the view
-  //
-  // @todo i want to latch this transition once rather than hammering on it
-  // @todo why am i floating above the ground?
-  //
-
-  if (!state.hips.visible || !state.shoulders.visible) {
-    state.hips.euler = restpose[VRMHumanBoneName.Hips].euler // new Vector(0,Math.PI,0)
-    state.hips.xyz = restpose[VRMHumanBoneName.Hips].position // new Vector(0,waist,0)
-    changes[VRMHumanBoneName.Hips] = state.hips
-  }
-
-  //
-  // strategy for dealing with hips and shoulder both visible
+  // strategy for dealing with hips and shoulder both shown
   //
   // if we *do* have hips and shoulders then we can do accurate estimations of all three hip axes
   // note tensorflow does return the hips on the proper side of the body; if you are facing away from the camera it understands this
@@ -135,10 +152,10 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   // hips roll is ~reasonable~
   // hips pitch is estimated from a line drawn up to a midpoint between the shoulders (manubrium)
   //
-  // @todo verify for certain that hips continue to be calculated by tensorflow even if not visible
+  // @todo verify for certain that hips continue to be calculated by tensorflow even if not shown
   // @todo why is the estimated hips xyz half a meter in the x and y? it should near zero -> it is using lm2d but still the relative displacement should be zero?
   //
-  else if (state.hips.visible && state.shoulders.visible) {
+  if (state.hips.shown && state.shoulders.shown) {
     // test getting hip pose using 3d data with weak z to estimate hips pose
     const hipsleft3d = Vector.fromArray(lm3d[23])
     const hipsright3d = Vector.fromArray(lm3d[24])
@@ -177,11 +194,13 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
     const hipleft = new Vector3(lm3d[23].x, lm3d[23].y, lm3d[23].z)
     const hipright = new Vector3(lm3d[24].x, lm3d[24].y, lm3d[24].z)
     const hipdir = hipright.clone().sub(hipleft).normalize()
-    const x = restpose[VRMHumanBoneName.Hips].euler.x // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
-    const y = restpose[VRMHumanBoneName.Hips].euler.y + Math.atan2(hipdir.x, hipdir.z) + Math.PI / 2
-    const z = restpose[VRMHumanBoneName.Hips].euler.z // + Math.atan2( hipdir.y, hipdir.x) + Math.PI
-    const euler = (state.hips.euler = { x, y, z })
+    const x = restEnsemble.parts[VRMHumanBoneName.Hips].euler.x // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
+    const y = restEnsemble.parts[VRMHumanBoneName.Hips].euler.y + Math.atan2(hipdir.x, hipdir.z) + Math.PI / 2
+    const z = restEnsemble.parts[VRMHumanBoneName.Hips].euler.z // + Math.atan2( hipdir.y, hipdir.x) + Math.PI
+    state.hips.euler = { x, y, z }
+    changes[VRMHumanBoneName.Hips] = state.hips
 
+    // debugging
     //console.log(
 
     // pelvis3d  values are consistently near 0,0,0 - that is good
@@ -202,42 +221,127 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
     //spine3d.y.toFixed(3),
     //spine3d.z.toFixed(3),
 
-    //"my rot estimate is = ",
-    //euler.x.toFixed(3),
-    //euler.y.toFixed(3),
-    //euler.z.toFixed(3),
-
     //'hips euler is = ',
     //state.hips.euler.x.toFixed(3),
     //state.hips.euler.y.toFixed(3),
     //state.hips.euler.z.toFixed(3),
-    //restpose[VRMHumanBoneName.Hips].euler.z
+    //restEnsemble.parts[VRMHumanBoneName.Hips].euler.z
 
     //)
-
-    changes[VRMHumanBoneName.Hips] = state.hips
 
     // @todo -> if we have an accurate upper chest orientation is that useful at all? how does this compete with shoulder joints? how are shoulder joints different from upper arms?
     // changes[VRMHumanBoneName.Spine] = state.shoulder
   }
 
   //
-  // strategy for dealing with shoulder only visible (no hips)
+  // strategy for dealing with shoulder only shown (no hips)
   //
-  // @todo incomplete
+  // generally speaking lets reset the hips rotation (and the legs below) for now in this case?
   //
-  // if only the shoulders are visible then go ahead and get our estimate on shoulder orientation; but throw away pitch
-  // i think we can leave the hips alone (leave at previous estimation if any or at rest pose if none)
+  // @todo could estimate shoulder pitch,yaw,role (from head) and set the spine or upper chest in the vrm model?
+  // @todo what is the difference between the 'left shoulder' and the 'upper arm'???
   //
-  // @todo we may be able to estimate pitch from head?
-  // @todo we may want to rotate the "upper chest" bone in the vrm model?
-  // @todo we can estimate shoulder yaw - is that useful? should it be applied to something? would it distort other bone transformations?
-  // @todo what is the difference between the 'left shoulder' and the 'upper arm'?
-  //
-  else if (state.shoulders.visible) {
-    // state.shoulders.euler = Vector.rollPitchYaw(Vector.fromArray(lm3d[23]), Vector.fromArray(lm3d[24]))
+  else if (!state.hips.shown && state.shoulders.shown) {
+    // if hips are not present then reset the hip orientation at least; arguably also the height
+    state.hips.euler = restEnsemble.parts[VRMHumanBoneName.Hips].euler
+    state.hips.xyz = restEnsemble.parts[VRMHumanBoneName.Hips].position
+    changes[VRMHumanBoneName.Hips] = state.hips
+
+    // state.shoulders.euler = ... some calculation...
     // state.shoulders.euler.x = 0
-    //changes[VRMHumanBoneName.Spine] = state.shoulder
+    //changes[VRMHumanBoneName.Spine] = state.shoulders
+  }
+
+  //
+  // strategy for dealing missing shoulders AND hips
+  //
+  // if neither the shoulders or the hips are shown then switch to a head only mode; effectively the user has implied this by not providing shoulders
+  // note that the actual visibility itself is not exactly the same as "no data" since tensorflow will speculatively predict poses; but i think this is what the user wants
+  //
+  // we have a variety of options for dealing with visibility or lack of visibility
+  // one strategy is to always reset the hips to a rest position if the hips are not shown
+  // this may however confound the user intention
+  // another strategy is to only update the hips if they are shown and do nothing if not - not resetting to a rest pose
+  // this can leave the user in a bad position if the hips disappear off camera and they rotate heavily
+  // however this does permit the user to correct the situation by simply moving back into view, setting their hips, and then leaving the view?
+  //
+  // @todo it is arguable if we want to reset this at all - it could be best to just leave it as it was before visibility was lost
+  //
+  else if (!state.hips.shown && !state.shoulders.shown) {
+    // if hips or shoulders are not present then reset the hip orientation at least; arguably also the height
+    state.hips.euler = restEnsemble.parts[VRMHumanBoneName.Hips].euler
+    state.hips.xyz = restEnsemble.parts[VRMHumanBoneName.Hips].position
+    changes[VRMHumanBoneName.Hips] = state.hips
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // feet support
+  //
+
+  if (!state.hips.shown || !state.shoulders.shown || (!state.leftFoot.shown && !state.rightFoot.shown)) {
+    // if no hips, shoulders or feet then make sure to go to a ghostly floater mode
+    state.hips.xyz = restEnsemble.parts[VRMHumanBoneName.Hips].position
+    changes[VRMHumanBoneName.Hips] = state.hips
+
+    // reset the feet to a rest pose
+    changes[VRMHumanBoneName.LeftUpperLeg] = {
+      euler: restEnsemble.parts[VRMHumanBoneName.LeftUpperLeg],
+      dampener: 1,
+      lerp: 0.3
+    }
+    changes[VRMHumanBoneName.LeftLowerLeg] = {
+      euler: restEnsemble.parts[VRMHumanBoneName.LeftLowerLeg],
+      dampener: 1,
+      lerp: 0.3
+    }
+    changes[VRMHumanBoneName.RightUpperLeg] = {
+      euler: restEnsemble.parts[VRMHumanBoneName.RightUpperLeg],
+      dampener: 1,
+      lerp: 0.3
+    }
+    changes[VRMHumanBoneName.RightLowerLeg] = {
+      euler: restEnsemble.parts[VRMHumanBoneName.RightLowerLeg],
+      dampener: 1,
+      lerp: 0.3
+    }
+  } else {
+    const legs = calcLegs(lm3d)
+
+    changes[VRMHumanBoneName.LeftUpperLeg] = { euler: legs.UpperLeg.l, dampener: 1, lerp: 0.3 }
+    changes[VRMHumanBoneName.LeftLowerLeg] = { euler: legs.LowerLeg.l, dampener: 1, lerp: 0.3 }
+    changes[VRMHumanBoneName.RightUpperLeg] = { euler: legs.UpperLeg.r, dampener: 1, lerp: 0.3 }
+    changes[VRMHumanBoneName.RightLowerLeg] = { euler: legs.LowerLeg.r, dampener: 1, lerp: 0.3 }
+
+    //
+    // place the avatar vertically in space
+    //
+    // hip position = lowest_element_position - startup_lowest_element_position
+    //
+    // for example
+    //    lowest_element_position = -0.2  // in this scenario the feet are up near the hips; such as sitting crosslegged
+    //    startup_lowest_element_position = -0.4 // but at startup the feet were extended
+    //    hip_position = - 0.2 - - 0.4 = -0.2 // so the entire hips move down a bit
+    //
+    //
+    // @todo have some inter frame persistence of lowest feature to allow jumping by using the restEnsemble cache
+    // @todo deal with hip displacement horizontally
+    // @todo should visibility be a part of this?
+    //
+
+    let unset = true
+    let lowest = 999.0
+    lm3d.forEach((landmark, i) => {
+      if (lowest > landmark.y) {
+        lowest = landmark.y
+        unset = false
+      }
+    })
+
+    state.hips.xyz = restEnsemble.parts[VRMHumanBoneName.Hips].xyz
+    if (!unset) {
+      state.hips.xyz.y = lowest - restEnsemble.lowest
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,22 +349,23 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   //
   // arms
   //
-  // arms arguably rely on shoulder estimation; it is probably reasonable to turn these off if shoulders are not visible
-  // not visible current policy is to return to rest state; it may make sense to just do nothing (leave arms extended)
+  // @todo turn off arms if no shoulders also? be more evaluative?
+  // @todo should we instead leave arms where they are if we stop having data for hands?
   // @todo note that the lower level helpers have swapped left and right hand for some peverse reason; fix this
   // @todo get resting pose from the VRM model not from the mediapipe helper
+  // @todo populate ik from here rather than by hand as done currently in ik module
   //
 
   const arms = calcArms(lm3d)
 
-  if (!state.rightHand.visible || !state.shoulders.visible) {
+  if (!state.rightHand.shown || !state.shoulders.shown) {
     arms.UpperArm.l = arms.UpperArm.l.multiply(0)
     arms.UpperArm.l.z = RestingDefault.Pose.LeftUpperArm.z
     arms.LowerArm.l = arms.LowerArm.l.multiply(0)
     arms.Hand.l = arms.Hand.l.multiply(0)
   }
 
-  if (!state.leftHand.visible || !state.shoulders.visible) {
+  if (!state.leftHand.shown || !state.shoulders.shown) {
     arms.UpperArm.r = arms.UpperArm.r.multiply(0)
     arms.UpperArm.r.z = RestingDefault.Pose.RightUpperArm.z
     arms.LowerArm.r = arms.LowerArm.r.multiply(0)
@@ -274,32 +379,7 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   changes[VRMHumanBoneName.RightHand] = { xyz: arms.Hand.r, dampener: 1, lerp: 0.3 }
   changes[VRMHumanBoneName.RightUpperArm] = { euler: arms.UpperArm.r, dampener: 1, lerp: 0.3 }
   changes[VRMHumanBoneName.RightLowerArm] = { euler: arms.LowerArm.r, dampener: 1, lerp: 0.3 }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /*
-  //
-  // legs
-  //
-  // if hips are not visible then have legs revert to a rest pose for now
-  //
-
-  const legs = calcLegs(lm3d)
-
-  if(!state.hips.visible) {
-    legs.UpperLeg.l = legs.UpperLeg.l.multiply(0)
-    legs.UpperLeg.r = legs.UpperLeg.r.multiply(0)
-    legs.LowerLeg.l = legs.LowerLeg.l.multiply(0)
-    legs.LowerLeg.r = legs.LowerLeg.r.multiply(0)
-  }
-
-  changes[VRMHumanBoneName.LeftUpperLeg] = { euler: legs.UpperLeg.l, dampener: 1, lerp: 0.3 }
-  changes[VRMHumanBoneName.LeftLowerLeg] = { euler: legs.LowerLeg.l, dampener: 1, lerp: 0.3 }
-  changes[VRMHumanBoneName.RightUpperLeg] = { euler: legs.UpperLeg.r, dampener: 1, lerp: 0.3 }
-  changes[VRMHumanBoneName.RightLowerLeg] = { euler: legs.LowerLeg.r, dampener: 1, lerp: 0.3 }
-*/
 }
-
-export default UpdateSolvedPose
 
 /*
 
@@ -351,7 +431,7 @@ todo aug 2023
 
 - REST POSE STRATEGY
 
-  ? if a part is not visible (such as wrists) what is the right strategy?
+  ? if a part is not shown (such as wrists) what is the right strategy?
   ? i thought a good strategy was to return to rest pose but this looks terrible
   ? another strategy was to leave as is - test this more to see if it remains relative to subsequent core hips rotations
 
