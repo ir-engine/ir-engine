@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import Vector from './solvers/utils/vector'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
@@ -33,13 +34,12 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
-import { Landmark, POSE_LANDMARKS } from '@mediapipe/holistic'
+import { POSE_LANDMARKS } from '@mediapipe/holistic'
 
 import KalmanFilter from './kalman'
 
 import { ArrowHelper, AxesHelper, BoxGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
 import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
-import Vector from './solvers/utils/vector'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // helper to apply landmark to rig
@@ -63,15 +63,15 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
 
   // support a resting state if not visible?
   const threshhold = 0.5
-  const restable =
+  const hide =
     props && props.rest && props.landmark && props.landmark.visibility && props.landmark.visibility < threshhold
 
   // get world space position; adjust wingspan a bit also
   const wingspan = 1.2
   const xyz = new Vector3(
-    -strategy.kfx.filter(restable ? props.rest.x : props.landmark.x) * wingspan,
-    -strategy.kfy.filter(restable ? props.rest.y : props.landmark.y) * wingspan,
-    strategy.kfz.filter(restable ? props.rest.z : props.landmark.z) * wingspan
+    -strategy.kfx.filter(hide ? props.rest.x : props.landmark.x) * wingspan,
+    -strategy.kfy.filter(hide ? props.rest.y : props.landmark.y) * wingspan,
+    strategy.kfz.filter(hide ? props.rest.z : props.landmark.z) * wingspan
   )
     .applyQuaternion(demirror)
     .applyQuaternion(avatarRotation)
@@ -83,15 +83,11 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
     const target = UUIDComponent.entitiesByUUID[entityUUID]
     if (!target) {
       dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: props.key as any }))
+      return
     }
     const transform = getComponent(target, TransformComponent)
-    if (transform) {
-      transform.position.copy(xyz)
-      if (props.euler) {
-        transform.rotation.copy(new Quaternion().setFromEuler(new Euler(props.euler.x, props.euler.z, props.euler.z)))
-        //console.log(props.key,props.euler.x.toFixed(3,props.euler.y.toFixed(3),props.euler.z.toFixed(3)))
-      }
-    }
+    transform?.position.copy(xyz)
+    transform?.rotation.copy(props.quaternion)
   }
 
   // visualize for debugging
@@ -99,20 +95,30 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
   if (debug) {
     if (!strategy.mesh) {
       strategy.mesh = new Mesh(
-        new BoxGeometry(0.1, 0.1, 0.1),
-        new MeshBasicMaterial({ color: props.color || 0xff0000 })
+        new BoxGeometry(0.01, 0.4, 0.01),
+        new MeshBasicMaterial({ color: props.color || 0x000000 })
       )
       const gizmo = new AxesHelper()
       gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
       strategy.mesh.add(gizmo)
       Engine.instance.scene.add(strategy.mesh)
     }
+    strategy.mesh.material.color.setHex(props.color && hide == false ? props.color : 0x000000)
     strategy.mesh.position.copy(xyz)
+    strategy.mesh.rotation.setFromQuaternion(props.quaternion)
     strategy.mesh.updateMatrixWorld()
   }
 }
 
-const UpdateIkPose = (lm3d: Landmark[], avatarPosition: Vector3, avatarRotation: Quaternion, poseEnsemble) => {
+let test = 0.0
+
+const UpdateIkPose = (data, avatarPosition: Vector3, avatarRotation: Quaternion, poseEnsemble) => {
+  const lm3d = data?.za
+  const lm2d = data?.poseLandmarks
+  const face = data?.faceLandmarks
+  const left = data?.leftHandLandmarks
+  const right = data?.rightHandLandmarks
+
   // a collection of strategies to deal with various body parts - must be inter frame coherent
 
   //strategies[0] = { color: 0xffffff, key: 'head', ik: true, rest: { x: 0, y: -0.6, z: -0.2 } }
@@ -134,31 +140,69 @@ const UpdateIkPose = (lm3d: Landmark[], avatarPosition: Vector3, avatarRotation:
   //strategies[POSE_LANDMARKS_LEFT.LEFT_ANKLE] =   { color:0xee0000, key:'leftAnkle', ik:true }
   //strategies[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE] = { color:0xee0000, key:'rightAnkle', ik:true }
 
+  // https://developers.google.com/mediapipe/solutions/vision/hand_landmarker
+  if (!left) return
+
+  // left wrist kalidokit
+  const l = Vector.findRotation(
+    Vector.fromArray(lm2d[15]),
+    Vector.lerp(Vector.fromArray(lm2d[17]), Vector.fromArray(lm2d[19]), 0.5)
+  )
+
+  // left wrist manually
+  //const lf = new Vector3(lm2d[17].x,lm2d[17].y,lm2d[17].z)
+  //const lb = new Vector3(lm2d[15].x,lm2d[15].y,lm2d[15].z)
+  //const lu = new Vector3(lm2d[19].x,lm2d[19].y,lm2d[19].z)
+  const lf = new Vector3(left[0].x, left[0].y, left[0].z)
+  const lb = new Vector3(left[4].x, left[4].y, left[4].z)
+  const lu = new Vector3(left[20].x, left[20].y, left[20].z)
+  const w = lu.clone().sub(lb)
+  const x = lf.clone().sub(lb)
+  const z = x.clone().cross(w)
+  const y = z.clone().cross(x)
+  x.normalize()
+  y.normalize()
+  z.normalize()
+  const m = new Matrix4(x.x, x.y, x.z, 0, y.x, y.y, y.z, 0, z.x, z.y, z.z, 0, 0, 0, 0, 1)
+  const q = new Quaternion().setFromRotationMatrix(m)
+
   ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
     id: POSE_LANDMARKS.LEFT_WRIST,
     landmark: lm3d[15],
-    euler: Vector.findRotation(
-      Vector.fromArray(lm3d[15]),
-      Vector.lerp(Vector.fromArray(lm3d[17]), Vector.fromArray(lm3d[19]), 0.5)
-    ),
+    quaternion: q, //new Quaternion().setFromEuler(new Euler(l.x,l.y,l.z)),
     color: 0xee0000,
     key: 'leftHand',
     ik: true,
     rest: { x: 0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
   })
 
+  const r = Vector.findRotation(
+    Vector.fromArray(lm3d[16]),
+    Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
+  )
+
+  // @todo mysteriously if i don't set BOTH ik then no ik is processed
+
   ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
     id: POSE_LANDMARKS.RIGHT_WRIST,
     landmark: lm3d[16],
-    euler: Vector.findRotation(
-      Vector.fromArray(lm3d[16]),
-      Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
-    ),
-    color: 0xee0000,
+    quaternion: new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z)),
+    color: 0xee00ee,
     key: 'rightHand',
     ik: true,
     rest: { x: -0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
   })
+
+  console.log(
+    'left euler ',
+    l.x.toFixed(3),
+    l.y.toFixed(3),
+    l.z.toFixed(3),
+    'right euler ',
+    r.x.toFixed(3),
+    r.y.toFixed(3),
+    r.z.toFixed(3)
+  )
 }
 
 export default UpdateIkPose

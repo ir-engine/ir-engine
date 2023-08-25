@@ -146,7 +146,7 @@ export default function UpdataAvatar(data, userID, entity) {
   */
 
   // test ik
-  UpdateIkPose(data?.za, position, rotation, poseEnsemble)
+  UpdateIkPose(data, position, rotation, poseEnsemble)
 }
 
 /*
@@ -208,6 +208,9 @@ GROUND IMPROVE
 
 IK IMPROVE
 
+  - mysteriously if not both the left and right hands have ik targets then the animation system does not apply ik to hands at all
+  - mysteriously rotations appear to be ignored on ik targets
+  
   - @todo since ik fights with direct pose setting - set the direct stuff via ik now instead - but also get the support fixed for both
   - @todo the hands orientation is not being set - set it
   - turn on ik again
