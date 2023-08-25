@@ -60,13 +60,13 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.WAVE)
+        onClick: () => runAnimation(emotes.wave)
       }
     },
     {
       body: <img src="/static/clap1.svg" alt="Clap" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.CLAP)
+        onClick: () => runAnimation(emotes.clap)
       }
     },
     {
@@ -78,49 +78,43 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Dance2.svg" alt="Dance 2" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DANCE2)
+        onClick: () => runAnimation(emotes.dance2)
       }
     },
     {
       body: <img src="/static/Dance3.svg" alt="Dance 3" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DANCE3)
+        onClick: () => runAnimation(emotes.dance3)
       }
     },
     {
       body: <img src="/static/Dance4.svg" alt="Dance 4" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DANCE4)
+        onClick: () => runAnimation(emotes.dance4)
       }
     },
     {
       body: <img src="/static/Kiss.svg" alt="Kiss" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.KISS)
+        onClick: () => runAnimation(emotes.kiss)
       }
     },
     {
       body: <img src="/static/Cry.svg" alt="Cry" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.CRY)
+        onClick: () => runAnimation(emotes.cry)
       }
     },
     {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.LAUGH)
+        //onClick: () => runAnimation(emotes.laugh)
       }
     },
     {
       body: <img src="/static/Defeat.svg" alt="Defeat" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DEFEAT)
-      }
-    },
-    {
-      body: <img src="/static/restart.svg" alt="Reset" />,
-      containerProps: {
-        //onClick: () => runAnimation(AvatarStates.LOCOMOTION)
+        onClick: () => runAnimation(emotes.defeat)
       }
     }
   ])
@@ -156,7 +150,6 @@ export const useEmoteMenuHooks = () => {
         entityUUID: getComponent(entity, UUIDComponent)
       })
     )
-    console.log(stateName)
     // close Menu after playing animation
     PopupMenuServices.showPopupMenu()
   }

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -54,9 +54,8 @@ export const AvatarAnimationComponent = defineComponent({
   onInit: (entity) => {
     return {
       animationGraph: {
-        states: {},
-        transitionRules: {},
-        currentState: null!
+        blendAnimation: undefined as undefined | AnimationAction,
+        blendStrength: 0
       },
       /** ratio between original and target skeleton's root.position.y */
       rootYRatio: 1,
