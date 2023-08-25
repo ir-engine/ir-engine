@@ -99,6 +99,36 @@
   "toolbar": {
     "lbl-publish": "Publish",
     "lbl-published": "Published",
+    "gizmo": {
+      "description": "Transform Gizmo",
+      "translate": "[T] Translate",
+      "rotate": "[R] Rotate",
+      "scale": "[S] Scale"
+    },
+    "transformSpace": {
+      "description": "Sets your transform control to be oriented to the object(selection) or world",
+      "lbl-world": "World",
+      "info-world": "World space relates to the entire scene’s orientation",
+      "lbl-selection": "Object",
+      "info-selection": "Object Space (your selection) relates to transforms made to a specific object in relationship to the world space",
+      "lbl-toggleTransformSpace": "[Z] Toggle Transform Space"
+    },
+    "transformPivot": {
+      "toggleTransformPivot" : "[X] Toggle Transform Pivot",
+      "lbl-selection": "Selection",
+      "info-selection": "The center pivot of the final asset you selected in the sequence.",
+      "lbl-center": "Center",
+      "info-center": "A pivot that sits at an equal distance between all selections.",
+      "lbl-bottom": "Bottom",
+      "info-bottom": "A pivot that sits equally between all selections and at the bottom of your final selection in the sequence.",
+      "lbl-origin": "Origin",
+      "info-origin": "Sets pivot mode to the world origin (0,0,0)"
+    },
+    "transformSnapTool": {
+      "toggleSnapMode": "[C] Toggle Snap Mode",
+      "info-translate": "Translate objects by a unit of measurement.",
+      "info-rotate": "Rotate objects by a specific degrees."
+    },
     "command": {
       "translate": "Translate",
       "rotate": "Rotate",
@@ -109,8 +139,10 @@
       "toggleGrid": "Toggle Grid Visibility",
       "increaseGridSize": "Increase Grid Size",
       "descreaseGridSize": "Decrease Grid Size",
-      "stopPreview": "Stop Previewing Scene",
-      "playPreview": "Preview Scene"
+      "lbl-stopPreview": "Stop Previewing Scene",
+      "info-stopPreview": "Remove your avatar from scene",
+      "lbl-playPreview": "Preview Scene",
+      "info-playPreview": "Spawns you into the scene"
     },
     "instance": {
       "none": "None",
@@ -118,6 +150,8 @@
       "user": "User"
     },
     "render-settings":{
+      "lbl": "Render Settings",
+      "info": "How you view materials in the Engine",
       "lbl-usePostProcessing":"Use Post Processing",
       "info-usePostProcessing":"Enables post processing",
       "lbl-shadowMapResolution":"Shadow Map Resolution",
@@ -126,8 +160,24 @@
       "info-renderMode":"Choose render mode"
     },
     "grid": {
+      "info-toggleGridVisibility": "Toggle Grid Visibility",
+      "info-gridSpacing": "Set grid spacing meters",
       "info-incrementHeight": "Increment Grid Height",
       "info-decrementHeight": "Decrement Grid Height"
+    },
+    "stats": {
+      "lbl": "Toggle Stats",
+      "info": "Show stats about the scene and gives you a clue as to how optimized your scene is."
+    },
+    "helpersToggle": {
+      "lbl-helpers": "Toggle Helpers",
+      "info-helpers": "View hidden information about your scene, ie: colliders",
+      "lbl-nodeHelpers": "Toggle Node Helpers",
+      "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive."
+    },
+    "sceneScreenshot": {
+      "lbl": "Screenshot",
+      "info": "Takes a screenshot of your scene at the current view."
     }
   },
   "properties": {
