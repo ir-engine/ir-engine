@@ -24,56 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
-import { Color, Matrix3, Matrix4, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { BehaveGraphState } from '../../../../state/BehaveGraphState'
-import { EnginetoNodetype, NodetoEnginetype } from './componentHelper'
+import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipState = [BehaveGraphState.name]
 
 export function generateStateNodeschema(state) {
   const nodeschema = {}
-  const getType = (name, value) => {
-    switch (typeof value) {
-      case 'number':
-        if (name.toLowerCase().includes('entity')) nodeschema[name] = 'entity'
-        else {
-          nodeschema[name] = 'float'
-        }
-        // use float
-        break
-      case 'boolean':
-        nodeschema[name] = 'boolean'
-        // use boolean
-        break
-      case 'string':
-      case 'undefined':
-        nodeschema[name] = 'string'
-      case 'object':
-        if (value instanceof Vector2) {
-          nodeschema[name] = 'vec2'
-        } else if (value instanceof Vector3) {
-          nodeschema[name] = 'vec3'
-        } else if (value instanceof Vector4) {
-          nodeschema[name] = 'vec4'
-        } else if (value instanceof Quaternion) {
-          nodeschema[name] = 'quat'
-        } else if (value instanceof Matrix4) {
-          nodeschema[name] = 'mat4'
-        } else if (value instanceof Matrix3) {
-          nodeschema[name] = 'mat3'
-        } else if (value instanceof Color) {
-          nodeschema[name] = 'color'
-        }
-        break
-      case 'function':
-        break
-      default: // for objects will handle them later maybe decompose furthur?
-        break
-      // use string
-    }
-  }
-  console.log('DEBUG', state)
   const schema = state.value
   if (schema === null) {
     return nodeschema
@@ -83,7 +41,8 @@ export function generateStateNodeschema(state) {
   }
   //console.log("DEBUG", component.name )
   for (const [name, value] of Object.entries(schema)) {
-    getType(name, value)
+    const socketValue = getSocketType(value)
+    if (socketValue) nodeschema[name] = socketValue
   }
   //console.log("DEBUG", nodeschema )
   return nodeschema

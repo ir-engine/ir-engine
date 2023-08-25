@@ -24,13 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
-import { toQuat, toVector3, toVector4 } from '@behave-graph/scene'
-import { Color, Matrix3, Matrix4, Quaternion, Vector2, Vector3, Vector4 } from 'three'
 import { AvatarAnimationComponent } from '../../../../../avatar/components/AvatarAnimationComponent'
 import { Entity, UndefinedEntity } from '../../../../../ecs/classes/Entity'
 import { Component, ComponentMap, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { PostProcessingComponent } from '../../../../../scene/components/PostProcessingComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
+import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
 const skipComponents = [
   TransformComponent.name, // already implemented
@@ -40,46 +39,6 @@ const skipComponents = [
 
 export function generateComponentNodeschema(component: Component) {
   const nodeschema = {}
-  const getType = (name, value) => {
-    switch (typeof value) {
-      case 'number':
-        if (name.toLowerCase().includes('entity')) nodeschema[name] = 'entity'
-        else {
-          nodeschema[name] = 'float'
-        }
-        // use float
-        break
-      case 'boolean':
-        nodeschema[name] = 'boolean'
-        // use boolean
-        break
-      case 'string':
-      case 'undefined':
-        nodeschema[name] = 'string'
-      case 'object':
-        if (value instanceof Vector2) {
-          nodeschema[name] = 'vec2'
-        } else if (value instanceof Vector3) {
-          nodeschema[name] = 'vec3'
-        } else if (value instanceof Vector4) {
-          nodeschema[name] = 'vec4'
-        } else if (value instanceof Quaternion) {
-          nodeschema[name] = 'quat'
-        } else if (value instanceof Matrix4) {
-          nodeschema[name] = 'mat4'
-        } else if (value instanceof Matrix3) {
-          nodeschema[name] = 'mat3'
-        } else if (value instanceof Color) {
-          nodeschema[name] = 'color'
-        }
-        break
-      case 'function':
-        break
-      default: // for objects will handle them later maybe decompose furthur?
-        break
-      // use string
-    }
-  }
   if (skipComponents.includes(component.name)) return nodeschema
   const schema = component?.onInit(UndefinedEntity)
   if (schema === null) {
@@ -89,54 +48,18 @@ export function generateComponentNodeschema(component: Component) {
     return nodeschema
   }
   if (typeof schema !== 'object') {
-    const tag = component.name.replace('Component', '')
-    getType(tag, schema)
+    const name = component.name.replace('Component', '')
+    const socketValue = getSocketType(schema)
+    if (socketValue) nodeschema[name] = socketValue
     return nodeschema
   }
   //console.log("DEBUG", component.name )
   for (const [name, value] of Object.entries(schema)) {
-    getType(name, value)
+    const socketValue = getSocketType(value)
+    if (socketValue) nodeschema[name] = socketValue
   }
   //console.log("DEBUG", nodeschema )
   return nodeschema
-}
-
-export function NodetoEnginetype(value, valuetype) {
-  switch (valuetype) {
-    case 'float':
-    case 'integer':
-      return Number(value)
-      break
-    case 'string':
-      return String(value)
-    case 'vec3':
-    case 'vec2':
-      return toVector3(value)
-    case 'quat':
-      return toQuat(value)
-    case 'vec4':
-      return toVector4(value)
-    case 'mat4':
-      return new Matrix4().fromArray(value.elements)
-    case 'mat3':
-      return new Matrix3().fromArray(value.elements)
-    case 'color':
-      return new Color().setFromVector3(value)
-    case 'boolean':
-      return Boolean(value)
-    default:
-  }
-}
-
-export function EnginetoNodetype(value) {
-  if (typeof value === 'object') {
-    if (value instanceof Color) {
-      const style = value.getStyle() // 'rgb(255, 0, 0)'
-      const rgbValues = style.match(/\d+/g)!.map(Number)
-      return new Vector3(rgbValues[0], rgbValues[1], rgbValues[2])
-    }
-  }
-  return value
 }
 
 export function getComponentSetters() {
