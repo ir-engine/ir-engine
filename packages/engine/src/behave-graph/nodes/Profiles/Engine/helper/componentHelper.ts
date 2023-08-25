@@ -49,16 +49,14 @@ export function generateComponentNodeschema(component: Component) {
   }
   if (typeof schema !== 'object') {
     const name = component.name.replace('Component', '')
-    const socketValue = getSocketType(schema)
+    const socketValue = getSocketType(name, schema)
     if (socketValue) nodeschema[name] = socketValue
     return nodeschema
   }
-  //console.log("DEBUG", component.name )
   for (const [name, value] of Object.entries(schema)) {
-    const socketValue = getSocketType(value)
+    const socketValue = getSocketType(name, value)
     if (socketValue) nodeschema[name] = socketValue
   }
-  //console.log("DEBUG", nodeschema )
   return nodeschema
 }
 
@@ -90,12 +88,10 @@ export function getComponentSetters() {
         const entity = Number.parseInt(read('entity')) as Entity
         //read from the read and set dict acccordingly
         const inputs = Object.entries(node.in).splice(2)
-        //console.log("DEBUG",inputs)
         const values = {}
         for (const [input, type] of inputs) {
           values[input] = NodetoEnginetype(read(input as any), type)
         }
-        //console.log("DEBUG",values)
         setComponent(entity, component, values)
         write('entity', entity)
         commit('flow')
@@ -137,9 +133,7 @@ export function getComponentGetters() {
         const entity = Number.parseInt(read('entity')) as Entity
         const props = getComponent(entity, component)
         const outputs = Object.entries(node.out).splice(2)
-        console.log('DEBUG props ', props, 'outputs ', outputs)
         if (typeof props !== 'object') {
-          console.log(outputs[outputs.length - 1][0], props)
           write(outputs[outputs.length - 1][0] as any, EnginetoNodetype(props))
         } else {
           for (const [output, type] of outputs) {

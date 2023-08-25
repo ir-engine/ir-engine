@@ -39,21 +39,17 @@ export function generateStateNodeschema(state) {
   if (schema === undefined) {
     return nodeschema
   }
-  //console.log("DEBUG", component.name )
   for (const [name, value] of Object.entries(schema)) {
-    const socketValue = getSocketType(value)
+    const socketValue = getSocketType(name, value)
     if (socketValue) nodeschema[name] = socketValue
   }
-  //console.log("DEBUG", nodeschema )
   return nodeschema
 }
 
 export function getStateSetters() {
   const setters: NodeDefinition[] = []
   const skipped: string[] = []
-  console.log('DEBUG', Object.entries(Engine.instance.store.stateMap))
   for (const [stateName, state] of Object.entries(Engine.instance.store.stateMap)) {
-    console.log('DEBUG', stateName, state)
     if (skipState.includes(stateName)) {
       skipped.push(stateName)
       continue
@@ -76,12 +72,9 @@ export function getStateSetters() {
       triggered: ({ read, write, commit, graph }) => {
         //read from the read and set dict acccordingly
         const inputs = Object.entries(node.in).splice(1)
-        //console.log("DEBUG",inputs)
         for (const [input, type] of inputs) {
           state[input].set(NodetoEnginetype(read(input as any), type))
         }
-        console.log('DEBUG after ', state)
-        //console.log("DEBUG",values)
         commit('flow')
       }
     })
@@ -118,9 +111,7 @@ export function getStateGetters() {
       triggered: ({ read, write, commit, graph }) => {
         const outputs = Object.entries(node.out).splice(1)
         const props = state
-        console.log('DEBUG before ', state)
         if (typeof props !== 'object') {
-          console.log(outputs[outputs.length - 1][0], props)
           write(outputs[outputs.length - 1][0] as any, EnginetoNodetype(props))
         } else {
           for (const [output, type] of outputs) {
