@@ -23,20 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
-import { BotCommandData, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { botMethods, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 
 import { Application } from '../../../declarations'
+import { BotService } from './bot.class'
+import botDocs from './bot.docs'
+import hooks from './bot.hooks'
 
-export const createBotCommands = async (app: Application, bot: AdminBot, commands: BotCommandData[]) => {
-  const botId = bot.id
-
-  for (let element of commands) {
-    await app.service(botCommandPath).create({
-      name: element.name,
-      description: element.description,
-      botId: botId
-    })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [botPath]: BotService
   }
-  return commands
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: botPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(botPath, new BotService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: botMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: botDocs
+  })
+
+  const service = app.service(botPath)
+  service.hooks(hooks)
 }

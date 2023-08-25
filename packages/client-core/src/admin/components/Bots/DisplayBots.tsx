@@ -27,7 +27,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
 import { BotCommandData, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/mui/Accordion'
@@ -39,6 +38,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import AddCommand from '../../common/AddCommand'
 import styles from '../../styles/admin.module.scss'
@@ -54,20 +54,19 @@ const DisplayBots = () => {
   })
   const openUpdateBot = useHookstate(false)
   const openConfirm = useHookstate(false)
-  const bot = useHookstate<AdminBot | undefined>(undefined)
+  const bot = useHookstate<BotType | undefined>(undefined)
   const botName = useHookstate('')
   const botId = useHookstate('')
 
-  const botsQuery = useFind('bot', {
+  const botsQuery = useFind(botPath, {
     query: {
       $sort: {
         name: 1
       },
-      $limit: BOTS_PAGE_LIMIT,
-      action: 'admin'
+      $limit: BOTS_PAGE_LIMIT
     }
   })
-  const botRemove = useMutation('bot').remove
+  const botRemove = useMutation(botPath).remove
   const adminBotCommandMutation = useMutation(botCommandPath)
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
