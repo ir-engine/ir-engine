@@ -46,7 +46,6 @@ export const SpotLightComponent = defineComponent({
     light.target.position.set(0, -1, 0)
     light.target.name = 'light-target'
     light.add(light.target)
-    if (!isMobileXRHeadset) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 10,
@@ -103,6 +102,11 @@ export const SpotLightComponent = defineComponent({
     const renderState = useHookstate(getMutableState(RendererState))
     const debugEnabled = renderState.nodeHelperVisibility
     const light = useComponent(entity, SpotLightComponent)
+
+    useEffect(() => {
+      if (isMobileXRHeadset) return
+      addObjectToGroup(entity, light.light.value)
+    }, [])
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
