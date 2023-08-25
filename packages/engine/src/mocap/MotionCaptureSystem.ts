@@ -40,17 +40,7 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../transform/components/TransformComponent'
-
-import UpdateLandmarkFace from './UpdateLandmarkFace'
-import UpdateLandmarkHands from './UpdateLandmarkHands'
-import UpdateLandmarkPose from './UpdateLandmarkPose'
-
-import { Entity } from '../ecs/classes/Entity'
-
-const useSolvers = false
+import UpdateAvatar from './UpdateAvatar'
 
 export interface MotionCaptureStream extends Results {
   za: Landmark[]
@@ -103,70 +93,21 @@ const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
   const network = Engine.instance.worldNetwork
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
   }
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.popLast()
     timeSeriesMocapLastSeen.set(peerID, Date.now())
     const userID = network.peers.get(peerID)!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
-    if (!entity) continue
-    updatePose(entity, data)
-  }
-}
-
-function updatePose(entity: Entity, data: MotionCaptureStream) {
-  const avatarRig = getComponent(entity, AvatarRigComponent)
-  const avatarTransform = getComponent(entity, TransformComponent)
-  if (!avatarRig || !avatarTransform) return
-
-  //const avatarHips = avatarRig?.bindRig?.hips?.node
-  //const avatarHipsPosition = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
-  //const avatarRotation = avatarTransform.rotation
-
-  // get a mapping of landmarks to idealized target positions; this is basically the kalikokit approach
-  const changes = {}
-
-  UpdateLandmarkFace(data?.faceLandmarks, changes)
-  UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, changes)
-  UpdateLandmarkPose(data?.za, data?.poseLandmarks, changes)
-
-  // test
-  applyChanges(changes, avatarRig)
-
-  // resolve these parts using ik
-  //UpdateIkPose(data.za, position, rotation)
-}
-
-import { updateRigPosition, updateRigRotation } from './UpdateUtils'
-
-let test = 0
-
-function applyChanges(changes, rig) {
-  if (!test) {
-    test = 1
-
-    //const Part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
-    console.log(rig.vrm.humanoid)
-  }
-
-  Object.entries(changes).forEach(([key, args]) => {
-    const scratch: any = args
-    const dampener = scratch.dampener || 1
-    const lerp = scratch.lerp || 1
-    if (scratch.euler) {
-      updateRigRotation(rig, key, scratch.euler, scratch.dampener, scratch.lerp)
+    if (data && entity) {
+      UpdateAvatar(data, userID, entity)
     }
-    if (scratch.xyz) {
-      updateRigPosition(rig, key, scratch.xyz, scratch.dampener, scratch.lerp)
-    }
-  })
+  }
 }
 
 const reactor = () => {
@@ -184,36 +125,3 @@ export const MotionCaptureSystem = defineSystem({
   execute,
   reactor
 })
-
-/*
-
-todo aug 2023
-
-- body rotation improve
-  it is currently rotating incorrectly; and not even staying upright
-  i think the avatar has a root orientation of the rig that is distinct from the hips
-  that means that simple pose adjustments to hips should work independently? test
-
-- foot on ground improve
-  currently is below ground
-  there's a hack for foot on ground estimation
-  i think i'd prefer that the ground is at the lowest body part seen in the last while
-  this deals with say doing handstands
-  it also deals with people jumping in the air
-  it could be a sliding average over one or two seconds
-
-- ik from landmark
-  i now have the trivial pose estimations available rather than directly writing to rig
-  that means i can now choose to use ik instead
-  i need to invert the trivial positions to world and test
-  test with hips especially because failing to rotate hips truly screws ik if not facing forward
-
-- fingers
-  fingers seem slow to update - why? is the dampener / lerp too high? 
-
-- try use newer pose algorithm from mediapipe to see if we get improved z depth
-
-- flip head rotation and also see if we can speed it up a bit? delerp
-
-
-*/
