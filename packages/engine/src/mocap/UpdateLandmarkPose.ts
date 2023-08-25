@@ -23,74 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../transform/components/TransformComponent'
+import { Vector3 } from 'three'
 
 import { Landmark } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { RestingDefault } from './solvers/utils/helpers'
-import Vector from './solvers/utils/vector'
-
-import { Euler, Vector3 } from 'three'
-import { updateRigPosition, updateRigRotation } from './UpdateUtils'
 
 import { calcArms } from './solvers/PoseSolver/calcArms'
 import { calcLegs } from './solvers/PoseSolver/calcLegs'
 
 ///
-/// Persistent pose information
+/// Update pose from landmarks
 ///
 
-const ensembles = {}
-export function GetPoseEnsemble(userID, rig) {
-  let ensemble = ensembles[userID]
-  if (ensemble) {
-    return ensemble
-  }
-  ensemble = ensembles[userID] = {
-    lowest: 999,
-    rest: {}
-  }
-  Object.entries(VRMHumanBoneName).forEach(([key, key2]) => {
-    const part = rig.vrm.humanoid!.getNormalizedBoneNode(key2)
-    if (!part) return
-    if (part.position.y < ensemble.lowest) ensemble.lowest = part.position.y
-    ensemble.rest[key2] = {
-      xyz: part.position.clone(),
-      quaternion: part.quaternion.clone(),
-      euler: new Euler().setFromQuaternion(part.quaternion)
-    }
-  })
-  return ensemble
-}
-
-///
-/// A helper to apply all changes at once to allow for most post processing
-///
-
-function ApplyPoseChanges(changes, rig) {
-  Object.entries(changes).forEach(([key, args]) => {
-    const scratch: any = args
-    const dampener = scratch.dampener || 1
-    const lerp = scratch.lerp || 1
-    if (scratch.euler) {
-      updateRigRotation(rig, key, scratch.euler, scratch.dampener, scratch.lerp)
-    }
-    if (scratch.xyz) {
-      updateRigPosition(rig, key, scratch.xyz, scratch.dampener, scratch.lerp)
-    }
-  })
-}
-
-///
-/// A helper to carefully update the puppet larger pose features from landmarks using basic math and understanding of human bodies
-///
-
-export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsemble: any, useikhands = false) => {
+export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], poseEnsemble: any, changes: any) {
   if (!lm3d || !lm2d) return
-
-  const changes = poseEnsemble.changes
 
   const threshhold = 0.6
 
@@ -136,8 +83,12 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
     }
   }
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  let permit_feet = false
+
   //
-  // strategy for dealing with hips and shoulder both shown
+  // hips and shoulders
   //
   // if we *do* have hips and shoulders then we can do accurate estimations of all three hip axes
   // note tensorflow does return the hips on the proper side of the body; if you are facing away from the camera it understands this
@@ -151,6 +102,7 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
   //
 
   if (state.hips.shown && state.shoulders.shown) {
+    /*
     // test getting hip pose using 3d data with weak z to estimate hips pose
     const hipsleft3d = Vector.fromArray(lm3d[23])
     const hipsright3d = Vector.fromArray(lm3d[24])
@@ -161,7 +113,9 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
     const manubrium3d = Vector.findMiddle(shoulderleft3d, shoulderright3d)
     const spine3d = manubrium3d.clone().subtract(pelvis3d)
     const spine_length3d = pelvis3d.distance(manubrium3d)
+    */
 
+    /*
     // test hip pose usind 2d data with arguably stronger z depth?
     const hipsleft2d = Vector.fromArray(lm2d[23])
     const hipsright2d = Vector.fromArray(lm2d[24])
@@ -172,20 +126,21 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
     const manubrium2d = Vector.findMiddle(shoulderleft2d, shoulderright2d)
     const spine2d = manubrium2d.clone().subtract(pelvis2d)
     const spine_length2d = pelvis2d.distance(manubrium2d)
+    */
 
-    // test: calcHips() -> their rollPitchYaw seems a bit suss - it's just not clear what is going on
+    // test: calcHips() -> their rollPitchYaw seems a bit suss - it's just not clear what is going on; very unstable
     // const results = calcHips(lm3d,lm2d)
     // state.hips.euler = results.Hips.rotation
 
-    // test: manually call their roll pitch yaw logic and blow away pitch -> unsure how something so simple can be messed up...
+    // test: manually call their roll pitch yaw logic and blow away pitch -> weirdly this is not stable? try 2d?
     // state.hips.euler = Vector.rollPitchYaw(lm3d[23],lm3d[24])
     // state.hips.euler.x = 0
 
-    // test: estimate body pose orientation using spine also - their code doesn't seem to do what i expect?
+    // test: estimate body pose orientation using spine also - their code doesn't seem to do what i expect??
     // state.hips.euler = Vector.rollPitchYaw(new Vector(lm3d[23]),new Vector(lm3d[24]),manubrium3d)
 
     // test: get hips pose from scratch; the manual values tacked on the end are trial and error, the euler order is XYZ
-    // @todo note that i've turned off the pitch and roll for now but it might be nice to apply them to the vrm spine?
+    // @todo note that i've turned off the pitch and roll for now!
     const hipleft = new Vector3(lm3d[23].x, lm3d[23].y, lm3d[23].z)
     const hipright = new Vector3(lm3d[24].x, lm3d[24].y, lm3d[24].z)
     const hipdir = hipright.clone().sub(hipleft).normalize()
@@ -194,42 +149,43 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
     const z = poseEnsemble.rest[VRMHumanBoneName.Hips].euler.z // + Math.atan2( hipdir.y, hipdir.x) + Math.PI
     state.hips.euler = { x, y, z }
     changes[VRMHumanBoneName.Hips] = state.hips
+    permit_feet = true
 
-    // debugging
-    //console.log(
+    /*
+    console.log(
 
-    // pelvis3d  values are consistently near 0,0,0 - that is good
-    // 'hips middle is at = ',
-    // pelvis3d.x.toFixed(3),
-    // pelvis3d.y.toFixed(3),
-    // pelvis3d.z.toFixed(3),
+      // pelvis3d  values are consistently near 0,0,0 - that is good
+      'hips middle is at = ',
+      pelvis3d.x.toFixed(3),
+      pelvis3d.y.toFixed(3),
+      pelvis3d.z.toFixed(3),
 
-    // shoulder3d middle ~ok~
-    // 'shoulder middle is at = ',
-    // manubrium3d.x.toFixed(3),
-    // manubrium3d.y.toFixed(3),
-    // manubrium3d.z.toFixed(3),
+      // shoulder3d middle ~ok~
+     'shoulder middle is at = ',
+      manubrium3d.x.toFixed(3),
+      manubrium3d.y.toFixed(3),
+      manubrium3d.z.toFixed(3),
 
-    // spine3d is reasonably vertical; a bit noisy
-    //"spine vector is = ",
-    //spine3d.x.toFixed(3),
-    //spine3d.y.toFixed(3),
-    //spine3d.z.toFixed(3),
+      // spine3d is reasonably vertical; a bit noisy
+      "spine vector is = ",
+      spine3d.x.toFixed(3),
+      spine3d.y.toFixed(3),
+      spine3d.z.toFixed(3),
 
-    //'hips euler is = ',
-    //state.hips.euler.x.toFixed(3),
-    //state.hips.euler.y.toFixed(3),
-    //state.hips.euler.z.toFixed(3),
-    //poseEnsemble.rest[VRMHumanBoneName.Hips].euler.z
-
-    //)
+      'hips euler is = ',
+      state.hips.euler.x.toFixed(3),
+      state.hips.euler.y.toFixed(3),
+      state.hips.euler.z.toFixed(3),
+      poseEnsemble.rest[VRMHumanBoneName.Hips].euler.z
+    )
+    */
 
     // @todo -> if we have an accurate upper chest orientation is that useful at all? how does this compete with shoulder joints? how are shoulder joints different from upper arms?
     // changes[VRMHumanBoneName.Spine] = state.shoulder
   }
 
   //
-  // strategy for dealing with shoulder only shown (no hips)
+  // shoulders no hips
   //
   // generally speaking lets reset the hips rotation (and the legs below) for now in this case?
   //
@@ -239,8 +195,8 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
   else if (!state.hips.shown && state.shoulders.shown) {
     // if hips are not present then reset the hip orientation at least; arguably also the height
     state.hips.euler = poseEnsemble.rest[VRMHumanBoneName.Hips].euler
-    state.hips.xyz = poseEnsemble.rest[VRMHumanBoneName.Hips].position
     changes[VRMHumanBoneName.Hips] = state.hips
+    permit_feet = false
 
     // state.shoulders.euler = ... some calculation...
     // state.shoulders.euler.x = 0
@@ -248,7 +204,7 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
   }
 
   //
-  // strategy for dealing missing shoulders AND hips
+  // no shoulders no hips
   //
   // if neither the shoulders or the hips are shown then switch to a head only mode; effectively the user has implied this by not providing shoulders
   // note that the actual visibility itself is not exactly the same as "no data" since tensorflow will speculatively predict poses; but i think this is what the user wants
@@ -263,19 +219,20 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
   // @todo it is arguable if we want to reset this at all - it could be best to just leave it as it was before visibility was lost
   //
   else if (!state.hips.shown && !state.shoulders.shown) {
-    // if hips or shoulders are not present then reset the hip orientation at least; arguably also the height
+    // if hips are not present then reset the hip orientation at least; arguably also the height
     state.hips.euler = poseEnsemble.rest[VRMHumanBoneName.Hips].euler
-    state.hips.xyz = poseEnsemble.rest[VRMHumanBoneName.Hips].position
     changes[VRMHumanBoneName.Hips] = state.hips
+    permit_feet = false
   }
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
   //
-  // feet support
+  // feet
   //
 
-  if (!state.hips.shown || !state.shoulders.shown || (!state.leftFoot.shown && !state.rightFoot.shown)) {
-    // if no hips, shoulders or feet then make sure to go to a ghostly floater mode
+  if (!permit_feet || (!state.leftFoot.shown && !state.rightFoot.shown)) {
+    // force hips up to default height but do not attempt to set the orientation of hips here
     state.hips.xyz = poseEnsemble.rest[VRMHumanBoneName.Hips].position
     changes[VRMHumanBoneName.Hips] = state.hips
 
@@ -345,15 +302,12 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
   //
   // arms
   //
-  // @todo turn off arms if no shoulders also? be more evaluative?
+  // @todo turn off hands / arms if no shoulders also? or trust tensorflow speculative data?
   // @todo should we instead leave arms where they are if we stop having data for hands?
   // @todo note that the lower level helpers have swapped left and right hand for some peverse reason; fix this
   // @todo get resting pose from the VRM model not from the mediapipe helper
   // @todo populate ik from here rather than by hand as done currently in ik module
   //
-
-  // hack: disable hands if using ik hands
-  if (useikhands) return
 
   const arms = calcArms(lm3d)
 
@@ -380,146 +334,50 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], poseEnsem
   changes[VRMHumanBoneName.RightLowerArm] = { euler: arms.LowerArm.r, dampener: 1, lerp: 0.3 }
 }
 
-import UpdateIkPose from './UpdateIkPose'
-import UpdateLandmarkFace from './UpdateLandmarkFace'
-import UpdateLandmarkHands from './UpdateLandmarkHands'
-
-export function UpdateLandmarkAll(data, userID, entity) {
-  // sanity check
-  if (!data || !data.za || !data.poseLandmarks) {
-    return
-  }
-
-  // get avatar rig
-  const avatarRig = getComponent(entity, AvatarRigComponent)
-  const avatarTransform = getComponent(entity, TransformComponent)
-  if (!avatarRig || !avatarTransform) {
-    return
-  }
-
-  // get avatar world pose
-  const avatarHips = avatarRig?.bindRig?.hips?.node
-  const position = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
-  const rotation = avatarTransform.rotation
-
-  // get or create persistent state
-  const poseEnsemble: any = GetPoseEnsemble(userID, avatarRig)
-  poseEnsemble.rig = avatarRig
-  poseEnsemble.changes = {}
-
-  const useik = true
-  if (!useik) {
-    // head orientation and facial features
-    UpdateLandmarkFace(data?.faceLandmarks, poseEnsemble.changes)
-
-    // fingers
-    UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, poseEnsemble.changes)
-
-    // coarse pose
-    UpdateLandmarkPose(data?.za, data?.poseLandmarks, poseEnsemble, true)
-
-    // test direct changes
-    ApplyPoseChanges(poseEnsemble.changes, avatarRig)
-  }
-
-  // test ik
-  else if (data && data.za) {
-    UpdateIkPose(data.za, position, rotation, poseEnsemble)
-  }
-}
-
 /*
 
-NOTES Aug 2023
+// this is old code to discard
+// attempting to estimate head pose from lm3d data - just doesn't seem stable
+// faceLandmarks (as the existing code uses) seems to produce much better results
 
-on lm3d normalized data:
-  - all points are centered on the avatar as a vitrivian man with radius 0.5 or diameter 1
-  - for example the left shoulder is often at 0.14 in the x axis and the right shoulder is at -0.14
-  - raw data y is negative upwards, so the shoulder y is at -0.45; which is the opposite of the 3js convention
-  - z pose estimates are poor from the front, we don't really know exactly where the wrists are in 3d space; you could be punching forward for example at full extent, or have a hand on your chest
-  - raw z data does exist but fairly weak; good enough for hips pirouette however
-  - note that 'visibility' also is slightly unclear as a concept; tensorflow appears to speculate even if no visibility
+// https://medium.com/@susanne.thierfelder/head-pose-estimation-with-mediapipe-and-opencv-in-javascript-c87980df3acb
+// https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Blendshape%20V2.pdf
+// https://stevehazen.wordpress.com/2010/02/15/matrix-basics-how-to-step-away-from-storing-an-orientation-as-3-angles/
+// https://discourse.threejs.org/t/get-a-triangle-rotation-x-y-z-from-its-vertices/22860/13
 
-MAIN GOALS
+export const UpdateHead = (lm3d: Landmark[], lm2d: Landmark[], avatarTransform, avatarRig) => {
 
-  - flip hands? I tried to do this but failed; failed to flip some coordinate somewhere in the math
-  - merge change list with restpose logic?
-  - support the concept of jumping by using latency of ground pose estimation
-  - support real wingspan estimation
+  const OrientHead = true
+  if (OrientHead) {
+    const v1 = new Vector3( lm3d[POSE_LANDMARKS.LEFT_EAR].x, lm3d[POSE_LANDMARKS.LEFT_EAR].y, lm3d[POSE_LANDMARKS.LEFT_EAR].z )
+    const v2 = new Vector3( lm3d[POSE_LANDMARKS.RIGHT_EAR].x, lm3d[POSE_LANDMARKS.RIGHT_EAR].y, lm3d[POSE_LANDMARKS.RIGHT_EAR].z )
+    const v3 = new Vector3((lm3d[9].x + lm3d[10].x) / 2, (lm3d[9].y + lm3d[10].y) / 2, (lm3d[9].z + lm3d[10].z) / 2)
+    //visibility: (lm3d[POSE_LANDMARKS.MOUTH_LEFT].visibility || 0) + (lm3d[POSE_LANDMARKS.MOUTH_RIGHT].visibility || 0) / 2
 
-HEAD ISSUES
+    const triangle = new Triangle(v1, v2, v3)
+    const normal = new Vector3()
+    triangle.getNormal(normal)
 
-  x head pose works ok
-  ? it could possibly be improved though; maybe slower updates?
-  ? maybe write to neck as well as the head?
+    if(!temp) {
+      temp = new Mesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: 0xff0000 }))
+      Engine.instance.scene.add(temp)
+    }
+    v3.y += 2
 
-HIPS ISSUES
-
-  x default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ... use vrm model as rest pose?
-  x hips/shoulders must be estimated correctly or else everything else gets thrown off
-  x hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk
-  x can we use the shoulder midpoint to improve? cross the hip horizontal with the spine?
-  x can we improve forward pitch estimation using z depth between shoulder and hip?
-  ? what if i put the entire rig on soft physics springs and then allow parts to tug around?
-  ? Does it even make sense to be computing the hips by hand?
-  ? I notice that kalikokit pretty much ignores the visibility flags - why? is there something i don't understand?
-  ? TEST: It is not clear if low visibility per component == bad/zero data or if it reverts to tensorflow speculation
-  ? what level of participant mediated correction can we rely on - can the user know to capture their shoulders?
-  ? rotating hips does not rotate the entire avatar root node - do we want to do that?
-
-ARMS / SHOULDERS ISSUES
-
-  !!! insanely the left and right arms/legs are swapped in the source code; all the english words say left, but the indexes refer to the right
-  ? see https://github.com/yeemachine/kalidokit/blob/main/src/PoseSolver/calcHips.ts
-  ? seems like there are assumptions about being upright; how can one estimate arm joint angles from an arbitrary shoulder orientation?
-  ? i need to understand better the frame of reference for the kalidokit shoulder to arm pose estimation - is it local or world?
-  ? if a part is not shown (such as wrists) what is the right strategy? revert to rest pose or leave it as is? what happens if you then rotate your body?
-
-FINGERS
-  - test fingers once that is merged again
-
-GROUND IMPROVE
-
-  x hips are normally at 0,0,0 - we can find the inverse of the lowest limb to improve this
-  x what if i simply avoid changing the real rig height; or i find the original rig hip height rest position?
-  ? can i cache the lowest feature temporally so that a person can jump in the air?
-  ? does visibility matter for finding lowest feature?
-
-IK IMPROVE
-
-  - @todo since ik fights with direct pose setting - set the direct stuff via ik now instead - but also get the support fixed for both
-  - @todo the hands orientation is not being set - set it
-  - turn on ik again
-  - test feeding the ik with the manually approximated estimated joint rotations and positions
-  - we need a way to use IK AND ordinary coercion of features such as elbows?
-  ? should i do ik in world space or local space? do i even have the option?
-  - can i set state on the vrm rig and then have all changelists consolidated in the animation system?
-
-OTHER LATER
-
-  - test multiple cameras <- this is probably the best thing we could do actually
-  - try new pose algo from mediapipe that is more recent than holistic
-  - may still be worth trying hip rotations using 2d landmark data - it may have paradoxically better z depth
-  - review this approach in detail: https://github.com/ju1ce/Mediapipe-VR-Fullbody-Tracking/blob/main/bin/inference_gui.py 
-
-RANDOM QUESTIONS
-
-  - what exactly are these really??? are these all joints? or is one of them an actual arm?
-      readonly LeftShoulder: "leftShoulder";
-      readonly LeftUpperArm: "leftUpperArm";
-      readonly LeftLowerArm: "leftLowerArm";
-      readonly LeftHand: "leftHand";
-
-  - i notice a spring system in vrm - what is it?
-  - what are the rest bone positions for a given rig??? i am grabbing them at startup - is that the best way?
-  - what does it mean that bones are 'normalized'?
-  - the body seems to jump or something when i remove an ik??? why???
-
-REFERENCE
-
-  https://github.com/kimgooq/MoCap-Rigging
-  https://www.mdpi.com/2076-3417/13/4/2700
-  https://github.com/digital-standard/ThreeDPoseUnityBarracuda/blob/f4ad45e83e72bf140128d95b668aef97037c1379/Assets/Scripts/VNectBarracudaRunner.cs <- very impressive
-  https://github.com/Kariaro/VRigUnity/tree/main
-
+    temp.position.copy(v3)
+    temp.lookAt(normal)
+    const midPoint = new Vector3()
+    triangle.getMidpoint(midPoint)
+    const xNormal = new Vector3().subVectors(v3, v2).normalize()
+    const yNormal = new Vector3().subVectors(v1, midPoint).normalize()
+    const zNormal = new Vector3()
+    triangle.getNormal(zNormal)
+    const rotationMatrix = new Matrix4().set(
+      ...[...xNormal.toArray(), 0, ...yNormal.toArray(), 0, ...zNormal.toArray(), 0, 0, 0, 0, 1]
+    )
+    const q = new Quaternion().setFromRotationMatrix(rotationMatrix).conjugate().multiply(rotation)
+    //const { x, y, z } = new Euler().setFromQuaternion(q)
+    //strategies[0].rotation = q
+  }
+}
 */

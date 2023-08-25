@@ -40,7 +40,7 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
-import { UpdateLandmarkAll } from './UpdateLandmarkAll'
+import UpdateAvatar from './UpdateAvatar'
 
 export interface MotionCaptureStream extends Results {
   za: Landmark[]
@@ -105,7 +105,7 @@ const execute = () => {
     const userID = network.peers.get(peerID)!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
     if (data && entity) {
-      UpdateLandmarkAll(data, userID, entity)
+      UpdateAvatar(data, userID, entity)
     }
   }
 }
