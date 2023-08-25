@@ -385,98 +385,70 @@ export const UpdateLandmarkPose = (lm3d: Landmark[], lm2d: Landmark[], restEnsem
 
 todo aug 2023
 
-- what exactly are
-    readonly LeftShoulder: "leftShoulder";
-    readonly LeftUpperArm: "leftUpperArm";
-    readonly LeftLowerArm: "leftLowerArm";
-    readonly LeftHand: "leftHand";
-    are these all joints? or is one of them an actual arm?
+HEAD
 
-- what tells the animation system to stop animating the body? why does it do that sometimes? what am i doing at my end that forces it into that state?
-  maybe it depends on if the camera starts up right away or not?
-  or maybe if i just start moving too early before assets load?
+  x head pose works ok
+  ? it could possibly be improved though; maybe slower updates?
+  ? maybe write to neck as well as the head?
 
-- i notice the animation system leaps to a t pose sometimes - why? especially if i pause the execution in js debugger
+HIPS
 
-- i notice a spring system in vrm - what is it?
-- what are the rest bone positions for a given rig??? i am grabbing them at startup - is that the best way?
-- can i interpolate, or collect initial bone positions?
-- what are default positions?
-- what does it mean that bones are sometimes normalized?
-- does upper arm refer to the arm itself or the joint?
-
-- OVERALL ROTATION
-
-  - rotating hips does not rotate the entire avatar root node - do we want to do that?
-  - default hips pose is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ... 
-
-- HIPS
-
-  ! hips/shoulders must be estimated correctly or else everything else gets thrown off
-  ! hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk
-  ? can we use the shoulder midpoint to improve? cross the hip horizontal with the spine?
-  ? can we improve forward pitch estimation using z depth between shoulder and hip?
+  x default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ... use vrm model as rest pose?
+  x hips/shoulders must be estimated correctly or else everything else gets thrown off
+  x hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk
+  x can we use the shoulder midpoint to improve? cross the hip horizontal with the spine?
+  x can we improve forward pitch estimation using z depth between shoulder and hip?
   ? what if i put the entire rig on soft physics springs and then allow parts to tug around?
-  ? Does it even make sense to be computing each of these bones by hand?
-  ! If I get hips rotation wrong then everything else is scrambled
-  ! I notice that kalikokit pretty much ignores the visibility flags - why? is there something i don't understand?
+  ? Does it even make sense to be computing the hips by hand?
+  ? I notice that kalikokit pretty much ignores the visibility flags - why? is there something i don't understand?
   ? TEST: It is not clear if low visibility per component == bad/zero data or if it reverts to tensorflow speculation
   ? what level of participant mediated correction can we rely on - can the user know to capture their shoulders?
+  ? rotating hips does not rotate the entire avatar root node - do we want to do that?
 
-- ARMS / SHOULDERS
+ARMS / SHOULDERS
 
-  ! insanely the left and right arms/legs are swapped in the source code; all the english words say left, but the indexes refer to the right
-  ? seems like there are assumptions about being upright; how can one estimate arm joint angles from an arbitrary shoulder orientation
-  - i need to understand better the frame of reference for the kalidokit shoulder to arm pose estimation - is it local or world?
+  !!! insanely the left and right arms/legs are swapped in the source code; all the english words say left, but the indexes refer to the right
+  ? see https://github.com/yeemachine/kalidokit/blob/main/src/PoseSolver/calcHips.ts
+  ? seems like there are assumptions about being upright; how can one estimate arm joint angles from an arbitrary shoulder orientation?
+  ? i need to understand better the frame of reference for the kalidokit shoulder to arm pose estimation - is it local or world?
+  ? if a part is not shown (such as wrists) what is the right strategy? revert to rest pose or leave it as is? what happens if you then rotate your body?
 
-- REST POSE STRATEGY
+FINGERS
+  - test fingers once that is merged again
 
-  ? if a part is not shown (such as wrists) what is the right strategy?
-  ? i thought a good strategy was to return to rest pose but this looks terrible
-  ? another strategy was to leave as is - test this more to see if it remains relative to subsequent core hips rotations
+GROUND IMPROVE
 
-- GROUND IMPROVE
-
-  ? hips are normally at 0,0,0 - we can find the inverse of the lowest limb to improve this
-  ? what if i simply avoid changing the real rig height; or i find the original rig hip height rest position?
+  x hips are normally at 0,0,0 - we can find the inverse of the lowest limb to improve this
+  x what if i simply avoid changing the real rig height; or i find the original rig hip height rest position?
   ? can i cache the lowest feature temporally so that a person can jump in the air?
   ? does visibility matter for finding lowest feature?
 
-- IK IMPROVE
+IK IMPROVE
 
-  ! hips must be correct!
-  ? should i do ik in world space or local space?
+  - turn on ik again
   - test feeding the ik with the manually approximated estimated joint rotations and positions
+  - we need a way to use IK AND ordinary coercion of features such as elbows?
+  ? should i do ik in world space or local space? do i even have the option?
+  - can i set state on the vrm rig and then have all changelists consolidated in the animation system?
 
-- try new pose algo
-- test fixed hands
-- test multiple cameras
+OTHER LATER
 
-*/
+  - try new pose algo
+  - test multiple cameras (this could make a lot of what is hard here trivial)
+  - may still be worth trying hip rotations using 2d landmark data - it may have paradoxically better z depth
+  - review this approach in detail: https://github.com/ju1ce/Mediapipe-VR-Fullbody-Tracking/blob/main/bin/inference_gui.py 
 
-/*
+RANDOM QUESTIONS
 
+  - what exactly are
+      readonly LeftShoulder: "leftShoulder";
+      readonly LeftUpperArm: "leftUpperArm";
+      readonly LeftLowerArm: "leftLowerArm";
+      readonly LeftHand: "leftHand";
+      are these all joints? or is one of them an actual arm?
 
-if (debug) {
-  data.za.forEach((landmark, idx) => {
-    if (debugPoseObjs[idx] === undefined) {
-      const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial())
-      debugPoseObjs.push(mesh)
-      Engine.instance.scene.add(mesh)
-    }
-    debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
-    debugPoseObjs[idx].updateMatrixWorld()
-  })
-  /*
-  if (data.leftHandLandmarks && data.rightHandLandmarks) {
-    ;[...data.leftHandLandmarks, ...data.rightHandLandmarks].forEach((landmark, idx) => {
-      if (debugHandObjs[idx] === undefined) {
-        const mesh = new Mesh(new SphereGeometry(0.0125), new MeshBasicMaterial())
-        debugHandObjs[idx] = mesh
-        Engine?.instance?.scene?.add(mesh)
-      }
-      debugPoseObjs[idx].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
-      debugPoseObjs[idx].updateMatrixWorld()
-    })
-  }
+  - i notice a spring system in vrm - what is it?
+  - what are the rest bone positions for a given rig??? i am grabbing them at startup - is that the best way?
+  - what does it mean that bones are 'normalized'?
+
 */
