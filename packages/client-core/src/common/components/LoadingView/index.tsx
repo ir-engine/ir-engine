@@ -34,7 +34,7 @@ import { Variant } from '@mui/material/styles/createTypography'
 
 interface Props {
   className?: string
-  title?: string
+  title?: React.ReactNode
   description?: string
   variant?: Variant
   titleColor?: string
