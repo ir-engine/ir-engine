@@ -249,7 +249,7 @@ const execute = () => {
   mesh.updateMatrixWorld(true)
 
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
-  // if (!getState(EngineState).joinedWorld) {
+  // if (!getState(EngineState).connectedWorld) {
   //   getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
   // } else {
   //   // todo: figure out how to make this work properly for VR #7256
@@ -279,7 +279,7 @@ const execute = () => {
 
 const reactor = () => {
   const themeState = useHookstate(getMutableState(AppThemeState))
-  const themeModes = useHookstate(getMutableState(AuthState).user?.user_setting?.ornull?.themeModes)
+  const themeModes = useHookstate(getMutableState(AuthState).user?.userSetting?.ornull?.themeModes)
   const clientSettings = useHookstate(
     getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
   )

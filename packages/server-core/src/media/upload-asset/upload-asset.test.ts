@@ -31,6 +31,7 @@ import path from 'path'
 import { AdminAssetUploadArgumentsType, UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp } from '../../createApp'
@@ -101,7 +102,7 @@ describe('upload-asset', () => {
       assert.equal(response.mimeType, 'application/json')
       assert.equal(response.project, testProject)
 
-      const staticResource = await app.service('static-resource').get(response.id)
+      const staticResource = await app.service(staticResourcePath).get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/test.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')
@@ -134,7 +135,7 @@ describe('upload-asset', () => {
       assert.equal(response.mimeType, 'application/json')
       assert.equal(response.project, testProject)
 
-      const staticResource = await app.service('static-resource').get(response.id)
+      const staticResource = await app.service(staticResourcePath).get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/default.scene.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')
@@ -164,7 +165,7 @@ describe('upload-asset', () => {
       assert.equal(response.mimeType, 'application/json')
       assert.equal(response.project, testProject)
 
-      const staticResource = await app.service('static-resource').get(response.id)
+      const staticResource = await app.service(staticResourcePath).get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/default.scene.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')

@@ -54,7 +54,7 @@ globalThis.ComponentJSONIDMap = ComponentJSONIDMap
 
 type PartialIfObject<T> = T extends object ? Partial<T> : T
 
-type OnInitValidateNotState<T> = T extends State<any, object | unknown> ? 'onAdd must not return a State object' : T
+type OnInitValidateNotState<T> = T extends State<any, object | unknown> ? 'onInit must not return a State object' : T
 
 type SomeStringLiteral = 'a' | 'b' | 'c' // just a dummy string literal union
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string

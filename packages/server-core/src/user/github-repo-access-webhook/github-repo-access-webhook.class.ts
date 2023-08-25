@@ -24,21 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 import crypto from 'crypto'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
+import {
+  identityProviderPath,
+  IdentityProviderType
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { NotAuthenticated } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
-import { UnauthorizedException } from '../../util/exceptions/exception'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessWebhookParams extends KnexAdapterParams {
-  user: UserInterface
-}
+export interface GithubRepoAccessWebhookParams extends RootParams {}
 
 /**
  * A class for Github Repo Access Webhook service
@@ -64,7 +67,7 @@ export class GithubRepoAccessWebhookService<
       const hmac = crypto.createHmac(SIG_HASH_ALGORITHM, secret)
       const digest = Buffer.from(SIG_HASH_ALGORITHM + '=' + hmac.update(JSON.stringify(data)).digest('hex'), 'utf8')
       if (sig.length !== digest.length || !crypto.timingSafeEqual(digest, sig)) {
-        throw new UnauthorizedException('Invalid secret')
+        throw new NotAuthenticated('Invalid secret')
       }
       const { blocked_user, member, membership } = data
       const ghUser = member
@@ -75,14 +78,17 @@ export class GithubRepoAccessWebhookService<
         ? blocked_user.login
         : null
       if (!ghUser) return ''
-      const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
-        where: {
+
+      const githubIdentityProvider = (await this.app.service(identityProviderPath).find({
+        query: {
           type: 'github',
-          accountIdentifier: ghUser
+          accountIdentifier: ghUser,
+          $limit: 1
         }
-      })
-      if (!githubIdentityProvider) return ''
-      const user = await this.app.service('user').get(githubIdentityProvider.userId)
+      })) as Paginated<IdentityProviderType>
+
+      if (githubIdentityProvider.data.length === 0) return ''
+      const user = await this.app.service(userPath).get(githubIdentityProvider.data[0].userId)
       // GitHub's API doesn't always reflect changes to user repo permissions right when a webhook is sent.
       // 10 seconds should be more than enough time for the changes to propagate.
       setTimeout(() => {

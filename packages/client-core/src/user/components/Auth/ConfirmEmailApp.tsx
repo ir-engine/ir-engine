@@ -32,7 +32,7 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import CardMedia from '@etherealengine/ui/src/primitives/mui/CardMedia'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useRouter } from '../../../common/services/RouterService'
+import { RouterService } from '../../../common/services/RouterService'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from '../Login/index.module.scss'
 
@@ -41,7 +41,6 @@ interface Props {
 }
 
 const ConfirmEmail = (props: Props): JSX.Element => {
-  const route = useRouter()
   const auth = useHookstate(getMutableState(AuthState))
   const { t } = useTranslation()
 
@@ -82,7 +81,7 @@ const ConfirmEmail = (props: Props): JSX.Element => {
         <p>
           <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">
             {t('user:auth.confirmEmail.haveAnAccount')}{' '}
-            <span onClick={() => route('/')}>{t('user:auth.register.login')}</span>
+            <span onClick={() => RouterService.navigate('/')}>{t('user:auth.register.login')}</span>
           </Trans>
         </p>
       </section>

@@ -28,12 +28,17 @@ import { Params } from '@feathersjs/feathers/lib'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import authenticate from '../../hooks/authenticate'
 import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
 import hooks from './instance.hooks'
@@ -120,35 +125,21 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
     const filteredInstances = (
       await Promise.all(
         instances.map(async (instance) => {
-          const instanceAttendance = await app.service('instance-attendance').Model.findAll({
-            where: {
-              ended: false,
-              isChannel: false
-            },
-            include: [
-              {
-                model: app.service('instance').Model,
-                required: true,
-                where: {
-                  id: instance.id
-                }
-              },
-              {
-                model: app.service('user').Model,
-                required: true,
-                include: [
-                  {
-                    model: app.service('user-relationship').Model,
-                    required: true,
-                    where: {
-                      userRelationshipType: 'friend',
-                      relatedUserId: data.user!.id
-                    }
-                  }
-                ]
-              }
-            ]
-          })
+          const knexClient: Knex = app.get('knexClient')
+
+          const instanceAttendance = await knexClient
+            .from(instanceAttendancePath)
+            .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
+            .join(userPath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
+            .join(userRelationshipPath, `${userPath}.id`, '=', `${userRelationshipPath}.userId`)
+            .where(`${instanceAttendancePath}.ended`, '=', false)
+            .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
+            .andWhere(`${'instance'}.id`, '=', instance.id)
+            .andWhere(`${userRelationshipPath}.userRelationshipType`, '=', 'friend')
+            .andWhere(`${userRelationshipPath}.relatedUserId`, '=', data.user!.id)
+            .select()
+            .options({ nestTables: true })
+
           if (instanceAttendance.length > 0) return instance
         })
       )
@@ -208,24 +199,21 @@ export default (app: Application) => {
    */
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const admins = await app.service('user').Model.findAll({
-        include: [
-          {
-            model: app.service('scope').Model,
-            where: {
-              type: 'admin:admin'
-            }
-          }
-        ]
-      })
-      const targetIds = admins.map((admin) => admin.id)
+      const adminScopes = (await app.service(scopePath).find({
+        query: {
+          type: 'admin:admin'
+        },
+        paginate: false
+      })) as ScopeType[]
+
+      const targetIds = adminScopes.map((admin) => admin.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({
+        targetIds.map((userId: UserID) =>
+          app.channel(`userIds/${userId}`).send({
             instance: data
           })
-        })
+        )
       )
     } catch (err) {
       logger.error(err)

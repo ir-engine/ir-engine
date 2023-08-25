@@ -45,7 +45,9 @@ import { ServerRecordingSystem } from './ServerRecordingSystem'
 
 export const startMediaServerSystems = () => {
   /** Fixed */
-  startSystems([EntityNetworkStateSystem], { with: SimulationSystemGroup })
+  startSystems([EntityNetworkStateSystem, ServerHostNetworkSystem], {
+    with: SimulationSystemGroup
+  })
 
   /** Post Render */
   startSystems([ServerRecordingSystem], {

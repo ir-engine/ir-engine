@@ -31,7 +31,7 @@ import path from 'path/posix'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
@@ -50,7 +50,8 @@ export class Archiver implements Partial<ServiceMethods<any>> {
   async setup(app: Application, path: string) {}
 
   async get(directory: string, params?: UserParams): Promise<string> {
-    if (directory[0] === '/') directory = directory.slice(1)
+    if (directory.at(0) === '/') directory = directory.slice(1)
+    if (directory.at(-1) === '/') directory = directory.slice(0, -1)
     if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
       return Promise.reject(new Error('Cannot archive non-project directories'))
     }
@@ -71,7 +72,7 @@ export class Archiver implements Partial<ServiceMethods<any>> {
 
     for (let i = 0; i < result.length; i++) {
       if (result[i].type == 'folder') {
-        let content = await storageProvider.listFolderContent(result[i].key)
+        let content = await storageProvider.listFolderContent(result[i].key + '/')
         content.forEach((f) => {
           result.push(f)
         })
@@ -92,7 +93,9 @@ export class Archiver implements Partial<ServiceMethods<any>> {
 
     const generated = await zip.generateAsync({ type: 'blob', streamFiles: true })
 
-    const zipOutputDirectory = `'temp'${directory.substring(directory.lastIndexOf('/'))}.zip`
+    const zipOutputDirectory = `temp${directory.substring(directory.lastIndexOf('/'))}.zip`
+
+    logger.info(`Uploading ${zipOutputDirectory} to storage provider`)
 
     await storageProvider.putObject({
       Key: zipOutputDirectory,

@@ -23,19 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  instanceAttendanceDataValidator,
+  instanceAttendancePatchValidator,
+  instanceAttendanceQueryValidator
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  instanceAttendanceDataResolver,
+  instanceAttendanceExternalResolver,
+  instanceAttendancePatchResolver,
+  instanceAttendanceQueryResolver,
+  instanceAttendanceResolver
+} from './instance-attendance.resolvers'
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(instanceAttendanceExternalResolver),
+      schemaHooks.resolveResult(instanceAttendanceResolver)
+    ]
+  },
+
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    all: [
+      authenticate(),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(instanceAttendanceQueryValidator),
+      schemaHooks.resolveQuery(instanceAttendanceQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [],
+    create: [
+      () => schemaHooks.validateData(instanceAttendanceDataValidator),
+      schemaHooks.resolveData(instanceAttendanceDataResolver)
+    ],
     update: [],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(instanceAttendancePatchValidator),
+      schemaHooks.resolveData(instanceAttendancePatchResolver)
+    ],
     remove: []
   },
 

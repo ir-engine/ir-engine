@@ -163,9 +163,11 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
   const response = useQuery(serviceName, 'find', params)
 
   const data = response?.data ? (Array.isArray(response.data) ? response.data : response.data.data) : []
+  const total: number | undefined = response?.data && !Array.isArray(response.data) ? response.data.total : undefined
 
   return {
     ...response,
+    total,
     data: data as ArrayOrPaginatedType<(typeof response)['data']>
   }
 }
@@ -201,9 +203,6 @@ type RemoveMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['rem
  * of calling these operations needs to be handled
  * by the caller. as you create/update/patch/remove
  * entities using this helper, the entities cache gets updated
- *
- * @param serviceName
- * @returns {create, update, patch, remove, status, data, error}
  */
 export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
   const state = useHookstate({

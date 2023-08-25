@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
@@ -41,13 +40,14 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Switch from '@mui/material/Switch'
 
+import { ProjectPermissionType } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { Button } from '../inputs/Button'
 import styles from './styles.module.scss'
 
 interface Props {
   open: boolean
   onClose: any
-  projectPermissions: ProjectPermissionInterface[]
+  projectPermissions: ProjectPermissionType[]
   project: ProjectInterface
   removePermission: (id: string) => Promise<void>
   addPermission: (userId: string, projectId: string) => Promise<void>
@@ -87,7 +87,7 @@ export const EditPermissionsDialog = ({
     }
   }
 
-  const onPatchPermission = async (permission: ProjectPermissionInterface) => {
+  const onPatchPermission = async (permission: ProjectPermissionType) => {
     try {
       await patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
     } catch (err) {

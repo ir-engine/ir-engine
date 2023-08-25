@@ -23,21 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactElement, useEffect } from 'react'
+import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
-import { AdminLocationService, AdminLocationState, LOCATION_PAGE_LIMIT } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import LocationDrawer, { LocationDrawerMode } from './LocationDrawer'
 
@@ -46,9 +46,13 @@ interface Props {
   search: string
 }
 
+const LOCATION_PAGE_LIMIT = 100
+
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
 const LocationTable = ({ className, search }: Props) => {
+  const { t } = useTranslation()
+
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(LOCATION_PAGE_LIMIT)
   const openConfirm = useHookstate(false)
@@ -58,32 +62,23 @@ const LocationTable = ({ className, search }: Props) => {
   const sortField = useHookstate('name')
   const openLocationDrawer = useHookstate(false)
   const locationAdmin = useHookstate<LocationType | undefined>(undefined)
-  const user = useHookstate(getMutableState(AuthState).user)
-  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
-  const adminLocations = adminLocationState.locations
-  const adminLocationCount = adminLocationState.total
 
-  // Call custom hooks
-  const { t } = useTranslation()
-
-  useEffect(() => {
-    AdminLocationService.fetchAdminLocations(search, 0, sortField.value, fieldOrder.value)
-  }, [search, user?.id?.value, adminLocationState.updateNeeded.value])
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    //const incDec = page < newPage ? 'increment' : 'decrement'
-    AdminLocationService.fetchAdminLocations(search, newPage, sortField.value, fieldOrder.value)
-    page.set(newPage)
-  }
-
-  useEffect(() => {
-    if (adminLocationState.fetched.value) {
-      AdminLocationService.fetchAdminLocations(search, page.value, sortField.value, fieldOrder.value)
+  const adminLocations = useFind(locationPath, {
+    query: {
+      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
+      $skip: page.value * rowsPerPage.value,
+      $limit: rowsPerPage.value,
+      adminnedLocations: true,
+      search: search
     }
-  }, [fieldOrder.value])
+  }).data
+
+  const adminLocationMutation = useMutation(locationTypePath)
+
+  const handlePageChange = (event: unknown, newPage: number) => page.set(newPage)
 
   const submitRemoveLocation = async () => {
-    await AdminLocationService.removeLocation(locationId.value)
+    adminLocationMutation.remove(locationId.value)
     openConfirm.set(false)
   }
 
@@ -146,7 +141,7 @@ const LocationTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = adminLocations.get({ noproxy: true }).map((el) => {
+  const rows = adminLocations.map((el) => {
     return createData(
       el,
       el.id,
@@ -191,7 +186,7 @@ const LocationTable = ({ className, search }: Props) => {
         column={locationColumns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={adminLocationCount.value}
+        count={adminLocations.length}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

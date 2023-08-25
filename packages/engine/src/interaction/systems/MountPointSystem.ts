@@ -83,7 +83,7 @@ const execute = () => {
   }
 
   for (const action of mountPointActionQueue()) {
-    if (action.$from !== Engine.instance.userId) continue
+    if (action.$from !== Engine.instance.userID) continue
     if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
     const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
 

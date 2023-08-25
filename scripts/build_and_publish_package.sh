@@ -24,7 +24,7 @@ fi
 #docker buildx version
 #
 docker context create etherealengine-$PACKAGE
-docker buildx create --driver=docker-container etherealengine-$PACKAGE --name etherealengine-$PACKAGE --driver-opt "image=moby/buildkit:master"
+docker buildx create --driver=docker-container etherealengine-$PACKAGE --name etherealengine-$PACKAGE --driver-opt "image=moby/buildkit:v0.12.0"
 
 BUILD_START_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Starting ${PACKAGE} build at ${BUILD_START_TIME}"
@@ -39,8 +39,8 @@ then
     -t $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE \
     -t ${LABEL}-$PACKAGE:${TAG} \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
-    --cache-to type=s3,mode=max,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
-    --cache-from type=s3,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
+    --cache-to type=registry,mode=max,image-manifest=true,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
@@ -78,8 +78,8 @@ then
   docker buildx build \
     --builder etherealengine-$PACKAGE \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
-    --cache-to type=s3,mode=max,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
-    --cache-from type=s3,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
+    --cache-to type=registry,mode=max,image-manifest=true,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
@@ -119,8 +119,8 @@ else
     -t $ECR_URL/$REPO_NAME-$PACKAGE:${TAG}__${START_TIME} \
     -t $ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE \
     -f dockerfiles/$PACKAGE/Dockerfile-$DOCKERFILE \
-    --cache-to type=s3,mode=max,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
-    --cache-from type=s3,region=$REGION,bucket="${CACHE_BUCKET_STEM}-${PACKAGE}-cache",name=latest_$STAGE,access_key_id=$STORAGE_AWS_ACCESS_KEY_ID,secret_access_key=$STORAGE_AWS_ACCESS_KEY_SECRET \
+    --cache-to type=registry,mode=max,image-manifest=true,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
+    --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_${STAGE}_cache \
     --build-arg ECR_URL=$ECR_URL \
     --build-arg REPO_NAME=$REPO_NAME \
     --build-arg STAGE=$STAGE \
@@ -155,8 +155,6 @@ else
     --build-arg VITE_DISABLE_LOG=$VITE_DISABLE_LOG .
 fi
 
-npx cross-env ts-node --swc scripts/prune_docker_cache.ts --bucket "${CACHE_BUCKET_STEM}-${PACKAGE}-cache" --releaseName $STAGE
-
 if [ $PRIVATE_ECR == "true" ]
 then
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
@@ -165,7 +163,4 @@ else
 fi
 
 BUILD_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
-echo "Ending ${PACKAGE} build at ${BUILD_END_TIME}, start time was ${BUILD_START_TIME}"
-# cache links to use once ECR supports cache manifests
-#  --cache-to type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE_cache,mode=max \
-#  --cache-from type=registry,ref=$ECR_URL/$REPO_NAME-$PACKAGE:latest_$STAGE_cache
+echo "${PACKAGE} build started at ${BUILD_START_TIME}, ended at ${BUILD_END_TIME}"

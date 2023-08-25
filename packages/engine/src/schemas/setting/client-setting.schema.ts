@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const clientSettingPath = 'client-setting'
 
@@ -207,3 +208,10 @@ export const clientSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type ClientSettingQuery = Static<typeof clientSettingQuerySchema>
+
+export const clientSocialLinkValidator = getValidator(clientSocialLinkSchema, dataValidator)
+export const clientThemeOptionsValidator = getValidator(clientThemeOptionsSchema, dataValidator)
+export const clientSettingValidator = getValidator(clientSettingSchema, dataValidator)
+export const clientSettingDataValidator = getValidator(clientSettingDataSchema, dataValidator)
+export const clientSettingPatchValidator = getValidator(clientSettingPatchSchema, dataValidator)
+export const clientSettingQueryValidator = getValidator(clientSettingQuerySchema, queryValidator)

@@ -24,8 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const locationAuthorizedUserPath = 'location-authorized-user'
 
@@ -40,7 +43,7 @@ export const locationAuthorizedUserSchema = Type.Object(
     locationId: Type.String({
       format: 'uuid'
     }),
-    userId: Type.String({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
@@ -78,3 +81,8 @@ export const locationAuthorizedUserQuerySchema = Type.Intersect(
 )
 
 export type LocationAuthorizedUserQuery = Static<typeof locationAuthorizedUserQuerySchema>
+
+export const locationAuthorizedUserValidator = getValidator(locationAuthorizedUserSchema, dataValidator)
+export const locationAuthorizedUserDataValidator = getValidator(locationAuthorizedUserDataSchema, dataValidator)
+export const locationAuthorizedUserPatchValidator = getValidator(locationAuthorizedUserPatchSchema, dataValidator)
+export const locationAuthorizedUserQueryValidator = getValidator(locationAuthorizedUserQuerySchema, queryValidator)

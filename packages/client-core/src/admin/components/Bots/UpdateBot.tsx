@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -39,21 +38,22 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { BotPatch, BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminBotService } from '../../services/BotsService'
-import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  bot?: AdminBot
+  bot?: BotType
   onClose: () => void
 }
 
 const UpdateBot = ({ open, bot, onClose }: Props) => {
+  const { t } = useTranslation()
   const state = useHookstate({
     name: '',
     description: '',
@@ -66,11 +66,15 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     location: ''
   })
   const currentInstance = useHookstate<Instance[]>([])
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
-  const locationData = useHookstate(getMutableState(AdminLocationState).locations)
-  const instanceData = adminInstanceState.instances
+
+  const instanceQuery = useFind('instance')
+  const instancesData = instanceQuery.data
+
+  const locationQuery = useFind(locationPath)
+  const locationData = locationQuery.data
+
+  const updateBot = useMutation(botPath).patch
   const user = useHookstate(getMutableState(AuthState).user)
-  const { t } = useTranslation()
 
   useEffect(() => {
     if (bot) {
@@ -83,7 +87,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     }
   }, [bot])
 
-  const locationsMenu: InputMenuItem[] = locationData.get({ noproxy: true }).map((el) => {
+  const locationsMenu: InputMenuItem[] = locationData.map((el) => {
     return {
       label: el.name,
       value: el.id
@@ -116,7 +120,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     state.merge({ [name]: value })
   }
 
-  const data: Instance[] = instanceData.get({ noproxy: true }).map((element) => {
+  const data: Instance[] = instancesData.map((element) => {
     return element
   })
 
@@ -129,12 +133,12 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
       currentInstance.set([])
       state.merge({ instance: '' })
     }
-  }, [state.location.value, adminInstanceState.instances.value.length])
+  }, [state.location.value, instancesData])
 
   const handleUpdate = () => {
-    const data: CreateBotAsAdmin = {
+    const data: BotPatch = {
       name: state.name.value,
-      instanceId: state.instance.value || null,
+      instanceId: state.instance.value || '',
       userId: user.id.value,
       description: state.description.value,
       locationId: state.location.value
@@ -147,21 +151,13 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     })
 
     if (validateForm(state.value, formErrors.value) && bot) {
-      AdminBotService.updateBotAsAdmin(bot.id, data)
+      updateBot(bot.id, data)
       state.set({ name: '', description: '', instance: '', location: '' })
       currentInstance.set([])
       onClose()
     } else {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
-  }
-
-  const fetchAdminInstances = () => {
-    AdminInstanceService.fetchAdminInstances()
-  }
-
-  const fetchAdminLocations = () => {
-    AdminLocationService.fetchAdminLocations()
   }
 
   return (
@@ -199,7 +195,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             onChange={handleInputChange}
             endControl={
               <IconButton
-                onClick={fetchAdminLocations}
+                onClick={locationQuery.refetch}
                 icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
               />
             }
@@ -213,7 +209,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             onChange={handleInputChange}
             endControl={
               <IconButton
-                onClick={fetchAdminInstances}
+                onClick={instanceQuery.refetch}
                 icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
               />
             }

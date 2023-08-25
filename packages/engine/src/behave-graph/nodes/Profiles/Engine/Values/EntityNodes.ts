@@ -29,64 +29,108 @@ import {
   makeFunctionNodeDefinition,
   makeInNOutFunctionDesc
 } from '@behave-graph/core'
-import { eulerToQuat, toQuat, toVector3 } from '@behave-graph/scene'
-import { MathUtils } from 'three'
+import { toQuat, toVector3 } from '@behave-graph/scene'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { ComponentMap, defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
+import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { addEntityToScene } from '../helper/entityHelper'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 export const getEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/getEntityInScene',
+  typeName: 'engine/entity/getEntityInScene',
   category: NodeCategory.Query,
   label: 'Get entity in scene',
   in: {
     entity: (_, graphApi) => {
-      const choices = sceneQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
-      choices.unshift({ text: 'none', value: -1 as Entity })
+      const choices = sceneQuery().map((entity) => ({
+        text: getComponent(entity, NameComponent),
+        value: getComponent(entity, UUIDComponent) as string
+      }))
+      choices.unshift({ text: 'none', value: '' })
       return {
-        valueType: 'entity',
+        valueType: 'string',
         choices: choices
       }
     }
   },
   out: { entity: 'entity' },
   exec: ({ read, write, graph }) => {
-    const entity = read('entity')
-    console.log('DEBUG enitity in scene', entity)
+    const entityUUID = read<EntityUUID>('entity')
+    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    write('entity', entity)
+  }
+})
+
+export const getLocalClientEntity = makeFunctionNodeDefinition({
+  typeName: 'engine/entity/getLocalClientEntity',
+  category: NodeCategory.Query,
+  label: 'Get local client entity',
+  in: {},
+  out: { entity: 'entity' },
+  exec: ({ write, graph }) => {
+    const entity = Engine.instance.localClientEntity
     write('entity', entity)
   }
 })
 
 export const getCameraEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/getCameraEntity',
+  typeName: 'engine/entity/getCameraEntity',
   category: NodeCategory.Query,
   label: 'Get camera entity',
   in: {},
   out: { entity: 'entity' },
   exec: ({ write, graph }) => {
     const entity = Engine.instance.cameraEntity
-    console.log('DEBUG enitity in scene', entity)
     write('entity', entity)
   }
 })
 
+export const getEntityTransform = makeFunctionNodeDefinition({
+  typeName: 'engine/entity/getEntityTransform',
+  category: NodeCategory.Query,
+  label: 'Get entity transform',
+  in: {
+    entity: 'entity'
+  },
+  out: { position: 'vec3', rotation: 'quat', scale: 'vec3', matrix: 'mat4' },
+  exec: ({ read, write, graph }) => {
+    const entity = Number(read('entity')) as Entity
+    const transform = getComponent(entity, TransformComponent)
+    write('position', transform.position)
+    write('rotation', transform.rotation)
+    write('scale', transform.scale)
+    write('matrix', transform.matrix)
+  }
+})
+
 export const addEntity = makeFlowNodeDefinition({
-  typeName: 'engine/addEntity',
+  typeName: 'engine/entity/addEntity',
   category: NodeCategory.Action,
   label: 'Add entity',
   in: {
     flow: 'flow',
     parentEntity: (_, graphApi) => {
-      const choices = sceneQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
-      choices.unshift({ text: 'none', value: -1 as Entity })
+      const choices = sceneQuery().map((entity) => ({
+        text: getComponent(entity, NameComponent),
+        value: getComponent(entity, UUIDComponent) as string
+      }))
+      choices.unshift({ text: 'none', value: '' as string })
       return {
-        valueType: 'entity',
+        valueType: 'string',
+        choices: choices
+      }
+    },
+    component: (_, graphApi) => {
+      const choices = Array.from(ComponentMap.keys()).sort()
+      choices.unshift('none')
+      return {
+        valueType: 'string',
         choices: choices
       }
     },
@@ -95,17 +139,19 @@ export const addEntity = makeFlowNodeDefinition({
   out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
-    let parentEntity: Entity | null = read('parentEntity')
-    parentEntity = parentEntity! < 0 ? null : parentEntity
-    const entityName: string = read('entityName') ?? `new Entity ${MathUtils.generateUUID()}`
-    const entity = addEntityToScene(entityName, parentEntity)
+    const parentEntityUUID = read<string>('parentEntity')
+    const parentEntity: Entity = parentEntityUUID == '' ? null : UUIDComponent.entitiesByUUID[parentEntityUUID]
+    const componentName = read<string>('component')
+    const entity = addEntityToScene(componentName, parentEntity)
+    const entityName = read<string>('entityName')
+    if (entityName.length > 0) setComponent(entity, NameComponent, entityName)
     write('entity', entity)
     commit('flow')
   }
 })
 
 export const deleteEntity = makeFlowNodeDefinition({
-  typeName: 'engine/deleteEntity',
+  typeName: 'engine/entity/deleteEntity',
   category: NodeCategory.Action,
   label: 'Delete entity',
   in: {
@@ -121,24 +167,25 @@ export const deleteEntity = makeFlowNodeDefinition({
   }
 })
 
-export const teleportEntity = makeFlowNodeDefinition({
-  typeName: 'engine/teleportEntity',
+export const setEntityTransform = makeFlowNodeDefinition({
+  typeName: 'engine/entity/setEntityTransform',
   category: NodeCategory.Action,
-  label: 'Teleport Entity',
+  label: 'Set entity transform',
   in: {
     flow: 'flow',
     entity: 'entity',
-    targetPosition: 'vec3',
-    targetRotation: 'vec3'
+    position: 'vec3',
+    rotation: 'quat',
+    scale: 'vec3'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const position = toVector3(read('targetPosition'))
-
-    const rotation = toQuat(eulerToQuat(read('targetRotation')))
+    const position = toVector3(read('position'))
+    const rotation = toQuat(read('rotation'))
+    const scale = toVector3(read('scale'))
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
+    setComponent(entity, TransformComponent, { position: position, rotation: rotation, scale: scale })
     commit('flow')
   }
 })

@@ -236,7 +236,7 @@ const ProjectTable = ({ className }: Props) => {
           <a href={`/studio/${name}`} className={`${el.needsRebuild ? styles.orangeColor : ''}`}>
             {name}
           </a>
-          {el.needsRebuild && (
+          {Boolean(el.needsRebuild) && (
             <Tooltip title={t('admin:components.project.outdatedBuild')} arrow>
               <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.orangeColor} />
             </Tooltip>

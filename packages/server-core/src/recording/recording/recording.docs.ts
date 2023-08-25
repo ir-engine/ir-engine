@@ -26,17 +26,25 @@ Ethereal Engine. All Rights Reserved.
 /**
  * An object for swagger documentation configuration
  */
-export default {
-  definitions: {
-    recording: {
-      type: 'object',
-      properties: {}
-    }
+
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  recordingDataSchema,
+  recordingPatchSchema,
+  recordingQuerySchema,
+  recordingSchema
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    recordingDataSchema,
+    recordingPatchSchema,
+    recordingQuerySchema,
+    recordingSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Recording service description',
+    securities: ['all']
   }
-}
+})

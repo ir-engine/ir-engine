@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { XRUI, createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { defineState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -48,13 +48,13 @@ export const AvatarUIContextMenuState = defineState({
     removeComponent(ui.entity, VisibleComponent)
     return {
       ui,
-      id: null! as string | UserId
+      id: null! as string | UserID
     }
   }
 })
 
 export const AvatarUIContextMenuService = {
-  setId: (id: UserId) => {
+  setId: (id: UserID) => {
     const avatarUIContextMenuState = getMutableState(AvatarUIContextMenuState)
     avatarUIContextMenuState.id.set(id)
   }
@@ -70,11 +70,21 @@ const AvatarContextMenu = () => {
   const user = peers ? Array.from(peers).find((peer) => peer.userId === detailState.id.value) || undefined : undefined
   const { t } = useTranslation()
 
-  const isFriend = friendState.relationships.friend.value.find((item) => item.id === user?.userId)
-  const isRequested = friendState.relationships.requested.value.find((item) => item.id === user?.userId)
-  const isPending = friendState.relationships.pending.value.find((item) => item.id === user?.userId)
-  const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.userId)
-  const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.userId)
+  const isFriend = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'friend'
+  )
+  const isRequested = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'requested'
+  )
+  const isPending = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'pending'
+  )
+  const isBlocked = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'blocked'
+  )
+  const isBlocking = friendState.relationships.value.find(
+    (item) => item.relatedUserId === user?.userId && item.userRelationshipType === 'blocking'
+  )
 
   const handleMute = () => {
     console.log('Mute pressed')

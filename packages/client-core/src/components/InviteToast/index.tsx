@@ -73,10 +73,14 @@ const InviteToast = () => {
           </span>
         )}
         <div className={`${styles.btnContainer}`}>
-          <Button color="primary" className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
+          <Button style={{ color: 'primary' }} className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
             {t('social:invite.accept')}
           </Button>
-          <Button color="secondary" className={styles.declineBtn} onClick={() => declineInvite(newestInvite)}>
+          <Button
+            style={{ color: 'primary' }}
+            className={styles.declineBtn}
+            onClick={() => declineInvite(newestInvite)}
+          >
             {t('social:invite.decline')}
           </Button>
         </div>

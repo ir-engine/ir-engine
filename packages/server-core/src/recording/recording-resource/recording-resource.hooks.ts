@@ -23,16 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  recordingResourceDataSchema,
-  recordingResourcePatchSchema,
-  recordingResourceQuerySchema,
-  recordingResourceSchema
+  recordingResourceDataValidator,
+  recordingResourcePatchValidator,
+  recordingResourceQueryValidator
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
@@ -43,12 +40,6 @@ import {
   recordingResourceQueryResolver,
   recordingResourceResolver
 } from './recording-resource.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const recordingResourceValidator = getValidator(recordingResourceSchema, dataValidator)
-const recordingResourceDataValidator = getValidator(recordingResourceDataSchema, dataValidator)
-const recordingResourcePatchValidator = getValidator(recordingResourcePatchSchema, dataValidator)
-const recordingResourceQueryValidator = getValidator(recordingResourceQuerySchema, queryValidator)
 
 export default {
   around: {
@@ -65,19 +56,19 @@ export default {
       schemaHooks.resolveQuery(recordingResourceQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
-    get: [iff(isProvider('external'), verifyScope('recording', 'read') as any)],
+    get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(recordingResourceDataValidator),
       schemaHooks.resolveData(recordingResourceDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
     patch: [
-      iff(isProvider('external'), verifyScope('recording', 'write') as any),
+      iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingResourcePatchValidator),
       schemaHooks.resolveData(recordingResourcePatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('recording', 'write') as any)]
+    remove: [iff(isProvider('external'), verifyScope('recording', 'write'))]
   },
 
   after: {

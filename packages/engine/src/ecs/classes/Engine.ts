@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import type { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { createHyperStore, getMutableState, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
@@ -61,7 +61,7 @@ export class Engine {
   api: FeathersApplication<ServiceTypes>
 
   /** The uuid of the logged-in user */
-  userId: UserId
+  userID: UserID
 
   /** The peerID of the logged-in user */
   peerID: PeerID
@@ -72,9 +72,9 @@ export class Engine {
         action.$topic === this.store.defaultTopic
           ? false
           : (action.$topic === NetworkTopics.world ? this.worldNetwork : this.mediaNetwork)?.isHosting
-      return isHost || action.$from === this.userId
+      return isHost || action.$from === this.userID
     },
-    getDispatchId: () => Engine.instance.userId,
+    getDispatchId: () => Engine.instance.userID,
     getPeerId: () => Engine.instance.peerID,
     getDispatchTime: () => getState(EngineState).simulationTime,
     defaultDispatchDelay: () => getState(EngineState).simulationTimestep,

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -35,7 +35,7 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
-import { Network } from '../classes/Network'
+import { JitterBufferEntry, Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
@@ -209,7 +209,7 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
 export const readEntity = (
   v: ViewCursor,
   network: Network,
-  fromUserId: UserId,
+  fromUserId: UserID,
   serializationSchema: SerializationSchema[]
 ) => {
   const netId = readUint32(v) as NetworkId
@@ -228,7 +228,7 @@ export const readEntity = (
   }
 }
 
-export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromUserID: UserId) => {
+export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromUserID: UserID) => {
   const entitySchema = Object.values(getState(NetworkState).networkSchema)
   while (v.cursor < byteLength) {
     const count = readUint32(v)
@@ -246,14 +246,14 @@ export const readMetadata = (v: ViewCursor) => {
   return { userIndex, peerIndex, simulationTime }
 }
 
-export const readDataPacket = (network: Network, packet: ArrayBuffer) => {
+export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBufferTaskList: JitterBufferEntry[]) => {
   const view = createViewCursor(packet)
   const { userIndex, peerIndex, simulationTime } = readMetadata(view)
   const fromUserID = network.userIndexToUserID.get(userIndex)
   const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
-  const isLoopback = fromPeerID && fromPeerID === Engine.instance.peerID
+  const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
   if (!fromUserID || isLoopback) return
-  network.jitterBufferTaskList.push({
+  jitterBufferTaskList.push({
     simulationTime,
     read: () => {
       readEntities(view, network, packet.byteLength, fromUserID)

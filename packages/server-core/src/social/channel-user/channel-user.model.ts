@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { ChannelUserInterface } from '@etherealengine/common/src/dbmodels/ChannelUser'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -57,7 +58,7 @@ export default (app: Application) => {
 
   ;(channelUser as any).associate = (models: any): void => {
     ;(channelUser as any).belongsTo(models.channel, { required: true, allowNull: false })
-    ;(channelUser as any).belongsTo(models.user, { required: true, allowNull: false })
+    ;(channelUser as any).belongsTo(createUserModel(app), { required: true, allowNull: false })
   }
 
   return channelUser
