@@ -49,15 +49,12 @@ import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import {
-  ProjectPermissionType,
-  projectPermissionPath
-} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -911,21 +908,6 @@ export class Project extends Service {
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
-
-        if (populateProjectPermissions) {
-          // TODO: Following can be moved to project resolver once this service is moved to feathers 5.
-          values.project_permissions = (await this.app.service(projectPermissionPath)._find({
-            query: {
-              projectId: values.id
-            },
-            paginate: false
-          })) as ProjectPermissionType[]
-
-          for (const permissions of values.project_permissions || []) {
-            if (!permissions.user && permissions.userId)
-              permissions.user = await this.app.service(userPath)._get(permissions.userId)
-          }
-        }
       } catch (err) {
         //
       }
