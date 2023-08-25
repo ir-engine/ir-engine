@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { Landmark } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Vector3 } from 'three'
+import { calcArms } from './solvers/PoseSolver/calcArms'
+import { RestingDefault } from './solvers/utils/helpers'
 import Vector from './solvers/utils/vector'
 
 const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, changes: any) => {
@@ -248,17 +250,17 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   // @todo note that the lower level helpers have swapped left and right hand for some peverse reason; fix this
   // @todo get resting pose from the VRM model not from the mediapipe helper
   //
-  /*
+
   const arms = calcArms(lm3d)
 
-  if(!state.rightHand.visible || !state.shoulders.visible) {
+  if (!state.rightHand.visible || !state.shoulders.visible) {
     arms.UpperArm.l = arms.UpperArm.l.multiply(0)
     arms.UpperArm.l.z = RestingDefault.Pose.LeftUpperArm.z
     arms.LowerArm.l = arms.LowerArm.l.multiply(0)
     arms.Hand.l = arms.Hand.l.multiply(0)
   }
 
-  if(!state.leftHand.visible || !state.shoulders.visible) {
+  if (!state.leftHand.visible || !state.shoulders.visible) {
     arms.UpperArm.r = arms.UpperArm.r.multiply(0)
     arms.UpperArm.r.z = RestingDefault.Pose.RightUpperArm.z
     arms.LowerArm.r = arms.LowerArm.r.multiply(0)
@@ -272,7 +274,7 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   changes[VRMHumanBoneName.RightHand] = { xyz: arms.Hand.r, dampener: 1, lerp: 0.3 }
   changes[VRMHumanBoneName.RightUpperArm] = { euler: arms.UpperArm.r, dampener: 1, lerp: 0.3 }
   changes[VRMHumanBoneName.RightLowerArm] = { euler: arms.LowerArm.r, dampener: 1, lerp: 0.3 }
-*/
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   /*
   //
