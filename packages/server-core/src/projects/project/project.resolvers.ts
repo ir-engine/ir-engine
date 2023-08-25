@@ -37,7 +37,7 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const projectResolver = resolve<ProjectType, HookContext>({
   projectPermissions: virtual(async (project, context) => {
-    const projectPermissions = (await context.app.service(projectPermissionPath)._find({
+    const projectPermissions = (await context.app.service(projectPermissionPath).find({
       query: {
         projectId: project.id
       },
