@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Landmark } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { Vector3 } from 'three'
 import Vector from './solvers/utils/vector'
 
 const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, changes: any) => {
@@ -113,6 +114,7 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   // however this does permit the user to correct the situation by simply moving back into view, setting their hips, and then leaving the view
   //
   // @todo i want to latch this transition once rather than hammering on it
+  // @todo why am i floating above the ground?
   //
 
   if (!state.hips.visible || !state.shoulders.visible) {
@@ -132,36 +134,84 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   // hips pitch is estimated from a line drawn up to a midpoint between the shoulders (manubrium)
   //
   // @todo verify for certain that hips continue to be calculated by tensorflow even if not visible
+  // @todo why is the estimated hips xyz half a meter in the x and y? it should near zero -> it is using lm2d but still the relative displacement should be zero?
   //
   else if (state.hips.visible && state.shoulders.visible) {
-    state.hips.pelvis = Vector.findMiddle(lm2d[23], lm2d[24])
-    state.shoulders.manubrium = Vector.findMiddle(lm2d[11], lm2d[12])
-    state.hips.spine = state.shoulders.manubrium.clone().subtract(state.hips.pelvis)
-    state.hips.spine_length = state.hips.pelvis.distance(state.shoulders.manubrium) // note these are not normalized coordinates
-    state.hips.euler = Vector.rollPitchYaw(Vector.fromArray(lm3d[23]), Vector.fromArray(lm3d[24]), state.hips.spine)
-    state.hips.xyz = new Vector(0, waist - ground, 0)
+    // test getting hip pose using 3d data with weak z to estimate hips pose
+    const hipsleft3d = Vector.fromArray(lm3d[23])
+    const hipsright3d = Vector.fromArray(lm3d[24])
+    const pelvis3d = Vector.findMiddle(hipsleft3d, hipsright3d)
+    const abdomen3d = hipsleft3d.clone().subtract(hipsright3d)
+    const shoulderleft3d = Vector.fromArray(lm3d[11])
+    const shoulderright3d = Vector.fromArray(lm3d[12])
+    const manubrium3d = Vector.findMiddle(shoulderleft3d, shoulderright3d)
+    const spine3d = manubrium3d.clone().subtract(pelvis3d)
+    const spine_length3d = pelvis3d.distance(manubrium3d)
 
-    // this may be reversed - verify??
-    state.shoulders.euler = Vector.rollPitchYaw(
-      Vector.fromArray(lm3d[23]),
-      Vector.fromArray(lm3d[24]),
-      state.hips.spine
-    )
+    // test hip pose usind 2d data with arguably stronger z depth?
+    const hipsleft2d = Vector.fromArray(lm2d[23])
+    const hipsright2d = Vector.fromArray(lm2d[24])
+    const pelvis2d = Vector.findMiddle(hipsleft2d, hipsright2d)
+    const abdomen2d = hipsleft2d.clone().subtract(hipsright2d)
+    const shoulderleft2d = Vector.fromArray(lm2d[11])
+    const shoulderright2d = Vector.fromArray(lm2d[12])
+    const manubrium2d = Vector.findMiddle(shoulderleft2d, shoulderright2d)
+    const spine2d = manubrium2d.clone().subtract(pelvis2d)
+    const spine_length2d = pelvis2d.distance(manubrium2d)
 
-    console.log(
-      'hips euler = ',
-      state.hips.euler.x.toFixed(3),
-      state.hips.euler.y.toFixed(3),
-      state.hips.euler.z.toFixed(3),
-      'hips estimated xyz = ',
-      state.hips.pelvis.x.toFixed(3),
-      state.hips.pelvis.y.toFixed(3),
-      state.hips.pelvis.z.toFixed(3),
-      'hips xyz = ',
-      state.hips.xyz.x.toFixed(3),
-      state.hips.xyz.y.toFixed(3),
-      state.hips.xyz.z.toFixed(3)
-    )
+    // test: calcHips() -> their rollPitchYaw seems a bit suss - it's just not clear what is going on
+    // const results = calcHips(lm3d,lm2d)
+    // state.hips.euler = results.Hips.rotation
+
+    // test: manually call their roll pitch yaw logic and blow away pitch -> unsure how something so simple can be messed up...
+    // state.hips.euler = Vector.rollPitchYaw(lm3d[23],lm3d[24])
+    // state.hips.euler.x = 0
+
+    // test: estimate body pose orientation using spine also - their code doesn't seem to do what i expect?
+    // state.hips.euler = Vector.rollPitchYaw(new Vector(lm3d[23]),new Vector(lm3d[24]),manubrium3d)
+
+    // test: get hips pose from scratch; the manual values tacked on the end are trial and error, the euler order is XYZ
+    // @todo note that i've turned off the pitch and roll for now but it might be nice to apply them to the vrm spine?
+    const hipleft = new Vector3(lm3d[23].x, lm3d[23].y, lm3d[23].z)
+    const hipright = new Vector3(lm3d[24].x, lm3d[24].y, lm3d[24].z)
+    const hipdir = hipright.clone().sub(hipleft).normalize()
+    const x = restpose[VRMHumanBoneName.Hips].euler.x // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
+    const y = restpose[VRMHumanBoneName.Hips].euler.y + Math.atan2(hipdir.x, hipdir.z) + Math.PI / 2
+    const z = restpose[VRMHumanBoneName.Hips].euler.z // + Math.atan2( hipdir.y, hipdir.x) + Math.PI
+    const euler = (state.hips.euler = { x, y, z })
+
+    //console.log(
+
+    // pelvis3d  values are consistently near 0,0,0 - that is good
+    // 'hips middle is at = ',
+    // pelvis3d.x.toFixed(3),
+    // pelvis3d.y.toFixed(3),
+    // pelvis3d.z.toFixed(3),
+
+    // shoulder3d middle ~ok~
+    // 'shoulder middle is at = ',
+    // manubrium3d.x.toFixed(3),
+    // manubrium3d.y.toFixed(3),
+    // manubrium3d.z.toFixed(3),
+
+    // spine3d is reasonably vertical; a bit noisy
+    //"spine vector is = ",
+    //spine3d.x.toFixed(3),
+    //spine3d.y.toFixed(3),
+    //spine3d.z.toFixed(3),
+
+    //"my rot estimate is = ",
+    //euler.x.toFixed(3),
+    //euler.y.toFixed(3),
+    //euler.z.toFixed(3),
+
+    //'hips euler is = ',
+    //state.hips.euler.x.toFixed(3),
+    //state.hips.euler.y.toFixed(3),
+    //state.hips.euler.z.toFixed(3),
+    //restpose[VRMHumanBoneName.Hips].euler.z
+
+    //)
 
     changes[VRMHumanBoneName.Hips] = state.hips
 
@@ -172,22 +222,21 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   //
   // strategy for dealing with shoulder only visible (no hips)
   //
+  // @todo incomplete
+  //
   // if only the shoulders are visible then go ahead and get our estimate on shoulder orientation; but throw away pitch
   // i think we can leave the hips alone (leave at previous estimation if any or at rest pose if none)
   //
-  // @todo we may be able to estimate pitch from head as a refinement
-  // @todo we may want to rotate the "upper chest"?
-  // @todo maybe we can presume hips from shoulders?
+  // @todo we may be able to estimate pitch from head?
+  // @todo we may want to rotate the "upper chest" bone in the vrm model?
+  // @todo we can estimate shoulder yaw - is that useful? should it be applied to something? would it distort other bone transformations?
   // @todo what is the difference between the 'left shoulder' and the 'upper arm'?
   //
   else if (state.shoulders.visible) {
-    state.shoulders.euler = Vector.rollPitchYaw(Vector.fromArray(lm3d[23]), Vector.fromArray(lm3d[24]))
-    state.shoulders.euler.x = 0
-
+    // state.shoulders.euler = Vector.rollPitchYaw(Vector.fromArray(lm3d[23]), Vector.fromArray(lm3d[24]))
+    // state.shoulders.euler.x = 0
     //changes[VRMHumanBoneName.Spine] = state.shoulder
   }
-
-  /*
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -199,7 +248,7 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   // @todo note that the lower level helpers have swapped left and right hand for some peverse reason; fix this
   // @todo get resting pose from the VRM model not from the mediapipe helper
   //
-
+  /*
   const arms = calcArms(lm3d)
 
   if(!state.rightHand.visible || !state.shoulders.visible) {
@@ -223,9 +272,9 @@ const UpdateSolvedPose = (lm3d: Landmark[], lm2d: Landmark[], restpose: any, cha
   changes[VRMHumanBoneName.RightHand] = { xyz: arms.Hand.r, dampener: 1, lerp: 0.3 }
   changes[VRMHumanBoneName.RightUpperArm] = { euler: arms.UpperArm.r, dampener: 1, lerp: 0.3 }
   changes[VRMHumanBoneName.RightLowerArm] = { euler: arms.LowerArm.r, dampener: 1, lerp: 0.3 }
-
+*/
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  /*
   //
   // legs
   //
