@@ -23,19 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import {
+  botDataValidator,
+  botPatchValidator,
+  botQueryValidator
+} from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import {
+  botDataResolver,
+  botExternalResolver,
+  botPatchResolver,
+  botQueryResolver,
+  botResolver
+} from '../../bot/bot/bot.resolvers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(botExternalResolver), schemaHooks.resolveResult(botResolver)]
+  },
+
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    all: [
+      authenticate(),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(botQueryValidator),
+      schemaHooks.resolveQuery(botQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [],
+    create: [() => schemaHooks.validateData(botDataValidator), schemaHooks.resolveData(botDataResolver)],
     update: [disallow()],
-    patch: [],
+    patch: [() => schemaHooks.validateData(botPatchValidator), schemaHooks.resolveData(botPatchResolver)],
     remove: []
   },
 
