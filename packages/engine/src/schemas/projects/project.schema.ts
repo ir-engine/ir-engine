@@ -60,7 +60,7 @@ export const projectSchema = Type.Object(
     updateSchedule: Type.Optional(Type.String()),
     updateUserId: Type.Optional(Type.String()),
     hasWriteAccess: Type.Optional(Type.Boolean()),
-    project_permissions: Type.Optional(Type.Array(Type.Ref(projectPermissionSchema))),
+    projectPermissions: Type.Optional(Type.Array(Type.Ref(projectPermissionSchema))),
     commitSHA: Type.Optional(Type.String()),
     commitDate: Type.Optional(Type.String({ format: 'date-time' })),
     createdAt: Type.String({ format: 'date-time' }),
@@ -99,7 +99,7 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
   'updateSchedule',
   'updateUserId',
   'hasWriteAccess',
-  'project_permissions',
+  'projectPermissions',
   'commitSHA',
   'commitDate'
 ])
