@@ -23,49 +23,44 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import type { Knex } from 'knex'
-
-import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'botCommand'
-
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
-  let tableExists = await trx.schema.hasTable(botCommandPath)
-  if (oldNamedTableExists) {
-    // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await trx.schema.dropTable(botCommandPath)
-    await trx.schema.renameTable(oldTableName, botCommandPath)
-  }
+  const tableExists = await trx.schema.hasTable(botPath)
 
-  tableExists = await trx.schema.hasTable(botCommandPath)
-
-  if (!tableExists && !oldNamedTableExists) {
-    await trx.schema.createTable(botCommandPath, (table) => {
+  if (tableExists === false) {
+    await trx.schema.createTable(botPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
-      table.string('name', 255).notNullable().unique()
-      table.string('description', 255).nullable()
+      table.string('name', 255).notNullable()
+      table.string('description', 255).defaultTo(null)
       //@ts-ignore
-      table.uuid('botId').collate('utf8mb4_bin').nullable().index()
+      table.uuid('instanceId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      //@ts-ignore
+      table.uuid('locationId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      //@ts-ignore
+      table.uuid('userId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('botId').references('id').inTable('bot').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('instanceId').references('id').inTable('instance').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('locationId').references('id').inTable('location').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     })
-  }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+    await trx.commit()
+  }
 }
 
 /**
@@ -73,9 +68,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(botCommandPath)
+  const tableExists = await knex.schema.hasTable(botPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(botCommandPath)
+    await knex.schema.dropTable(botPath)
   }
 }
