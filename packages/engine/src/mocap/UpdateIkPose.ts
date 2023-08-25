@@ -52,12 +52,14 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
   if (!poseEnsemble.strategies) {
     poseEnsemble.strategies = {}
   }
+  if (!poseEnsemble.strategies[props.id]) {
+    poseEnsemble.strategies[props.id] = {
+      kfx: new KalmanFilter(),
+      kfy: new KalmanFilter(),
+      kfz: new KalmanFilter()
+    }
+  }
   const strategy = poseEnsemble.strategies[props.id]
-
-  // build persistent filters for smoothing inputs
-  if (!strategy.kfx) strategy.kfx = new KalmanFilter()
-  if (!strategy.kfy) strategy.kfy = new KalmanFilter()
-  if (!strategy.kfz) strategy.kfz = new KalmanFilter()
 
   // support a resting state if not visible?
   const threshhold = 0.5
@@ -76,7 +78,7 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
     .add(avatarPosition)
 
   // ik part?
-  if (strategy.ik) {
+  if (props.ik) {
     const entityUUID = `${Engine?.instance?.userId}_mocap_${props.key}` as EntityUUID
     const target = UUIDComponent.entitiesByUUID[entityUUID]
     if (!target) {
@@ -85,10 +87,9 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
     const transform = getComponent(target, TransformComponent)
     if (transform) {
       transform.position.copy(xyz)
-      if (props.rotation) {
-        transform.rotation.copy(
-          new Quaternion().setFromEuler(new Euler(props.rotation.x, props.rotation.z, props.rotation.z))
-        )
+      if (props.euler) {
+        transform.rotation.copy(new Quaternion().setFromEuler(new Euler(props.euler.x, props.euler.z, props.euler.z)))
+        //console.log(props.key,props.euler.x.toFixed(3,props.euler.y.toFixed(3),props.euler.z.toFixed(3)))
       }
     }
   }
@@ -143,7 +144,7 @@ const UpdateIkPose = (lm3d: Landmark[], avatarPosition: Vector3, avatarRotation:
     color: 0xee0000,
     key: 'leftHand',
     ik: true,
-    rest: { x: -0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
+    rest: { x: 0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
   })
 
   ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
@@ -156,7 +157,7 @@ const UpdateIkPose = (lm3d: Landmark[], avatarPosition: Vector3, avatarRotation:
     color: 0xee0000,
     key: 'rightHand',
     ik: true,
-    rest: { x: 0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
+    rest: { x: -0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
   })
 }
 
