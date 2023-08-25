@@ -90,6 +90,7 @@ export const BehaveGraphComponent = defineComponent({
     const graphRunner = useGraphRunner({ graphJson: graph.graph.get({ noproxy: true }), autoRun: canPlay, registry })
 
     useEffect(() => {
+      if (graph.disabled.value) return
       graph.run.value ? graphRunner.play() : graphRunner.pause()
     }, [graph.run])
 
