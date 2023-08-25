@@ -27,6 +27,7 @@ import type { Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   RecordingData,
   RecordingID,
@@ -37,7 +38,6 @@ import {
 import { NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
-import { checkScope } from '../../hooks/verify-scope'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RecordingParams extends RootParams<RecordingQuery> {}
@@ -68,7 +68,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
     paramsWithoutExtras = { ...paramsWithoutExtras, query: { ...paramsWithoutExtras.query, userId: params?.user?.id } }
 
     if (params && params.user && params.query) {
-      const admin = await checkScope(params.user, this.app, 'admin', 'admin')
+      const admin = await checkScope(params.user, 'admin', 'admin')
       if (admin && params.query.action === 'admin') {
         // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
         if (paramsWithoutExtras.query?.userId || paramsWithoutExtras.query?.userId === '')

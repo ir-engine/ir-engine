@@ -46,7 +46,7 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'

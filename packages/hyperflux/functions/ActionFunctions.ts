@@ -77,6 +77,7 @@ export type ActionOptions = {
 
   /**
    * The id of the sender
+   * @deprecated see getDispatchId
    */
   $from?: UserID
 
@@ -378,6 +379,7 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 
       if (remove) {
         for (const a of [...cachedActions]) {
+          // TODO - is it safe to change $from to $peer here?
           if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)

@@ -55,22 +55,3 @@ export default (currentType: string, scopeToVerify: string) => {
     return context
   }
 }
-
-export const checkScope = async (user: UserType, app: Application, currentType: string, scopeToVerify: string) => {
-  const scopes = (await app.service(scopePath).find({
-    query: {
-      userId: user.id
-    },
-    paginate: false
-  })) as ScopeType[]
-  if (!scopes || scopes.length === 0) throw new NotFound('No scope available for the current user.')
-
-  const currentScopes = scopes.reduce<string[]>((result, sc) => {
-    if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
-    return result
-  }, [])
-  if (!currentScopes.includes(scopeToVerify)) {
-    return false
-  }
-  return true
-}

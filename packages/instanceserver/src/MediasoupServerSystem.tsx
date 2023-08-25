@@ -45,6 +45,7 @@ import {
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { MediasoupRecordingSystem } from './MediasoupRecordingFunctions'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
   createOutgoingDataProducer,
@@ -145,6 +146,7 @@ export const MediasoupServerSystem = defineSystem({
   preSystems: [
     MediasoupTransportStateSystem,
     MediasoupMediaProducerConsumerStateSystem,
-    MediasoupDataProducerConsumerStateSystem
+    MediasoupDataProducerConsumerStateSystem,
+    MediasoupRecordingSystem
   ]
 })
