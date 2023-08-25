@@ -57,7 +57,7 @@ const execute = () => {
   const { localClientEntity } = Engine.instance
 
   for (const action of sessionChangedQueue()) {
-    if (!localClientEntity) continue
+    if (!localClientEntity || xrState.sessionActive) continue
 
     //todo, this needs to be optimized and scalable
     const headUUID = (Engine.instance.userID + ikTargets.head) as EntityUUID
