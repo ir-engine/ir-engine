@@ -44,7 +44,7 @@ const BehaveFlow = () => {
   const graphState = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
   const forceUpdate = useForceUpdate()
   const registries = getState(BehaveGraphState).registries
-  const registry = registries[graphState.domain.value]
+  const registry = registries[graphState?.domain.value]
 
   useEffect(() => {
     forceUpdate()
