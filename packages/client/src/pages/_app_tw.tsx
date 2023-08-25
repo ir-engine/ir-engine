@@ -35,6 +35,7 @@ import {
 
 import { API } from '@etherealengine/client-core/src/API'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
+import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import {
   NotificationAction,
   NotificationActions
@@ -60,7 +61,6 @@ import '../themes/components.css'
 import '../themes/utilities.css'
 
 const AppPage = () => {
-  const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
@@ -71,24 +71,6 @@ const AppPage = () => {
   const initApp = useCallback(() => {
     initGA()
     logPageView()
-  }, [])
-
-  useEffect(() => {
-    const receptor = (action): any => {
-      // @ts-ignore
-      matches(action).when(NotificationAction.notify.matches, (action) => {
-        AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
-        notistackRef.current?.enqueueSnackbar(action.message, {
-          variant: action.options.variant,
-          action: NotificationActions[action.options.actionType ?? 'default']
-        })
-      })
-    }
-    addActionReceptor(receptor)
-
-    return () => {
-      removeActionReceptor(receptor)
-    }
   }, [])
 
   useEffect(initApp, [])
@@ -136,11 +118,38 @@ const AppPage = () => {
 }
 
 const TailwindPage = () => {
+  const notistackRef = useRef<SnackbarProvider>()
+
+  useEffect(() => {
+    const receptor = (action): any => {
+      // @ts-ignore
+      matches(action).when(NotificationAction.notify.matches, (action) => {
+        AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
+        notistackRef.current?.enqueueSnackbar(action.message, {
+          variant: action.options.variant,
+          action: NotificationActions[action.options.actionType ?? 'default']
+        })
+      })
+    }
+    addActionReceptor(receptor)
+
+    return () => {
+      removeActionReceptor(receptor)
+    }
+  }, [])
+
   return (
     <EngineTW>
       <ThemeContextProvider>
-        <AppPage />
-        <Debug />
+        <SnackbarProvider
+          ref={notistackRef as any}
+          maxSnack={7}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          action={defaultAction}
+        >
+          <AppPage />
+          <Debug />
+        </SnackbarProvider>
       </ThemeContextProvider>
     </EngineTW>
   )

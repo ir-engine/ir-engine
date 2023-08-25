@@ -73,7 +73,7 @@ interface PrimusConnectionType {
   socketQuery?: {
     sceneId: string
     locationId?: string
-    instanceId?: string
+    instanceID?: string
     channelId?: string
     roomCode?: string
     token: string
@@ -556,6 +556,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId! as ChannelID
   let roomCode = connection.socketQuery.roomCode!
+  let instanceID = connection.socketQuery.instanceID!
 
   if (locationId === '') {
     locationId = undefined!
@@ -583,9 +584,10 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const isLocalServerNeedingNewLocation =
     !config.kubernetes.enabled &&
     instanceServerState.instance &&
-    (instanceServerState.instance.locationId != locationId ||
+    (instanceServerState.instance.id != instanceID ||
+      instanceServerState.instance.locationId != locationId ||
       instanceServerState.instance.channelId != channelId ||
-      (roomCode && instanceServerState.instance.roomCode !== roomCode))
+      (roomCode && instanceServerState.instance.roomCode != roomCode))
 
   logger.info(
     `current id: ${instanceServerState.instance?.locationId ?? instanceServerState.instance?.channelId} and new id: ${

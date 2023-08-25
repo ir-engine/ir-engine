@@ -29,7 +29,6 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 
@@ -48,7 +47,6 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
-    TransformComponent.dirtyTransforms[entity] = true
   }
 }
 
