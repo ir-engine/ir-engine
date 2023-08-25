@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import BotCommand from './bot-command/bot-command'
-import Bot from './bot/bot.service'
+import Bot from './bot/bot'
 import TestBot from './testbot/testbot.service'
 
 export default [Bot, BotCommand, TestBot]

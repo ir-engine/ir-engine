@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { DoubleSide, Group, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vector2 } from 'three'
 
 import { defineState } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
+import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
@@ -38,16 +39,13 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { isMobileXRHeadset } from '../../xr/XRState'
-import { ContentFitType } from '../../xrui/functions/ObjectFitFunctions'
-import { addError, clearErrors } from '../functions/ErrorFunctions'
-import { ObjectFitFunctions } from './../../xrui/functions/ObjectFitFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from './../components/GroupComponent'
-import { resizeImageMesh } from './../components/ImageComponent'
-import { MediaComponent, MediaElementComponent } from './../components/MediaComponent'
-import { UUIDComponent } from './../components/UUIDComponent'
-import { PLANE_GEO } from './ImageComponent'
+import { ContentFitType, ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
+import { clearErrors } from '../functions/ErrorFunctions'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { PLANE_GEO, resizeImageMesh } from './ImageComponent'
+import { MediaComponent, MediaElementComponent } from './MediaComponent'
+import { UUIDComponent } from './UUIDComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
   name: 'VideoTexturePriorityQueueState',
@@ -80,8 +78,6 @@ export const VideoComponent = defineComponent({
     const videoGroup = new Group()
     videoGroup.name = `video-group-${entity}`
     const videoMesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
-    videoGroup.add(videoMesh)
-
     return {
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
@@ -109,8 +105,8 @@ export const VideoComponent = defineComponent({
     if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)
-    if (json.size) component.size.set(new Vector2(json.size.x, json.size.y))
-    if (json.fit) component.fit.set(json.fit)
+    if (typeof json.size === 'object') component.size.set(new Vector2(json.size.x, json.size.y))
+    if (typeof json.fit === 'string') component.fit.set(json.fit)
   },
 
   onRemove: (entity, component) => {
@@ -131,9 +127,13 @@ export const VideoComponent = defineComponent({
 function VideoReactor() {
   const entity = useEntityContext()
   const video = useComponent(entity, VideoComponent)
-  const mediaUUID = video.mediaUUID.value ?? ''
+  const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID] ?? entity
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
+
+  useEffect(() => {
+    video.videoGroup.value.add(video.videoMesh.value)
+  }, [])
 
   // update side
   useEffect(() => {
@@ -159,10 +159,30 @@ function VideoReactor() {
     return () => removeObjectFromGroup(entity, videoGroup)
   }, [video.size, video.fit, video.videoMesh.material.map])
 
+  useEffect(() => {
+    const map = video.videoMesh.material.map
+    if (!map) return
+    return () => {
+      if (VideoComponent.uniqueVideoEntities.includes(entity)) {
+        VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
+      }
+    }
+  }, [video.videoMesh.material.map])
+
+  return <VideoMediaSourceReactor mediaEntity={mediaEntity} key={mediaEntity} />
+}
+
+const VideoMediaSourceReactor = (props: { mediaEntity }) => {
+  const entity = useEntityContext()
+  const video = useComponent(entity, VideoComponent)
+
+  const { mediaEntity } = props
+
+  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
+
   // update video texture
   useEffect(() => {
-    if (!mediaEntity) return addError(entity, VideoComponent, 'INVALID_MEDIA_UUID')
-    if (!mediaElement) return addError(entity, VideoComponent, 'MISSING_MEDIA_ELEMENT')
+    if (!mediaEntity || !mediaElement) return
     const material = video.videoMesh.material.value
     const sourceVideoComponent = getComponent(mediaEntity, VideoComponent)
     const sourceMaterial = sourceVideoComponent.videoMesh.material
@@ -179,16 +199,6 @@ function VideoReactor() {
     material.needsUpdate = true
     clearErrors(entity, VideoComponent)
   }, [video, mediaEntity, mediaElement])
-
-  useEffect(() => {
-    const map = video.videoMesh.material.map
-    if (!map) return
-    return () => {
-      if (VideoComponent.uniqueVideoEntities.includes(entity)) {
-        VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
-      }
-    }
-  }, [video.videoMesh.material.map])
 
   return null
 }

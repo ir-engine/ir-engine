@@ -23,17 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ValueType } from '@behave-graph/core'
-import { Component } from '../../../../../ecs/functions/ComponentFunctions'
+import { botMethods, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 
-export const ComponentValue: ValueType = {
-  name: 'component',
-  creator: () => null,
-  deserialize: (value: string) => JSON.parse(value),
-  serialize: (value: Component) => JSON.stringify(value),
-  equals: (a: Component, b: Component) => a === b,
-  clone: (value: Component) => value,
-  lerp: function (start: any, end: any, t: number) {
-    throw new Error('Function not implemented.')
+import { Application } from '../../../declarations'
+import { BotService } from './bot.class'
+import botDocs from './bot.docs'
+import hooks from './bot.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [botPath]: BotService
   }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: botPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(botPath, new BotService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: botMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: botDocs
+  })
+
+  const service = app.service(botPath)
+  service.hooks(hooks)
 }

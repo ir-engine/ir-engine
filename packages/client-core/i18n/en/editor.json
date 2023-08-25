@@ -174,8 +174,8 @@
       "pausetitle": "Pause",
       "lbl-controls": "controls",
       "info-controls": "Toggle the visibility of the media controls.",
-      "lbl-paused": "Paused",
-      "info-paused": "Indicates whether the media is currently playing or paused",
+      "lbl-autoplay": "Autoplay",
+      "info-autoplay": "Toggle whether this video autoplays",
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
@@ -250,7 +250,8 @@
     "loopAnimation": {
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
-      "lbl-loopAnimation": "Loop Animation"
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-playbackSpeed": "Playback Speed"
     },
     "variant": {
       "name": "Variant",

@@ -28,10 +28,9 @@ import matches, { Validator } from 'ts-matches'
 import { GraphJSON, IRegistry } from '@behave-graph/core'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect, useState } from 'react'
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useGraphRunner } from '../functions/useGraphRunner'
@@ -49,10 +48,6 @@ export const BehaveGraphComponent = defineComponent({
   onInit: (entity) => {
     const domain = 'ECS' as GraphDomainID
     const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
-    const registry = useRegistry()
-    const systemState = getState(BehaveGraphState)
-    systemState.domains[domain]?.register(registry)
-    systemState.registry = registry
     return {
       domain: domain,
       graph: graph,
@@ -65,7 +60,7 @@ export const BehaveGraphComponent = defineComponent({
     return {
       domain: component.domain.value,
       graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))),
-      run: component.run.value,
+      run: false,
       disabled: component.disabled.value
     }
   },
@@ -88,18 +83,31 @@ export const BehaveGraphComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const graphComponent = useComponent(entity, BehaveGraphComponent)
+    const systemState = useHookstate(getMutableState(BehaveGraphState))
     const [graphJson, setGraphJson] = useState<GraphJSON>(graphComponent.graph.value)
-    const [registry, setRegistry] = useState<IRegistry>(getState(BehaveGraphState).registry)
+    const [registry, setRegistry] = useState<IRegistry>(systemState.registry.get({ noproxy: true })) // if it already exists
     const canPlay = graphComponent.run && !graphComponent.disabled
-    const engineState = getState(EngineState)
+
+    useEffect(() => {
+      const registry = useRegistry()
+      const domainName = graphComponent.domain.value
+      systemState.registry.set(registry)
+      systemState.domains.set((domains) => ({
+        ...domains,
+        [domainName]: {
+          register: (registry) => {}
+        }
+      }))
+      systemState.get({ noproxy: true }).domains[domainName].register(registry)
+      setRegistry(registry)
+    }, [])
+
     useEffect(() => {
       if (graphComponent.disabled.value) {
         graphRunner.pause()
         if (graphComponent.run.value) graphComponent.run.set(false)
       } else {
-        if (!engineState.isEditor) {
-          graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
-        }
+        graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
       }
     }, [graphComponent.run, graphComponent.disabled])
     const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })
