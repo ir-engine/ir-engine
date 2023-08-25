@@ -34,12 +34,12 @@ import { RingBuffer } from '../common/classes/RingBuffer'
 import { Engine } from '../ecs/classes/Engine'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
+import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 import UpdateAvatar from './UpdateAvatar'
 
 export interface MotionCaptureStream extends Results {

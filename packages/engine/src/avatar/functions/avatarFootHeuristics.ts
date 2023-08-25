@@ -48,13 +48,13 @@ const speedMultiplier = 75
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
 export const setIkFootTarget = (stepThreshold: number) => {
-  const { localClientEntity, userId } = Engine.instance
+  const { localClientEntity, userID } = Engine.instance
 
   if (!localClientEntity) return
 
   const feet = {
-    rightFoot: UUIDComponent.entitiesByUUID[userId + ikTargets.rightFoot],
-    leftFoot: UUIDComponent.entitiesByUUID[userId + ikTargets.leftFoot]
+    rightFoot: UUIDComponent.entitiesByUUID[userID + ikTargets.rightFoot],
+    leftFoot: UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
   }
   const playerTransform = getComponent(localClientEntity, TransformComponent)
   const playerRig = getComponent(localClientEntity, AvatarRigComponent)

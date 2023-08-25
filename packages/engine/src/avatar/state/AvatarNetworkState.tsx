@@ -31,6 +31,7 @@ import { defineState, getMutableState, none, useHookstate, useState } from '@eth
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
@@ -100,6 +101,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
         if (!isClient) return
 
         const entity = UUIDComponent.entitiesByUUID[entityUUID]
+        if (!entity || !entityExists(entity)) return
         loadAvatarForUser(entity, avatarDetails.modelResource?.url)
       })
   }, [state.avatarID, entityUUID])

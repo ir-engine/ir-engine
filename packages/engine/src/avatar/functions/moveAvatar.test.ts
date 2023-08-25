@@ -28,7 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   applyIncomingActions,
   dispatchAction,
@@ -57,7 +57,7 @@ describe('moveAvatar function tests', () => {
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-    Engine.instance.userId = 'userId' as UserId
+    Engine.instance.userID = 'userId' as UserID
     Engine.instance.peerID = 'peerID' as PeerID
   })
 
@@ -71,18 +71,18 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userId,
+        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userId as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID
       })
     )
 
     applyIncomingActions()
     receiveActions(EntityNetworkState)
 
-    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userId)
+    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
+    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
     const avatar = getComponent(entity, AvatarControllerComponent)
@@ -105,18 +105,18 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userId,
+        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userId as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID
       })
     )
 
     applyIncomingActions()
     receiveActions(EntityNetworkState)
 
-    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userId)
+    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
+    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -131,7 +131,7 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
-    Engine.instance.userId = 'user' as UserId
+    Engine.instance.userID = 'user' as UserID
 
     const engineState = getMutableState(EngineState)
     engineState.simulationTimestep.set(1000 / 60)
@@ -141,18 +141,18 @@ describe('moveAvatar function tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userId,
+        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userId as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID
       })
     )
 
     applyIncomingActions()
     receiveActions(EntityNetworkState)
 
-    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userId)
+    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
+    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 
@@ -167,25 +167,25 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', () => {
-    Engine.instance.userId = 'user' as UserId
+    Engine.instance.userID = 'user' as UserID
 
     const engineState = getMutableState(EngineState)
     engineState.simulationTimestep.set(1000 / 60)
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userId,
+        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userId as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID
       })
     )
 
     applyIncomingActions()
     receiveActions(EntityNetworkState)
 
-    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userId)
+    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
+    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
 
     const velocity = getComponent(entity, RigidBodyComponent).linearVelocity
 

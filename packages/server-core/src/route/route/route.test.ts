@@ -31,6 +31,8 @@ import { v4 as uuid } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { Paginated } from '@feathersjs/feathers/lib'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -96,14 +98,14 @@ describe('route.test', () => {
     updateXREngineConfigForTest(testProject, testRoute)
 
     const installedRoutes = await app.service('routes-installed').find()
-    const route = installedRoutes.data.find((route) => route.project === testProject)
+    const route = installedRoutes.find((route) => route.project === testProject)
 
     assert.ok(route)
     assert.equal(route.project, testProject)
   })
 
   it('should not be activated by default (the installed project)', async () => {
-    const route = await app.service('route').find({ query: { project: testProject } })
+    const route = (await app.service('route').find({ query: { project: testProject } })) as Paginated<RouteType>
     assert.equal(route.total, 0)
   })
 
@@ -111,7 +113,7 @@ describe('route.test', () => {
     const activateResult = await app
       .service('route-activate')
       .create({ project: testProject, route: testRoute, activate: true }, params)
-    const fetchResult = await app.service('route').find({ query: { project: testProject } })
+    const fetchResult = (await app.service('route').find({ query: { project: testProject } })) as Paginated<RouteType>
     const route = fetchResult.data.find((d) => d.project === testProject)
 
     assert.ok(activateResult)
@@ -124,7 +126,7 @@ describe('route.test', () => {
   it('should deactivate a route', async () => {
     await app.service('route-activate').create({ project: testProject, route: testRoute, activate: false }, params)
 
-    const route = await app.service('route').find({ query: { project: testProject } })
+    const route = (await app.service('route').find({ query: { project: testProject } })) as Paginated<RouteType>
     assert.equal(route.total, 0)
   })
 })

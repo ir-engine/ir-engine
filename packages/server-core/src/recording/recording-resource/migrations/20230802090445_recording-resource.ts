@@ -33,17 +33,34 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'recording_resource'
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  const tableExists = await knex.schema.hasTable(recordingResourcePath)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(recordingResourcePath)
 
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await knex.schema.dropTable(recordingResourcePath)
-    await knex.schema.renameTable(oldTableName, recordingResourcePath)
+    if (tableExists) await trx.schema.dropTable(recordingResourcePath)
+    await trx.schema.renameTable(oldTableName, recordingResourcePath)
+  }
+
+  tableExists = await trx.schema.hasTable(recordingResourcePath)
+
+  if (tableExists) {
+    const hasIdColum = await trx.schema.hasColumn(recordingResourcePath, 'id')
+    const hasRecordingIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'recordingId')
+    const hasStaticResourcesIdColumn = await trx.schema.hasColumn(recordingResourcePath, 'staticResourceId')
+    if (!(hasRecordingIdColumn && hasIdColum && hasStaticResourcesIdColumn)) {
+      await trx.schema.dropTable(recordingResourcePath)
+      tableExists = false
+    }
   }
 
   if (!tableExists && !oldNamedTableExists) {
-    await knex.schema.createTable(recordingResourcePath, (table) => {
+    await trx.schema.createTable(recordingResourcePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
@@ -63,10 +80,14 @@ export async function up(knex: Knex): Promise<void> {
       table
         .foreign('staticResourceId')
         .references('id')
-        .inTable('static_resource')
+        .inTable('static-resource')
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
     })
+
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+
+    await trx.commit()
   }
 }
 

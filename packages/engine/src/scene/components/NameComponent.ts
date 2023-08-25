@@ -33,7 +33,7 @@ const entitiesByName = {} as Record<string, Entity[]>
 export const NameComponent = defineComponent({
   name: 'NameComponent',
 
-  onInit: () => undefined as any as string,
+  onInit: () => '' as string,
 
   onSet: (entity, component, name?: string) => {
     if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')

@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -42,6 +41,7 @@ import ListItem from '@etherealengine/ui/src/primitives/mui/ListItem'
 import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 import Switch from '@etherealengine/ui/src/primitives/mui/Switch'
 
+import { ProjectPermissionType } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -96,7 +96,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
     }
   }
 
-  const handlePatchPermission = async (permission: ProjectPermissionInterface) => {
+  const handlePatchPermission = async (permission: ProjectPermissionType) => {
     try {
       await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
       await ProjectService.fetchProjects()

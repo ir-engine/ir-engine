@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
-import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { BotCommandData, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/mui/Accordion'
 import AccordionDetails from '@etherealengine/ui/src/primitives/mui/AccordionDetails'
 import AccordionSummary from '@etherealengine/ui/src/primitives/mui/AccordionSummary'
@@ -38,13 +37,14 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import { AdminBotCommandService, AdminBotsCommandState } from '../../services/BotsCommand'
-import { AdminBotService, AdminBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
 import UpdateBot from './UpdateBot'
+
+const BOTS_PAGE_LIMIT = 100
 
 const DisplayBots = () => {
   const expanded = useHookstate<string | false>('panel0')
@@ -54,9 +54,20 @@ const DisplayBots = () => {
   })
   const openUpdateBot = useHookstate(false)
   const openConfirm = useHookstate(false)
-  const bot = useHookstate<AdminBot | undefined>(undefined)
+  const bot = useHookstate<BotType | undefined>(undefined)
   const botName = useHookstate('')
   const botId = useHookstate('')
+
+  const botsQuery = useFind(botPath, {
+    query: {
+      $sort: {
+        name: 1
+      },
+      $limit: BOTS_PAGE_LIMIT
+    }
+  })
+  const botRemove = useMutation(botPath).remove
+  const adminBotCommandMutation = useMutation(botCommandPath)
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
@@ -66,54 +77,35 @@ const DisplayBots = () => {
   const handleChange = (panel: string) => (event: React.ChangeEvent<any>, isExpanded: boolean) => {
     expanded.set(isExpanded ? panel : false)
   }
-  const botAdmin = useHookstate(getMutableState(AdminBotState))
-  const botCommand = useHookstate(getMutableState(AdminBotsCommandState))
-  const user = useHookstate(getMutableState(AuthState).user)
-  const botAdminData = botAdmin.bots
   const { t } = useTranslation()
-
-  useEffect(() => {
-    if (user.id.value && botAdmin.updateNeeded.value) {
-      AdminBotService.fetchBotAsAdmin()
-    }
-  }, [botAdmin.updateNeeded.value, user?.id?.value])
 
   const handleOpenUpdateBot = (inputBot) => {
     bot.set(inputBot)
     openUpdateBot.set(true)
   }
 
-  const submitCommandBot = (id: string) => {
-    const data: BotCommandData = {
-      name: command.name.value,
-      description: command.description.value,
-      botId: id
-    }
-    AdminBotCommandService.createBotCommand(data)
-    command.set({
-      name: '',
-      description: ''
-    })
-  }
-
   const submitRemoveBot = async () => {
-    await AdminBotService.removeBots(botId.value)
+    await botRemove(botId.value)
     openConfirm.set(false)
   }
 
-  const botRefresh = async () => {
-    if (botCommand.updateNeeded.value) await AdminBotService.fetchBotAsAdmin()
-  }
-
   const removeCommand = async (id) => {
-    await AdminBotCommandService.removeBotsCommand(id)
-    botRefresh()
+    await adminBotCommandMutation.remove(id).then(() => botsQuery.refetch())
   }
 
   const addCommand = (id) => {
     if (command.name.value) {
-      submitCommandBot(id)
-      botRefresh()
+      const data: BotCommandData = {
+        name: command.name.value,
+        description: command.description.value,
+        botId: id
+      }
+      adminBotCommandMutation.create(data)
+      command.set({
+        name: '',
+        description: ''
+      })
+      botsQuery.refetch()
     } else {
       NotificationService.dispatchNotify(t('admin:components.bot.commandRequired'), { variant: 'error' })
     }
@@ -121,7 +113,7 @@ const DisplayBots = () => {
 
   return (
     <div className={styles.botRootRight}>
-      {botAdminData.get({ noproxy: true }).map((bot, index) => {
+      {botsQuery.data.map((bot, index) => {
         return (
           <Accordion
             expanded={expanded.value === `panel${index}`}

@@ -65,8 +65,7 @@ export const resetAnimationLogic = (entity: Entity) => {
   setComponent(entity, AnimationComponent, {
     // empty object3d as the mixer gets replaced when model is loaded
     mixer: new AnimationMixer(new Object3D()),
-    animations: [],
-    animationSpeed: 1
+    animations: []
   })
   setComponent(entity, AvatarAnimationComponent, {
     animationGraph: {

@@ -23,16 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { NotificationService } from '../../../common/services/NotificationService'
 import Search from '../../common/Search'
-import { AdminInstanceServerState } from '../../services/InstanceserverService'
-import { AdminInstanceService } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 import InstanceTable from './InstanceTable'
 import PatchInstanceserver from './PatchInstanceserver'
@@ -40,15 +37,6 @@ import PatchInstanceserver from './PatchInstanceserver'
 const Instance = () => {
   const search = useHookstate('')
   const patchInstanceserverOpen = useHookstate(false)
-  const patch = useHookstate(getMutableState(AdminInstanceServerState).patch)
-
-  AdminInstanceService.useAPIListeners()
-
-  useEffect(() => {
-    if (patch.value) {
-      NotificationService.dispatchNotify(patch.value.message, { variant: patch.value.status ? 'success' : 'error' })
-    }
-  }, [patch.value])
 
   const handleChange = (e: any) => {
     search.set(e.target.value)

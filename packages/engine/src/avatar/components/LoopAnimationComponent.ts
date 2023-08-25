@@ -35,6 +35,7 @@ import {
   getComponent,
   hasComponent,
   setComponent,
+  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -50,6 +51,7 @@ export const LoopAnimationComponent = defineComponent({
   onInit: (entity) => {
     return {
       hasAvatarAnimations: false,
+      animationSpeed: 1,
       activeClipIndex: -1,
       vrm: undefined as VRM | undefined,
       animationPack: '',
@@ -60,16 +62,17 @@ export const LoopAnimationComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-
     if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
+    if (typeof json.animationSpeed === 'number') component.activeClipIndex.set(json.animationSpeed)
     if (typeof json.animationPack === 'string') component.animationPack.set(json.animationPack)
   },
 
   toJSON: (entity, component) => {
     return {
       activeClipIndex: component.activeClipIndex.value,
-      animationPack: component.animationPack.value
+      animationPack: component.animationPack.value,
+      animationSpeed: component.animationSpeed.value
     }
   },
 
@@ -77,11 +80,12 @@ export const LoopAnimationComponent = defineComponent({
     if (!isClient) return null
     const entity = useEntityContext()
 
+    const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
+
     const modelComponent = useOptionalComponent(entity, ModelComponent)
 
-    const animComponent = useOptionalComponent(entity, AnimationComponent)
+    const animComponent = useComponent(entity, AnimationComponent)
 
-    const loopAnimationComponent = useOptionalComponent(entity, LoopAnimationComponent)
     /**
      * Callback functions
      */
@@ -114,11 +118,16 @@ export const LoopAnimationComponent = defineComponent({
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
           mixer: new AnimationMixer(scene),
-          animationSpeed: 1,
           animations: []
         })
+        getComponent(entity, AnimationComponent).mixer.timeScale = loopAnimationComponent.animationSpeed.value
       }
     }, [modelComponent?.scene])
+
+    useEffect(() => {
+      if (!animComponent) return
+      animComponent.mixer.timeScale.set(loopAnimationComponent.animationSpeed.value)
+    }, [loopAnimationComponent.animationSpeed])
 
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
@@ -129,7 +138,6 @@ export const LoopAnimationComponent = defineComponent({
       if (!loopAnimationComponent || !loopAnimationComponent.animationPack.value) return
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
         const animations = model.userData ? model.animations : model.scene.animations
-        console.log(model)
         loopAnimationComponent.animationPackScene.set(model.scene)
         animationComponent.animations = animations
         playAnimationClip(animationComponent, loopComponent)
@@ -156,6 +164,7 @@ export const playAnimationClip = (
       animationComponent.animations,
       animationComponent.animations[loopAnimationComponent.activeClipIndex].name
     )
+    animationComponent.mixer.time = 0
     loopAnimationComponent.action = animationComponent.mixer
       .clipAction(
         loopAnimationComponent.vrm

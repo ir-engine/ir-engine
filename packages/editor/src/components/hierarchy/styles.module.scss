@@ -153,8 +153,8 @@
 }
 
 .checkbox {
-  padding: 0;
-  color: var(--textColor);
+  padding: 0 !important;
+  color: var(--textColor) !important;
 }
 
 .checkboxChecked {

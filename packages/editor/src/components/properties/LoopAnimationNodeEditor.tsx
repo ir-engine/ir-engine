@@ -38,9 +38,10 @@ import { AnimationComponent } from '@etherealengine/engine/src/avatar/components
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
+import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -52,7 +53,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
-
   const animationOptions = useState([] as { label: string; value: number }[])
 
   const errors = getEntityErrors(props.entity, ModelComponent)
@@ -100,6 +100,12 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           )}
         </InputGroup>
       )}
+      <InputGroup name="Playback Speed" label={t('editor:properties.loopAnimation.lbl-playbackSpeed')}>
+        <NumericInput
+          value={loopAnimationComponent.animationSpeed.value}
+          onChange={updateProperty(LoopAnimationComponent, 'animationSpeed')}
+        />
+      </InputGroup>
     </NodeEditor>
   )
 }

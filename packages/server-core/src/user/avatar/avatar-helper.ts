@@ -32,12 +32,12 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import { isAssetFromProject } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
-import { UserParams } from '../user/user.class'
 
 export type AvatarUploadArguments = {
   avatar: Buffer
@@ -215,10 +215,14 @@ export const uploadAvatarStaticResource = async (
 
   if (data.avatarId) {
     try {
-      await app.service(avatarPath).patch(data.avatarId, {
-        modelResourceId: modelResource.id,
-        thumbnailResourceId: thumbnailResource.id
-      })
+      await app.service(avatarPath).patch(
+        data.avatarId,
+        {
+          modelResourceId: modelResource.id,
+          thumbnailResourceId: thumbnailResource.id
+        },
+        params
+      )
     } catch (err) {
       console.log(err)
     }

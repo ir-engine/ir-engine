@@ -277,9 +277,9 @@ export const applyInputSourcePoseToIKTargets = () => {
 
   /** Update controller pose input sources from WebXR into the ECS */
   if (xrFrame && referenceSpace) {
-    const headUUID = (Engine.instance.userId + ikTargets.head) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + ikTargets.leftHand) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + ikTargets.rightHand) as EntityUUID
+    const headUUID = (Engine.instance.userID + ikTargets.head) as EntityUUID
+    const leftHandUUID = (Engine.instance.userID + ikTargets.leftHand) as EntityUUID
+    const rightHandUUID = (Engine.instance.userID + ikTargets.rightHand) as EntityUUID
 
     const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
     const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]

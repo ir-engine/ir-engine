@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -34,7 +34,7 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { updateNetwork } from '../NetworkState'
+import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
@@ -44,7 +44,7 @@ function createPeer(
   network: Network,
   peerID: PeerID,
   peerIndex: number,
-  userID: UserId,
+  userID: UserID,
   userIndex: number,
   name: string
 ) {
@@ -66,14 +66,15 @@ function createPeer(
     if (!network.users.get(userID)!.includes(peerID)) network.users.get(userID)!.push(peerID)
   }
 
-  //TODO: remove this once all network state properties are reactively set
-  updateNetwork(network)
-
   // TODO: we probably want an explicit config for detecting a non-user peer
   if (peerID !== 'server') {
     const worldState = getMutableState(WorldState)
     worldState.userNames[userID].set(name)
   }
+
+  // reactively set
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers.set(network.peers)
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {
@@ -99,8 +100,9 @@ function destroyPeer(network: Network, peerID: PeerID) {
   userPeers.splice(peerIndexInUserPeers, 1)
   if (!userPeers.length) network.users.delete(userID)
 
-  //TODO: remove this once all network state properties are reactively set
-  updateNetwork(network)
+  // reactively set
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers.set(network.peers)
 
   /**
    * if no other connections exist for this user, and this action is occurring on the world network,
@@ -134,7 +136,7 @@ const destroyAllPeers = (network: Network) => {
   for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId)
 }
 
-function clearActionsHistoryForUser(userId: UserId) {
+function clearActionsHistoryForUser(userId: UserID) {
   for (const action of Engine.instance.store.actions.history) {
     if (action.$from === userId) {
       Engine.instance.store.actions.knownUUIDs.delete(action.$uuid)
@@ -142,7 +144,7 @@ function clearActionsHistoryForUser(userId: UserId) {
   }
 }
 
-function clearCachedActionsForUser(userId: UserId) {
+function clearCachedActionsForUser(userId: UserID) {
   const cached = Engine.instance.store.actions.cached
   for (const action of [...cached]) {
     if (action.$from === userId) {
@@ -152,7 +154,7 @@ function clearCachedActionsForUser(userId: UserId) {
   }
 }
 
-function clearCachedActionsOfTypeForUser(userId: UserId, actionShape: Validator<unknown, ResolvedActionType>) {
+function clearCachedActionsOfTypeForUser(userId: UserID, actionShape: Validator<unknown, ResolvedActionType>) {
   const cached = Engine.instance.store.actions.cached
   for (const action of [...cached]) {
     if (action.$from === userId && actionShape.test(action)) {
@@ -162,12 +164,12 @@ function clearCachedActionsOfTypeForUser(userId: UserId, actionShape: Validator<
   }
 }
 
-function getCachedActionsForUser(toUserId: UserId) {
+function getCachedActionsForPeer(toPeerID: PeerID) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
   for (const action of Engine.instance.store.actions.cached as Array<ReturnType<typeof AvatarNetworkAction.spawn>>) {
-    if (action.$from === toUserId) continue
-    if (action.$to === 'all' || action.$to === toUserId) cachedActions.push({ ...action, $stack: undefined! })
+    if (action.$peer === toPeerID) continue
+    if (action.$to === 'all' || action.$to === toPeerID) cachedActions.push({ ...action, $stack: undefined! })
   }
 
   return cachedActions
@@ -180,5 +182,5 @@ export const NetworkPeerFunctions = {
   clearCachedActionsForUser,
   clearActionsHistoryForUser,
   clearCachedActionsOfTypeForUser,
-  getCachedActionsForUser
+  getCachedActionsForPeer
 }

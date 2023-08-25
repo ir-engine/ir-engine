@@ -26,24 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { FileBrowserAction } from '../common/services/FileBrowserService'
 import { AuthState } from '../user/services/AuthService'
 import { RethrownError } from './errors'
 
 export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; promise: Promise<T | T[]> }
 export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => void; promises: Array<Promise<T | T[]>> }
-
-/**
- * upload used to upload image as blob data.
- *
- * @param  {any}  service
- * @param  {any}  onUploadProgress
- * @param  {any}  files
- * @param  {any}  params
- * @return {Promise}
- */
 
 export const uploadToFeathersService = (
   service = 'upload-asset',
@@ -71,9 +60,6 @@ export const uploadToFeathersService = (
         if (aborted) return
         reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error))
       })
-
-      // request.upload.addEventListener('load', console.log)
-      // request.upload.addEventListener('loadend', console.log)
 
       request.addEventListener('readystatechange', (e) => {
         if (request.readyState === XMLHttpRequest.DONE) {
@@ -105,9 +91,6 @@ export const uploadToFeathersService = (
       request.open('post', `${config.client.serverUrl}/${service}`, true)
       request.setRequestHeader('Authorization', `Bearer ${token}`)
       request.send(formData)
-      setTimeout(() => {
-        dispatchAction(FileBrowserAction.setUpdateNeeded({ updateNeeded: true }))
-      }, 2000)
     })
   }
 }
@@ -115,12 +98,11 @@ export const uploadToFeathersService = (
 /**
  * matchesFileTypes function used to match file type with existing file types.
  *
- * @param  {Object} file      [object contains file data]
- * @param  {array} fileTypes [Array contains existing file types]
- * @return {boolean}           [true if file type found in existing fileTypes]
+ * @param file      [object contains file data]
+ * @param fileTypes [Array contains existing file types]
  */
 
-export function matchesFileTypes(file, fileTypes) {
+export function matchesFileTypes(file: File, fileTypes: string[]) {
   for (const pattern of fileTypes) {
     if (pattern.startsWith('.')) {
       if (file.name.toLowerCase().endsWith(pattern)) {

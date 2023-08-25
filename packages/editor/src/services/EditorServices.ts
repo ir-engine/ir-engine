@@ -34,8 +34,7 @@ export const EditorState = defineState({
     sceneName: null as string | null,
     sceneModified: false,
     showObject3DInHierarchy: false,
-    lockPropertiesPanel: '' as EntityUUID,
-    advancedMode: false
+    lockPropertiesPanel: '' as EntityUUID
   })
 })
 
@@ -54,9 +53,6 @@ export const EditorServiceReceptor = (action) => {
     .when(EditorAction.lockPropertiesPanel.matches, (action) =>
       s.merge({ lockPropertiesPanel: action.lockPropertiesPanel })
     )
-    .when(EditorAction.setAdvancedMode.matches, (action) => {
-      return s.merge({ advancedMode: action.advanced })
-    })
 }
 
 //Service
@@ -77,11 +73,6 @@ export class EditorAction {
   static showObject3DInHierarchy = defineAction({
     type: 'ee.editor.Editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
     showObject3DInHierarchy: matches.boolean
-  })
-
-  static setAdvancedMode = defineAction({
-    type: 'ee.editor.Editor.SET_ADVANCED_MODE' as const,
-    advanced: matches.boolean
   })
 
   static lockPropertiesPanel = defineAction({

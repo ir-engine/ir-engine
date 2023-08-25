@@ -27,11 +27,11 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import {
-  leaveNetwork,
-  SocketWebRTCClientNetwork
+  SocketWebRTCClientNetwork,
+  leaveNetwork
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
@@ -80,13 +80,12 @@ export const WorldInstanceConnection = () => {
   // const incrementPage = () => { }
 
   const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
-  const currentLocationInstanceConnection = useWorldInstance()
+  const networkState = useWorldNetwork()
 
   const getIcon = () => {
-    if (currentLocationInstanceConnection?.value) {
-      if (currentLocationInstanceConnection.connected) return <DoneIcon fontSize="small" />
-      if (currentLocationInstanceConnection.connecting)
-        return <LoadingCircle message={t('common:loader.connectingToWorld')} />
+    if (networkState?.value) {
+      if (networkState.connected.value) return <DoneIcon fontSize="small" />
+      if (!networkState.ready.value) return <LoadingCircle message={t('common:loader.connectingToWorld')} />
     }
     return <DirectionsRun fontSize="small" />
   }

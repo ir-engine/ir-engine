@@ -1,0 +1,56 @@
+/* styles.css */
+.property-group {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 100%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.property-group-header {
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  font-weight: bold;
+  color: var(--textColor);
+  padding: 0 8px;
+  height: 16px;
+}
+
+.property-group-header:last-child {
+  margin-left: auto;
+}
+
+.property-group-description {
+  color: var(--textColor);
+  white-space: pre-wrap;
+  padding: 0 8px;
+}
+
+.property-group-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.property-close-button {
+  display: flex;
+  flex-direction: row;
+  margin: auto;
+  margin-right: 0px;
+  font-size: 16px;
+  height: 16px;
+  background: none;
+  border: none;
+  color: var(--iconButtonColor);
+}
+
+.property-close-button:hover {
+  font-size: 14px;
+  color: var(--iconButtonHoverColor);
+}
+
+.property-close-button:active {
+  color: var(--iconButtonSelectedBackground);
+}

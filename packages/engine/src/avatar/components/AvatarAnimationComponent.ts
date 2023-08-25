@@ -160,15 +160,16 @@ export const AvatarRigComponent = defineComponent({
     }, [debugEnabled, pending])
 
     useEffect(() => {
-      rigComponent.flipped.set(
-        (rigComponent.value.vrm as any).userData && (rigComponent.value.vrm as any).userData.flipped
-      )
+      if (!rigComponent.value || !rigComponent.value.vrm) return
+      const userData = (rigComponent.value.vrm as any).userData
+      if (userData) rigComponent.flipped.set(userData && userData.flipped)
     }, [rigComponent.vrm])
     /**
      * Proxify the rig bones with the bitecs store
      */
     useEffect(() => {
       const rig = anim.rig.value
+      if (!rig) return
       for (const [boneName, bone] of Object.entries(rig)) {
         if (!bone) continue
         // const axesHelper = new AxesHelper(0.1)

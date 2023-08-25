@@ -29,14 +29,19 @@ import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { sendInvite } from '../../hooks/send-invite'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
+import { sendInvite } from '../../hooks/send-invite'
 
 interface InviteRemoveParams extends UserParams {
   preventUserRelationshipRemoval?: boolean
@@ -50,18 +55,18 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
       result.data.map(async (item) => {
         return await new Promise(async (resolve) => {
           if (item.inviteeId != null) {
-            item.invitee = await app.service('user').get(item.inviteeId)
+            item.invitee = await app.service(userPath).get(item.inviteeId)
           } else if (item.token) {
-            const identityProvider = (await app.service('identity-provider').find({
+            const identityProvider = (await app.service(identityProviderPath).find({
               query: {
                 token: item.token
               }
-            })) as Paginated<IdentityProviderInterface>
+            })) as Paginated<IdentityProviderType>
             if (identityProvider.data.length > 0) {
-              item.invitee = await app.service('user').get(identityProvider.data[0].userId)
+              item.invitee = await app.service(userPath).get(identityProvider.data[0].userId)
             }
           }
-          item.user = await app.service('user').get(item.userId)
+          item.user = await app.service(userPath).get(item.userId)
 
           resolve(true)
         })
@@ -74,12 +79,12 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
 }
 
 export const inviteReceived = async (inviteService: Invite, query) => {
-  const identityProviders = await inviteService.app.service('identity-provider').find({
+  const identityProviders = (await inviteService.app.service(identityProviderPath).find({
     query: {
       userId: query.userId
     }
-  })
-  const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
+  })) as Paginated<IdentityProviderType>
+  const identityProviderTokens = identityProviders.data.map((provider) => provider.token)
 
   const { $sort, search } = query
 
@@ -121,7 +126,7 @@ export const inviteReceived = async (inviteService: Invite, query) => {
     result.data.map(async (invite) => {
       if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
           invite.channelName = channel.name
         } catch (err) {
           invite.channelName = '<A deleted channel>'
@@ -162,7 +167,7 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
     result.data.map(async (invite) => {
       if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
           invite.channelName = channel.name
         } catch (err) {
           invite.channelName = '<A deleted channel>'
@@ -173,7 +178,7 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
   return result
 }
 
-export const inviteAll = async (inviteService: Invite, query: Query, user: UserInterface) => {
+export const inviteAll = async (inviteService: Invite, query: Query, user: UserType) => {
   if ((!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) && !query.existenceCheck)
     throw new Forbidden('Must be admin to search invites in this way')
 
@@ -209,7 +214,7 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserI
     result.data.map(async (invite) => {
       if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
           if (!channel) throw new Error()
           invite.channelName = channel.name
         } catch (err) {
@@ -271,9 +276,9 @@ export class Invite extends Service<InviteDataType> {
     if (!id) return super.remove(id, params)
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
-      const selfUser = params!.user as UserInterface
+      const selfUser = params!.user as UserType
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
-      await this.app.service('user-relationship').remove(relatedUserId, params)
+      await this.app.service(userRelationshipPath).remove(relatedUserId, params)
     }
     return (await super.remove(id)) as InviteDataType
   }

@@ -24,234 +24,203 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Sequelize, Transaction } from 'sequelize'
 
-import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { resolveModelData } from '../../util/model-resolver'
-import { UserParams } from '../user/user.class'
 
-export type UserRelationshipDataType = UserRelationshipInterface
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
+
+import {
+  UserRelationshipData,
+  UserRelationshipID,
+  UserRelationshipPatch,
+  UserRelationshipQuery,
+  UserRelationshipType,
+  userRelationshipPath
+} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { Knex } from 'knex'
+import { v4 } from 'uuid'
+import { RootParams } from '../../api/root-params'
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UserRelationshipParams extends RootParams<UserRelationshipQuery> {}
+
 /**
  * A class for User Relationship service
  */
-export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
+export class UserRelationshipService<
+  T = UserRelationshipType,
+  ServiceParams extends Params = UserRelationshipParams
+> extends KnexAdapter<UserRelationshipType, UserRelationshipData, UserRelationshipParams, UserRelationshipPatch> {
   app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: UserRelationshipParams) {
     if (!params) params = {}
-    const UserRelationshipModel = this.getModel(params)
-    const UserRelationshipTypeService = this.app.service('user-relationship-type')
-    const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
 
-    const userId = params.query?.userId
+    const loggedInUserId = params.user?.id
 
-    /** query relationships for the logged in user */
-    if (!userId) {
-      const loggedInUserId = (params as any).user.id
-
-      const where = {
-        userId: loggedInUserId
-      }
-
-      if (params.query?.userRelationshipType) {
-        Object.assign(where, { userRelationshipType: params.query.userRelationshipType })
-      }
-
-      const relationshipsFound = await this.Model.findAll({
-        where
-      })
-
-      return relationshipsFound
+    if (!loggedInUserId) {
+      throw new Error('User must be logged in to get relationships')
     }
 
-    /**
-     * @deprecated query relationships for the given user
-     * TODO: migrate admin find query
-     */
-
-    const result = {}
-    for (const userRelationType of userRelationshipTypes) {
-      const userRelations = await UserRelationshipModel.findAll({
-        where: {
-          userId,
-          userRelationshipType: userRelationType.type
-        },
-        attributes: ['relatedUserId'],
-        raw: false
-      })
-
-      const resolvedData: any[] = []
-      for (const userRelation of userRelations) {
-        const userData = resolveModelData(await userRelation.getRelatedUser())
-        // add second relation type
-        const inverseRelationType = resolveModelData(
-          await UserRelationshipModel.findOne({
-            where: {
-              userId: userRelation.relatedUserId,
-              relatedUserId: userId
-            }
-          })
-        )
-
-        if (inverseRelationType) {
-          Object.assign(userData, { inverseRelationType: inverseRelationType.type })
-        }
-
-        Object.assign(userData, { relationType: userRelationType.type })
-
-        resolvedData.push(userData)
-      }
-
-      Object.assign(result, { [userRelationType.type]: resolvedData })
+    // Override the user id to be currently logged in user. This is to avoid user finding other user's relationships due to security concerns.
+    params.query = {
+      ...params.query,
+      userId: loggedInUserId
     }
 
-    Object.assign(result, { userId })
-    return result
+    return await super._find(params)
   }
 
-  async create(data: any, params?: Params): Promise<T> {
+  async create(data: UserRelationshipData, params?: UserRelationshipParams) {
     if (!params) params = {}
-    const loggedInUserEntity: string = config.authentication.entity
+
+    const loggedInUserEntity = config.authentication.entity
 
     const userId = data.userId || params[loggedInUserEntity].userId
     const { relatedUserId, userRelationshipType } = data
-    const UserRelationshipModel = this.getModel(params)
 
     if (userRelationshipType === 'blocking') {
-      await this.remove(relatedUserId, params)
+      await super._remove(null, {
+        query: {
+          $or: [
+            {
+              relatedUserId,
+              userId
+            },
+            {
+              relatedUserId: userId,
+              userId: relatedUserId
+            }
+          ]
+        }
+      })
     }
 
-    await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
-      await UserRelationshipModel.create(
-        {
-          userId: userId,
-          relatedUserId: relatedUserId,
-          userRelationshipType: userRelationshipType
-        },
-        {
-          transaction: trans
-        }
-      )
+    const trx = await (this.app.get('knexClient') as Knex).transaction()
 
-      if (userRelationshipType === 'blocking' || userRelationshipType === 'requested') {
-        await UserRelationshipModel.create(
-          {
-            userId: relatedUserId,
-            relatedUserId: userId,
-            userRelationshipType: userRelationshipType === 'blocking' ? 'blocked' : 'pending'
-          },
-          {
-            transaction: trans
-          }
-        )
+    await trx.from<UserRelationshipType>(userRelationshipPath).insert({
+      id: v4() as UserRelationshipID,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql(),
+      userId: userId,
+      relatedUserId: relatedUserId,
+      userRelationshipType: userRelationshipType
+    })
+
+    if (userRelationshipType === 'blocking' || userRelationshipType === 'requested') {
+      await trx.from<UserRelationshipType>(userRelationshipPath).insert({
+        id: v4() as UserRelationshipID,
+        createdAt: await getDateTimeSql(),
+        updatedAt: await getDateTimeSql(),
+        userId: relatedUserId,
+        relatedUserId: userId,
+        userRelationshipType: userRelationshipType === 'blocking' ? 'blocked' : 'pending'
+      })
+    }
+
+    await trx.commit()
+
+    const result = await super._find({
+      query: {
+        userId,
+        relatedUserId
       }
     })
 
-    const result = await UserRelationshipModel.findOne({
-      where: {
-        userId: userId,
-        relatedUserId: relatedUserId
-      }
-    })
-
-    return result
+    return result.data.length > 0 ? result.data[0] : undefined
   }
 
-  async patch(id: Id, data: any, params?: UserParams): Promise<T> {
+  async patch(id: Id, data: UserRelationshipPatch, params?: UserRelationshipParams) {
     if (!params) params = {}
-    const { userRelationshipType } = data
-    const UserRelationshipModel = this.getModel(params)
 
-    let whereParams
+    const { userRelationshipType } = data
+
+    let queryParams: UserRelationshipPatch
 
     try {
-      await this.app.service('user').get(id)
+      await this.app.service(userPath).get(id)
       //The ID resolves to a userId, in which case patch the relation joining that user to the requesting one
-      whereParams = {
+      queryParams = {
         userId: params.user!.id,
-        relatedUserId: id
+        relatedUserId: id as UserID
       }
     } catch (err) {
       //The ID does not resolve to a user, in which case it's the ID of the user-relationship object, so patch it
-      whereParams = {
-        id: id
+      queryParams = {
+        id: id as UserRelationshipID
       }
     }
 
-    await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
-      await UserRelationshipModel.update(
-        {
-          userRelationshipType: userRelationshipType
-        },
-        {
-          where: whereParams
-        },
-        {
-          transaction: trans
-        }
-      )
+    const trx = await (this.app.get('knexClient') as Knex).transaction()
 
-      if (userRelationshipType === 'friend' || userRelationshipType === 'blocking') {
-        const result = await UserRelationshipModel.findOne({
-          where: whereParams
-        })
+    await trx
+      .from<UserRelationshipType>(userRelationshipPath)
+      .update({
+        userRelationshipType: userRelationshipType
+      })
+      .where(queryParams)
 
-        await UserRelationshipModel.update(
-          {
+    if (userRelationshipType === 'friend' || userRelationshipType === 'blocking') {
+      const result = await super._find({
+        query: queryParams
+      })
+
+      if (result.data.length > 0) {
+        await trx
+          .from<UserRelationshipType>(userRelationshipPath)
+          .update({
             userRelationshipType: userRelationshipType === 'friend' ? 'friend' : 'blocked'
-          },
-          {
-            where: {
-              userId: result.relatedUserId,
-              relatedUserId: result.userId
-            }
-          },
-          {
-            transaction: trans
-          }
-        )
+          })
+          .where({
+            userId: result.data[0].relatedUserId,
+            relatedUserId: result.data[0].userId
+          })
       }
+    }
+
+    await trx.commit()
+
+    const response = await super._find({
+      query: queryParams
     })
 
-    return await UserRelationshipModel.findOne({
-      where: whereParams
-    })
+    return response.data.length > 0 ? response.data[0] : undefined
   }
 
-  async remove(id: Id, params?: Params): Promise<T> {
+  async remove(id: UserID, params?: UserRelationshipParams) {
     if (!params) params = {}
-    const loggedInUserEntity: string = config.authentication.entity
+
+    const loggedInUserEntity = config.authentication.entity
 
     const authUser = params[loggedInUserEntity]
     const userId = authUser.userId
-    const UserRelationshipModel = this.getModel(params)
 
     //If the ID provided is not a user ID, as it's expected to be, it'll throw a 404
-    await this.app.service('user').get(id)
+    await this.app.service(userPath).get(id)
 
-    const relationship = await UserRelationshipModel.findOne({
-      where: {
-        userId: userId,
-        relatedUserId: id
+    return await super._remove(null, {
+      query: {
+        $or: [
+          {
+            userId,
+            relatedUserId: id
+          },
+          {
+            userId: id,
+            relatedUserId: userId
+          }
+        ]
       }
     })
-    await UserRelationshipModel.destroy({
-      where: Sequelize.literal(
-        `(userId='${userId as string}' AND relatedUserId='${id as string}') OR 
-             (userId='${id as string}' AND relatedUserId='${userId as string}')`
-      )
-    })
-
-    return relationship
   }
 }

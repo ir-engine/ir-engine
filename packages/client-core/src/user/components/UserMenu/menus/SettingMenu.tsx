@@ -53,11 +53,12 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { UserSettingPatch } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
-import { userHasAccess } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
+import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 export const ShadowMapResolutionOptions = [
   {
@@ -109,7 +110,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
-  const userSettings = selfUser.user_setting.value
+  const userSettings = selfUser.userSetting.value
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
@@ -127,8 +128,8 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     if (!userSettings) return
     const { name, value } = event.target
 
-    const settings = { themeModes: { ...themeModes, [name]: value } }
-    AuthService.updateUserSettings(userSettings.id as string, settings)
+    const settings: UserSettingPatch = { themeModes: { ...themeModes, [name]: value } }
+    AuthService.updateUserSettings(userSettings.id, settings)
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {

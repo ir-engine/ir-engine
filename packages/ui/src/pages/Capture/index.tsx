@@ -28,57 +28,39 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
-import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
+import { createDataProducer } from '@etherealengine/client-core/src/networking/DataChannelSystem'
 import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
-  closeDataProducer,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
+import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import {
   MotionCaptureFunctions,
   MotionCaptureStream,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-
-import { getMutableState, getState } from '@etherealengine/hyperflux'
-
+import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
-import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
-
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { FACEMESH_TESSELATION, HAND_CONNECTIONS, Holistic, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
-
-let creatingProducer = false
-const startDataProducer = async () => {
-  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-  if (!network?.sendTransport || creatingProducer) return
-  creatingProducer = true
-  const dataProducer = await network.sendTransport.produceData({
-    appData: { data: {} },
-    ordered: true,
-    label: mocapDataChannelType,
-    // maxPacketLifeTime: 0,
-    maxRetransmits: 1,
-    protocol: 'raw'
-  })
-  dataProducer.on('transportclose', () => {
-    network.dataProducers.delete(mocapDataChannelType)
-  })
-  network.dataProducers.set(mocapDataChannelType, dataProducer)
-}
+import { DataProducer } from 'mediasoup-client/lib/DataProducer'
+import Toolbar from '../../components/tailwind/Toolbar'
 
 /**
  * Start playback of a recording
@@ -86,34 +68,37 @@ const startDataProducer = async () => {
  */
 export const startPlayback = async (recordingID: RecordingID, twin = true) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-  if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
-    await closeDataProducer(network, mocapDataChannelType)
+  const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
+    network.id,
+    mocapDataChannelType
+  ) as DataProducer
+  if (getState(RecordingState).playback && dataProducer) {
+    dispatchAction(
+      MediaProducerActions.producerClosed({
+        producerID: dataProducer.id,
+        $network: network.id,
+        $topic: network.topic
+      })
+    )
   }
   ECSRecordingFunctions.startPlayback({
     recordingID,
-    targetUser: twin ? undefined : Engine.instance.userId
+    targetUser: twin ? undefined : Engine.instance.userID
   })
 }
 
-// set in debugsettings
-function throttle(func, delaySeconds) {
-  let timeout: NodeJS.Timeout | null = null
-  return (...args) => {
-    if (!timeout) {
-      func(...args)
-      timeout = setTimeout(() => {
-        timeout = null
-      }, delaySeconds * 1000)
-    }
-  }
-}
-
+let creatingProducer = false
 const sendResults = (results: MotionCaptureStream) => {
-  const network = Engine?.instance?.worldNetwork as SocketWebRTCClientNetwork
-  if (!network?.sendTransport) return
-  const dataProducer = network?.dataProducers?.get(mocapDataChannelType)
+  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  if (!network?.ready) return
+  const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
+    network.id,
+    mocapDataChannelType
+  ) as DataProducer
   if (!dataProducer) {
-    startDataProducer()
+    if (creatingProducer) return
+    creatingProducer = true
+    createDataProducer(network, { label: mocapDataChannelType, ordered: true })
     return
   }
   if (!dataProducer?.closed && dataProducer?.readyState === 'open') {
@@ -143,7 +128,7 @@ const CaptureDashboard = () => {
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
-  const mediaConnection = useMediaInstance()
+  const mediaNetworkState = useMediaNetwork()
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const recordingState = useHookstate(getMutableState(RecordingState))
 
@@ -344,7 +329,7 @@ const CaptureDashboard = () => {
   const isCamVideoEnabled =
     mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState?.videoPaused?.value === false
   const videoStatus =
-    !mediaConnection?.connected?.value && !videoActive?.value
+    !mediaNetworkState?.connected?.value && !videoActive?.value
       ? 'loading'
       : isCamVideoEnabled !== true
       ? 'ready'
@@ -381,11 +366,11 @@ const CaptureDashboard = () => {
               {videoStatus !== 'active' ? (
                 <button
                   onClick={() => {
-                    if (mediaConnection?.connected?.value) toggleWebcamPaused()
+                    if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
                   }}
                   className="absolute top-0 left-0 z-30 w-full h-full btn btn-ghost bg-none flex items-center"
                 >
-                  <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
+                  <h1>{mediaNetworkState?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
                 </button>
               ) : null}
             </div>
