@@ -34,45 +34,12 @@ import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
 import { Landmark, POSE_LANDMARKS } from '@mediapipe/holistic'
-import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkState'
 
 import KalmanFilter from './kalman'
 
 import { ArrowHelper, AxesHelper, BoxGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// a table of hints on how to resolve landmarks of interest
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const strategies: any = []
-
-//strategies[0] = { color: 0xffffff, key: 'head', ik: true, rest: { x: 0, y: -0.6, z: -0.2 } }
-
-//strategies[1] = { color: 0xffffff, key: 'chest' }
-//strategies[2] = { color: 0xffffff, key: 'hips' }
-
-//strategies[POSE_LANDMARKS.LEFT_SHOULDER] = { color: 0x880000, key: 'leftShoulder' }
-//strategies[POSE_LANDMARKS.RIGHT_SHOULDER] = { color: 0x880000, key: 'rightShoulder' }
-
-//strategies[POSE_LANDMARKS.LEFT_ELBOW] =        { color:0xaa0000, key:'leftElbow', ik:false }
-//strategies[POSE_LANDMARKS.RIGHT_ELBOW] =       { color:0xaa0000, key:'rightElbow', ik:false }
-
-strategies[POSE_LANDMARKS.LEFT_WRIST] = { color: 0xee0000, key: 'leftHand', ik: true, rest: { x: 0.2, y: 0, z: -0.2 } }
-strategies[POSE_LANDMARKS.RIGHT_WRIST] = {
-  color: 0xee0000,
-  key: 'rightHand',
-  ik: true,
-  rest: { x: -0.2, y: 0, z: -0.2 }
-}
-
-//strategies[POSE_LANDMARKS.LEFT_HIP] =          { color:0x880000, key:'leftHip' }
-//strategies[POSE_LANDMARKS.RIGHT_HIP] =         { color:0x880000, key:'rightHip' }
-
-//strategies[POSE_LANDMARKS_LEFT.LEFT_KNEE] =    { color:0xaa0000, key:'leftAnkle', ik:false }
-//strategies[POSE_LANDMARKS_RIGHT.RIGHT_KNEE] =  { color:0xaa0000, key:'rightAnkle', ik:false }
-
-//strategies[POSE_LANDMARKS_LEFT.LEFT_ANKLE] =   { color:0xee0000, key:'leftAnkle', ik:true }
-//strategies[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE] = { color:0xee0000, key:'rightAnkle', ik:true }
+import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
+import Vector from './solvers/utils/vector'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // helper to apply landmark to rig
@@ -80,63 +47,117 @@ strategies[POSE_LANDMARKS.RIGHT_WRIST] = {
 
 const demirror = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
-function UpdatePart(part, landmark: Landmark, position: Vector3, rotation: Quaternion) {
-  // build filters for smoothing inputs
-  if (!part.kfx) part.kfx = new KalmanFilter()
-  if (!part.kfy) part.kfy = new KalmanFilter()
-  if (!part.kfz) part.kfz = new KalmanFilter()
+function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Quaternion, props) {
+  // get a persistent scratch space
+  if (!poseEnsemble.strategies) {
+    poseEnsemble.strategies = {}
+  }
+  const strategy = poseEnsemble.strategies[props.id]
+
+  // build persistent filters for smoothing inputs
+  if (!strategy.kfx) strategy.kfx = new KalmanFilter()
+  if (!strategy.kfy) strategy.kfy = new KalmanFilter()
+  if (!strategy.kfz) strategy.kfz = new KalmanFilter()
 
   // support a resting state if not visible?
-  const rest = landmark.visibility && landmark.visibility < 0.5 && part.rest
+  const threshhold = 0.5
+  const restable =
+    props && props.rest && props.landmark && props.landmark.visibility && props.landmark.visibility < threshhold
 
   // get world space position; adjust wingspan a bit also
+  const wingspan = 1.2
   const xyz = new Vector3(
-    -part.kfx.filter(rest ? part.rest.x : landmark.x) * 1.2,
-    -part.kfy.filter(rest ? part.rest.y : landmark.y) * 1.2,
-    part.kfz.filter(rest ? part.rest.z : landmark.z) * 1.2
+    -strategy.kfx.filter(restable ? props.rest.x : props.landmark.x) * wingspan,
+    -strategy.kfy.filter(restable ? props.rest.y : props.landmark.y) * wingspan,
+    strategy.kfz.filter(restable ? props.rest.z : props.landmark.z) * wingspan
   )
     .applyQuaternion(demirror)
-    .applyQuaternion(rotation)
-    .add(position)
+    .applyQuaternion(avatarRotation)
+    .add(avatarPosition)
 
-  // ik part? (otherwise the above is just being run for debugging)
-  if (part.ik) {
-    const entityUUID = `${Engine?.instance?.userId}_mocap_${part.key}` as EntityUUID
+  // ik part?
+  if (strategy.ik) {
+    const entityUUID = `${Engine?.instance?.userId}_mocap_${props.key}` as EntityUUID
     const target = UUIDComponent.entitiesByUUID[entityUUID]
     if (!target) {
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: part.key as any }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: props.key as any }))
     }
     const transform = getComponent(target, TransformComponent)
     if (transform) {
       transform.position.copy(xyz)
-      //if (part.rotation) {
-      //  transform.rotation.copy(part.rotation)
-      //}
+      if (props.rotation) {
+        transform.rotation.copy(
+          new Quaternion().setFromEuler(new Euler(props.rotation.x, props.rotation.z, props.rotation.z))
+        )
+      }
     }
   }
 
+  // visualize for debugging
   const debug = true
   if (debug) {
-    if (!part.mesh) {
-      part.mesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshBasicMaterial({ color: part.color || 0xff0000 }))
+    if (!strategy.mesh) {
+      strategy.mesh = new Mesh(
+        new BoxGeometry(0.1, 0.1, 0.1),
+        new MeshBasicMaterial({ color: props.color || 0xff0000 })
+      )
       const gizmo = new AxesHelper()
       gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
-      part.mesh.add(gizmo)
-      Engine.instance.scene.add(part.mesh)
+      strategy.mesh.add(gizmo)
+      Engine.instance.scene.add(strategy.mesh)
     }
-    part.mesh.position.copy(xyz)
-    part.mesh.updateMatrixWorld()
+    strategy.mesh.position.copy(xyz)
+    strategy.mesh.updateMatrixWorld()
   }
 }
 
-const UpdateIkPose = (lm3d: Landmark[], position: Vector3, rotation: Quaternion) => {
-  for (let i = 0; i < lm3d.length; i++) {
-    const part = strategies[i]
-    const landmark = lm3d[i]
-    if (part && landmark) {
-      UpdatePart(part, landmark, position, rotation)
-    }
-  }
+const UpdateIkPose = (lm3d: Landmark[], avatarPosition: Vector3, avatarRotation: Quaternion, poseEnsemble) => {
+  // a collection of strategies to deal with various body parts - must be inter frame coherent
+
+  //strategies[0] = { color: 0xffffff, key: 'head', ik: true, rest: { x: 0, y: -0.6, z: -0.2 } }
+  //strategies[1] = { color: 0xffffff, key: 'chest' }
+  //strategies[2] = { color: 0xffffff, key: 'hips' }
+
+  //strategies[POSE_LANDMARKS.LEFT_SHOULDER] = { color: 0x880000, key: 'leftShoulder' }
+  //strategies[POSE_LANDMARKS.RIGHT_SHOULDER] = { color: 0x880000, key: 'rightShoulder' }
+
+  //strategies[POSE_LANDMARKS.LEFT_ELBOW] =        { color:0xaa0000, key:'leftElbow', ik:false }
+  //strategies[POSE_LANDMARKS.RIGHT_ELBOW] =       { color:0xaa0000, key:'rightElbow', ik:false }
+
+  //strategies[POSE_LANDMARKS.LEFT_HIP] =          { color:0x880000, key:'leftHip' }
+  //strategies[POSE_LANDMARKS.RIGHT_HIP] =         { color:0x880000, key:'rightHip' }
+
+  //strategies[POSE_LANDMARKS_LEFT.LEFT_KNEE] =    { color:0xaa0000, key:'leftAnkle', ik:false }
+  //strategies[POSE_LANDMARKS_RIGHT.RIGHT_KNEE] =  { color:0xaa0000, key:'rightAnkle', ik:false }
+
+  //strategies[POSE_LANDMARKS_LEFT.LEFT_ANKLE] =   { color:0xee0000, key:'leftAnkle', ik:true }
+  //strategies[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE] = { color:0xee0000, key:'rightAnkle', ik:true }
+
+  ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
+    id: POSE_LANDMARKS.LEFT_WRIST,
+    landmark: lm3d[15],
+    euler: Vector.findRotation(
+      Vector.fromArray(lm3d[15]),
+      Vector.lerp(Vector.fromArray(lm3d[17]), Vector.fromArray(lm3d[19]), 0.5)
+    ),
+    color: 0xee0000,
+    key: 'leftHand',
+    ik: true,
+    rest: { x: -0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
+  })
+
+  ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
+    id: POSE_LANDMARKS.RIGHT_WRIST,
+    landmark: lm3d[16],
+    euler: Vector.findRotation(
+      Vector.fromArray(lm3d[16]),
+      Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
+    ),
+    color: 0xee0000,
+    key: 'rightHand',
+    ik: true,
+    rest: { x: 0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
+  })
 }
 
 export default UpdateIkPose

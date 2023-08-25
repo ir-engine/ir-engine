@@ -40,15 +40,7 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../transform/components/TransformComponent'
-
-import UpdateLandmarkFace from './UpdateLandmarkFace'
-import UpdateLandmarkHands from './UpdateLandmarkHands'
-import { ApplyPoseChanges, CaptureRestEnsemble, UpdateLandmarkPose } from './UpdateLandmarkPose'
-
-const useSolvers = false
+import { UpdateLandmarkAll } from './UpdateLandmarkAll'
 
 export interface MotionCaptureStream extends Results {
   za: Landmark[]
@@ -101,50 +93,22 @@ const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
   const network = Engine.instance.worldNetwork
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
   }
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.popLast()
     timeSeriesMocapLastSeen.set(peerID, Date.now())
     const userID = network.peers.get(peerID)!.userId
-    updatePose(userID, data)
+    const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+    if (data && entity) {
+      UpdateLandmarkAll(data, userID, entity)
+    }
   }
 }
-
-function updatePose(userID, data: MotionCaptureStream) {
-  const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
-  if (!entity) return
-  const avatarRig = getComponent(entity, AvatarRigComponent)
-  const avatarTransform = getComponent(entity, TransformComponent)
-  if (!avatarRig || !avatarTransform) return
-
-  //const avatarHips = avatarRig?.bindRig?.hips?.node
-  //const avatarHipsPosition = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
-  //const avatarRotation = avatarTransform.rotation
-
-  // get a mapping of landmarks to idealized target positions; this is basically the kalikokit approach
-  const changes = {}
-
-  const restEnsemble: any = CaptureRestEnsemble(userID, avatarRig)
-
-  UpdateLandmarkPose(data?.za, data?.poseLandmarks, restEnsemble, changes)
-  UpdateLandmarkFace(data?.faceLandmarks, changes)
-  UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, changes)
-
-  // test
-  ApplyPoseChanges(changes, avatarRig)
-
-  // resolve these parts using ik
-  //UpdateIkPose(data.za, position, rotation)
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 const reactor = () => {
   useEffect(() => {
