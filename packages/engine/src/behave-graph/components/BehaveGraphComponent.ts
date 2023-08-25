@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import matches, { Validator } from 'ts-matches'
 
 import { GraphJSON } from '@behave-graph/core'
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
@@ -37,7 +36,9 @@ import { useGraphRunner } from '../functions/useGraphRunner'
 import DefaultGraph from '../graph/default-graph.json'
 import { BehaveGraphState } from '../state/BehaveGraphState'
 
-export type GraphDomainID = OpaqueType<'GraphDomainID'> & string
+export enum BehaveGraphDomain {
+  'ECS' = 'ECS'
+}
 
 export const BehaveGraphComponent = defineComponent({
   name: 'EE_behaveGraph',
@@ -45,7 +46,7 @@ export const BehaveGraphComponent = defineComponent({
   jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
-    const domain = 'ECS' as GraphDomainID
+    const domain = BehaveGraphDomain.ECS
     const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
     return {
       domain: domain,
@@ -68,7 +69,7 @@ export const BehaveGraphComponent = defineComponent({
     if (!json) return
     if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
     if (typeof json.run === 'boolean') component.run.set(json.run)
-    const domainValidator = matches.string as Validator<unknown, GraphDomainID>
+    const domainValidator = matches.string as Validator<unknown, BehaveGraphDomain>
     if (domainValidator.test(json.domain)) {
       component.domain.value !== json.domain && component.domain.set(json.domain!)
     }
