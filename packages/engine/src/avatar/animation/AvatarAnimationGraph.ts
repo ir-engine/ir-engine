@@ -62,13 +62,13 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
     const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
 
-    getComponent(targetEntity, AvatarAnimationComponent).animationGraph.blendAnimation = undefined
+    const avatarAnimationComponent = getComponent(targetEntity, AvatarAnimationComponent)
+
     loadAvatarAnimation(targetEntity, newAnimation.animationState)
   }
 
   for (const entity of avatarEntities) {
     const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
-    console.log(entity)
 
     setAvatarLocomotionAnimation(entity)
 
@@ -124,7 +124,10 @@ export const playAvatarAnimationFromMixamo = (entity: Entity, animation: Object3
   }
   const currentAction = avatarAnimationComponent.animationGraph.blendAnimation
 
-  //now blend and play the animation
+  //before setting animation, stop previous animation if it exists
+  if (currentAction.value) currentAction.value.stop()
+
+  //set the animation to the current action
   currentAction.set(
     getAnimationAction(retargetedAnimation.name, animationComponent.mixer, animationComponent.animations)
   )

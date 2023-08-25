@@ -59,7 +59,7 @@ export const emotes = {
   kiss: 'kiss',
   cry: 'cry',
   laugh: 'laugh',
-  dissapointed: 'dissapointed'
+  defeat: 'defeat'
 }
 
 export const matchesIkTarget = matches.some(

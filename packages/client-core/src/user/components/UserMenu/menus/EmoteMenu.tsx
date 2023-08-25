@@ -60,7 +60,7 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.WAVE)
+        onClick: () => runAnimation(emotes.wave)
       }
     },
     {
@@ -96,31 +96,25 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Kiss.svg" alt="Kiss" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.KISS)
+        onClick: () => runAnimation(emotes.kiss)
       }
     },
     {
       body: <img src="/static/Cry.svg" alt="Cry" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.CRY)
+        onClick: () => runAnimation(emotes.cry)
       }
     },
     {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.LAUGH)
+        onClick: () => runAnimation(emotes.laugh)
       }
     },
     {
       body: <img src="/static/Defeat.svg" alt="Defeat" />,
       containerProps: {
-        //onClick: () => runAnimation(AvatarStates.DEFEAT)
-      }
-    },
-    {
-      body: <img src="/static/restart.svg" alt="Reset" />,
-      containerProps: {
-        //onClick: () => runAnimation(AvatarStates.LOCOMOTION)
+        onClick: () => runAnimation(emotes.defeat)
       }
     }
   ])
