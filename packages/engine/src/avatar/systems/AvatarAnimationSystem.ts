@@ -58,7 +58,7 @@ import {
   compareDistanceToCamera
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRAction, XRState } from '../../xr/XRState'
+import { XRAction } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -209,7 +209,6 @@ const footRaycastInterval = 0.25
 let footRaycastTimer = 0
 
 const execute = () => {
-  const xrState = getState(XRState)
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds, localClientEntity } = Engine.instance
   const { debugEnable } = getState(RendererState)
