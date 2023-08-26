@@ -115,7 +115,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
     return {
       value: `${el.id}`,
-      label: `${el.id} (${el.location.name})`
+      label: `${el.id} (${el.location?.name})`
     }
   })
 
@@ -181,13 +181,13 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         const isEmail = EMAIL_REGEX.test(target)
         const sendData = {
           inviteType,
-          token: target.length === 8 ? null : target,
-          inviteCode: target.length === 8 ? target : null,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
           targetObjectId: instanceId.value || locationId.value || null,
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
         } as InviteData
+        if (target.length === 8) sendData.inviteCode = target
+        else sendData.token = target
         if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
           sendData.spawnDetails = { inviteCode: userInviteCode.value }

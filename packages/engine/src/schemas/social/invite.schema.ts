@@ -34,7 +34,7 @@ import { inviteTypes } from './invite-type.schema'
 
 export const invitePath = 'invite'
 
-export const inviteMethods = ['create', 'find', 'remove', 'patch'] as const
+export const inviteMethods = ['create', 'find', 'remove', 'patch', 'get'] as const
 
 export const spawnDetailsSchema = Type.Object(
   {
@@ -85,7 +85,7 @@ export type InviteType = Static<typeof inviteSchema>
 export type InviteDatabaseType = Omit<InviteType, 'spawnDetails'> & { spawnDetails: string }
 
 // Schema for creating new entries
-export const inviteDataSchema = Type.Pick(
+export const inviteDataProperties = Type.Pick(
   inviteSchema,
   [
     'token',
@@ -106,10 +106,28 @@ export const inviteDataSchema = Type.Pick(
     $id: 'InviteData'
   }
 )
+export const inviteDataSchema = Type.Intersect(
+  [
+    inviteDataProperties,
+    // Add additional query properties here
+    Type.Object(
+      {
+        inviteCode: Type.Optional(
+          Type.String({
+            maxLength: 8,
+            minLength: 8
+          })
+        )
+      },
+      { additionalProperties: false }
+    )
+  ],
+  { additionalProperties: false }
+)
 export type InviteData = Static<typeof inviteDataSchema>
 
 // Schema for updating existing entries
-export const invitePatchSchema = Type.Partial(inviteSchema, {
+export const invitePatchSchema = Type.Partial(inviteDataSchema, {
   $id: 'InvitePatch'
 })
 export type InvitePatch = Static<typeof invitePatchSchema>

@@ -202,7 +202,7 @@ export const InviteService = {
       })) as Paginated<InviteType>
 
       let inviteResult
-      if (existingInviteResult.total === 0) inviteResult = await Engine.instance.api.service(invitePath).create(params)
+      if (existingInviteResult.total === 0) inviteResult = await Engine.instance.api.service(invitePath).create(data)
 
       NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
       dispatchAction(

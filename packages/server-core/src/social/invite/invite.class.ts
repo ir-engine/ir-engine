@@ -111,7 +111,9 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
     }
   }
 
-  const result = (await Service.prototype.find.call(inviteService, {
+  delete query.type
+  delete query.search
+  return (await Service.prototype.find.call(inviteService, {
     query: {
       ...query,
       $or: [
@@ -126,7 +128,6 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
       ]
     }
   })) as Paginated<InviteType>
-  return result
 }
 
 export const inviteSent = async (inviteService: InviteService, query: Query) => {
@@ -150,13 +151,14 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
     }
   }
 
-  const result = (await Service.prototype.find.call(inviteService, {
+  delete query.type
+  delete query.search
+  return (await Service.prototype.find.call(inviteService, {
     query: {
       ...query,
       userId: query.userId
     }
   })) as Paginated<InviteType>
-  return result
 }
 
 export const inviteAll = async (inviteService: InviteService, query: Query, user: UserType) => {
@@ -184,14 +186,13 @@ export const inviteAll = async (inviteService: InviteService, query: Query, user
   }
   if (!query.existenceCheck) delete query.userId
   delete query.existenceCheck
-  const result = (await Service.prototype.find.call(inviteService, {
+  delete query.search
+  return (await Service.prototype.find.call(inviteService, {
     query: {
       // userId: query.userId,
       ...query
     }
   })) as Paginated<InviteType>
-
-  return result
 }
 
 /**
@@ -209,6 +210,10 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
   constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
+  }
+
+  async get(id: Id, params?: Params): Promise<any> {
+    return super._get(id, params)
   }
 
   async create(data: InviteData, params?: InviteParams) {
@@ -245,6 +250,7 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
   }
 
   async remove(id: Id, params?: InviteParams) {
+    console.log('invite remove')
     if (!id) return super._remove(id, params)
     const invite = await super._get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {

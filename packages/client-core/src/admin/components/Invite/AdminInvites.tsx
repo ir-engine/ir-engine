@@ -126,7 +126,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       type: invite.inviteType,
       targetObjectId: invite.targetObjectId,
       spawnType: invite.spawnType,
-      spawnDetails: invite.spawnDetails,
+      spawnDetails: JSON.stringify(invite.spawnDetails),
       action: (
         <>
           <a

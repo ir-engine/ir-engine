@@ -166,7 +166,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
     return {
       value: `${el.id}`,
-      label: `${el.id} (${el.location.name})`
+      label: `${el.id} (${el.location?.name})`
     }
   })
 
@@ -236,8 +236,6 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         inviteType: inviteType,
         inviteeId: invite.inviteeId,
         passcode: invite.passcode,
-        token: target.length === 8 ? null : target,
-        inviteCode: target.length === 8 ? target : null,
         identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
         targetObjectId: instanceId.value || locationId.value || null,
         createdAt: invite.createdAt || toDateTimeSql(new Date()),
@@ -248,6 +246,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         user: undefined,
         userId: invite.userId
       } as InvitePatch
+      if (target.length === 8) sendData.inviteCode = target
+      else sendData.token = target
       if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
         sendData.spawnType = 'inviteCode'
         sendData.spawnDetails = { inviteCode: userInviteCode.value }
