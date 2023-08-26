@@ -55,6 +55,7 @@ export const AvatarAnimationComponent = defineComponent({
     return {
       animationGraph: {
         blendAnimation: undefined as undefined | AnimationAction,
+        needsSkip: false,
         blendStrength: 0
       },
       /** ratio between original and target skeleton's root.position.y */

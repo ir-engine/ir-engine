@@ -68,20 +68,23 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   }
 
   for (const entity of avatarEntities) {
-    const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+    const animationGraph = getMutableComponent(entity, AvatarAnimationComponent).animationGraph
 
     setAvatarLocomotionAnimation(entity)
 
-    const currentAction = avatarAnimationComponent.animationGraph.blendAnimation
+    const currentAction = animationGraph.blendAnimation
 
     if (currentAction.value) {
       const deltaSeconds = getState(EngineState).deltaSeconds
-      const locomotionBlend = avatarAnimationComponent.animationGraph.blendStrength
+      const locomotionBlend = animationGraph.blendStrength
       currentAction.value.setEffectiveWeight(locomotionBlend.value)
-      if (currentAction.value.time >= currentAction.value.getClip().duration - 0.1) {
+      if (currentAction.value.time >= currentAction.value.getClip().duration - 0.1 || animationGraph.needsSkip.value) {
         currentAction.value.timeScale = 0
         locomotionBlend.set(Math.max(locomotionBlend.value - deltaSeconds * currentActionBlendSpeed, 0))
-        if (locomotionBlend.value <= 0) currentAction.set(undefined)
+        if (locomotionBlend.value <= 0) {
+          animationGraph.needsSkip.set(false)
+          currentAction.set(undefined)
+        }
       } else {
         locomotionBlend.set(Math.min(locomotionBlend.value + deltaSeconds * currentActionBlendSpeed, 1))
       }
@@ -138,12 +141,10 @@ export const playAvatarAnimationFromMixamo = (entity: Entity, animation: Object3
   }
 }
 
-//This is a stateless animation blend, it is not a graph
-//To do: make a stateful blend tree
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   if (!animationComponent.animations) return
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+  const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
 
   const idle = getAnimationAction('Idle', animationComponent.mixer, animationComponent.animations)
   const run = getAnimationAction('Run', animationComponent.mixer, animationComponent.animations)
@@ -157,21 +158,28 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
 
   fallWeight = lerp(
     fall.getEffectiveWeight(),
-    clamp(Math.abs(avatarAnimationComponent.locomotion.y), 0, 1),
+    clamp(Math.abs(avatarAnimationComponent.value.locomotion.y), 0, 1),
     getState(EngineState).deltaSeconds * 10
   )
-  const magnitude = moveLength.copy(avatarAnimationComponent.locomotion).setY(0).lengthSq()
+  const magnitude = moveLength.copy(avatarAnimationComponent.value.locomotion).setY(0).lengthSq()
   walkWeight = lerp(
     walk.getEffectiveWeight(),
     clamp(1 / (magnitude - 1.65), 0, 1) - fallWeight,
     getState(EngineState).deltaSeconds * 4
   )
+
+  const animationGraph = avatarAnimationComponent.animationGraph
+  const blendStrength = animationGraph.value.blendStrength
+  const needsSkip = animationGraph.needsSkip
+
+  if (animationGraph.blendAnimation && magnitude > 1 && blendStrength >= 1) needsSkip.set(true)
+
   runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) - fallWeight
   idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) - fallWeight
   run.setEffectiveWeight(runWeight)
   walk.setEffectiveWeight(walkWeight)
   fall.setEffectiveWeight(fallWeight)
-  idle.setEffectiveWeight(idleWeight - avatarAnimationComponent.animationGraph.blendStrength)
+  idle.setEffectiveWeight(idleWeight - blendStrength)
 }
 
 export const getRootSpeed = (clip: AnimationClip) => {

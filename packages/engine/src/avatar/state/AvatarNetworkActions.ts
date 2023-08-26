@@ -40,9 +40,6 @@ export class AvatarNetworkAction {
     type: 'ee.engine.avatar.SET_ANIMATION_STATE',
     entityUUID: matchesEntityUUID,
     animationState: matches.string,
-    $cache: {
-      removePrevious: true
-    },
     $topic: NetworkTopics.world
   })
 
