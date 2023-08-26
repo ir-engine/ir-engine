@@ -79,7 +79,7 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
 
   // ik part?
   if (props.ik) {
-    const entityUUID = `${Engine?.instance?.userId}_mocap_${props.key}` as EntityUUID
+    const entityUUID = `${Engine?.instance?.userID}_mocap_${props.key}` as EntityUUID
     const target = UUIDComponent.entitiesByUUID[entityUUID]
     if (!target) {
       dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: props.key as any }))
