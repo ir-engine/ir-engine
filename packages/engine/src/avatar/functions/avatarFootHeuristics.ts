@@ -73,10 +73,13 @@ export const setIkFootTarget = (stepThreshold: number) => {
     const ikTransform = getComponent(foot, TransformComponent)
 
     //get distance from the player
-    const ikDistanceSqFromPlayer = ikTargetToPlayer.subVectors(ikTransform.position, footOffset).lengthSq()
+    const ikDistanceSqFromPlayer = ikTargetToPlayer.subVectors(ikTransform.position, footOffset).setY(0).lengthSq()
 
     //get distance from the next step position
-    const ikDistanceSqFromWalkTarget = stepDirection.subVectors(ikTransform.position, nextStep[key].position).lengthSq()
+    const ikDistanceSqFromWalkTarget = stepDirection
+      .subVectors(ikTransform.position, nextStep[key].position)
+      .setY(0)
+      .lengthSq()
 
     //if the foot is further than the foot threshold, start a new step
     if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold * 0.5) {
@@ -96,7 +99,7 @@ export const setIkFootTarget = (stepThreshold: number) => {
     //interpolate foot to next step position
     ikTransform.position.lerp(nextStep[key].position, getState(EngineState).deltaSeconds * (2 + playerSpeed))
     //set foot y to player y until we have step math
-    ikTransform.position.y = playerTransform.position.y
+    ikTransform.position.y = playerTransform.position.y + 0.1
     ikTransform.rotation.slerp(playerTransform.rotation, getState(EngineState).deltaSeconds * (1 + playerSpeed))
   }
 
