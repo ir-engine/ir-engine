@@ -37,8 +37,9 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { createAvatarCollider } from './spawnAvatarReceptor'
 
-const vec3 = new Vector3()
-const vec3_2 = new Vector3()
+const vec3 = new Vector3(),
+  vec3_2 = new Vector3(),
+  vec3_3 = new Vector3()
 
 export const resizeAvatar = (entity: Entity, height: number, center: Vector3) => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -58,7 +59,7 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
   rigComponent.footHeight = rig.leftFoot.node.getWorldPosition(vec3).y - transform.position.y
   rigComponent.armLength = rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
   rigComponent.footGap = vec3_2
-    .subVectors(rig.leftFoot.node.getWorldPosition(vec3), rig.rightFoot.node.getWorldPosition(vec3))
+    .subVectors(rig.leftFoot.node.getWorldPosition(vec3_2), rig.rightFoot.node.getWorldPosition(vec3_3))
     .length()
   if (!hasComponent(entity, RigidBodyComponent)) return
 
