@@ -110,16 +110,79 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
   }
 }
 
-let test = 0.0
-
 const UpdateIkPose = (data, avatarPosition: Vector3, avatarRotation: Quaternion, poseEnsemble) => {
   const lm3d = data?.za
   const lm2d = data?.poseLandmarks
   const face = data?.faceLandmarks
-  const left = data?.leftHandLandmarks
-  const right = data?.rightHandLandmarks
 
-  // a collection of strategies to deal with various body parts - must be inter frame coherent
+  const left = data?.leftHandLandmarks
+  if (left) {
+    // left wrist kalidokit - data seems very poor
+    // const l = Vector.findRotation(
+    //  Vector.fromArray(lm2d[15]),
+    //  Vector.lerp(Vector.fromArray(lm2d[17]), Vector.fromArray(lm2d[19]), 0.5)
+    // )
+
+    // left wrist manually from high resolution hand data - seems "ok"
+    // see https://developers.google.com/mediapipe/solutions/vision/hand_landmarker
+    //const lf = new Vector3(lm2d[17].x,lm2d[17].y,lm2d[17].z)
+    //const lb = new Vector3(lm2d[15].x,lm2d[15].y,lm2d[15].z)
+    //const lu = new Vector3(lm2d[19].x,lm2d[19].y,lm2d[19].z)
+
+    const lf = new Vector3(left[0].x, left[0].y, left[0].z)
+    const lb = new Vector3(left[4].x, left[4].y, left[4].z)
+    const lu = new Vector3(left[20].x, left[20].y, left[20].z)
+    const w = lu.clone().sub(lb)
+    const x = lf.clone().sub(lb)
+    const z = x.clone().cross(w)
+    const y = z.clone().cross(x)
+    x.normalize()
+    y.normalize()
+    z.normalize()
+    const m = new Matrix4(x.x, x.y, x.z, 0, y.x, y.y, y.z, 0, z.x, z.y, z.z, 0, 0, 0, 0, 1)
+    const q = new Quaternion().setFromRotationMatrix(m)
+
+    ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
+      id: POSE_LANDMARKS.LEFT_WRIST,
+      landmark: lm3d[15],
+      //quaternion: q, //new Quaternion().setFromEuler(new Euler(l.x,l.y,l.z)),
+      color: 0xee0000,
+      key: 'leftHand',
+      ik: true,
+      rest: { x: 0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
+    })
+  }
+
+  // right
+  const right = data?.rightHandLandmarks
+  if (right) {
+    //const r2 = Vector.findRotation(
+    //  Vector.fromArray(lm3d[16]),
+    //  Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
+    //)
+
+    // testing leaving it at a fixed orientation but having it rotate with the avatar
+    const r = new Vector(0, 0, 0)
+    const unused = Vector.findRotation(
+      Vector.fromArray(lm3d[16]),
+      Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
+    )
+    const qr = new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z))
+    qr.multiply(demirror)
+    qr.multiply(avatarRotation)
+
+    // @todo mysteriously if i don't set BOTH ik then no ik is processed
+
+    ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
+      id: POSE_LANDMARKS.RIGHT_WRIST,
+      landmark: lm3d[16],
+      //quaternion: new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z)),
+      color: 0xee00ee,
+      key: 'rightHand',
+      ik: true,
+      rest: { x: -0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
+    })
+  }
 
   //strategies[0] = { color: 0xffffff, key: 'head', ik: true, rest: { x: 0, y: -0.6, z: -0.2 } }
   //strategies[1] = { color: 0xffffff, key: 'chest' }
@@ -139,79 +202,6 @@ const UpdateIkPose = (data, avatarPosition: Vector3, avatarRotation: Quaternion,
 
   //strategies[POSE_LANDMARKS_LEFT.LEFT_ANKLE] =   { color:0xee0000, key:'leftAnkle', ik:true }
   //strategies[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE] = { color:0xee0000, key:'rightAnkle', ik:true }
-
-  // https://developers.google.com/mediapipe/solutions/vision/hand_landmarker
-  if (!left) return
-
-  // left wrist kalidokit
-  const l = Vector.findRotation(
-    Vector.fromArray(lm2d[15]),
-    Vector.lerp(Vector.fromArray(lm2d[17]), Vector.fromArray(lm2d[19]), 0.5)
-  )
-
-  // left wrist manually
-  //const lf = new Vector3(lm2d[17].x,lm2d[17].y,lm2d[17].z)
-  //const lb = new Vector3(lm2d[15].x,lm2d[15].y,lm2d[15].z)
-  //const lu = new Vector3(lm2d[19].x,lm2d[19].y,lm2d[19].z)
-  const lf = new Vector3(left[0].x, left[0].y, left[0].z)
-  const lb = new Vector3(left[4].x, left[4].y, left[4].z)
-  const lu = new Vector3(left[20].x, left[20].y, left[20].z)
-  const w = lu.clone().sub(lb)
-  const x = lf.clone().sub(lb)
-  const z = x.clone().cross(w)
-  const y = z.clone().cross(x)
-  x.normalize()
-  y.normalize()
-  z.normalize()
-  const m = new Matrix4(x.x, x.y, x.z, 0, y.x, y.y, y.z, 0, z.x, z.y, z.z, 0, 0, 0, 0, 1)
-  const q = new Quaternion().setFromRotationMatrix(m)
-
-  ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
-    id: POSE_LANDMARKS.LEFT_WRIST,
-    landmark: lm3d[15],
-    //quaternion: q, //new Quaternion().setFromEuler(new Euler(l.x,l.y,l.z)),
-    color: 0xee0000,
-    key: 'leftHand',
-    ik: true,
-    rest: { x: 0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
-  })
-
-  const r2 = Vector.findRotation(
-    Vector.fromArray(lm3d[16]),
-    Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
-  )
-
-  const r = new Vector(0, 0, 0)
-  const unused = Vector.findRotation(
-    Vector.fromArray(lm3d[16]),
-    Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
-  )
-  const qr = new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z))
-  qr.multiply(demirror)
-  qr.multiply(avatarRotation)
-
-  // @todo mysteriously if i don't set BOTH ik then no ik is processed
-
-  ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
-    id: POSE_LANDMARKS.RIGHT_WRIST,
-    landmark: lm3d[16],
-    //quaternion: new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z)),
-    color: 0xee00ee,
-    key: 'rightHand',
-    ik: true,
-    rest: { x: -0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
-  })
-
-  console.log(
-    'left euler ',
-    l.x.toFixed(3),
-    l.y.toFixed(3),
-    l.z.toFixed(3),
-    'right euler ',
-    r.x.toFixed(3),
-    r.y.toFixed(3),
-    r.z.toFixed(3)
-  )
 }
 
 export default UpdateIkPose

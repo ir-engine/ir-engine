@@ -163,30 +163,34 @@ on lm3d normalized data:
 
 FRONT BURNER
 
-  - why are wrists pose wrong
-  - can hips be ik
-  - can i pre-set knee and elbow using landmarks and have ik do minimum drift from that?
+  - i really need the hips to work in ik mode - test?
 
+  - i think i want the wrist ik targets deleted after they are set?
+      also can i get the target in one frame?
+      is this a good way to send ordinary pose data for consistency?
+  
+  - is the avatar still flipped?
 
-  - would be nice to flip the hands as they are backwards in the kaliko code
-  - would be nice to clean up the concept of a change list a bit
-  - merge change list with restpose logic?
+  - can i get the wrists aligned?
+
+  - can the ik system in general take advantage of the existing knee position?
+
+  - should i flip the hands in the code? they are backwards in code
+
   - support the concept of jumping by using latency of ground pose estimation
+
   - support real wingspan estimation
 
-HEAD ISSUES
-
-  x head pose works ok
-  ? maybe write to neck as well as the head?
-  ? write head pose to the ik system
+  - can i get head pose to work with the ik system? it is being discarded; maybe I should use an ik head? maybe write to the neck also?
 
 HIPS ISSUES
 
-  x default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ... use vrm model as rest pose?
-  x hips/shoulders must be estimated correctly or else everything else gets thrown off
-  x hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk
-  x can we use the shoulder midpoint to improve? cross the hip horizontal with the spine?
-  x can we improve forward pitch estimation using z depth between shoulder and hip?
+  * default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ... use vrm model as rest pose?
+  * hips/shoulders must be estimated correctly or else everything else gets thrown off
+  * hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk
+  * can we use the shoulder midpoint to improve? cross the hip horizontal with the spine?
+  * can we improve forward pitch estimation using z depth between shoulder and hip?
+
   ? what if i put the entire rig on soft physics springs and then allow parts to tug around?
   ? Does it even make sense to be computing the hips by hand?
   ? I notice that kalikokit pretty much ignores the visibility flags - why? is there something i don't understand?
@@ -203,6 +207,7 @@ ARMS / SHOULDERS ISSUES
   ? if a part is not shown (such as wrists) what is the right strategy? revert to rest pose or leave it as is? what happens if you then rotate your body?
 
 FINGERS
+
   - test fingers once that is merged again
 
 GROUND IMPROVE
@@ -211,19 +216,23 @@ GROUND IMPROVE
   x what if i simply avoid changing the real rig height; or i find the original rig hip height rest position?
   ? can i cache the lowest feature temporally so that a person can jump in the air?
   ? does visibility matter for finding lowest feature?
+  ! i had to turn off ground sensing for now - something is fighting my settings?
 
 IK IMPROVE
 
   - mysteriously if not both the left and right hands have ik targets then the animation system does not apply ik to hands at all
   - mysteriously rotations appear to be ignored on ik targets
+  - the body is flipped in the latest build which is causing problems
   
-  - @todo since ik fights with direct pose setting - set the direct stuff via ik now instead - but also get the support fixed for both
+  - @todo since ik fights with direct pose setting - set the direct stuff via ik now instead - but also get the support fixed for both?
   - @todo the hands orientation is not being set - set it
-  - turn on ik again
+
   - test feeding the ik with the manually approximated estimated joint rotations and positions
   - we need a way to use IK AND ordinary coercion of features such as elbows?
   ? should i do ik in world space or local space? do i even have the option?
-  - can i set state on the vrm rig and then have all changelists consolidated in the animation system?
+  - can i set state on the vrm rig and then have all changelists consolidated in the animation system??
+
+   - the body seems to jump or something when i remove an ik??? why???
 
 OTHER LATER
 
@@ -234,16 +243,9 @@ OTHER LATER
 
 RANDOM QUESTIONS
 
-  - what exactly are these really??? are these all joints? or is one of them an actual arm?
-      readonly LeftShoulder: "leftShoulder";
-      readonly LeftUpperArm: "leftUpperArm";
-      readonly LeftLowerArm: "leftLowerArm";
-      readonly LeftHand: "leftHand";
-
   - i notice a spring system in vrm - what is it?
   - what are the rest bone positions for a given rig??? i am grabbing them at startup - is that the best way?
   - what does it mean that bones are 'normalized'?
-  - the body seems to jump or something when i remove an ik??? why???
 
 REFERENCE
 
