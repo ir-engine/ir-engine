@@ -95,6 +95,8 @@ export const setIkFootTarget = (stepThreshold: number) => {
 
     //interpolate foot to next step position
     ikTransform.position.lerp(nextStep[key].position, getState(EngineState).deltaSeconds * (2 + playerSpeed))
+    //set foot y to player y until we have step math
+    ikTransform.position.y = playerTransform.position.y
     ikTransform.rotation.slerp(playerTransform.rotation, getState(EngineState).deltaSeconds * (1 + playerSpeed))
   }
 

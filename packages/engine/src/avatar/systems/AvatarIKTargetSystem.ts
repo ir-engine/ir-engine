@@ -40,6 +40,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { ikTargets } from '../animation/Util'
@@ -102,6 +103,8 @@ const execute = () => {
   if (xrState.sessionActive && localClientEntity) {
     const sources = inputSourceQuery().map((eid) => getComponent(eid, InputSourceComponent).source)
 
+    const position = getComponent(localClientEntity, TransformComponent).position
+
     const head = getCameraMode() === 'attached'
     const leftHand = !!sources.find((s) => s.handedness === 'left')
     const rightHand = !!sources.find((s) => s.handedness === 'right')
@@ -124,15 +127,15 @@ const execute = () => {
 
     if (head && !ikTargetHead) dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head' }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand' }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand', position }))
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand' }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', position }))
 
     if (!ikTargetLeftFoot)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot' }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', position }))
 
     if (!ikTargetRightFoot)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot' }))
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', position }))
   }
 }
 
