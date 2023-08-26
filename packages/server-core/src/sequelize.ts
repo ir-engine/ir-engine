@@ -84,9 +84,14 @@ export default (app: Application): void => {
             initProcess.once('error', reject)
             initProcess.once('disconnect', resolve)
             initProcess.stdout.on('data', (data) => console.log(data.toString()))
+            initProcess.stderr.on('data', (data) => console.error(data.toString()))
           })
             .then((exitCode) => {
-              logger.info(`Knex migrate:rollback exited with: ${exitCode}`)
+              if (exitCode !== 0) {
+                throw new Error(`Knex migrate:rollback exited with: ${exitCode}`)
+              } else {
+                logger.info('Knex migrate:rollback completed')
+              }
             })
             .catch((err) => {
               logger.error('Knex migrate:rollback error')
@@ -165,6 +170,7 @@ export default (app: Application): void => {
             initProcess.once('error', reject)
             initProcess.once('disconnect', resolve)
             initProcess.stdout.on('data', (data) => console.log(data.toString()))
+            initProcess.stderr.on('data', (data) => console.error(data.toString()))
           })
             .then((exitCode) => {
               if (exitCode !== 0) {
