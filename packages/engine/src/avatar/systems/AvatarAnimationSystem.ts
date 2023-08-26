@@ -305,7 +305,13 @@ const execute = () => {
     /**
      * Apply procedural IK based animations or FK animations depending on the animation state
      */
-
+    //clear some data
+    for (const [key, value] of Object.entries(worldSpaceTargets)) {
+      value.blendWeight = 1
+      value.position = new Vector3()
+      value.rotation.identity()
+    }
+    weights = {}
     if (rigComponent.ikOverride != '') {
       if (!rig.hips?.node) continue
 
@@ -317,14 +323,6 @@ const execute = () => {
 
       applyInputSourcePoseToIKTargets()
       setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength)
-
-      //clear some data
-      for (const [key, value] of Object.entries(worldSpaceTargets)) {
-        value.blendWeight = 1
-        value.position = new Vector3()
-        value.rotation.identity()
-      }
-      weights = {}
 
       for (const ikEntity of ikEntities) {
         if (ikEntities.length <= 1) continue
