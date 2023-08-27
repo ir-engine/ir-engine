@@ -167,7 +167,7 @@ export const getAnimations = async () => {
   if (!manager.locomotionAnimations.value) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const asset = (await AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/locomotion_pack.glb`
+      `${config.client.fileServer}/projects/default-project/assets/animations/locomotion.glb`
     )) as GLTF
 
     if (asset && asset.animations && asset.animations[4] && asset.animations[6]) {

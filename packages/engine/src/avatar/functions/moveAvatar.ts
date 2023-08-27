@@ -27,7 +27,7 @@ import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
@@ -47,10 +47,12 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { XRState, getCameraMode, hasMovementControls } from '../../xr/XRState'
+import { animationStates } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AutopilotMarker, clearWalkPoint, scaleFluctuate } from './autopilotFunctions'
 
 const avatarGroundRaycastDistanceIncrease = 0.5
@@ -75,6 +77,7 @@ const desiredMovement = new Vector3()
 const viewerMovement = new Vector3()
 const finalAvatarMovement = new Vector3()
 const avatarHeadPosition = new Vector3()
+let beganFalling = false
 
 export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const entity = Engine.instance.localClientEntity
@@ -146,10 +149,34 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   if (groundHits.length) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
-    // controller.isInAir = !grounded
     controller.isInAir = hit.distance > 1 + controllerOffset * 10
+
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    if (controller.isInAir && !beganFalling) {
+      dispatchAction(
+        AvatarNetworkAction.setAnimationState({
+          animationState: animationStates.locomotion,
+          fileType: 'glb',
+          clipName: 'Fall',
+          loop: true,
+          entityUUID: getComponent(entity, UUIDComponent)
+        })
+      )
+      beganFalling = true
+    }
     if (hit.distance <= avatarGroundRaycastAcceptableDistance) {
+      if (beganFalling)
+        dispatchAction(
+          AvatarNetworkAction.setAnimationState({
+            animationState: animationStates.locomotion,
+            fileType: 'glb',
+            clipName: 'Fall',
+            loop: true,
+            needsSkip: true,
+            entityUUID: getComponent(entity, UUIDComponent)
+          })
+        )
+      beganFalling = false
       if (attached) originTransform.position.y = hit.position.y
       /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
     }
