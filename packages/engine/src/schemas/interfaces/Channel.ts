@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { MessageType } from '../social/message.schema'
 import { ChannelUser } from './ChannelUser'
-import { Message } from './Message'
 
 export type Channel = {
   id: ChannelID
@@ -38,7 +38,7 @@ export type Channel = {
   skip: 0
   total: 0
   channel_users: ChannelUser[]
-  messages: Message[]
+  messages: MessageType[]
 }
 
 export interface PatchChannel {

@@ -59,7 +59,7 @@ export const ChannelsList = () => {
   const RenderChannel = (props: { channel: (typeof channels)[number] }) => {
     // const userThumbnail = useUserAvatarThumbnail() // todo
 
-    const { data: messages } = useFind('message', {
+    const { data: messages } = useFind(messagePath, {
       query: {
         channelId: props.channel.id
       }

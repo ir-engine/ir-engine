@@ -30,6 +30,7 @@ import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
@@ -223,7 +224,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
               ]
             },
             {
-              model: this.app.service('message').Model,
+              model: this.app.service(messagePath).Model,
               limit: 20,
               order: [['createdAt', 'DESC']]
             }
@@ -262,7 +263,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             model: this.app.service('channel-user').Model
           },
           {
-            model: this.app.service('message').Model,
+            model: this.app.service(messagePath).Model,
             limit: 20,
             order: [['createdAt', 'DESC']]
           },
