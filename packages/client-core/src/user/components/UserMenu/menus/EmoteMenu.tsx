@@ -32,7 +32,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { emotes } from '@etherealengine/engine/src/avatar/animation/Util'
+import { animationStates } from '@etherealengine/engine/src/avatar/animation/Util'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -60,61 +60,61 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.wave)
+        onClick: () => runAnimation(animationStates.wave)
       }
     },
     {
       body: <img src="/static/clap1.svg" alt="Clap" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.clap)
+        onClick: () => runAnimation(animationStates.clap)
       }
     },
     {
       body: <img src="/static/Dance1.svg" alt="Dance 1" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.dance1)
+        onClick: () => runAnimation(animationStates.dance1)
       }
     },
     {
       body: <img src="/static/Dance2.svg" alt="Dance 2" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.dance2)
+        onClick: () => runAnimation(animationStates.dance2)
       }
     },
     {
       body: <img src="/static/Dance3.svg" alt="Dance 3" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.dance3)
+        onClick: () => runAnimation(animationStates.dance3)
       }
     },
     {
       body: <img src="/static/Dance4.svg" alt="Dance 4" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.dance4)
+        onClick: () => runAnimation(animationStates.dance4)
       }
     },
     {
       body: <img src="/static/Kiss.svg" alt="Kiss" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.kiss)
+        onClick: () => runAnimation(animationStates.kiss)
       }
     },
     {
       body: <img src="/static/Cry.svg" alt="Cry" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.cry)
+        onClick: () => runAnimation(animationStates.cry)
       }
     },
     {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
-        //onClick: () => runAnimation(emotes.laugh)
+        //onClick: () => runAnimation(animationStates.laugh)
       }
     },
     {
       body: <img src="/static/Defeat.svg" alt="Defeat" />,
       containerProps: {
-        onClick: () => runAnimation(emotes.defeat)
+        onClick: () => runAnimation(animationStates.defeat)
       }
     }
   ])
@@ -147,6 +147,8 @@ export const useEmoteMenuHooks = () => {
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
         animationState: stateName,
+        loop: false,
+        fileType: 'fbx',
         entityUUID: getComponent(entity, UUIDComponent)
       })
     )

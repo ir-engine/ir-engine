@@ -49,7 +49,7 @@ export const ikTargets = {
   leftKneeHint: 'leftKneeHint'
 }
 
-export const emotes = {
+export const animationStates = {
   dance1: 'dance1',
   dance2: 'dance2',
   dance3: 'dance3',
@@ -59,14 +59,20 @@ export const emotes = {
   kiss: 'kiss',
   cry: 'cry',
   laugh: 'laugh',
-  defeat: 'defeat'
+  defeat: 'defeat',
+  locomotion: 'locomotion',
+  falling: 'falling'
 }
+
+export const animationFileTypes = { fbx: 'fbx', glb: 'glb' }
 
 export const matchesIkTarget = matches.some(
   ...Object.keys(ikTargets).map((k: keyof typeof ikTargets) => matches.literal(k))
 )
 
-export const matchesEmote = matches.some(...Object.keys(emotes).map((k: keyof typeof emotes) => matches.literal(k)))
+export const matchesAnimationFiles = matches.some(
+  ...Object.keys(animationFileTypes).map((k: keyof typeof animationFileTypes) => matches.literal(k))
+)
 
 const matchesMovementType = matches.shape({
   /** Velocity of the avatar */

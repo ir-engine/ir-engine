@@ -24,12 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { clamp } from 'lodash'
-import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
 import config from '@etherealengine/common/src/config'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -55,16 +56,21 @@ let fallWeight = 0,
   walkWeight = 0,
   idleWeight = 1
 
-const currentActionBlendSpeed = 2
+const currentActionBlendSpeed = 4
 
 //blend between locomotion and animation overrides
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
     const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
-
-    const avatarAnimationComponent = getComponent(targetEntity, AvatarAnimationComponent)
-
-    loadAvatarAnimation(targetEntity, newAnimation.animationState)
+    if (newAnimation.needsSkip)
+      getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph.needsSkip.set(true)
+    loadAvatarAnimation(
+      targetEntity,
+      newAnimation.animationState,
+      newAnimation.loop,
+      newAnimation.clipName!,
+      newAnimation.fileType!
+    )
   }
 
   for (const entity of avatarEntities) {
@@ -94,35 +100,54 @@ export const updateAnimationGraph = (avatarEntities: Entity[]) => {
 
 /**Attempts to get animation by name from animation manager if already loaded, or from
  * default-project/assets/animations if not.*/
-export const loadAvatarAnimation = (entity: Entity, name: string) => {
+export const loadAvatarAnimation = (
+  entity: Entity,
+  stateName: string,
+  loop: boolean,
+  clipName?: string,
+  fileType?: string
+) => {
   const animationState = getState(AnimationState)
 
-  if (animationState.loadedAnimations[name])
-    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[name].scene)
+  if (animationState.loadedAnimations[stateName])
+    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[stateName].scene, loop)
   else {
     //load from default-project/assets/animations
-    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/animations/${name}.fbx`).then(
-      (animation) => {
-        animation.scene.animations[0].name = name
-        playAvatarAnimationFromMixamo(entity, animation.scene)
-      }
-    )
+    AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/animations/${stateName}.${fileType ?? 'fbx'}`
+    ).then((asset) => {
+      const animation = asset as GLTF
+      //if no clipname specified, set first animation name to state name for lookup
+      if (!clipName)
+        if (fileType == 'fbx') animation.scene.animations[0].name = stateName
+        else animation.animations[0].name = stateName
+      if (fileType == 'glb') animation.scene.animations = animation.animations
+      animationState.loadedAnimations[stateName] = animation
+      playAvatarAnimationFromMixamo(entity, animation.scene, loop, clipName, fileType)
+    })
   }
 }
 
-/** Retargets an fbx mixamo animation to the entity's avatar model, then blends in and out of the default locomotion state. */
-export const playAvatarAnimationFromMixamo = (entity: Entity, animation: Object3D) => {
+/** Retargets a mixamo animation to the entity's avatar model, then blends in and out of the default locomotion state. */
+export const playAvatarAnimationFromMixamo = (
+  entity: Entity,
+  animation: Object3D,
+  loop: boolean,
+  clipName?: string,
+  fileType?: string
+) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
   const rigComponent = getComponent(entity, AvatarRigComponent)
   //if animation is already present on animation component, use it instead of retargeting again
   let retargetedAnimation = undefined as undefined | AnimationClip
-  animationComponent.animations.forEach((clip) => {
-    if (clip.name == animation.animations[0].name) retargetedAnimation = clip
-  })
+  if (!clipName)
+    retargetedAnimation = animationComponent.animations.find((clip) => clip.name == animation.animations[0].name)
+  else retargetedAnimation = animationComponent.animations.find((clip) => clip.name == clipName)
+
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
-    retargetedAnimation = retargetMixamoAnimation(animation.animations[0], animation, rigComponent.vrm, 'fbx')
+    retargetedAnimation = retargetMixamoAnimation(animation.animations[0], animation, rigComponent.vrm, fileType as any)
     animationComponent.animations.push(retargetedAnimation)
   }
   const currentAction = avatarAnimationComponent.animationGraph.blendAnimation
@@ -137,6 +162,7 @@ export const playAvatarAnimationFromMixamo = (entity: Entity, animation: Object3
   if (currentAction.value) {
     currentAction.value.timeScale = 1
     currentAction.value.time = 0
+    currentAction.value.loop = loop ? LoopRepeat : LoopOnce
     currentAction.value.play()
   }
 }
@@ -154,7 +180,7 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   idle.play()
   run.play()
   walk.play()
-  fall.play()
+  //fall.play()
 
   fallWeight = lerp(
     fall.getEffectiveWeight(),
@@ -164,7 +190,7 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const magnitude = moveLength.copy(avatarAnimationComponent.value.locomotion).setY(0).lengthSq()
   walkWeight = lerp(
     walk.getEffectiveWeight(),
-    clamp(1 / (magnitude - 1.65), 0, 1) - fallWeight,
+    clamp(1 / (magnitude - 1.65), 0, 1), // - fallWeight,
     getState(EngineState).deltaSeconds * 4
   )
 
@@ -174,11 +200,11 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
 
   if (animationGraph.blendAnimation && magnitude > 1 && blendStrength >= 1) needsSkip.set(true)
 
-  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) - fallWeight
-  idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) - fallWeight
+  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) // - fallWeight
+  idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) // - fallWeight
   run.setEffectiveWeight(runWeight)
   walk.setEffectiveWeight(walkWeight)
-  fall.setEffectiveWeight(fallWeight)
+  //fall.setEffectiveWeight(fallWeight)
   idle.setEffectiveWeight(idleWeight - blendStrength)
 }
 

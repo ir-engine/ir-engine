@@ -28,7 +28,7 @@ import matches from 'ts-matches'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { matchesIkTarget } from '../animation/Util'
+import { matchesAnimationFiles, matchesIkTarget } from '../animation/Util'
 
 export class AvatarNetworkAction {
   static spawn = defineAction({
@@ -40,6 +40,10 @@ export class AvatarNetworkAction {
     type: 'ee.engine.avatar.SET_ANIMATION_STATE',
     entityUUID: matchesEntityUUID,
     animationState: matches.string,
+    clipName: matches.string.optional(),
+    fileType: matchesAnimationFiles,
+    loop: matches.boolean,
+    needsSkip: matches.boolean.optional(),
     $topic: NetworkTopics.world
   })
 

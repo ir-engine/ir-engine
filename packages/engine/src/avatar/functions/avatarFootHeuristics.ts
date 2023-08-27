@@ -57,6 +57,8 @@ export const setIkFootTarget = (stepThreshold: number) => {
     leftFoot: UUIDComponent.entitiesByUUID[userID + ikTargets.leftFoot]
   }
   const playerTransform = getComponent(localClientEntity, TransformComponent)
+  if (lastPlayerPosition.x == 0 && lastPlayerPosition.y == 0 && lastPlayerPosition.z == 0)
+    lastPlayerPosition.copy(playerTransform.position)
   const playerRig = getComponent(localClientEntity, AvatarRigComponent)
   for (const [key, foot] of Object.entries(feet)) {
     if (!foot || key != currentStep) continue
@@ -76,10 +78,10 @@ export const setIkFootTarget = (stepThreshold: number) => {
     const ikDistanceSqFromPlayer = ikTargetToPlayer.subVectors(ikTransform.position, footOffset).setY(0).lengthSq()
 
     //get distance from the next step position
-    const ikDistanceSqFromWalkTarget = stepDirection
-      .subVectors(ikTransform.position, nextStep[key].position)
-      .setY(0)
-      .lengthSq()
+    const ikDistanceSqFromWalkTarget = Math.min(
+      stepDirection.subVectors(ikTransform.position, nextStep[key].position).setY(0).lengthSq(),
+      1
+    )
 
     //if the foot is further than the foot threshold, start a new step
     if (ikDistanceSqFromPlayer > stepThreshold * stepThreshold * 0.5) {
