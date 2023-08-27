@@ -72,8 +72,8 @@ export async function up(knex: Knex): Promise<void> {
         .onDelete('SET NULL')
         .onUpdate('CASCADE')
     })
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
 
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
     await trx.commit()
   }
 }
@@ -83,15 +83,15 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(locationSettingPath)
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await trx.schema.hasTable(locationSettingPath)
 
   if (tableExists === true) {
-    const trx = await knex.transaction()
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
     await trx.schema.dropTable(locationSettingPath)
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
