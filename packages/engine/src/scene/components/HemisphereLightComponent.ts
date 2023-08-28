@@ -37,7 +37,6 @@ export const HemisphereLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new HemisphereLight()
-    addObjectToGroup(entity, light)
     return {
       light,
       skyColor: new Color(),
@@ -72,7 +71,9 @@ export const HemisphereLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const light = useComponent(entity, HemisphereLightComponent)
-
+    useEffect(() => {
+      addObjectToGroup(entity, light.light.value)
+    }, [])
     useEffect(() => {
       light.light.value.groundColor.set(light.groundColor.value)
     }, [light.groundColor])

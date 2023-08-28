@@ -71,15 +71,20 @@ export async function up(knex: Knex): Promise<void> {
     })
 
     await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-
     await trx.commit()
   }
 }
 
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(staticResourcePath)
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await trx.schema.hasTable(staticResourcePath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(staticResourcePath)
+    await trx.schema.dropTable(staticResourcePath)
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
