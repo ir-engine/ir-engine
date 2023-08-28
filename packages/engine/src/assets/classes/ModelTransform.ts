@@ -102,6 +102,8 @@ export type ResourceTransforms = {
 export type ModelTransformParameters = ExtractedImageTransformParameters & {
   dst: string
   resourceUri: string
+  split: boolean
+  combineMaterials: boolean
   instance: boolean
   dedup: boolean
   flatten: boolean
@@ -138,6 +140,8 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   dst: '',
   resourceUri: '',
   modelFormat: 'gltf',
+  split: true,
+  combineMaterials: true,
   instance: true,
   dedup: true,
   flatten: true,
