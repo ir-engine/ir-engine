@@ -68,7 +68,7 @@ export const WorldInstanceProvisioning = () => {
 
   // Once we have the location, provision the instance server
   useEffect(() => {
-    if (!engineState.sceneLoaded.value) return
+    if (!engineState.sceneLoaded.value || locationInstance.instances.keys.length) return
 
     const currentLocation = locationState.currentLocation.location
     const hasJoined = !!worldNetwork
@@ -110,7 +110,6 @@ export const WorldInstanceProvisioning = () => {
 
   // Populate the URL with the room code and instance id
   useEffect(() => {
-    if (locationInstance.instances.keys.length) return
     if (!networkConfigState.roomID.value && !networkConfigState.instanceID.value) return
 
     if (worldNetworkState?.connected?.value) {

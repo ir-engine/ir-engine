@@ -234,11 +234,12 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
     }
   ]
 
-  const rows = serverInfoQuery.data
-    .find((item) => item.id === selectedCard)!
-    .pods.map((el) => {
-      return createData(el)
-    })
+  const matchingData = serverInfoQuery.data.find((item) => item.id === selectedCard)
+  const rows = matchingData
+    ? matchingData.pods.map((el) => {
+        return createData(el)
+      })
+    : []
 
   return (
     <>

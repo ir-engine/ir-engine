@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -68,7 +68,7 @@ export class LocalStorage implements StorageProviderInterface {
   constructor() {
     this.PATH_PREFIX = path.join(appRootPath.path.replaceAll('\\', path.sep), 'packages', this._storageDir)
 
-    // make upload folder if it doesnt already exist
+    // make upload folder if it doesn't already exist
     if (!fs.existsSync(this.PATH_PREFIX)) fs.mkdirSync(this.PATH_PREFIX)
 
     // Add '/' to end to simplify many operations
@@ -111,8 +111,16 @@ export class LocalStorage implements StorageProviderInterface {
     const filePath = path.join(this.PATH_PREFIX, prefix)
     if (!fs.existsSync(filePath)) return { Contents: [] }
     // glob all files and directories
-    let globResult = glob?.sync(path.join(filePath, '**'))
-    globResult = globResult?.filter((item) => /[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/.test(item))
+    let globResult = glob.sync(path.join(filePath, '**'), {
+      dot: true
+    })
+    globResult = globResult.filter(
+      (item) =>
+        /[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/.test(item) ||
+        /.gitignore/.test(item) ||
+        /.gitattributes/.test(item) ||
+        /.git\/workflows/.test(item)
+    )
     return {
       Contents: globResult?.map((result) => {
         return { Key: result?.replace(path.join(this.PATH_PREFIX), '') }
@@ -291,7 +299,8 @@ export class LocalStorage implements StorageProviderInterface {
       const filePaths = glob.sync('**', {
         // "**" means you search on the whole folder
         cwd: pathString, // folder path
-        absolute: true // you have to set glob to return absolute path not only file names
+        absolute: true, // you have to set glob to return absolute path not only file names
+        dot: true
       })
       let totalSize = 0
       filePaths.forEach((file) => {
@@ -322,7 +331,11 @@ export class LocalStorage implements StorageProviderInterface {
     const folder = glob
       .sync(path.join(absoluteDirPath, '*/'))
       .map((p) => this._processContent(relativeDirPath, p, true))
-    const files = glob.sync(path.join(absoluteDirPath, '*.*')).map((p) => this._processContent(relativeDirPath, p))
+    const files = glob
+      .sync(path.join(absoluteDirPath, '*.*'), {
+        dot: true
+      })
+      .map((p) => this._processContent(relativeDirPath, p))
 
     folder.push(...files)
     return folder

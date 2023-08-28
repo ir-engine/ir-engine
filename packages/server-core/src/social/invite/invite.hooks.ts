@@ -28,64 +28,51 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invite-remove-authenticate'
 import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { HookContext } from '@feathersjs/feathers'
+import {
+  inviteDataValidator,
+  invitePatchValidator,
+  inviteQueryValidator
+} from '@etherealengine/engine/src/schemas/social/invite.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-
-// TODO: Populating Invite's user property here manually. Once invite service is moved to feathers 5. This should be part of its resolver.
-const populateUsers = async (context: HookContext) => {
-  const { result } = context
-
-  const data = result.data ? result.data : result
-
-  const userIds = data.filter((item) => item.userId).map((item) => item.userId)
-
-  if (userIds.length > 0) {
-    //@ts-ignore
-    const users = (await context.app.service(userPath)._find({
-      query: {
-        id: {
-          $in: userIds
-        }
-      },
-      paginate: false
-    })) as any as UserType[]
-
-    for (const invite of data) {
-      if (invite.userId && !invite.user) {
-        invite.user = users.find((user) => user.id === invite.userId)
-      }
-    }
-  }
-}
-
-// TODO: Populating Invite's user property here manually. Once invite service is moved to feathers 5. This should be part of its resolver.
-const populateUser = async (context: HookContext) => {
-  const { result } = context
-
-  if (result.userId && !result.user) {
-    //@ts-ignore
-    result.user = (await context.app.service(userPath)._get(result.userId)) as UserType
-  }
-}
+import {
+  inviteDataResolver,
+  inviteExternalResolver,
+  invitePatchResolver,
+  inviteQueryResolver,
+  inviteResolver
+} from './invite.resolvers'
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(inviteExternalResolver), schemaHooks.resolveResult(inviteResolver)]
+  },
+
   before: {
-    all: [],
+    all: [() => schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
     find: [authenticate(), attachOwnerIdInQuery('userId')],
-    get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any)],
-    create: [authenticate(), attachOwnerIdInBody('userId')],
-    update: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
-    patch: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
-    remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate() as any)]
+    get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId'))],
+    create: [
+      authenticate(),
+      attachOwnerIdInBody('userId'),
+      () => schemaHooks.validateData(inviteDataValidator),
+      schemaHooks.resolveData(inviteDataResolver)
+    ],
+    update: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin'))],
+    patch: [
+      iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(invitePatchValidator),
+      schemaHooks.resolveData(invitePatchResolver)
+    ],
+    remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate())]
   },
 
   after: {
     all: [],
-    find: [populateUsers],
-    get: [populateUser],
+    find: [],
+    get: [],
     create: [],
     update: [],
     patch: [],
