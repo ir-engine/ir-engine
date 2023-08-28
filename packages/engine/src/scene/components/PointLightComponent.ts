@@ -43,7 +43,6 @@ export const PointLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new PointLight()
-    if (!isMobileXRHeadset) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,
@@ -92,6 +91,10 @@ export const PointLightComponent = defineComponent({
     const renderState = useHookstate(getMutableState(RendererState))
     const debugEnabled = renderState.nodeHelperVisibility
     const light = useComponent(entity, PointLightComponent)
+    useEffect(() => {
+      if (isMobileXRHeadset) return
+      addObjectToGroup(entity, light.light.value)
+    }, [])
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
