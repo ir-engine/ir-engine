@@ -32,6 +32,8 @@ export const inviteTypePath = 'invite-type'
 
 export const inviteTypeMethods = ['find', 'get'] as const
 
+export const inviteTypes = ['friend', 'channel', 'location', 'instance', 'new-user']
+
 // Main data model schema
 export const inviteTypeSchema = Type.Object(
   {

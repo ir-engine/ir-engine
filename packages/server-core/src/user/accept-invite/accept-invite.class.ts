@@ -30,6 +30,7 @@ import { locationPath } from '@etherealengine/engine/src/schemas/social/location
 
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import {
   IdentityProviderType,
@@ -97,11 +98,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       params.provider = null!
       let invite
       try {
-        invite = await this.app.service('invite').Model.findOne({
-          where: {
-            id: id
-          }
-        })
+        invite = await this.app.service(invitePath)._get(id)
       } catch (err) {
         //
       }
@@ -186,7 +183,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         const inviter = await this.app.service(userPath)._get(invite.userId)
 
         if (inviter == null) {
-          await this.app.service('invite').remove(invite.id)
+          await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid user ID')
         }
 
@@ -251,7 +248,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         const channel = await this.app.service('channel').Model.findOne({ where: { id: invite.targetObjectId } })
 
         if (channel == null) {
-          await this.app.service('invite').remove(invite.id)
+          await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid channel ID')
         }
 
@@ -271,7 +268,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       params.preventUserRelationshipRemoval = true
-      if (invite.deleteOnUse) await this.app.service('invite').remove(invite.id, params)
+      if (invite.deleteOnUse) await this.app.service(invitePath).remove(invite.id, params as any)
 
       returned.token = await this.app
         .service('authentication')
