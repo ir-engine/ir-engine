@@ -682,7 +682,7 @@ export async function configureMediaTransports(mediaTypes: string[]): Promise<bo
   const mediaStreamState = getMutableState(MediaStreamState)
   if (
     mediaTypes.indexOf('video') > -1 &&
-    (mediaStreamState.videoStream.value == null || !mediaStreamState.videoStream.value.active)
+    (!mediaStreamState.videoStream.value || !mediaStreamState.videoStream.value.active)
   ) {
     await _MediaStreamService.startCamera()
 
@@ -694,11 +694,11 @@ export async function configureMediaTransports(mediaTypes: string[]): Promise<bo
 
   if (
     mediaTypes.indexOf('audio') > -1 &&
-    (mediaStreamState.audioStream.value == null || !mediaStreamState.audioStream.value.active)
+    (!mediaStreamState.audioStream.value || !mediaStreamState.audioStream.value.active)
   ) {
     await _MediaStreamService.startMic()
 
-    if (mediaStreamState.audioStream.value == null) {
+    if (!mediaStreamState.audioStream.value) {
       logger.warn('Audio stream is null, mic must have failed or be missing')
       return false
     }
@@ -1028,12 +1028,14 @@ export const toggleMicrophonePaused = async () => {
 }
 
 export const toggleWebcamPaused = async () => {
+  console.log('toggleWebcamPaused')
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['video'])) {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
       const videoPaused = mediaStreamState.videoPaused.value
+      console.log({ videoPaused })
       if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       mediaStreamState.videoPaused.set(!videoPaused)
