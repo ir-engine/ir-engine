@@ -190,7 +190,6 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const needsSkip = animationGraph.needsSkip
 
   const magnitude = moveLength.copy(avatarAnimationComponent.value.locomotion).setY(0).lengthSq()
-  console.log(layerOverride)
   if (animationGraph.blendAnimation && magnitude > 1 && idleBlendStrength >= 1 && !layerOverride) needsSkip.set(true)
 
   walkWeight = lerp(
