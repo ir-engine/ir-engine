@@ -62,8 +62,9 @@ const currentActionBlendSpeed = 10
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
     const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
-    if (newAnimation.needsSkip)
-      getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph.needsSkip.set(true)
+    const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
+    if (newAnimation.needsSkip) graph.needsSkip.set(true)
+    graph.layer.set(newAnimation.layer ?? 0)
     loadAvatarAnimation(
       targetEntity,
       newAnimation.animationState,
@@ -185,12 +186,13 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const animationGraph = avatarAnimationComponent.animationGraph
   const idleBlendStrength = animationGraph.blendStrength.value
   const layerOverride = animationGraph.layer.value > 0
-  const locomoteBlendStrength = layerOverride ? 0 : animationGraph.blendStrength.value
+  const locomoteBlendStrength = layerOverride ? animationGraph.blendStrength.value : 0
   const needsSkip = animationGraph.needsSkip
 
-  //if (animationGraph.blendAnimation && magnitude > 1 && idleBlendStrength >= 1 && !layerOverride) needsSkip.set(true)
-
   const magnitude = moveLength.copy(avatarAnimationComponent.value.locomotion).setY(0).lengthSq()
+  console.log(layerOverride)
+  if (animationGraph.blendAnimation && magnitude > 1 && idleBlendStrength >= 1 && !layerOverride) needsSkip.set(true)
+
   walkWeight = lerp(
     walk.getEffectiveWeight(),
     clamp(1 / (magnitude - 1.65) - locomoteBlendStrength, 0, 1),
