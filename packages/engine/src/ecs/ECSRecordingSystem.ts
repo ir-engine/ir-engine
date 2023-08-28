@@ -299,6 +299,10 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     dataChannelRecorder
   } as ActiveRecording
 
+  const uploadRecordingChunk = getState(RecordingAPIState).uploadRecordingChunk
+  if (!uploadRecordingChunk)
+    return dispatchError('Recording not available - no upload method provided', action.$peer, action.$topic)
+
   if (Engine.instance.worldNetwork) {
     const serializationSchema = schema.user
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
@@ -313,7 +317,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       onCommitChunk(chunk, chunkIndex) {
         const key = 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee'
         const buffer = encode(chunk)
-        getState(RecordingAPIState).uploadRecordingChunk!({
+        uploadRecordingChunk({
           recordingID: recording.id,
           key,
           body: buffer,
@@ -326,7 +330,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
           if (data.length) {
             const key = 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee'
             const buffer = encode(data)
-            getState(RecordingAPIState).uploadRecordingChunk!({
+            uploadRecordingChunk({
               recordingID: recording.id,
               key,
               body: buffer,
