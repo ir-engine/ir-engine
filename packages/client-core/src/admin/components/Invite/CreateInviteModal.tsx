@@ -31,7 +31,6 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { SendInvite } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -48,8 +47,10 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
@@ -114,7 +115,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
     return {
       value: `${el.id}`,
-      label: `${el.id} (${el.location.name})`
+      label: `${el.id} (${el.location?.name})`
     }
   })
 
@@ -179,14 +180,14 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         const isPhone = PHONE_REGEX.test(target)
         const isEmail = EMAIL_REGEX.test(target)
         const sendData = {
-          inviteType: inviteType,
-          token: target.length === 8 ? null : target,
-          inviteCode: target.length === 8 ? target : null,
+          inviteType,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
           targetObjectId: instanceId.value || locationId.value || null,
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
-        } as SendInvite
+        } as InviteData
+        if (target.length === 8) sendData.inviteCode = target
+        else sendData.token = target
         if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
           sendData.spawnDetails = { inviteCode: userInviteCode.value }
@@ -196,8 +197,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         }
         sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
         if (sendData.timed) {
-          sendData.startTime = startTime.value?.toDate()
-          sendData.endTime = endTime.value?.toDate()
+          sendData.startTime = toDateTimeSql(startTime.value?.toDate())
+          sendData.endTime = toDateTimeSql(endTime.value?.toDate())
         }
         await InviteService.sendInvite(sendData)
         instanceId.set('')
