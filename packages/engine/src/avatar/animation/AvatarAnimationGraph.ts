@@ -39,6 +39,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { locomotionPack } from '../functions/avatarFunctions'
 import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
@@ -46,17 +47,16 @@ const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.m
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
-  const clip = AnimationClip.findByName(animations ?? manager.locomotionAnimations!.animations, name)
+  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionPack]!.animations, name)
   return mixer.clipAction(clip)
 }
 
 const moveLength = new Vector3()
-let fallWeight = 0,
-  runWeight = 0,
+let runWeight = 0,
   walkWeight = 0,
   idleWeight = 1
 
-const currentActionBlendSpeed = 10
+const currentActionBlendSpeed = 9
 
 //blend between locomotion and animation overrides
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
@@ -111,7 +111,7 @@ export const loadAvatarAnimation = (
   const animationState = getState(AnimationState)
 
   if (animationState.loadedAnimations[stateName])
-    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[stateName].scene, loop)
+    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[stateName].scene, loop, clipName, fileType)
   else {
     //load from default-project/assets/animations
     AssetLoader.loadAsync(
@@ -176,8 +176,7 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const idle = getAnimationAction('Idle', animationComponent.mixer, animationComponent.animations)
   const run = getAnimationAction('Run', animationComponent.mixer, animationComponent.animations)
   const walk = getAnimationAction('Walk', animationComponent.mixer, animationComponent.animations)
-  const fall = getAnimationAction('Fall', animationComponent.mixer, animationComponent.animations)
-  if (!idle || !run || !walk || !fall) return
+  if (!idle || !run || !walk) return
   idle.play()
   run.play()
   walk.play()
