@@ -133,12 +133,12 @@ const CaptureDashboard = () => {
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+  const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
 
   const mediaNetworkState = useMediaNetwork()
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const recordingState = useHookstate(getMutableState(RecordingState))
 
-  const videoActive = useHookstate(false)
+  const videoActive = videoStream.value && !videoPaused.value
 
   const resizeCanvas = () => {
     canvasRef.current!.width = videoRef.current!.clientWidth
@@ -165,8 +165,6 @@ const CaptureDashboard = () => {
   useLayoutEffect(() => {
     canvasCtxRef.current = canvasRef.current!.getContext('2d')!
     videoRef.current!.srcObject = videoStream.value
-    videoRef.current!.onplay = () => videoActive.set(true)
-    videoRef.current!.onpause = () => videoActive.set(false)
     resizeCanvas()
   }, [videoStream, poseOptions.selfieMode])
 
@@ -319,20 +317,19 @@ const CaptureDashboard = () => {
     }
   }
 
-  const isCamVideoEnabled =
-    mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState?.videoPaused?.value === false
-  const videoStatus =
-    !mediaNetworkState?.connected?.value && !videoActive?.value
-      ? 'loading'
-      : isCamVideoEnabled !== true
-      ? 'ready'
-      : 'active'
-  const recordingStatus =
-    !recordingState?.recordingID?.value && isDetecting?.value !== true
-      ? 'inactive'
-      : recordingState?.started?.value
-      ? 'active'
-      : 'ready'
+  const getVideoStatus = () => {
+    if (!mediaNetworkState?.connected?.value) return 'loading'
+    if (!videoActive) return 'ready'
+    return 'active'
+  }
+  const videoStatus = getVideoStatus()
+
+  const getRecordingStatus = () => {
+    if (!recordingState.recordingID.value && !isDetecting.value) return 'inactive'
+    if (recordingState.started.value) return 'active'
+    return 'ready'
+  }
+  const recordingStatus = getRecordingStatus()
 
   return (
     <div className="w-full container mx-auto pointer-events-auto">
@@ -450,7 +447,7 @@ const CaptureDashboard = () => {
                 <Video ref={videoRef} className="w-full h-auto" />
               </div>
               <div
-                className="object-contain absolute top-0 left-0 z-20 min-w-full h-auto"
+                className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
                 style={{ objectFit: 'contain', top: '0px' }}
               >
                 <Canvas ref={canvasRef} />
@@ -460,7 +457,7 @@ const CaptureDashboard = () => {
                   onClick={() => {
                     if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
                   }}
-                  className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0"
+                  className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
                 >
                   <h1>{mediaNetworkState?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
                 </button>
