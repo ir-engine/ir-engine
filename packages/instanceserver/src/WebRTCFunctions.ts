@@ -261,6 +261,7 @@ export async function closeDataProducer(
   peerID: PeerID
 ): Promise<void> {
   const dataProducer = getState(MediasoupDataProducersConsumersObjectsState).producers[dataProducerID]
+  if (!dataProducer) return logger.warn('Data producer not found for id: ' + dataProducerID)
   dispatchAction(
     MediasoupDataProducerActions.producerClosed({
       producerID: dataProducer.id,

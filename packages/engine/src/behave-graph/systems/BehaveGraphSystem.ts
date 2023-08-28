@@ -73,11 +73,9 @@ const execute = () => {
 const reactor = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const sceneState = useHookstate(getMutableState(SceneState))
-  console.log('BehaveGraphSystem reactor')
   useEffect(() => {
-    if (!engineState.sceneLoaded.value) return
+    if (!engineState.sceneLoaded.value || engineState.isEditor.value) return
     for (const entity of defineQuery([BehaveGraphComponent])()) {
-      console.log('UseEffect BG')
       setComponent(entity, BehaveGraphComponent, { run: true })
     }
   }, [engineState.sceneLoaded, sceneState.sceneData])
