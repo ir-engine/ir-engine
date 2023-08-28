@@ -46,10 +46,10 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import {
-  addComponent,
   ComponentType,
   defineComponent,
   hasComponent,
+  setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -88,9 +88,6 @@ export const PortalComponent = defineComponent({
   jsonID: 'portal',
 
   onInit: (entity) => {
-    setCallback(entity, 'teleport', portalTriggerEnter)
-
-    if (!hasComponent(entity, ColliderComponent)) addComponent(entity, ColliderComponent, { ...portalColliderValues })
     return {
       linkedPortalId: '',
       location: '',
@@ -148,6 +145,11 @@ export const PortalComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const portalComponent = useComponent(entity, PortalComponent)
+
+    useEffect(() => {
+      setCallback(entity, 'teleport', portalTriggerEnter)
+      if (!hasComponent(entity, ColliderComponent)) setComponent(entity, ColliderComponent, { ...portalColliderValues })
+    }, [])
 
     useEffect(() => {
       if (debugEnabled.value && !portalComponent.helper.value) {
