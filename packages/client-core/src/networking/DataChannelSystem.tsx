@@ -27,24 +27,80 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import {
-  DataChannelRegistryState,
-  DataConsumerActions
-} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+  MediasoupDataConsumerActions,
+  MediasoupDataProducerConsumerState,
+  MediasoupDataProducersConsumersObjectsState
+} from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+import {
+  MediasoupTransportObjectsState,
+  MediasoupTransportState
+} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
-import { State, useHookstate } from '@hookstate/core'
+import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { none, useHookstate } from '@hookstate/core'
+import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import React, { useEffect } from 'react'
-import {
-  SocketWebRTCClientNetwork,
-  createDataConsumer,
-  createDataProducer
-} from '../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork, WebRTCTransportExtension } from '../transports/SocketWebRTCClientFunctions'
 
-export const consumerData = async (action: typeof DataConsumerActions.consumerCreated.matches._TYPE) => {
+export async function createDataConsumer(
+  network: SocketWebRTCClientNetwork,
+  dataChannel: DataChannelType
+): Promise<void> {
+  dispatchAction(
+    MediasoupDataConsumerActions.requestConsumer({
+      dataChannel,
+      $network: network.id,
+      $topic: network.topic,
+      $to: network.hostPeerID
+    })
+  )
+}
+
+export async function createDataProducer(
+  network: SocketWebRTCClientNetwork,
+  args = {
+    ordered: false,
+    maxRetransmits: 1,
+    maxPacketLifeTime: undefined,
+    protocol: 'raw',
+    appData: {}
+  } as DataProducerOptions & {
+    label: DataChannelType
+  }
+): Promise<void> {
+  const producer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, args.label) as DataProducer
+  if (producer) return
+
+  const sendTransport = MediasoupTransportState.getTransport(network.id, 'send') as WebRTCTransportExtension
+
+  const dataProducer = await sendTransport.produceData({
+    label: args.label,
+    ordered: args.ordered,
+    appData: args.appData,
+    maxPacketLifeTime: args.maxPacketLifeTime,
+    maxRetransmits: args.maxRetransmits,
+    protocol: args.protocol // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
+  })
+
+  dataProducer.on('transportclose', () => {
+    dataProducer.close()
+  })
+
+  dataProducer.observer.on('close', () => {
+    getMutableState(MediasoupDataProducersConsumersObjectsState).producers[dataProducer.id].set(none)
+  })
+
+  getMutableState(MediasoupDataProducersConsumersObjectsState).producers[dataProducer.id].set(dataProducer)
+}
+
+export const consumerData = async (action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
-  const dataConsumer = await network.recvTransport.consumeData({
+  const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv') as WebRTCTransportExtension
+
+  const dataConsumer = await recvTransport.consumeData({
     id: action.consumerID,
     sctpStreamParameters: action.sctpStreamParameters,
     label: action.dataChannel,
@@ -67,14 +123,19 @@ export const consumerData = async (action: typeof DataConsumerActions.consumerCr
       console.error(e)
     }
   }) // Handle message received
-  dataConsumer.on('close', () => {
+
+  dataConsumer.on('transportclose', () => {
     dataConsumer.close()
   })
 
-  network.dataConsumers.set(action.dataChannel, dataConsumer)
+  dataConsumer.observer.on('close', () => {
+    getMutableState(MediasoupDataProducersConsumersObjectsState).consumers[dataConsumer.id].set(none)
+  })
+
+  getMutableState(MediasoupDataProducersConsumersObjectsState).consumers[dataConsumer.id].set(dataConsumer)
 }
 
-const dataConsumerCreatedActionQueue = defineActionQueue(DataConsumerActions.consumerCreated.matches)
+const dataConsumerCreatedActionQueue = defineActionQueue(MediasoupDataConsumerActions.consumerCreated.matches)
 
 const execute = () => {
   for (const action of dataConsumerCreatedActionQueue()) {
@@ -84,21 +145,21 @@ const execute = () => {
 
 export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
-  const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
-  const recvTransport = useHookstate(networkState.recvTransport)
-  const sendTransport = useHookstate(networkState.sendTransport)
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
   useEffect(() => {
-    if (!recvTransport.value || !sendTransport.value) return
+    const recvTransport = MediasoupTransportState.getTransport(networkID, 'recv') as WebRTCTransportExtension
+    const sendTransport = MediasoupTransportState.getTransport(networkID, 'send') as WebRTCTransportExtension
+    if (!recvTransport || !sendTransport) return
 
     const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
-    createDataProducer(network, dataChannelType)
+    createDataProducer(network, { label: dataChannelType })
     createDataConsumer(network, dataChannelType)
 
     return () => {
       // todo - cleanup
     }
-  }, [recvTransport.value, sendTransport.value])
+  }, [transportState.keys])
 
   return null
 }

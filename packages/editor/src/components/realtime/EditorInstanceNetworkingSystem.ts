@@ -37,6 +37,8 @@ let accumulator = 0
 
 const execute = () => {
   const editorState = getState(EditorState)
+  if (!editorState.projectName || !editorState.sceneName) return
+
   accumulator += Engine.instance.deltaSeconds
 
   if (accumulator > 5) {

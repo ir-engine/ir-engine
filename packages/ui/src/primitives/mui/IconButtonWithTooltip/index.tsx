@@ -23,20 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
-import { BotCommandData, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import CloseIcon from '@mui/icons-material/Close'
+import React from 'react'
 
-import { Application } from '../../../declarations'
+import IconButton from '../IconButton'
+import Tooltip from '../Tooltip'
 
-export const createBotCommands = async (app: Application, bot: AdminBot, commands: BotCommandData[]) => {
-  const botId = bot.id
-
-  for (let element of commands) {
-    await app.service(botCommandPath).create({
-      name: element.name,
-      description: element.description,
-      botId: botId
-    })
-  }
-  return commands
+const IconButtonWithTooltip = ({
+  id,
+  title,
+  icon,
+  tooltipClassName,
+  ...props
+}: Parameters<typeof IconButton>[0] & { tooltipClassName?: string }) => {
+  return (
+    <Tooltip id={id} title={title} className={tooltipClassName}>
+      <IconButton id={id} icon={icon} {...props} />
+    </Tooltip>
+  )
 }
+
+IconButtonWithTooltip.displayName = 'IconButtonWithTooltip'
+
+IconButtonWithTooltip.defaultProps = {
+  icon: <CloseIcon />
+}
+
+export default IconButtonWithTooltip
