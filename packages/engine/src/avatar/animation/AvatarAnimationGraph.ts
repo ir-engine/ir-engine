@@ -56,7 +56,7 @@ let runWeight = 0,
   walkWeight = 0,
   idleWeight = 1
 
-const currentActionBlendSpeed = 9
+const currentActionBlendSpeed = 7
 
 //blend between locomotion and animation overrides
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {

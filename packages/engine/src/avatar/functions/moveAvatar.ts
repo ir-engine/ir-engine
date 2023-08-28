@@ -153,7 +153,6 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
     if (controller.isInAir && !beganFalling) {
-      console.log('started falling')
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
           animationState: animationStates.locomotion,
@@ -174,11 +173,11 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
             fileType: 'glb',
             clipName: 'Fall',
             loop: true,
+            layer: 1,
             needsSkip: true,
             entityUUID: getComponent(entity, UUIDComponent)
           })
         )
-        console.log('skipped falliiing')
       }
 
       beganFalling = false
