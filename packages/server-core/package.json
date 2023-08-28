@@ -39,6 +39,7 @@
     "test": "mocha",
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
+    "migrate:rollback": "knex migrate:rollback --all",
     "migrate:make": "knex --migrations-directory ./ migrate:make"
   },
   "dependencies": {

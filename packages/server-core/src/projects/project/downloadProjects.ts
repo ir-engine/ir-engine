@@ -74,6 +74,7 @@ export const download = async (projectName: string, storageProviderName?: string
     //     npmInstallProcess.once('error', resolve)
     //     npmInstallProcess.once('disconnect', resolve)
     //     npmInstallProcess.stdout.on('data', (data) => logger.info(data.toString()))
+    //     npmInstallProcess.stderr.on('data', (data) => logger.error(data.toString()))
     //   }).then((result) => logger.info(result))
     //   await Promise.race([
     //     npmInstallPromise,
