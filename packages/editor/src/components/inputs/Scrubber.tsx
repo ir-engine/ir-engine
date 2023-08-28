@@ -37,18 +37,20 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Portal from '../layout/Portal'
 
 type ScrubberContainerProps = {
-  tag?: keyof JSX.IntrinsicElements
+  tag?: any
   children?: ReactNode
   onMouseDown: any
 }
 
-const ScrubberContainer = React.forwardRef(({ tag: Component = 'div', children, ...rest }: ScrubberContainerProps) => {
-  return (
-    <Component className="ScrubberContainer" {...rest}>
-      {children}
-    </Component>
-  )
-})
+const ScrubberContainer = React.forwardRef<HTMLElement, ScrubberContainerProps>(
+  ({ tag: Component = 'div', children, ...rest }: ScrubberContainerProps, ref: React.Ref<HTMLElement>) => {
+    return (
+      <Component ref={ref} className="ScrubberContainer" {...rest}>
+        {children}
+      </Component>
+    )
+  }
+)
 
 type CursorProps = {
   x: number
@@ -76,7 +78,7 @@ type ScrubberProps = {
   onCommit?: (value: any) => void
 }
 
-const Scrubber = ({
+const Scrubber: React.FC<ScrubberProps> = ({
   tag,
   children,
   smallStep,
@@ -92,7 +94,7 @@ const Scrubber = ({
   onChange,
   onCommit,
   ...rest
-}: ScrubberProps) => {
+}) => {
   const state = useHookstate({
     isDragging: false,
     startValue: null as number | null,
@@ -113,6 +115,7 @@ const Scrubber = ({
       const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
       const finalValue = convertTo(roundedValue)
+      console.log('DEBUG , final value', finalValue)
       onChange(finalValue)
 
       state.delta.set(nextDelta)
@@ -153,9 +156,9 @@ const Scrubber = ({
     state.delta.set(0)
     state.mouseX.set(event.clientX)
     state.mouseY.set(event.clientY)
-
+    console.log('DEBUG', scrubberEl, scrubberEl?.current)
     scrubberEl?.current?.requestPointerLock()
-
+    console.log('DEBUG LOCKED')
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
   }
