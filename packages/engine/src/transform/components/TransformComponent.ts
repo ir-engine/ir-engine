@@ -29,6 +29,7 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
@@ -103,7 +104,7 @@ export const TransformComponent = defineComponent({
 
     if (json.position) component.position.value.copy(json.position)
     if (rotation) component.rotation.value.copy(rotation)
-    if (json.scale) component.scale.value.copy(json.scale)
+    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
 
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
     component.matrixInverse.value.copy(component.matrix.value).invert()
