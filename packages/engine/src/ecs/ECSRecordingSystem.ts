@@ -229,7 +229,7 @@ export type UploadRecordingChunkType = (args: {
   key: string
   body: Buffer
   mimeType: string
-}) => Promise<boolean>
+}) => Promise<void>
 
 export const RecordingAPIState = defineState({
   name: 'ee.engine.recording.RecordingAPIState',

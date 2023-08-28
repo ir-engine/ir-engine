@@ -33,9 +33,6 @@ import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/sta
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, none } from '@etherealengine/hyperflux'
-import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
-import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
@@ -63,33 +60,29 @@ export const uploadRecordingStaticResource = async (props: {
 }) => {
   const api = Engine.instance.api
 
-  const storageProvider = getStorageProvider()
+  const keyParts = props.key.split('/')
+  const path = keyParts.slice(0, keyParts.length - 1).join('/')
+  const fileName = keyParts[keyParts.length - 1]
 
-  const upload = await storageProvider.putObject({
-    Key: props.key,
-    Body: props.body,
-    ContentType: props.mimeType
+  const url = await api.service('file-browser').patch(null, {
+    path,
+    fileName,
+    body: props.body,
+    contentType: props.mimeType
   })
 
-  const url = getCachedURL(props.key, storageProvider.cacheDomain)
-  const hash = createStaticResourceHash(props.body, { assetURL: props.key })
+  const staticResource = await api.service(staticResourcePath).find({
+    query: {
+      url
+    }
+  })
 
-  const staticResource = await api.service(staticResourcePath).create(
-    {
-      key: props.key,
-      url,
-      mimeType: props.mimeType,
-      hash
-    },
-    { isInternal: true }
-  )
+  const firstStaticResource = Array.isArray(staticResource) ? staticResource[0] : staticResource.data[0]
 
   await api.service(recordingResourcePath).create({
-    staticResourceId: staticResource.id,
+    staticResourceId: firstStaticResource.id,
     recordingId: props.recordingID
   })
-
-  return upload
 }
 
 const reactor = () => {
