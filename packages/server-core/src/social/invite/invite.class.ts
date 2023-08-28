@@ -199,6 +199,8 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserT
   }
   if (!query.existenceCheck) delete query.userId
   delete query.existenceCheck
+  delete query.search
+
   const result = (await Service.prototype.find.call(inviteService, {
     query: {
       // userId: query.userId,

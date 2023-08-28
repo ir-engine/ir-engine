@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Invite } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -139,6 +141,19 @@ describe.skip('invite service', () => {
     assert.equal(item.identityProviderType, identityProviderType)
     assert.ok(item.id)
     assert.ok(item.passcode)
+  })
+
+  it('should find invites with empty search string', async () => {
+    const items = await app.service('invite').find({ query: { search: '' } })
+    assert.ok(items)
+    assert.equal((items as Paginated<Invite>).data.length, invites.length)
+  })
+
+  it('should find invites with search string present', async () => {
+    const lastInvite = invites.at(-1)
+    const item = await app.service('invite').find({ query: { search: invites.passcode } })
+
+    assert.equal((item as Paginated<Invite>).data[0].passcode, lastInvite.passcode)
   })
 
   it('should find received invites', async () => {
