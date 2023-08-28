@@ -115,7 +115,6 @@ const Scrubber: React.FC<ScrubberProps> = ({
       const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
       const finalValue = convertTo(roundedValue)
-      console.log('DEBUG , final value', finalValue)
       onChange(finalValue)
 
       state.delta.set(nextDelta)
@@ -156,9 +155,7 @@ const Scrubber: React.FC<ScrubberProps> = ({
     state.delta.set(0)
     state.mouseX.set(event.clientX)
     state.mouseY.set(event.clientY)
-    console.log('DEBUG', scrubberEl, scrubberEl?.current)
     scrubberEl?.current?.requestPointerLock()
-    console.log('DEBUG LOCKED')
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
   }
