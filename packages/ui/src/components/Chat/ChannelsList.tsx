@@ -30,6 +30,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import UserIcon from './assets/user.svg'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { Resizable } from 're-resizable'
 import { ChatState } from './ChatState'
 import { DrawerCreateChannel } from './DrawerCreateChannel'

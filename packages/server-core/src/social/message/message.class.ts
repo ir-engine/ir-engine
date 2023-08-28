@@ -43,7 +43,7 @@ import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MessageParams extends RootParams<MessageQuery> {
-  'identity-provider': {
+  'identity-provider'?: {
     userId: UserID
   }
 }
@@ -126,5 +126,9 @@ export class MessageService<T = MessageType, ServiceParams extends Params = Mess
     newMessage.sender = loggedInUser
 
     return newMessage
+  }
+
+  async find(params?: MessageParams) {
+    return await super._find(params)
   }
 }

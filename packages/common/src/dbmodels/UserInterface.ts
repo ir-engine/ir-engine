@@ -153,3 +153,9 @@ export interface BotCommandInterface {
   name: string
   description?: string
 }
+
+export interface MessageInterface {
+  id: string
+  text: string
+  isNotification: boolean
+}

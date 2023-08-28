@@ -35,10 +35,10 @@ export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
     const { id, method, data, params, app } = context
     const loggedInUser = params.user as UserType
-    if (method === 'remove' || method === 'patch') {
+    if ((method === 'remove' || method === 'patch') && id) {
       const match = (await app.service(messagePath)._find({
         query: {
-          id: id,
+          id: id.toString(),
           senderId: loggedInUser.id,
           $limit: 1
         }
