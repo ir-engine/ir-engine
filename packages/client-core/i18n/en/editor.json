@@ -321,6 +321,8 @@
         "ktx2Quality": "Compression Quality",
         "weldVertices": "Weld Vertices",
         "weldThreshold": "Weld Threshold",
+        "split": "Split Multi-Material Meshes",
+        "combineMaterials": "Combine Duplicate Materials",
         "removeDuplicates": "Remove Duplicates",
         "pruneUnused": "Prune Unused",
         "reorder": "Reorder",

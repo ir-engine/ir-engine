@@ -435,8 +435,8 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
   /* ID unnamed resources */
   unInstanceSingletons(document)
-  await split(document)
-  await combineMaterials(document)
+  args.parms.split && (await split(document))
+  args.parms.combineMaterials && (await combineMaterials(document))
   args.parms.instance && (await myInstance(document))
   args.parms.dedup && (await document.transform(dedup()))
   args.parms.flatten && (await document.transform(flatten()))

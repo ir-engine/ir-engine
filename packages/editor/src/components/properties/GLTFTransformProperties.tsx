@@ -101,6 +101,15 @@ export default function GLTFTransformProperties({
             ]}
           />
         </InputGroup>
+        <InputGroup name="Split" label={t('editor:properties.model.transform.split')}>
+          <BooleanInput value={transformParms.split.value} onChange={onChangeTransformParm(transformParms.split)} />
+        </InputGroup>
+        <InputGroup name="Combine materials" label={t('editor:properties.model.transform.combineMaterials')}>
+          <BooleanInput
+            value={transformParms.combineMaterials.value}
+            onChange={onChangeTransformParm(transformParms.combineMaterials)}
+          />
+        </InputGroup>
         <InputGroup name="Instance" label={t('editor:properties.model.transform.instance')}>
           <BooleanInput
             value={transformParms.instance.value}
