@@ -44,6 +44,7 @@ export class AvatarNetworkAction {
     fileType: matchesAnimationFiles,
     loop: matches.boolean,
     needsSkip: matches.boolean.optional(),
+    layer: matches.number.optional(),
     $topic: NetworkTopics.world
   })
 

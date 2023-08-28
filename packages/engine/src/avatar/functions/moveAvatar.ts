@@ -57,7 +57,7 @@ import { AutopilotMarker, clearWalkPoint, scaleFluctuate } from './autopilotFunc
 
 const avatarGroundRaycastDistanceIncrease = 0.5
 const avatarGroundRaycastDistanceOffset = 1
-const avatarGroundRaycastAcceptableDistance = 1.2
+const avatarGroundRaycastAcceptableDistance = 1.05
 
 /**
  * raycast internals
@@ -153,19 +153,21 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
     if (controller.isInAir && !beganFalling) {
+      console.log('started falling')
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
           animationState: animationStates.locomotion,
           fileType: 'glb',
           clipName: 'Fall',
           loop: true,
+          layer: 1,
           entityUUID: getComponent(entity, UUIDComponent)
         })
       )
       beganFalling = true
     }
     if (hit.distance <= avatarGroundRaycastAcceptableDistance) {
-      if (beganFalling)
+      if (beganFalling) {
         dispatchAction(
           AvatarNetworkAction.setAnimationState({
             animationState: animationStates.locomotion,
@@ -176,6 +178,9 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
             entityUUID: getComponent(entity, UUIDComponent)
           })
         )
+        console.log('skipped falliiing')
+      }
+
       beganFalling = false
       if (attached) originTransform.position.y = hit.position.y
       /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */

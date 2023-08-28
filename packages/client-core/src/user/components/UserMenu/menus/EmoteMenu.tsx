@@ -149,6 +149,7 @@ export const useEmoteMenuHooks = () => {
         animationState: stateName,
         loop: false,
         fileType: 'fbx',
+        layer: 0,
         entityUUID: getComponent(entity, UUIDComponent)
       })
     )

@@ -56,7 +56,7 @@ let fallWeight = 0,
   walkWeight = 0,
   idleWeight = 1
 
-const currentActionBlendSpeed = 4
+const currentActionBlendSpeed = 10
 
 //blend between locomotion and animation overrides
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
@@ -180,32 +180,27 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   idle.play()
   run.play()
   walk.play()
-  //fall.play()
 
-  fallWeight = lerp(
-    fall.getEffectiveWeight(),
-    clamp(Math.abs(avatarAnimationComponent.value.locomotion.y), 0, 1),
-    getState(EngineState).deltaSeconds * 10
-  )
+  //for now we're hard coding layer overrides into the locomotion blending function
+  const animationGraph = avatarAnimationComponent.animationGraph
+  const idleBlendStrength = animationGraph.blendStrength.value
+  const layerOverride = animationGraph.layer.value > 0
+  const locomoteBlendStrength = layerOverride ? 0 : animationGraph.blendStrength.value
+  const needsSkip = animationGraph.needsSkip
+
+  //if (animationGraph.blendAnimation && magnitude > 1 && idleBlendStrength >= 1 && !layerOverride) needsSkip.set(true)
+
   const magnitude = moveLength.copy(avatarAnimationComponent.value.locomotion).setY(0).lengthSq()
   walkWeight = lerp(
     walk.getEffectiveWeight(),
-    clamp(1 / (magnitude - 1.65), 0, 1), // - fallWeight,
+    clamp(1 / (magnitude - 1.65) - locomoteBlendStrength, 0, 1),
     getState(EngineState).deltaSeconds * 4
   )
-
-  const animationGraph = avatarAnimationComponent.animationGraph
-  const blendStrength = animationGraph.value.blendStrength
-  const needsSkip = animationGraph.needsSkip
-
-  if (animationGraph.blendAnimation && magnitude > 1 && blendStrength >= 1) needsSkip.set(true)
-
-  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) // - fallWeight
+  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) - locomoteBlendStrength // - fallWeight
   idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) // - fallWeight
   run.setEffectiveWeight(runWeight)
   walk.setEffectiveWeight(walkWeight)
-  //fall.setEffectiveWeight(fallWeight)
-  idle.setEffectiveWeight(idleWeight - blendStrength)
+  idle.setEffectiveWeight(idleWeight - idleBlendStrength)
 }
 
 export const getRootSpeed = (clip: AnimationClip) => {
