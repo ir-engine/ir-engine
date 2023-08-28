@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -43,6 +42,7 @@ import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 import Switch from '@etherealengine/ui/src/primitives/mui/Switch'
 
 import { useFind, useMutation, useRealtime } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectPermissionType } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -99,7 +99,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
     }
   }
 
-  const handlePatchPermission = async (permission: ProjectPermissionInterface) => {
+  const handlePatchPermission = async (permission: ProjectPermissionType) => {
     try {
       await projectPermissionMutation.patch(permission.id, { type: permission.type === 'owner' ? 'user' : 'owner' })
     } catch (err) {

@@ -23,49 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'identity-provider': {
-      type: 'object',
-      properties: {
-        token: {
-          type: 'string'
-        },
-        password: {
-          type: 'string'
-        },
-        isVerified: {
-          type: 'boolean'
-        },
-        verifyToken: {
-          type: 'string'
-        },
-        verifyShortToken: {
-          type: 'string'
-        },
-        verifyExpires: {
-          type: 'string'
-        },
-        verifyChanges: {
-          type: 'object'
-        },
-        resetToken: {
-          type: 'string'
-        },
-        resetExpires: {
-          type: 'string'
-        },
-        type: {
-          type: 'string'
-        }
-      }
-    },
-    'identity-provider_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/identity-provider' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  identityProviderDataSchema,
+  identityProviderPatchSchema,
+  identityProviderQuerySchema,
+  identityProviderSchema
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    identityProviderDataSchema,
+    identityProviderPatchSchema,
+    identityProviderQuerySchema,
+    identityProviderSchema
+  },
+  docs: {
+    description: 'Identity provider service description',
+    securities: ['all']
   }
-}
+})

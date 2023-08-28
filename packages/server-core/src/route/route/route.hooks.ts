@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  routeDataSchema,
-  routePatchSchema,
-  routeQuerySchema,
-  routeSchema
+  routeDataValidator,
+  routePatchValidator,
+  routeQueryValidator
 } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -44,12 +41,6 @@ import {
   routeQueryResolver,
   routeResolver
 } from './route.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const routeValidator = getValidator(routeSchema, dataValidator)
-const routeDataValidator = getValidator(routeDataSchema, dataValidator)
-const routePatchValidator = getValidator(routePatchSchema, dataValidator)
-const routeQueryValidator = getValidator(routeQuerySchema, queryValidator)
 
 export default {
   around: {

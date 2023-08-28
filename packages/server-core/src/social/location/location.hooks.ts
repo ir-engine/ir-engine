@@ -28,16 +28,13 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import authenticate from '../../hooks/authenticate'
 
 import {
-  locationDataSchema,
-  locationPatchSchema,
-  locationQuerySchema,
-  locationSchema
+  locationDataValidator,
+  locationPatchValidator,
+  locationQueryValidator
 } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import { HookContext, NextFunction } from '@feathersjs/feathers'
 import { locationSettingSorts } from './location.class'
@@ -48,12 +45,6 @@ import {
   locationQueryResolver,
   locationResolver
 } from './location.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const locationValidator = getValidator(locationSchema, dataValidator)
-const locationDataValidator = getValidator(locationDataSchema, dataValidator)
-const locationPatchValidator = getValidator(locationPatchSchema, dataValidator)
-const locationQueryValidator = getValidator(locationQuerySchema, queryValidator)
 
 const applyLocationSettingSort = async (context: HookContext, next: NextFunction) => {
   await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks

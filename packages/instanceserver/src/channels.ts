@@ -30,20 +30,18 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, State } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
@@ -53,14 +51,18 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserKick } from '@etherealengine/common/src/interfaces/UserKick'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import {
+  identityProviderPath,
+  IdentityProviderType
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userKickPath, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
-import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
+import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
+import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -71,7 +73,7 @@ interface PrimusConnectionType {
   socketQuery?: {
     sceneId: string
     locationId?: string
-    instanceId?: string
+    instanceID?: string
     channelId?: string
     roomCode?: string
     token: string
@@ -296,9 +298,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
     logger.info('Scene loaded!')
   }
 
-  network.ready = true
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  networkState.authenticated.set(true)
+  networkState.connected.set(true)
+  networkState.ready.set(true)
 
-  dispatchAction(EngineActions.joinedWorld({}))
+  getMutableState(EngineState).connectedWorld.set(true)
 }
 
 /**
@@ -396,10 +401,10 @@ const createOrUpdateInstance = async (
     await loadEngine(app, sceneId)
   } else {
     try {
-      if (!getState(EngineState).joinedWorld)
+      if (!getState(EngineState).connectedWorld)
         await new Promise<void>((resolve) => {
           const interval = setInterval(() => {
-            if (getState(EngineState).joinedWorld) {
+            if (getState(EngineState).connectedWorld) {
               clearInterval(interval)
               resolve()
             }
@@ -487,21 +492,6 @@ const handleUserDisconnect = async (
     logger.info('Failed to patch instance user count, likely because it was destroyed.')
   }
 
-  const userPatch = {} as any
-
-  // Patch the user's (channel)instanceId to null if they're leaving this instance.
-  // But, don't change their (channel)instanceId if it's already something else.
-  const userPatchResult = await app
-    .service(userPath)
-    .patch(null, userPatch, {
-      query: {
-        id: user.id
-      }
-    })
-    .catch((err) => {
-      logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
-    })
-  logger.info('Patched disconnecting user to %o', userPatchResult)
   await app.service(instanceAttendancePath).patch(
     null,
     {
@@ -559,13 +549,14 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     { accessToken: connection.socketQuery.token },
     {}
   )
-  const identityProvider = authResult['identity-provider'] as IdentityProviderInterface
+  const identityProvider = authResult[identityProviderPath] as IdentityProviderType
   if (!identityProvider?.id) return
 
   const userId = identityProvider.userId
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId! as ChannelID
   let roomCode = connection.socketQuery.roomCode!
+  let instanceID = connection.socketQuery.instanceID!
 
   if (locationId === '') {
     locationId = undefined!
@@ -593,9 +584,10 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const isLocalServerNeedingNewLocation =
     !config.kubernetes.enabled &&
     instanceServerState.instance &&
-    (instanceServerState.instance.locationId != locationId ||
+    (instanceServerState.instance.id != instanceID ||
+      instanceServerState.instance.locationId != locationId ||
       instanceServerState.instance.channelId != channelId ||
-      (roomCode && instanceServerState.instance.roomCode !== roomCode))
+      (roomCode && instanceServerState.instance.roomCode != roomCode))
 
   logger.info(
     `current id: ${instanceServerState.instance?.locationId ?? instanceServerState.instance?.channelId} and new id: ${
@@ -608,8 +600,12 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     await app.service('instance').patch(instanceServerState.instance.id, {
       ended: true
     })
-    if (instanceServerState.instance.channelId) {
-      await app.service('channel').remove(instanceServerState.instance.channelId)
+    try {
+      if (instanceServerState.instance.channelId) {
+        await app.service('channel').remove(instanceServerState.instance.channelId)
+      }
+    } catch (e) {
+      //
     }
     restartInstanceServer()
     return
@@ -660,16 +656,16 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   } catch (err) {
     if (err.code === 401 && err.data.name === 'TokenExpiredError') {
       const jwtDecoded = decode(token)!
-      const idProvider = await app.service('identity-provider').get(jwtDecoded.sub as string)
+      const idProvider = await app.service(identityProviderPath)._get(jwtDecoded.sub as string)
       authResult = {
-        'identity-provider': idProvider
+        [identityProviderPath]: idProvider
       }
     } else throw err
   }
 
   const instanceServerState = getState(InstanceServerState)
 
-  const identityProvider = authResult['identity-provider'] as IdentityProviderInterface
+  const identityProvider = authResult[identityProviderPath] as IdentityProviderType
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
     const user = await app.service(userPath).get(userId)
@@ -726,7 +722,7 @@ export default (app: Application): void => {
     createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
 
-  const kickCreatedListener = async (data: UserKick) => {
+  const kickCreatedListener = async (data: UserKickType) => {
     // TODO: only run for instanceserver
     if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
 
@@ -740,13 +736,10 @@ export default (app: Application): void => {
     const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
     if (!peer || !peer.spark) return
 
-    peer.spark.write({ type: MessageTypes.Kick.toString(), data: '' })
+    handleDisconnect(getServerNetwork(app), peer.peerID)
   }
 
-  app.service('user-kick').on('created', kickCreatedListener)
-
-  logger.info('registered kickCreatedListener')
-
+  app.service(userKickPath).on('created', kickCreatedListener)
   app.service('channel-user').on('removed', handleChannelUserRemoved(app))
 
   app.on('connection', onConnection(app))

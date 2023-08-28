@@ -24,17 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  serverHubSchema,
-  serverSettingDataSchema,
-  serverSettingPatchSchema,
-  serverSettingQuerySchema,
-  serverSettingSchema
+  serverSettingDataValidator,
+  serverSettingPatchValidator,
+  serverSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -45,14 +41,6 @@ import {
   serverSettingQueryResolver,
   serverSettingResolver
 } from './server-setting.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const serverHubValidator = getValidator(serverHubSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const serverSettingValidator = getValidator(serverSettingSchema, dataValidator)
-const serverSettingDataValidator = getValidator(serverSettingDataSchema, dataValidator)
-const serverSettingPatchValidator = getValidator(serverSettingPatchSchema, dataValidator)
-const serverSettingQueryValidator = getValidator(serverSettingQuerySchema, queryValidator)
 
 export default {
   around: {

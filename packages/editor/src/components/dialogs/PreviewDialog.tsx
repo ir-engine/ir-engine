@@ -24,55 +24,34 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
-import Dialog from './Dialog'
+const leftContentStyles = {
+  display: 'flex',
+  width: '360px',
+  borderTopLeftRadius: 'inherit',
+  alignItems: 'center',
+  padding: '30px'
+}
 
-/**
- * LeftContent used to provide styles for left div.
- *
- * @type {Styled component}
- */
-const LeftContent = (styled as any).div`
-  display: flex;
-  width: 360px;
-  border-top-left-radius: inherit;
-  align-items: center;
-  padding: 30px;
+const imgStyles = {
+  borderRadius: '6px'
+}
 
-  img {
-    border-radius: 6px;
-  }
-`
+const rightContentStyles = {
+  display: 'flex',
+  flexDirection: 'column',
+  flex: '1',
+  padding: '30px 30px'
+}
 
-/**
- * RightContent used to provide styles to Right div.
- *
- * @type {Styled component}
- */
-const RightContent = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding: 30px 30px;
-`
-
-/**
- * PreviewDialog provides the dialog containing image on left side and content on right side.
- *
- * @param       {String} imageSrc
- * @param       {node} children [contains component with message content]
- * @param       {any} props
- * @constructor
- */
-export function PreviewDialog({ imageSrc, children, ...props }) {
+const PreviewDialog = ({ imageSrc, children, ...props }) => {
   return (
-    <Dialog {...props}>
-      <LeftContent>
-        <img src={imageSrc} alt="" crossOrigin="anonymous" />
-      </LeftContent>
-      <RightContent>{children}</RightContent>
-    </Dialog>
+    <div style={{ display: 'flex', ...props.style }}>
+      <div style={leftContentStyles}>
+        <img src={imageSrc} alt="" crossOrigin="anonymous" style={imgStyles} />
+      </div>
+      <div style={rightContentStyles as React.CSSProperties}>{children}</div>
+    </div>
   )
 }
 

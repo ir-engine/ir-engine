@@ -33,15 +33,18 @@ import {
   screenshareVideoDataChannelType,
   webcamAudioDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import { getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { MediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
+import {
+  MediasoupMediaConsumerActions,
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState
+} from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {
-  createPeerMediaChannels,
   PeerMediaChannelState,
+  createPeerMediaChannels,
   removePeerMediaChannels
 } from '../transports/PeerMediaChannelState'
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
@@ -51,10 +54,12 @@ import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunct
  */
 const PeerMedia = (props: { consumerID: string; networkID: UserID }) => {
   const consumerState = useHookstate(
-    getMutableState(MediaProducerConsumerState)[props.networkID].consumers[props.consumerID]
+    getMutableState(MediasoupMediaProducerConsumerState)[props.networkID].consumers[props.consumerID]
   )
   const producerID = consumerState.producerID.value
-  const producerState = useHookstate(getMutableState(MediaProducerConsumerState)[props.networkID].producers[producerID])
+  const producerState = useHookstate(
+    getMutableState(MediasoupMediaProducerConsumerState)[props.networkID].producers[producerID]
+  )
 
   const peerID = consumerState.peerID.value
   const mediaTag = consumerState.mediaTag.value
@@ -63,20 +68,18 @@ const PeerMedia = (props: { consumerID: string; networkID: UserID }) => {
     mediaTag === screenshareAudioDataChannelType || mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
   const isAudio = mediaTag === webcamAudioDataChannelType || mediaTag === screenshareAudioDataChannelType
 
-  const networkState = useHookstate(
-    getMutableState(NetworkState).networks[props.networkID]
-  ) as State<SocketWebRTCClientNetwork>
-
-  const consumer = networkState.consumers.find((c) => c.value.id === props.consumerID)
+  const consumer = useHookstate(
+    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[props.consumerID]
+  )?.value
 
   useEffect(() => {
     if (!consumer) return
     const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
     if (!peerMediaChannelState) return
     if (isAudio) {
-      peerMediaChannelState.audioStream.set(consumer.value)
+      peerMediaChannelState.audioStream.set(consumer)
     } else {
-      peerMediaChannelState.videoStream.set(consumer.value)
+      peerMediaChannelState.videoStream.set(consumer)
     }
   }, [consumer])
 
@@ -88,8 +91,8 @@ const PeerMedia = (props: { consumerID: string; networkID: UserID }) => {
   }, [consumerState.paused])
 
   useEffect(() => {
-    const globalMute = !!producerState.globalMute.value
-    const paused = !!producerState.paused.value
+    const globalMute = !!producerState.globalMute?.value
+    const paused = !!producerState.paused?.value
 
     const peerMediaChannelState = getMutableState(PeerMediaChannelState)[peerID]?.[type]
     if (!peerMediaChannelState) return
@@ -130,9 +133,10 @@ const SelfMedia = () => {
   return null
 }
 
-export const PeerMediaChannels = () => {
+export const PeerMediaChannels = (props: { networkID: UserID }) => {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
-  const mediaNetworkState = useMediaNetwork()
+  const mediaNetworkState = useHookstate(getMutableState(NetworkState).networks[props.networkID])
+  const consumerState = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[props.networkID].consumers)
 
   // create a peer media stream for each peer with a consumer
   useEffect(() => {
@@ -153,7 +157,7 @@ export const PeerMediaChannels = () => {
     }
   }, [
     mediaNetworkState?.peers?.size,
-    mediaNetworkState?.consumers?.length,
+    consumerState.keys.length,
     mediaStreamState.videoStream,
     mediaStreamState.audioStream,
     mediaStreamState.screenAudioProducer,
@@ -163,11 +167,43 @@ export const PeerMediaChannels = () => {
   return null
 }
 
+export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
+  const { networkID, producerID } = props
+  const producerState = useHookstate(
+    getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
+  )
+
+  useEffect(() => {
+    const peerID = producerState.peerID.value
+    const mediaTag = producerState.mediaTag.value
+    const channelID = producerState.channelID.value
+    const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
+
+    dispatchAction(
+      MediasoupMediaConsumerActions.requestConsumer({
+        mediaTag,
+        peerID,
+        rtpCapabilities: network.transport.mediasoupDevice.rtpCapabilities,
+        channelID,
+        $topic: network.topic,
+        $to: network.hostPeerID
+      })
+    )
+  }, [])
+
+  return null
+}
+
 const NetworkConsumers = (props: { networkID: UserID }) => {
   const { networkID } = props
-  const consumers = useHookstate(getMutableState(MediaProducerConsumerState)[networkID].consumers)
+  const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)
+  const producers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers)
   return (
     <>
+      <PeerMediaChannels key={'PeerMediaChannels'} networkID={networkID} />
+      {producers.keys.map((producerID: string) => (
+        <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
+      ))}
       {consumers.keys.map((consumerID: string) => (
         <PeerMedia key={consumerID} consumerID={consumerID} networkID={networkID} />
       ))}
@@ -176,11 +212,10 @@ const NetworkConsumers = (props: { networkID: UserID }) => {
 }
 
 export const PeerMediaConsumers = () => {
-  const networkIDs = useHookstate(getMutableState(MediaProducerConsumerState))
+  const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
   const selfPeerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[Engine.instance.peerID])
   return (
     <>
-      <PeerMediaChannels key={'PeerMediaChannels'} />
       {selfPeerMediaChannelState.value && <SelfMedia key={'SelfMedia'} />}
       {networkIDs.keys.map((hostId: UserID) => (
         <NetworkConsumers key={hostId} networkID={hostId} />

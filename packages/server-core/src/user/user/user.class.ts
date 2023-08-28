@@ -29,8 +29,13 @@ import { KnexAdapter } from '@feathersjs/knex'
 
 import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { Op } from 'sequelize'
+import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
@@ -68,14 +73,14 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
     const { search } = params.query || {}
 
     if (search) {
-      const searchedIdentityProviders = await this.app.service('identity-provider').Model.findAll({
-        where: {
+      const searchedIdentityProviders = (await this.app.service(identityProviderPath).find({
+        query: {
           accountIdentifier: {
-            [Op.like]: `%${search}%`
+            $like: `%${search}%`
           }
         },
-        raw: true
-      })
+        paginate: false
+      })) as IdentityProviderType[]
 
       params.query = {
         ...params.query,
@@ -143,7 +148,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
     delete dataWithoutExtras.scopes
 
-    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType
+    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType | UserType[]
 
     await this._afterPatch(this.app, result)
 
@@ -164,7 +169,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
   _afterCreate = async (app: Application, result: UserType) => {
     try {
-      await app.service('user-settings').create({
+      await app.service(userSettingPath).create({
         userId: result.id
       })
 
@@ -176,7 +181,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
           }
         })
 
-        await app.service('scope').create(data)
+        await app.service(scopePath).create(data)
       }
 
       if (result && !result.isGuest) {
@@ -191,13 +196,15 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
     }
   }
 
-  _afterPatch = async (app: Application, result: UserType) => {
+  _afterPatch = async (app: Application, results: UserType | UserType[]) => {
     try {
-      if (result && !result.isGuest && result.inviteCode == null) {
-        const code = await getFreeInviteCode(app)
-        await this._patch(result.id!, {
-          inviteCode: code
-        })
+      for (const result of Array.isArray(results) ? results : [results]) {
+        if (result && !result.isGuest && result.inviteCode == null) {
+          const code = await getFreeInviteCode(app)
+          await this._patch(result.id!, {
+            inviteCode: code
+          })
+        }
       }
     } catch (err) {
       logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)

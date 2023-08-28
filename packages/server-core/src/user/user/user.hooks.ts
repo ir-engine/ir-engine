@@ -25,15 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   UserType,
-  userDataSchema,
-  userPatchSchema,
-  userQuerySchema,
-  userSchema,
-  userScopeSchema
+  userDataValidator,
+  userPatchValidator,
+  userQueryValidator
 } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
@@ -109,50 +105,6 @@ const restrictUserRemove = (context: HookContext) => {
   return context
 }
 
-// TODO: Remove this when user-settings service is moved to feathers 5.
-const parseAllUserSettings = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { result } = context
-
-    for (const index in result.data) {
-      if (result.data[index].userSetting && result.data[index].userSetting.themeModes) {
-        let themeModes = JSON.parse(result.data[index].userSetting.themeModes)
-
-        if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
-
-        result.data[index].userSetting.themeModes = themeModes
-      }
-    }
-
-    return context
-  }
-}
-
-// TODO: Remove this when user-settings service is moved to feathers 5.
-const parseUserSettings = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { result } = context
-
-    if (result.userSetting && result.userSetting.themeModes) {
-      let themeModes = JSON.parse(result.userSetting.themeModes)
-
-      if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
-
-      result.userSetting.themeModes = themeModes
-    }
-
-    return context
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const userScopeValidator = getValidator(userScopeSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const userValidator = getValidator(userSchema, dataValidator)
-const userDataValidator = getValidator(userDataSchema, dataValidator)
-const userPatchValidator = getValidator(userPatchSchema, dataValidator)
-const userQueryValidator = getValidator(userQuerySchema, queryValidator)
-
 /**
  * This module used to declare and identify database relation
  * which will be used later in user service
@@ -189,16 +141,14 @@ export default {
   after: {
     all: [],
     find: [
-      parseAllUserSettings(),
       addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
     ],
     get: [
-      parseUserSettings(),
       addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
     ],
-    create: [parseUserSettings()],
-    update: [parseUserSettings()],
-    patch: [parseUserSettings()],
+    create: [],
+    update: [],
+    patch: [],
     remove: []
   },
 

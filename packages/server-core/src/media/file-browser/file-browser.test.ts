@@ -29,6 +29,8 @@ import path from 'path/posix'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import LocalStorage from '../storageprovider/local.storage'
@@ -336,7 +338,7 @@ describe('file browser service', () => {
       fs.writeFileSync(filePath, 'Hello world')
       fs.writeFileSync(fileStoragePath, 'Hello world')
 
-      await app.service('static-resource').create(
+      await app.service(staticResourcePath).create(
         {
           mimeType: 'txt',
           hash: 'abcd',
@@ -351,12 +353,12 @@ describe('file browser service', () => {
 
       result.forEach((r) => assert(r === true))
 
-      const staticResource = await app.service('static-resource').find({
+      const staticResource = (await app.service(staticResourcePath).find({
         query: {
           key: filePath,
           $limit: 1
         }
-      })
+      })) as Paginated<StaticResourceType>
 
       assert(!fs.existsSync(filePath))
       assert(!fs.existsSync(fileStoragePath))

@@ -51,7 +51,7 @@ export const userPatched = (user: UserType) => {
     const currentInstanceId = patchedUser.instanceAttendance?.find((attendance) => !attendance.isChannel)
       ?.instanceId as UserID
     if (worldHostID && currentInstanceId && worldHostID !== currentInstanceId) {
-      LocationInstanceConnectionService.changeActiveConnection(worldHostID, currentInstanceId)
+      LocationInstanceConnectionService.changeActiveConnectionHostId(worldHostID, currentInstanceId)
     }
   }
 }

@@ -67,10 +67,10 @@ const LoadingDetailView = () => {
   const { t } = useTranslation()
 
   const sceneLoaded = engineState.sceneLoaded.value
-  const joinedWorld = engineState.joinedWorld.value
+  const connectedWorld = engineState.connectedWorld.value
   const loadingDetails = !sceneLoaded
     ? t('common:loader.loadingObjects')
-    : !joinedWorld
+    : !connectedWorld
     ? t('common:loader.joiningWorld')
     : t('common:loader.loadingComplete')
 

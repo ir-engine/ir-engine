@@ -25,21 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Application } from './../../declarations'
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
     if (context.arguments[1]?.scopes || Array.isArray(context.arguments[1].scope)) {
-      const foundItem = await context.app.service('scope').Model.findAll({
-        where: {
+      const foundItem = (await context.app.service(scopePath).find({
+        query: {
           userId: context.arguments[0]
-        }
-      })
+        },
+        paginate: false
+      })) as ScopeType[]
 
       if (foundItem.length > 0) {
         foundItem.forEach(async (scp) => {
           try {
-            await context.app.service('scope').remove(scp.id)
+            await context.app.service(scopePath).remove(scp.id)
           } catch (e) {
             return
           }
@@ -52,7 +54,7 @@ export default () => {
           userId: context.arguments[0]
         }
       })
-      if (data.length > 0) await context.app.service('scope').create(data)
+      if (data.length > 0) await context.app.service(scopePath).create(data)
     }
 
     return context

@@ -446,7 +446,9 @@ const ProjectsPage = () => {
     <main className={styles.projectPage}>
       <style>
         {`
-        #menu-projectURL,
+        #menu-projectURL {
+          z-index: 1500;
+        },
         #menu-branchData,
         #menu-commitData {
           z-index: 1500;

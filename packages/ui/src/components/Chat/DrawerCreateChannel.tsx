@@ -42,12 +42,14 @@ export const DrawerCreateChannel = () => {
 
   const selectedFriends = useHookstate<UserID[]>([])
 
-  const friends = friendState.relationships.friend.value.map((friend) => {
-    return {
-      id: friend.id,
-      name: friend.name
-    }
-  })
+  const friends = friendState.relationships.value
+    .filter((friend) => friend.userRelationshipType === 'friend')
+    .map((friend) => {
+      return {
+        id: friend.relatedUserId,
+        name: friend.relatedUser.name
+      }
+    })
 
   const createChannel = () => {
     ChannelService.createChannel(selectedFriends.get(NO_PROXY))

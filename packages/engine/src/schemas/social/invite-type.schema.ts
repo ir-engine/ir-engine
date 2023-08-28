@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const inviteTypePath = 'invite-type'
 
-export const inviteTypeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const inviteTypeMethods = ['find', 'get'] as const
 
 // Main data model schema
 export const inviteTypeSchema = Type.Object(
@@ -63,3 +64,8 @@ export const inviteTypeQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type InviteTypeQuery = Static<typeof inviteTypeQuerySchema>
+
+export const inviteTypeValidator = getValidator(inviteTypeSchema, dataValidator)
+export const inviteTypeDataValidator = getValidator(inviteTypeDataSchema, dataValidator)
+export const inviteTypePatchValidator = getValidator(inviteTypePatchSchema, dataValidator)
+export const inviteTypeQueryValidator = getValidator(inviteTypeQuerySchema, queryValidator)

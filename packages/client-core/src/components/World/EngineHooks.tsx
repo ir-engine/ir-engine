@@ -45,10 +45,7 @@ import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/funct
 import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import {
-  receiveJoinWorld,
-  spawnLocalAvatarInWorld
-} from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
@@ -108,7 +105,6 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     if (spectate) {
       if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
       dispatchAction(EngineActions.spectateUser({}))
-      dispatchAction(EngineActions.joinedWorld({}))
       return
     }
 
@@ -246,14 +242,6 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
         userIndex,
         authState.user.name.value
       )
-
-      if (props?.spectate) return
-
-      receiveJoinWorld({
-        cachedActions: [],
-        peerIndex,
-        routerRtpCapabilities: undefined
-      })
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 }

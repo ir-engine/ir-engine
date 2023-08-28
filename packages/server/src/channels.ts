@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import '@feathersjs/transport-commons'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 
 export default (app: Application): void => {
@@ -34,12 +35,12 @@ export default (app: Application): void => {
   }
 
   app.on('login', (authResult: any, { connection }: any) => {
-    const identityProvider = authResult['identity-provider'] || connection['identity-provider']
+    const identityProvider = authResult[identityProviderPath] || connection[identityProviderPath]
     if (identityProvider) app.channel(`userIds/${identityProvider.userId as string}`).join(connection)
   })
 
   app.on('logout', (authResult: any, { connection }: any) => {
-    const identityProvider = authResult['identity-provider'] || connection['identity-provider']
+    const identityProvider = authResult[identityProviderPath] || connection[identityProviderPath]
     if (identityProvider) app.channel(`userIds/${identityProvider.userId as string}`).leave(connection)
   })
 }
