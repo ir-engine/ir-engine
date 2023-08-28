@@ -40,7 +40,9 @@ interface StyledNumericInputProps {
 
 const StyledNumericInput = React.forwardRef<any, StyledNumericInputProps>(
   ({ className = '', onChange, ...rest }, ref) => {
-    return <input className={`StyledNumericInput ${className}`} style={inputStyle} {...rest} ref={ref} />
+    return (
+      <input className={`StyledNumericInput ${className}`} onChange={onChange} style={inputStyle} {...rest} ref={ref} />
+    )
   }
 )
 
@@ -63,9 +65,7 @@ export interface StringInputProps {
 
 const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, ...rest }, ref) => {
   const { error, canDrop, ...other } = rest
-  return (
-    <input className="Input" style={inputStyle} onChange={(e) => onChange?.(e.target.value, e)} {...other} ref={ref} />
-  )
+  return <input className="Input" style={inputStyle} onChange={onChange} {...other} ref={ref} />
 })
 
 StringInput.displayName = 'StringInput'
