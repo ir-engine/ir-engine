@@ -70,6 +70,8 @@ import { retargetMixamoAnimation } from './retargetMixamoRig'
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
 
+export const locomotionPack = 'locomotion'
+
 export const loadAvatarModelAsset = async (avatarURL: string) => {
   const model = await AssetLoader.loadAsync(avatarURL)
   const scene = model.scene || model // FBX files does not have 'scene' property
@@ -149,7 +151,7 @@ export const createIKAnimator = async (entity: Entity) => {
   for (let i = 0; i < animations!.length; i++) {
     animations[i] = retargetMixamoAnimation(
       animations[i],
-      manager.locomotionAnimations?.scene!,
+      manager.loadedAnimations[locomotionPack]?.scene!,
       rigComponent.vrm,
       'glb'
     )
@@ -164,10 +166,10 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.locomotionAnimations.value) {
+  if (!manager.loadedAnimations[locomotionPack].value) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const asset = (await AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/locomotion.glb`
+      `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionPack}.glb`
     )) as GLTF
 
     if (asset && asset.animations && asset.animations[4] && asset.animations[6]) {
@@ -176,10 +178,10 @@ export const getAnimations = async () => {
       movement.walkSpeed = getRootSpeed(asset.animations[6]) * 0.01
     }
 
-    manager.locomotionAnimations.set(asset)
+    manager.loadedAnimations[locomotionPack].set(asset)
   }
 
-  return cloneDeep(manager.locomotionAnimations.value?.animations) ?? [new AnimationClip()]
+  return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {

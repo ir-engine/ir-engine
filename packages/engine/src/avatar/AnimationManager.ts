@@ -30,14 +30,9 @@ import { defineState } from '@etherealengine/hyperflux'
 import { config } from '@etherealengine/common/src/config'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 
-//Create all IK targets as object 3ds, stored in
-//a named struct and in an object 3d hierarchy
-//the former allows easy accessability while the
-//latter allows for threejs keyframe animation
 export const AnimationState = defineState({
-  name: 'animationManager',
+  name: 'AnimationState',
   initial: () => ({
-    locomotionAnimations: undefined as GLTF | undefined,
     loadedAnimations: {} as Record<string, GLTF>
   })
 })

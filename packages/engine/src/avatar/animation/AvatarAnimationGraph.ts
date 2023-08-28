@@ -39,6 +39,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { locomotionPack } from '../functions/avatarFunctions'
 import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
@@ -46,24 +47,24 @@ const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.m
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
-  const clip = AnimationClip.findByName(animations ?? manager.locomotionAnimations!.animations, name)
+  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionPack]!.animations, name)
   return mixer.clipAction(clip)
 }
 
 const moveLength = new Vector3()
-let fallWeight = 0,
-  runWeight = 0,
+let runWeight = 0,
   walkWeight = 0,
   idleWeight = 1
 
-const currentActionBlendSpeed = 4
+const currentActionBlendSpeed = 7
 
 //blend between locomotion and animation overrides
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
     const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
-    if (newAnimation.needsSkip)
-      getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph.needsSkip.set(true)
+    const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
+    if (newAnimation.needsSkip) graph.needsSkip.set(true)
+    graph.layer.set(newAnimation.layer ?? 0)
     loadAvatarAnimation(
       targetEntity,
       newAnimation.animationState,
@@ -110,7 +111,7 @@ export const loadAvatarAnimation = (
   const animationState = getState(AnimationState)
 
   if (animationState.loadedAnimations[stateName])
-    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[stateName].scene, loop)
+    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[stateName].scene, loop, clipName, fileType)
   else {
     //load from default-project/assets/animations
     AssetLoader.loadAsync(
@@ -175,37 +176,31 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const idle = getAnimationAction('Idle', animationComponent.mixer, animationComponent.animations)
   const run = getAnimationAction('Run', animationComponent.mixer, animationComponent.animations)
   const walk = getAnimationAction('Walk', animationComponent.mixer, animationComponent.animations)
-  const fall = getAnimationAction('Fall', animationComponent.mixer, animationComponent.animations)
-  if (!idle || !run || !walk || !fall) return
+  if (!idle || !run || !walk) return
   idle.play()
   run.play()
   walk.play()
-  //fall.play()
 
-  fallWeight = lerp(
-    fall.getEffectiveWeight(),
-    clamp(Math.abs(avatarAnimationComponent.value.locomotion.y), 0, 1),
-    getState(EngineState).deltaSeconds * 10
-  )
-  const magnitude = moveLength.copy(avatarAnimationComponent.value.locomotion).setY(0).lengthSq()
-  walkWeight = lerp(
-    walk.getEffectiveWeight(),
-    clamp(1 / (magnitude - 1.65), 0, 1), // - fallWeight,
-    getState(EngineState).deltaSeconds * 4
-  )
-
+  //for now we're hard coding layer overrides into the locomotion blending function
   const animationGraph = avatarAnimationComponent.animationGraph
-  const blendStrength = animationGraph.value.blendStrength
+  const idleBlendStrength = animationGraph.blendStrength.value
+  const layerOverride = animationGraph.layer.value > 0
+  const locomoteBlendStrength = layerOverride ? animationGraph.blendStrength.value : 0
   const needsSkip = animationGraph.needsSkip
 
-  if (animationGraph.blendAnimation && magnitude > 1 && blendStrength >= 1) needsSkip.set(true)
+  const magnitude = moveLength.copy(avatarAnimationComponent.value.locomotion).setY(0).lengthSq()
+  if (animationGraph.blendAnimation && magnitude > 1 && idleBlendStrength >= 1 && !layerOverride) needsSkip.set(true)
 
-  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) // - fallWeight
+  walkWeight = lerp(
+    walk.getEffectiveWeight(),
+    clamp(1 / (magnitude - 1.65) - locomoteBlendStrength, 0, 1),
+    getState(EngineState).deltaSeconds * 4
+  )
+  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) - locomoteBlendStrength // - fallWeight
   idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) // - fallWeight
   run.setEffectiveWeight(runWeight)
   walk.setEffectiveWeight(walkWeight)
-  //fall.setEffectiveWeight(fallWeight)
-  idle.setEffectiveWeight(idleWeight - blendStrength)
+  idle.setEffectiveWeight(idleWeight - idleBlendStrength)
 }
 
 export const getRootSpeed = (clip: AnimationClip) => {
