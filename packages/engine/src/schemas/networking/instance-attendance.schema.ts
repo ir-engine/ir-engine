@@ -26,8 +26,10 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
+import { InstanceID } from './instance.schema'
 
 export const instanceAttendancePath = 'instance-attendance'
 
@@ -42,10 +44,10 @@ export const instanceAttendanceSchema = Type.Object(
     sceneId: Type.String(),
     isChannel: Type.Boolean(),
     ended: Type.Boolean(),
-    instanceId: Type.String({
+    instanceId: TypedString<InstanceID>({
       format: 'uuid'
     }),
-    userId: TypedString<UserID, 'uuid'>({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     instance: Type.Any(), // TODO: Replace any with instance schema once instance service is moved to feathers 5.
@@ -90,3 +92,8 @@ export const instanceAttendanceQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type InstanceAttendanceQuery = Static<typeof instanceAttendanceQuerySchema>
+
+export const instanceAttendanceValidator = getValidator(instanceAttendanceSchema, dataValidator)
+export const instanceAttendanceDataValidator = getValidator(instanceAttendanceDataSchema, dataValidator)
+export const instanceAttendancePatchValidator = getValidator(instanceAttendancePatchSchema, dataValidator)
+export const instanceAttendanceQueryValidator = getValidator(instanceAttendanceQuerySchema, queryValidator)

@@ -35,7 +35,6 @@ import {
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/setting/user-setting.schema'
 import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -44,6 +43,7 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const userResolver = resolve<UserType, HookContext>({
@@ -74,24 +74,22 @@ export const userResolver = resolve<UserType, HookContext>({
     return apiKey.length > 0 ? apiKey[0] : undefined
   }),
   identityProviders: virtual(async (user, context) => {
-    //TODO: We should replace `as any as IdentityProviderType[]` with `as IdentityProviderType[]` once identity-provider service is migrated to feathers 5.
     const identityProviders = (await context.app.service(identityProviderPath).find({
       query: {
         userId: user.id
       },
       paginate: false
-    })) as any as IdentityProviderType[]
+    })) as IdentityProviderType[]
 
     return identityProviders
   }),
   locationAdmins: virtual(async (user, context) => {
-    //TODO: We should replace `as any as LocationAdminType[]` with `as LocationAdminType[]` once location-admin service is migrated to feathers 5.
     const locationAdmins = (await context.app.service(locationAdminPath).find({
       query: {
         userId: user.id
       },
       paginate: false
-    })) as any as LocationAdminType[]
+    })) as LocationAdminType[]
     return locationAdmins
   }),
   locationBans: virtual(async (user, context) => {
@@ -104,13 +102,12 @@ export const userResolver = resolve<UserType, HookContext>({
     return locationBans
   }),
   scopes: virtual(async (user, context) => {
-    //TODO: We should replace `as any as ScopeType[]` with `as ScopeType[]` once scope service is migrated to feathers 5.
     const scopes = (await context.app.service(scopePath).find({
       query: {
         userId: user.id
       },
       paginate: false
-    })) as any as ScopeType[]
+    })) as ScopeType[]
     return scopes
   }),
   instanceAttendance: virtual(async (user, context) => {

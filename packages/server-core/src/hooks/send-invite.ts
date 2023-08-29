@@ -23,39 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../declarations'
 import logger from '../ServerLogger'
-import { UserParams } from '../api/root-params'
 import config from '../appconfig'
-import Page from '../types/PageObject'
+import { InviteParams } from '../social/invite/invite.class'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
-import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
-
-export type InviteDataType = InviteType
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
 
 async function generateEmail(
   app: Application,
-  result: InviteDataType,
+  result: InviteType,
   toEmail: string,
   inviteType: string,
   inviterUsername: string,
   targetObjectId?: string
 ): Promise<void> {
   let channelName, locationName
-  const hashLink = getInviteLink(inviteType, result.id, result.passcode)
+  const hashLink = getInviteLink(inviteType, result.id, result.passcode!)
 
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
@@ -96,14 +96,14 @@ async function generateEmail(
 
 async function generateSMS(
   app: Application,
-  result: InviteDataType,
+  result: InviteType,
   mobile: string,
   inviteType: string,
   inviterUsername: string,
   targetObjectId?: string
 ): Promise<void> {
   let channelName, locationName
-  const hashLink = getInviteLink(inviteType, result.id, result.passcode)
+  const hashLink = getInviteLink(inviteType, result.id, result.passcode!)
   if (inviteType === 'channel') {
     const channel = await app.service('channel').get(targetObjectId! as ChannelID)
     channelName = channel.name
@@ -138,7 +138,7 @@ async function generateSMS(
 }
 
 // This will attach the owner ID in the contact while creating/updating list item
-export const sendInvite = async (app: Application, result: InviteDataType, params: UserParams) => {
+export const sendInvite = async (app: Application, result: InviteType, params: InviteParams) => {
   try {
     let token = ''
     if (result.identityProviderType === 'email' || (result.identityProviderType === 'sms' && result.token)) {
@@ -157,7 +157,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
       await generateSMS(app, result, token, inviteType, authUser.name, targetObjectId)
     } else if (result.inviteeId != null) {
       if (inviteType === 'friend') {
-        const existingRelationshipStatus = (await app.service('user-relationship').find({
+        const existingRelationshipStatus = await app.service(userRelationshipPath)._find({
           query: {
             $or: [
               {
@@ -168,27 +168,27 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
               }
             ],
             userId: result.userId,
-            relatedUserId: result.inviteeId
+            relatedUserId: result.inviteeId as UserID
           }
-        })) as Paginated<UserRelationshipDataType>
+        })
         if (existingRelationshipStatus.total === 0) {
-          await app.service('user-relationship').create(
+          await app.service(userRelationshipPath).create(
             {
               userRelationshipType: 'requested',
               userId: result.userId,
-              relatedUserId: result.inviteeId
+              relatedUserId: result.inviteeId as UserID
             },
             {}
           )
         }
       }
 
-      const emailIdentityProviderResult = (await app.service('identity-provider').find({
+      const emailIdentityProviderResult = (await app.service(identityProviderPath).find({
         query: {
-          userId: result.inviteeId,
+          userId: result.inviteeId as UserID,
           type: 'email'
         }
-      })) as Page<IdentityProviderInterface>
+      })) as Paginated<IdentityProviderType>
 
       if (emailIdentityProviderResult.total > 0) {
         await generateEmail(
@@ -200,12 +200,12 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
           targetObjectId
         )
       } else {
-        const SMSIdentityProviderResult = (await app.service('identity-provider').find({
+        const SMSIdentityProviderResult = (await app.service(identityProviderPath).find({
           query: {
-            userId: result.inviteeId,
+            userId: result.inviteeId as UserID,
             type: 'sms'
           }
-        })) as Page<IdentityProviderInterface>
+        })) as Paginated<IdentityProviderType>
 
         if (SMSIdentityProviderResult.total > 0) {
           await generateSMS(

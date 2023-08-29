@@ -43,7 +43,7 @@ export const ScenePreviewCameraComponent = defineComponent({
 
   onInit: (entity) => {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
-    addObjectToGroup(entity, camera)
+
     return {
       camera,
       helper: null as CameraHelper | null
@@ -70,6 +70,10 @@ export const ScenePreviewCameraComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const camera = useComponent(entity, ScenePreviewCameraComponent)
+
+    useEffect(() => {
+      addObjectToGroup(entity, camera.camera.value)
+    }, [])
 
     useEffect(() => {
       if (debugEnabled.value && !camera.helper.value) {

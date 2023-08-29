@@ -28,9 +28,10 @@ import { Params } from '@feathersjs/feathers/lib'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
@@ -57,7 +58,7 @@ declare module '@etherealengine/common/declarations' {
 }
 
 type ActiveInstance = {
-  id: string
+  id: InstanceID
   location: string
   currentUsers: number
 }
@@ -131,12 +132,12 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
             .from(instanceAttendancePath)
             .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
             .join(userPath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
-            .join(`user_relationship`, `${userPath}.id`, '=', `${`user_relationship`}.userId`)
+            .join(userRelationshipPath, `${userPath}.id`, '=', `${userRelationshipPath}.userId`)
             .where(`${instanceAttendancePath}.ended`, '=', false)
             .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
             .andWhere(`${'instance'}.id`, '=', instance.id)
-            .andWhere(`${`user_relationship`}.userRelationshipType`, '=', 'friend')
-            .andWhere('user_relationship.relatedUserId', '=', data.user!.id)
+            .andWhere(`${userRelationshipPath}.userRelationshipType`, '=', 'friend')
+            .andWhere(`${userRelationshipPath}.relatedUserId`, '=', data.user!.id)
             .select()
             .options({ nestTables: true })
 
@@ -199,13 +200,12 @@ export default (app: Application) => {
    */
   service.publish('removed', async (data): Promise<any> => {
     try {
-      //TODO: We should replace `as any as AdminScope[]` with `as AdminScope[]` once scope service is migrated to feathers 5.
       const adminScopes = (await app.service(scopePath).find({
         query: {
           type: 'admin:admin'
         },
         paginate: false
-      })) as any as AdminScope[]
+      })) as ScopeType[]
 
       const targetIds = adminScopes.map((admin) => admin.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

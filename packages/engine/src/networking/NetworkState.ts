@@ -23,27 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { Validator, matches } from '../common/functions/MatchesUtils'
+import { InstanceID } from '../schemas/networking/instance.schema'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 
-type RegistryFunction = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => void
+export class NetworkActions {
+  static updatePeers = defineAction({
+    type: 'ee.engine.network.UPDATE_PEERS',
+    peers: matches.array as Validator<unknown, PeersUpdateType[]>
+  })
+}
 
 export const NetworkState = defineState({
   name: 'NetworkState',
   initial: {
     hostIds: {
-      media: null as UserID | null,
-      world: null as UserID | null
+      media: null as InstanceID | null,
+      world: null as InstanceID | null
     },
     // todo - move to Network.schemas
     networkSchema: {} as { [key: string]: SerializationSchema },
-    networks: {} as { [key: UserID]: Network },
+    networks: {} as { [key: InstanceID]: Network },
     config: {
       /** Allow connections to a world instance server */
       world: false,
@@ -58,8 +64,6 @@ export const NetworkState = defineState({
     }
   }
 })
-
-export const dataChannelRegistry = new Map<DataChannelType, RegistryFunction[]>()
 
 export const webcamVideoDataChannelType = 'ee.core.webcamVideo.dataChannel' as DataChannelType
 export const webcamAudioDataChannelType = 'ee.core.webcamAudio.dataChannel' as DataChannelType
@@ -98,46 +102,24 @@ export type PeerMediaType = {
     parameters: any
     rtcpFeedback: any[]
   }>
+  /** @deprecated */
   channelId: ChannelID
 }
 
 export type TransportDirection = 'send' | 'receive'
 
 export const addNetwork = (network: Network) => {
-  getMutableState(NetworkState).networks[network.hostId].set(network)
-}
-
-export const updateNetwork = (network: Network) => {
-  getMutableState(NetworkState).networks[network.hostId].set(network)
+  getMutableState(NetworkState).networks[network.id].set(network)
 }
 
 export const removeNetwork = (network: Network) => {
-  getMutableState(NetworkState).networks[network.hostId].set(none)
+  getMutableState(NetworkState).networks[network.id].set(none)
 }
 
-export const addDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
-  if (!dataChannelRegistry.has(dataChannelType)) {
-    dataChannelRegistry.set(dataChannelType, [])
-  }
-  dataChannelRegistry.get(dataChannelType)!.push(handler)
-}
-
-export const removeDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
-  if (!dataChannelRegistry.has(dataChannelType)) return
-
-  const index = dataChannelRegistry.get(dataChannelType)!.indexOf(handler)
-  if (index === -1) return
-
-  dataChannelRegistry.get(dataChannelType)!.splice(index, 1)
-
-  if (dataChannelRegistry.get(dataChannelType)!.length === 0) {
-    dataChannelRegistry.delete(dataChannelType)
-  }
-}
-
-export const updateNetworkID = (network: Network, newHostId: UserID) => {
+export const updateNetworkID = (network: Network, newID: InstanceID) => {
   const state = getMutableState(NetworkState)
-  state.networks[network.hostId].set(none)
-  state.networks[newHostId].set(network)
-  state.networks[newHostId].hostId.set(newHostId)
+  state.networks[network.id].set(none)
+  state.networks[newID].set(network)
+  state.networks[newID].hostId.set(newID as any)
+  state.networks[newID].id.set(newID)
 }

@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LocationInstanceConnectionAction } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LocationInstanceState } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import logger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export type ActiveInstance = {
-  id: string
+  id: InstanceID
   location: string
   currentUsers: number
   // todo: assignedAt so we can sort by most recent?
@@ -59,7 +59,7 @@ export const EditorActiveInstanceServiceReceptor = (action): any => {
 
 //Service
 export const EditorActiveInstanceService = {
-  provisionServer: async (locationId: string, instanceId: string, sceneId: string) => {
+  provisionServer: async (locationId: string, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server Editor')
     const token = getState(AuthState).authUser.accessToken
     const provisionResult = await Engine.instance.api.service('instance-provision').find({
@@ -71,16 +71,15 @@ export const EditorActiveInstanceService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatchAction(
-        LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserID,
+      getMutableState(LocationInstanceState).instances.merge({
+        [provisionResult.id]: {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
-          roomCode: provisionResult.roomCode,
-          locationId: locationId!,
-          sceneId: sceneId!
-        })
-      )
+          locationId: locationId,
+          sceneId: sceneId,
+          roomCode: provisionResult.roomCode
+        }
+      })
     }
   },
   getActiveInstances: async (sceneId: string) => {

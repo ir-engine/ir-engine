@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
-import styled from 'styled-components'
 import { Vector3 } from 'three'
 
 import LinkIcon from '@mui/icons-material/Link'
@@ -33,43 +32,38 @@ import LinkOffIcon from '@mui/icons-material/LinkOff'
 
 import Hidden from '../layout/Hidden'
 import NumericInput from './NumericInput'
+
+// style inheritance
 import Scrubber from './Scrubber'
+import './Vector3Input.css'
 
-export const Vector3InputContainer = (styled as any).div`
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  flex: 1 1 auto;
-  justify-content: flex-start;
-  gap: 6px;
-`
+export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }) => {
+  return <div className="Vector3InputContainer">{children}</div>
+}
 
-export const Vector3Scrubber = (styled as any)(Scrubber)`
-  display: flex;
-  align-items: center;
-  color: var(--textColor);
-  padding: 4px;
-  background: ${(props) => (props.axis === 'x' ? 'var(--red)' : props.axis === 'y' ? 'var(--green)' : 'var(--blue)')};
-`
+interface Vector3ScrubberProps {
+  tag?: string
+  axis: 'x' | 'y' | 'z' | string
+  value: number
+  onChange: any
+  onPointerUp?: any
+  children?: any
+  className?: string
+}
 
-export const UniformButtonContainer = (styled as any).div`
-  top: 0;
-  display: flex;
-  align-items: center;
-  width: 18px;
+export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
+  props.className = `Vector3Scrubber ${axis}`
+  const content = children ?? axis.toUpperCase()
+  return (
+    <Scrubber tag={tag} onChange={onChange} value={value} {...props}>
+      {content}
+    </Scrubber>
+  )
+}
 
-  svg {
-    width: 100%;
-  }
-
-  label {
-    color: var(--textColor);
-  }
-
-  label:hover {
-    color: var(--blueHover);
-  }
-`
+export const UniformButtonContainer: React.FC<{ children?: any }> = ({ children }) => {
+  return <div className="UniformButtonContainer">{children}</div>
+}
 
 let uniqueId = 0
 
@@ -103,7 +97,7 @@ export const Vector3Input = ({
     setUniformEnabled(!uniformEnabled)
   }
 
-  const processChange = (field, fieldValue) => {
+  const processChange = (field: string, fieldValue: number) => {
     if (uniformEnabled) {
       newValue.value.set(fieldValue, fieldValue, fieldValue)
     } else {
@@ -121,11 +115,11 @@ export const Vector3Input = ({
     }
   }
 
-  const onChangeX = (x) => processChange('x', x)
+  const onChangeX = (x: number) => processChange('x', x)
 
-  const onChangeY = (y) => processChange('y', y)
+  const onChangeY = (y: number) => processChange('y', y)
 
-  const onChangeZ = (z) => processChange('z', z)
+  const onChangeZ = (z: number) => processChange('z', z)
 
   const vx = value ? value.x : 0
   const vy = value ? value.y : 0
@@ -151,9 +145,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x">
-              X
-            </Vector3Scrubber>
+            <Vector3Scrubber {...rest} value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
           )
         }
       />
@@ -164,9 +156,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y">
-              Y
-            </Vector3Scrubber>
+            <Vector3Scrubber {...rest} value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
           )
         }
       />
@@ -177,9 +167,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z">
-              Z
-            </Vector3Scrubber>
+            <Vector3Scrubber {...rest} value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z" />
           )
         }
       />

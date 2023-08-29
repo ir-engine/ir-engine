@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { InviteDataType } from './invite.class'
 
 let invites: any = []
 let user: any = null
@@ -39,7 +41,7 @@ describe.skip('invite service', () => {
     app = createFeathersKoaApp()
     await app.setup()
 
-    await app.service('invite').hooks({
+    await app.service(invitePath).hooks({
       before: {
         find: []
       }
@@ -48,13 +50,12 @@ describe.skip('invite service', () => {
     // Create test user
     const type = 'password'
     const token = `${v1()}@etherealengine.io`
-    const password = 'test@123'
 
-    user = await app.service('identity-provider').create(
+    user = await app.service(identityProviderPath).create(
       {
         type,
         token,
-        password
+        userId: '' as UserID
       },
       {}
     )
@@ -62,7 +63,7 @@ describe.skip('invite service', () => {
 
   after(async () => {
     // Remove test user
-    await app.service('identity-provider').remove(null, {
+    await app.service(identityProviderPath)._remove(null, {
       query: {
         userId: user.userId
       }
@@ -70,7 +71,7 @@ describe.skip('invite service', () => {
   })
 
   it('registered the service', async () => {
-    const service = await app.service('invite')
+    const service = await app.service(invitePath)
     assert.ok(service, 'Registered the service')
   })
 
@@ -79,13 +80,14 @@ describe.skip('invite service', () => {
     const token = `${v1()}@etherealengine.io`
     const identityProviderType = 'email'
 
-    const item = (await app.service('invite').create({
+    const item = (await app.service(invitePath).create({
       inviteType,
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!
-    })) as InviteDataType
+      inviteeId: null!,
+      deleteOnUse: true
+    })) as InviteType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -101,13 +103,14 @@ describe.skip('invite service', () => {
     const token = `${v1()}@etherealengine.io`
     const identityProviderType = 'email'
 
-    const item = (await app.service('invite').create({
+    const item = (await app.service(invitePath).create({
       inviteType,
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!
-    })) as InviteDataType
+      inviteeId: null!,
+      deleteOnUse: true
+    })) as InviteType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -123,13 +126,14 @@ describe.skip('invite service', () => {
     const token = `${v1()}@etherealengine.io`
     const identityProviderType = 'email'
 
-    const item = (await app.service('invite').create({
+    const item = (await app.service(invitePath).create({
       inviteType,
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!
-    })) as InviteDataType
+      inviteeId: null!,
+      deleteOnUse: true
+    })) as InviteType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -141,7 +145,7 @@ describe.skip('invite service', () => {
   })
 
   it('should find received invites', async () => {
-    const item = await app.service('invite').find({
+    const item = await app.service(invitePath).find({
       query: {
         type: 'received',
         userId: user.userId
@@ -152,7 +156,7 @@ describe.skip('invite service', () => {
   })
 
   it('should find sent invites', async () => {
-    const item = await app.service('invite').find({
+    const item = await app.service(invitePath).find({
       query: {
         type: 'sent',
         userId: user.userId
@@ -163,14 +167,14 @@ describe.skip('invite service', () => {
   })
 
   it('should have "total" in find method', async () => {
-    const item = await app.service('invite').find({})
+    const item = await app.service(invitePath).find({})
 
     assert.ok('total' in item)
   })
 
   it('should remove invites', async () => {
     for (const invite of invites) {
-      const item = await app.service('invite').remove(invite.id, {})
+      const item = await app.service(invitePath).remove(invite.id, {})
       assert.ok(item, 'invite item is removed')
     }
   })

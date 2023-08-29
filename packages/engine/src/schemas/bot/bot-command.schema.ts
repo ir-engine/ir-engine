@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const botCommandPath = 'bot-command'
 
@@ -72,3 +73,8 @@ export const botCommandQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type BotCommandQuery = Static<typeof botCommandQuerySchema>
+
+export const botCommandValidator = getValidator(botCommandSchema, dataValidator)
+export const botCommandDataValidator = getValidator(botCommandDataSchema, dataValidator)
+export const botCommandPatchValidator = getValidator(botCommandPatchSchema, dataValidator)
+export const botCommandQueryValidator = getValidator(botCommandQuerySchema, queryValidator)

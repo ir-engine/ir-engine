@@ -45,11 +45,9 @@ export const EngineState = defineState({
     isEngineInitialized: false,
     sceneLoading: false,
     sceneLoaded: false,
-    joinedWorld: false,
     loadingProgress: 0,
     connectedWorld: false,
     isTeleporting: false,
-    leaveWorld: false,
     socketInstance: false,
     spectating: false,
     avatarLoadingEffect: true,
@@ -78,8 +76,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
     .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
     .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoading: false, sceneLoaded: true }))
-    .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
-    .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
 }
@@ -98,14 +94,6 @@ export class EngineActions {
   static initializeEngine = defineAction({
     type: 'xre.engine.Engine.INITIALIZED_ENGINE' as const,
     initialised: matches.boolean
-  })
-
-  static joinedWorld = defineAction({
-    type: 'xre.engine.Engine.JOINED_WORLD' as const
-  })
-
-  static leaveWorld = defineAction({
-    type: 'xre.engine.Engine.LEAVE_WORLD' as const
   })
 
   /** @deprecated */

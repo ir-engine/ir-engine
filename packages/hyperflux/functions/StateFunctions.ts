@@ -62,10 +62,10 @@ export type StateDefinition<S> = {
 
 const StateDefinitions = new Set<string>()
 
-export function defineState<S>(definition: StateDefinition<S>) {
+export function defineState<S, StateExtras = unknown>(definition: StateDefinition<S> & StateExtras) {
   if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
   StateDefinitions.add(definition.name)
-  return definition as StateDefinition<S> & { _TYPE: S }
+  return definition as StateDefinition<S> & { _TYPE: S } & StateExtras
 }
 
 export function registerState<S>(StateDefinition: StateDefinition<S>) {

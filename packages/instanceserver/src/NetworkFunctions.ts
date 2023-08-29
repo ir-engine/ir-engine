@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
-import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -34,11 +33,8 @@ import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respa
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { updateNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -52,14 +48,16 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { closeTransport } from './WebRTCFunctions'
+import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
@@ -171,12 +169,12 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
 
   // check if user is not kicked in the instance for a duration
   const currentDate = new Date()
-  const userKick = (await app.service('user-kick').find({
+  const userKick = (await app.service(userKickPath).find({
     query: {
       userId,
       instanceId: instance.id,
       duration: {
-        $gt: currentDate
+        $gt: toDateTimeSql(currentDate)
       },
       $limit: 0
     }
@@ -190,86 +188,66 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
 }
 
 export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: PeerID) {
-  const client = Array.from(network.peers.values()).find((c) => c.peerID === peerID)
+  const client = Object.values(network.peers).find((c) => c.peerID === peerID)
   return client?.userId
 }
 
-export const handleConnectingPeer = async (
+export const handleConnectingPeer = (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
-  user: UserType
+  user: UserType,
+  inviteCode?: string
 ) => {
   const userId = user.id
 
   // Create a new client object
   // and add to the dictionary
-  const existingUser = Array.from(network.peers.values()).find((client) => client.userId === userId)
+  const existingUser = Object.values(network.peers).find((client) => client.userId === userId)
   const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
   const peerIndex = network.peerIndexCount++
 
-  network.peers.set(peerID, {
-    userId,
-    userIndex: userIndex,
-    spark: spark,
-    peerIndex,
-    peerID,
-    lastSeenTs: Date.now(),
-    joinTs: Date.now(),
-    media: {} as any,
-    consumerLayers: {},
-    stats: {},
-    incomingDataConsumers: new Map<DataChannelType, DataConsumer>(),
-    outgoingDataConsumers: new Map<DataChannelType, DataConsumer>(),
-    dataProducers: new Map<string, DataProducer>()
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers.merge({
+    [peerID]: {
+      userId,
+      userIndex: userIndex,
+      spark: spark,
+      peerIndex,
+      peerID,
+      media: {},
+      lastSeenTs: Date.now()
+    }
   })
 
-  if (!network.users.has(userId)) {
-    network.users.set(userId, [peerID])
+  if (!network.users[userId]) {
+    networkState.users.merge({ [userId]: [peerID] })
   } else {
-    network.users.get(userId)!.push(peerID)
+    network.users[userId]!.push(peerID)
   }
 
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
 
-  network.userIDToUserIndex.set(userId, userIndex)
-  network.userIndexToUserID.set(userIndex, userId)
+  network.userIDToUserIndex[userId] = userIndex
+  network.userIndexToUserID[userIndex] = userId
 
-  //TODO: remove this once all network state properties are reactively set
-  updateNetwork(network)
-}
+  updatePeers(network)
 
-export async function handleJoinWorld(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data: JoinWorldRequestData,
-  messageId: string,
-  userId: UserID,
-  user: UserType
-) {
   logger.info('Connect to world from ' + userId)
 
   const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
     return _.cloneDeep(action)
   })
 
-  updatePeers(network)
-
-  spark.write({
-    type: MessageTypes.JoinWorld.toString(),
-    data: {
-      peerIndex: network.peerIDToPeerIndex.get(peerID)!,
-      routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
-      cachedActions
-    },
-    id: messageId
-  })
-
   const instanceServerState = getState(InstanceServerState)
-  if (data.inviteCode && !instanceServerState.isMediaInstance)
-    await getUserSpawnFromInvite(network, user, data.inviteCode!)
+  if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
+
+  return {
+    routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
+    peerIndex: network.peerIDToPeerIndex[peerID]!,
+    cachedActions
+  }
 }
 
 const getUserSpawnFromInvite = async (
@@ -343,29 +321,28 @@ const getUserSpawnFromInvite = async (
   }
 }
 
-export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID, message) {
-  if (!message) return
-  const networkPeer = network.peers.get(peerID)
-  if (!networkPeer) return logger.error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
+export const handleIncomingActions = (network: SocketWebRTCServerNetwork, peerID: PeerID) => (message) => {
+  const networkPeer = network.peers[peerID]
+  if (!networkPeer) return
 
-  const actions = /*decode(n
-    ew Uint8Array(*/ message /*))*/ as Required<Action>[]
+  networkPeer.lastSeenTs = Date.now()
+  if (!message?.length) {
+    // logger.info('Got heartbeat from ' + peerID + ' at ' + Date.now())
+    return
+  }
+
+  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
     a.$from = networkPeer.userId
-    a.$network = network.hostId // TODO replace with network.id
+    a.$network = network.id
     dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
-export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
-  // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
-  if (network.peers.has(peerID)) network.peers.get(peerID)!.lastSeenTs = Date.now()
-}
-
-export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
+export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserID
-  const disconnectedClient = network.peers.get(peerID)
+  const disconnectedClient = network.peers[peerID]
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
@@ -394,25 +371,11 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
-    if (disconnectedClient?.recvTransport) disconnectedClient.recvTransport.close()
-    if (disconnectedClient?.sendTransport) disconnectedClient.sendTransport.close()
+    const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
+    const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
+    if (recvTransport) recvTransport.close()
+    if (sendTransport) sendTransport.close()
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }
-}
-
-export async function handleLeaveWorld(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data,
-  messageId: string
-): Promise<any> {
-  for (const [, transport] of Object.entries(network.mediasoupTransports))
-    if (transport.appData.peerID === peerID) await closeTransport(network, transport)
-  if (network.peers.has(peerID)) {
-    NetworkPeerFunctions.destroyPeer(network, peerID)
-    updatePeers(network)
-  }
-  spark.write({ type: MessageTypes.LeaveWorld.toString(), id: messageId })
 }

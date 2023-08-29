@@ -30,7 +30,7 @@ import { useFind, useGet, useMutation } from '@etherealengine/engine/src/common/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
@@ -39,7 +39,6 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { Resizable } from 're-resizable'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
@@ -219,14 +218,10 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
     ChannelService.getChannels()
   }, [])
 
-  const currentChannelInstanceConnection = useMediaInstance()
-  const networkState = useHookstate(getMutableState(NetworkState))
-  const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaConnected =
-    mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
-  const connecting =
-    mediaHostId &&
-    (currentChannelInstanceConnection?.connecting?.value || !networkState.networks[mediaHostId]?.ready?.value)
+  const mediaNetworkState = useMediaNetwork()
+  const mediaNetworkID = Engine.instance.mediaNetwork?.id
+  const mediaConnected = mediaNetworkID && mediaNetworkState?.connected.value
+  const connecting = mediaNetworkID && !mediaNetworkState?.connected?.value
 
   return (
     <>
@@ -299,11 +294,9 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
 export const MessageContainer = () => {
   const selectedChannelID = useHookstate(getMutableState(ChatState).selectedChannelID).value
 
-  const currentChannelInstanceConnection = useMediaInstance()
-  const networkState = useHookstate(getMutableState(NetworkState))
-  const mediaHostId = Engine.instance.mediaNetwork?.hostId
-  const mediaConnected =
-    mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
+  const mediaNetworkState = useMediaNetwork()
+  const mediaNetworkID = Engine.instance.mediaNetwork?.id
+  const mediaConnected = mediaNetworkID && mediaNetworkState?.connected.value
 
   return (
     <>
