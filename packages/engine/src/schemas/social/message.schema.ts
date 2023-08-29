@@ -91,7 +91,8 @@ export const messageQueryProperties = Type.Pick(messageSchema, [
   'text',
   'isNotification',
   'channelId',
-  'senderId'
+  'senderId',
+  'createdAt'
 ])
 export const messageQuerySchema = Type.Intersect(
   [
