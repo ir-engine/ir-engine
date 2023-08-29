@@ -28,6 +28,7 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { InstanceID } from '../networking/instance.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { UserID } from './user.schema'
 
@@ -47,7 +48,7 @@ export const userKickSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    instanceId: Type.String({
+    instanceId: TypedString<InstanceID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),

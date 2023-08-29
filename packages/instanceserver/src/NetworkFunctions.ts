@@ -49,6 +49,7 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
@@ -188,7 +189,7 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
 }
 
 export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: PeerID) {
-  const client = Array.from(network.peers.values()).find((c) => c.peerID === peerID)
+  const client = Object.values(network.peers).find((c) => c.peerID === peerID)
   return client?.userId
 }
 
@@ -203,31 +204,34 @@ export const handleConnectingPeer = (
 
   // Create a new client object
   // and add to the dictionary
-  const existingUser = Array.from(network.peers.values()).find((client) => client.userId === userId)
+  const existingUser = Object.values(network.peers).find((client) => client.userId === userId)
   const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
   const peerIndex = network.peerIndexCount++
 
-  network.peers.set(peerID, {
-    userId,
-    userIndex: userIndex,
-    spark: spark,
-    peerIndex,
-    peerID,
-    media: {},
-    lastSeenTs: Date.now()
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers.merge({
+    [peerID]: {
+      userId,
+      userIndex: userIndex,
+      spark: spark,
+      peerIndex,
+      peerID,
+      media: {},
+      lastSeenTs: Date.now()
+    }
   })
 
-  if (!network.users.has(userId)) {
-    network.users.set(userId, [peerID])
+  if (!network.users[userId]) {
+    networkState.users.merge({ [userId]: [peerID] })
   } else {
-    network.users.get(userId)!.push(peerID)
+    network.users[userId]!.push(peerID)
   }
 
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
 
-  network.userIDToUserIndex.set(userId, userIndex)
-  network.userIndexToUserID.set(userIndex, userId)
+  network.userIDToUserIndex[userId] = userIndex
+  network.userIndexToUserID[userIndex] = userId
 
   updatePeers(network)
 
@@ -242,7 +246,7 @@ export const handleConnectingPeer = (
 
   return {
     routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
-    peerIndex: network.peerIDToPeerIndex.get(peerID)!,
+    peerIndex: network.peerIDToPeerIndex[peerID]!,
     cachedActions
   }
 }
@@ -319,7 +323,7 @@ const getUserSpawnFromInvite = async (
 }
 
 export const handleIncomingActions = (network: SocketWebRTCServerNetwork, peerID: PeerID) => (message) => {
-  const networkPeer = network.peers.get(peerID)
+  const networkPeer = network.peers[peerID]
   if (!networkPeer) return
 
   networkPeer.lastSeenTs = Date.now()
@@ -339,7 +343,7 @@ export const handleIncomingActions = (network: SocketWebRTCServerNetwork, peerID
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserID
-  const disconnectedClient = network.peers.get(peerID)
+  const disconnectedClient = network.peers[peerID]
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.

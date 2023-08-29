@@ -29,11 +29,75 @@ import { Sequelize } from 'sequelize'
 import { isDev } from '@etherealengine/common/src/config'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
+import { delay } from '@etherealengine/engine/src/common/functions/delay'
+import { Knex } from 'knex'
 import { Application } from '../declarations'
-import { seeder } from './seeder'
 import multiLogger from './ServerLogger'
+import { seeder } from './seeder'
 
 const logger = multiLogger.child({ component: 'server-core:sequelize' })
+
+const checkLock = async (app: Application, delayInMs: number, promiseReject: (reason?: any) => void) => {
+  const knexClient: Knex = app.get('knexClient')
+
+  const trx = await knexClient.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const lockTableExists = await trx.schema.hasTable('knex_migrations_lock')
+  if (lockTableExists) {
+    const existingData = await trx('knex_migrations_lock').select()
+
+    if (existingData.length > 0 && existingData[0].is_locked === 1) {
+      logger.info(`Knex migrations are locked. Waiting for ${delayInMs / 1000} seconds to check again.`)
+      await delay(delayInMs)
+      const existingData = await trx('knex_migrations_lock').select()
+
+      if (existingData.length > 0 && existingData[0].is_locked === 1) {
+        await executeScript('migrate:unlock', promiseReject)
+      }
+    }
+  }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
+}
+
+const executeScript = async (script: string, promiseReject: (reason?: any) => void) => {
+  const initPromise = new Promise((resolve, reject) => {
+    const initProcess = spawn('npm', ['run', script])
+    initProcess.once('exit', resolve)
+    initProcess.once('error', reject)
+    initProcess.once('disconnect', resolve)
+    initProcess.stdout.on('data', (data) => console.log(data.toString()))
+    initProcess.stderr.on('data', (data) => console.error(data.toString()))
+  })
+    .then((exitCode) => {
+      if (exitCode !== 0) {
+        throw new Error(`Knex ${script} exited with: ${exitCode}`)
+      } else {
+        logger.info(`Knex ${script} completed`)
+      }
+    })
+    .catch((err) => {
+      logger.error(`Knex ${script} error`)
+      logger.error(err)
+      promiseReject()
+      throw err
+    })
+
+  await Promise.race([
+    initPromise,
+    new Promise<void>((resolve) => {
+      setTimeout(
+        () => {
+          console.log(`WARNING: ${script} took too long to run!`)
+          resolve()
+        },
+        2 * 60 * 1000
+      ) // timeout after 2 minutes
+    })
+  ])
+}
 
 export default (app: Application): void => {
   try {
@@ -78,40 +142,8 @@ export default (app: Application): void => {
         if (forceRefresh || appConfig.testEnabled) {
           // We are running our migration:rollback here, so that tables in db are dropped 1st using knex.
           // TODO: Once sequelize is removed, we should add migrate:rollback as part of `dev-reinit-db` script in package.json
-          const initPromise = new Promise((resolve, reject) => {
-            const initProcess = spawn('npm', ['run', 'migrate:rollback'])
-            initProcess.once('exit', resolve)
-            initProcess.once('error', reject)
-            initProcess.once('disconnect', resolve)
-            initProcess.stdout.on('data', (data) => console.log(data.toString()))
-            initProcess.stderr.on('data', (data) => console.error(data.toString()))
-          })
-            .then((exitCode) => {
-              if (exitCode !== 0) {
-                throw new Error(`Knex migrate:rollback exited with: ${exitCode}`)
-              } else {
-                logger.info('Knex migrate:rollback completed')
-              }
-            })
-            .catch((err) => {
-              logger.error('Knex migrate:rollback error')
-              logger.error(err)
-              promiseReject()
-              throw err
-            })
-
-          await Promise.race([
-            initPromise,
-            new Promise<void>((resolve) => {
-              setTimeout(
-                () => {
-                  console.log('WARNING: Knex migrations took too long to run!')
-                  resolve()
-                },
-                2 * 60 * 1000
-              ) // timeout after 2 minutes
-            })
-          ])
+          await checkLock(app, forceRefresh ? 25000 : 1000, promiseReject)
+          await executeScript('migrate:rollback', promiseReject)
         }
 
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
@@ -164,40 +196,8 @@ export default (app: Application): void => {
           // And then knex migrations can be executed. This is because knex migrations will have foreign key dependency
           // on ta tables that are created using sequelize.
           // TODO: Once sequelize is removed, we should add migration as part of `dev-reinit-db` script in package.json
-          const initPromise = new Promise((resolve, reject) => {
-            const initProcess = spawn('npm', ['run', 'migrate'])
-            initProcess.once('exit', resolve)
-            initProcess.once('error', reject)
-            initProcess.once('disconnect', resolve)
-            initProcess.stdout.on('data', (data) => console.log(data.toString()))
-            initProcess.stderr.on('data', (data) => console.error(data.toString()))
-          })
-            .then((exitCode) => {
-              if (exitCode !== 0) {
-                throw new Error(`Knex migration exited with: ${exitCode}`)
-              } else {
-                logger.info('Knex migration completed')
-              }
-            })
-            .catch((err) => {
-              logger.error('Knex migration error')
-              logger.error(err)
-              promiseReject()
-              throw err
-            })
-
-          await Promise.race([
-            initPromise,
-            new Promise<void>((resolve) => {
-              setTimeout(
-                () => {
-                  console.log('WARNING: Knex migrations took too long to run!')
-                  resolve()
-                },
-                2 * 60 * 1000
-              ) // timeout after 2 minutes
-            })
-          ])
+          await checkLock(app, forceRefresh ? 25000 : 1000, promiseReject)
+          await executeScript('migrate', promiseReject)
         }
 
         try {

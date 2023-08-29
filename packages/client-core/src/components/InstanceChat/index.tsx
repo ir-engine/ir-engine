@@ -146,7 +146,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }
 
   const packageMessage = (): void => {
-    const instanceId = Engine.instance.worldNetwork.hostId
+    const instanceId = Engine.instance.worldNetwork.id
     if (composingMessage?.value?.length && instanceId) {
       if (usersTyping) {
         dispatchAction(

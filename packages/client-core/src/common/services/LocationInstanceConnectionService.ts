@@ -31,9 +31,9 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import logger from '@etherealengine/common/src/logger'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineAction, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { API } from '../../API'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
@@ -50,7 +50,7 @@ type InstanceState = {
 export const LocationInstanceState = defineState({
   name: 'LocationInstanceState',
   initial: () => ({
-    instances: {} as { [id: string]: InstanceState }
+    instances: {} as { [id: InstanceID]: InstanceState }
   })
 })
 
@@ -115,7 +115,7 @@ export const LocationInstanceConnectionService = {
       }, 1000)
     }
   },
-  provisionExistingServer: async (locationId: string, instanceId: string, sceneId: string) => {
+  provisionExistingServer: async (locationId: string, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
     const instance = (await API.instance.client.service('instance').find({
@@ -198,13 +198,13 @@ export const LocationInstanceConnectionService = {
       console.warn('Failed to connect to expected existing instance')
     }
   },
-  changeActiveConnectionHostId: (currentInstanceId: UserID, newInstanceId: UserID) => {
+  changeActiveConnectionID: (currentInstanceId: InstanceID, newInstanceId: InstanceID) => {
     const state = getMutableState(LocationInstanceState)
     const currentNetwork = state.instances[currentInstanceId].get({ noproxy: true })
     const networkState = getMutableState(NetworkState)
     const currentNework = getState(NetworkState).networks[currentInstanceId]
     updateNetworkID(currentNework as SocketWebRTCClientNetwork, newInstanceId)
-    networkState.hostIds.media.set(newInstanceId as UserID)
+    networkState.hostIds.media.set(newInstanceId)
     state.instances.merge({ [newInstanceId]: currentNetwork })
     state.instances[currentInstanceId].set(none)
   },

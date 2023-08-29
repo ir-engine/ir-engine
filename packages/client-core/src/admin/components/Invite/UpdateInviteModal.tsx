@@ -31,7 +31,6 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { InviteInterface } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -49,8 +48,10 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { InvitePatch, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
 import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -60,7 +61,7 @@ import styles from '../../styles/admin.module.scss'
 interface Props {
   open: boolean
   onClose: () => void
-  invite: InviteInterface
+  invite: InviteType
 }
 
 const INVITE_TYPE_TAB_MAP = {
@@ -97,7 +98,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-  const updateInvite = useMutation('invite').update
+  const updateInvite = useMutation(invitePath).patch
 
   useEffect(() => {
     inviteTypeTab.set(
@@ -144,7 +145,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         )
       }
     }
-    if (invite.timed || invite.timed === 1) {
+    if (invite.timed) {
       timed.set(true)
       startTime.set(dayjs(invite.startTime))
       endTime.set(dayjs(invite.endTime))
@@ -165,7 +166,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
     return {
       value: `${el.id}`,
-      label: `${el.id} (${el.location.name})`
+      label: `${el.id} (${el.location?.name})`
     }
   })
 
@@ -235,18 +236,18 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         inviteType: inviteType,
         inviteeId: invite.inviteeId,
         passcode: invite.passcode,
-        token: target.length === 8 ? null : target,
-        inviteCode: target.length === 8 ? target : null,
         identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
         targetObjectId: instanceId.value || locationId.value || null,
-        createdAt: invite.createdAt || new Date().toJSON(),
-        updatedAt: invite.updatedAt || new Date().toJSON(),
+        createdAt: invite.createdAt || toDateTimeSql(new Date()),
+        updatedAt: invite.updatedAt || toDateTimeSql(new Date()),
         makeAdmin: makeAdmin.value,
         deleteOnUse: oneTimeUse.value,
         invitee: undefined,
         user: undefined,
         userId: invite.userId
-      } as InviteInterface
+      } as InvitePatch
+      if (target.length === 8) sendData.inviteCode = target
+      else sendData.token = target
       if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
         sendData.spawnType = 'inviteCode'
         sendData.spawnDetails = { inviteCode: userInviteCode.value }
@@ -256,8 +257,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       }
       sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
       if (sendData.timed) {
-        sendData.startTime = startTime.value?.toDate()
-        sendData.endTime = endTime.value?.toDate()
+        sendData.startTime = toDateTimeSql(startTime.value?.toDate())
+        sendData.endTime = toDateTimeSql(endTime.value?.toDate())
       }
       await updateInvite(invite.id, sendData)
       instanceId.set('')

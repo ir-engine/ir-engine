@@ -96,7 +96,7 @@ export const SidebarItems = (allowedRoutes) => [
   allowedRoutes.bot && {
     name: 'user:dashboard.bots',
     path: '/admin/bots',
-    icon: <Icon type="Toys" style={{ color: 'white' }} />
+    icon: <Icon type="SmartToy" style={{ color: 'white' }} />
   },
   allowedRoutes.recording && {
     name: 'user:dashboard.recordings',
