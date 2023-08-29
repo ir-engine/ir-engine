@@ -142,7 +142,7 @@ export default (app: Application): void => {
         if (forceRefresh || appConfig.testEnabled) {
           // We are running our migration:rollback here, so that tables in db are dropped 1st using knex.
           // TODO: Once sequelize is removed, we should add migrate:rollback as part of `dev-reinit-db` script in package.json
-          await checkLock(app, forceRefresh ? 25000 : 1000, promiseReject)
+          await checkLock(app, 0, promiseReject)
           await executeScript('migrate:rollback', promiseReject)
         }
 
@@ -196,7 +196,7 @@ export default (app: Application): void => {
           // And then knex migrations can be executed. This is because knex migrations will have foreign key dependency
           // on ta tables that are created using sequelize.
           // TODO: Once sequelize is removed, we should add migration as part of `dev-reinit-db` script in package.json
-          await checkLock(app, forceRefresh ? 25000 : 1000, promiseReject)
+          await checkLock(app, prepareDb ? 25000 : 0, promiseReject)
           await executeScript('migrate', promiseReject)
         }
 
