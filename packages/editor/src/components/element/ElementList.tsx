@@ -181,7 +181,7 @@ export function ElementList() {
     setAnchorPosition(undefined)
   }
 
-  const searchBarState = useState('')
+  const searchBarState = useState<string>('')
 
   const validElements = useState(ComponentShelfCategories)
 
@@ -203,6 +203,7 @@ export function ElementList() {
       <div className={styles.elementListContainer}>
         <span className={styles.searchContainer}>
           <Button onClick={() => searchBarState.set('')}>x</Button>
+
           <StringInput value={searchBarState.value} onChange={searchBarState.set} placeholder={t('Search...')} />
         </span>
 
