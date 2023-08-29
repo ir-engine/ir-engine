@@ -39,7 +39,6 @@ export const ChannelsList = () => {
   const chatState = useHookstate(getMutableState(ChatState))
 
   const channelsList = useFind('channel')
-  console.log(channelsList)
 
   useEffect(() => {
     return () => {

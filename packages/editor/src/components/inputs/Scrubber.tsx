@@ -78,26 +78,23 @@ type ScrubberProps = {
   onCommit?: (value: any) => void
 }
 
-const Scrubber = (
-  {
-    tag,
-    children,
-    smallStep,
-    mediumStep,
-    largeStep,
-    sensitivity,
-    min,
-    max,
-    precision,
-    convertFrom,
-    convertTo,
-    value,
-    onChange,
-    onCommit,
-    ...rest
-  }: ScrubberProps,
-  ref
-) => {
+const Scrubber = ({
+  tag,
+  children,
+  smallStep,
+  mediumStep,
+  largeStep,
+  sensitivity,
+  min,
+  max,
+  precision,
+  convertFrom,
+  convertTo,
+  value,
+  onChange,
+  onCommit,
+  ...rest
+}: ScrubberProps) => {
   const state = useHookstate({
     isDragging: false,
     startValue: null as number | null,
