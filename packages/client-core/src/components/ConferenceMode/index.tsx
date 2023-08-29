@@ -44,7 +44,7 @@ const ConferenceMode = (): JSX.Element => {
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
   const displayedUsers =
     network?.hostId && currentChannelInstanceConnection
-      ? Array.from(network.peers.values()).filter(
+      ? Object.values(network.peers).filter(
           (peer) => peer.peerID !== 'server' && peer.userId !== authState.user.id.value
         ) || []
       : []
@@ -67,7 +67,7 @@ const ConferenceMode = (): JSX.Element => {
 
   for (let user of displayedUsers) {
     totalScreens += 1
-    const peerID = Array.from(network.peers.values()).find((peer) => peer.userId === user.userId)?.peerID
+    const peerID = Object.values(network.peers).find((peer) => peer.userId === user.userId)?.peerID
     if (screenShareConsumers.find((consumer) => consumer.peerID.value === peerID)) {
       totalScreens += 1
     }

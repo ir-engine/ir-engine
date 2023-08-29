@@ -36,6 +36,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { MediasoupMediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -70,9 +71,9 @@ const execute = () => {
     for (const peer of action.peers) {
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
     }
-    for (const [peerID, peer] of network.peers)
+    for (const [peerID, peer] of Object.entries(network.peers))
       if (!action.peers.find((p) => p.peerID === peerID)) {
-        NetworkPeerFunctions.destroyPeer(network, peerID)
+        NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
       }
   }
 }

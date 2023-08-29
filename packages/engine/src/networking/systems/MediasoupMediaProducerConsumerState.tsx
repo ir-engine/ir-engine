@@ -252,7 +252,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
 
         const { globalMute, paused } = action
         const network = getState(NetworkState).networks[networkID]
-        const media = network.peers.get(peerID)?.media
+        const media = network.peers[peerID]?.media
         if (media && media[mediatag]) {
           media[mediatag].paused = paused
           media[mediatag].globalMute = globalMute
@@ -338,7 +338,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
       const network = getState(NetworkState).networks[networkID]
 
       // remove from the peer state
-      const media = network.peers.get(peerID)?.media
+      const media = network.peers[peerID]?.media
       if (media && media[producer.appData.mediaTag]) {
         delete media[producer.appData.mediaTag]
       }
@@ -428,13 +428,13 @@ const NetworkReactor = (props: { networkID: UserID }) => {
   useEffect(() => {
     if (producers?.value)
       for (const [producerID, producer] of Object.entries(producers.value)) {
-        if (!networkState.peers.value.get(producer.peerID)) {
+        if (!networkState.peers.value[producer.peerID]) {
           producers[producerID].set(none)
         }
       }
     if (consumers?.value)
       for (const [consumerID, consumer] of Object.entries(consumers.value)) {
-        if (!networkState.peers.value.get(consumer.peerID)) {
+        if (!networkState.peers.value[consumer.peerID]) {
           consumers[consumerID].set(none)
         }
       }

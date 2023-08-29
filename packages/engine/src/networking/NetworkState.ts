@@ -44,12 +44,12 @@ export const NetworkState = defineState({
   name: 'NetworkState',
   initial: {
     hostIds: {
-      media: null as UserID | null,
-      world: null as UserID | null
+      media: null as string | null,
+      world: null as string | null
     },
     // todo - move to Network.schemas
     networkSchema: {} as { [key: string]: SerializationSchema },
-    networks: {} as { [key: UserID]: Network },
+    networks: {} as { [key: string]: Network },
     config: {
       /** Allow connections to a world instance server */
       world: false,

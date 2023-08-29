@@ -70,16 +70,16 @@ describe('NetworkPeerFunctions', () => {
 
       const worldState = getMutableState(WorldState)
 
-      assert(network.peers.get(peerID))
-      assert.equal(network.peers.get(peerID)?.userId, userId)
-      assert.equal(network.peers.get(peerID)?.userIndex, userIndex)
-      assert.equal(network.peers.get(peerID)?.peerID, peerID)
-      assert.equal(network.peers.get(peerID)?.peerIndex, peerIndex)
+      assert(network.peers[peerID])
+      assert.equal(network.peers[peerID]?.userId, userId)
+      assert.equal(network.peers[peerID]?.userIndex, userIndex)
+      assert.equal(network.peers[peerID]?.peerID, peerID)
+      assert.equal(network.peers[peerID]?.peerIndex, peerIndex)
       assert.equal(worldState.userNames[userId]?.value, userName)
-      assert.equal(network.userIndexToUserID.get(userIndex), userId)
-      assert.equal(network.userIDToUserIndex.get(userId), userIndex)
-      assert.equal(network.peerIndexToPeerID.get(peerIndex), peerID)
-      assert.equal(network.peerIDToPeerIndex.get(peerID), peerIndex)
+      assert.equal(network.userIndexToUserID[userIndex], userId)
+      assert.equal(network.userIDToUserIndex[userId], userIndex)
+      assert.equal(network.peerIndexToPeerID[peerIndex], peerID)
+      assert.equal(network.peerIDToPeerIndex[peerID], peerIndex)
     })
 
     it('should update peer if it already exists', () => {
@@ -98,17 +98,17 @@ describe('NetworkPeerFunctions', () => {
       const worldState = getMutableState(WorldState)
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
-      assert.equal(network.peers.get(peerID)!.userId, userId)
-      assert.equal(network.peers.get(peerID)!.userIndex, userIndex)
-      assert.equal(network.peers.get(peerID)!.peerID, peerID)
-      assert.equal(network.peers.get(peerID)!.peerIndex, peerIndex)
+      assert.equal(network.peers[peerID]!.userId, userId)
+      assert.equal(network.peers[peerID]!.userIndex, userIndex)
+      assert.equal(network.peers[peerID]!.peerID, peerID)
+      assert.equal(network.peers[peerID]!.peerIndex, peerIndex)
       assert.equal(worldState.userNames[userId].value, userName)
 
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex2, userId, userIndex2, userName2)
-      assert.equal(network.peers.get(peerID)!.userId, userId)
-      assert.equal(network.peers.get(peerID)!.userIndex, userIndex2)
-      assert.equal(network.peers.get(peerID)!.peerID, peerID)
-      assert.equal(network.peers.get(peerID)!.peerIndex, peerIndex2)
+      assert.equal(network.peers[peerID]!.userId, userId)
+      assert.equal(network.peers[peerID]!.userIndex, userIndex2)
+      assert.equal(network.peers[peerID]!.peerID, peerID)
+      assert.equal(network.peers[peerID]!.peerIndex, peerIndex2)
       assert.equal(worldState.userNames[userId].value, userName2)
     })
   })
@@ -127,12 +127,12 @@ describe('NetworkPeerFunctions', () => {
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       NetworkPeerFunctions.destroyPeer(network, peerID)
 
-      assert(!network.peers.get(peerID))
+      assert(!network.peers[peerID])
 
-      assert.equal(network.userIndexToUserID.get(userIndex), undefined)
-      assert.equal(network.userIDToUserIndex.get(userId), undefined)
-      assert.equal(network.peerIndexToPeerID.get(peerIndex), undefined)
-      assert.equal(network.peerIDToPeerIndex.get(peerID), undefined)
+      assert.equal(network.userIndexToUserID[userIndex], undefined)
+      assert.equal(network.userIDToUserIndex[userId], undefined)
+      assert.equal(network.peerIndexToPeerID[peerIndex], undefined)
+      assert.equal(network.peerIDToPeerIndex[peerID], undefined)
     })
 
     it('should not remove self peer', () => {
@@ -148,12 +148,12 @@ describe('NetworkPeerFunctions', () => {
       NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
       NetworkPeerFunctions.destroyPeer(network, peerID)
 
-      assert(network.peers.get(peerID))
+      assert(network.peers[peerID])
 
-      assert.equal(network.userIndexToUserID.get(userIndex), userId)
-      assert.equal(network.userIDToUserIndex.get(userId), userIndex)
-      assert.equal(network.peerIndexToPeerID.get(peerIndex), peerID)
-      assert.equal(network.peerIDToPeerIndex.get(peerID), peerIndex)
+      assert.equal(network.userIndexToUserID[userIndex], userId)
+      assert.equal(network.userIDToUserIndex[userId], userIndex)
+      assert.equal(network.peerIndexToPeerID[peerIndex], peerID)
+      assert.equal(network.peerIDToPeerIndex[peerID], peerIndex)
     })
 
     it('should remove peer and owned network objects', () => {

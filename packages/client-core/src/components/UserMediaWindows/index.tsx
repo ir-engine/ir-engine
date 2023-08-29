@@ -66,7 +66,7 @@ export const useMediaWindows = () => {
     (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused)
 
   const userPeers: Array<[UserID, PeerID[]]> = mediaNetworkConnected
-    ? Array.from(mediaNetwork.users.entries())
+    ? (Object.entries(mediaNetwork.users) as Array<[UserID, PeerID[]]>)
     : [[selfUserID, [selfPeerID]]]
 
   // reduce all userPeers to an array 'windows' of { peerID, type } objects, displaying screens first, then cams. if a user has no cameras, only include one peerID for that user
@@ -97,6 +97,11 @@ export const useMediaWindows = () => {
     }, [] as WindowType[])
     .sort(sortScreensBeforeCameras)
     .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+
+  // if window doesnt exist for self, add it
+  if (!windows.find(({ peerID }) => peerID === selfPeerID)) {
+    windows.unshift({ peerID: selfPeerID, type: 'cam' })
+  }
 
   return windows
 }
@@ -151,7 +156,7 @@ export const UserMediaWindowsWidget = () => {
   const mediaNetwork = Engine.instance.mediaNetwork
 
   // if window doesnt exist for self, add it
-  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers.get(peerID)?.userId === selfUserID)) {
+  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers[peerID]?.userId === selfUserID)) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 

@@ -60,12 +60,12 @@ export const initializeNetwork = async (app: Application, id: string, hostId: Us
 
   const transport = {
     messageToPeer: (peerId: PeerID, data: any) => {
-      const spark = network.peers.get(peerId)?.spark
+      const spark = network.peers[peerId]?.spark
       if (spark) spark.write(data)
     },
 
     messageToAll: (data: any) => {
-      for (const peer of Array.from(network.peers.values())) peer.spark?.write(data)
+      for (const peer of Object.values(network.peers)) peer.spark?.write(data)
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {

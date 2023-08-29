@@ -27,13 +27,14 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
-  for (const [peerID, client] of network.peers) {
+  for (const [peerID, client] of Object.entries(network.peers)) {
     if (client.userId === Engine.instance.userID) continue
     if (Date.now() - client.lastSeenTs > 5000) {
-      NetworkPeerFunctions.destroyPeer(network, peerID)
+      NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
       updatePeers(network)
     }
   }

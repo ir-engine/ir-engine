@@ -66,13 +66,13 @@ export const createNetwork = <Ext>(
   addOutgoingTopicIfNecessary(topic)
   const network = {
     /** Connected peers */
-    peers: new Map() as Map<PeerID, NetworkPeer>,
+    peers: {} as Record<PeerID, NetworkPeer>,
 
     /** Map of numerical peer index to peer IDs */
-    peerIndexToPeerID: new Map<number, PeerID>(),
+    peerIndexToPeerID: {} as Record<number, PeerID>,
 
     /** Map of peer IDs to numerical peer index */
-    peerIDToPeerIndex: new Map<PeerID, number>(),
+    peerIDToPeerIndex: {} as Record<PeerID, number>,
 
     /**
      * The index to increment when a new peer connects
@@ -81,17 +81,17 @@ export const createNetwork = <Ext>(
     peerIndexCount: 0,
 
     /** Connected users */
-    users: new Map() as Map<UserID, PeerID[]>,
+    users: {} as Record<UserID, PeerID[]>,
 
     /** Map of numerical user index to user client IDs */
-    userIndexToUserID: new Map<number, UserID>(),
+    userIndexToUserID: {} as Record<number, UserID>,
 
     /** Map of user client IDs to numerical user index */
-    userIDToUserIndex: new Map<UserID, number>(),
+    userIDToUserIndex: {} as Record<UserID, number>,
 
     /** Gets the host peer */
     get hostPeerID() {
-      const hostPeers = network.users.get(network.hostId)
+      const hostPeers = network.users[network.hostId]
       if (!hostPeers) return undefined!
       return hostPeers[0]
     },

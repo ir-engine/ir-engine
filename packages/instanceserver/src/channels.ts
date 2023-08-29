@@ -468,7 +468,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
-  const activeClients = getServerNetwork(app).peers
+  const activeClients = Object.entries(getServerNetwork(app).peers)
   const activeUsers = [...activeClients].filter(
     ([id, client]) => client.userId !== Engine.instance.userID && client.userId !== userToIgnore.id
   )
@@ -514,7 +514,7 @@ const handleUserDisconnect = async (
 
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (network.peers.size <= 1) {
+  if (Object.keys(network.peers).length <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }
@@ -532,7 +532,7 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   })
   if (!channel) return
   const network = getServerNetwork(app)
-  const matchingPeer = Array.from(network.peers.values()).find((peer) => peer.userId === params.userId)
+  const matchingPeer = Object.values(network.peers).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
     matchingPeer.spark?.end()
     NetworkPeerFunctions.destroyPeer(network, matchingPeer.peerID)
@@ -728,12 +728,12 @@ export default (app: Application): void => {
 
     logger.info('kicking user id %s', data.userId)
 
-    const peerId = Engine.instance.worldNetwork.users.get(data.userId)
+    const peerId = Engine.instance.worldNetwork.users[data.userId]
     if (!peerId || !peerId[0]) return
 
     logger.info('kicking peerId %o', peerId)
 
-    const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
+    const peer = Engine.instance.worldNetwork.peers[peerId[0]]
     if (!peer || !peer.spark) return
 
     handleDisconnect(getServerNetwork(app), peer.peerID)
