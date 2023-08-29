@@ -13,7 +13,7 @@
 
 .statsContainer {
   position: absolute;
-  top: 70px;
+  top: 60px;
   z-index: 1000;
   left: 20px;
   color: var(--white);
@@ -22,7 +22,7 @@
   opacity: 0.88;
   backdrop-filter: blur(1px);
   border-radius: 4px;
-  width: 13%;
+  width: 130px;
 
   h3 {
     font-size: 14px;

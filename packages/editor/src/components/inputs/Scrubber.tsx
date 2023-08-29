@@ -42,13 +42,15 @@ type ScrubberContainerProps = {
   onMouseDown: any
 }
 
-const ScrubberContainer = React.forwardRef(({ tag: Component = 'div', children, ...rest }: ScrubberContainerProps) => {
-  return (
-    <Component className="ScrubberContainer" {...rest}>
-      {children}
-    </Component>
-  )
-})
+const ScrubberContainer = React.forwardRef(
+  ({ tag: Component = 'div', children, ...rest }: ScrubberContainerProps, ref) => {
+    return (
+      <Component className="ScrubberContainer" {...rest}>
+        {children}
+      </Component>
+    )
+  }
+)
 
 type CursorProps = {
   x: number
@@ -76,23 +78,26 @@ type ScrubberProps = {
   onCommit?: (value: any) => void
 }
 
-const Scrubber = ({
-  tag,
-  children,
-  smallStep,
-  mediumStep,
-  largeStep,
-  sensitivity,
-  min,
-  max,
-  precision,
-  convertFrom,
-  convertTo,
-  value,
-  onChange,
-  onCommit,
-  ...rest
-}: ScrubberProps) => {
+const Scrubber = (
+  {
+    tag,
+    children,
+    smallStep,
+    mediumStep,
+    largeStep,
+    sensitivity,
+    min,
+    max,
+    precision,
+    convertFrom,
+    convertTo,
+    value,
+    onChange,
+    onCommit,
+    ...rest
+  }: ScrubberProps,
+  ref
+) => {
   const state = useHookstate({
     isDragging: false,
     startValue: null as number | null,

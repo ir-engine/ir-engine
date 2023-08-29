@@ -81,155 +81,164 @@ export interface NumericInputProp {
   convertTo?: any
 }
 
-const StyledNumericInput = ({ className = '', ...rest }) => {
-  return <input className={`StyledNumericInput ${className}`} {...rest} />
+export interface styledNumericInputProp {
+  className?: string
+  value?: number
+  onKeyUp?: any
+  onKeyDown?: any
+  onChange?: any
+  onFocus?: any
+  onBlur?: any
+  unit?: string
 }
 
-const NumericInput = React.forwardRef(
-  ({
-    className,
-    unit,
-    prefix,
-    displayPrecision,
-    value,
-    convertFrom,
-    precision,
-    mediumStep,
-    onChange,
-    onCommit,
-    smallStep,
-    largeStep,
-    min,
-    max,
-    convertTo,
-    ...rest
-  }: NumericInputProp) => {
-    const [tempValue, setTempValue] = useState<string | null>(null)
-    const [focused, setFocused] = useState(false)
-    const inputEl = useRef<HTMLInputElement>(null)
+const StyledNumericInput = React.forwardRef(({ className = '', ...rest }: styledNumericInputProp, ref) => {
+  return <input ref={ref as any} className={`StyledNumericInput ${className}`} {...rest} />
+})
 
-    const handleStep = (event, direction, focus = true) => {
-      const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
+const NumericInput = ({
+  className,
+  unit,
+  prefix,
+  displayPrecision,
+  value,
+  convertFrom,
+  precision,
+  mediumStep,
+  onChange,
+  onCommit,
+  smallStep,
+  largeStep,
+  min,
+  max,
+  convertTo,
+  ...rest
+}: NumericInputProp) => {
+  const [tempValue, setTempValue] = useState<string | null>(null)
+  const [focused, setFocused] = useState(false)
+  const inputEl = useRef<HTMLInputElement>(null)
 
-      const nextValue = parseFloat(inputEl?.current?.value ?? '0') + stepSize * direction
-      const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
-      const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
-      const finalValue = convertTo(roundedValue)
+  const handleStep = (event, direction, focus = true) => {
+    const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
 
-      if (onCommit) {
-        onCommit(finalValue)
-      } else {
-        onChange?.(finalValue)
-      }
+    const nextValue = parseFloat(inputEl?.current?.value ?? '0') + stepSize * direction
+    const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
+    const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
+    const finalValue = convertTo(roundedValue)
 
-      setTempValue(
-        roundedValue.toLocaleString('fullwide', {
-          useGrouping: false,
-          minimumFractionDigits: 0,
-          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
-        })
-      )
-      setFocused(focus)
+    if (onCommit) {
+      onCommit(finalValue)
+    } else {
+      onChange?.(finalValue)
     }
 
-    const increment = () => {
-      handleStep(null, 1, false)
-    }
-
-    const decrement = () => {
-      handleStep(null, -1, false)
-    }
-
-    const handleKeyPress = (event) => {
-      if (event.key === 'Escape') {
-        handleBlur()
-      }
-
-      if (event.key === 'Enter') {
-        handleBlur()
-      }
-
-      let direction = 0
-      if (event.key === 'ArrowUp') {
-        direction = 1
-      } else if (event.key === 'ArrowDown') {
-        direction = -1
-      }
-
-      if (!direction) return
-
-      event.preventDefault()
-
-      handleStep(event, direction, true)
-    }
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-        event.preventDefault()
-      }
-    }
-
-    const handleChange = (event) => {
-      const tempValue = event.target.value
-
-      setTempValue(tempValue)
-      setFocused(true)
-
-      const parsedValue = parseFloat(tempValue)
-
-      if (!Number.isNaN(parsedValue)) {
-        const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
-        const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
-        const finalValue = convertTo(roundedValue)
-        onChange?.(finalValue)
-      }
-    }
-
-    const handleFocus = () => {
-      setTempValue(
-        convertFrom(value).toLocaleString('fullwide', {
-          useGrouping: false,
-          minimumFractionDigits: 0,
-          maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
-        })
-      )
-      setFocused(true)
-    }
-
-    useEffect(() => {
-      if (focused) inputEl?.current?.select()
-    }, [focused])
-
-    const handleBlur = () => {
-      setTempValue(null)
-      setFocused(false)
-
-      if (onCommit) {
-        onCommit(value)
-      } else {
-        onChange?.(value)
-      }
-    }
-
-    return (
-      <NumericInputContainer className={className}>
-        {prefix ? prefix : null}
-        <StyledNumericInput
-          {...rest}
-          // unit={unit} // not a valid property?
-          ref={inputEl}
-          value={focused ? tempValue : toPrecisionString(convertFrom(value), displayPrecision)}
-          onKeyUp={handleKeyPress}
-          onKeyDown={handleKeyDown}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-        />
-        {unit && <NumericInputUnit>{unit}</NumericInputUnit>}
-      </NumericInputContainer>
+    setTempValue(
+      roundedValue.toLocaleString('fullwide', {
+        useGrouping: false,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+      })
     )
+    setFocused(focus)
   }
-)
+
+  const increment = () => {
+    handleStep(null, 1, false)
+  }
+
+  const decrement = () => {
+    handleStep(null, -1, false)
+  }
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Escape') {
+      handleBlur()
+    }
+
+    if (event.key === 'Enter') {
+      handleBlur()
+    }
+
+    let direction = 0
+    if (event.key === 'ArrowUp') {
+      direction = 1
+    } else if (event.key === 'ArrowDown') {
+      direction = -1
+    }
+
+    if (!direction) return
+
+    event.preventDefault()
+
+    handleStep(event, direction, true)
+  }
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault()
+    }
+  }
+
+  const handleChange = (event) => {
+    const tempValue = event.target.value
+
+    setTempValue(tempValue)
+    setFocused(true)
+
+    const parsedValue = parseFloat(tempValue)
+
+    if (!Number.isNaN(parsedValue)) {
+      const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
+      const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
+      const finalValue = convertTo(roundedValue)
+      onChange?.(finalValue)
+    }
+  }
+
+  const handleFocus = () => {
+    setTempValue(
+      convertFrom(value).toLocaleString('fullwide', {
+        useGrouping: false,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
+      })
+    )
+    setFocused(true)
+  }
+
+  useEffect(() => {
+    if (focused) inputEl?.current?.select()
+  }, [focused])
+
+  const handleBlur = () => {
+    setTempValue(null)
+    setFocused(false)
+
+    if (onCommit) {
+      onCommit(value)
+    } else {
+      onChange?.(value)
+    }
+  }
+
+  return (
+    <NumericInputContainer className={className}>
+      {prefix ? prefix : null}
+      <StyledNumericInput
+        {...rest}
+        // unit={unit} // not a valid property?
+        ref={inputEl}
+        value={focused ? tempValue : toPrecisionString(convertFrom(value), displayPrecision)}
+        onKeyUp={handleKeyPress}
+        onKeyDown={handleKeyDown}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
+      {unit && <NumericInputUnit>{unit}</NumericInputUnit>}
+    </NumericInputContainer>
+  )
+}
 
 NumericInput.propTypes = {
   className: PropTypes.string,
