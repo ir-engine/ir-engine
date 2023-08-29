@@ -31,6 +31,7 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
+import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 // This will attach the owner ID in the contact while creating/updating list item
@@ -40,7 +41,7 @@ export default () => {
     // Getting logged in user and attaching owner of user
     const { id, params, app } = context
     const loggedInUser = params.user as UserType
-    const invite = await app.service('invite').get(id!)
+    const invite = await app.service(invitePath).get(id!)
     if (invite == null) {
       throw new BadRequest('Invalid invite ID')
     }

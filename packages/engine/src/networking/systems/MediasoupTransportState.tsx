@@ -29,6 +29,7 @@ import { matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
 
@@ -104,7 +105,7 @@ export const MediasoupTransportState = defineState({
   >,
 
   getTransport: (
-    networkID: string,
+    networkID: InstanceID,
     direction: 'send' | 'recv',
     peerID = getState(NetworkState).networks[networkID].hostPeerID
   ) => {

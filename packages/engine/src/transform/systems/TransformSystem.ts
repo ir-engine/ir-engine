@@ -48,6 +48,7 @@ import {
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { TransformSerialization } from '../TransformSerialization'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
@@ -277,7 +278,11 @@ const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
 // necessary until all animations are entity-based
 const isDirtyOrAnimating = (entity: Entity) => {
-  return TransformComponent.dirtyTransforms[entity] || hasComponent(entity, AnimationComponent)
+  return (
+    TransformComponent.dirtyTransforms[entity] ||
+    hasComponent(entity, AnimationComponent) ||
+    hasComponent(entity, XRUIComponent)
+  )
 }
 
 const isDirtyNonKinematic = (entity: Entity) =>

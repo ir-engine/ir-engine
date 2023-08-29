@@ -29,6 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { InstanceID } from './instance.schema'
 
 export const instanceAttendancePath = 'instance-attendance'
 
@@ -43,7 +44,7 @@ export const instanceAttendanceSchema = Type.Object(
     sceneId: Type.String(),
     isChannel: Type.Boolean(),
     ended: Type.Boolean(),
-    instanceId: Type.String({
+    instanceId: TypedString<InstanceID>({
       format: 'uuid'
     }),
     userId: TypedString<UserID>({

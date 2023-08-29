@@ -295,7 +295,7 @@ export const writeEntities = (v: ViewCursor, network: Network, entities: Entity[
     const entity = entities[i]
     const networkId = NetworkObjectComponent.networkId[entity] as NetworkId
     const ownerId = getComponent(entity, NetworkObjectComponent).ownerId
-    const ownerIndex = network.userIDToUserIndex.get(ownerId)!
+    const ownerIndex = network.userIDToUserIndex[ownerId]!
 
     count += writeEntity(v, networkId, ownerIndex, entity, entitySchema) ? 1 : 0
   }
@@ -305,8 +305,8 @@ export const writeEntities = (v: ViewCursor, network: Network, entities: Entity[
 }
 
 export const writeMetadata = (v: ViewCursor, network: Network, userId: UserID, peerID: PeerID) => {
-  writeUint32(v, network.userIDToUserIndex.get(userId)!)
-  writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
+  writeUint32(v, network.userIDToUserIndex[userId])
+  writeUint32(v, network.peerIDToPeerIndex[peerID])
   writeFloat64(v, getState(EngineState).simulationTime)
 }
 

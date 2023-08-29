@@ -474,8 +474,8 @@ describe('DataWriter', () => {
         ownerId: userId
       })
 
-      network.userIndexToUserID.set(userIndex, userId)
-      network.userIDToUserIndex.set(userId, userIndex)
+      network.userIndexToUserID[userIndex] = userId
+      network.userIDToUserIndex[userId] = userIndex
     })
 
     writeEntities(writeView, network, entities)
@@ -568,8 +568,8 @@ describe('DataWriter', () => {
         ownerId: userId
       })
 
-      network.userIndexToUserID.set(userIndex, userId)
-      network.userIDToUserIndex.set(userId, userIndex)
+      network.userIndexToUserID[userIndex] = userId
+      network.userIDToUserIndex[userId] = userIndex
     })
 
     const packet = write(network, Engine.instance.userID, Engine.instance.peerID, entities)

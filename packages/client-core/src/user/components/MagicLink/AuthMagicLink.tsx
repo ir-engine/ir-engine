@@ -33,6 +33,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { AuthService, AuthState } from '../../services/AuthService'
 import { VerifyEmail } from '../Auth/VerifyEmail'
 
@@ -40,7 +41,7 @@ interface Props {
   //auth: any
   type: string
   token: string
-  instanceId: string
+  instanceId: InstanceID
   path: string
 }
 
