@@ -122,13 +122,13 @@ const execute = () => {
   const network = Engine.instance.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
+    if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
   }
 
-  const userPeers = network?.users?.get(Engine.instance.userID)
+  const userPeers = network?.users?.[Engine.instance.userID]
 
   // Stop mocap by removing entities if data doesnt exist
   if (isClient && !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID))) {
@@ -146,7 +146,7 @@ const execute = () => {
   }
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    const userID = network.peers.get(peerID)!.userId
+    const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
     if (entity) {
