@@ -78,8 +78,6 @@ export const VideoComponent = defineComponent({
     const videoGroup = new Group()
     videoGroup.name = `video-group-${entity}`
     const videoMesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
-    videoGroup.add(videoMesh)
-
     return {
       side: DoubleSide as Side,
       size: new Vector2(1, 1),
@@ -131,6 +129,11 @@ function VideoReactor() {
   const video = useComponent(entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID] ?? entity
+  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
+
+  useEffect(() => {
+    video.videoGroup.value.add(video.videoMesh.value)
+  }, [])
 
   // update side
   useEffect(() => {

@@ -279,7 +279,7 @@ const authentication = {
     github: {
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
-      scope: ['repo', 'user']
+      scope: ['repo', 'user', 'workflow']
     },
     google: {
       key: process.env.GOOGLE_CLIENT_ID!,

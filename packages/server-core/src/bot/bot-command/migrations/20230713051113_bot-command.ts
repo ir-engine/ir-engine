@@ -34,15 +34,23 @@ import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-comma
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'botCommand'
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(botCommandPath)
   if (oldNamedTableExists) {
-    await knex.schema.renameTable(oldTableName, botCommandPath)
+    // In case sequelize creates the new table before we migrate the old table
+    if (tableExists) await trx.schema.dropTable(botCommandPath)
+    await trx.schema.renameTable(oldTableName, botCommandPath)
   }
 
-  const tableExists = await knex.schema.hasTable(botCommandPath)
+  tableExists = await trx.schema.hasTable(botCommandPath)
 
-  if (tableExists === false) {
-    await knex.schema.createTable(botCommandPath, (table) => {
+  if (!tableExists && !oldNamedTableExists) {
+    await trx.schema.createTable(botCommandPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('name', 255).notNullable().unique()
@@ -55,6 +63,9 @@ export async function up(knex: Knex): Promise<void> {
       table.foreign('botId').references('id').inTable('bot').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
@@ -62,9 +73,15 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(botCommandPath)
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await trx.schema.hasTable(botCommandPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(botCommandPath)
+    await trx.schema.dropTable(botCommandPath)
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }

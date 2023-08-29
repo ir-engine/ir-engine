@@ -35,7 +35,7 @@ import { NetworkActions, NetworkState } from '../NetworkState'
 /** Publish to connected peers that peer information has changed */
 export const updatePeers = (network: Network) => {
   const userNames = getState(WorldState).userNames
-  const peers = Array.from(network.peers.values()).map((peer) => {
+  const peers = Object.values(network.peers).map((peer) => {
     return {
       peerID: peer.peerID,
       peerIndex: peer.peerIndex,
@@ -76,7 +76,7 @@ export const sendActionsAsHost = (network: Network) => {
 
   const outgoing = Engine.instance.store.actions.outgoing
 
-  for (const peerID of Array.from(network.peers.keys()) as PeerID[]) {
+  for (const peerID of Object.keys(network.peers) as PeerID[]) {
     const arr: Action[] = []
     for (const a of [...actions]) {
       const action = { ...a }

@@ -36,23 +36,29 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { MediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
-import { NetworkTransportActions } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { MediasoupMediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import {
+  MediasoupTransportActions,
+  MediasoupTransportObjectsState,
+  MediasoupTransportState
+} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import {
   SocketWebRTCClientNetwork,
+  WebRTCTransportExtension,
   onTransportCreated,
   receiveConsumerHandler
 } from '../transports/SocketWebRTCClientFunctions'
 import { DataChannelSystem } from './DataChannelSystem'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
-const consumerCreatedQueue = defineActionQueue(MediaConsumerActions.consumerCreated.matches)
-const transportCreatedActionQueue = defineActionQueue(NetworkTransportActions.transportCreated.matches)
+const consumerCreatedQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerCreated.matches)
+const transportCreatedActionQueue = defineActionQueue(MediasoupTransportActions.transportCreated.matches)
 const updatePeersActionQueue = defineActionQueue(NetworkActions.updatePeers.matches)
 
 const execute = () => {
@@ -65,21 +71,22 @@ const execute = () => {
     for (const peer of action.peers) {
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
     }
-    for (const [peerID, peer] of network.peers)
+    for (const [peerID, peer] of Object.entries(network.peers))
       if (!action.peers.find((p) => p.peerID === peerID)) {
-        NetworkPeerFunctions.destroyPeer(network, peerID)
+        NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
       }
   }
 }
 
-const NetworkConnectionReactor = (props: { networkID: UserID }) => {
+const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
-  const recvTransport = useHookstate(networkState.recvTransport)
-  const sendTransport = useHookstate(networkState.sendTransport)
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
   useEffect(() => {
-    networkState.ready.set(!!recvTransport.value && !!sendTransport.value)
-  }, [recvTransport.value, sendTransport.value])
+    const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
+    const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
+    networkState.ready.set(!!recvTransport && !!sendTransport)
+  }, [transportState.keys])
   // TODO - see why we have to use .value here instead of just the hookstate object
 
   return null
@@ -99,8 +106,8 @@ const reactor = () => {
 
   return (
     <>
-      {networkIDs.map((hostId: UserID) => (
-        <NetworkConnectionReactor key={hostId} networkID={hostId} />
+      {networkIDs.map((id: InstanceID) => (
+        <NetworkConnectionReactor key={id} networkID={id} />
       ))}
       <PeerMediaConsumers />
       <InstanceProvisioning />

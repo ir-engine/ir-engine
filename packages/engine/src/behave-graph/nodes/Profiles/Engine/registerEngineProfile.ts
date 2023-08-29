@@ -35,18 +35,17 @@ import {
 import { GetSceneProperty, SetSceneProperty } from '@behave-graph/scene'
 import { OnButtonState } from './Events/onButtonState'
 import * as ComponentNodes from './Values/ComponentNodes'
-import { ComponentValue } from './Values/ComponentValue'
 import * as CustomNodes from './Values/CustomNodes'
 import * as EntityNodes from './Values/EntityNodes'
 import { EntityValue } from './Values/EntityValue'
 import * as SplineNodes from './Values/SplineNodes'
-import * as StateNodes from './Values/StateNodes'
-import { StateValue } from './Values/StateValue'
+import { getComponentGetters, getComponentSetters } from './helper/componentHelper'
+import { getStateGetters, getStateSetters } from './helper/stateHelper'
 
 export const makeEngineDependencies = () => ({})
 
 export const getEngineValuesMap = memo<ValueTypeMap>(() => {
-  const valueTypes = [EntityValue, ComponentValue, StateValue]
+  const valueTypes = [EntityValue]
   return Object.fromEntries(valueTypes.map((valueType) => [valueType.name, valueType]))
 })
 
@@ -64,7 +63,6 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(EntityNodes),
     ...getNodeDescriptions(ComponentNodes),
     ...getNodeDescriptions(CustomNodes),
-    ...getNodeDescriptions(StateNodes),
     ...getNodeDescriptions(SplineNodes),
 
     // variables
@@ -81,7 +79,11 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...GetSceneProperty(engineValueTypeNames),
     // flow control
 
-    ...getEngineStringConversions(getEngineValuesMap())
+    ...getEngineStringConversions(getEngineValuesMap()),
+    ...getComponentSetters(),
+    ...getComponentGetters(),
+    ...getStateSetters(),
+    ...getStateGetters()
   ]
   return Object.fromEntries(nodeDefinitions.map((nodeDefinition) => [nodeDefinition.typeName, nodeDefinition]))
 })

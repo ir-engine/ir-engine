@@ -23,13 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { db } from '@etherealengine/server-core/src/appconfig'
+import { botMethods, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 
-const env = process.env.APP_ENV || 'development'
+import { Application } from '../../../declarations'
+import { BotService } from './bot.class'
+import botDocs from './bot.docs'
+import hooks from './bot.hooks'
 
-module.exports = {
-  [env]: {
-    ...db,
-    migrationStorageTableName: '_migrations'
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [botPath]: BotService
   }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: botPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(botPath, new BotService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: botMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: botDocs
+  })
+
+  const service = app.service(botPath)
+  service.hooks(hooks)
 }

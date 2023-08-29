@@ -46,7 +46,6 @@ export const DirectionalLightComponent = defineComponent({
     light.target.position.set(0, 0, 1)
     light.target.name = 'light-target'
     light.add(light.target)
-    addObjectToGroup(entity, light)
     return {
       light,
       color: new Color(),
@@ -106,6 +105,10 @@ export const DirectionalLightComponent = defineComponent({
     const renderState = useHookstate(getMutableState(RendererState))
     const debugEnabled = renderState.nodeHelperVisibility
     const light = useComponent(entity, DirectionalLightComponent)
+
+    useEffect(() => {
+      addObjectToGroup(entity, light.light.value)
+    }, [])
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)

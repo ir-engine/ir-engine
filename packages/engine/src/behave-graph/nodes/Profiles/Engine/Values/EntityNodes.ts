@@ -185,7 +185,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
     const rotation = toQuat(read('rotation'))
     const scale = toVector3(read('scale'))
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, TransformComponent, { position: position, rotation: rotation, scale: scale })
+    setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
     commit('flow')
   }
 })

@@ -23,76 +23,65 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NullableId, Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Id, NullableId, Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 
-import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
-import { BotCommandType, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { BotData, BotPatch, BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 
+import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
-import { createBotCommands } from './bot.functions'
+import { RootParams } from '../../api/root-params'
 
-export type AdminBotDataType = AdminBot
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface BotParams extends RootParams<BotQuery> {}
 
-export class Bot extends Service {
+/**
+ * A class for Bot service
+ */
+
+export class BotService<T = BotType, ServiceParams extends Params = BotParams> extends KnexAdapter<
+  BotType,
+  BotData,
+  BotParams,
+  BotPatch
+> {
   app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
-    const data: AdminBotDataType[] = []
-
-    const bots = await this.app.service('bot').Model.findAll({
-      include: [
-        {
-          model: this.app.service('instance').Model
-        }
-      ]
-    })
-
-    // TODO: Move following to bot.resolvers once bot service is migrated to feathers 5.
-    const locations = (await this.app.service(locationPath).find({
-      query: {
-        id: {
-          $in: bots.map((bot) => bot.locationId)
-        }
-      },
-      paginate: false
-    })) as any as LocationType[]
-
-    const botCommands = (await this.app.service(botCommandPath).find({
-      query: {
-        botId: {
-          $in: bots.map((bot) => bot.id)
-        }
-      },
-      paginate: false
-    })) as any as BotCommandType[]
-
-    for (const bot of bots) {
-      data.push({
-        ...bot.dataValues,
-        location: locations.find((location) => location.id === bot.locationId),
-        botCommands: botCommands.filter((botCommand) => botCommand.botId === bot.id)
-      })
-    }
-
-    return { data } as Paginated<AdminBotDataType>
+  async find(params?: BotParams) {
+    return super._find(params)
   }
 
-  async create(data: CreateBotAsAdmin): Promise<AdminBotDataType> {
-    data.instanceId = data.instanceId ? data.instanceId : null
-    const result = await super.create(data)
-    createBotCommands(this.app, result, data.command!)
+  async create(data: BotData, params?: BotParams) {
+    data.instanceId = data.instanceId ? data.instanceId : ('' as InstanceID)
+
+    const dataWithoutExtras = { ...data } as any
+    delete dataWithoutExtras.botCommands
+
+    const result = await super._create(dataWithoutExtras)
+    result.botCommands = []
+
+    for (let element of data.botCommands) {
+      const command = await this.app.service(botCommandPath).create({
+        ...element,
+        botId: result.id
+      })
+      result.botCommands.push(command)
+    }
     return result
   }
 
-  async patch(id: NullableId, data: any): Promise<AdminBotDataType | AdminBotDataType[]> {
-    return super.patch(id, data)
+  async patch(id: NullableId, data: BotPatch, _params?: BotParams) {
+    return super._patch(id, data)
+  }
+
+  async remove(id: Id, _params?: BotParams) {
+    return super._remove(id, _params)
   }
 }

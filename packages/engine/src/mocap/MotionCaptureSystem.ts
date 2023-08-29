@@ -43,7 +43,7 @@ import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataProducerConsumerState'
+import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAction } from '../xr/XRState'
@@ -122,13 +122,13 @@ const execute = () => {
   const network = Engine.instance.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
+    if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
   }
 
-  const userPeers = network?.users?.get(Engine.instance.userID)
+  const userPeers = network?.users?.[Engine.instance.userID]
 
   // Stop mocap by removing entities if data doesnt exist
   if (isClient && !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID))) {
@@ -146,7 +146,7 @@ const execute = () => {
   }
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    const userID = network.peers.get(peerID)!.userId
+    const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
     if (entity) {
