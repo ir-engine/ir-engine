@@ -174,7 +174,7 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
 
   const { $peer: peerID, dataChannel } = action
 
-  const peer = network.peers.get(peerID)!
+  const peer = network.peers[peerID]!
   if (!peer) {
     logger.warn('No peer found for peerID: ' + peerID)
     return
@@ -226,7 +226,7 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
       getMutableState(MediasoupInternalWebRTCDataChannelState)[peerID].outgoingDataConsumers[dataChannel].set(none)
     })
 
-    const peer = network.peers.get(peerID)
+    const peer = network.peers[peerID]
 
     logger.info('Setting data consumer to network state.')
     if (!peer) {
@@ -531,7 +531,7 @@ export async function handleProduceData(
       )
     }
 
-    if (!network.peers.has(peerID)) {
+    if (!network.peers[peerID]) {
       const errorMessage = `Client no longer exists for userId "${userId}".`
       logger.error(errorMessage)
       return dispatchAction(
@@ -570,7 +570,7 @@ export async function handleProduceData(
     const dataProducer = await transport.produceData(options)
 
     logger.info(`User ${userId} producing data on ${label}`)
-    if (!network.peers.has(peerID)) {
+    if (!network.peers[peerID]) {
       logger.error('Client no longer exists.')
       return dispatchAction(
         MediasoupDataProducerActions.requestProducerError({
@@ -617,7 +617,7 @@ export async function handleProduceData(
         })
       )
     }
-    if (!network.peers.has(peerID)) {
+    if (!network.peers[peerID]) {
       logger.error('Client no longer exists.')
       return dispatchAction(
         MediasoupDataProducerActions.requestProducerError({
@@ -781,8 +781,8 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
 
     logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
 
-    if (userId && network.peers.has(peerID)) {
-      network.peers.get(peerID)!.media![appData.mediaTag!] = {
+    if (userId && network.peers[peerID]) {
+      network.peers[peerID]!.media![appData.mediaTag!] = {
         paused,
         producerId: producer.id,
         globalMute: false,

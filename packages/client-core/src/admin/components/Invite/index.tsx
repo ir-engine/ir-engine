@@ -36,6 +36,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
 import AdminInvites from './AdminInvites'
@@ -51,7 +52,7 @@ const InvitesConsole = () => {
   const handleCloseDeleteMultiInviteModal = () => deleteMultiInviteModalOpen.set(false)
 
   const { t } = useTranslation()
-  const removeInvite = useMutation('invite').remove
+  const removeInvite = useMutation(invitePath).remove
 
   const confirmMultiInviteDelete = () => {
     Promise.all(Array.from(selectedInviteIds.value).map(async (id) => removeInvite(id)))
