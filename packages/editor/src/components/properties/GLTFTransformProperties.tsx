@@ -241,6 +241,9 @@ export default function GLTFTransformProperties({
         <InputGroup name="Linear" label={t('editor:properties.model.transform.linear')}>
           <BooleanInput value={transformParms.linear.value} onChange={onChangeTransformParm(transformParms.linear)} />
         </InputGroup>
+        <InputGroup name="Mipmaps" label={t('editor:properties.model.transform.mipmaps')}>
+          <BooleanInput value={transformParms.mipmap.value} onChange={onChangeTransformParm(transformParms.mipmap)} />
+        </InputGroup>
         {transformParms.textureFormat.value === 'ktx2' && (
           <>
             <InputGroup
