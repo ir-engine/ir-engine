@@ -59,14 +59,13 @@ export const locationResolver = resolve<LocationType, HookContext>({
       params.query.adminnedLocations &&
       (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
     ) {
-      //TODO: We should replace `as any as LocationAdminType[]` with `as LocationAdminType[]` once location-admin service is migrated to feathers 5.
       const locationAdmin = (await context.app.service(locationAdminPath).find({
         query: {
           locationId: location.id,
           userId: loggedInUser.id
         },
         paginate: false
-      })) as any as LocationAdminType[]
+      })) as LocationAdminType[]
 
       return locationAdmin.length > 0 ? locationAdmin[0] : undefined
     }
@@ -74,7 +73,6 @@ export const locationResolver = resolve<LocationType, HookContext>({
     return undefined
   }),
   locationAuthorizedUsers: virtual(async (location, context) => {
-    //TODO: We should replace `as any as LocationAuthorizedUserType[]` with `as LocationAuthorizedUserType[]` once location-admin service is migrated to feathers 5.
     const locationAuthorizedUser = (await context.app.service('location-authorized-user').find({
       query: {
         locationId: location.id

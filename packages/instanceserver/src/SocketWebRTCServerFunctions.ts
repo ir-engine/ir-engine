@@ -36,7 +36,11 @@ import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InstanceServerState } from './InstanceServerState'
+import { MediasoupServerSystem } from './MediasoupServerSystem'
+import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
@@ -48,20 +52,21 @@ export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & {
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
 export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
-export const initializeNetwork = async (app: Application, id: string, hostId: UserID, topic: Topic) => {
+export const initializeNetwork = async (app: Application, id: InstanceID, hostId: UserID, topic: Topic) => {
   const { workers, routers } = await startWebRTC()
 
-  const outgoingDataTransport = await routers.instance[0].createDirectTransport()
+  const outgoingDataTransport = await routers[0].createDirectTransport()
+
   logger.info('Server transport initialized.')
 
   const transport = {
     messageToPeer: (peerId: PeerID, data: any) => {
-      const spark = network.peers.get(peerId)?.spark
+      const spark = network.peers[peerId]?.spark
       if (spark) spark.write(data)
     },
 
     messageToAll: (data: any) => {
-      for (const peer of Array.from(network.peers.values())) peer.spark?.write(data)
+      for (const peer of Object.values(network.peers)) peer.spark?.write(data)
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
@@ -75,23 +80,22 @@ export const initializeNetwork = async (app: Application, id: string, hostId: Us
      * @param data
      */
     bufferToAll: (dataChannelType: DataChannelType, data: any) => {
-      const dataProducer = network.outgoingDataProducers[dataChannelType]
+      const dataProducer = network.transport.outgoingDataProducers[dataChannelType]
       if (!dataProducer) return
       dataProducer.send(Buffer.from(new Uint8Array(data)))
-    }
-  }
+    },
 
-  const network = createNetwork(id, hostId, topic, {
     workers,
     routers,
-    transport,
     outgoingDataTransport,
-    outgoingDataProducers: {} as Record<DataChannelType, DataProducer>,
-    mediasoupTransports: {} as Record<string, WebRTCTransportExtension>,
-    transportsConnectPending: [] as Promise<void>[],
-    producers: [] as ProducerExtension[],
-    consumers: [] as ConsumerExtension[]
+    outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
+  }
+
+  startSystem(MediasoupServerSystem, {
+    before: ServerHostNetworkSystem
   })
+
+  const network = createNetwork(id, hostId, topic, transport)
 
   return network
 }

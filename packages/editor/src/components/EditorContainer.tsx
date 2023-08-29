@@ -43,9 +43,18 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { useDrop } from 'react-dnd'
+import { Vector2 } from 'three'
+import { ItemTypes } from '../constants/AssetTypes'
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
 import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
+import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
@@ -64,7 +73,7 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList from './element/ElementList'
+import ElementList, { SceneElementType, addSceneComponentElement } from './element/ElementList'
 import GraphPanel from './graph/GraphPanel'
 import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
@@ -493,10 +502,46 @@ const EditorContainer = () => {
     ]
   }
 
+  const ViewportDnD = () => {
+    const [{ isDragging, isOver }, dropRef] = useDrop({
+      accept: [ItemTypes.Prefab],
+      collect: (monitor) => ({
+        isDragging: monitor.getItem() !== null && monitor.canDrop(),
+        isOver: monitor.isOver()
+      }),
+      drop(item: SceneElementType, monitor) {
+        const node = addSceneComponentElement(item)
+        if (!node) return
+
+        const transformComponent = getComponent(node, TransformComponent)
+        if (transformComponent) {
+          getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
+          const localTransformComponent = getComponent(node, LocalTransformComponent)
+          if (localTransformComponent) {
+            localTransformComponent.position.copy(transformComponent.position)
+          }
+        }
+      }
+    })
+
+    return (
+      <div
+        id="viewport-panel"
+        ref={dropRef}
+        style={{
+          pointerEvents: isDragging ? 'all' : 'none',
+          border: isDragging && isOver ? '5px solid white' : 'none',
+          width: '100%',
+          height: '100%'
+        }}
+      />
+    )
+  }
+
   const ViewPortPanelContent = () => {
-    const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded.value
+    const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
     return sceneLoaded ? (
-      <div />
+      <ViewportDnD />
     ) : (
       <div className={styles.bgImageBlock}>
         <img style={{ height: 'auto', maxWidth: '100%' }} src="/static/etherealengine.png" alt="" />

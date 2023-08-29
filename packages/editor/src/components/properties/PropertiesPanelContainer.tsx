@@ -31,20 +31,25 @@ import { Object3D } from 'three'
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getAllComponents } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  ComponentMap,
+  getAllComponents,
+  hasComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { useDrop } from 'react-dnd'
+import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
-import { SelectionState } from '../../services/SelectionServices'
+import { SelectionAction, SelectionState } from '../../services/SelectionServices'
 import MaterialEditor from '../materials/MaterialEditor'
 import { CoreNodeEditor } from './CoreNodeEditor'
 import Object3DNodeEditor from './Object3DNodeEditor'
-
-const StyledNodeEditor = {}
 
 /**
  * PropertiesPanelContent used as container element contains content of editor view.
@@ -84,6 +89,7 @@ export const PropertiesPanelContainer = () => {
   useEffect(() => {
     forceUpdate()
   }, [selectionState.objectChangeCounter])
+
   const materialLibrary = getState(MaterialLibraryState)
   //rendering editor views for customization of element properties
   let content
@@ -106,18 +112,44 @@ export const PropertiesPanelContainer = () => {
     ? Engine.instance.scene.getObjectByProperty('uuid', nodeEntity as string)
     : nodeEntity
 
+  const [{ isDragging }, dropRef] = useDrop({
+    accept: [ItemTypes.Prefab],
+    drop: (item: { componentName: string }) => {
+      if (isObject3D) return
+      const component = ComponentMap.get(item.componentName)
+      const entity = node as Entity
+      if (!component || hasComponent(entity, component)) return
+      setComponent(entity, component)
+      dispatchAction(SelectionAction.forceUpdate({}))
+    },
+    collect: (monitor) => {
+      if (isObject3D) return { isDragging: false }
+
+      if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
+
+      const component = ComponentMap.get(monitor.getItem().componentName)
+      if (!component) return { isDragging: false }
+
+      const entity = node as Entity
+
+      return {
+        isDragging: !hasComponent(entity, component)
+      }
+    }
+  })
+
   if (!nodeEntity || !node) {
     content = <div style={noNodeSelectedMessageStyle}>{t('editor:properties.noNodeSelected')}</div>
   } else if (isObject3D) {
     content = (
-      <div style={StyledNodeEditor}>
+      <div>
         {/* @todo these types are incorrect */}
         <Object3DNodeEditor multiEdit={multiEdit} obj3d={node as Object3D} />
       </div>
     )
   } else if (isMaterial) {
     content = (
-      <div style={StyledNodeEditor}>
+      <div>
         <MaterialEditor key={`${nodeEntity}-MaterialEditor`} material={(node as MaterialComponentType).material} />
       </div>
     )
@@ -126,7 +158,13 @@ export const PropertiesPanelContainer = () => {
     const components = getAllComponents(nodeEntity as Entity).filter((c) => EntityNodeEditor.has(c))
 
     content = (
-      <div style={StyledNodeEditor}>
+      <div
+        ref={dropRef}
+        style={{
+          pointerEvents: 'all',
+          border: isDragging ? '2px solid lightgrey' : 'none'
+        }}
+      >
         <CoreNodeEditor entity={node as Entity} key={node as Entity} />
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!

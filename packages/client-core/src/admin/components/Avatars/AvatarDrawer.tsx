@@ -548,38 +548,29 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         </Box>
       )}
 
-      {editMode.value && (
-        <Box
-          className={styles.preview}
-          style={{ width: '100px', height: '100px', position: 'relative', marginBottom: 15 }}
-        >
-          <img
-            style={{
-              height: 'auto',
-              maxWidth: '100%'
+      <Box
+        className={styles.preview}
+        style={{ width: '100px', height: '100px', position: 'relative', marginBottom: 15 }}
+      >
+        <img src={thumbnailSrc} crossOrigin="anonymous" />
+        {((state.source.value === 'file' && !state.thumbnailFile.value) ||
+          (state.source.value === 'url' && !state.thumbnailUrl.value)) && (
+          <Typography
+            sx={{
+              position: 'absolute',
+              top: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+              height: '100%',
+              fontSize: 14
             }}
-            src={thumbnailSrc}
-            crossOrigin="anonymous"
-          />
-          {((state.source.value === 'file' && !state.thumbnailFile.value) ||
-            (state.source.value === 'url' && !state.thumbnailUrl.value)) && (
-            <Typography
-              sx={{
-                position: 'absolute',
-                top: 0,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                textAlign: 'center',
-                height: '100%',
-                fontSize: 14
-              }}
-            >
-              {t('admin:components.avatar.thumbnailPreview')}
-            </Typography>
-          )}
-        </Box>
-      )}
+          >
+            {t('admin:components.avatar.thumbnailPreview')}
+          </Typography>
+        )}
+      </Box>
 
       <DialogActions>
         <Button className={styles.outlinedButton} onClick={handleCancel}>

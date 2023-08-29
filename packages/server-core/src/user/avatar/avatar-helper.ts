@@ -215,10 +215,14 @@ export const uploadAvatarStaticResource = async (
 
   if (data.avatarId) {
     try {
-      await app.service(avatarPath).patch(data.avatarId, {
-        modelResourceId: modelResource.id,
-        thumbnailResourceId: thumbnailResource.id
-      })
+      await app.service(avatarPath).patch(
+        data.avatarId,
+        {
+          modelResourceId: modelResource.id,
+          thumbnailResourceId: thumbnailResource.id
+        },
+        params
+      )
     } catch (err) {
       console.log(err)
     }

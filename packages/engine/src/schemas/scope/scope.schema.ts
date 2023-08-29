@@ -24,12 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userSchema } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const scopePath = 'scope'
+
+export const scopeMethods = ['create', 'find', 'remove'] as const
 
 // Main data model schema
 export const scopeSchema = Type.Object(
@@ -41,6 +44,7 @@ export const scopeSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
+    user: Type.Ref(userSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -71,3 +75,8 @@ export const scopeQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type ScopeQuery = Static<typeof scopeQuerySchema>
+
+export const scopeValidator = getValidator(scopeSchema, dataValidator)
+export const scopeDataValidator = getValidator(scopeDataSchema, dataValidator)
+export const scopePatchValidator = getValidator(scopePatchSchema, dataValidator)
+export const scopeQueryValidator = getValidator(scopeQuerySchema, queryValidator)

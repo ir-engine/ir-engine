@@ -160,7 +160,8 @@ const argTypes = {
       'ChevronRight',
       'Sync',
       'Download',
-      'Save'
+      'Save',
+      'SmartToy'
     ]
   }
 }

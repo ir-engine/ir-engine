@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
@@ -145,7 +145,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }
 
   const packageMessage = (): void => {
-    const instanceId = Engine.instance.worldNetwork.hostId
+    const instanceId = Engine.instance.worldNetwork.id
     if (composingMessage?.value?.length && instanceId) {
       if (usersTyping) {
         dispatchAction(
@@ -210,6 +210,7 @@ export const InstanceChat = ({
   CloseButton = CloseIcon,
   newMessageLabel = 'World Chat...'
 }: InstanceChatProps): any => {
+  const { t } = useTranslation()
   const chatWindowOpen = useHookstate(false)
   const unreadMessages = useHookstate(false)
   const messageContainerVisible = useHookstate(false)
@@ -418,6 +419,7 @@ export const InstanceChat = ({
             >
               <Fab
                 id="openMessagesButton"
+                title={t('user:menu.toggleChat')}
                 className={styles.chatBadge}
                 color="primary"
                 onClick={() => toggleChatWindow()}
@@ -452,13 +454,13 @@ export const InstanceChatWrapper = () => {
   /**
    * Provisioning logic
    */
-  const currentInstanceConnection = useWorldInstance()
+  const worldNetwork = useWorldNetwork()
 
   useEffect(() => {
-    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+    if (worldNetwork?.connected?.value) {
       ChannelService.getInstanceChannel()
     }
-  }, [currentInstanceConnection?.connected])
+  }, [worldNetwork?.connected])
 
   return (
     <>

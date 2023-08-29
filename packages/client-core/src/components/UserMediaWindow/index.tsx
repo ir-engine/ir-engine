@@ -111,11 +111,11 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     !mediaNetwork ||
     peerID === Engine.instance.peerID ||
     (mediaNetwork?.peers &&
-      Array.from(mediaNetwork.peers.values()).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
+      Object.values(mediaNetwork.peers).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
     peerID === 'self'
   const volume = isSelf ? audioState.microphoneGain.value : _volume.value
   const isScreen = type === 'screen'
-  const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.get(peerID!)?.userId
+  const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.[peerID]?.userId
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))

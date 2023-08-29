@@ -24,19 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { Action, clearOutgoingActions, getState } from '@etherealengine/hyperflux'
+import { Action, clearOutgoingActions, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { Network } from '../classes/Network'
-import { MessageTypes } from '../enums/MessageTypes'
 import { WorldState } from '../interfaces/WorldState'
-import { NetworkState } from '../NetworkState'
+import { NetworkActions, NetworkState } from '../NetworkState'
 
 /** Publish to connected peers that peer information has changed */
 export const updatePeers = (network: Network) => {
   const userNames = getState(WorldState).userNames
-  const peers = Array.from(network.peers.values()).map((peer) => {
+  const peers = Object.values(network.peers).map((peer) => {
     return {
       peerID: peer.peerID,
       peerIndex: peer.peerIndex,
@@ -45,35 +44,39 @@ export const updatePeers = (network: Network) => {
       name: userNames[peer.userId]
     }
   }) as Array<PeersUpdateType>
-  for (const peer of peers)
-    network.transport.messageToPeer(peer.peerID, { type: MessageTypes.UpdatePeers.toString(), data: peers })
+  dispatchAction(
+    NetworkActions.updatePeers({
+      peers,
+      $topic: network.topic,
+      $network: network.id
+    })
+  )
 }
 
 export const sendActionsAsPeer = (network: Network) => {
-  if (!network.ready) return
+  if (!network.authenticated) return
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
   for (const action of actions) {
     if (action.$network && !action.$topic && action.$network === network.id) action.$topic = network.topic
   }
   // for (const peerID of network.peers) {
-  network.transport.messageToPeer(network.hostPeerID, {
-    type: MessageTypes.ActionData.toString(),
-    /*encode(*/ data: actions
-  }) //)
-  // }
+  network.transport.messageToPeer(
+    network.hostPeerID,
+    /*encode(*/ actions //)
+  )
   clearOutgoingActions(network.topic)
 }
 
 export const sendActionsAsHost = (network: Network) => {
-  if (!network.ready) return
+  if (!network.authenticated) return
 
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
 
   const outgoing = Engine.instance.store.actions.outgoing
 
-  for (const peerID of Array.from(network.peers.keys()) as PeerID[]) {
+  for (const peerID of Object.keys(network.peers) as PeerID[]) {
     const arr: Action[] = []
     for (const a of [...actions]) {
       const action = { ...a }
@@ -91,7 +94,10 @@ export const sendActionsAsHost = (network: Network) => {
       }
     }
     if (arr.length)
-      network.transport.messageToPeer(peerID, { type: MessageTypes.ActionData.toString(), /*encode(*/ data: arr }) //)
+      network.transport.messageToPeer(
+        peerID,
+        /*encode(*/ arr //)
+      )
   }
 
   // TODO: refactor this to support multiple connections of the same topic type

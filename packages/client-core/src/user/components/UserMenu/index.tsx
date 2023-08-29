@@ -32,7 +32,7 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
@@ -66,13 +66,14 @@ export const UserMenu = () => {
           >
             <div className={styles.buttonsContainer}>
               {Object.keys(hotbarItems).map((id, index) => {
-                const IconNode = hotbarItems[id]
-                if (!IconNode) return null
+                const hotbarItem = hotbarItems[id]
+                if (!hotbarItem) return null
                 return (
-                  <IconButton
+                  <IconButtonWithTooltip
                     key={index}
                     type="solid"
-                    icon={<IconNode />}
+                    title={hotbarItem.tooltip}
+                    icon={hotbarItem.icon}
                     sizePx={50}
                     onClick={() => PopupMenuServices.showPopupMenu(id)}
                     sx={{

@@ -23,66 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  NodeCategory,
-  makeFlowNodeDefinition,
-  makeFunctionNodeDefinition,
-  makeInNOutFunctionDesc
-} from '@behave-graph/core'
+import { NodeCategory, makeFlowNodeDefinition } from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import {
-  Component,
-  ComponentMap,
-  getComponent,
-  removeComponent,
-  setComponent
-} from '../../../../../ecs/functions/ComponentFunctions'
-
-export const getComponentFromRegistry = makeFunctionNodeDefinition({
-  typeName: 'engine/component/getComponentfromRegistry',
-  category: NodeCategory.Query,
-  label: 'Get Component',
-  in: {
-    component: (_, graphApi) => {
-      const choices = Array.from(ComponentMap.keys()).sort()
-      choices.unshift('none')
-      return {
-        valueType: 'string',
-        choices: choices
-      }
-    }
-  },
-  out: { component: 'string' },
-  exec: ({ read, write, graph }) => {
-    const ComponentType: any = read('component')
-    write('component', ComponentType)
-  }
-})
-
-export const getComponentFromEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/component/getComponentfromEntity',
-  category: NodeCategory.Query,
-  label: 'Get Component in entity',
-  in: {
-    entity: 'entity',
-    componentName: (_, graphApi) => {
-      const choices = Array.from(ComponentMap.keys()).sort()
-      choices.unshift('none')
-      return {
-        valueType: 'string',
-        choices: choices
-      }
-    }
-  },
-  out: { component: 'component' },
-  exec: ({ read, write, graph, configuration }) => {
-    const entity: Entity = read('entity')
-    const componentName: string = read('componentName')
-    const component = ComponentMap.get(componentName)!
-    const componentType = getComponent(entity, component)
-    write('component', componentType)
-  }
-})
+import { ComponentMap, removeComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 
 export const addComponent = makeFlowNodeDefinition({
   typeName: 'engine/component/addComponent',
@@ -103,8 +46,8 @@ export const addComponent = makeFlowNodeDefinition({
   out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
-    const entity: Entity = read('entity')
-    const componentName: string = read('componentName')
+    const entity = Number.parseInt(read('entity')) as Entity
+    const componentName = read<string>('componentName')
     const component = ComponentMap.get(componentName)!
     setComponent(entity, component)
     write('entity', entity)
@@ -131,27 +74,11 @@ export const deleteComponent = makeFlowNodeDefinition({
   out: { flow: 'flow', entity: 'entity' },
   initialState: undefined,
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
-    const entity: Entity = read('entity')
-    const componentName: string = read('componentName')
+    const entity = Number.parseInt(read('entity')) as Entity
+    const componentName = read<string>('componentName')
     const component = ComponentMap.get(componentName)!
     removeComponent(entity, component)
     write('entity', entity)
     commit('flow')
   }
-})
-
-export const Constant = makeInNOutFunctionDesc({
-  name: 'engine/component',
-  label: 'Component',
-  in: ['component'],
-  out: 'component',
-  exec: (a: Component) => a
-})
-
-export const Equal = makeInNOutFunctionDesc({
-  name: 'engine/equal/component',
-  label: 'Component =',
-  in: ['component', 'component'],
-  out: 'boolean',
-  exec: (a: Component, b: Component) => a === b
 })

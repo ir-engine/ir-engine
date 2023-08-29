@@ -28,7 +28,6 @@ import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -54,9 +53,10 @@ import {
   addDataChannelHandler,
   DataChannelRegistryState,
   removeDataChannelHandler
-} from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
+} from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -115,7 +115,7 @@ export const uploadRecordingStaticResource = async (props: {
   const provider = getStorageProvider()
   const url = getCachedURL(props.key, provider.cacheDomain)
 
-  const staticResource = (await app.service('static-resource').create(
+  const staticResource = await app.service(staticResourcePath).create(
     {
       hash: props.hash,
       key: props.key,
@@ -123,7 +123,7 @@ export const uploadRecordingStaticResource = async (props: {
       mimeType: props.mimeType
     },
     { isInternal: true }
-  )) as StaticResourceInterface
+  )
 
   await app.service(recordingResourcePath).create({
     staticResourceId: staticResource.id,
@@ -388,7 +388,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
               // todo, this is a hack
               for (const peerID of peerIDs) {
-                if (network.peers.has(peerID)) continue
+                if (network.peers[peerID]) continue
                 activePlayback.peerIDs!.push(peerID)
                 NetworkPeerFunctions.createPeer(
                   network,
@@ -566,12 +566,12 @@ const execute = () => {
   const network = getServerNetwork(app)
 
   for (const [userId, userMap] of Array.from(dataChannelToReplay.entries())) {
-    if (network.users.has(userId))
+    if (network.users[userId])
       for (const [dataChannel, chunk] of userMap) {
         for (const frame of chunk.frames) {
           if (frame.timecode > Date.now() - chunk.startTime) {
             network.transport.bufferToAll(dataChannel, encode(frame.data))
-            // for (const peerID of network.users.get(userId)!) {
+            // for (const peerID of network.users[userId]) {
             //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
             // }
             break

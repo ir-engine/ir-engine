@@ -24,16 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
 import {
-  loginTokenDataSchema,
-  loginTokenPatchSchema,
-  loginTokenQuerySchema,
-  loginTokenSchema
+  loginTokenDataValidator,
+  loginTokenPatchValidator,
+  loginTokenQueryValidator
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import {
   loginTokenDataResolver,
@@ -42,12 +39,6 @@ import {
   loginTokenQueryResolver,
   loginTokenResolver
 } from './login-token.resolvers'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const loginTokenValidator = getValidator(loginTokenSchema, dataValidator)
-const loginTokenDataValidator = getValidator(loginTokenDataSchema, dataValidator)
-const loginTokenPatchValidator = getValidator(loginTokenPatchSchema, dataValidator)
-const loginTokenQueryValidator = getValidator(loginTokenQuerySchema, queryValidator)
 
 export default {
   around: {

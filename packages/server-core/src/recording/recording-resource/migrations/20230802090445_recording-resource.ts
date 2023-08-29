@@ -80,13 +80,12 @@ export async function up(knex: Knex): Promise<void> {
       table
         .foreign('staticResourceId')
         .references('id')
-        .inTable('static_resource')
+        .inTable('static-resource')
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
     })
 
     await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-
     await trx.commit()
   }
 }
@@ -96,9 +95,15 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(recordingResourcePath)
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await trx.schema.hasTable(recordingResourcePath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(recordingResourcePath)
+    await trx.schema.dropTable(recordingResourcePath)
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }

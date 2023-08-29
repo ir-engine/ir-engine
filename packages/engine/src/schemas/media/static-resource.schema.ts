@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const staticResourcePath = 'static-resource'
 
-export const staticResourceMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const staticResourceMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
 export const staticResourceSchema = Type.Object(
@@ -68,27 +69,7 @@ export type StaticResourceDatabaseType = Omit<StaticResourceType, 'metadata' | '
 }
 
 // Schema for creating new entries
-export const staticResourceDataSchema = Type.Pick(
-  staticResourceSchema,
-  [
-    'sid',
-    'key',
-    'metadata',
-    'mimeType',
-    'userId',
-    'hash',
-    'project',
-    'driver',
-    'attribution',
-    'licensing',
-    'tags',
-    'url',
-    'stats'
-  ],
-  {
-    $id: 'StaticResourceData'
-  }
-)
+export const staticResourceDataSchema = Type.Partial(staticResourceSchema, { $id: 'StaticResourceData' })
 export type StaticResourceData = Static<typeof staticResourceDataSchema>
 
 // Schema for updating existing entries
@@ -116,10 +97,22 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [
-    querySyntax(staticResourceQueryProperties),
+    querySyntax(staticResourceQueryProperties, {
+      key: {
+        $like: Type.String()
+      },
+      mimeType: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
 export type StaticResourceQuery = Static<typeof staticResourceQuerySchema>
+
+export const staticResourceValidator = getValidator(staticResourceSchema, dataValidator)
+export const staticResourceDataValidator = getValidator(staticResourceDataSchema, dataValidator)
+export const staticResourcePatchValidator = getValidator(staticResourcePatchSchema, dataValidator)
+export const staticResourceQueryValidator = getValidator(staticResourceQuerySchema, queryValidator)

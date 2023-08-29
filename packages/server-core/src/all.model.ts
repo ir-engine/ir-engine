@@ -30,6 +30,8 @@ import { HookReturn } from 'sequelize/types/hooks'
 
 import {
   AvatarInterface,
+  BotCommandInterface,
+  IdentityProviderInterface,
   InstanceAttendanceInterface,
   LocationAdminInterface,
   LocationAuthorizedUserInterface,
@@ -37,11 +39,16 @@ import {
   LocationInterface,
   LocationSettingsInterface,
   LocationTypeInterface,
+  ProjectPermissionInterface,
   UserApiKeyInterface,
   UserInterface,
-  UserKick
+  UserKick,
+  UserRelationshipInterface,
+  UserRelationshipTypeInterface,
+  UserSetting
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
+import { ProjectPermissionTypeData } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 import { Application } from '../declarations'
 import { createInstanceAuthorizedUserModel } from './networking/instance/instance.model'
 
@@ -89,18 +96,18 @@ export const createUserModel = (app: Application) => {
 
   ;(User as any).associate = (models: any): void => {
     ;(User as any).hasMany(createInstanceAttendanceModel(app), { as: 'instanceAttendance' })
-    ;(User as any).hasOne(models.user_settings)
+    ;(User as any).hasOne(createUserSettingModel(app))
     ;(User as any).belongsToMany(createUserModel(app), {
       as: 'relatedUser',
-      through: models.user_relationship
+      through: createUserRelationshipModel(app)
     })
-    ;(User as any).hasMany(models.user_relationship, { onDelete: 'cascade' })
-    ;(User as any).hasMany(models.identity_provider, { onDelete: 'cascade' })
+    ;(User as any).hasMany(createUserRelationshipModel(app), { onDelete: 'cascade' })
+    ;(User as any).hasMany(createIdentityProviderModel(app), { onDelete: 'cascade' })
     ;(User as any).hasMany(models.channel)
     ;(User as any).belongsToMany(createLocationModel(app), { through: 'location-admin' })
     ;(User as any).hasMany(createLocationAdminModel(app), { unique: false })
     ;(User as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
-    ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
+    ;(User as any).hasMany(createBotModel(app), { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
     ;(User as any).belongsToMany(models.instance, { through: 'instance-authorized-user' })
     ;(User as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
@@ -257,7 +264,7 @@ export const createLocationModel = (app: Application) => {
     ;(location as any).belongsToMany(createUserModel(app), { through: 'location-admin' })
     ;(location as any).hasOne(createLocationSettingsModel(app), { onDelete: 'cascade' })
     ;(location as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
-    ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
+    ;(location as any).hasMany(createBotModel(app), { foreignKey: 'locationId' })
     ;(location as any).hasMany(createLocationAuthorizedUserModel(app), { onDelete: 'cascade' })
   }
 
@@ -513,4 +520,302 @@ export const createUserKickModel = (app: Application) => {
   }
 
   return userKick
+}
+
+export const createUserSettingModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const UserSettings = sequelizeClient.define<Model<UserSetting>>(
+    'user-setting',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      themeModes: {
+        type: DataTypes.JSON,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(UserSettings as any).associate = (models: any): void => {
+    ;(UserSettings as any).belongsTo(createUserModel(app), { primaryKey: true, required: true, allowNull: false })
+  }
+
+  return UserSettings
+}
+
+export const createIdentityProviderModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const identityProvider = sequelizeClient.define<Model<IdentityProviderInterface>>(
+    'identity-provider',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      token: { type: DataTypes.STRING, unique: true },
+      accountIdentifier: { type: DataTypes.STRING },
+      // password: { type: DataTypes.STRING },
+      // isVerified: { type: DataTypes.BOOLEAN },
+      // verifyToken: { type: DataTypes.STRING },
+      // verifyShortToken: { type: DataTypes.STRING },
+      // verifyExpires: { type: DataTypes.DATE },
+      // verifyChanges: { type: DataTypes.JSON },
+      // resetToken: { type: DataTypes.STRING },
+      // resetExpires: { type: DataTypes.DATE },
+      oauthToken: { type: DataTypes.STRING },
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        values: ['email', 'sms', 'password', 'discord', 'github', 'google', 'facebook', 'twitter', 'linkedin', 'auth0']
+      }
+    } as any as IdentityProviderInterface,
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      },
+      indexes: [
+        {
+          fields: ['id']
+        },
+        {
+          unique: true,
+          fields: ['userId', 'token']
+        },
+        {
+          unique: true,
+          fields: ['userId', 'type']
+        }
+      ]
+    }
+  )
+  ;(identityProvider as any).associate = (models: any): void => {
+    ;(identityProvider as any).belongsTo(models.user, { required: true, onDelete: 'cascade' })
+    ;(identityProvider as any).hasMany(models.login_token)
+  }
+
+  return identityProvider
+}
+
+const createUserRelationshipTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const userRelationshipType = sequelizeClient.define<Model<UserRelationshipTypeInterface>>(
+    'user-relationship-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        },
+        beforeUpdate(instance: any, options: any): void {
+          throw new Error("Can't update a type!")
+        }
+      },
+      timestamps: false
+    }
+  )
+
+  ;(userRelationshipType as any).associate = (models: any): void => {
+    ;(userRelationshipType as any).hasMany(createUserRelationshipModel(app), { foreignKey: 'userRelationshipType' })
+  }
+
+  return userRelationshipType
+}
+
+export const createUserRelationshipModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const userRelationship = sequelizeClient.define<Model<UserRelationshipInterface>>(
+    'user-relationship',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    } as any,
+    {
+      hooks: {
+        beforeCount(options: any): any {
+          options.raw = true
+        }
+      },
+      indexes: [
+        {
+          unique: true,
+          fields: ['id']
+        }
+      ]
+    }
+  )
+
+  ;(userRelationship as any).associate = (models: any): void => {
+    ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'user', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserModel(app), { as: 'relatedUser', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserRelationshipTypeModel(app), { foreignKey: 'userRelationshipType' })
+  }
+
+  return userRelationship
+}
+
+export const createProjectPermissionModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const ProjectPermission = sequelizeClient.define<Model<ProjectPermissionInterface>>(
+    'project-permission',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(ProjectPermission as any).associate = (models: any): void => {
+    ;(ProjectPermission as any).belongsTo(createUserModel(app), {
+      foreignKey: 'userId',
+      allowNull: false,
+      onDelete: 'cascade'
+    })
+    ;(ProjectPermission as any).belongsTo(models.project, {
+      foreignKey: 'projectId',
+      allowNull: false,
+      onDelete: 'cascade'
+    })
+    ;(ProjectPermission as any).belongsTo(createProjectPermissionTypeModel(app), { foreignKey: 'type' })
+  }
+
+  return ProjectPermission
+}
+
+export const createProjectPermissionTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const ProjectPermissionType = sequelizeClient.define<Model<ProjectPermissionTypeData>>(
+    'project-permission-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      },
+      timestamps: false
+    }
+  )
+  ;(ProjectPermissionType as any).associate = (models: any): void => {
+    ;(ProjectPermissionType as any).hasMany(createProjectPermissionModel(app), { foreignKey: 'type' })
+  }
+
+  return ProjectPermissionType
+}
+
+export const createBotModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const Bot = sequelizeClient.define(
+    'bot',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        defaultValue: (): string => 'etherealengine bot' + Math.floor(Math.random() * (999 - 100 + 1) + 100),
+        allowNull: false
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(Bot as any).associate = (models: any): void => {
+    ;(Bot as any).belongsTo(createLocationModel(app), { foreignKey: 'locationId' })
+    ;(Bot as any).belongsTo(models.instance, { foreignKey: { allowNull: true } })
+    ;(Bot as any).belongsTo(createUserModel(app), { foreignKey: 'userId' })
+    ;(Bot as any).hasMany(createBotCommandModel(app), { foreignKey: 'botId' })
+  }
+  return Bot
+}
+
+export const createBotCommandModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const BotCommand = sequelizeClient.define<Model<BotCommandInterface>>(
+    'bot-command',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+  ;(BotCommand as any).associate = (models: any): void => {
+    ;(BotCommand as any).belongsTo(createBotModel(app), { foreignKey: 'botId' })
+  }
+
+  return BotCommand
 }

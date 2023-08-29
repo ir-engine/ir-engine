@@ -26,10 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import multiLogger from '@etherealengine/common/src/logger'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { LocationInstanceConnectionService } from '../../common/services/LocationInstanceConnectionService'
 import { AuthState } from '../services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:userPatched' })
@@ -49,14 +50,9 @@ export const userPatched = (user: UserType) => {
   if (selfUser.id.value === patchedUser.id) {
     getMutableState(AuthState).merge({ user: patchedUser })
     const currentInstanceId = patchedUser.instanceAttendance?.find((attendance) => !attendance.isChannel)
-      ?.instanceId as UserID
+      ?.instanceId as InstanceID
     if (worldHostID && currentInstanceId && worldHostID !== currentInstanceId) {
-      dispatchAction(
-        LocationInstanceConnectionAction.changeActiveConnectionHostId({
-          currentInstanceId: worldHostID,
-          newInstanceId: currentInstanceId
-        })
-      )
+      LocationInstanceConnectionService.changeActiveConnectionID(worldHostID, currentInstanceId)
     }
   }
 }

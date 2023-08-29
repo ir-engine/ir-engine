@@ -131,8 +131,12 @@ export const startMediaRecordingPair = async (
   const videoPortRtcp = startPort + 3
 
   if (tracks.video) {
-    const routers = network.routers[tracks.video.channelId]
-    const transportPromise = createTransport(routers[0], videoPort, videoPortRtcp, tracks.video.producerId)
+    const transportPromise = createTransport(
+      network.transport.routers[0],
+      videoPort,
+      videoPortRtcp,
+      tracks.video.producerId
+    )
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
       tracks.videoTransport = transport
@@ -141,8 +145,12 @@ export const startMediaRecordingPair = async (
   }
 
   if (tracks.audio) {
-    const routers = network.routers[tracks.audio.channelId]
-    const transportPromise = createTransport(routers[0], audioPort, audioPortRtcp, tracks.audio.producerId)
+    const transportPromise = createTransport(
+      network.transport.routers[0],
+      audioPort,
+      audioPortRtcp,
+      tracks.audio.producerId
+    )
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
       tracks.audioTransport = transport
@@ -204,7 +212,7 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
   const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>
 
   for (const [peerID, dataChannels] of Object.entries(schema)) {
-    const peer = network.peers.get(peerID as PeerID)!
+    const peer = network.peers[peerID as PeerID]!
     const peerMedia = Object.entries(peer.media!).filter(([type]) => dataChannels.includes(type as DataChannelType))
 
     if (peerMedia.length) {
