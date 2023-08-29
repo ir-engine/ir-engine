@@ -535,7 +535,14 @@ export default function HierarchyPanel({
         )}
         <Button
           variant="contained"
-          className={styles.addEntityButton}
+          // TODO see why we have to specify capitalize here
+          style={{
+            textTransform: 'capitalize',
+            margin: '5px auto',
+            width: 'auto',
+            fontSize: '12px',
+            lineHeight: '0.5'
+          }}
           onClick={() => EditorControlFunctions.createObjectFromSceneElement('VisibleComponent')}
         >
           {t('editor:hierarchy.lbl-addEntity')}
