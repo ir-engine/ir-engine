@@ -42,6 +42,7 @@ import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordi
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
+import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import {
   MotionCaptureFunctions,
@@ -60,7 +61,10 @@ import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { FACEMESH_TESSELATION, HAND_CONNECTIONS, Holistic, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
-import Toolbar from '../../components/tailwind/Toolbar'
+import Toolbar from '../../components/tailwind/mocap/Toolbar'
+
+import { VideoPlayer } from '@videojs-player/react'
+import 'video.js/dist/video-js.css'
 
 /**
  * Start playback of a recording
@@ -108,33 +112,10 @@ const sendResults = (results: MotionCaptureStream) => {
   }
 }
 
-const CaptureDashboard = () => {
-  const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
-  const captureSettings = captureState?.nested('settings')?.value
-  const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
-  const trackingSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
-  const debugSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'debug')[0]
-
-  const isDetecting = useHookstate(false)
-  const [detectingStatus, setDetectingStatus] = useState('inactive')
-
-  const holisticDetector = useHookstate(null as null | Holistic)
-
-  const processingFrame = useHookstate(false)
-
+const useResizableCanvas = () => {
   const videoRef = useRef<HTMLVideoElement>()
   const canvasRef = useRef<HTMLCanvasElement>()
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
-
-  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
-  const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
-
-  const mediaNetworkState = useMediaNetwork()
-  const recordingState = useHookstate(getMutableState(RecordingState))
-
-  const videoActive = videoStream.value && !videoPaused.value
-
-  const throttledSend = throttle(sendResults, 1)
 
   const resizeCanvas = () => {
     if (canvasRef.current?.width !== videoRef.current?.clientWidth) {
@@ -157,9 +138,45 @@ const CaptureDashboard = () => {
     }
   }, [])
 
-  useEffect(() => {
-    RecordingFunctions.getRecordings()
-  }, [])
+  return {
+    videoRef,
+    canvasRef,
+    canvasCtxRef,
+    resizeCanvas
+  }
+}
+
+const useVideoStatus = () => {
+  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+  const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
+  const videoActive = !!videoStream.value && !videoPaused.value
+  const mediaNetworkState = useMediaNetwork()
+  if (!mediaNetworkState?.connected?.value) return 'loading'
+  if (!videoActive) return 'ready'
+  return 'active'
+}
+
+const RecordingMode = () => {
+  const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
+  const captureSettings = captureState?.nested('settings')?.value
+  const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
+  const trackingSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
+  const debugSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'debug')[0]
+
+  const mediaNetworkState = useMediaNetwork()
+
+  const isDetecting = useHookstate(false)
+  const [detectingStatus, setDetectingStatus] = useState<'loading' | 'active' | 'inactive'>('inactive')
+
+  const holisticDetector = useHookstate(null as null | Holistic)
+
+  const processingFrame = useHookstate(false)
+
+  const videoStatus = useVideoStatus()
+
+  const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableCanvas()
+
+  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
   useEffect(() => {
     const factor = displaySettings.flipVideo === true ? '-1' : '1'
@@ -172,6 +189,20 @@ const CaptureDashboard = () => {
     videoRef.current!.srcObject = videoStream.value
     resizeCanvas()
   }, [videoStream])
+
+  const throttledSend = throttle(sendResults, 1)
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
+    // if (processingFrame.value) return
+
+    if (holisticDetector.value) {
+      // processingFrame.set(true)
+      holisticDetector.value?.send({ image: videoRef.current! }).finally(() => {
+        // processingFrame.set(false)
+      })
+    }
+  })
 
   useEffect(() => {
     if (!isDetecting?.value) return
@@ -199,7 +230,7 @@ const CaptureDashboard = () => {
       }
     }
 
-    processingFrame.set(false)
+    // processingFrame.set(false)
 
     if (holisticDetector.value) {
       holisticDetector.value.onResults((results: MotionCaptureStream) => {
@@ -214,7 +245,7 @@ const CaptureDashboard = () => {
           sendResults(results)
         }
 
-        processingFrame.set(false)
+        // processingFrame.set(false)
 
         if (displaySettings?.show2dSkeleton) {
           if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
@@ -293,28 +324,108 @@ const CaptureDashboard = () => {
     }
   }, [isDetecting])
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
-    resizeCanvas()
+  return (
+    <>
+      <div className="absolute w-full h-full top-0 left-0 flex items-center" style={{ backgroundColor: '#000000' }}>
+        <Video
+          ref={videoRef}
+          className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+        />
+      </div>
+      <div
+        className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
+        style={{ objectFit: 'contain', top: '0px' }}
+      >
+        <Canvas ref={canvasRef} />
+      </div>
+      <button
+        onClick={() => {
+          if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
+        }}
+        className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
+      >
+        {videoStatus === 'ready' && <h1>Enable Camera</h1>}
+        {videoStatus === 'loading' && <h1>Loading...</h1>}
+      </button>
+    </>
+  )
+}
 
-    if (processingFrame.value) return
+const PlaybackMode = () => {
+  const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
+  const captureSettings = captureState?.nested('settings')?.value
+  const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
 
-    if (holisticDetector.value) {
-      processingFrame.set(true)
-      holisticDetector.value?.send({ image: videoRef.current! }).finally(() => {
-        processingFrame.set(false)
-      })
-    }
-  })
+  const recordingID = useHookstate(getMutableState(RecordingState).playback)
+
+  const recording = useGet('recording', recordingID.value!)
+  console.log({ recording })
+
+  const { videoRef, canvasRef, canvasCtxRef } = useResizableCanvas()
+
+  useEffect(() => {}, [])
+
+  useEffect(() => {
+    if (!recording.data || !videoRef.current) return
+    const res = recording.data.resources[0]
+    if (!res) return
+    // videoRef.current.src = res.url
+    // videoRef.current.play()
+  }, [videoRef.current, recording])
+
+  const src = recording.data?.resources?.[0]?.url
+
+  return (
+    <>
+      <div className="absolute w-full h-full top-0 left-0 flex items-center" style={{ backgroundColor: '#000000' }}>
+        {/* <Video
+          ref={videoRef}
+          className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+        /> */}
+
+        {src && (
+          <VideoPlayer
+            src={src}
+            liveui={false}
+            crossorigin="anonymous"
+            autoplay={true}
+            // poster="/your-path/poster.jpg"
+            controls
+            fluid={true}
+            playbackRates={[0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]}
+            disablePictureInPicture={true}
+            volume={0.0}
+          />
+        )}
+      </div>
+      <div
+        className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
+        style={{ objectFit: 'contain', top: '0px' }}
+      >
+        <Canvas ref={canvasRef} />
+      </div>
+    </>
+  )
+}
+
+const CaptureDashboard = () => {
+  const mode = useHookstate<'playback' | 'capture'>('capture')
+  const recordingID = useHookstate(getMutableState(RecordingState).recordingID)
+  const playback = useHookstate(getMutableState(RecordingState).playback)
+  const started = useHookstate(getMutableState(RecordingState).started)
+
+  useEffect(() => {
+    RecordingFunctions.getRecordings()
+  }, [])
 
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {
-    if (recordingState.recordingID.value) {
+    if (recordingID.value) {
       ECSRecordingFunctions.stopRecording({
-        recordingID: recordingState.recordingID.value
+        recordingID: recordingID.value
       })
       RecordingFunctions.getRecordings()
-    } else if (!recordingState.started.value) {
+    } else if (!started.value) {
       RecordingFunctions.startRecording({
         user: { Avatar: true },
         peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
@@ -324,78 +435,52 @@ const CaptureDashboard = () => {
     }
   }
 
-  const getVideoStatus = () => {
-    if (!mediaNetworkState?.connected?.value) return 'loading'
-    if (!videoActive) return 'ready'
-    return 'active'
-  }
-  const videoStatus = getVideoStatus()
+  const videoStatus = useVideoStatus()
 
   const getRecordingStatus = () => {
-    if (!recordingState.recordingID.value && !isDetecting.value) return 'inactive'
-    if (recordingState.started.value) return 'active'
+    if (!recordingID.value) return 'inactive'
+    if (playback.value) return 'active'
     return 'ready'
   }
   const recordingStatus = getRecordingStatus()
 
   return (
-    <div className="w-full container mx-auto">
+    <div className="w-full container mx-auto max-w-[1024px] overflow-hidden">
       <Drawer settings={<div></div>}>
-        <Header />
+        <Header mode={mode} />
         <div className="w-full container mx-auto pointer-events-auto">
           <div className="w-full h-auto px-2">
             <div className="w-full h-auto relative aspect-video overflow-hidden">
-              <div
-                className="absolute w-full h-full top-0 left-0 flex items-center"
-                style={{ backgroundColor: '#000000' }}
-              >
-                <Video
-                  ref={videoRef}
-                  className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
-                />
-              </div>
-              <div
-                className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
-                style={{ objectFit: 'contain', top: '0px' }}
-              >
-                <Canvas ref={canvasRef} />
-              </div>
-              {videoStatus !== 'active' ? (
-                <button
-                  onClick={() => {
-                    if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
-                  }}
-                  className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
-                >
-                  <h1>{mediaNetworkState?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
-                </button>
-              ) : null}
+              {mode.value === 'playback' ? <PlaybackMode /> : <RecordingMode />}
             </div>
           </div>
-          <div className="w-full container mx-auto">
-            <Toolbar
-              className="w-full"
-              videoStatus={videoStatus}
-              detectingStatus={detectingStatus}
-              onToggleRecording={onToggleRecording}
-              toggleWebcam={toggleWebcamPaused}
-              toggleDetecting={() => isDetecting.set((v) => !v)}
-              isRecording={recordingState?.started?.value}
-              recordingStatus={recordingStatus}
-              cycleCamera={MediaStreamService.cycleCamera}
-            />
-          </div>
-          <div className="w-full container mx-auto">
-            <div className="w-full relative">
-              <RecordingsList
-                {...{
-                  startPlayback,
-                  stopPlayback: ECSRecordingFunctions.stopPlayback,
-                  recordingState
-                }}
+          {mode.value === 'capture' && (
+            <div className="w-full container mx-auto">
+              <Toolbar
+                className="w-full"
+                videoStatus={videoStatus}
+                // detectingStatus={mocap.detectingStatus}
+                onToggleRecording={onToggleRecording}
+                toggleWebcam={toggleWebcamPaused}
+                // toggleDetecting={() => mocap.isDetecting.set((v) => !v)}
+                isRecording={started.value}
+                recordingStatus={recordingStatus}
+                cycleCamera={MediaStreamService.cycleCamera}
               />
             </div>
-          </div>
+          )}
+          {mode.value === 'playback' && (
+            <div className="w-full container mx-auto flex">
+              <div className="w-full relative m-2">
+                <RecordingsList
+                  {...{
+                    startPlayback,
+                    stopPlayback: ECSRecordingFunctions.stopPlayback
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
         <footer className="footer fixed bottom-0">
           <div style={{ display: 'none' }}>

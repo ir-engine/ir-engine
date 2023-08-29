@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 
-const RecordingsList = ({ startPlayback, stopPlayback, recordingState }) => {
+const RecordingsList = ({ startPlayback, stopPlayback }) => {
+  const recordingState = useHookstate(getMutableState(RecordingState))
   return (
     <div className="w-full aspect-video overflow-hidden">
       <table className="table w-full">

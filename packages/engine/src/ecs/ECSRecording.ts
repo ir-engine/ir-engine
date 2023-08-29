@@ -116,39 +116,39 @@ export const ECSRecordingFunctions = {
 
 export class ECSRecordingActions {
   static startRecording = defineAction({
-    type: 'ee.core.motioncapture.START_RECORDING' as const,
+    type: 'ee.core.recording.START_RECORDING' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>
   })
 
   static recordingStarted = defineAction({
-    type: 'ee.core.motioncapture.RECORDING_STARTED' as const,
+    type: 'ee.core.recording.RECORDING_STARTED' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>
   })
 
   static stopRecording = defineAction({
-    type: 'ee.core.motioncapture.STOP_RECORDING' as const,
+    type: 'ee.core.recording.STOP_RECORDING' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>
   })
 
   static startPlayback = defineAction({
-    type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
+    type: 'ee.core.recording.PLAY_RECORDING' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>,
     targetUser: matchesUserId.optional()
   })
 
   static playbackChanged = defineAction({
-    type: 'ee.core.motioncapture.PLAYBACK_CHANGED' as const,
+    type: 'ee.core.recording.PLAYBACK_CHANGED' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>,
     playing: matches.boolean
   })
 
   static stopPlayback = defineAction({
-    type: 'ee.core.motioncapture.STOP_PLAYBACK' as const,
+    type: 'ee.core.recording.STOP_PLAYBACK' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>
   })
 
   static error = defineAction({
-    type: 'ee.core.motioncapture.ERROR' as const,
+    type: 'ee.core.recording.ERROR' as const,
     error: matches.string
   })
 }

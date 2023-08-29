@@ -30,9 +30,9 @@ import { twMerge } from 'tailwind-merge'
 
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import CaptureSettings from '../../../components/tailwind/Settings'
-import Button from '../../../primitives/tailwind/Button'
-import Modal from '../../../primitives/tailwind/Modal'
+import Button from '../../../../primitives/tailwind/Button'
+import Modal from '../../../../primitives/tailwind/Modal'
+import CaptureSettings from '../../Settings'
 
 /**
  * Props for Toolbar component
