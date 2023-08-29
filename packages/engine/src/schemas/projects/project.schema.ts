@@ -111,7 +111,17 @@ export const projectQuerySchema = Type.Intersect(
   [
     querySyntax(projectQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        sourceURL: Type.Optional(Type.String()),
+        destinationURL: Type.Optional(Type.String()),
+        exisitingProject: Type.Optional(Type.String()),
+        inputProjectURL: Type.Optional(Type.String()),
+        branchName: Type.Optional(Type.String()),
+        selectedSHA: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )
