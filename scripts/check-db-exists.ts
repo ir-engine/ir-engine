@@ -74,6 +74,7 @@ cli.main(async () => {
       initProcess.once('error', resolve)
       initProcess.once('disconnect', resolve)
       initProcess.stdout.on('data', (data) => console.log(data.toString()))
+      initProcess.stderr.on('data', (data) => console.error(data.toString()))
     }).then(console.log)
 
     await Promise.race([

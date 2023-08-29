@@ -28,6 +28,7 @@ import { defineAction, defineState, getState, none, receiveActions } from '@ethe
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InstanceID } from '../../schemas/networking/instance.schema'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({
@@ -101,7 +102,7 @@ export const MediasoupDataProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.DataProducerConsumerState',
 
   initial: {} as Record<
-    string, // NetworkID
+    InstanceID,
     {
       producers: {
         [producerID: string]: {
@@ -125,7 +126,7 @@ export const MediasoupDataProducerConsumerState = defineState({
     }
   >,
 
-  getProducerByPeer: (networkID: string, peerID: string) => {
+  getProducerByPeer: (networkID: InstanceID, peerID: string) => {
     const state = getState(MediasoupDataProducerConsumerState)[networkID]
     if (!state) return
 
@@ -135,7 +136,7 @@ export const MediasoupDataProducerConsumerState = defineState({
     return getState(MediasoupDataProducersConsumersObjectsState).producers[producer.producerID]
   },
 
-  getProducerByDataChannel: (networkID: string, dataChannel: DataChannelType) => {
+  getProducerByDataChannel: (networkID: InstanceID, dataChannel: DataChannelType) => {
     const state = getState(MediasoupDataProducerConsumerState)[networkID]
     if (!state) return
 

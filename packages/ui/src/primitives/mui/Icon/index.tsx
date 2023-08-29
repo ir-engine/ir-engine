@@ -137,6 +137,7 @@ import {
   Send,
   Settings,
   Shuffle,
+  SmartToy,
   SportsScore,
   SquareFoot,
   StopCircle,
@@ -448,6 +449,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Timeline {...props} />
     case 'Toys':
       return <Toys {...props} />
+    case 'SmartToy':
+      return <SmartToy {...props} />
     case 'Phone':
       return <Phone {...props} />
     case 'FlipCameraAndroid':

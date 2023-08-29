@@ -37,7 +37,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { none, useHookstate } from '@hookstate/core'
 import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
@@ -143,7 +143,7 @@ const execute = () => {
   }
 }
 
-export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
+export const DataChannel = (props: { networkID: InstanceID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
   const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
@@ -164,7 +164,7 @@ export const DataChannel = (props: { networkID: UserID; dataChannelType: DataCha
   return null
 }
 
-const NetworkReactor = (props: { networkID: UserID }) => {
+const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const dataChannelRegistry = useHookstate(getMutableState(DataChannelRegistryState))
   return (
@@ -182,8 +182,8 @@ export const DataChannels = () => {
     .map(([networkID, network]) => networkID)
   return (
     <>
-      {networkIDs.map((hostId: UserID) => (
-        <NetworkReactor key={hostId} networkID={hostId} />
+      {networkIDs.map((id: InstanceID) => (
+        <NetworkReactor key={id} networkID={id} />
       ))}
     </>
   )

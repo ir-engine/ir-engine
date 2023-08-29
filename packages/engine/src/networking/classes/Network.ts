@@ -29,6 +29,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkPeer } from '../interfaces/NetworkPeer'
 
 /**
@@ -53,8 +54,8 @@ export interface JitterBufferEntry {
 
 /** Interface for the Transport. */
 export const createNetwork = <Ext>(
-  id: string,
-  hostId: UserID,
+  id: InstanceID,
+  hostId: UserID, // TODO make PeerID, derive user from UserID
   topic: Topic,
   transport = {
     messageToPeer: (peerId: PeerID, data: any) => {},
@@ -66,13 +67,13 @@ export const createNetwork = <Ext>(
   addOutgoingTopicIfNecessary(topic)
   const network = {
     /** Connected peers */
-    peers: new Map() as Map<PeerID, NetworkPeer>,
+    peers: {} as Record<PeerID, NetworkPeer>,
 
     /** Map of numerical peer index to peer IDs */
-    peerIndexToPeerID: new Map<number, PeerID>(),
+    peerIndexToPeerID: {} as Record<number, PeerID>,
 
     /** Map of peer IDs to numerical peer index */
-    peerIDToPeerIndex: new Map<PeerID, number>(),
+    peerIDToPeerIndex: {} as Record<PeerID, number>,
 
     /**
      * The index to increment when a new peer connects
@@ -81,17 +82,17 @@ export const createNetwork = <Ext>(
     peerIndexCount: 0,
 
     /** Connected users */
-    users: new Map() as Map<UserID, PeerID[]>,
+    users: {} as Record<UserID, PeerID[]>,
 
     /** Map of numerical user index to user client IDs */
-    userIndexToUserID: new Map<number, UserID>(),
+    userIndexToUserID: {} as Record<number, UserID>,
 
     /** Map of user client IDs to numerical user index */
-    userIDToUserIndex: new Map<UserID, number>(),
+    userIDToUserIndex: {} as Record<UserID, number>,
 
     /** Gets the host peer */
     get hostPeerID() {
-      const hostPeers = network.users.get(network.hostId)
+      const hostPeers = network.users[network.id]
       if (!hostPeers) return undefined!
       return hostPeers[0]
     },
@@ -106,6 +107,7 @@ export const createNetwork = <Ext>(
      * The UserID of the host
      * - will either be a user's UserID, or an instance server's InstanceId
      * @todo rename to hostUserID to differentiate better from hostPeerID
+     * @todo change from UserID to PeerID and change "get hostPeerID()" to "get hostUserID()"
      */
     hostId,
 

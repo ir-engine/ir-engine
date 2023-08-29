@@ -216,7 +216,7 @@ export const readEntity = (
   const ownerIndex = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  const ownerId = network.userIndexToUserID.get(ownerIndex)!
+  const ownerId = network.userIndexToUserID[ownerIndex]!
 
   let entity = NetworkObjectComponent.getNetworkObject(ownerId, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
@@ -249,8 +249,8 @@ export const readMetadata = (v: ViewCursor) => {
 export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBufferTaskList: JitterBufferEntry[]) => {
   const view = createViewCursor(packet)
   const { userIndex, peerIndex, simulationTime } = readMetadata(view)
-  const fromUserID = network.userIndexToUserID.get(userIndex)
-  const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
+  const fromUserID = network.userIndexToUserID[userIndex]
+  const fromPeerID = network.peerIndexToPeerID[peerIndex]
   const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
   if (!fromUserID || isLoopback) return
   jitterBufferTaskList.push({
