@@ -48,6 +48,17 @@ export async function up(knex: Knex): Promise<void> {
   }
 
   tableExists = await trx.schema.hasTable(projectPermissionPath)
+
+  if (tableExists) {
+    const hasIdColum = await trx.schema.hasColumn(projectPermissionPath, 'id')
+    const hasProjectIdColumn = await trx.schema.hasColumn(projectPermissionPath, 'projectId')
+    const hasUserIdColumn = await trx.schema.hasColumn(projectPermissionPath, 'userId')
+    if (!(hasIdColum && hasProjectIdColumn && hasUserIdColumn)) {
+      await trx.schema.dropTable(projectPermissionPath)
+      tableExists = false
+    }
+  }
+
   if (!tableExists && !oldNamedTableExists) {
     await trx.schema.createTable(projectPermissionPath, (table) => {
       //@ts-ignore
