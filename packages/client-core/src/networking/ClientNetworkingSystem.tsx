@@ -45,7 +45,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import {
@@ -78,7 +78,7 @@ const execute = () => {
   }
 }
 
-const NetworkConnectionReactor = (props: { networkID: UserID }) => {
+const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
   const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
@@ -106,8 +106,8 @@ const reactor = () => {
 
   return (
     <>
-      {networkIDs.map((hostId: UserID) => (
-        <NetworkConnectionReactor key={hostId} networkID={hostId} />
+      {networkIDs.map((id: InstanceID) => (
+        <NetworkConnectionReactor key={id} networkID={id} />
       ))}
       <PeerMediaConsumers />
       <InstanceProvisioning />

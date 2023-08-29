@@ -29,6 +29,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
+import { InstanceID } from './instance.schema'
 
 export const instanceAuthorizedUserPath = 'instance-authorized-user'
 
@@ -43,7 +44,7 @@ export const instanceAuthorizedUserSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
-    instanceId: Type.String({
+    instanceId: TypedString<InstanceID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),

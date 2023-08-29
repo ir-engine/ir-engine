@@ -40,7 +40,7 @@ import {
   MediasoupMediaProducerConsumerState,
   MediasoupMediaProducersConsumersObjectsState
 } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {
@@ -53,7 +53,7 @@ import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunct
 /**
  * Sets media stream state for a peer
  */
-const PeerMedia = (props: { consumerID: string; networkID: UserID }) => {
+const PeerMedia = (props: { consumerID: string; networkID: InstanceID }) => {
   const consumerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[props.networkID].consumers[props.consumerID]
   )
@@ -134,7 +134,7 @@ const SelfMedia = () => {
   return null
 }
 
-export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
+export const NetworkProducer = (props: { networkID: InstanceID; producerID: string }) => {
   const { networkID, producerID } = props
   const producerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
@@ -161,7 +161,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
   return null
 }
 
-const NetworkConsumers = (props: { networkID: UserID }) => {
+const NetworkConsumers = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const consumers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers)
   const producers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers)
@@ -215,8 +215,8 @@ export const PeerMediaConsumers = () => {
     <>
       <PeerMediaChannels />
       {selfPeerMediaChannelState.value && <SelfMedia key={'SelfMedia'} />}
-      {networkIDs.keys.map((hostId: UserID) => (
-        <NetworkConsumers key={hostId} networkID={hostId} />
+      {networkIDs.keys.map((id: InstanceID) => (
+        <NetworkConsumers key={id} networkID={id} />
       ))}
     </>
   )

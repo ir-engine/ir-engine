@@ -61,7 +61,7 @@ export const updateNearbyAvatars = () => {
   FilteredUsersService.updateNearbyLayerUsers()
 
   const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
+  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   if (!currentChannelInstanceConnection) return
 
   const filteredUsersState = getState(FilteredUsersState)

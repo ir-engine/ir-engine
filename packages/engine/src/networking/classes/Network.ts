@@ -29,6 +29,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { InstanceID } from '../../schemas/networking/instance.schema'
 import { NetworkPeer } from '../interfaces/NetworkPeer'
 
 /**
@@ -53,8 +54,8 @@ export interface JitterBufferEntry {
 
 /** Interface for the Transport. */
 export const createNetwork = <Ext>(
-  id: string,
-  hostId: UserID,
+  id: InstanceID,
+  hostId: UserID, // TODO make PeerID, derive user from UserID
   topic: Topic,
   transport = {
     messageToPeer: (peerId: PeerID, data: any) => {},
@@ -91,7 +92,7 @@ export const createNetwork = <Ext>(
 
     /** Gets the host peer */
     get hostPeerID() {
-      const hostPeers = network.users[network.hostId]
+      const hostPeers = network.users[network.id]
       if (!hostPeers) return undefined!
       return hostPeers[0]
     },
@@ -106,6 +107,7 @@ export const createNetwork = <Ext>(
      * The UserID of the host
      * - will either be a user's UserID, or an instance server's InstanceId
      * @todo rename to hostUserID to differentiate better from hostPeerID
+     * @todo change from UserID to PeerID and change "get hostPeerID()" to "get hostUserID()"
      */
     hostId,
 

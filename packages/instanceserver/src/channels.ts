@@ -53,6 +53,7 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import {
   identityProviderPath,
   IdentityProviderType
@@ -73,7 +74,7 @@ interface PrimusConnectionType {
   socketQuery?: {
     sceneId: string
     locationId?: string
-    instanceID?: string
+    instanceID?: InstanceID
     channelId?: string
     roomCode?: string
     token: string
@@ -81,7 +82,9 @@ interface PrimusConnectionType {
     transport: string
     t: string
   }
-  instanceId?: string
+  /** @deprecated - @todo refactor */
+  instanceId?: InstanceID
+  /** @deprecated - @todo refactor */
   channelId?: string
 }
 
@@ -235,7 +238,7 @@ const initializeInstance = async (
 const loadEngine = async (app: Application, sceneId: string) => {
   const instanceServerState = getState(InstanceServerState)
 
-  const hostId = instanceServerState.instance.id as UserID
+  const hostId = instanceServerState.instance.id as UserID & InstanceID
   Engine.instance.userID = hostId
   Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
@@ -257,13 +260,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const projects = await getProjectsList()
 
   if (instanceServerState.isMediaInstance) {
-    getMutableState(NetworkState).hostIds.media.set(hostId as UserID)
+    getMutableState(NetworkState).hostIds.media.set(hostId)
     startMediaServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    getMutableState(NetworkState).hostIds.world.set(hostId as UserID)
+    getMutableState(NetworkState).hostIds.world.set(hostId)
 
     const [projectName, sceneName] = sceneId.split('/')
 
@@ -425,7 +428,7 @@ const createOrUpdateInstance = async (
   }
 }
 
-const shutdownServer = async (app: Application, instanceId: string) => {
+const shutdownServer = async (app: Application, instanceId: InstanceID) => {
   const instanceServer = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
@@ -479,7 +482,7 @@ const handleUserDisconnect = async (
   app: Application,
   connection: PrimusConnectionType,
   user: UserType,
-  instanceId: string
+  instanceId: InstanceID
 ) => {
   const instanceServerState = getState(InstanceServerState)
 

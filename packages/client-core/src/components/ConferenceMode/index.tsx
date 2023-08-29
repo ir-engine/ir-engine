@@ -41,9 +41,9 @@ const ConferenceMode = (): JSX.Element => {
   const authState = useHookstate(getMutableState(AuthState))
   const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
   const network = Engine.instance.mediaNetwork
-  const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
+  const currentChannelInstanceConnection = network && channelConnectionState.instances[network.id].ornull
   const displayedUsers =
-    network?.hostId && currentChannelInstanceConnection
+    network?.id && currentChannelInstanceConnection
       ? Object.values(network.peers).filter(
           (peer) => peer.peerID !== 'server' && peer.userId !== authState.user.id.value
         ) || []

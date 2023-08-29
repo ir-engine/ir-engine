@@ -37,6 +37,7 @@ import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { InstanceID } from '../../schemas/networking/instance.schema'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
@@ -157,7 +158,7 @@ describe('NetworkPeerFunctions', () => {
     })
 
     it('should remove peer and owned network objects', () => {
-      const userId = 'world' as UserID
+      const userId = 'world' as UserID & InstanceID
       const peerID = 'peer id' as PeerID
       Engine.instance.userID = 'another user id' as UserID
       Engine.instance.peerID = 'another peer id' as PeerID

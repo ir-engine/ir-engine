@@ -44,7 +44,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Groups } from '@mui/icons-material'
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
 import { connectToNetwork } from '../transports/SocketWebRTCClientFunctions'
@@ -129,14 +129,14 @@ export const WorldInstanceProvisioning = () => {
 
   return (
     <>
-      {locationInstance.instances.keys.map((instanceId: UserID) => (
+      {locationInstance.instances.keys.map((instanceId: InstanceID) => (
         <WorldInstance key={instanceId} id={instanceId} />
       ))}
     </>
   )
 }
 
-export const WorldInstance = ({ id }: { id: UserID }) => {
+export const WorldInstance = ({ id }: { id: InstanceID }) => {
   const worldInstance = useHookstate(getMutableState(LocationInstanceState).instances[id])
 
   useEffect(() => {
@@ -156,7 +156,7 @@ export const WorldInstance = ({ id }: { id: UserID }) => {
 export const MediaInstanceProvisioning = () => {
   const channelState = useHookstate(getMutableState(ChannelState))
 
-  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
+  const worldNetworkId = Engine.instance.worldNetwork?.id
   const worldNetwork = useWorldNetwork()
 
   MediaInstanceConnectionService.useAPIListeners()
@@ -168,7 +168,7 @@ export const MediaInstanceProvisioning = () => {
     if (channelState.channels.channels?.value.length) {
       const currentChannel =
         channelState.targetChannelId.value === ''
-          ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkHostId)?.id
+          ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkId)?.id
           : channelState.targetChannelId.value
       if (currentChannel) MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
@@ -181,14 +181,14 @@ export const MediaInstanceProvisioning = () => {
 
   return (
     <>
-      {mediaInstance.instances.keys.map((instanceId: UserID) => (
+      {mediaInstance.instances.keys.map((instanceId: InstanceID) => (
         <MediaInstance key={instanceId} id={instanceId} />
       ))}
     </>
   )
 }
 
-export const MediaInstance = ({ id }: { id: UserID }) => {
+export const MediaInstance = ({ id }: { id: InstanceID }) => {
   const worldInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
 
   useEffect(() => {
