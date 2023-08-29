@@ -43,7 +43,7 @@ import {
   MediasoupTransportActions,
   MediasoupTransportStateSystem
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import {
@@ -98,7 +98,7 @@ const execute = () => {
   }
 }
 
-export const DataChannel = (props: { networkID: UserID; dataChannelType: DataChannelType }) => {
+export const DataChannel = (props: { networkID: InstanceID; dataChannelType: DataChannelType }) => {
   const { networkID, dataChannelType } = props
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export const DataChannel = (props: { networkID: UserID; dataChannelType: DataCha
   return null
 }
 
-const NetworkReactor = (props: { networkID: UserID }) => {
+const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const dataChannelRegistry = useHookstate(getMutableState(DataChannelRegistryState))
   return (
@@ -131,8 +131,8 @@ export const reactor = () => {
     .map(([networkID, network]) => networkID)
   return (
     <>
-      {networkIDs.map((hostId: UserID) => (
-        <NetworkReactor key={hostId} networkID={hostId} />
+      {networkIDs.map((id: InstanceID) => (
+        <NetworkReactor key={id} networkID={id} />
       ))}
     </>
   )

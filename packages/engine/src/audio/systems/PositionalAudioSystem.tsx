@@ -92,7 +92,7 @@ const execute = () => {
     if (!network) continue
     const networkObject = getComponent(entity, NetworkObjectComponent)
     const ownerID = networkObject.ownerId
-    const peers = Array.from(network.peers.values()).filter((peer) => peer.userId === ownerID)
+    const peers = Object.values(network.peers).filter((peer) => peer.userId === ownerID)
     const consumers = getState(MediasoupMediaProducerConsumerState)[network.id]?.consumers
 
     if (!consumers) continue

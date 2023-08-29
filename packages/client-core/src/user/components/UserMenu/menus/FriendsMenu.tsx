@@ -164,8 +164,8 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
       .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'blocking' as const }))
     displayList.push(...blockingList)
   } else if (selectedTab.value === 'find') {
-    const layerPeers = Engine.instance.worldNetworkState?.peers
-      ? Array.from(Engine.instance.worldNetworkState.peers.get({ noproxy: true }).values()).filter(
+    const layerPeers = Engine.instance.worldNetwork
+      ? Object.values(Engine.instance.worldNetwork.peers).filter(
           (peer) =>
             peer.peerID !== 'server' &&
             peer.userId !== userId &&

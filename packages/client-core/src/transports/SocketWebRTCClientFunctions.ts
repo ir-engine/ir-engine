@@ -90,6 +90,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -138,7 +139,7 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
   })
 }
 
-const handleFailedConnection = (topic: Topic, instanceID: UserID) => {
+const handleFailedConnection = (topic: Topic, instanceID: InstanceID) => {
   console.log('handleFailedConnection', topic, instanceID)
   if (topic === NetworkTopics.world) {
     const locationInstanceConnectionState = getMutableState(LocationInstanceState)
@@ -167,7 +168,7 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   networkState.transport.primus.set(null!)
 }
 
-export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
+export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) => {
   const mediasoupDevice = new mediasoupClient.Device(
     getMutableState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
   )
@@ -207,7 +208,7 @@ export const initializeNetwork = (id: string, hostId: UserID, topic: Topic) => {
 export type SocketWebRTCClientNetwork = ReturnType<typeof initializeNetwork>
 
 export const connectToNetwork = async (
-  instanceID: UserID,
+  instanceID: InstanceID,
   ipAddress: string,
   port: string,
   locationId?: string | null,
@@ -224,7 +225,7 @@ export const connectToNetwork = async (
     roomCode,
     token
   } as {
-    instanceID: string
+    instanceID: InstanceID
     locationId?: string
     channelId?: ChannelID
     roomCode?: string
@@ -267,7 +268,7 @@ export const connectToNetwork = async (
   const onConnect = () => {
     const topic = locationId ? NetworkTopics.world : NetworkTopics.media
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
-    const network = initializeNetwork(instanceID, instanceID, topic)
+    const network = initializeNetwork(instanceID, instanceID as any, topic)
     addNetwork(network)
 
     const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCClientNetwork>
@@ -296,7 +297,7 @@ export const connectToNetwork = async (
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = getState(MediaInstanceState)
   const mediaNetwork = Engine.instance.mediaNetwork
-  const currentChannelInstanceConnection = mediaNetwork && channelConnectionState.instances[mediaNetwork.hostId]
+  const currentChannelInstanceConnection = mediaNetwork && channelConnectionState.instances[mediaNetwork.id]
   const isWorldConnection = network.topic === NetworkTopics.world
   return isWorldConnection ? null : currentChannelInstanceConnection?.channelId
 }
@@ -708,7 +709,7 @@ export async function configureMediaTransports(mediaTypes: string[]): Promise<bo
 
 export async function createCamVideoProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
+  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
   const mediaStreamState = getMutableState(MediaStreamState)
   if (mediaStreamState.videoStream.value !== null) {
@@ -749,7 +750,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
 
 export async function createCamAudioProducer(network: SocketWebRTCClientNetwork): Promise<void> {
   const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
+  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
   const mediaStreamState = getMutableState(MediaStreamState)
   if (mediaStreamState.audioStream.value !== null) {
@@ -816,7 +817,7 @@ export async function subscribeToTrack(
 
   const selfProducerIds = [mediaStreamState.camVideoProducer?.id, mediaStreamState.camAudioProducer?.id]
   const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
+  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
 
   const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
     network.id,
@@ -1113,7 +1114,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   )
 
   const channelConnectionState = getState(MediaInstanceState)
-  const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
+  const currentChannelInstanceConnection = channelConnectionState.instances[network.id]
   const channelId = currentChannelInstanceConnection.channelId
 
   await waitForTransports(network)
