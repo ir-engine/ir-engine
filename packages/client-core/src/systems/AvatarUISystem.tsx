@@ -220,7 +220,7 @@ const execute = () => {
     if (mediaNetwork)
       if (immersiveMedia && videoPreviewTimer === 0) {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-        const peers = mediaNetwork.peers ? Array.from(mediaNetwork.peers.values()) : []
+        const peers = mediaNetwork.peers ? Object.values(mediaNetwork.peers) : []
         const peer = peers.find((peer) => {
           return peer.userId === ownerId
         })
