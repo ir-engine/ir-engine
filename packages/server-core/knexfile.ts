@@ -43,7 +43,20 @@ const parseDirectory = (directoryPath: string) => {
   }
 }
 
-parseDirectory('./src')
+const currentDirectory = process.cwd()
+const currentFolderName = path.basename(path.resolve(process.cwd())) // https://stackoverflow.com/a/53295230/2077741
+
+let serverCoreSrc = '../server-core/src'
+
+if (currentFolderName === 'server-core') {
+  serverCoreSrc = './src'
+} else if (currentDirectory.includes('projects/projects')) {
+  serverCoreSrc = '../../../server-core/src'
+} else if (currentFolderName === 'etherealengine') {
+  serverCoreSrc = './packages/server-core/src'
+}
+
+parseDirectory(serverCoreSrc)
 
 const projectsDirectory = '../projects/projects'
 const projectsExists = fs.existsSync(projectsDirectory)
