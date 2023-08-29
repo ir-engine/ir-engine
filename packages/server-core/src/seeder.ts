@@ -27,11 +27,12 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../declarations'
-import config from './appconfig'
-import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project.class'
-import { knexSeeds, sequelizeSeeds } from './seeder-config'
 import multiLogger from './ServerLogger'
+import config from './appconfig'
+import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project-helper'
+import { knexSeeds, sequelizeSeeds } from './seeder-config'
 
 const logger = multiLogger.child({ component: 'server-core:seeder' })
 
@@ -82,8 +83,8 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
       if (fs.existsSync(uploadPath)) fs.rmSync(uploadPath, { recursive: true })
     }
     copyDefaultProject()
-    await app.service('project')._seedProject('default-project')
+    await app.service(projectPath)._seedProject('default-project')
     await uploadLocalProjectToProvider(app, 'default-project')
-    if (!config.kubernetes.enabled && !config.testEnabled) await app.service('project')._fetchDevLocalProjects()
+    if (!config.kubernetes.enabled && !config.testEnabled) await app.service(projectPath)._fetchDevLocalProjects()
   }
 }

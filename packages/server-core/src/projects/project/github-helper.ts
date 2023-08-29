@@ -39,6 +39,7 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -254,7 +255,7 @@ export const pushProject = async (
 
 export const pushProjectToGithub = async (
   app: Application,
-  project: ProjectInterface,
+  project: ProjectType,
   user: UserType,
   reset = false,
   commitSHA?: string,
@@ -437,7 +438,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
 
   const githubIdentityProvider = (await app.service(identityProviderPath).find({
     query: {
-      userId: params!.user.id,
+      userId: params!.user!.id,
       type: 'github',
       $limit: 1
     }

@@ -119,7 +119,7 @@ export const projectQuerySchema = Type.Intersect(
       {
         sourceURL: Type.Optional(Type.String()),
         destinationURL: Type.Optional(Type.String()),
-        existingProject: Type.Optional(Type.String()),
+        existingProject: Type.Optional(Type.Boolean()),
         inputProjectURL: Type.Optional(Type.String()),
         branchName: Type.Optional(Type.String()),
         selectedSHA: Type.Optional(Type.String()),

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
 import fs from 'fs'
@@ -34,6 +34,7 @@ import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -59,7 +60,7 @@ import {
   publicECRTagRegex,
   updateBuilder
 } from './project-helper'
-import { Project, ProjectParams, ProjectParamsClient } from './project.class'
+import { ProjectParams, ProjectParamsClient, ProjectService } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
 import createModel from './project.model'
@@ -70,7 +71,7 @@ declare module '@etherealengine/common/declarations' {
     projects: {
       find: () => ReturnType<typeof getProjectsList>
     }
-    project: Project
+    project: ProjectService
     'project-build': {
       find: ReturnType<typeof projectBuildFind>
       patch: ReturnType<typeof projectBuildPatch>
@@ -139,13 +140,14 @@ export const projectCheckSourceDestinationMatchFind = (app: Application) => (par
   return checkProjectDestinationMatch(app, params as ProjectParams)
 }
 
-export const projectGithubPushPatch = (app: Application) => async (id: Id, data: any, params?: UserParams) => {
-  const project = await app.service('project').Model.findOne({
-    where: {
-      id
+export const projectGithubPushPatch = (app: Application) => async (id: string, data: any, params?: UserParams) => {
+  const project = (await app.service(projectPath)._find({
+    query: {
+      id,
+      $limit: 1
     }
-  })
-  return pushProjectToGithub(app, project, params!.user!)
+  })) as Paginated<ProjectType>
+  return pushProjectToGithub(app, project.data[0], params!.user!)
 }
 
 export const projectDestinationCheckGet = (app: Application) => async (url: string, params?: ProjectParamsClient) => {

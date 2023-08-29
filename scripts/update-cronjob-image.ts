@@ -27,10 +27,11 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { getState } from '@etherealengine/hyperflux'
+import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { getCronJobBody } from '@etherealengine/server-core/src/projects/project/project-helper'
-import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,
@@ -62,7 +63,7 @@ cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    const autoUpdateProjects = await app.service('project').find({
+    const autoUpdateProjects = await app.service(projectPath).find({
       query: {
         $or: [
           {

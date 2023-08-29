@@ -58,7 +58,7 @@ import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams, UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { cleanString } from '../../util/cleanString'
 import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
@@ -214,7 +214,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     return super._patch(id, data)
   }
 
-  async patch(id: Id, data: any, params?: UserParams) {
+  async patch(id: NullableId, data: ProjectPatch, params?: ProjectParams) {
     if (data.repositoryPath) {
       const repoPath = data.repositoryPath
       const user = params!.user!
@@ -252,7 +252,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     return super._patch(id, data, params)
   }
 
-  async remove(id: Id, params?: Params) {
+  async remove(id: Id, params?: ProjectParams) {
     if (!id) return
     const { name } = await super._get(id, params)
 

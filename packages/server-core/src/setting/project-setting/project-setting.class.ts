@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -42,7 +43,7 @@ export class ProjectSetting implements ServiceMethods<Data> {
   }
 
   async find(params?: Params): Promise<[{ key: string; value: string }]> {
-    const result = await this.app.service('project').find(params)
+    const result = await this.app.service(projectPath).find(params)
     return result?.data[0]?.settings ? JSON.parse(result.data[0].settings) : []
   }
 

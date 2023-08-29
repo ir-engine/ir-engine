@@ -36,6 +36,7 @@ import {
   cleanStorageProviderURLs,
   parseStorageProviderURLs
 } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
@@ -108,7 +109,7 @@ export class Scene implements ServiceMethods<any> {
   async setup() {}
 
   async find(params?: Params): Promise<{ data: SceneData[] }> {
-    const projects = await this.app.service('project').find(params)
+    const projects = await this.app.service(projectPath).find(params)
 
     const scenes: SceneData[] = []
     for (const project of projects.data) {
@@ -132,7 +133,7 @@ export class Scene implements ServiceMethods<any> {
 
   // @ts-ignore
   async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<{ data: SceneData }> {
-    const project = await this.app.service('project').get(projectName, params)
+    const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
     if (!project?.data) throw new Error(`No project named ${projectName} exists`)
 
     const sceneData = await getSceneData(projectName, sceneName, metadataOnly, params!.provider == null)
@@ -150,7 +151,7 @@ export class Scene implements ServiceMethods<any> {
 
     const storageProvider = getStorageProvider(storageProviderName)
 
-    const project = await this.app.service('project').get(projectName, params)
+    const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
     const projectPath = `projects/${projectName}/`
@@ -204,7 +205,7 @@ export class Scene implements ServiceMethods<any> {
 
     const storageProvider = getStorageProvider(storageProviderName)
 
-    const project = await this.app.service('project').get(projectName, params)
+    const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
     const projectPath = `projects/${projectName}/`
@@ -250,7 +251,7 @@ export class Scene implements ServiceMethods<any> {
 
       const storageProvider = getStorageProvider(storageProviderName)
 
-      const project = await this.app.service('project').get(projectName, params)
+      const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
       if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
       await downloadAssetsFromScene(this.app, projectName, sceneData)
@@ -321,7 +322,7 @@ export class Scene implements ServiceMethods<any> {
 
     const name = cleanString(sceneName)
 
-    const project = await this.app.service('project').get(projectName, params)
+    const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
     for (const ext of sceneAssetFiles) {

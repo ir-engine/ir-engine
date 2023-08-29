@@ -28,7 +28,6 @@ Ethereal Engine. All Rights Reserved.
 import { download } from "@etherealengine/server-core/src/projects/project/downloadProjects";
 import { createDefaultStorageProvider } from "@etherealengine/server-core/src/media/storageprovider/storageprovider";
 import dotenv from 'dotenv';
-import Sequelize from 'sequelize';
 import path from "path";
 import fs from "fs";
 import appRootPath from 'app-root-path'
@@ -36,6 +35,7 @@ import logger from '@etherealengine/server-core/src/ServerLogger'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
+import { projectPath, ProjectType } from "@etherealengine/engine/src/schemas/projects/project.schema";
 
 dotenv.config();
 const db = {
@@ -60,10 +60,10 @@ async function installAllProjects() {
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     logger.info('running installAllProjects')
 
-    const projects = await app.service('project').Model.findAll()
+    const projects = await app.service(projectPath)._find({paginate: false})
     logger.info('found projects %o', projects)
     await Promise.all(projects.map((project) => download(project.name)))
-    await app.service('project').update({ sourceURL: 'default-project' }, null, { isInternal: true, isJob: true })
+    await app.service(projectPath).update({ sourceURL: 'default-project' }, null, { isInternal: true, isJob: true })
     const projectConfig = getProjectConfig('default-project') ?? {}
     if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')
     process.exit(0)

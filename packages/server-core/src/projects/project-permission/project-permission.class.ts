@@ -42,6 +42,7 @@ import {
   ProjectPermissionType
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -141,12 +142,12 @@ export class ProjectPermissionService<
         }
       })
       if (existing.total > 0) return existing.data[0]
-      const project = await this.app.service('project').Model.findOne({
-        where: {
+      const project = (await this.app.service(projectPath)._find({
+        query: {
           id: data.projectId
         }
-      })
-      if (!project) throw new BadRequest('Invalid project ID')
+      })) as Paginated<ProjectType>
+      if (project.total === 0) throw new BadRequest('Invalid project ID')
       const existingPermissionsCount = (await super._find({
         query: {
           projectId: data.projectId

@@ -34,6 +34,7 @@ import {
   ProjectPermissionType,
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -160,7 +161,7 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        project1 = await app.service('project').create(
+        project1 = await app.service(projectPath).create(
           {
             name: newProjectName1
           },

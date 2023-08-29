@@ -31,6 +31,7 @@ import { v4 as uuid } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { Application } from '../../../declarations'
@@ -94,7 +95,7 @@ describe('route.test', () => {
     testProject = `test-project-${uuid()}`
     testRoute = `test-route-${uuid()}`
 
-    await app.service('project').create({ name: testProject }, params)
+    await app.service(projectPath).create({ name: testProject }, params)
     updateXREngineConfigForTest(testProject, testRoute)
 
     const installedRoutes = await app.service('routes-installed').find()

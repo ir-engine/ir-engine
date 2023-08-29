@@ -50,6 +50,7 @@ import fs from 'fs'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   identityProviderPath,
   IdentityProviderType
@@ -125,7 +126,7 @@ export const updateBuilder = async (
   }
 
   if (data.updateProjects) {
-    await Promise.all(data.projectsToUpdate.map((project) => app.service('project').update(project, null, params)))
+    await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update(project, null, params)))
   }
 
   const helmSettingsResult = await app.service(helmSettingPath).find()
@@ -1066,7 +1067,7 @@ export async function getProjectPushJobBody(
   }
 }
 
-export const getCronJobBody = (project: ProjectInterface, image: string): object => {
+export const getCronJobBody = (project: ProjectType, image: string): object => {
   return {
     metadata: {
       name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
@@ -1184,11 +1185,14 @@ export async function getDirectoryArchiveJobBody(
 }
 
 export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
-  const project = await app.service('project').Model.findOne({
-    where: {
-      name: projectName
+  const projectData = (await app.service(projectPath)._find({
+    query: {
+      name: projectName,
+      $limit: 1
     }
-  })
+  })) as Paginated<ProjectType>
+
+  const project = projectData.data[0]
 
   const apiPods = await getPodsData(
     `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
@@ -1237,24 +1241,28 @@ export const removeProjectUpdateJob = async (app: Application, projectName: stri
 
 export const checkProjectAutoUpdate = async (app: Application, projectName: string): Promise<void> => {
   let commitSHA
-  const project = await app.service('project').Model.findOne({
-    where: {
-      name: projectName
+  const projectData = (await app.service(projectPath)._find({
+    query: {
+      name: projectName,
+      $limit: 1
     }
-  })
-  const user = await app.service(userPath).get(project.updateUserId)
+  })) as Paginated<ProjectType>
+
+  const project = projectData.data[0]
+
+  const user = await app.service(userPath).get(project.updateUserId!)
   if (project.updateType === 'tag') {
     const latestTaggedCommit = await getLatestProjectTaggedCommitInBranch(
       app,
-      project.sourceRepo,
+      project.sourceRepo!,
       project.sourceBranch,
       { user }
     )
     if (latestTaggedCommit !== project.commitSHA) commitSHA = latestTaggedCommit
   } else if (project.updateType === 'commit') {
-    const commits = await getProjectCommits(app, project.sourceRepo, {
+    const commits = await getProjectCommits(app, project.sourceRepo!, {
       user,
-      query: { branchName: project.branchName }
+      query: { branchName: project.branchName! }
     })
     if (commits && commits[0].commitSHA !== project.commitSHA) commitSHA = commits[0].commitSHA
   }
@@ -1391,7 +1399,7 @@ export const updateProject = async (
     deleteFolderRecursive(projectDirectory)
   }
 
-  const projectResult = await app.service('project').find({
+  const projectResult = await app.service(projectPath).find({
     query: {
       name: projectName
     }
@@ -1441,7 +1449,7 @@ export const updateProject = async (
   const projectConfig = getProjectConfig(projectName) ?? {}
 
   // when we have successfully re-installed the project, remove the database entry if it already exists
-  const existingProjectResult = await app.service('project')._find({
+  const existingProjectResult = await app.service(projectPath)._find({
     query: {
       name: {
         $like: `%${projectName}%`
@@ -1457,7 +1465,7 @@ export const updateProject = async (
   const { commitSHA, commitDate } = await getCommitSHADate(projectName)
   const returned = !existingProject
     ? // Add to DB
-      await app.service('project')._create(
+      await app.service(projectPath)._create(
         {
           thumbnail: projectConfig.thumbnail,
           name: projectName,
@@ -1473,7 +1481,7 @@ export const updateProject = async (
         },
         params || {}
       )
-    : await app.service('project')._patch(existingProject.id, {
+    : await app.service(projectPath)._patch(existingProject.id, {
         commitSHA,
         commitDate,
         sourceRepo: data.sourceURL,
@@ -1493,7 +1501,7 @@ export const updateProject = async (
   }
 
   if (returned.name !== projectName)
-    await app.service('project')._patch(existingProject.id, {
+    await app.service(projectPath)._patch(existingProject.id, {
       name: projectName
     })
 
@@ -1504,7 +1512,7 @@ export const updateProject = async (
     await git.raw(['lfs', 'fetch', '--all'])
     await git.push('destination', branchName, ['-f', '--tags'])
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-    await app.service('project')._patch(returned.id, {
+    await app.service(projectPath)._patch(returned.id, {
       commitSHA,
       commitDate
     })

@@ -36,6 +36,7 @@ import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
@@ -92,7 +93,7 @@ export const ProjectServiceReceptor = (action) => {
 //Service
 export const ProjectService = {
   fetchProjects: async () => {
-    const projects = await API.instance.client.service('project').find({ paginate: false, query: { allowed: true } })
+    const projects = await API.instance.client.service(projectPath).find({ paginate: false, query: { allowed: true } })
     dispatchAction(ProjectAction.projectsFetched({ projectResult: projects.data }))
     for (let error of projects.errors) {
       NotificationService.dispatchNotify(error.message || JSON.stringify(error), { variant: 'error' })
@@ -101,7 +102,7 @@ export const ProjectService = {
 
   // restricted to admin scope
   createProject: async (name: string) => {
-    const result = await API.instance.client.service('project').create({ name })
+    const result = await API.instance.client.service(projectPath).create({ name })
     logger.info({ result }, 'Create project result')
     dispatchAction(ProjectAction.createdProject({}))
     await ProjectService.fetchProjects()
@@ -119,7 +120,7 @@ export const ProjectService = {
     updateSchedule: string
   ) => {
     const result = await API.instance.client
-      .service('project')
+      .service(projectPath)
       .update({ sourceURL, destinationURL, name, reset, commitSHA, sourceBranch, updateType, updateSchedule })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
@@ -129,7 +130,7 @@ export const ProjectService = {
 
   // restricted to admin scope
   removeProject: async (id: string) => {
-    const result = await API.instance.client.service('project').remove(id)
+    const result = await API.instance.client.service(projectPath).remove(id)
     logger.info({ result }, 'Remove project result')
     await ProjectService.fetchProjects()
   },
@@ -153,7 +154,7 @@ export const ProjectService = {
 
   setRepositoryPath: async (id: string, url: string) => {
     try {
-      await API.instance.client.service('project').patch(id, {
+      await API.instance.client.service(projectPath).patch(id, {
         repositoryPath: url,
         needsRebuild: true
       })
@@ -214,10 +215,10 @@ export const ProjectService = {
         dispatchAction(ProjectAction.patchedProject({ project: params }))
       }
 
-      API.instance.client.service('project').on('patched', projectPatchedListener)
+      API.instance.client.service(projectPath).on('patched', projectPatchedListener)
 
       return () => {
-        API.instance.client.service('project').off('patched', projectPatchedListener)
+        API.instance.client.service(projectPath).off('patched', projectPatchedListener)
       }
     }, [])
   },

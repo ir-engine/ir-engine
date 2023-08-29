@@ -29,6 +29,7 @@ import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -38,7 +39,7 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  */
 export const getProjects = async (): Promise<ProjectInterface[]> => {
   try {
-    const { data } = await API.instance.client.service('project').find({
+    const { data } = await API.instance.client.service(projectPath).find({
       query: { allowed: true }
     })
     return data

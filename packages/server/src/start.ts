@@ -39,6 +39,7 @@ import { StartCorsServer } from '@etherealengine/server-core/src/createCorsServe
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import channels from './channels'
 
 const logger = multiLogger.child({ component: 'server-core:user' })
@@ -55,7 +56,7 @@ export const start = async (): Promise<void> => {
 
   if (!config.kubernetes.enabled && !config.db.forceRefresh && !config.testEnabled) {
     app.isSetup.then(() => {
-      app.service('project')._fetchDevLocalProjects()
+      app.service(projectPath)._fetchDevLocalProjects()
     })
   }
 
