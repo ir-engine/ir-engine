@@ -40,6 +40,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { BotPatch, BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -57,7 +58,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   const state = useHookstate({
     name: '',
     description: '',
-    instance: '',
+    instance: '' as InstanceID,
     location: ''
   })
   const formErrors = useHookstate({
@@ -81,7 +82,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
       state.set({
         name: bot?.name,
         description: bot?.description,
-        instance: bot?.instance?.id || '',
+        instance: bot?.instance?.id || ('' as InstanceID),
         location: bot?.location?.id || ''
       })
     }
@@ -127,18 +128,18 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   useEffect(() => {
     const instanceFilter = data.filter((el) => el.locationId === state.location.value)
     if (instanceFilter.length > 0) {
-      state.merge({ instance: state.instance.value || '' })
+      state.merge({ instance: state.instance.value || ('' as InstanceID) })
       currentInstance.set(instanceFilter)
     } else {
       currentInstance.set([])
-      state.merge({ instance: '' })
+      state.merge({ instance: '' as InstanceID })
     }
   }, [state.location.value, instancesData])
 
   const handleUpdate = () => {
     const data: BotPatch = {
       name: state.name.value,
-      instanceId: state.instance.value || '',
+      instanceId: state.instance.value || ('' as InstanceID),
       userId: user.id.value,
       description: state.description.value,
       locationId: state.location.value
@@ -152,7 +153,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
 
     if (validateForm(state.value, formErrors.value) && bot) {
       updateBot(bot.id, data)
-      state.set({ name: '', description: '', instance: '', location: '' })
+      state.set({ name: '', description: '', instance: '' as InstanceID, location: '' })
       currentInstance.set([])
       onClose()
     } else {
@@ -221,7 +222,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             disableElevation
             type="submit"
             onClick={() => {
-              state.set({ name: '', description: '', instance: '', location: '' })
+              state.set({ name: '', description: '', instance: '' as InstanceID, location: '' })
               formErrors.set({ name: '', description: '', location: '' })
               onClose()
             }}

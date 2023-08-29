@@ -30,6 +30,7 @@ import { KnexAdapter } from '@feathersjs/knex'
 import { BotData, BotPatch, BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 
 import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 
@@ -58,7 +59,7 @@ export class BotService<T = BotType, ServiceParams extends Params = BotParams> e
   }
 
   async create(data: BotData, params?: BotParams) {
-    data.instanceId = data.instanceId ? data.instanceId : ''
+    data.instanceId = data.instanceId ? data.instanceId : ('' as InstanceID)
 
     const dataWithoutExtras = { ...data } as any
     delete dataWithoutExtras.botCommands

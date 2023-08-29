@@ -97,7 +97,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
 }
 
 const groupQuery = defineQuery([GroupComponent])
-const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
+const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
   const { entity, obj } = props

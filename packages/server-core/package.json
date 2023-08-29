@@ -40,6 +40,7 @@
     "validate": "npm run build && npm run test",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback --all",
+    "migrate:unlock": "knex migrate:unlock",
     "migrate:make": "knex --migrations-directory ./ migrate:make"
   },
   "dependencies": {

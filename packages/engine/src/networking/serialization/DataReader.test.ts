@@ -485,10 +485,10 @@ describe('DataReader', () => {
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = Engine.instance.worldNetwork as Network
-    network.userIndexToUserID = new Map([[userIndex, userId]])
-    network.userIDToUserIndex = new Map([[userId, userIndex]])
-    network.peerIndexToPeerID = new Map([[userIndex, peerId]])
-    network.peerIDToPeerIndex = new Map([[peerId, userIndex]])
+    network.userIndexToUserID[userIndex] = userId
+    network.userIDToUserIndex[userId] = userIndex
+    network.peerIndexToPeerID[userIndex] = peerId
+    network.peerIDToPeerIndex[peerId] = userIndex
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -560,8 +560,8 @@ describe('DataReader', () => {
     NetworkObjectComponent.networkId[entity] = networkId
 
     const network = Engine.instance.worldNetwork as Network
-    network.userIndexToUserID = new Map([[userIndex, userId]])
-    network.userIDToUserIndex = new Map([[userId, userIndex]])
+    network.userIndexToUserID[userIndex] = userId
+    network.userIDToUserIndex[userId] = userIndex
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -632,8 +632,8 @@ describe('DataReader', () => {
     const userIndex = 0
 
     const network = Engine.instance.worldNetwork as Network
-    network.userIndexToUserID = new Map([[userIndex, userId]])
-    network.userIDToUserIndex = new Map([[userId, userIndex]])
+    network.userIndexToUserID[userIndex] = userId
+    network.userIDToUserIndex[userId] = userIndex
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -717,10 +717,10 @@ describe('DataReader', () => {
         authorityPeerID: peerID,
         ownerId: userId
       })
-      network.userIndexToUserID.set(userIndex, userId)
-      network.userIDToUserIndex.set(userId, userIndex)
-      network.peerIndexToPeerID.set(peerIndex, peerID)
-      network.peerIDToPeerIndex.set(peerID, peerIndex)
+      network.userIndexToUserID[userIndex] = userId
+      network.userIDToUserIndex[userId] = userIndex
+      network.peerIndexToPeerID[peerIndex] = peerID
+      network.peerIDToPeerIndex[peerID] = peerIndex
     })
 
     writeEntities(writeView, network, entities)
@@ -766,10 +766,10 @@ describe('DataReader', () => {
     const peerID = 'peerID' as PeerID
     const userIndex = 0
     const peerIndex = 0
-    network.userIndexToUserID.set(userIndex, userId)
-    network.userIDToUserIndex.set(userId, userIndex)
-    network.peerIDToPeerIndex.set(peerID, peerIndex)
-    network.peerIndexToPeerID.set(peerIndex, peerID)
+    network.userIndexToUserID[userIndex] = userId
+    network.userIDToUserIndex[userId] = userIndex
+    network.peerIDToPeerIndex[peerID] = peerIndex
+    network.peerIndexToPeerID[peerIndex] = peerID
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -855,7 +855,7 @@ describe('DataReader', () => {
     }
 
     const view = createViewCursor(packet)
-    const fromUserID = network.userIndexToUserID.get(userIndex)!
+    const fromUserID = network.userIndexToUserID[userIndex]!
     readMetadata(view)
     readEntities(view, network, packet.byteLength, fromUserID)
 
@@ -901,8 +901,8 @@ describe('DataReader', () => {
         authorityPeerID: userId,
         ownerId: userId
       })
-      network.userIndexToUserID.set(userIndex, userId)
-      network.userIDToUserIndex.set(userId, userIndex)
+      network.userIndexToUserID[userIndex] = userId
+      network.userIDToUserIndex[userId] = userIndex
     })
 
     const packet = write(network, Engine.instance.userID, peerID, entities)
@@ -983,8 +983,8 @@ describe('DataReader', () => {
         authorityPeerID: userId,
         ownerId: userId
       })
-      network.userIndexToUserID.set(userIndex, userId)
-      network.userIDToUserIndex.set(userId, userIndex)
+      network.userIndexToUserID[userIndex] = userId
+      network.userIDToUserIndex[userId] = userIndex
     })
 
     let packet = write(network, Engine.instance.userID, Engine.instance.peerID, entities)
