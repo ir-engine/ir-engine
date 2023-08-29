@@ -54,6 +54,7 @@ import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
@@ -172,6 +173,8 @@ export default function HierarchyPanel({
   const editorState = useHookstate(getMutableState(EditorState))
   const { searchHierarchy } = useContext(AppContext)
   const showObject3DInHierarchy = editorState.showObject3DInHierarchy
+
+  useHookstate(UUIDComponent.entitiesByUUIDState.keys.length)
 
   const MemoTreeNode = memo(
     (props: HierarchyTreeNodeProps) => <HierarchyTreeNode {...props} onContextMenu={onContextMenu} />,
