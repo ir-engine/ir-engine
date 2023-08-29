@@ -42,8 +42,9 @@ const parseDirectory = (directoryPath: string) => {
     }
   }
 }
+const currentFolderName = path.basename(path.resolve(process.cwd())) // https://stackoverflow.com/a/53295230/2077741
 
-parseDirectory('./src')
+parseDirectory(currentFolderName === 'server-core' ? './src' : '../server-core/src')
 
 const projectsDirectory = '../projects/projects'
 const projectsExists = fs.existsSync(projectsDirectory)
