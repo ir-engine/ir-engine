@@ -73,9 +73,9 @@ export const MediaIconsBox = () => {
   const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
   const networkState = useHookstate(getMutableState(NetworkState))
   const mediaNetworkState = useMediaNetwork()
-  const mediaHostId = Engine.instance.mediaNetwork?.hostId
+  const mediaNetworkID = Engine.instance.mediaNetwork?.id
   const mediaNetworkReady = mediaNetworkState?.ready?.value
-  const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
+  const currentChannelInstanceConnection = mediaNetworkID && channelConnectionState.instances[mediaNetworkID].ornull
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
     : false

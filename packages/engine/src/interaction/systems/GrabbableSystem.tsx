@@ -168,7 +168,7 @@ export function transferAuthorityOfObjectReceptor(
   if (action.newAuthority !== Engine.instance.peerID) return
   const grabbableEntity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)!
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
-    const grabberUserId = Engine.instance.worldNetwork.peers.get(action.newAuthority)?.userId!
+    const grabberUserId = Engine.instance.worldNetwork.peers[action.newAuthority]?.userId
     dispatchAction(
       GrabbableNetworkAction.setGrabbedObject({
         entityUUID: getComponent(grabbableEntity, UUIDComponent),

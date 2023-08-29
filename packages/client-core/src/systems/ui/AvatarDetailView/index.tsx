@@ -59,7 +59,7 @@ const AvatarDetailView = () => {
   const { t } = useTranslation()
   const detailState = useXRUIState<AvatarDetailState>()
   const user = Engine.instance.worldNetworkState?.peers
-    ? Array.from(Engine.instance.worldNetwork.peers.values()).find((peer) => peer.userId === detailState.id.value)
+    ? Object.values(Engine.instance.worldNetwork.peers).find((peer) => peer.userId === detailState.id.value)
     : undefined
   const worldState = useHookstate(getMutableState(WorldState)).get({ noproxy: true })
   const usersTypingState = useHookstate(getMutableState(AvatarUIState).usersTyping)
