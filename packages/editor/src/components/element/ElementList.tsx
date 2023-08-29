@@ -202,7 +202,7 @@ export function ElementList() {
       <div className={styles.elementListContainer}>
         <span className={styles.searchContainer}>
           <Button onClick={() => searchBarState.set('')}>x</Button>
-          <StringInput value={searchBarState.value} onChange={searchBarState.set} placeholder={t('Search...')} />
+          <StringInput value={searchBarState.value} onChange={(event) => searchBarState.set(event?.target.value)} placeholder={t('Search...')} />
         </span>
 
         {Object.entries(validElements.get(NO_PROXY)).map(([category, items]) => (
