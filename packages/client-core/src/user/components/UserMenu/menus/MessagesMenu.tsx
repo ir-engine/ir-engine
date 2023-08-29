@@ -56,13 +56,12 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
 
   const { data: messages } = useFind(messagePath, {
     query: {
-      channelId: props.channelID
+      channelId: props.channelID,
+      $sort: {
+        createdAt: 1
+      }
     }
   })
-
-  const sortedMessages = messages
-    ? [...messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-    : []
 
   const channelState = useHookstate(getMutableState(ChannelState))
   const inChannelCall = channelState.targetChannelId.value === props.channelID
@@ -191,7 +190,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
             flexWrap: 'wrap'
           }}
         >
-          {sortedMessages.map((message, index) => {
+          {messages.map((message, index) => {
             if (message.sender?.id === Engine.instance.userID) return <SelfMessage key={index} message={message} />
             else return <OtherMessage key={index} message={message} />
           })}
