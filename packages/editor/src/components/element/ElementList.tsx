@@ -187,6 +187,7 @@ export function ElementList() {
 
   useEffect(() => {
     const result: Record<string, Component[]> = {}
+    console.log('searchBarState', searchBarState, searchBarState.value)
     if (searchBarState.value === '') {
       validElements.set(ComponentShelfCategories)
     } else {

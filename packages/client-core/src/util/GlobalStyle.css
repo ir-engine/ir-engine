@@ -6,13 +6,7 @@
   *, *:before, *:after {
     box-sizing: inherit;
   }
-
   /* scrollbar-width is not inherited so apply to all elements. */
-
-  ::selection {
-    color: var(--textColor);
-    background-color: var(--dropdownMenuHoverBackground);
-  }
 
   a {
     color: var(--textColor);
@@ -33,14 +27,6 @@
     height: 100%;
   }
 
-  body {
-    font-family: var(--lato);
-    font-size: 12px;
-    color: var(--textColor);
-    background-color: var(--background);
-    scrollbar-color: #312828 #5d646c;
-  }
-  
   .sentry-error-embed {
     .form-field {
       margin-top: 20px;

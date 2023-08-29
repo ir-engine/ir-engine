@@ -52,11 +52,13 @@
 .projectPage {
   width: 100%;
   display: flex;
-  background-color: var(--mainBackground);
   pointer-events: auto;
   max-height: 100%;
   flex-direction: column;
   flex: 1;
+  font-family: var(--lato);
+  font-size: 12px;
+  background-color: var(--background);
 }
 
 .projectPageContainer {
@@ -563,7 +565,7 @@
 }
 
 .deleteDialog {
-  background: var(--popupBackground);
+  background: var(--dockBackground);
   color: var(--textColor);
   width: 300px;
 
@@ -576,8 +578,6 @@
       height: 35px !important;
       width: 85px !important;
       font-size: 14px !important;
-      background: transparent !important;
-      color: var(--blue) !important;
 
       &:hover,
       &:focus-visible {
