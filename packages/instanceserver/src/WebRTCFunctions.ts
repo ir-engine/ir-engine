@@ -833,13 +833,13 @@ export const handleRequestConsumer = async (
 
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
   const router = network.transport.routers.find((router) => router.id === transport?.internal.routerId)
-  if (!producer || !router || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
+  if (!producer || !router || !transport || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
+    logger.info('%o', { producer, router, transport })
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.producerID}`
     logger.error(`recv-track: ${forPeerID} ${msg}`)
     return
   }
 
-  if (!transport) return
   try {
     const consumer = (await transport.consume({
       producerId: producer.producerID,

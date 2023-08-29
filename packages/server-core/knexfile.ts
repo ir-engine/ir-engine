@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import type { Knex } from 'knex'
 import path from 'path'
@@ -46,13 +47,17 @@ const parseDirectory = (directoryPath: string) => {
 const currentDirectory = process.cwd()
 const currentFolderName = path.basename(path.resolve(process.cwd())) // https://stackoverflow.com/a/53295230/2077741
 
-let serverCoreSrc = './src'
+let serverCoreSrc = '../server-core/src'
 
 if (currentFolderName === 'server-core') {
-  serverCoreSrc = '../server-core/src'
+  serverCoreSrc = './src'
 } else if (currentDirectory.includes('projects/projects')) {
   serverCoreSrc = '../../../server-core/src'
+} else {
+  serverCoreSrc = path.join(appRootPath.path, '/packages/server-core/src')
 }
+
+parseDirectory(serverCoreSrc)
 
 const projectsDirectory = '../projects/projects'
 const projectsExists = fs.existsSync(projectsDirectory)
