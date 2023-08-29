@@ -47,7 +47,6 @@ export const EngineState = defineState({
     loadingProgress: 0,
     connectedWorld: false,
     isTeleporting: false,
-    socketInstance: false,
     spectating: false,
     avatarLoadingEffect: true,
     /**
@@ -66,12 +65,6 @@ export const EngineState = defineState({
 export function EngineEventReceptor(a) {
   const s = getMutableState(EngineState)
   matches(a)
-    .when(EngineActions.browserNotSupported.matches, (action) => {})
-    .when(EngineActions.resetEngine.matches, (action) =>
-      s.merge({
-        socketInstance: action.instance
-      })
-    )
     .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
     .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
     .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoading: false, sceneLoaded: true }))
@@ -83,11 +76,6 @@ export class EngineActions {
   static setTeleporting = defineAction({
     type: 'xre.engine.Engine.SET_TELEPORTING' as const,
     isTeleporting: matches.boolean
-  })
-
-  static resetEngine = defineAction({
-    type: 'xre.engine.Engine.RESET_ENGINE' as const,
-    instance: matches.boolean
   })
 
   static initializeEngine = defineAction({
@@ -105,20 +93,6 @@ export class EngineActions {
     type: 'xre.engine.Engine.SCENE_UNLOADED' as const
   })
 
-  static browserNotSupported = defineAction({
-    type: 'xre.engine.Engine.BROWSER_NOT_SUPPORTED' as const,
-    msg: matches.string
-  })
-
-  static setUserHasInteracted = defineAction({
-    type: 'xre.engine.Engine.SET_USER_HAS_INTERACTED' as const
-  })
-
-  static setupAnimation = defineAction({
-    type: 'xre.engine.Engine.SETUP_ANIMATION' as const,
-    entity: matches.number
-  })
-
   static spectateUser = defineAction({
     type: 'xre.engine.Engine.SPECTATE_USER' as const,
     user: matches.string.optional()
@@ -126,10 +100,6 @@ export class EngineActions {
 
   static exitSpectate = defineAction({
     type: 'xre.engine.Engine.EXIT_SPECTATE' as const
-  })
-
-  static avatarAlreadyInWorld = defineAction({
-    type: 'xre.world.AVATAR_ALREADY_IN_WORLD'
   })
 
   static interactedWithObject = defineAction({
