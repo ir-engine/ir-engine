@@ -22,7 +22,7 @@
   opacity: 0.88;
   backdrop-filter: blur(1px);
   border-radius: 4px;
-  width: 150px;
+  width: 13%;
 
   h3 {
     font-size: 14px;
@@ -30,8 +30,10 @@
   }
 
   & > ul {
-    margin: 8px 4px;
-
+    margin-block-start: 2px;
+    margin-block-end: 2px;
+    padding-inline-start: 4px;
+    
     & > li {
       font: 12px;
       color: var(--textColor);
@@ -41,8 +43,9 @@
       }
 
       ul {
-        margin-left: 5px;
         color: var(--white);
+        padding-inline-start: 8px;
+
       }
     }
   }

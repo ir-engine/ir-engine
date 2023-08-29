@@ -55,7 +55,6 @@ import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -68,6 +67,7 @@ import Search from '../Search/Search'
 import { AppContext } from '../Search/context'
 import useUpload from '../assets/useUpload'
 import { addSceneComponentElement } from '../element/ElementList'
+import { PropertiesPanelButton } from '../inputs/Button'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
@@ -536,7 +536,7 @@ export default function HierarchyPanel({
             <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
           </div>
         )}
-        <Button
+        <PropertiesPanelButton
           variant="contained"
           // TODO see why we have to specify capitalize here
           style={{
@@ -549,7 +549,7 @@ export default function HierarchyPanel({
           onClick={() => EditorControlFunctions.createObjectFromSceneElement('VisibleComponent')}
         >
           {t('editor:hierarchy.lbl-addEntity')}
-        </Button>
+        </PropertiesPanelButton>
       </div>
       <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>

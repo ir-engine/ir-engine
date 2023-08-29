@@ -1,11 +1,13 @@
 /* this is basically style for the editor page*/
 /* we can drill down furthur if needed*/
+
 body {
   font-family: var(--lato);
   font-size: 12px;
   color: var(--textColor);
   background-color: var(--background);
   scrollbar-color: #282c31 #5d646c;
+  
 }
 
 
@@ -13,6 +15,15 @@ body {
   background: transparent;
   pointer-events: auto;
   border: none;
+
+  ::-webkit-scrollbar{/* Hide scrollbar for Chrome, Safari and Opera */
+    width: .5rem;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+}
+  scrollbar-width: thin;  
 }
 
 .dock-panel:first-child {

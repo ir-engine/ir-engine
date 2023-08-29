@@ -8,9 +8,6 @@
   }
 
   /* scrollbar-width is not inherited so apply to all elements. */
-  * {
-    scrollbar-width: thin;
-  }
 
   ::selection {
     color: var(--textColor);
@@ -44,7 +41,6 @@
     scrollbar-color: #312828 #5d646c;
   }
   
-
   .sentry-error-embed {
     .form-field {
       margin-top: 20px;
