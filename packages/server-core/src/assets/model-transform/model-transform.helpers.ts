@@ -154,18 +154,16 @@ const split = async (document: Document) => {
     const mesh = node.getMesh()!
     const nuNodes: Node[] = []
     mesh.listPrimitives().map((prim, primIdx) => {
-      if (primIdx > 0) {
-        if (!primMeshes.has(prim)) {
-          primMeshes.set(prim, document.createMesh(mesh.getName() + '-' + primIdx).addPrimitive(prim))
-        } else {
-          console.log('found cached prim')
-        }
-        const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
-        node.getSkin() && nuNode.setSkin(node.getSkin())
-        ;(node.getParentNode() ?? scene).addChild(nuNode)
-        nuNode.setMatrix(node.getMatrix())
-        nuNodes.push(nuNode)
+      if (!primMeshes.has(prim)) {
+        primMeshes.set(prim, document.createMesh(mesh.getName() + '-' + primIdx).addPrimitive(prim))
+      } else {
+        console.log('found cached prim')
       }
+      const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
+      node.getSkin() && nuNode.setSkin(node.getSkin())
+      ;(node.getParentNode() ?? scene).addChild(nuNode)
+      nuNode.setMatrix(node.getMatrix())
+      nuNodes.push(nuNode)
     })
     node.listChildren().map((child) => {
       nuNodes[0]?.addChild(child)
@@ -558,7 +556,9 @@ export async function transformModel(app: Application, args: ModelTransformArgum
           mergedParms.textureCompressionType === 'etc1' && mergedParms.maxCodebooks
             ? '-max_endpoints 16128 -max_selectors 16128'
             : ''
-        } ${mergedParms.linear ? '-linear' : ''} ${mergedParms.flipY ? '-y_flip' : ''}`
+        } ${mergedParms.linear ? '-linear' : ''} ${mergedParms.flipY ? '-y_flip' : ''} ${
+          mergedParms.mipmap ? '-mipmap' : ''
+        }`
           .split(/\s+/)
           .filter((x) => !!x)
         execFileSync(BASIS_U, basisArgs)
