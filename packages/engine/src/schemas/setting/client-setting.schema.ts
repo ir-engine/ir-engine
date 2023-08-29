@@ -197,6 +197,7 @@ export const clientSettingQueryProperties = Type.Pick(clientSettingSchema, [
   // 'themeSettings',
   // 'themeModes',
   'key8thWall',
+  'privacyPolicy',
   'homepageLinkButtonEnabled',
   'homepageLinkButtonRedirect',
   'homepageLinkButtonText'
