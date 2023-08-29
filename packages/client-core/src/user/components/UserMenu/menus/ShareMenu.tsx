@@ -38,16 +38,17 @@ import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/I
 import multiLogger from '@etherealengine/common/src/logger'
 import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SendInvite } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
@@ -91,9 +92,9 @@ export const useShareMenuHooks = ({ refLink }) => {
       inviteCode: token.length === 8 ? token : null,
       identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
       targetObjectId: params.get('instanceId'),
-      inviteeId: null,
+      inviteeId: '' as UserID,
       deleteOnUse: true
-    } as SendInvite
+    } as InviteData
 
     if (isSpectatorMode) {
       sendData.spawnType = 'spectate'

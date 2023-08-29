@@ -43,6 +43,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { BotData, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -68,7 +69,7 @@ const CreateBot = () => {
   const state = useHookstate({
     name: '',
     description: '',
-    instance: '',
+    instance: '' as InstanceID,
     location: ''
   })
   const user = useHookstate(getMutableState(AuthState).user)
@@ -107,7 +108,7 @@ const CreateBot = () => {
   useEffect(() => {
     const instanceFilter = data.filter((el) => el.locationId === state.location.value)
     if (instanceFilter.length > 0) {
-      state.merge({ instance: '' })
+      state.merge({ instance: '' as InstanceID })
       currentInstance.set(instanceFilter)
     } else {
       currentInstance.set([])
@@ -117,7 +118,7 @@ const CreateBot = () => {
   const handleSubmit = () => {
     const data: BotData = {
       name: state.name.value,
-      instanceId: state.instance.value || '',
+      instanceId: state.instance.value || ('' as InstanceID),
       userId: user.id.value,
       botCommands: commandData.get({ noproxy: true }),
       description: state.description.value,
@@ -132,7 +133,7 @@ const CreateBot = () => {
 
     if (validateForm(state.value, formErrors.value)) {
       createBotData(data)
-      state.set({ name: '', description: '', instance: '', location: '' })
+      state.set({ name: '', description: '', instance: '' as InstanceID, location: '' })
       commandData.set([])
       currentInstance.set([])
     } else {

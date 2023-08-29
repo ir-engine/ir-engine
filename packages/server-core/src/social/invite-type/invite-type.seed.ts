@@ -25,20 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { Knex } from 'knex'
 
-import { inviteTypePath, InviteTypeType } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+import {
+  inviteTypePath,
+  inviteTypes,
+  InviteTypeType
+} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: InviteTypeType[] = await Promise.all([
-    { type: 'friend' },
-    { type: 'channel' },
-    { type: 'location' },
-    { type: 'instance' },
-    { type: 'new-user' }
-  ])
+  const seedData: InviteTypeType[] = inviteTypes.map((type) => ({ type }))
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
