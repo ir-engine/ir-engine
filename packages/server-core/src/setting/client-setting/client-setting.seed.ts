@@ -69,6 +69,7 @@ export async function seed(knex: Knex): Promise<void> {
         themeSettings: JSON.stringify(defaultThemeSettings),
         themeModes: JSON.stringify(defaultThemeModes),
         key8thWall: process.env.VITE_8TH_WALL || '',
+        privacyPolicy: 'https://www.etherealengine.com/privacy',
         homepageLinkButtonEnabled: false,
         homepageLinkButtonRedirect: '',
         homepageLinkButtonText: '',
