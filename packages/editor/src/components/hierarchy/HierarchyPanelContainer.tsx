@@ -28,7 +28,7 @@ import { useDrop } from 'react-dnd'
 import Hotkeys from 'react-hot-keys'
 import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { areEqual, FixedSizeList } from 'react-window'
+import { FixedSizeList, areEqual } from 'react-window'
 import { Object3D } from 'three'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
@@ -54,27 +54,29 @@ import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
-import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorAction, EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
+import Search from '../Search/Search'
+import { AppContext } from '../Search/context'
 import useUpload from '../assets/useUpload'
 import { addSceneComponentElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
-import { AppContext } from '../Search/context'
-import Search from '../Search/Search'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import {
-  getNodeElId,
   HierarchyTreeNode,
   HierarchyTreeNodeData,
   HierarchyTreeNodeProps,
-  RenameNodeData
+  RenameNodeData,
+  getNodeElId
 } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
 
@@ -171,6 +173,8 @@ export default function HierarchyPanel({
   const editorState = useHookstate(getMutableState(EditorState))
   const { searchHierarchy } = useContext(AppContext)
   const showObject3DInHierarchy = editorState.showObject3DInHierarchy
+
+  useHookstate(UUIDComponent.entitiesByUUIDState.keys.length)
 
   const MemoTreeNode = memo(
     (props: HierarchyTreeNodeProps) => <HierarchyTreeNode {...props} onContextMenu={onContextMenu} />,
@@ -532,6 +536,20 @@ export default function HierarchyPanel({
             <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
           </div>
         )}
+        <Button
+          variant="contained"
+          // TODO see why we have to specify capitalize here
+          style={{
+            textTransform: 'capitalize',
+            margin: '5px auto',
+            width: 'auto',
+            fontSize: '12px',
+            lineHeight: '0.5'
+          }}
+          onClick={() => EditorControlFunctions.createObjectFromSceneElement('VisibleComponent')}
+        >
+          {t('editor:hierarchy.lbl-addEntity')}
+        </Button>
       </div>
       <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={() => onRenameNode(contextSelectedItem!)}>{t('editor:hierarchy.lbl-rename')}</MenuItem>

@@ -57,12 +57,11 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
     !mediaNetwork ||
     peerID === Engine.instance.peerID ||
     (mediaNetwork?.peers &&
-      Array.from(mediaNetwork.peers.values()).find((peer) => peer.userId === Engine.instance.userID)?.peerID ===
-        peerID) ||
+      Object.values(mediaNetwork.peers).find((peer) => peer.userId === Engine.instance.userID)?.peerID === peerID) ||
     peerID === 'self'
   const isScreen = type === 'screen'
 
-  const userID = mediaNetwork.peers.get(peerID)?.userId!
+  const userID = mediaNetwork.peers[peerID]?.userId
 
   const userThumbnail = useUserAvatarThumbnail(userID)
 

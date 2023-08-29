@@ -79,7 +79,7 @@ export const WorldInstanceConnection = () => {
   // const decrementPage = () => { }
   // const incrementPage = () => { }
 
-  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
+  const worldNetworkHostId = Engine.instance.worldNetwork?.id
   const networkState = useWorldNetwork()
 
   const getIcon = () => {

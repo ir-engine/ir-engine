@@ -24,18 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator, queryValidator } from '../validators'
 
 export const instancePath = 'instance'
 
 export const instanceMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
 
+export type InstanceID = OpaqueType<'InstanceID'> & string
+
 // Main data model schema
 export const instanceSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<InstanceID>({
       format: 'uuid'
     }),
     ipAddress: Type.Optional(Type.String()),

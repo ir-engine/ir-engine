@@ -36,6 +36,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { MediasoupMediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -44,8 +45,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import {
@@ -71,14 +71,14 @@ const execute = () => {
     for (const peer of action.peers) {
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
     }
-    for (const [peerID, peer] of network.peers)
+    for (const [peerID, peer] of Object.entries(network.peers))
       if (!action.peers.find((p) => p.peerID === peerID)) {
-        NetworkPeerFunctions.destroyPeer(network, peerID)
+        NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
       }
   }
 }
 
-const NetworkConnectionReactor = (props: { networkID: UserID }) => {
+const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
   const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
   const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
@@ -106,8 +106,8 @@ const reactor = () => {
 
   return (
     <>
-      {networkIDs.map((hostId: UserID) => (
-        <NetworkConnectionReactor key={hostId} networkID={hostId} />
+      {networkIDs.map((id: InstanceID) => (
+        <NetworkConnectionReactor key={id} networkID={id} />
       ))}
       <PeerMediaConsumers />
       <InstanceProvisioning />
