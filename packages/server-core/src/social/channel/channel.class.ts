@@ -64,7 +64,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       }
     }
 
-    // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+    // TODO: Populating Message's sender property here manually. Once channel service is moved to feathers 5. This should be part of its resolver.
     for (const message of channel.messages) {
       if (message && message.senderId && !message.sender) {
         message.sender = await this.app.service(userPath)._get(message.senderId)
