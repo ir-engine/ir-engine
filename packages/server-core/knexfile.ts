@@ -42,9 +42,17 @@ const parseDirectory = (directoryPath: string) => {
     }
   }
 }
+
+const currentDirectory = process.cwd()
 const currentFolderName = path.basename(path.resolve(process.cwd())) // https://stackoverflow.com/a/53295230/2077741
 
-parseDirectory(currentFolderName === 'server-core' ? './src' : '../server-core/src')
+let serverCoreSrc = './src'
+
+if (currentFolderName === 'server-core') {
+  serverCoreSrc = '../server-core/src'
+} else if (currentDirectory.includes('projects/projects')) {
+  serverCoreSrc = '../../../server-core/src'
+}
 
 const projectsDirectory = '../projects/projects'
 const projectsExists = fs.existsSync(projectsDirectory)
