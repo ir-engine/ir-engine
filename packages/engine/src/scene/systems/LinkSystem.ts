@@ -28,39 +28,9 @@ import { LinkComponent } from '../components/LinkComponent'
 import { InputComponent } from '../../input/components/InputComponent'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { XRState } from '../../xr/XRState'
-import { EngineState } from '../../ecs/classes/EngineState'
-import { getState } from '@etherealengine/hyperflux'
 
 
 const linkQuery = defineQuery([LinkComponent, InputComponent])
-
-let clickCount = 0
-const clickTimeout = 0.6
-let doubleClickTimer = 0
-const secondClickTimeout = 0.2
-let secondClickTimer = 0
-
-const getDoubleClick = (buttons): boolean => {
-  if (getState(XRState).sessionActive) return false
-  if (buttons.PrimaryClick?.up) {
-    clickCount += 1
-  }
-  if (clickCount < 1) return false
-  if (clickCount > 1) {
-    secondClickTimer += getState(EngineState).deltaSeconds
-    if (secondClickTimer <= secondClickTimeout) return true
-    secondClickTimer = 0
-    clickCount = 0
-    return false
-  }
-  doubleClickTimer += getState(EngineState).deltaSeconds
-  if (doubleClickTimer <= clickTimeout) return false
-  doubleClickTimer = 0
-  clickCount = 0
-  return false
-}
 
 const execute = () => {
   for (const entity of linkQuery()) {

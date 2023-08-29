@@ -24,18 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BoxGeometry, BoxHelper, Mesh, Scene, Vector2 } from 'three'
-
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { RendererState } from '../../renderer/RendererState'
-import { removeObjectFromGroup } from './GroupComponent'
 import { InputComponent } from '../../input/components/InputComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { matches } from '../../common/functions/MatchesUtils'
 
 export const LinkComponent = defineComponent({
   name: 'LinkComponent',
