@@ -66,6 +66,7 @@ import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
 import { IconButton, PopoverPosition } from '@mui/material'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -99,7 +100,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     DirectionalLightComponent,
     HemisphereLightComponent
   ],
-  FX: [ParticleSystemComponent],
+  FX: [ParticleSystemComponent, EnvmapComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
 }
