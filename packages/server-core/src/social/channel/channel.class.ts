@@ -30,7 +30,7 @@ import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
-import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
@@ -222,22 +222,27 @@ export class Channel<T = ChannelDataType> extends Service<T> {
                 //   model: this.app.service(userPath).Model,
                 // },
               ]
-            },
-            {
-              model: this.app.service(messagePath).Model,
-              limit: 20,
-              order: [['createdAt', 'DESC']]
             }
+            // {
+            //   model: this.app.service(messagePath).Model,
+            //   limit: 20,
+            //   order: [['createdAt', 'DESC']]
+            // }
           ]
         })
 
         // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
         for (const channel of channels) {
-          for (const message of channel.dataValues.messages) {
-            if (message && message.senderId && !message.sender) {
-              message.sender = await this.app.service(userPath)._get(message.senderId)
-            }
-          }
+          channel.messages = (await this.app.service(messagePath).find({
+            query: {
+              channelId: channel.id,
+              $limit: 20,
+              $sort: {
+                createdAt: -1
+              }
+            },
+            user: loggedInUser
+          })) as Paginated<MessageType>
         }
 
         return channels
@@ -262,11 +267,11 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           {
             model: this.app.service('channel-user').Model
           },
-          {
-            model: this.app.service(messagePath).Model,
-            limit: 20,
-            order: [['createdAt', 'DESC']]
-          },
+          // {
+          //   model: this.app.service(messagePath).Model,
+          //   limit: 20,
+          //   order: [['createdAt', 'DESC']]
+          // },
           {
             model: this.app.service('instance').Model
           }
@@ -286,11 +291,16 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
           }
         }
-
-        // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
-        if (channel.dataValues.message && channel.dataValues.message.senderId && !channel.dataValues.message.sender) {
-          channel.dataValues.message.sender = await this.app.service(userPath)._get(channel.dataValues.message.senderId)
-        }
+        channel.messages = (await this.app.service(messagePath).find({
+          query: {
+            channelId: channel.id,
+            $limit: 20,
+            $sort: {
+              createdAt: -1
+            }
+          },
+          user: loggedInUser
+        })) as Paginated<MessageType>
       }
 
       return allChannels
