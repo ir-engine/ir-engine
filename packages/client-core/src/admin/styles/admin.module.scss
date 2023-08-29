@@ -1,5 +1,12 @@
 @import "@etherealengine/client-core/src/styles/imports.module.scss";
 
+
+
+.defaultFont {
+  font-family: var(--lato);
+  font-size: 12px;
+}
+
 .openModalBtn {
   height: 50px;
   width: 100%;
@@ -325,7 +332,9 @@
 }
 
 .textAlign {
+  display: flex;
   text-align: center;
+  justify-content: center;
 }
 
 .mb10px {
@@ -677,6 +686,8 @@
   text-align: center;
   display: flex;
   align-items: center;
+  font-family: var(--lato);
+  font-size: 12px;
 
   & > svg {
     font-size: 2.5em;
@@ -693,6 +704,8 @@
 
 .validContainer {
   display: flex;
+  text-align: center;
+  align-items: center;
 
   &.valid > svg {
     color: var(--green);
@@ -709,10 +722,14 @@
 
 .errorText {
   color: var(--red);
+  font-family: var(--lato);
+  font-size: 12px;
 }
 
 .projectVersion {
   color: var(--yellow);
+  font-family: var(--lato);
+  font-size: 12px;
 }
 
 .projectSelector {

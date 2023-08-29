@@ -30,7 +30,7 @@ const videoStyles = {
   marginLeft: 'auto',
   marginRight: 'auto',
   maxWidth: '500px',
-  height: auto
+  height: 'auto'
 }
 
 /**
