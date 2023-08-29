@@ -617,6 +617,10 @@
       "name": "Spawn Point",
       "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
     },
+    "link": {
+      "name": "link",
+      "description": "Adds an interactable that opens a hyperlink in a new tab on click"
+    },
     "spotLight": {
       "description": "A light which emits along a direction, illuminating objects within a cone.",
       "lbl-color": "Color",

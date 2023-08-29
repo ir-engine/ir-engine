@@ -74,6 +74,7 @@ import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
+import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 
 export type SceneElementType = {
   componentName: string
@@ -91,7 +92,7 @@ type SceneElementListItemType = {
 export const ComponentShelfCategories: Record<string, Component[]> = {
   Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
   'Scene Composition': [GroundPlaneComponent, GroupComponent, PrefabComponent, ColliderComponent],
-  Interaction: [SpawnPointComponent, PortalComponent],
+  Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
   Lighting: [
     AmbientLightComponent,
     PointLightComponent,

@@ -104,6 +104,8 @@ import { EditorComponentType } from '../components/properties/Util'
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
+import LinkNodeEditor from '../components/properties/LinkNodeEditor'
+import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 
 export const EntityNodeEditor = new Map<Component, EditorComponentType>()
 EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)
@@ -148,3 +150,4 @@ EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
 EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(SplineTrackComponent, SplineTrackNodeEditor)
 EntityNodeEditor.set(BehaveGraphComponent, BehaveGraphNodeEditor)
+EntityNodeEditor.set(LinkComponent, LinkNodeEditor)
