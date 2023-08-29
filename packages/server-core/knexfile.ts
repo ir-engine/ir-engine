@@ -52,6 +52,8 @@ if (currentFolderName === 'server-core') {
   serverCoreSrc = './src'
 } else if (currentDirectory.includes('projects/projects')) {
   serverCoreSrc = '../../../server-core/src'
+} else if (currentFolderName === 'etherealengine') {
+  serverCoreSrc = './packages/server-core/src'
 }
 
 parseDirectory(serverCoreSrc)
