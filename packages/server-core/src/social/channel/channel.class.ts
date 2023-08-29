@@ -223,11 +223,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
                 // },
               ]
             }
-            // {
-            //   model: this.app.service(messagePath).Model,
-            //   limit: 20,
-            //   order: [['createdAt', 'DESC']]
-            // }
           ]
         })
 
@@ -267,11 +262,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           {
             model: this.app.service('channel-user').Model
           },
-          // {
-          //   model: this.app.service(messagePath).Model,
-          //   limit: 20,
-          //   order: [['createdAt', 'DESC']]
-          // },
           {
             model: this.app.service('instance').Model
           }

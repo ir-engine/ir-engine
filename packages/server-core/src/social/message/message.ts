@@ -60,17 +60,18 @@ export default (app: Application): void => {
     (app: Application) =>
     async (data: MessageType): Promise<any> => {
       data.sender = await app.service(userPath).get(data.senderId)
-      const channelUsers = await app.service('channel-user').find({
-        query: {
-          channelId: data.channelId
-        }
-      })
-
-      const userIds = (channelUsers as any).data.map((channelUser) => {
-        return channelUser.userId
-      })
-
-      return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+      if (!data.sender) {
+        const channelUsers = await app.service('channel-user').find({
+          query: {
+            channelId: data.channelId
+          }
+        })
+        // TODO: Remove 'as any' once channel-user service is migrated to feathers5
+        const userIds = (channelUsers as any).data.map((channelUser) => {
+          return channelUser.userId
+        })
+        return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+      }
     }
   service.publish('created', onCRUD(app))
   service.publish('removed', onCRUD(app))

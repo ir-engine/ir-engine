@@ -29,6 +29,7 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { InstanceID } from '../networking/instance.schema'
 import { UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
@@ -66,7 +67,7 @@ export const messageDataSchema = Type.Intersect(
     messageDataProperties,
     Type.Object({
       instanceId: Type.Optional(
-        Type.String({
+        TypedString<InstanceID>({
           format: 'uuid'
         })
       )
