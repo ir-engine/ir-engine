@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
-import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
@@ -137,16 +136,6 @@ export class EngineActions {
     type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity.optional(),
     handedness: matches.string as Validator<unknown, XRHandedness>
-  })
-
-  /**
-   * Dispatched whenever an otherwise unchanging scene object has it's properties changed,
-   *   such as making changes from the editor.
-   * @deprecated
-   **/
-  static sceneObjectUpdate = defineAction({
-    type: 'xre.engine.Engine.SCENE_OBJECT_UPDATE' as const,
-    entities: matches.any as Validator<unknown, Entity[]>
   })
 
   static avatarModelChanged = defineAction({
