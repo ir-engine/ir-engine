@@ -31,7 +31,11 @@ import {
   ProjectPermissionType,
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { ProjectQuery, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import {
+  ProjectDatabaseType,
+  ProjectQuery,
+  ProjectType
+} from '@etherealengine/engine/src/schemas/projects/project.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
@@ -48,18 +52,68 @@ export const projectResolver = resolve<ProjectType, HookContext>({
   })
 })
 
-export const projectExternalResolver = resolve<ProjectType, HookContext>({})
+export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
+  let settings = JSON.parse(rawData.settings) as Record<string, string>
 
-export const projectDataResolver = resolve<ProjectType, HookContext>({
-  id: async () => {
-    return v4()
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof settings === 'string') {
+    settings = JSON.parse(settings)
+
+    // There are some old records in our database that requires further parsing.
+    if (typeof settings === 'string') {
+      settings = JSON.parse(settings)
+    }
+  }
+
+  return {
+    ...rawData,
+    settings
+  }
+}
+
+export const projectExternalResolver = resolve<ProjectType, HookContext>(
+  {},
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return projectDbToSchema(rawData)
+    }
+  }
+)
+
+export const projectDataResolver = resolve<ProjectType, HookContext>(
+  {
+    id: async () => {
+      return v4()
+    },
+    createdAt: getDateTimeSql,
+    updatedAt: getDateTimeSql
   },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql
-})
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData,
+        settings: JSON.stringify(rawData.settings)
+      }
+    }
+  }
+)
 
-export const projectPatchResolver = resolve<ProjectType, HookContext>({
-  updatedAt: getDateTimeSql
-})
+export const projectPatchResolver = resolve<ProjectType, HookContext>(
+  {
+    updatedAt: getDateTimeSql
+  },
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData,
+        settings: JSON.stringify(rawData.settings)
+      }
+    }
+  }
+)
 
 export const projectQueryResolver = resolve<ProjectQuery, HookContext>({})

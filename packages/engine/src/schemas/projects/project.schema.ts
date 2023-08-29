@@ -52,7 +52,7 @@ export const projectSchema = Type.Object(
     version: Type.Optional(Type.String()),
     engineVersion: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
-    settings: Type.Optional(Type.String()),
+    settings: Type.Optional(Type.Record(Type.String(), Type.String())),
     needsRebuild: Type.Boolean(),
     sourceRepo: Type.Optional(Type.String()),
     sourceBranch: Type.Optional(Type.String()),
@@ -69,6 +69,10 @@ export const projectSchema = Type.Object(
   { $id: 'Project', additionalProperties: false }
 )
 export type ProjectType = Static<typeof projectSchema>
+
+export type ProjectDatabaseType = Omit<ProjectType, 'settings'> & {
+  settings: string
+}
 
 // Schema for creating new entries
 export const projectDataSchema = Type.Partial(projectSchema, {

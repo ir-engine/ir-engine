@@ -40,7 +40,7 @@ export async function up(knex: Knex): Promise<void> {
       table.uuid('id').collate('utf8mb4_bin').primary().notNullable()
       table.string('name', 255).defaultTo(null)
       table.string('repositoryPath', 255).defaultTo(null)
-      table.text('settings').defaultTo(null)
+      table.json('settings').defaultTo(null)
       table.boolean('needsRebuild').defaultTo(null)
       table.string('sourceRepo', 255).defaultTo(null)
       table.string('sourceBranch', 255).defaultTo(null)
