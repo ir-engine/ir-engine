@@ -117,10 +117,9 @@ export class MessageService<T = MessageType, ServiceParams extends Params = Mess
     if (!channel) throw new BadRequest('Could not find or create channel')
 
     const messageData = {
+      ...data,
       senderId: userId,
-      channelId: channel.id,
-      text: data.text,
-      isNotification: data.isNotification
+      channelId: channel.id
     }
     const newMessage = await super._create(messageData)
     newMessage.sender = loggedInUser
