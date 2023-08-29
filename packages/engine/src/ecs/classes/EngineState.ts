@@ -41,6 +41,7 @@ export const EngineState = defineState({
 
     physicsSubsteps: 1,
 
+    /** @deprecated */
     isEngineInitialized: false,
     sceneLoading: false,
     sceneLoaded: false,
@@ -78,6 +79,7 @@ export class EngineActions {
     isTeleporting: matches.boolean
   })
 
+  /** @deprecated */
   static initializeEngine = defineAction({
     type: 'xre.engine.Engine.INITIALIZED_ENGINE' as const,
     initialised: matches.boolean
