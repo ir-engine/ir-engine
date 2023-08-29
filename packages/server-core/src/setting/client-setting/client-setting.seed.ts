@@ -100,7 +100,8 @@ export async function seed(knex: Knex): Promise<void> {
         if (!item.appleTouchIcon) {
           await knex(clientSettingPath).update({
             ...item,
-            appleTouchIcon: seedData[0].appleTouchIcon
+            appleTouchIcon: seedData[0].appleTouchIcon,
+            privacyPolicy: seedData[0].privacyPolicy
           })
         }
       }
