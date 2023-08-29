@@ -319,17 +319,25 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    AssetLoader.loadAsync('/static/itemLight.png').then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.needsUpdate = true
-      light.material.map = texture
-    })
+    AssetLoader.loadAsync('/static/itemLight.png')
+      .catch((err) => {
+        return
+      })
+      .then((texture) => {
+        texture.colorSpace = SRGBColorSpace
+        texture.needsUpdate = true
+        light.material.map = texture
+      })
 
-    AssetLoader.loadAsync('/static/itemPlate.png').then((texture) => {
-      texture.colorSpace = SRGBColorSpace
-      texture.needsUpdate = true
-      plate.material.map = texture
-    })
+    AssetLoader.loadAsync('/static/itemPlate.png')
+      .catch((err) => {
+        return
+      })
+      .then((texture) => {
+        texture.colorSpace = SRGBColorSpace
+        texture.needsUpdate = true
+        plate.material.map = texture
+      })
   }, [])
   return null
 }
