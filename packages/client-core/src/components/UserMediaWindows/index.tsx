@@ -108,15 +108,18 @@ export const useMediaWindows = () => {
 
 export const UserMediaWindows = () => {
   const { topShelfStyle } = useShelfStyles()
+  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
 
   const windows = useMediaWindows()
 
   return (
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
-        {windows.map(({ peerID, type }) => (
-          <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
-        ))}
+        {windows
+          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+          .map(({ peerID, type }) => (
+            <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+          ))}
       </div>
     </div>
   )
