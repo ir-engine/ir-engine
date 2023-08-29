@@ -24,19 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Paginated, Params } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
 import path from 'path'
-import { Op } from 'sequelize'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import {
-  DefaultUpdateSchedule,
-  ProjectInterface,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { DefaultUpdateSchedule, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -49,14 +43,22 @@ import templateProjectJson from '@etherealengine/projects/template-project/packa
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
+  ProjectData,
+  ProjectPatch,
+  ProjectQuery,
+  ProjectType,
+  projectPath
+} from '@etherealengine/engine/src/schemas/projects/project.schema'
+import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../api/root-params'
+import { RootParams, UserParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { cleanString } from '../../util/cleanString'
 import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
@@ -83,136 +85,37 @@ const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/t
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-export type ProjectQueryParams = {
-  sourceURL?: string
-  destinationURL?: string
-  existingProject?: boolean
-  inputProjectURL?: string
-  branchName?: string
-  selectedSHA?: string
-}
+export interface ProjectParams extends RootParams<ProjectQuery> {}
 
 export type ProjectUpdateParams = {
   user?: UserType
   isJob?: boolean
 }
 
-export type ProjectParams = {
-  user: UserType
-} & Params<ProjectQueryParams>
-
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
 
-export class Project extends Service {
+export class ProjectService<T = ProjectType, ServiceParams extends Params = ProjectParams> extends KnexAdapter<
+  ProjectType,
+  ProjectData,
+  ProjectParams,
+  ProjectPatch
+> {
   app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
 
     this.app.isSetup.then(() => this._callOnLoad())
   }
 
-  async _callOnLoad() {
-    const projects = (
-      (await super.find({
-        query: { $select: ['name'] }
-      })) as any
-    ).data as Array<{ name }>
-    await Promise.all(
-      projects.map(async ({ name }) => {
-        if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
-        const config = getProjectConfig(name)
-        if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
-      })
-    )
-  }
-
-  async _seedProject(projectName: string): Promise<any> {
-    logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = getProjectConfig(projectName) ?? {}
-
-    const gitData = getGitProjectData(projectName)
-    const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-    await super.create({
-      thumbnail: projectConfig.thumbnail,
-      name: projectName,
-      repositoryPath: gitData.repositoryPath,
-      sourceRepo: gitData.sourceRepo,
-      sourceBranch: gitData.sourceBranch,
-      commitSHA,
-      commitDate,
-      needsRebuild: true,
-      updateType: 'none' as ProjectUpdateType,
-      updateSchedule: DefaultUpdateSchedule
-    })
-    // run project install script
-    if (projectConfig.onEvent) {
-      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
-    }
-
-    return Promise.resolve()
-  }
-
-  /**
-   * On dev, sync the db with any projects installed locally
-   */
-  async _fetchDevLocalProjects() {
-    const data = (await this.Model.findAll({ paginate: false })) as ProjectInterface[]
-
-    if (!fs.existsSync(projectsRootFolder)) {
-      fs.mkdirSync(projectsRootFolder, { recursive: true })
-    }
-
-    const locallyInstalledProjects = fs
-      .readdirSync(projectsRootFolder, { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name)
-
-    const promises: Promise<any>[] = []
-
-    for (const projectName of locallyInstalledProjects) {
-      if (!data.find((e) => e.name === projectName)) {
-        try {
-          promises.push(this._seedProject(projectName))
-        } catch (e) {
-          logger.error(e)
-        }
-      }
-
-      const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-
-      await this.Model.update(
-        { commitSHA, commitDate },
-        {
-          where: {
-            name: projectName
-          }
-        }
-      )
-
-      promises.push(uploadLocalProjectToProvider(this.app, projectName))
-    }
-
-    await Promise.all(promises)
-    await this._callOnLoad()
-
-    for (const { name, id } of data) {
-      if (!locallyInstalledProjects.includes(name)) {
-        await deleteProjectFilesInStorageProvider(name)
-        logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
-        await super.remove(id)
-      }
-    }
-  }
-
-  async create(data: { name: string }, params?: Params) {
-    const projectName = cleanString(data.name)
+  async create(data: ProjectData, params?: ProjectParams) {
+    const projectName = cleanString(data.name!)
     const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
 
-    if (await this.Model.count({ where: { name: projectName } }))
-      throw new Error(`[Projects]: Project with name ${projectName} already exists`)
+    const projectExists = (await this._find({ query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
+
+    if (projectExists.total > 0) throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
     if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
       throw new Error(`[Projects]: Project name ${projectName} not allowed`)
@@ -236,11 +139,10 @@ export class Project extends Service {
 
     await uploadLocalProjectToProvider(this.app, projectName, false)
 
-    return super.create(
+    return super._create(
       {
         thumbnail: packageData.thumbnail,
         name: projectName,
-        repositoryPath: null,
         needsRebuild: true
       },
       params
@@ -291,8 +193,8 @@ export class Project extends Service {
               $like: `${projectName}%`
             }
           }
-        })) as Paginated<ProjectInterface>
-        let returned = {} as ProjectInterface
+        })) as Paginated<ProjectType>
+        let returned = {} as ProjectType
         if (result.total > 0) returned = result.data[0]
         else throw new BadRequest('Project did not exist after update')
         returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
@@ -302,6 +204,14 @@ export class Project extends Service {
         throw err
       }
     }
+  }
+
+  async get(id: Id, params?: ProjectParams) {
+    return super._get(id, params)
+  }
+
+  async updateSettings(id: NullableId, data: ProjectPatch) {
+    return super._patch(id, data)
   }
 
   async patch(id: Id, data: any, params?: UserParams) {
@@ -339,12 +249,12 @@ export class Project extends Service {
         }
       }
     }
-    return super.patch(id, data, params)
+    return super._patch(id, data, params)
   }
 
   async remove(id: Id, params?: Params) {
     if (!id) return
-    const { name } = await super.get(id, params)
+    const { name } = await super._get(id, params)
 
     const projectConfig = getProjectConfig(name)
 
@@ -370,7 +280,7 @@ export class Project extends Service {
 
     await this.app.service(routePath).remove(null, {
       query: {
-        $and: [{ project: { $ne: null } }, { project: name }]
+        $and: [{ project: { $ne: undefined } }, { project: name }]
       }
     })
 
@@ -382,7 +292,7 @@ export class Project extends Service {
           },
           {
             project: {
-              $ne: null
+              $ne: undefined
             }
           }
         ]
@@ -404,7 +314,7 @@ export class Project extends Service {
           },
           {
             project: {
-              $ne: null
+              $ne: undefined
             }
           }
         ]
@@ -418,27 +328,10 @@ export class Project extends Service {
 
     await removeProjectUpdateJob(this.app, name)
 
-    return super.remove(id, params)
+    return super._remove(id, params)
   }
 
-  async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
-    if (!params) params = {}
-    if (!params.query) params.query = {}
-    if (!params.query.$limit) params.query.$limit = 1000
-    const data: ProjectInterface[] = ((await super.find(params)) as any).data
-    const project = data.find((e) => e.name === name)
-    if (!project) return null!
-    return {
-      data: project
-    }
-  }
-
-  async updateSettings(id: Id, data: { settings: string }) {
-    return super.patch(id, data)
-  }
-
-  //@ts-ignore
-  async find(params?: UserParams): Promise<{ data: ProjectInterface[]; errors: any[] }> {
+  async find(params?: ProjectParams) {
     let projectPushIds: string[] = []
     let populateProjectPermissions = false
     const errors = [] as any
@@ -459,7 +352,7 @@ export class Project extends Service {
       const knexClient: Knex = this.app.get('knexClient')
       const projectPermissions = await knexClient
         .from(projectPermissionPath)
-        .join('project', 'project.id', `${projectPermissionPath}.projectId`)
+        .join(projectPath, `${projectPath}.projectId`, `${projectPermissionPath}.projectId`)
         .where({ userId: params.user!.id })
         .select()
         .options({ nestTables: true })
@@ -506,13 +399,10 @@ export class Project extends Service {
           }
         })
 
-        const matchingAllowedRepos = await this.app.service('project').Model.findAll({
-          where: {
-            repositoryPath: {
-              [Op.in]: repositoryPaths
-            }
-          }
-        })
+        const matchingAllowedRepos = (await super._find({
+          query: { repositoryPath: { $in: repositoryPaths } },
+          paginate: false
+        })) as ProjectType[]
 
         projectPushIds = projectPushIds.concat(matchingAllowedRepos.map((repo) => repo.id))
       }
@@ -528,36 +418,20 @@ export class Project extends Service {
       ...params,
       query: {
         ...params?.query,
-        $limit: params?.query?.$limit || 1000,
-        $select: params?.query?.$select || [
-          'id',
-          'name',
-          'repositoryPath',
-          'needsRebuild',
-          'sourceRepo',
-          'sourceBranch',
-          'updateType',
-          'updateSchedule',
-          'commitSHA',
-          'commitDate'
-        ]
+        $limit: params?.query?.$limit || 1000
       }
     }
 
-    const data: ProjectInterface[] = ((await super.find(params)) as any).data
+    const data = ((await super._find(params)) as Paginated<ProjectType>).data
     for (const item of data) {
-      const values = (item as any).dataValues
-        ? ((item as any).dataValues as ProjectInterface)
-        : (item as ProjectInterface)
-
       try {
-        const packageJson = getProjectPackageJson(values.name)
-        const config = getProjectConfig(values.name)
-        values.thumbnail = config.thumbnail!
-        values.version = packageJson.version
-        values.engineVersion = packageJson.etherealEngine?.version
-        values.description = packageJson.description
-        values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
+        const packageJson = getProjectPackageJson(item.name)
+        const config = getProjectConfig(item.name)
+        item.thumbnail = config.thumbnail!
+        item.version = packageJson.version
+        item.engineVersion = packageJson.etherealEngine?.version
+        item.description = packageJson.description
+        item.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
       } catch (err) {
         //
       }
@@ -566,6 +440,102 @@ export class Project extends Service {
     return {
       data,
       errors
+    }
+  }
+
+  async _callOnLoad() {
+    const projects = (
+      (await super._find({
+        query: { $select: ['name'] }
+      })) as Paginated<ProjectType>
+    ).data as Array<{ name }>
+    await Promise.all(
+      projects.map(async ({ name }) => {
+        if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
+        const config = getProjectConfig(name)
+        if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
+      })
+    )
+  }
+
+  async _seedProject(projectName: string): Promise<any> {
+    logger.warn('[Projects]: Found new locally installed project: ' + projectName)
+    const projectConfig = getProjectConfig(projectName) ?? {}
+
+    const gitData = getGitProjectData(projectName)
+    const { commitSHA, commitDate } = await getCommitSHADate(projectName)
+    const commitDateISO = commitDate.toISOString()
+
+    await super._create({
+      thumbnail: projectConfig.thumbnail,
+      name: projectName,
+      repositoryPath: gitData.repositoryPath,
+      sourceRepo: gitData.sourceRepo,
+      sourceBranch: gitData.sourceBranch,
+      commitSHA,
+      commitDate: commitDateISO,
+      needsRebuild: true,
+      updateType: 'none' as ProjectType['updateType'],
+      updateSchedule: DefaultUpdateSchedule
+    })
+    // run project install script
+    if (projectConfig.onEvent) {
+      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+    }
+
+    return Promise.resolve()
+  }
+
+  /**
+   * On dev, sync the db with any projects installed locally
+   */
+  async _fetchDevLocalProjects() {
+    const data = (await super._find({ paginate: false })) as ProjectType[]
+
+    if (!fs.existsSync(projectsRootFolder)) {
+      fs.mkdirSync(projectsRootFolder, { recursive: true })
+    }
+
+    const locallyInstalledProjects = fs
+      .readdirSync(projectsRootFolder, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name)
+
+    const promises: Promise<any>[] = []
+
+    for (const projectName of locallyInstalledProjects) {
+      if (!data.find((e) => e.name === projectName)) {
+        try {
+          promises.push(this._seedProject(projectName))
+        } catch (e) {
+          logger.error(e)
+        }
+      }
+
+      const { commitSHA, commitDate } = await getCommitSHADate(projectName)
+
+      const trx = await (this.app.get('knexClient') as Knex).transaction()
+
+      await trx
+        .from<ProjectType>(projectPath)
+        .update({
+          commitSHA: commitSHA,
+          commitDate: commitDate.toISOString()
+        })
+        .where({ name: projectName })
+
+      promises.push(uploadLocalProjectToProvider(this.app, projectName))
+    }
+
+    await Promise.all(promises)
+    await this._callOnLoad()
+
+    for (const { name, id } of data) {
+      if (!locallyInstalledProjects.includes(name)) {
+        await deleteProjectFilesInStorageProvider(name)
+        logger.warn(`[Projects]: Project ${name} not found, assuming removed`)
+        await super._remove(id)
+      }
     }
   }
 }

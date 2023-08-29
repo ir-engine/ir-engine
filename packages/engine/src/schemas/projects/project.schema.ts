@@ -109,16 +109,21 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
 ])
 export const projectQuerySchema = Type.Intersect(
   [
-    querySyntax(projectQueryProperties),
+    querySyntax(projectQueryProperties, {
+      name: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
     Type.Object(
       {
         sourceURL: Type.Optional(Type.String()),
         destinationURL: Type.Optional(Type.String()),
-        exisitingProject: Type.Optional(Type.String()),
+        existingProject: Type.Optional(Type.String()),
         inputProjectURL: Type.Optional(Type.String()),
         branchName: Type.Optional(Type.String()),
-        selectedSHA: Type.Optional(Type.String())
+        selectedSHA: Type.Optional(Type.String()),
+        allowed: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )
