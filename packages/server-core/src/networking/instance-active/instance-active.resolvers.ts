@@ -23,20 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision.service'
-import Instance from './instance/instance.service'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-export default [
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+import {
+  InstanceActiveQuery,
+  InstanceActiveType
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const instanceActiveResolver = resolve<InstanceActiveType, HookContext>({})
+
+export const instanceActiveExternalResolver = resolve<InstanceActiveType, HookContext>({})
+
+export const instanceActiveDataResolver = resolve<InstanceActiveType, HookContext>({})
+
+export const instanceActivePatchResolver = resolve<InstanceActiveType, HookContext>({})
+
+export const instanceActiveQueryResolver = resolve<InstanceActiveQuery, HookContext>({})

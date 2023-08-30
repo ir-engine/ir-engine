@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers/lib'
-
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
@@ -38,7 +36,6 @@ import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import authenticate from '../../hooks/authenticate'
 import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
-import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
@@ -48,9 +45,6 @@ import createModel from './instance.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     instance: Instance
-    'instances-active': {
-      find: ReturnType<typeof getActiveInstancesForScene>
-    }
     'instance-friends': {
       find: ReturnType<typeof getActiveInstancesForUserFriends>
     }
@@ -64,55 +58,6 @@ type ActiveInstance = {
 }
 
 // TODO: paginate this
-
-export const getActiveInstancesForScene =
-  (app: Application) =>
-  async (params: Params & { query: { sceneId: string } }): Promise<ActiveInstance[]> => {
-    const sceneId = params.query!.sceneId
-    if (!sceneId) return []
-
-    // get all locationIds for sceneId
-    const locations = (await app.service(locationPath).find({
-      query: {
-        sceneId
-      },
-      paginate: false
-    })) as any as LocationType[]
-
-    if (locations.length === 0) return []
-
-    const instances = (
-      (await Promise.all(
-        locations.map(async (location) => {
-          const instances = await app.service('instance').Model.findAll({
-            where: {
-              ended: false,
-              locationId: location.id
-            }
-          })
-
-          for (const instance of instances) {
-            instance.location = location
-          }
-
-          return instances
-        })
-      )) as InstanceInterface[]
-    ).flat()
-
-    // return all active instances for each location
-    const instancesData: ActiveInstance[] = instances
-      .map((instance) => {
-        return {
-          id: instance.id,
-          location: (instance.location as LocationType).id,
-          currentUsers: instance.currentUsers
-        }
-      })
-      .filter((a) => !!a)
-
-    return instancesData
-  }
 
 export const getActiveInstancesForUserFriends = (app: Application) => async (data: UserParams, params) => {
   if (!data.user) throw new Error('User not found')
@@ -235,16 +180,6 @@ export default (app: Application) => {
       }
     } catch (e) {
       // fine - channel already cleaned up elsewhere
-    }
-  })
-
-  app.use('instances-active', {
-    find: getActiveInstancesForScene(app)
-  })
-
-  app.service('instances-active').hooks({
-    before: {
-      find: [authenticate(), verifyScope('editor', 'write')]
     }
   })
 

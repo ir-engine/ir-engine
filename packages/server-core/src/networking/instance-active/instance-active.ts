@@ -23,20 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision.service'
-import Instance from './instance/instance.service'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+import {
+  instanceActiveMethods,
+  instanceActivePath
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { Application } from '../../../declarations'
+import { InstanceActiveService } from './instance-active.class'
+import instanceActiveDocs from './instance-active.docs'
+import hooks from './instance-active.hooks'
 
-export default [
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [instanceActivePath]: InstanceActiveService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: instanceActivePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(instanceActivePath, new InstanceActiveService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: instanceActiveMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceActiveDocs
+  })
+
+  const service = app.service(instanceActivePath)
+  service.hooks(hooks)
+}
