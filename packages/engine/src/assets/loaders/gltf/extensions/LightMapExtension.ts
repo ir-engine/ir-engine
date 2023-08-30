@@ -88,7 +88,7 @@ export class HubsLightMapExtension extends ImporterExtension implements GLTFLoad
       if (!mesh?.isMesh) return
       const material = mesh.material as MeshStandardMaterial | MeshBasicMaterial
       if (!material.lightMap) return
-      if (!mesh.geometry.hasAttribute('uv2')) {
+      if (!mesh.geometry.hasAttribute('uv1')) {
         console.warn('Mesh has lightmap but no uv2 attribute', mesh)
         material.lightMap = null
       }
