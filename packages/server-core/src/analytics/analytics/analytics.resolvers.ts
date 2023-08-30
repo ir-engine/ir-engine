@@ -24,15 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { AnalyticsQuery, AnalyticsType } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const analyticsResolver = resolve<AnalyticsType, HookContext>({})
+export const analyticsResolver = resolve<AnalyticsType, HookContext>({
+  createdAt: virtual(async (analytics) => fromDateTimeSql(analytics.createdAt)),
+  updatedAt: virtual(async (analytics) => fromDateTimeSql(analytics.updatedAt))
+})
 
 export const analyticsExternalResolver = resolve<AnalyticsType, HookContext>({})
 

@@ -37,9 +37,7 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
-
-export const inviteResolver = resolve<InviteType, HookContext>({})
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
   let spawnDetails = JSON.parse(rawData.spawnDetails) as SpawnDetailsType
@@ -55,6 +53,13 @@ export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
     spawnDetails
   }
 }
+
+export const inviteResolver = resolve<InviteType, HookContext>({
+  createdAt: virtual(async (invite) => fromDateTimeSql(invite.createdAt)),
+  updatedAt: virtual(async (invite) => fromDateTimeSql(invite.updatedAt)),
+  startTime: virtual(async (invite) => (invite.startTime ? fromDateTimeSql(invite.startTime) : '')),
+  endTime: virtual(async (invite) => (invite.endTime ? fromDateTimeSql(invite.endTime) : ''))
+})
 
 export const inviteExternalResolver = resolve<InviteType, HookContext>(
   {
