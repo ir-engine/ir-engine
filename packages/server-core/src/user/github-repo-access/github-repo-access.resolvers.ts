@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -33,9 +33,12 @@ import {
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const githubRepoAccessResolver = resolve<GithubRepoAccessType, HookContext>({})
+export const githubRepoAccessResolver = resolve<GithubRepoAccessType, HookContext>({
+  createdAt: virtual(async (githubRepoAccess) => fromDateTimeSql(githubRepoAccess.createdAt)),
+  updatedAt: virtual(async (githubRepoAccess) => fromDateTimeSql(githubRepoAccess.updatedAt))
+})
 
 export const githubRepoAccessExternalResolver = resolve<GithubRepoAccessType, HookContext>({})
 
