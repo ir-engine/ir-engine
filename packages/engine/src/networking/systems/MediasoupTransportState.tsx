@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { defineAction, defineState, getState, none, receiveActions } from '@etherealengine/hyperflux'
-import { matches, matchesPeerID } from '../../common/functions/MatchesUtils'
+import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -55,7 +55,13 @@ export class MediasoupTransportActions {
     sctpParameters: matches.object,
     iceParameters: matches.object,
     iceCandidates: matches.arrayOf(matches.object),
-    dtlsParameters: matches.object
+    dtlsParameters: matches.object as Validator<
+      unknown,
+      {
+        role?: 'client' | 'server' | 'auto'
+        fingerprints: { algorithm: string; value: string }[]
+      }
+    >
   })
 
   static requestTransportConnect = defineAction({

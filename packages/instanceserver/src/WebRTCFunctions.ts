@@ -239,6 +239,7 @@ export const handleConsumeData = async (action: typeof MediasoupDataConsumerActi
       MediasoupDataConsumerActions.consumerCreated({
         consumerID: dataConsumer.id,
         peerID,
+        transportID: newTransport.id,
         producerID: outgoingDataProducer.id,
         dataChannel,
         sctpStreamParameters: dataConsumer.sctpStreamParameters as any,
@@ -279,14 +280,16 @@ export function transportClosed(network: SocketWebRTCServerNetwork, transport: W
   // and consumers associated with this transport
   if (getState(MediasoupDataProducerConsumerState)[network.id]) {
     const dataProducers = Object.values(getState(MediasoupDataProducerConsumerState)[network.id].producers)
-    dataProducers.forEach(
-      (dataProducer) =>
+    dataProducers.forEach((dataProducer) => {
+      if (dataProducer.transportID === transport.id)
         dataProducer.producerID && closeDataProducer(network, dataProducer.producerID, dataProducer.appData.peerID)
-    )
+    })
   }
   if (getState(MediasoupMediaProducerConsumerState)[network.id]) {
     const mediaProducers = Object.values(getState(MediasoupMediaProducerConsumerState)[network.id].producers)
-    mediaProducers.forEach((producer) => producerClosed(network, producer.producerID))
+    mediaProducers.forEach((producer) => {
+      if (producer.transportID === transport.id) producerClosed(network, producer.producerID)
+    })
   }
 
   getMutableState(MediasoupTransportObjectsState)[transport.id].set(none)
@@ -500,15 +503,7 @@ export async function handleProduceData(
 ): Promise<any> {
   const network = getState(NetworkState).networks[action.$network] as SocketWebRTCServerNetwork
 
-  const {
-    $peer: peerID,
-    transportID: transportId,
-    sctpStreamParameters,
-    dataChannel: label,
-    protocol,
-    appData,
-    requestID
-  } = action
+  const { $peer: peerID, transportID, sctpStreamParameters, dataChannel: label, protocol, appData, requestID } = action
 
   try {
     const userId = getUserIdFromPeerID(network, peerID)
@@ -546,7 +541,7 @@ export async function handleProduceData(
     }
 
     logger.info(`peerID "${peerID}", Data channel "${label}" %o: `, action)
-    const transport = getState(MediasoupTransportObjectsState)[transportId]
+    const transport = getState(MediasoupTransportObjectsState)[transportID]
     if (!transport) {
       logger.error('Invalid transport.')
       return dispatchAction(
@@ -564,7 +559,7 @@ export async function handleProduceData(
       label: label ?? undefined,
       protocol: protocol ?? undefined,
       sctpStreamParameters,
-      appData: { ...(appData || {}), peerID, transportId }
+      appData: { ...(appData || {}), peerID, transportId: transportID }
     }
     logger.info('Data producer params: %o', options)
     const dataProducer = await transport.produceData(options)
@@ -635,7 +630,7 @@ export async function handleProduceData(
     return dispatchAction(
       MediasoupDataProducerActions.producerCreated({
         requestID,
-        transportID: transportId,
+        transportID: transportID,
         producerID: dataProducer.id,
         dataChannel: label,
         protocol,
@@ -795,6 +790,7 @@ export async function handleRequestProducer(action: typeof MediaProducerActions.
         requestID,
         peerID,
         mediaTag: appData.mediaTag,
+        transportID,
         producerID: producer.id,
         channelID: appData.channelId,
         $network: action.$network,
@@ -833,13 +829,13 @@ export const handleRequestConsumer = async (
 
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
   const router = network.transport.routers.find((router) => router.id === transport?.internal.routerId)
-  if (!producer || !router || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
+  if (!producer || !router || !transport || !router.canConsume({ producerId: producer.producerID, rtpCapabilities })) {
+    logger.info('%o', { producer, router, transport })
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.producerID}`
     logger.error(`recv-track: ${forPeerID} ${msg}`)
     return
   }
 
-  if (!transport) return
   try {
     const consumer = (await transport.consume({
       producerId: producer.producerID,
@@ -886,6 +882,7 @@ export const handleRequestConsumer = async (
         channelID,
         consumerID: consumer.id,
         peerID: mediaPeerId,
+        transportID: transport.id,
         mediaTag,
         producerID: producer.producerID,
         kind: consumer.kind,
