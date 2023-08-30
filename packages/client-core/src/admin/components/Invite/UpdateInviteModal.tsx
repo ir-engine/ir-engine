@@ -98,7 +98,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-  const updateInvite = useMutation(invitePath).patch
+  const patchInvite = useMutation(invitePath).patch
 
   useEffect(() => {
     inviteTypeTab.set(
@@ -232,22 +232,14 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       const isPhone = PHONE_REGEX.test(target)
       const isEmail = EMAIL_REGEX.test(target)
       const sendData = {
-        id: invite.id,
         inviteType: inviteType,
-        inviteeId: invite.inviteeId,
-        passcode: invite.passcode,
         identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
         targetObjectId: instanceId.value || locationId.value || null,
-        createdAt: invite.createdAt || toDateTimeSql(new Date()),
-        updatedAt: invite.updatedAt || toDateTimeSql(new Date()),
         makeAdmin: makeAdmin.value,
         deleteOnUse: oneTimeUse.value,
-        invitee: undefined,
-        user: undefined,
         userId: invite.userId
       } as InvitePatch
-      if (target.length === 8) sendData.inviteCode = target
-      else sendData.token = target
+      if (target.length !== 8) sendData.token = target
       if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
         sendData.spawnType = 'inviteCode'
         sendData.spawnDetails = { inviteCode: userInviteCode.value }
@@ -260,7 +252,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         sendData.startTime = toDateTimeSql(startTime.value?.toDate())
         sendData.endTime = toDateTimeSql(endTime.value?.toDate())
       }
-      await updateInvite(invite.id, sendData)
+      await patchInvite(invite.id, sendData)
       instanceId.set('')
       locationId.set('')
       textValue.set('')

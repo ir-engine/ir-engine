@@ -44,7 +44,6 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -93,7 +92,6 @@ export const useShareMenuHooks = ({ refLink }) => {
       token: token.length === 8 ? null : token,
       identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
       targetObjectId: params.get('instanceId'),
-      inviteeId: '' as UserID,
       deleteOnUse: true
     } as InviteData
 
