@@ -31,7 +31,6 @@ import fetch from 'node-fetch'
 import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import {
   AudioFileTypes,
   ImageFileTypes,
@@ -39,13 +38,14 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
@@ -160,7 +160,7 @@ export const getRepo = async (owner: string, repo: string, token: string): Promi
 
 export const pushProject = async (
   app: Application,
-  project: ProjectInterface,
+  project: ProjectType,
   user: UserType,
   reset = false,
   commitSHA?: string,
@@ -286,7 +286,7 @@ const uploadToRepo = async (
   org: string,
   repo: string,
   branch = `master`,
-  project: ProjectInterface,
+  project: ProjectType,
   token: string,
   app: Application
 ) => {
@@ -342,17 +342,17 @@ const uploadToRepo = async (
   const commitMessage = `Update by ${user.login} at ${new Date(date).toJSON()}`
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
-  await app.service('project').Model.update(
-    {
+
+  const trx = await (app.get('knexClient') as Knex).transaction()
+
+  await trx
+    .from<ProjectType>(projectPath)
+    .update({
       commitSHA: newCommit.sha,
-      commitDate: new Date()
-    },
-    {
-      where: {
-        id: project.id
-      }
-    }
-  )
+      commitDate: new Date().toISOString()
+    })
+    .where({ id: project.id })
+
   try {
     //This pushes the commit to the main branch in GitHub
     await setBranchToCommit(octo, org, repo, branch, newCommit.sha)

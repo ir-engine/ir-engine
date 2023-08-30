@@ -32,16 +32,11 @@ import { compareVersions } from 'compare-versions'
 import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
-import Sequelize, { Op } from 'sequelize'
 import { promisify } from 'util'
 
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
-import {
-  ProjectInterface,
-  ProjectPackageJsonType,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { ProjectPackageJsonType, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
@@ -484,13 +479,11 @@ export const checkProjectDestinationMatch = async (app: Application, params: Pro
     Buffer.from(sourceBlobResponse.data.content, sourceBlobResponse.data.encoding).toString()
   )
   if (!existingProject) {
-    const projectExists = await app.service('project').find({
+    const projectExists = await app.service(projectPath).find({
       query: {
-        [Op.or]: [
-          Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {
-            [Op.like]: '%' + sourceContent.name.toLowerCase() + '%'
-          })
-        ]
+        name: {
+          $like: '%' + sourceContent.name.toLowerCase() + '%'
+        }
       }
     })
     if (projectExists.data.length > 0)
@@ -849,7 +842,7 @@ export const getLatestProjectTaggedCommitInBranch = async (
   url: string,
   branchName: string,
   params: ProjectParams
-): Promise<string[] | { error: string; text: string }> => {
+): Promise<string | { error: string; text: string }> => {
   const octokitResponse = await getOctokitForChecking(app, url, params!)
   const { owner, repo, octoKit } = octokitResponse
 
@@ -878,7 +871,7 @@ export const getLatestProjectTaggedCommitInBranch = async (
     per_page: COMMIT_PER_PAGE
   })
 
-  let latestTaggedCommitInBranch
+  let latestTaggedCommitInBranch = ''
   let sortedTags = semver.rsort(tagResponse.data.map((item) => item.name))
   const taggedCommits = [] as string[]
   sortedTags.forEach((tag) => taggedCommits.push(tagResponse.data.find((item) => item.name === tag)!.commit.sha))
@@ -991,7 +984,7 @@ export async function getProjectUpdateJobBody(
 }
 export async function getProjectPushJobBody(
   app: Application,
-  project: ProjectInterface,
+  project: ProjectType,
   user: UserType,
   reset = false,
   commitSHA?: string,
@@ -1255,10 +1248,12 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
     const latestTaggedCommit = await getLatestProjectTaggedCommitInBranch(
       app,
       project.sourceRepo!,
-      project.sourceBranch,
+      project.sourceBranch!,
       { user }
     )
-    if (latestTaggedCommit !== project.commitSHA) commitSHA = latestTaggedCommit
+
+    if (typeof latestTaggedCommit === 'string' && latestTaggedCommit !== project.commitSHA!)
+      commitSHA = latestTaggedCommit
   } else if (project.updateType === 'commit') {
     const commits = await getProjectCommits(app, project.sourceRepo!, {
       user,
@@ -1267,16 +1262,16 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
     if (commits && commits[0].commitSHA !== project.commitSHA) commitSHA = commits[0].commitSHA
   }
   if (commitSHA)
-    await app.service('project').update(
+    await app.service(projectPath).update(
       {
-        sourceURL: project.sourceRepo,
+        sourceURL: project.sourceRepo!,
         destinationURL: project.repositoryPath,
         name: projectName,
         reset: true,
         commitSHA,
-        sourceBranch: project.sourceBranch,
+        sourceBranch: project.sourceBranch!,
         updateType: project.updateType,
-        updateSchedule: project.updateSchedule
+        updateSchedule: project.updateSchedule!
       },
       null,
       { user: user }
@@ -1463,6 +1458,8 @@ export const updateProject = async (
   //Stripping the signed portion out if it's about to be inserted.
   if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
   const { commitSHA, commitDate } = await getCommitSHADate(projectName)
+
+  const commitDateISO = commitDate.toISOString()
   const returned = !existingProject
     ? // Add to DB
       await app.service(projectPath)._create(
@@ -1477,13 +1474,13 @@ export const updateProject = async (
           updateSchedule: data.updateSchedule,
           updateUserId: userId,
           commitSHA,
-          commitDate
+          commitDate: commitDateISO
         },
         params || {}
       )
     : await app.service(projectPath)._patch(existingProject.id, {
         commitSHA,
-        commitDate,
+        commitDate: commitDateISO,
         sourceRepo: data.sourceURL,
         sourceBranch: data.sourceBranch,
         updateType: data.updateType,
@@ -1501,7 +1498,7 @@ export const updateProject = async (
   }
 
   if (returned.name !== projectName)
-    await app.service(projectPath)._patch(existingProject.id, {
+    await app.service(projectPath)._patch(existingProject!.id, {
       name: projectName
     })
 
@@ -1512,9 +1509,10 @@ export const updateProject = async (
     await git.raw(['lfs', 'fetch', '--all'])
     await git.push('destination', branchName, ['-f', '--tags'])
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
+    const commitDateISO = commitDate.toISOString()
     await app.service(projectPath)._patch(returned.id, {
       commitSHA,
-      commitDate
+      commitDate: commitDateISO
     })
   }
   // run project install script

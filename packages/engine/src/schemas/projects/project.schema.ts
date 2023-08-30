@@ -50,6 +50,7 @@ export const projectSchema = Type.Object(
     thumbnail: Type.Optional(Type.String()),
     repositoryPath: Type.String(),
     version: Type.Optional(Type.String()),
+    branchName: Type.Optional(Type.String()),
     engineVersion: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
     settings: Type.Optional(Type.Record(Type.String(), Type.String())),
