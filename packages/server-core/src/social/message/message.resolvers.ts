@@ -31,7 +31,7 @@ import { MessageQuery, MessageType } from '@etherealengine/engine/src/schemas/so
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const messageResolver = resolve<MessageType, HookContext>({
   sender: virtual(async (message, context) => {
@@ -39,7 +39,9 @@ export const messageResolver = resolve<MessageType, HookContext>({
       const sender = await context.app.service(userPath)._get(message.senderId)
       return sender
     }
-  })
+  }),
+  createdAt: virtual(async (message) => fromDateTimeSql(message.createdAt)),
+  updatedAt: virtual(async (message) => fromDateTimeSql(message.updatedAt))
 })
 
 export const messageExternalResolver = resolve<MessageType, HookContext>({})
