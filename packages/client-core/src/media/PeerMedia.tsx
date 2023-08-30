@@ -139,8 +139,10 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
   const producerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
   )
+  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
 
   useEffect(() => {
+    if (!networkState.ready.value) return
     const peerID = producerState.peerID.value
     const mediaTag = producerState.mediaTag.value
     const channelID = producerState.channelID.value
@@ -156,7 +158,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
         $to: network.hostPeerID
       })
     )
-  }, [])
+  }, [networkState.ready])
 
   return null
 }
