@@ -113,6 +113,7 @@ export const clientSettingSchema = Type.Object(
     themeSettings: Type.Record(Type.String(), Type.Ref(clientThemeOptionsSchema)),
     themeModes: Type.Record(Type.String(), Type.String()),
     key8thWall: Type.String(),
+    privacyPolicy: Type.String(),
     homepageLinkButtonEnabled: Type.Boolean(),
     homepageLinkButtonRedirect: Type.String(),
     homepageLinkButtonText: Type.String(),
@@ -154,6 +155,7 @@ export const clientSettingDataSchema = Type.Pick(
     'themeSettings',
     'themeModes',
     'key8thWall',
+    'privacyPolicy',
     'homepageLinkButtonEnabled',
     'homepageLinkButtonRedirect',
     'homepageLinkButtonText'
@@ -194,6 +196,7 @@ export const clientSettingQueryProperties = Type.Pick(clientSettingSchema, [
   // 'themeSettings',
   // 'themeModes',
   'key8thWall',
+  'privacyPolicy',
   'homepageLinkButtonEnabled',
   'homepageLinkButtonRedirect',
   'homepageLinkButtonText'
