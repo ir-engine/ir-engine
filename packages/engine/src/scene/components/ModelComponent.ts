@@ -58,7 +58,7 @@ import { UUIDComponent } from './UUIDComponent'
 function clearMaterials(model: ComponentType<typeof ModelComponent>) {
   if (!model.scene) return
   try {
-    removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
+    removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src ?? '' })
   } catch (e) {
     if (e?.name === 'MaterialNotFound') {
       console.warn('could not find material in source ' + model.scene.userData.src)
