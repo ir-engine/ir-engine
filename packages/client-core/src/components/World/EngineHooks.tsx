@@ -54,6 +54,7 @@ import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@e
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { RouterService } from '../../common/services/RouterService'
@@ -231,8 +232,8 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
       const peerIndex = 1
 
       const networkState = getMutableState(NetworkState)
-      networkState.hostIds.world.set(userId)
-      addNetwork(createNetwork(userId, userId, NetworkTopics.world))
+      networkState.hostIds.world.set(userId as any as InstanceID)
+      addNetwork(createNetwork(userId as any as InstanceID, userId, NetworkTopics.world))
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(

@@ -23,21 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InviteInterface {
-  id: string
-  token: string
-  identityProviderType: string
-  passcode: string
-  targetObjectId: string
-  deleteOnUse: boolean
-  makeAdmin: boolean
-  spawnType: string
-  spawnDetails: object
-  timed?: boolean
-  startTime?: string
-  endTime?: string
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import type { Knex } from 'knex'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
+  if (!privacyPolicyColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.string('privacyPolicy')
+    })
+  }
 }
 
-export interface InviteTypeInterface {
-  type: string
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
+
+  if (privacyPolicyColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('privacyPolicy')
+    })
+  }
 }

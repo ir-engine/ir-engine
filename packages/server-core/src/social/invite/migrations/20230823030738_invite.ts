@@ -23,67 +23,52 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import type { Knex } from 'knex'
-
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'project_permission'
-
   // Added transaction here in order to ensure both below queries run on same pool.
   // https://github.com/knex/knex/issues/218#issuecomment-56686210
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
-  let tableExists = await trx.schema.hasTable(projectPermissionPath)
-  if (oldNamedTableExists) {
-    // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await trx.schema.dropTable(projectPermissionPath)
-    await trx.schema.renameTable(oldTableName, projectPermissionPath)
-  }
+  const tableExists = await trx.schema.hasTable(invitePath)
 
-  tableExists = await trx.schema.hasTable(projectPermissionPath)
-
-  if (tableExists) {
-    const hasIdColum = await trx.schema.hasColumn(projectPermissionPath, 'id')
-    const hasProjectIdColumn = await trx.schema.hasColumn(projectPermissionPath, 'projectId')
-    const hasUserIdColumn = await trx.schema.hasColumn(projectPermissionPath, 'userId')
-    if (!(hasIdColum && hasProjectIdColumn && hasUserIdColumn)) {
-      await trx.schema.dropTable(projectPermissionPath)
-      tableExists = false
-    }
-  }
-
-  if (!tableExists && !oldNamedTableExists) {
-    await trx.schema.createTable(projectPermissionPath, (table) => {
+  if (tableExists === false) {
+    await trx.schema.createTable(invitePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
+      table.string('token', 255).defaultTo(null)
+      table.string('identityProviderType', 255).defaultTo(null)
+      table.string('passcode', 255).notNullable()
+      table.string('targetObjectId', 255).defaultTo(null)
+      table.boolean('deleteOnUse').defaultTo(true)
+      table.boolean('makeAdmin').defaultTo(false)
+      table.string('spawnType', 255).defaultTo(null)
+      table.json('spawnDetails').nullable()
+      table.boolean('timed').defaultTo(false)
+      table.dateTime('startTime').defaultTo(null)
+      table.dateTime('endTime').defaultTo(null)
       //@ts-ignore
-      table.uuid('projectId').collate('utf8mb4_bin').defaultTo(null).index()
+      table.string('userId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       //@ts-ignore
-      table.uuid('userId').collate('utf8mb4_bin').defaultTo(null).index()
-      table.string('type', 255).defaultTo(null).index()
+      table.string('inviteeId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.string('inviteType', 255).defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('projectId').references('id').inTable('project').onDelete('CASCADE').onUpdate('CASCADE')
-      table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
-      table
-        .foreign('type')
-        .references('type')
-        .inTable('project-permission-type')
-        .onDelete('SET NULL')
-        .onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('inviteeId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('inviteType').references('type').inTable('invite-type').onDelete('SET NULL').onUpdate('CASCADE')
     })
-  }
 
-  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-  await trx.commit()
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+    await trx.commit()
+  }
 }
 
 /**
@@ -94,10 +79,10 @@ export async function down(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(projectPermissionPath)
+  const tableExists = await trx.schema.hasTable(invitePath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(projectPermissionPath)
+    await trx.schema.dropTable(invitePath)
   }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')

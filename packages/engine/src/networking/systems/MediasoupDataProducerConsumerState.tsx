@@ -28,6 +28,7 @@ import { defineAction, defineState, getState, none, receiveActions } from '@ethe
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InstanceID } from '../../schemas/networking/instance.schema'
 
 export class MediasoupDataProducerActions {
   static requestProducer = defineAction({
@@ -76,6 +77,7 @@ export class MediasoupDataConsumerActions {
     consumerID: matches.string,
     peerID: matchesPeerID,
     producerID: matches.string,
+    transportID: matches.string,
     dataChannel: matches.string as Validator<unknown, DataChannelType>,
     sctpStreamParameters: matches.object,
     appData: matches.object as Validator<unknown, any>,
@@ -101,12 +103,12 @@ export const MediasoupDataProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.DataProducerConsumerState',
 
   initial: {} as Record<
-    string, // NetworkID
+    InstanceID,
     {
       producers: {
         [producerID: string]: {
           producerID: string
-          transportId: string
+          transportID: string
           protocol: string
           sctpStreamParameters: any
           dataChannel: DataChannelType
@@ -116,6 +118,7 @@ export const MediasoupDataProducerConsumerState = defineState({
       consumers: {
         [consumerID: string]: {
           consumerID: string
+          transportID: string
           dataChannel: DataChannelType
           sctpStreamParameters: any
           appData: any
@@ -125,7 +128,7 @@ export const MediasoupDataProducerConsumerState = defineState({
     }
   >,
 
-  getProducerByPeer: (networkID: string, peerID: string) => {
+  getProducerByPeer: (networkID: InstanceID, peerID: string) => {
     const state = getState(MediasoupDataProducerConsumerState)[networkID]
     if (!state) return
 
@@ -135,7 +138,7 @@ export const MediasoupDataProducerConsumerState = defineState({
     return getState(MediasoupDataProducersConsumersObjectsState).producers[producer.producerID]
   },
 
-  getProducerByDataChannel: (networkID: string, dataChannel: DataChannelType) => {
+  getProducerByDataChannel: (networkID: InstanceID, dataChannel: DataChannelType) => {
     const state = getState(MediasoupDataProducerConsumerState)[networkID]
     if (!state) return
 
@@ -149,14 +152,14 @@ export const MediasoupDataProducerConsumerState = defineState({
     [
       MediasoupDataProducerActions.producerCreated,
       (state, action: typeof MediasoupDataProducerActions.producerCreated.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
         state[networkID].producers.merge({
           [action.producerID]: {
             producerID: action.producerID,
-            transportId: action.transportID,
+            transportID: action.transportID,
             protocol: action.protocol,
             sctpStreamParameters: action.sctpStreamParameters as any,
             dataChannel: action.dataChannel,
@@ -180,7 +183,7 @@ export const MediasoupDataProducerConsumerState = defineState({
           cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
         }
 
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) return
 
         state[networkID].producers[action.producerID].set(none)
@@ -193,13 +196,14 @@ export const MediasoupDataProducerConsumerState = defineState({
     [
       MediasoupDataConsumerActions.consumerCreated,
       (state, action: typeof MediasoupDataConsumerActions.consumerCreated.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
         state[networkID].consumers.merge({
           [action.consumerID]: {
             consumerID: action.consumerID,
+            transportID: action.transportID,
             dataChannel: action.dataChannel,
             sctpStreamParameters: action.sctpStreamParameters as any,
             appData: action.appData as any,
@@ -211,7 +215,7 @@ export const MediasoupDataProducerConsumerState = defineState({
     [
       MediasoupDataConsumerActions.consumerClosed,
       (state, action: typeof MediasoupDataConsumerActions.consumerClosed.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) return
 
         state[networkID].consumers[action.consumerID].set(none)

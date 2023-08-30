@@ -131,12 +131,12 @@ describe.skip('EquippableSystem Integration Tests', () => {
     ;(Engine.instance.worldNetwork as Network).hostId = hostUserId
     const hostIndex = 0
 
-    Engine.instance.worldNetwork.peers.set(hostUserId, {
+    Engine.instance.worldNetwork.peers[hostUserId] = {
       peerID: hostUserId,
       peerIndex: hostIndex,
       userId: hostUserId,
       userIndex: hostIndex
-    })
+    }
 
     const userId = 'user id' as UserID
     const userName = 'user name'

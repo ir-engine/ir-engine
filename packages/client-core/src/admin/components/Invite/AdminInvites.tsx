@@ -27,13 +27,14 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { InviteInterface } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
 import TableComponent from '../../common/Table'
 import { InviteColumn, inviteColumns } from '../../common/variables/invite'
@@ -52,10 +53,10 @@ const defaultInvite = {
   inviteType: 'new-user',
   makeAdmin: false,
   deleteOnUse: true,
-  createdAt: new Date().toJSON(),
-  updatedAt: new Date().toJSON(),
+  createdAt: toDateTimeSql(new Date()),
+  updatedAt: toDateTimeSql(new Date()),
   userId: '' as UserID
-}
+} as InviteType
 
 const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props) => {
   const { t } = useTranslation()
@@ -70,7 +71,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
 
   const orderBy = fieldOrder.value === 'desc' ? -1 : 1
   const $sort = sortField.value ? { [sortField.value === 'type' ? 'inviteType' : sortField.value]: orderBy } : {}
-  const invitesQuery = useFind('invite', {
+  const invitesQuery = useFind(invitePath, {
     query: {
       search,
       $sort,
@@ -78,7 +79,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       $limit: rowsPerPage.value
     }
   })
-  const removeInvite = useMutation('invite').remove
+  const removeInvite = useMutation(invitePath).remove
 
   const deleteInvite = () => {
     removeInvite(inviteId.value)
@@ -106,7 +107,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
     }
   }
 
-  const createData = (invite: InviteInterface) => {
+  const createData = (invite: InviteType) => {
     return {
       select: (
         <>
@@ -125,7 +126,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       type: invite.inviteType,
       targetObjectId: invite.targetObjectId,
       spawnType: invite.spawnType,
-      spawnDetails: invite.spawnDetails,
+      spawnDetails: JSON.stringify(invite.spawnDetails),
       action: (
         <>
           <a

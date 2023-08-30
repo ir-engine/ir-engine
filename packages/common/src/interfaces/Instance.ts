@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { ChannelID } from '../dbmodels/Channel'
 
 export interface Instance {
-  id: string
+  id: InstanceID
   roomCode: string
   currentUsers: number
   ipAddress: string
@@ -44,7 +45,7 @@ export interface Instance {
 }
 
 export const InstanceSeed: Instance = {
-  id: '',
+  id: '' as InstanceID,
   roomCode: '',
   ipAddress: '',
   currentUsers: 0,

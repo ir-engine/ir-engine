@@ -28,7 +28,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
-import { instanceSchema } from '../networking/instance.schema'
+import { InstanceID, instanceSchema } from '../networking/instance.schema'
 import { locationSchema } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { botCommandDataSchema } from './bot-command.schema'
@@ -45,7 +45,7 @@ export const botSchema = Type.Object(
     }),
     name: Type.String(),
     description: Type.String(),
-    instanceId: Type.String({
+    instanceId: TypedString<InstanceID>({
       format: 'uuid'
     }),
     locationId: Type.String({
