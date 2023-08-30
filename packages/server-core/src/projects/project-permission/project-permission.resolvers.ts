@@ -34,7 +34,7 @@ import {
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectPermissionResolver = resolve<ProjectPermissionType, HookContext>({
   user: virtual(async (projectPermission, context) => {
@@ -42,7 +42,9 @@ export const projectPermissionResolver = resolve<ProjectPermissionType, HookCont
       const user = await context.app.service(userPath)._get(projectPermission.userId)
       return user
     }
-  })
+  }),
+  createdAt: virtual(async (projectPermission) => fromDateTimeSql(projectPermission.createdAt)),
+  updatedAt: virtual(async (projectPermission) => fromDateTimeSql(projectPermission.updatedAt))
 })
 
 export const projectPermissionExternalResolver = resolve<ProjectPermissionType, HookContext>({})
