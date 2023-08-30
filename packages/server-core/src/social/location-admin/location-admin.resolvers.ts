@@ -24,15 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { LocationAdminQuery, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const locationAdminResolver = resolve<LocationAdminType, HookContext>({})
+export const locationAdminResolver = resolve<LocationAdminType, HookContext>({
+  createdAt: virtual(async (locationAdmin) => fromDateTimeSql(locationAdmin.createdAt)),
+  updatedAt: virtual(async (locationAdmin) => fromDateTimeSql(locationAdmin.updatedAt))
+})
 
 export const locationAdminExternalResolver = resolve<LocationAdminType, HookContext>({})
 

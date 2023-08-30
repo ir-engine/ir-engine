@@ -31,3 +31,28 @@ export const getDateTimeSql = async () => {
 export const toDateTimeSql = (date: Date) => {
   return date.toISOString().slice(0, 19).replace('T', ' ')
 }
+
+// https://stackoverflow.com/a/11150727
+export const fromDateTimeSql = (date: string) => {
+  let dateObj: Date
+  if (typeof date === 'string') {
+    dateObj = new Date(date)
+  } else {
+    dateObj = date
+  }
+  const dateString =
+    dateObj.getFullYear() +
+    '-' +
+    ('00' + (dateObj.getMonth() + 1)).slice(-2) +
+    '-' +
+    ('00' + dateObj.getDate()).slice(-2) +
+    'T' +
+    ('00' + dateObj.getHours()).slice(-2) +
+    ':' +
+    ('00' + dateObj.getMinutes()).slice(-2) +
+    ':' +
+    ('00' + dateObj.getSeconds()).slice(-2) +
+    '.000Z'
+
+  return dateString
+}

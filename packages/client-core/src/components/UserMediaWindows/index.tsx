@@ -66,7 +66,7 @@ export const useMediaWindows = () => {
     (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused)
 
   const userPeers: Array<[UserID, PeerID[]]> = mediaNetworkConnected
-    ? Array.from(mediaNetwork.users.entries())
+    ? (Object.entries(mediaNetwork.users) as Array<[UserID, PeerID[]]>)
     : [[selfUserID, [selfPeerID]]]
 
   // reduce all userPeers to an array 'windows' of { peerID, type } objects, displaying screens first, then cams. if a user has no cameras, only include one peerID for that user
@@ -98,20 +98,28 @@ export const useMediaWindows = () => {
     .sort(sortScreensBeforeCameras)
     .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
+  // if window doesnt exist for self, add it
+  if (!windows.find(({ peerID }) => peerID === selfPeerID)) {
+    windows.unshift({ peerID: selfPeerID, type: 'cam' })
+  }
+
   return windows
 }
 
 export const UserMediaWindows = () => {
   const { topShelfStyle } = useShelfStyles()
+  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
 
   const windows = useMediaWindows()
 
   return (
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
-        {windows.map(({ peerID, type }) => (
-          <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
-        ))}
+        {windows
+          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+          .map(({ peerID, type }) => (
+            <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+          ))}
       </div>
     </div>
   )
@@ -151,7 +159,7 @@ export const UserMediaWindowsWidget = () => {
   const mediaNetwork = Engine.instance.mediaNetwork
 
   // if window doesnt exist for self, add it
-  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers.get(peerID)?.userId === selfUserID)) {
+  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers[peerID]?.userId === selfUserID)) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 

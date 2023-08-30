@@ -63,10 +63,10 @@ export const applyVideoToTexture = (
       shader.fragmentShader = shader.fragmentShader.replace('void main() {', `uniform vec4 clipColor;\nvoid main() {\n`)
 
       const mapFragment = `#ifdef USE_MAP
-        vec4 sampledDiffuseColor = texture2D( map, vUv );
+        vec4 sampledDiffuseColor = texture2D( map, vMapUv );
 
         // Newly added clipping Logic /////
-        if (vUv.x < 0.0 || vUv.x > 1.0 || vUv.y < 0.0 || vUv.y > 1.0) sampledDiffuseColor = clipColor;
+        if (vMapUv.x < 0.0 || vMapUv.x > 1.0 || vMapUv.y < 0.0 || vMapUv.y > 1.0) sampledDiffuseColor = clipColor;
         /////////////////////////////
 
         #ifdef DECODE_VIDEO_TEXTURE

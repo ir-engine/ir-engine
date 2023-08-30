@@ -39,8 +39,13 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { isClient } from '../common/functions/getEnvironment'
+import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
 import UpdateAvatar from './UpdateAvatar'
+import { motionCaptureHeadSuffix, motionCaptureLeftHandSuffix, motionCaptureRightHandSuffix } from './UpdateIkHand'
 
 export interface MotionCaptureStream extends Results {
   za: Landmark[]
@@ -94,15 +99,33 @@ const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 const execute = () => {
   const network = Engine.instance.worldNetwork
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
+    if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
   }
+
+  const userPeers = network?.users?.[Engine.instance.userID]
+
+  // Stop mocap by removing entities if data doesnt exist
+  if (isClient && !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID))) {
+    const headUUID = (Engine.instance.userID + motionCaptureHeadSuffix) as EntityUUID
+    const leftHandUUID = (Engine.instance.userID + motionCaptureLeftHandSuffix) as EntityUUID
+    const rightHandUUID = (Engine.instance.userID + motionCaptureRightHandSuffix) as EntityUUID
+
+    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
+    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
+    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+
+    if (ikTargetHead) removeEntity(ikTargetHead)
+    if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
+    if (ikTargetRightHand) removeEntity(ikTargetRightHand)
+  }
+
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.popLast()
     timeSeriesMocapLastSeen.set(peerID, Date.now())
-    const userID = network.peers.get(peerID)!.userId
+    const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
     if (data && entity) {
       UpdateAvatar(data, userID, entity)

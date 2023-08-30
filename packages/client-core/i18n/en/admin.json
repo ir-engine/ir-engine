@@ -355,6 +355,7 @@
       "homepageLinkButtonEnabled": "Show link button on homepage",
       "homepageLinkButtonRedirect": "URL of homepage link button",
       "homepageLinkButtonText": "Text of homepage link button",
+      "privacyPolicy": "Privacy Policy",
       "taskServer": {
         "taskServer": "Task Server",
         "port": "Port",
