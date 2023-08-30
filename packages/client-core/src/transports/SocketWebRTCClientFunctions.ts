@@ -710,11 +710,15 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
   //  * - NOTE this does not work for Edge11
   // */
   // const handler = (transport as any)._handler
-  // handler._remoteSdp!.updateDtlsRole(action.dtlsParameters.role === 'client' ? 'server' : 'client')
+  // const offer = await handler._pc.createOffer()
+  // const localSdpObject = sdpTransform.parse(offer.sdp)
+  // const _dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject })
+  // _dtlsParameters.role = handler._forcedLocalDtlsRole
+  // handler._remoteSdp!.updateDtlsRole(handler._forcedLocalDtlsRole === 'client' ? 'server' : 'client')
   // await new Promise<void>((resolve, reject) => {
-  //    transport.safeEmit('connect', { dtlsParameters: action.dtlsParameters }, resolve, reject)
-  //  })
-  //  handler._transportReady = true
+  //   transport.safeEmit('connect', { dtlsParameters: _dtlsParameters }, resolve, reject)
+  // })
+  // handler._transportReady = true
 
   getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
 }
