@@ -205,7 +205,7 @@ const ServerLogs = ({
         />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
-        <pre style={{ fontSize: '14px' }}>{serverLogs}</pre>
+        <pre style={{ fontSize: '14px', fontFamily: 'var(--lato)' }}>{serverLogs}</pre>
         <pre ref={logsEndRef} />
       </Box>
     </Box>

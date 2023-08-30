@@ -837,11 +837,23 @@
   color: var(--textColor);
   text-align: center;
   margin-bottom: 10px;
-  font-weight: 300;
   font-size: 18px;
   display: flex;
+  font-family: var(--lato);
 
   a {
     margin-left: 2px;
+  }
+}
+
+a {
+  color: var(--textColor);
+
+  &:hover{
+    color: var(--blueHover);
+  }
+
+  & :active {
+    color: var(--bluePressed);
   }
 }

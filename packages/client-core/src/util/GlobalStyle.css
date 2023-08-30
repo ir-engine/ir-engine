@@ -13,21 +13,7 @@
     width: 100%;
     height: 100%;
   }
-  
-  /*a {
-    color: var(--textColor);
-
-    &:hover{
-      color: var(--blueHover);
-    }
-
-    & :active {
-      color: var(--bluePressed);
-    }
-  }
-
-  
-   
+    
   /*
   .sentry-error-embed {
     .form-field {

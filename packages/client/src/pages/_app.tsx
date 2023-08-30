@@ -125,6 +125,10 @@ const AppPage = ({ route }: { route: string }) => {
             maxSnack={7}
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             action={defaultAction}
+            style={{
+              fontFamily: 'var(--lato)',
+              fontSize: '12px'
+            }}
           >
             <div style={{ pointerEvents: 'auto' }}>
               <InviteToast />

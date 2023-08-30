@@ -35,6 +35,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import classNames from 'classnames'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { buildStatusColumns } from '../../common/variables/buildStatus'
@@ -162,7 +163,14 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
-        <DialogTitle className={styles.textAlign}>{t('admin:components.project.buildStatus')}</DialogTitle>
+        <DialogTitle
+          className={classNames({
+            [styles.textAlign]: true,
+            [styles.drawerHeader]: true
+          })}
+        >
+          {t('admin:components.project.buildStatus')}
+        </DialogTitle>
         <TableComponent
           allowSort={false}
           fieldOrder={fieldOrder.value}

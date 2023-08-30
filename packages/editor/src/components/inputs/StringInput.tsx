@@ -66,9 +66,7 @@ export interface StringInputProps {
 
 const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, ...rest }, ref) => {
   const { error, canDrop, ...other } = rest
-  return (
-    <input className="Input" style={inputStyle} onChange={(e) => onChange?.(e.target.value)} {...other} ref={ref} />
-  )
+  return <input className="Input" style={inputStyle} onChange={onChange} {...other} ref={ref} />
 })
 
 StringInput.displayName = 'StringInput'
