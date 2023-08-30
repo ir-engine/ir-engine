@@ -72,7 +72,7 @@ export const ChannelService = {
     try {
       const channelResult = (await Engine.instance.api.service('channel').find({
         query: {
-          instanceId: Engine.instance.worldNetwork.hostId
+          instanceId: Engine.instance.worldNetwork.id
         }
       })) as Channel[]
       if (!channelResult.length) return setTimeout(() => ChannelService.getInstanceChannel(), 2000)

@@ -24,13 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { InstanceID } from '../networking/instance.schema'
 import { ChannelUserType } from '../social/channel-user.schema'
 import { Message } from './Message'
 
 export type Channel = {
   id: ChannelID
   name: string
-  instanceId: string | null
+  instanceId: InstanceID | null
   createdAt: string
   updatedAt: string
   updateNeeded: boolean

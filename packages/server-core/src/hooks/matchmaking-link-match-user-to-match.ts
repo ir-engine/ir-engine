@@ -30,11 +30,12 @@ import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/ma
 import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import logger from '../ServerLogger'
 
 interface AssignmentResponse extends MatchTicketAssignmentType {
-  instanceId: string
+  instanceId: InstanceID
   locationName: string
 }
 
