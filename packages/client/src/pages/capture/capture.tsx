@@ -39,8 +39,10 @@ import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engin
 import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediasoupDataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediasoupMediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { MediasoupTransportStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
@@ -48,13 +50,20 @@ const startCaptureSystems = () => {
   startSystem(MotionCaptureSystem, { with: InputSystemGroup })
   startSystem(MediaSystem, { before: PresentationSystemGroup })
   startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
-  startSystems([MediasoupMediaProducerConsumerStateSystem], {
-    after: PresentationSystemGroup
-  })
+  startSystems(
+    [
+      MediasoupTransportStateSystem,
+      MediasoupMediaProducerConsumerStateSystem,
+      MediasoupDataProducerConsumerStateSystem
+    ],
+    {
+      after: PresentationSystemGroup
+    }
+  )
 }
 
 export const initializeEngineForRecorder = async () => {
-  if (getMutableState(EngineState).isEngineInitialized.value) return
+  if (getState(EngineState).isEngineInitialized) return
 
   const projects = API.instance.client.service('projects').find()
 
@@ -89,7 +98,7 @@ export const CaptureLocation = () => {
 
   const engineState = useHookstate(getMutableState(EngineState))
 
-  if (!engineState.isEngineInitialized.value && !engineState.connectedWorld.value) return <></>
+  if (!engineState.connectedWorld.value) return <></>
 
   return <CaptureUI />
 }

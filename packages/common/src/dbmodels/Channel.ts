@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // TODO: Move it to channel schema once moved to feathers 5 and all dependencies on common packages are removed.
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { OpaqueType } from '../interfaces/OpaqueType'
 
 export type ChannelID = OpaqueType<'ChannelID'> & string
@@ -32,5 +33,5 @@ export type ChannelID = OpaqueType<'ChannelID'> & string
 export interface ChannelInterface {
   id: string
   name: string
-  instanceId: string
+  instanceId: InstanceID
 }

@@ -26,13 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
-import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getMutableComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import {
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import 'reactflow/dist/style.css'
 import { SelectionState } from '../../services/SelectionServices'
+import { PropertiesPanelButton } from '../inputs/Button'
 import { Flow } from './ee-flow'
 import './ee-flow/styles.css'
 
@@ -44,7 +49,10 @@ const BehaveFlow = () => {
   const graphState = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
   const forceUpdate = useForceUpdate()
   const registry = getState(BehaveGraphState).registry
-
+  const addGraph = () => {
+    setComponent(entity as Entity, BehaveGraphComponent)
+    forceUpdate()
+  }
   useEffect(() => {
     forceUpdate()
   }, [selectionState.objectChangeCounter])
@@ -53,6 +61,22 @@ const BehaveFlow = () => {
     <AutoSizer>
       {({ width, height }) => (
         <div style={{ width, height }}>
+          {!validEntity && (
+            <PropertiesPanelButton
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+              }}
+              onClick={() => {
+                addGraph()
+              }}
+            >
+              {' '}
+              Add Graph
+            </PropertiesPanelButton>
+          )}
           {validEntity && (
             <Flow
               initialGraph={graphState?.value?.graph}

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID } from '../networking/instance.schema'
 import { UserType } from '../user/user.schema'
 
 interface ChannelInterface {
@@ -32,7 +33,7 @@ interface ChannelInterface {
   name: string
   users: UserType[]
   userIds: UserID[]
-  instanceId: string
+  instanceId: InstanceID
 }
 
 export type ChannelUser = {
