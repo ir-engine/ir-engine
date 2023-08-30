@@ -704,6 +704,22 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
     // no-op
   }
 
+  // /**
+  //  * Since mediasoup only connects the transport upon a consumer or producer being created,
+  //  * we need to manually dive in and call it's internal implementation.
+  //  * - NOTE this does not work for Edge11
+  // */
+  // const handler = (transport as any)._handler
+  // const offer = await handler._pc.createOffer()
+  // const localSdpObject = sdpTransform.parse(offer.sdp)
+  // const _dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject })
+  // _dtlsParameters.role = handler._forcedLocalDtlsRole
+  // handler._remoteSdp!.updateDtlsRole(handler._forcedLocalDtlsRole === 'client' ? 'server' : 'client')
+  // await new Promise<void>((resolve, reject) => {
+  //   transport.safeEmit('connect', { dtlsParameters: _dtlsParameters }, resolve, reject)
+  // })
+  // handler._transportReady = true
+
   getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
 }
 

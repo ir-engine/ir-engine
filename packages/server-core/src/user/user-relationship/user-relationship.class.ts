@@ -44,7 +44,7 @@ import {
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 import { RootParams } from '../../api/root-params'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { getDateTimeSql } from '../../util/datetime-sql'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UserRelationshipParams extends RootParams<UserRelationshipQuery> {}

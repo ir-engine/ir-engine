@@ -32,6 +32,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
+  ComponentType,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -53,6 +54,19 @@ import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './Group
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
+
+function clearMaterials(model: ComponentType<typeof ModelComponent>) {
+  if (!model.scene) return
+  try {
+    removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src ?? '' })
+  } catch (e) {
+    if (e?.name === 'MaterialNotFound') {
+      console.warn('could not find material in source ' + model.scene.userData.src)
+    } else {
+      throw e
+    }
+  }
+}
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
@@ -92,6 +106,7 @@ export const ModelComponent = defineComponent({
 
   onRemove: (entity, component) => {
     if (component.scene.value) {
+      clearMaterials(component.value)
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
@@ -116,18 +131,10 @@ function ModelReactor() {
   // update src
   useEffect(() => {
     if (source === model.scene?.userData?.src) return
-
     try {
-      if (model.scene)
-        try {
-          removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
-        } catch (e) {
-          if (e?.name === 'MaterialNotFound') {
-            console.warn('could not find material in source ' + model.scene.userData.src)
-          } else {
-            throw e
-          }
-        }
+      if (model.scene) {
+        clearMaterials(model)
+      }
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
