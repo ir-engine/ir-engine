@@ -315,7 +315,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
       $select: ['settings']
     }
   })
-  const settings = {} as { [key: string]: string }
+  const settings = {}
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
   return settings
 }

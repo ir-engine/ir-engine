@@ -34,6 +34,7 @@ import {
 import {
   ProjectDatabaseType,
   ProjectQuery,
+  ProjectSettingType,
   ProjectType
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -55,7 +56,7 @@ export const projectResolver = resolve<ProjectType, HookContext>({
 })
 
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
-  let settings = JSON.parse(rawData.settings) as Record<string, string>
+  let settings = JSON.parse(rawData.settings) as ProjectSettingType[]
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.

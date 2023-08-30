@@ -40,6 +40,15 @@ export const projectScopeSchema = Type.Object(
   { $id: 'ProjectScope', additionalProperties: false }
 )
 
+export const projectSettingSchema = Type.Object(
+  {
+    key: Type.String(),
+    value: Type.String()
+  },
+  { $id: 'ProjectSetting', additionalProperties: false }
+)
+export type ProjectSettingType = Static<typeof projectSettingSchema>
+
 // Main data model schema
 export const projectSchema = Type.Object(
   {
@@ -53,7 +62,7 @@ export const projectSchema = Type.Object(
     branchName: Type.Optional(Type.String()),
     engineVersion: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
-    settings: Type.Optional(Type.Record(Type.String(), Type.String())),
+    settings: Type.Optional(Type.Array(Type.Ref(projectSettingSchema))),
     needsRebuild: Type.Boolean(),
     sourceRepo: Type.Optional(Type.String()),
     sourceBranch: Type.Optional(Type.String()),
