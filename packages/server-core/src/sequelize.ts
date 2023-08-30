@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { spawn } from 'child_process'
 import { Sequelize } from 'sequelize'
 
 import { isDev } from '@etherealengine/common/src/config'
@@ -34,12 +33,11 @@ import { Knex } from 'knex'
 import { Application } from '../declarations'
 import multiLogger from './ServerLogger'
 import { seeder } from './seeder'
+const config = require('../knexfile')
 
 const logger = multiLogger.child({ component: 'server-core:sequelize' })
 
-const checkLock = async (app: Application, delayInMs: number, promiseReject: (reason?: any) => void) => {
-  const knexClient: Knex = app.get('knexClient')
-
+const checkLock = async (knexClient: Knex, delayInMs: number, promiseReject: (reason?: any) => void) => {
   const trx = await knexClient.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
@@ -53,50 +51,13 @@ const checkLock = async (app: Application, delayInMs: number, promiseReject: (re
       const existingData = await trx('knex_migrations_lock').select()
 
       if (existingData.length > 0 && existingData[0].is_locked === 1) {
-        await executeScript('migrate:unlock', promiseReject)
+        await knexClient.migrate.forceFreeMigrationsLock(config.migrations)
       }
     }
   }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')
   await trx.commit()
-}
-
-const executeScript = async (script: string, promiseReject: (reason?: any) => void) => {
-  const initPromise = new Promise((resolve, reject) => {
-    const initProcess = spawn('npm', ['run', script])
-    initProcess.once('exit', resolve)
-    initProcess.once('error', reject)
-    initProcess.once('disconnect', resolve)
-    initProcess.stdout.on('data', (data) => console.log(data.toString()))
-    initProcess.stderr.on('data', (data) => console.error(data.toString()))
-  })
-    .then((exitCode) => {
-      if (exitCode !== 0) {
-        throw new Error(`Knex ${script} exited with: ${exitCode}`)
-      } else {
-        logger.info(`Knex ${script} completed`)
-      }
-    })
-    .catch((err) => {
-      logger.error(`Knex ${script} error`)
-      logger.error(err)
-      promiseReject()
-      throw err
-    })
-
-  await Promise.race([
-    initPromise,
-    new Promise<void>((resolve) => {
-      setTimeout(
-        () => {
-          console.log(`WARNING: ${script} took too long to run!`)
-          resolve()
-        },
-        2 * 60 * 1000
-      ) // timeout after 2 minutes
-    })
-  ])
 }
 
 export default (app: Application): void => {
@@ -139,11 +100,13 @@ export default (app: Application): void => {
 
     app.setup = async function (...args) {
       try {
+        const knexClient: Knex = app.get('knexClient')
+
         if (forceRefresh || appConfig.testEnabled) {
           // We are running our migration:rollback here, so that tables in db are dropped 1st using knex.
           // TODO: Once sequelize is removed, we should add migrate:rollback as part of `dev-reinit-db` script in package.json
-          await checkLock(app, forceRefresh ? 25000 : 1000, promiseReject)
-          await executeScript('migrate:rollback', promiseReject)
+          await checkLock(knexClient, 0, promiseReject)
+          await knexClient.migrate.rollback(config.migrations, true)
         }
 
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
@@ -165,7 +128,7 @@ export default (app: Application): void => {
             const columnResult = await sequelize.query(`DESCRIBE \`${model}\``)
             const columns = columnResult[0]
             const columnKeys = columns.map((column: any) => column.Field)
-            for (let item in sequelizeModel.rawAttributes) {
+            for (const item in sequelizeModel.rawAttributes) {
               const value = sequelizeModel.rawAttributes[item] as any
               if (columnKeys.indexOf(value.fieldName) < 0) {
                 if (value.oldColumn && columnKeys.indexOf(value.oldColumn) >= 0)
@@ -196,8 +159,8 @@ export default (app: Application): void => {
           // And then knex migrations can be executed. This is because knex migrations will have foreign key dependency
           // on ta tables that are created using sequelize.
           // TODO: Once sequelize is removed, we should add migration as part of `dev-reinit-db` script in package.json
-          await checkLock(app, forceRefresh ? 25000 : 1000, promiseReject)
-          await executeScript('migrate', promiseReject)
+          await checkLock(knexClient, prepareDb ? 25000 : 0, promiseReject)
+          await knexClient.migrate.latest(config.migrations)
         }
 
         try {
