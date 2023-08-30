@@ -37,7 +37,7 @@ import {
   ProjectType
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectResolver = resolve<ProjectType, HookContext>({
   projectPermissions: virtual(async (project, context) => {
@@ -49,7 +49,9 @@ export const projectResolver = resolve<ProjectType, HookContext>({
     })) as ProjectPermissionType[]
 
     return projectPermissions
-  })
+  }),
+  createdAt: virtual(async (project) => fromDateTimeSql(project.createdAt)),
+  updatedAt: virtual(async (project) => fromDateTimeSql(project.updatedAt))
 })
 
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
