@@ -70,6 +70,7 @@ const Client = () => {
   const homepageLinkButtonEnabled = useHookstate(clientSetting?.homepageLinkButtonEnabled)
   const homepageLinkButtonRedirect = useHookstate(clientSetting?.homepageLinkButtonRedirect)
   const homepageLinkButtonText = useHookstate(clientSetting?.homepageLinkButtonText)
+  const privacyPolicyLink = useHookstate(clientSetting?.privacyPolicy)
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
@@ -97,6 +98,7 @@ const Client = () => {
       favicon32px.set(clientSetting?.favicon32px)
       siteDescription.set(clientSetting?.siteDescription)
       key8thWall.set(clientSetting?.key8thWall)
+      privacyPolicyLink.set(clientSetting?.privacyPolicy)
       homepageLinkButtonEnabled.set(clientSetting?.homepageLinkButtonEnabled)
       homepageLinkButtonRedirect.set(clientSetting?.homepageLinkButtonRedirect)
       homepageLinkButtonText.set(clientSetting?.homepageLinkButtonText)
@@ -152,6 +154,7 @@ const Client = () => {
         themeSettings: clientSetting?.themeSettings,
         themeModes: clientSetting?.themeModes,
         key8thWall: key8thWall.value,
+        privacyPolicy: privacyPolicyLink.value,
         homepageLinkButtonEnabled: homepageLinkButtonEnabled.value,
         homepageLinkButtonRedirect: homepageLinkButtonRedirect.value,
         homepageLinkButtonText: homepageLinkButtonText.value
@@ -377,6 +380,13 @@ const Client = () => {
             label={t('admin:components.setting.releaseName')}
             value={clientSetting?.releaseName || ''}
             disabled
+          />
+
+          <InputText
+            name="privacyPolicy"
+            label={t('admin:components.setting.privacyPolicy')}
+            value={privacyPolicyLink.value}
+            onChange={(e) => privacyPolicyLink.set(e.target.value)}
           />
 
           <InputText

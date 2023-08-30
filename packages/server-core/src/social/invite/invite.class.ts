@@ -45,7 +45,6 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Forbidden } from '@feathersjs/errors'
-import { Service } from 'feathers-sequelize'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
 
@@ -113,7 +112,7 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
 
   delete query.type
   delete query.search
-  return (await Service.prototype.find.call(inviteService, {
+  return (await inviteService.find({
     query: {
       ...query,
       $or: [
@@ -153,7 +152,7 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
 
   delete query.type
   delete query.search
-  return (await Service.prototype.find.call(inviteService, {
+  return (await inviteService.find({
     query: {
       ...query,
       userId: query.userId
@@ -187,7 +186,7 @@ export const inviteAll = async (inviteService: InviteService, query: Query, user
   if (!query.existenceCheck) delete query.userId
   delete query.existenceCheck
   delete query.search
-  return (await Service.prototype.find.call(inviteService, {
+  return (await inviteService.find({
     query: {
       // userId: query.userId,
       ...query

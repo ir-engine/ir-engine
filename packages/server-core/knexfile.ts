@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import type { Knex } from 'knex'
 import path from 'path'
@@ -52,8 +53,8 @@ if (currentFolderName === 'server-core') {
   serverCoreSrc = './src'
 } else if (currentDirectory.includes('projects/projects')) {
   serverCoreSrc = '../../../server-core/src'
-} else if (currentFolderName === 'etherealengine') {
-  serverCoreSrc = './packages/server-core/src'
+} else {
+  serverCoreSrc = path.join(appRootPath.path, '/packages/server-core/src')
 }
 
 parseDirectory(serverCoreSrc)
