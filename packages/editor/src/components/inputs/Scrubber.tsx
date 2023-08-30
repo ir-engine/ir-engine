@@ -37,18 +37,20 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import Portal from '../layout/Portal'
 
 type ScrubberContainerProps = {
-  tag?: keyof JSX.IntrinsicElements
+  tag?: any
   children?: ReactNode
   onMouseDown: any
 }
 
-const ScrubberContainer = React.forwardRef(({ tag: Component = 'div', children, ...rest }: ScrubberContainerProps) => {
-  return (
-    <Component className="ScrubberContainer" {...rest}>
-      {children}
-    </Component>
-  )
-})
+const ScrubberContainer = React.forwardRef<HTMLElement, ScrubberContainerProps>(
+  ({ tag: Component = 'div', children, ...rest }: ScrubberContainerProps, ref: React.Ref<HTMLElement>) => {
+    return (
+      <Component ref={ref} style={{ cursor: 'ew-resize', userSelect: 'none' }} {...rest}>
+        {children}
+      </Component>
+    )
+  }
+)
 
 type CursorProps = {
   x: number
@@ -76,7 +78,7 @@ type ScrubberProps = {
   onCommit?: (value: any) => void
 }
 
-const Scrubber = ({
+const Scrubber: React.FC<ScrubberProps> = ({
   tag,
   children,
   smallStep,
@@ -92,7 +94,7 @@ const Scrubber = ({
   onChange,
   onCommit,
   ...rest
-}: ScrubberProps) => {
+}) => {
   const state = useHookstate({
     isDragging: false,
     startValue: null as number | null,
@@ -110,7 +112,7 @@ const Scrubber = ({
       const nextDelta = state.delta.value + event.movementX
       const stepSize = getStepSize(event, smallStep, mediumStep, largeStep)
       const nextValue = (state.startValue.value as number) + Math.round(nextDelta / (sensitivity || 1)) * stepSize
-      const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
+      const clampedValue = clamp(nextValue, min ?? -Infinity, max ?? Infinity)
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
       const finalValue = convertTo(roundedValue)
       onChange(finalValue)
@@ -153,9 +155,7 @@ const Scrubber = ({
     state.delta.set(0)
     state.mouseX.set(event.clientX)
     state.mouseY.set(event.clientY)
-
     scrubberEl?.current?.requestPointerLock()
-
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
   }
