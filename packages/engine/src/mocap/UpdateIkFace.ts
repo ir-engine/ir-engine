@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 const UpdateRawFace = (data, hipsPos, avatarRig, avatarTransform) => {
+  return null
   //   const faceData = data?.face[0]?.categories
   //   // console.log('faceData', faceData)
   //   // console.log('exp map', avatarRig?.vrm?.expressionManager?.expressionMap)

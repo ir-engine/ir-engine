@@ -23,166 +23,124 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { dispatchAction } from '@etherealengine/hyperflux'
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
-import Vector from './solvers/utils/vector'
-
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-
-import { Engine } from '../ecs/classes/Engine'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
-
-import { POSE_LANDMARKS } from '@mediapipe/holistic'
-
-import KalmanFilter from './kalman'
-
-import { ArrowHelper, AxesHelper, BoxGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
-import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // helper to apply landmark to rig
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const demirror = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
-
-function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Quaternion, props) {
-  // get a persistent scratch space
-  if (!poseEnsemble.strategies) {
-    poseEnsemble.strategies = {}
-  }
-  if (!poseEnsemble.strategies[props.id]) {
-    poseEnsemble.strategies[props.id] = {
-      kfx: new KalmanFilter(),
-      kfy: new KalmanFilter(),
-      kfz: new KalmanFilter()
-    }
-  }
-  const strategy = poseEnsemble.strategies[props.id]
-
-  // support a resting state if not visible?
-  const threshhold = 0.5
-  const hide =
-    props && props.rest && props.landmark && props.landmark.visibility && props.landmark.visibility < threshhold
-
-  // get world space position; adjust wingspan a bit also
-  const wingspan = 1.2
-  const xyz = new Vector3(
-    -strategy.kfx.filter(hide ? props.rest.x : props.landmark.x) * wingspan,
-    -strategy.kfy.filter(hide ? props.rest.y : props.landmark.y) * wingspan,
-    strategy.kfz.filter(hide ? props.rest.z : props.landmark.z) * wingspan
-  )
-    .applyQuaternion(demirror)
-    .applyQuaternion(avatarRotation)
-    .add(avatarPosition)
-
-  // ik part?
-  if (props.ik) {
-    const entityUUID = `${Engine?.instance?.userID}_mocap_${props.key}` as EntityUUID
-    const target = UUIDComponent.entitiesByUUID[entityUUID]
-    if (!target) {
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: props.key as any }))
-      return
-    }
-    const transform = getComponent(target, TransformComponent)
-    transform?.position.copy(xyz)
-    if (props.quaternion) transform?.rotation.copy(props.quaternion)
-  }
-
-  // visualize for debugging
-  const debug = true
-  if (debug) {
-    if (!strategy.mesh) {
-      strategy.mesh = new Mesh(
-        new BoxGeometry(0.01, 0.4, 0.01),
-        new MeshBasicMaterial({ color: props.color || 0x000000 })
-      )
-      const gizmo = new AxesHelper()
-      gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
-      strategy.mesh.add(gizmo)
-      Engine.instance.scene.add(strategy.mesh)
-    }
-    strategy.mesh.material.color.setHex(props.color && hide == false ? props.color : 0x000000)
-    strategy.mesh.position.copy(xyz)
-    if (props.quaternion) strategy.mesh.rotation.setFromQuaternion(props.quaternion)
-    strategy.mesh.updateMatrixWorld()
-  }
-}
-
-const UpdateIkPose = (data, avatarPosition: Vector3, avatarRotation: Quaternion, poseEnsemble) => {
+function UpdateIkPose(data) {
   const lm3d = data?.za
   const lm2d = data?.poseLandmarks
   const face = data?.faceLandmarks
 
-  const left = data?.leftHandLandmarks
-  if (left) {
-    // left wrist kalidokit - data seems very poor
+  const changes = {}
+
+  // we must estimate hips because hands and other parts have to be avatar relative to ground
+  // @todo i have to determine if the hips are visible or if we are in a hipless floating mode
+  // if the hips are visible then can compute them, else should mark the hips as not visible for upstream rest pose use
+  // for now i am forcing them to be at some reasonable height
+  const hips = { x: 0, y: 1, z: 0 }
+
+  // hips
+  {
+    const threshhold = 0.5
+    const shown =
+      lm3d[23] &&
+      lm3d[23].visibility &&
+      lm3d[23].visibility > threshhold &&
+      lm3d[24] &&
+      lm3d[24].visibility &&
+      lm3d[24].visibility > threshhold
+    if (shown) {
+      const hipleft = new Vector3(lm3d[23].x, lm3d[23].y, lm3d[23].z)
+      const hipright = new Vector3(lm3d[24].x, lm3d[24].y, lm3d[24].z)
+      const hipdir = hipright.clone().sub(hipleft).normalize()
+      const x = 0 // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
+      const y = -Math.atan2(hipdir.x, hipdir.z) - Math.PI / 2
+      const z = 0 // Math.atan2( hipdir.y, hipdir.x) + Math.PI
+      changes[VRMHumanBoneName.Hips] = {
+        ik: true,
+        euler: { x, y, z },
+        xyz: hips,
+        color: 0xffff00
+      }
+    }
+  }
+
+  // left hand visible?
+  if (data?.leftHandLandmarks) {
+    const hand = data?.leftHandLandmarks
+
+    // left wrist kalidokit from lo res data; pretty noisy results and rotation calc is questionable
     // const l = Vector.findRotation(
     //  Vector.fromArray(lm2d[15]),
     //  Vector.lerp(Vector.fromArray(lm2d[17]), Vector.fromArray(lm2d[19]), 0.5)
     // )
 
-    // left wrist manually from high resolution hand data - seems "ok"
-    // see https://developers.google.com/mediapipe/solutions/vision/hand_landmarker
+    // left wrist by hand from lo res data; noisy
     //const lf = new Vector3(lm2d[17].x,lm2d[17].y,lm2d[17].z)
     //const lb = new Vector3(lm2d[15].x,lm2d[15].y,lm2d[15].z)
     //const lu = new Vector3(lm2d[19].x,lm2d[19].y,lm2d[19].z)
 
-    const lf = new Vector3(left[0].x, left[0].y, left[0].z)
-    const lb = new Vector3(left[4].x, left[4].y, left[4].z)
-    const lu = new Vector3(left[20].x, left[20].y, left[20].z)
-    const w = lu.clone().sub(lb)
-    const x = lf.clone().sub(lb)
+    // left wrist by hand from high resolution hand data - seems "ok"
+    // see https://developers.google.com/mediapipe/solutions/vision/hand_landmarker
+
+    const f = new Vector3(hand[0].x, hand[0].y, hand[0].z)
+    const b = new Vector3(hand[4].x, hand[4].y, hand[4].z)
+    const u = new Vector3(hand[20].x, hand[20].y, hand[20].z)
+    const w = u.clone().sub(b)
+    const x = f.clone().sub(b)
     const z = x.clone().cross(w)
     const y = z.clone().cross(x)
     x.normalize()
     y.normalize()
     z.normalize()
     const m = new Matrix4(x.x, x.y, x.z, 0, y.x, y.y, y.z, 0, z.x, z.y, z.z, 0, 0, 0, 0, 1)
-    const q = new Quaternion().setFromRotationMatrix(m)
-
-    ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
-      id: POSE_LANDMARKS.LEFT_WRIST,
-      landmark: lm3d[15],
-      //quaternion: q, //new Quaternion().setFromEuler(new Euler(l.x,l.y,l.z)),
-      color: 0xee0000,
-      key: 'leftHand',
+    const quaternion = new Quaternion().setFromRotationMatrix(m)
+    changes[VRMHumanBoneName.LeftHand] = {
       ik: true,
-      rest: { x: 0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
-    })
+      quaternion,
+      xyz: { x: hips.x - lm3d[15].x, y: hips.y - lm3d[15].y, z: hips.z + lm3d[15].z },
+      wingspan: 1.2,
+      color: 0xee0000
+    }
   }
 
-  // right
-  const right = data?.rightHandLandmarks
-  if (right) {
-    //const r2 = Vector.findRotation(
+  // right hand visible?
+  if (data?.rightHandLandmarks) {
+    const hand = data?.rightHandLandmarks
+
+    // kalidokit approach
+    // const r = Vector.findRotation(
     //  Vector.fromArray(lm3d[16]),
     //  Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
     //)
+    // const quaternion = new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z))
 
-    // testing leaving it at a fixed orientation but having it rotate with the avatar
-    const r = new Vector(0, 0, 0)
-    const unused = Vector.findRotation(
-      Vector.fromArray(lm3d[16]),
-      Vector.lerp(Vector.fromArray(lm3d[18]), Vector.fromArray(lm3d[20]), 0.5)
-    )
-    const qr = new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z))
-    qr.multiply(demirror)
-    qr.multiply(avatarRotation)
-
-    // @todo mysteriously if i don't set BOTH ik then no ik is processed
-
-    ApplyStrategy(poseEnsemble, avatarPosition, avatarRotation, {
-      id: POSE_LANDMARKS.RIGHT_WRIST,
-      landmark: lm3d[16],
-      //quaternion: new Quaternion().setFromEuler(new Euler(r.x, r.y, r.z)),
-      color: 0xee00ee,
-      key: 'rightHand',
+    const f = new Vector3(hand[0].x, hand[0].y, hand[0].z)
+    const b = new Vector3(hand[4].x, hand[4].y, hand[4].z)
+    const u = new Vector3(hand[20].x, hand[20].y, hand[20].z)
+    const w = u.clone().sub(b)
+    const x = f.clone().sub(b)
+    const z = x.clone().cross(w)
+    const y = z.clone().cross(x)
+    x.normalize()
+    y.normalize()
+    z.normalize()
+    const m = new Matrix4(x.x, x.y, x.z, 0, y.x, y.y, y.z, 0, z.x, z.y, z.z, 0, 0, 0, 0, 1)
+    const quaternion = new Quaternion().setFromRotationMatrix(m)
+    changes[VRMHumanBoneName.RightHand] = {
       ik: true,
-      rest: { x: -0.2, y: 0, z: -0.2 } // @todo use poseEnsemble rest
-    })
+      quaternion,
+      xyz: { x: hips.x - lm3d[16].x, y: hips.y - lm3d[16].y, z: hips.z + lm3d[16].z },
+      wingspan: 1.2,
+      color: 0xee0000
+    }
   }
+
+  // unused
 
   //strategies[0] = { color: 0xffffff, key: 'head', ik: true, rest: { x: 0, y: -0.6, z: -0.2 } }
   //strategies[1] = { color: 0xffffff, key: 'chest' }
@@ -202,6 +160,8 @@ const UpdateIkPose = (data, avatarPosition: Vector3, avatarRotation: Quaternion,
 
   //strategies[POSE_LANDMARKS_LEFT.LEFT_ANKLE] =   { color:0xee0000, key:'leftAnkle', ik:true }
   //strategies[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE] = { color:0xee0000, key:'rightAnkle', ik:true }
+
+  return changes
 }
 
 export default UpdateIkPose

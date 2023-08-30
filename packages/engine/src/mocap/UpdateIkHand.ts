@@ -28,6 +28,7 @@ export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
 export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
 
 const UpdateIkHands = (data, handedness, hipsPos, avatarRig, avatarTransform) => {
+  return null
   /*if (data) {
     const engineState = getState(EngineState)
 
