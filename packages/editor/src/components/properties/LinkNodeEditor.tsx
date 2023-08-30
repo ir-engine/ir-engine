@@ -28,13 +28,14 @@ import { useTranslation } from 'react-i18next'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import LinkIcon from '@mui/icons-material/Link';
+import LinkIcon from '@mui/icons-material/Link'
 
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import InputGroup from '../inputs/InputGroup'
+import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
-import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent';
-import InputGroup from '../inputs/InputGroup';
-import ImageInput from '../inputs/ImageInput';
 
 /**
  * LinkNodeEditor component used to provide the editor view to customize link properties.
@@ -45,6 +46,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const linkComponent = useComponent(props.entity, LinkComponent)
+  const errors = getEntityErrors(props.entity, LinkComponent)
 
   return (
     <NodeEditor
@@ -52,8 +54,17 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.link.name')}
       description={t('editor:properties.link.description')}
     >
+      {errors ? (
+        Object.entries(errors).map(([err, message]) => (
+          <div key={err} style={{ marginTop: 2, color: '#FF8C00' }}>
+            {'Error: ' + err + '--' + message}
+          </div>
+        ))
+      ) : (
+        <></>
+      )}
       <InputGroup name="Link Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput value={linkComponent.url.value ?? ''} onChange={updateProperty(LinkComponent, 'url')} />
+        <ControlledStringInput value={linkComponent.url.value} onChange={updateProperty(LinkComponent, 'url')} />
       </InputGroup>
     </NodeEditor>
   )

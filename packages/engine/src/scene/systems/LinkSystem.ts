@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { LinkComponent } from '../components/LinkComponent'
-import { InputComponent } from '../../input/components/InputComponent'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-
+import { LinkComponent } from '../components/LinkComponent'
 
 const linkQuery = defineQuery([LinkComponent, InputComponent])
 
@@ -43,8 +42,8 @@ const execute = () => {
       const buttons = inputSource?.buttons
 
       if (buttons?.PrimaryClick?.touched) {
-        if(buttons.PrimaryClick.up) {
-          window.open(linkComponent.url,"_blank")
+        if (buttons.PrimaryClick.up) {
+          typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
         }
       }
     }
@@ -53,5 +52,5 @@ const execute = () => {
 
 export const LinkSystem = defineSystem({
   uuid: 'ee.engine.LinkSystem',
-  execute,
+  execute
 })

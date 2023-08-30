@@ -25,9 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineComponent, getComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { matches } from '../../common/functions/MatchesUtils'
+import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 export const LinkComponent = defineComponent({
   name: 'LinkComponent',
@@ -36,22 +39,13 @@ export const LinkComponent = defineComponent({
   onInit: (entity) => {
     setComponent(entity, InputComponent)
     return {
-      url: 'https://www.etherealengine.org',
+      url: 'https://www.etherealengine.org'
     }
   },
 
   onSet: (entity, component, json) => {
-    console.log("ONSET")
-    console.log(json)
     if (!json) return
-    try {
-      if(typeof json?.url === 'string') {
-        new URL(json.url as string)
-        component.url.set(json.url as string)
-      }
-    } catch {
-      null
-    }
+    matches.string.test(json.url) && component.url.set(json.url as string)
   },
 
   toJSON: (entity, component) => {
@@ -60,19 +54,32 @@ export const LinkComponent = defineComponent({
     }
   },
 
+  errors: ['INVALID_URL'],
+
   reactor: function () {
     const entity = useEntityContext()
+    const link = useComponent(entity, LinkComponent)
     const input = useComponent(entity, InputComponent)
 
     useEffect(() => {
-      const canvas = document.getElementById('engine-renderer-canvas')!
-      if(input.inputSources.length > 0) {
-        canvas.style.cursor = "pointer"
+      const canvas = EngineRenderer.instance.renderer.domElement
+      if (input.inputSources.length > 0) {
+        canvas.style.cursor = 'pointer'
       }
       return () => {
-        canvas.style.cursor = "auto"
+        canvas.style.cursor = 'auto'
       }
-    }, [input])
+    }, [input.inputSources])
+
+    useEffect(() => {
+      clearErrors(entity, LinkComponent)
+      try {
+        new URL(link.url.value)
+      } catch {
+        return addError(entity, LinkComponent, 'INVALID_URL', 'Please enter a valid URL.')
+      }
+      return
+    }, [link.url])
 
     return null
   }
