@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import ProjectPermission from './project-permission/project-permission'
-import Project from './project/project.service'
+import Project from './project/project'
 import Scene from './scene/scene.service'
 
 export default [Project, ProjectPermission, Scene]
