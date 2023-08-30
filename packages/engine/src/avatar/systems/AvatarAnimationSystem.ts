@@ -516,12 +516,12 @@ const execute = () => {
       }
     }
 
-    for (const [key, animatedBone] of Object.entries(rigComponent.bindRig)) {
+    for (const [key, animatedBone] of Object.entries(rigComponent.localRig)) {
       const ikBone = rigComponent.rig[key].node as Object3D
       ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
     }
     //todo: lerp this
-    if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.bindRig.hips.node.position)
+    if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
     rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
 

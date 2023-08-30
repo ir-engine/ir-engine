@@ -160,7 +160,7 @@ export const createIKAnimator = async (entity: Entity) => {
 
   setComponent(entity, AnimationComponent, {
     animations: clone(animations),
-    mixer: new AnimationMixer(rigComponent.bindRig.hips.node.parent!)
+    mixer: new AnimationMixer(rigComponent.localRig.hips.node.parent!)
   })
 }
 
@@ -194,7 +194,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    bindRig: cloneDeep(rig),
+    localRig: cloneDeep(rig),
     skinnedMeshes,
     vrm: model
   })

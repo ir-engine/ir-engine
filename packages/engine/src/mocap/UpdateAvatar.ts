@@ -120,7 +120,7 @@ export default function UpdataAvatar(data, userID, entity) {
   }
 
   // get avatar world pose
-  const avatarHips = avatarRig?.bindRig?.hips?.node
+  const avatarHips = avatarRig?.localRig?.hips?.node
   const position = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
   const rotation = avatarTransform.rotation
 
