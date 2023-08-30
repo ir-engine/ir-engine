@@ -103,7 +103,7 @@ function ApplyPoseChange(entity: Entity, key, change) {
   const euler = change.euler || null
   const debug = change.debug || true
   const threshold = change.threshold || 0.5
-  const wingspan = change.wingspan || 1.2
+  const wingspan = change.wingspan || 1.0
   const blendweight = change.blendweight || 1.0
 
   // get part in question
@@ -113,27 +113,30 @@ function ApplyPoseChange(entity: Entity, key, change) {
     return
   }
 
-  // debug
-  console.log('raw', key, rig.vrm.humanoid.rawRestPose[key])
-
   // promote euler to quaternion if any
   if (euler) {
-    quaternion = new Quaternion().setFromEuler(euler)
+    quaternion = new Quaternion().setFromEuler(new Euler(euler.x, euler.y, euler.z))
+  }
+
+  // apply wingspan if desired
+  if (xyz && wingspan) {
+    xyz.x *= wingspan
+    xyz.y *= wingspan
+    xyz.z *= wingspan
   }
 
   // ik part?
   if (ik) {
     // ik requires you to supply an avatar relative position (relative to ground at origin)
     if (!xyz) {
-      xyz = rig.vrm.humanoid.rawRestPose[key].node.getWorldPosition(new Vector3())
-      console.log('bindpose', key, xyz.x.toFixed(3), xyz.y.toFixed(3), xyz.z.toFixed(3))
+      //xyz = rig.vrm.humanoid.rawRestPose[key].node.getWorldPosition(new Vector3())
+      //console.log('bindpose', key, xyz.x.toFixed(3), xyz.y.toFixed(3), xyz.z.toFixed(3))
+      console.warn('ik requires xyz')
+      return
     }
 
     // ik requires xyz to be in absolute world position for the absolute world target, so must add avatar current position
-    xyz = new Vector3(xyz.x, xyz.y, xyz.z)
-      .applyQuaternion(demirror)
-      .applyQuaternion(transform.rotation)
-      .add(transform.position)
+    xyz = new Vector3(xyz.x, xyz.y, xyz.z).applyQuaternion(transform.rotation).add(transform.position)
 
     // this is how we will get iktargets later on:
     //const target = getComponent(entity, AvatarAnimationComponent).ikTarget[key]
@@ -151,7 +154,7 @@ function ApplyPoseChange(entity: Entity, key, change) {
     if (xyz) targetTransform?.position.copy(xyz)
     if (quaternion) targetTransform?.rotation.copy(quaternion)
 
-    console.log('worldpose', key, xyz.x.toFixed(3), xyz.y.toFixed(3), xyz.z.toFixed(3))
+    //console.log('worldpose', key, xyz.x.toFixed(3), xyz.y.toFixed(3), xyz.z.toFixed(3))
   }
 
   // directly set joint not using ik

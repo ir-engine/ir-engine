@@ -102,7 +102,7 @@ function UpdateIkPose(data) {
     changes[VRMHumanBoneName.LeftHand] = {
       ik: true,
       quaternion,
-      xyz: { x: hips.x - lm3d[15].x, y: hips.y - lm3d[15].y, z: hips.z + lm3d[15].z },
+      xyz: { x: hips.x + lm3d[15].x, y: hips.y - lm3d[15].y, z: hips.z - lm3d[15].z },
       wingspan: 1.2,
       color: 0xee0000
     }
@@ -134,7 +134,7 @@ function UpdateIkPose(data) {
     changes[VRMHumanBoneName.RightHand] = {
       ik: true,
       quaternion,
-      xyz: { x: hips.x - lm3d[16].x, y: hips.y - lm3d[16].y, z: hips.z + lm3d[16].z },
+      xyz: { x: hips.x + lm3d[16].x, y: hips.y - lm3d[16].y, z: hips.z - lm3d[16].z },
       wingspan: 1.2,
       color: 0xee0000
     }
