@@ -27,7 +27,6 @@ import { Instance as InstanceInterface } from '@etherealengine/common/src/interf
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -50,14 +49,6 @@ declare module '@etherealengine/common/declarations' {
     }
   }
 }
-
-type ActiveInstance = {
-  id: InstanceID
-  location: string
-  currentUsers: number
-}
-
-// TODO: paginate this
 
 export const getActiveInstancesForUserFriends = (app: Application) => async (data: UserParams, params) => {
   if (!data.user) throw new Error('User not found')

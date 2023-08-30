@@ -26,16 +26,26 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { locationSchema } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { instanceSchema } from './instance.schema'
+import { InstanceID } from './instance.schema'
 
 export const instanceActivePath = 'instance-active'
 
 export const instanceActiveMethods = ['find'] as const
 
 // Main data model schema
-
-export const instanceActiveSchema = Type.Pick(instanceSchema, ['id', 'location', 'currentUsers'])
+export const instanceActiveSchema = Type.Object(
+  {
+    id: TypedString<InstanceID>({
+      format: 'uuid'
+    }),
+    currentUsers: Type.Integer(),
+    location: Type.Ref(locationSchema)
+  },
+  { $id: 'InstanceActive', additionalProperties: false }
+)
 export type InstanceActiveType = Static<typeof instanceActiveSchema>
 
 // Schema for creating new entries
