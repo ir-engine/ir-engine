@@ -43,11 +43,14 @@ import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
 import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
+import { useTranslation } from 'react-i18next'
 import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
+  const { t } = useTranslation()
+
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const authState = useHookstate(getMutableState(AuthState))
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
@@ -85,7 +88,18 @@ const PlayModeTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
-      <InfoTooltip title={editorHelperState.isPlayModeEnabled.value ? 'Stop Previewing Scene' : 'Preview Scene'}>
+      <InfoTooltip
+        title={
+          editorHelperState.isPlayModeEnabled.value
+            ? t('editor:toolbar.command.lbl-stopPreview')
+            : t('editor:toolbar.command.lbl-playPreview')
+        }
+        info={
+          editorHelperState.isPlayModeEnabled.value
+            ? t('editor:toolbar.command.info-stopPreview')
+            : t('editor:toolbar.command.info-playPreview')
+        }
+      >
         <button
           disabled={!sceneLoaded}
           onClick={onTogglePlayMode}

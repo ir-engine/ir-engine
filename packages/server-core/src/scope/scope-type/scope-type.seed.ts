@@ -28,7 +28,7 @@ import { Knex } from 'knex'
 import { scopeTypePath, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { getDateTimeSql } from '../../util/datetime-sql'
 
 export const scopeTypeSeed = [
   {

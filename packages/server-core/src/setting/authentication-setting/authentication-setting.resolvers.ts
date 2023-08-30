@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -41,10 +41,8 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import { AuthenticationSettingPatch } from './../../../../engine/src/schemas/setting/authentication-setting.schema'
-
-export const authenticationSettingResolver = resolve<AuthenticationSettingType, HookContext>({})
 
 export const authenticationSettingSchemaToDb = (patch: AuthenticationSettingPatch) => {
   return {
@@ -160,6 +158,11 @@ export const authenticationDbToSchema = (rawData: AuthenticationSettingDatabaseT
     oauth
   }
 }
+
+export const authenticationSettingResolver = resolve<AuthenticationSettingType, HookContext>({
+  createdAt: virtual(async (authenticationSetting) => fromDateTimeSql(authenticationSetting.createdAt)),
+  updatedAt: virtual(async (authenticationSetting) => fromDateTimeSql(authenticationSetting.updatedAt))
+})
 
 export const authenticationSettingExternalResolver = resolve<AuthenticationSettingType, HookContext>(
   {},

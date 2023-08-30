@@ -257,7 +257,8 @@
       },
       "userIdCopied": "User ID copied",
       "apiKeyCopied": "API Key copied",
-      "refreshApiKey": "Refresh API Key"
+      "refreshApiKey": "Refresh API Key",
+      "privacyPolicy": "Privacy Policy"
     },
     "oauth": {
       "authenticating": "Authenticating...",
