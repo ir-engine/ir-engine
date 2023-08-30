@@ -83,7 +83,7 @@ const InvitesConsole = () => {
                 {t('admin:components.invite.create')}
               </Button>
 
-              {selectedInviteIds.value.size && (
+              {selectedInviteIds.value.size > 0 && (
                 <IconButton
                   className={styles.filterButton}
                   sx={{ ml: 1 }}
