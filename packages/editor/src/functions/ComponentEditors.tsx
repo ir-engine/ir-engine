@@ -77,7 +77,9 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEditor'
+import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
@@ -104,8 +106,6 @@ import { EditorComponentType } from '../components/properties/Util'
 import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
-import LinkNodeEditor from '../components/properties/LinkNodeEditor'
-import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 
 export const EntityNodeEditor = new Map<Component, EditorComponentType>()
 EntityNodeEditor.set(TransformComponent, TransformPropertyGroup)

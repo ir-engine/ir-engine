@@ -66,6 +66,7 @@ import { IconButton, PopoverPosition } from '@mui/material'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
+import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -75,7 +76,6 @@ import StringInput from '../inputs/StringInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import { InfoTooltip } from '../layout/Tooltip'
 import styles from './styles.module.scss'
-import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
 
 export type SceneElementType = {
   componentName: string
