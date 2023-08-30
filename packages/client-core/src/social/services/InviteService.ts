@@ -179,14 +179,14 @@ export const InviteService = {
       }
     }
 
-    if (data.inviteeId != null) {
+    if (data.inviteeId) {
       if (!USER_ID_REGEX.test(data.inviteeId)) {
         NotificationService.dispatchNotify('Invalid user ID', { variant: 'error' })
         return
       }
     }
 
-    if ((data.token == null || data.token.length === 0) && (data.inviteeId == null || data.inviteeId.length === 0)) {
+    if (!data.token && !data.inviteeId) {
       NotificationService.dispatchNotify('Not a valid recipient', { variant: 'error' })
       return
     }

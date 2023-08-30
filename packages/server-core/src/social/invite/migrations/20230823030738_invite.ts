@@ -54,9 +54,9 @@ export async function up(knex: Knex): Promise<void> {
       table.dateTime('startTime').defaultTo(null)
       table.dateTime('endTime').defaultTo(null)
       //@ts-ignore
-      table.string('userId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.uuid('userId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       //@ts-ignore
-      table.string('inviteeId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.uuid('inviteeId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       table.string('inviteType', 255).defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
