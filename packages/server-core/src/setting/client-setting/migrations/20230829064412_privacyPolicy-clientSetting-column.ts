@@ -23,28 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import type { Knex } from 'knex'
 
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
+  if (!privacyPolicyColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.string('privacyPolicy')
+    })
+  }
+}
 
-import { useTranslation } from 'react-i18next'
-import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
-import { InfoTooltip } from '../layout/Tooltip'
-import styles from '../styles.module.scss'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
 
-export const HierarchyPanelTitle = () => {
-  const { t } = useTranslation()
-
-  return (
-    <div className={styles.dockableTab}>
-      <PanelDragContainer>
-        <PanelIcon as={AccountTreeIcon} size={12} />
-        <PanelTitle>
-          <InfoTooltip title={t('editor:hierarchy.info')}>
-            <span>{t('editor:hierarchy.lbl')}</span>
-          </InfoTooltip>
-        </PanelTitle>
-      </PanelDragContainer>
-    </div>
-  )
+  if (privacyPolicyColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('privacyPolicy')
+    })
+  }
 }

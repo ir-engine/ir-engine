@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
 import React, { useState } from 'react'
 
 import { ShadowMapResolutionOptions } from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
@@ -33,6 +32,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 
+import { useTranslation } from 'react-i18next'
 import BooleanInput from '../../inputs/BooleanInput'
 import InputGroup from '../../inputs/InputGroup'
 import SelectInput from '../../inputs/SelectInput'
@@ -40,6 +40,8 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
+  const { t } = useTranslation()
+
   const rendererState = useHookstate(getMutableState(RendererState))
   const options = [] as { label: string; value: string }[]
 
@@ -67,7 +69,7 @@ const RenderModeTool = () => {
   return (
     <>
       <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="stats">
-        <InfoTooltip title="Render Settings">
+        <InfoTooltip title={t('editor:toolbar.render-settings.lbl')} info={t('editor:toolbar.render-settings.info')}>
           <button
             onClick={toggleRenderSettings}
             className={styles.toolButton + ' ' + (isVisible ? styles.selected : '')}
@@ -87,7 +89,7 @@ const RenderModeTool = () => {
           </InputGroup>
           <InputGroup
             name="Render Mode"
-            label={t('editor:toolbar.render-settings.lbl-renderMode')} // need to figure out where this goes, maybe make a new section in editor.json, HELP!
+            label={t('editor:toolbar.render-settings.lbl-renderMode')}
             info={t('editor:toolbar.render-settings.info-renderMode')}
           >
             <SelectInput
