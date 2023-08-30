@@ -30,7 +30,7 @@ import { v4 } from 'uuid'
 import { ChannelUserQuery, ChannelUserType } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const channelUserResolver = resolve<ChannelUserType, HookContext>({
   user: virtual(async (channelUser, context) => {
@@ -38,7 +38,9 @@ export const channelUserResolver = resolve<ChannelUserType, HookContext>({
       const user = await context.app.service(userPath)._get(channelUser.userId)
       return user
     }
-  })
+  }),
+  createdAt: virtual(async (channel) => fromDateTimeSql(channel.createdAt)),
+  updatedAt: virtual(async (channel) => fromDateTimeSql(channel.updatedAt))
 })
 
 export const channelUserExternalResolver = resolve<ChannelUserType, HookContext>({})
