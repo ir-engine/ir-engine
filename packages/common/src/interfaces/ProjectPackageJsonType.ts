@@ -25,32 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { IPackageJson } from 'package-json-type'
 
-import { ProjectPermissionType } from './../../../engine/src/schemas/projects/project-permission.schema'
-
-export type ProjectUpdateType = 'none' | 'commit' | 'tag'
-
 export const DefaultUpdateSchedule = '0 * * * *'
-
-export interface ProjectInterface {
-  id: string
-  name: string
-  thumbnail?: string
-  repositoryPath: string
-  version?: string
-  engineVersion?: string
-  description?: string
-  settings?: string
-  needsRebuild: boolean
-  sourceRepo?: string
-  sourceBranch?: string
-  updateType: ProjectUpdateType
-  updateSchedule?: string
-  updateUserId?: string
-  hasWriteAccess?: boolean
-  project_permissions?: ProjectPermissionType[]
-  commitSHA?: string
-  commitDate?: Date
-}
 
 export interface ProjectPackageJsonType extends IPackageJson {
   etherealEngine: {

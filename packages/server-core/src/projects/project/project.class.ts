@@ -30,7 +30,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { DefaultUpdateSchedule, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -168,7 +168,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       reset?: boolean
       commitSHA?: string
       sourceBranch: string
-      updateType: ProjectUpdateType
+      updateType: ProjectType['updateType']
       updateSchedule: string
     },
     placeholder?: null,
