@@ -56,11 +56,13 @@ import {
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Knex } from 'knex'
+import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { cleanString } from '../../util/cleanString'
+import { getDateTimeSql } from '../../util/datetime-sql'
 import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
@@ -85,12 +87,12 @@ const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/t
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-export interface ProjectParams extends RootParams<ProjectQuery> {}
-
 export type ProjectUpdateParams = {
   user?: UserType
   isJob?: boolean
 }
+
+export interface ProjectParams extends RootParams<ProjectQuery>, ProjectUpdateParams {}
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
 
@@ -141,9 +143,12 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     return super._create(
       {
+        id: v4(),
         thumbnail: packageData.thumbnail,
         name: projectName,
-        needsRebuild: true
+        needsRebuild: true,
+        createdAt: await getDateTimeSql(),
+        updatedAt: await getDateTimeSql()
       },
       params
     )
@@ -172,7 +177,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       updateSchedule: string
     },
     placeholder?: null,
-    params?: ProjectUpdateParams
+    params?: ProjectParams
   ) {
     if (!config.kubernetes.enabled || params?.isJob) return updateProject(this.app, data, params)
     else {
@@ -208,10 +213,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
   async get(id: Id, params?: ProjectParams) {
     return super._get(id, params)
-  }
-
-  async updateSettings(id: NullableId, data: ProjectPatch) {
-    return super._patch(id, data)
   }
 
   async patch(id: NullableId, data: ProjectPatch, params?: ProjectParams) {
@@ -352,7 +353,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       const knexClient: Knex = this.app.get('knexClient')
       const projectPermissions = await knexClient
         .from(projectPermissionPath)
-        .join(projectPath, `${projectPath}.projectId`, `${projectPermissionPath}.projectId`)
+        .join(projectPath, `${projectPath}.id`, `${projectPermissionPath}.projectId`)
         .where(`${projectPermissionPath}.userId`, params.user!.id)
         .select()
         .options({ nestTables: true })
@@ -444,11 +445,10 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   }
 
   async _callOnLoad() {
-    const projects = (
-      (await super._find({
-        query: { $select: ['name'] }
-      })) as Paginated<ProjectType>
-    ).data as Array<{ name }>
+    const projects = (await super._find({
+      query: { $select: ['name'] },
+      paginate: false
+    })) as Array<{ name }>
     await Promise.all(
       projects.map(async ({ name }) => {
         if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
@@ -467,6 +467,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     const commitDateISO = commitDate.toISOString()
 
     await super._create({
+      id: v4(),
       thumbnail: projectConfig.thumbnail,
       name: projectName,
       repositoryPath: gitData.repositoryPath,
@@ -476,7 +477,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       commitDate: commitDateISO,
       needsRebuild: true,
       updateType: 'none' as ProjectType['updateType'],
-      updateSchedule: DefaultUpdateSchedule
+      updateSchedule: DefaultUpdateSchedule,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
     })
     // run project install script
     if (projectConfig.onEvent) {
@@ -514,15 +517,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-      const trx = await (this.app.get('knexClient') as Knex).transaction()
-
-      await trx
-        .from<ProjectType>(projectPath)
-        .update({
-          commitSHA: commitSHA,
-          commitDate: commitDate.toISOString()
-        })
-        .where({ name: projectName })
+      await super._patch(null, { commitSHA, commitDate: commitDate.toISOString() }, { query: { name: projectName } })
 
       promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }

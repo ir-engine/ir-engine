@@ -40,21 +40,6 @@ import {
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const projectResolver = resolve<ProjectType, HookContext>({
-  projectPermissions: virtual(async (project, context) => {
-    const projectPermissions = (await context.app.service(projectPermissionPath).find({
-      query: {
-        projectId: project.id
-      },
-      paginate: false
-    })) as ProjectPermissionType[]
-
-    return projectPermissions
-  }),
-  createdAt: virtual(async (project) => fromDateTimeSql(project.createdAt)),
-  updatedAt: virtual(async (project) => fromDateTimeSql(project.updatedAt))
-})
-
 export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => {
   let settings = JSON.parse(rawData.settings) as ProjectSettingType[]
 
@@ -75,6 +60,25 @@ export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => 
   }
 }
 
+export const projectResolver = resolve<ProjectType, HookContext>({
+  projectPermissions: virtual(async (project, context) => {
+    const projectPermissions = (await context.app.service(projectPermissionPath).find({
+      query: {
+        projectId: project.id
+      },
+      paginate: false
+    })) as ProjectPermissionType[]
+
+    return projectPermissions
+  }),
+
+  commitDate: virtual(async (project) => {
+    if (project.commitDate) return fromDateTimeSql(project.commitDate)
+  }),
+  createdAt: virtual(async (project) => fromDateTimeSql(project.createdAt)),
+  updatedAt: virtual(async (project) => fromDateTimeSql(project.updatedAt))
+})
+
 export const projectExternalResolver = resolve<ProjectType, HookContext>(
   {},
   {
@@ -85,7 +89,7 @@ export const projectExternalResolver = resolve<ProjectType, HookContext>(
   }
 )
 
-export const projectDataResolver = resolve<ProjectType, HookContext>(
+export const projectDataResolver = resolve<ProjectDatabaseType, HookContext>(
   {
     id: async () => {
       return v4()

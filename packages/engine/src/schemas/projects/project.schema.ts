@@ -33,13 +33,6 @@ export const projectPath = 'project'
 
 export const projectMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 
-export const projectScopeSchema = Type.Object(
-  {
-    type: Type.String()
-  },
-  { $id: 'ProjectScope', additionalProperties: false }
-)
-
 export const projectSettingSchema = Type.Object(
   {
     key: Type.String(),
@@ -105,7 +98,6 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
   'version',
   'engineVersion',
   'description',
-  'settings',
   'needsRebuild',
   'sourceRepo',
   'sourceBranch',
@@ -142,7 +134,6 @@ export const projectQuerySchema = Type.Intersect(
 )
 export type ProjectQuery = Static<typeof projectQuerySchema>
 
-export const projectScopeValidator = getValidator(projectScopeSchema, dataValidator)
 export const projectValidator = getValidator(projectSchema, dataValidator)
 export const projectDataValidator = getValidator(projectDataSchema, dataValidator)
 export const projectPatchValidator = getValidator(projectPatchSchema, dataValidator)

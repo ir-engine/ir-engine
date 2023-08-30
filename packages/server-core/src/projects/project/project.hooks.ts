@@ -74,18 +74,18 @@ export default {
     find: [],
     get: [],
     create: [
-      iff(isProvider('external'), verifyScope('editor', 'write') as any),
+      iff(isProvider('external'), verifyScope('editor', 'write')),
       () => schemaHooks.validateData(projectDataValidator),
       schemaHooks.resolveData(projectDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)],
+    update: [iff(isProvider('external'), verifyScope('editor', 'write')), projectPermissionAuthenticate(false)],
     patch: [
-      iff(isProvider('external'), verifyScope('editor', 'write') as any),
+      iff(isProvider('external'), verifyScope('editor', 'write')),
       projectPermissionAuthenticate(false),
       () => schemaHooks.validateData(projectPatchValidator),
       schemaHooks.resolveData(projectPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)]
+    remove: [iff(isProvider('external'), verifyScope('editor', 'write')), projectPermissionAuthenticate(false)]
   },
 
   after: {

@@ -36,16 +36,20 @@ import { promisify } from 'util'
 
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
-import { ProjectPackageJsonType, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import {
+  projectPath,
+  ProjectSettingType,
+  ProjectType
+} from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   identityProviderPath,
   IdentityProviderType
@@ -53,6 +57,7 @@ import {
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
+import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/server-info/server-info-helper'
@@ -63,13 +68,14 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
+import { getDateTimeSql } from '../../util/datetime-sql'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { uploadSceneToStaticResources } from '../scene/scene-helper'
 import { getAuthenticatedRepo, getOctokitForChecking, getUserRepos } from './github-helper'
-import { ProjectParams, ProjectUpdateParams } from './project.class'
+import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
 export const publicECRRepoRegex = /^public.ecr.aws\/[a-zA-Z0-9]+\/([a-z0-9\-_\\]+)$/
@@ -315,7 +321,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
       $select: ['settings']
     }
   })
-  const settings = {}
+  const settings: ProjectSettingType[] = []
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
   return settings
 }
@@ -482,7 +488,7 @@ export const checkProjectDestinationMatch = async (app: Application, params: Pro
     const projectExists = await app.service(projectPath).find({
       query: {
         name: {
-          $like: '%' + sourceContent.name.toLowerCase() + '%'
+          $like: '%' + sourceContent.name + '%'
         }
       }
     })
@@ -895,7 +901,7 @@ export async function getProjectUpdateJobBody(
     reset?: boolean
     commitSHA?: string
     sourceBranch: string
-    updateType: ProjectUpdateType
+    updateType: ProjectType['updateType']
     updateSchedule: string
   },
   app: Application,
@@ -1367,10 +1373,10 @@ export const updateProject = async (
     reset?: boolean
     commitSHA?: string
     sourceBranch: string
-    updateType: ProjectUpdateType
+    updateType: ProjectType['updateType']
     updateSchedule: string
   },
-  params?: ProjectUpdateParams
+  params?: ProjectParams
 ) => {
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
@@ -1394,7 +1400,7 @@ export const updateProject = async (
     deleteFolderRecursive(projectDirectory)
   }
 
-  const projectResult = await app.service(projectPath).find({
+  const projectResult = await app.service(projectPath)._find({
     query: {
       name: projectName
     }
@@ -1406,7 +1412,7 @@ export const updateProject = async (
   const userId = params!.user?.id || project?.updateUserId
   if (!userId) throw new BadRequest('No user ID from call or existing project owner')
 
-  const githubIdentityProvider = (await app.service(identityProviderPath).find({
+  const githubIdentityProvider = (await app.service(identityProviderPath)._find({
     query: {
       userId: userId,
       type: 'github',
@@ -1464,6 +1470,7 @@ export const updateProject = async (
     ? // Add to DB
       await app.service(projectPath)._create(
         {
+          id: v4(),
           thumbnail: projectConfig.thumbnail,
           name: projectName,
           repositoryPath,
@@ -1474,7 +1481,9 @@ export const updateProject = async (
           updateSchedule: data.updateSchedule,
           updateUserId: userId,
           commitSHA,
-          commitDate: commitDateISO
+          commitDate: commitDateISO,
+          createdAt: await getDateTimeSql(),
+          updatedAt: await getDateTimeSql()
         },
         params || {}
       )

@@ -47,8 +47,8 @@ export class ProjectSetting implements ServiceMethods<Data> {
     return result?.data[0]?.settings ? result.data[0].settings : []
   }
 
-  async patch(id: Id, data: { settings: ProjectSettingType[] }, params?: Params): Promise<any> {
-    return this.app.service(projectPath).updateSettings(id, data)
+  async patch(id: Id, data: { settings: ProjectSettingType[] }, params?: Params) {
+    return this.app.service(projectPath)._patch(id, data)
   }
 
   async setup(): Promise<any> {}

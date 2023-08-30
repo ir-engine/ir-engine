@@ -45,7 +45,6 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
-import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
@@ -343,15 +342,7 @@ const uploadToRepo = async (
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
 
-  const trx = await (app.get('knexClient') as Knex).transaction()
-
-  await trx
-    .from<ProjectType>(projectPath)
-    .update({
-      commitSHA: newCommit.sha,
-      commitDate: new Date().toISOString()
-    })
-    .where({ id: project.id })
+  await app.service(projectPath)._patch(project.id, { commitSHA: newCommit.sha, commitDate: new Date().toISOString() })
 
   try {
     //This pushes the commit to the main branch in GitHub

@@ -36,7 +36,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { ProjectType, projectMethods, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ServerState } from '../../ServerState'
 import { UserParams } from '../../api/root-params'
@@ -396,7 +396,7 @@ export default (app: Application): void => {
     }
   })
 
-  service.publish('patched', async (data: UserType) => {
+  service.publish('patched', async (data: ProjectType) => {
     try {
       let targetIds: string[] = []
       const projectOwners = await app.service(projectPermissionPath)._find({
