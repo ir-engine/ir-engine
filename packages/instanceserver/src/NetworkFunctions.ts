@@ -56,7 +56,7 @@ import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
 
