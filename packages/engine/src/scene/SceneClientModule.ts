@@ -73,7 +73,6 @@ import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
-import { SceneObjectUpdateSystem } from './systems/SceneObjectUpdateSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
@@ -111,7 +110,6 @@ export const SceneComponents = [
   SpawnPointComponent,
   SplineComponent,
   SystemComponent,
-  SplineComponent,
   SpotLightComponent,
   SystemComponent,
   VariantComponent,
@@ -130,11 +128,5 @@ export const SceneSystemUpdateGroup = defineSystem({
 
 export const SceneSystemLoadGroup = defineSystem({
   uuid: 'ee.engine.scene.SceneSystemLoadGroup',
-  subSystems: [
-    SceneLoadingSystem,
-    VariantSystem,
-    SceneObjectDynamicLoadSystem,
-    MaterialLibrarySystem,
-    SceneObjectUpdateSystem
-  ]
+  subSystems: [SceneLoadingSystem, VariantSystem, SceneObjectDynamicLoadSystem, MaterialLibrarySystem]
 })
