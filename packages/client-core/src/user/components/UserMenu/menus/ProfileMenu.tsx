@@ -49,6 +49,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
@@ -81,6 +82,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const authState = useHookstate(initialAuthState)
 
   const authSetting = useFind(authenticationSettingPath).data.at(0)
+  const clientSetting = useFind(clientSettingPath).data.at(0)
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
@@ -636,6 +638,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
             )}
           </>
         )}
+        <div className={styles.center}>
+          <a href={clientSetting?.privacyPolicy}>{t('user:usermenu.profile.privacyPolicy')}</a>
+        </div>
       </Box>
     </Menu>
   )
