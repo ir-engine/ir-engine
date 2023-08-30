@@ -112,7 +112,7 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
 
   delete query.type
   delete query.search
-  return (await inviteService.find({
+  return (await inviteService._find({
     query: {
       ...query,
       $or: [
@@ -152,7 +152,7 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
 
   delete query.type
   delete query.search
-  return (await inviteService.find({
+  return (await inviteService._find({
     query: {
       ...query,
       userId: query.userId
