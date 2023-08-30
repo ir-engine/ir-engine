@@ -271,7 +271,7 @@ const execute = () => {
     const network = Engine.instance.worldNetwork
     if (network) {
       const isPeerForEntity = Array.from(timeSeriesMocapData.keys()).find(
-        (peerID: PeerID) => network.peers.get(peerID)?.userId === networkObject.ownerId
+        (peerID: PeerID) => network.peers[peerID]?.userId === networkObject.ownerId
       )
       if (isPeerForEntity && ikEntities.length == 0) {
         // just animate and exit
