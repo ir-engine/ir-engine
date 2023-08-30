@@ -133,7 +133,7 @@ const Avatar = ({
     >
       <img
         style={{
-          height: 'auto',
+          height: '100%',
           maxWidth: '100%'
         }}
         alt={alt}
