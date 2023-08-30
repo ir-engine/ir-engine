@@ -209,7 +209,7 @@ export const RecordingPeerList = () => {
 
   useEffect(() => {
     if (!mediaNetworkState?.users) return
-    peerIDs.set(mediaNetworkState.users.value[Engine.instance.userID] ?? [])
+    peerIDs.set(mediaNetworkState.users.get({ noproxy: true })[Engine.instance.userID] ?? [])
   }, [mediaNetworkState?.peers, mediaNetworkState?.users])
 
   return (
