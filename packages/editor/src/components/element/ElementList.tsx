@@ -59,7 +59,6 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 import { NO_PROXY, getState, useState } from '@etherealengine/hyperflux'
 
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
-import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
@@ -74,6 +73,7 @@ import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
 import { ContextMenu } from '../layout/ContextMenu'
+import { InfoTooltip } from '../layout/Tooltip'
 import styles from './styles.module.scss'
 
 export type SceneElementType = {
@@ -115,6 +115,8 @@ export const addSceneComponentElement = (
 }
 
 const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {
+  const { t } = useTranslation()
+
   const onClickItem = useCallback(() => {
     onClick?.(item)
   }, [item, onClick])
@@ -128,7 +130,12 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
 
   return (
     <div onContextMenu={(event) => onContextMenu(event, item)}>
-      <Tooltip title={item.label} placement="left" disableInteractive>
+      <InfoTooltip
+        title={item.label}
+        info={t(`editor:layout.assetGrid.tooltip.${item.componentName}`)}
+        placement="left"
+        disableInteractive
+      >
         <IconButton
           className={styles.element}
           disableRipple
@@ -136,7 +143,7 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
           onClick={onClickItem}
           children={<item.Icon />}
         />
-      </Tooltip>
+      </InfoTooltip>
     </div>
   )
 }
