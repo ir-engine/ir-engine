@@ -132,7 +132,7 @@ export const InviteServiceReceptor = (action) => {
 
 //Service
 export const InviteService = {
-  sendInvite: async (data: InviteData) => {
+  sendInvite: async (data: InviteData, inviteCode: string) => {
     if (data.identityProviderType === 'email') {
       if (!data.token || !EMAIL_REGEX.test(data.token)) {
         NotificationService.dispatchNotify(`Invalid email address: ${data.token}`, { variant: 'error' })
@@ -152,9 +152,9 @@ export const InviteService = {
       return
     }
 
-    if (data.spawnDetails?.inviteCode) {
-      if (!INVITE_CODE_REGEX.test(data.spawnDetails?.inviteCode)) {
-        NotificationService.dispatchNotify(`Invalid Invite Code: ${data.spawnDetails?.inviteCode}`, {
+    if (inviteCode) {
+      if (!INVITE_CODE_REGEX.test(inviteCode)) {
+        NotificationService.dispatchNotify(`Invalid Invite Code: ${inviteCode}`, {
           variant: 'error'
         })
         return
@@ -162,12 +162,12 @@ export const InviteService = {
         try {
           const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
             query: {
-              inviteCode: data.spawnDetails?.inviteCode
+              inviteCode: inviteCode
             }
           })
 
           if (inviteCodeLookups.length === 0) {
-            NotificationService.dispatchNotify(`No user has the invite code ${data.spawnDetails?.inviteCode}`, {
+            NotificationService.dispatchNotify(`No user has the invite code ${inviteCode}`, {
               variant: 'error'
             })
             return

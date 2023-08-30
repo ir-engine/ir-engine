@@ -85,16 +85,21 @@ export const useShareMenuHooks = ({ refLink }) => {
     const isEmail = EMAIL_REGEX.test(token)
     const isPhone = PHONE_REGEX.test(token)
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
+    let inviteCode = ''
+
     const sendData = {
       inviteType: 'instance',
       token: token.length === 8 ? null : token,
-      inviteCode: token.length === 8 ? token : null,
       identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
       targetObjectId: params.get('instanceId'),
       inviteeId: '' as UserID,
       deleteOnUse: true
     } as InviteData
+
+    if (token.length === 8) {
+      inviteCode = token
+    }
 
     if (isSpectatorMode) {
       sendData.spawnType = 'spectate'
@@ -104,7 +109,7 @@ export const useShareMenuHooks = ({ refLink }) => {
       sendData.spawnDetails = { inviteCode: selfUser.inviteCode.value }
     }
 
-    InviteService.sendInvite(sendData)
+    InviteService.sendInvite(sendData, inviteCode)
     setToken('')
   }
 
@@ -114,7 +119,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const getInviteLink = () => {
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
     if (selfUser?.inviteCode.value != null) {
       params.set('inviteCode', selfUser.inviteCode.value)
       location.search = params.toString()
@@ -126,7 +131,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const getSpectateModeUrl = () => {
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
     params.set('spectate', selfUser.id.value)
     params.delete('inviteCode')
     location.search = params.toString()
@@ -172,7 +177,7 @@ const ShareMenu = (): JSX.Element => {
   })
 
   // Ref: https://developer.oculus.com/documentation/web/web-launch
-  let questShareLink = new URL('https://oculus.com/open_url/')
+  const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
 
   const copyToClipboard = (text: string) => {
