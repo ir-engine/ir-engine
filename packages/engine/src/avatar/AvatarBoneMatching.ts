@@ -645,7 +645,6 @@ export const recursiveHipsLookup = (model: Object3D) => {
 
 export default function avatarBoneMatching(model: Object3D): VRM {
   const bones = {} as VRMHumanBones
-  console.log(model)
   //use hips name as a standard to determine what to do with the mixamo prefix
   let needsMixamoPrefix = false
   let mixamoPrefix = ''
@@ -690,7 +689,6 @@ export default function avatarBoneMatching(model: Object3D): VRM {
 
   //quick dirty tag to disable flipping on mixamo rigs
   ;(vrm as any).userData = { flipped: false, needsMixamoPrefix: needsMixamoPrefix } as any
-  console.log(vrm)
   return vrm
 }
 
