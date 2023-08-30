@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import classNames from 'classnames'
-import dayjs, { Dayjs } from 'dayjs'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -85,8 +84,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const setSpawn = useHookstate(false)
   const spawnTypeTab = useHookstate(0)
   const timed = useHookstate(false)
-  const startTime = useHookstate<Dayjs>(dayjs(null))
-  const endTime = useHookstate<Dayjs>(dayjs(null))
+  const startTime = useHookstate<Date>(new Date())
+  const endTime = useHookstate<Date>(new Date())
 
   const adminInstances = useFind('instance').data
   const adminLocations = useFind(locationPath).data
@@ -147,8 +146,10 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     }
     if (invite.timed) {
       timed.set(true)
-      startTime.set(dayjs(invite.startTime))
-      endTime.set(dayjs(invite.endTime))
+      const sTime = invite.startTime ? new Date(invite.startTime) : new Date()
+      startTime.set(sTime)
+      const eTime = invite.endTime ? new Date(invite.endTime) : new Date()
+      endTime.set(eTime)
     }
   }, [invite])
 
@@ -249,8 +250,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       }
       sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
       if (sendData.timed) {
-        sendData.startTime = toDateTimeSql(startTime.value?.toDate())
-        sendData.endTime = toDateTimeSql(endTime.value?.toDate())
+        sendData.startTime = toDateTimeSql(startTime.value)
+        sendData.endTime = toDateTimeSql(endTime.value)
       }
       await patchInvite(invite.id, sendData)
       instanceId.set('')
@@ -264,8 +265,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       spawnTypeTab.set(0)
       inviteTypeTab.set(0)
       timed.set(false)
-      startTime.set(dayjs(null))
-      endTime.set(dayjs(null))
+      startTime.set(new Date())
+      endTime.set(new Date())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -344,23 +345,27 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
                   <DateTimePicker
                     label="Start Time"
                     value={startTime.value}
-                    onChange={(e) => startTime.set(dayjs(e))}
+                    onChange={(e) => startTime.set(e || new Date())}
                   />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => startTime.set(dayjs(null))}
+                    onClick={() => startTime.set(new Date())}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>
                 <div className={styles.pickerControls}>
-                  <DateTimePicker label="End Time" value={endTime.value} onChange={(e) => endTime.set(dayjs(e))} />
+                  <DateTimePicker
+                    label="End Time"
+                    value={endTime.value}
+                    onChange={(e) => endTime.set(e || new Date())}
+                  />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => endTime.set(dayjs(null))}
+                    onClick={() => endTime.set(new Date())}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>

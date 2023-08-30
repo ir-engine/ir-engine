@@ -90,16 +90,38 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>(
   }
 )
 
-export const inviteDataResolver = resolve<InviteType, HookContext>({
-  id: async () => {
-    return v4()
+export const inviteDataResolver = resolve<InviteType, HookContext>(
+  {
+    id: async () => {
+      return v4()
+    },
+    createdAt: getDateTimeSql,
+    updatedAt: getDateTimeSql
   },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql
-})
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData,
+        spawnDetails: JSON.stringify(rawData.spawnDetails)
+      }
+    }
+  }
+)
 
-export const invitePatchResolver = resolve<InviteType, HookContext>({
-  updatedAt: getDateTimeSql
-})
+export const invitePatchResolver = resolve<InviteType, HookContext>(
+  {
+    updatedAt: getDateTimeSql
+  },
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData,
+        spawnDetails: JSON.stringify(rawData.spawnDetails)
+      }
+    }
+  }
+)
 
 export const inviteQueryResolver = resolve<InviteQuery, HookContext>({})
