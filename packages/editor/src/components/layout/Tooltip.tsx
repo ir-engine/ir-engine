@@ -37,19 +37,26 @@ const useStyles = makeStyles<any, any, any>((theme: any) => {
 })
 
 /**
- *
- * @param {any} info
- * @param {any} children
- * @param {any} rest
- * @returns
+ * @param {Object} props
+ * @param {string} props.info additional info added to the tooltip label
  */
-export function InfoTooltip(props: TooltipProps) {
+export function InfoTooltip(props: TooltipProps & { info?: string }) {
   if (!props.title) return <>{props.children}</>
+
+  const title = props.info ? (
+    <p>
+      {props.title}
+      <hr />
+      {props.info}
+    </p>
+  ) : (
+    props.title
+  )
 
   const styles = useStyles({})
 
   return (
-    <Tooltip {...props} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>
+    <Tooltip {...props} title={title} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>
       {/* Span is required to trigger events like hover in safari for disabled elements */}
       {props.children}
     </Tooltip>
