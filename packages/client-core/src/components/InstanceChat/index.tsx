@@ -461,7 +461,7 @@ export const InstanceChatWrapper = () => {
     if (worldNetwork?.connected?.value) {
       ChannelService.getInstanceChannel()
     }
-  }, [worldNetwork?.connected])
+  }, [worldNetwork?.connected?.value])
 
   return (
     <>
