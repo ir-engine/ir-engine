@@ -23,52 +23,56 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
+import { MessageType, messageMethods, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { Message } from './message.class'
+import { MessageService } from './message.class'
 import messageDocs from './message.docs'
 import hooks from './message.hooks'
-import createModel from './message.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    message: Message
+    [messagePath]: MessageService
   }
 }
 
-export const onCRUD =
-  (app: Application) =>
-  async (data: MessageInterface): Promise<any> => {
-    data.sender = await app.service(userPath).get(data.senderId)
-    const channelUsers = await app.service('channel-user').find({
-      query: {
-        channelId: data.channelId
-      }
-    })
-
-    const userIds = (channelUsers as any).data.map((channelUser) => {
-      return channelUser.userId
-    })
-
-    return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
-  }
-
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
+    name: messagePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  const event = new Message(options, app)
-  event.docs = messageDocs
-  app.use('message', event)
+  app.use(messagePath, new MessageService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: messageMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: messageDocs
+  })
 
-  const service = app.service('message')
-
+  const service = app.service(messagePath)
   service.hooks(hooks)
 
+  const onCRUD =
+    (app: Application) =>
+    async (data: MessageType): Promise<any> => {
+      if (!data.sender) {
+        data.sender = await app.service(userPath).get(data.senderId)
+      }
+      const channelUsers = await app.service('channel-user').find({
+        query: {
+          channelId: data.channelId
+        }
+      })
+      // TODO: Remove 'as any' once channel-user service is migrated to feathers5
+      const userIds = (channelUsers as any).data.map((channelUser) => {
+        return channelUser.userId
+      })
+      return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+    }
   service.publish('created', onCRUD(app))
   service.publish('removed', onCRUD(app))
   service.publish('patched', onCRUD(app))
