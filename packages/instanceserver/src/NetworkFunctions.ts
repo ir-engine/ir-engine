@@ -53,9 +53,10 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
 
@@ -355,7 +356,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     const app = Engine.instance.api as Application
 
     if (!instanceServerState.isMediaInstance)
-      app.service('message').create(
+      app.service(messagePath).create(
         {
           instanceId: instanceServerState.instance.id,
           text: `${userName} left`,

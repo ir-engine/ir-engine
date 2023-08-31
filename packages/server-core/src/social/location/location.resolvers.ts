@@ -36,7 +36,7 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { LocationAuthorizedUserType } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import { LocationParams } from './location.class'
 
 export const locationResolver = resolve<LocationType, HookContext>({
@@ -89,7 +89,9 @@ export const locationResolver = resolve<LocationType, HookContext>({
       paginate: false
     })) as LocationBanType[]
     return locationBan
-  })
+  }),
+  createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
+  updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))
 })
 
 export const locationExternalResolver = resolve<LocationType, HookContext>({

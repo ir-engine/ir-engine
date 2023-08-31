@@ -31,7 +31,7 @@ import { ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const scopeResolver = resolve<ScopeType, HookContext>({})
 
@@ -41,7 +41,9 @@ export const scopeExternalResolver = resolve<ScopeType, HookContext>({
       const user = await context.app.service(userPath)._get(scope.userId)
       return user
     }
-  })
+  }),
+  createdAt: virtual(async (scope) => fromDateTimeSql(scope.createdAt)),
+  updatedAt: virtual(async (scope) => fromDateTimeSql(scope.updatedAt))
 })
 
 export const scopeDataResolver = resolve<ScopeType, HookContext>({

@@ -24,15 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { UserApiKeyQuery, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const userApiKeyResolver = resolve<UserApiKeyType, HookContext>({})
+export const userApiKeyResolver = resolve<UserApiKeyType, HookContext>({
+  createdAt: virtual(async (userApiKey) => fromDateTimeSql(userApiKey.createdAt)),
+  updatedAt: virtual(async (userApiKey) => fromDateTimeSql(userApiKey.updatedAt))
+})
 
 export const userApiKeyExternalResolver = resolve<UserApiKeyType, HookContext>({})
 
