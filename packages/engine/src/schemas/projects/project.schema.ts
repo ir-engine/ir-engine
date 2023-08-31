@@ -105,7 +105,6 @@ export const projectQueryProperties = Type.Pick(projectSchema, [
   'updateSchedule',
   'updateUserId',
   'hasWriteAccess',
-  'projectPermissions',
   'commitSHA',
   'commitDate'
 ])
