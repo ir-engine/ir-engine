@@ -39,7 +39,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { timeSeriesMocapData } from '../../mocap/MotionCaptureSystem'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
@@ -58,7 +57,6 @@ import {
   compareDistanceToCamera
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRAction } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -88,10 +86,8 @@ export const AvatarAnimationState = defineState({
 })
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
-const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
-const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
@@ -273,7 +269,7 @@ const execute = () => {
     const network = Engine.instance.worldNetwork
     if (network) {
       const isPeerForEntity = Array.from(timeSeriesMocapData.keys()).find(
-        (peerID: PeerID) => network.peers.get(peerID)?.userId === networkObject.ownerId
+        (peerID: PeerID) => network.peers[peerID]?.userId === networkObject.ownerId
       )
       if (isPeerForEntity && ikEntities.length == 0) {
         // just animate and exit
@@ -517,15 +513,12 @@ const execute = () => {
       }
     }
 
-    for (const [key, animatedBone] of Object.entries(rigComponent.bindRig)) {
+    for (const [key, animatedBone] of Object.entries(rigComponent.localRig)) {
       const ikBone = rigComponent.rig[key].node as Object3D
       ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
     }
-
-    if (weights['hips'] == undefined) {
-      rig.hips.node.position.copy(rigComponent.bindRig.hips.node.position)
-    }
-
+    //todo: lerp this
+    if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
     rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
 

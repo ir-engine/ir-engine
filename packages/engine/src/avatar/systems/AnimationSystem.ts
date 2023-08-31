@@ -25,9 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { VRM } from '@pixiv/three-vrm'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
@@ -35,7 +37,7 @@ import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-const loopAnimationQuery = defineQuery([LoopAnimationComponent, VisibleComponent])
+const loopAnimationQuery = defineQuery([AnimationComponent, LoopAnimationComponent, ModelComponent])
 
 const execute = () => {
   const { deltaSeconds } = getState(EngineState)
@@ -45,15 +47,15 @@ const execute = () => {
     tween.update()
   }
 
+  for (const entity of loopAnimationQuery()) {
+    const model = getComponent(entity, ModelComponent)
+    if (model.asset instanceof VRM) model.asset.update(deltaSeconds)
+  }
+
   for (const entity of animationQuery()) {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
-  }
-
-  for (const entity of loopAnimationQuery()) {
-    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-    if (loopAnimationComponent.vrm) loopAnimationComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
 }
 

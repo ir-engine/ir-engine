@@ -72,8 +72,7 @@ const tempVec3ForCenter = new Vector3()
 
 export const locomotionPack = 'locomotion'
 
-export const loadAvatarModelAsset = async (avatarURL: string) => {
-  const model = await AssetLoader.loadAsync(avatarURL)
+export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
@@ -82,6 +81,11 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
   return vrm as VRM
+}
+
+export const loadAvatarModelAsset = async (avatarURL: string) => {
+  const model = await AssetLoader.loadAsync(avatarURL)
+  return parseAvatarModelAsset(model)
 }
 
 export const loadAvatarForUser = async (
@@ -152,15 +156,13 @@ export const createIKAnimator = async (entity: Entity) => {
     animations[i] = retargetMixamoAnimation(
       animations[i],
       manager.loadedAnimations[locomotionPack]?.scene!,
-      rigComponent.vrm,
-      'glb'
+      rigComponent.vrm
     )
-    console.log(animations[i])
   }
 
   setComponent(entity, AnimationComponent, {
     animations: clone(animations),
-    mixer: new AnimationMixer(rigComponent.bindRig.hips.node.parent!)
+    mixer: new AnimationMixer(rigComponent.localRig.hips.node.parent!)
   })
 }
 
@@ -194,7 +196,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    bindRig: cloneDeep(rig),
+    localRig: cloneDeep(rig),
     skinnedMeshes,
     vrm: model
   })

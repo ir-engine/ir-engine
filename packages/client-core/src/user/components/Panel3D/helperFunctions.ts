@@ -69,9 +69,10 @@ export const resetAnimationLogic = (entity: Entity) => {
   })
   setComponent(entity, AvatarAnimationComponent, {
     animationGraph: {
-      states: {},
-      transitionRules: {},
-      currentState: null!
+      blendAnimation: undefined,
+      needsSkip: false,
+      blendStrength: 0,
+      layer: 0
     },
     rootYRatio: 1,
     locomotion: new Vector3()

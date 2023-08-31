@@ -39,8 +39,13 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { isClient } from '../common/functions/getEnvironment'
+import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
 import UpdateAvatar from './UpdateAvatar'
+import { motionCaptureHeadSuffix, motionCaptureLeftHandSuffix, motionCaptureRightHandSuffix } from './UpdateIkHand'
 
 export interface MotionCaptureStream extends Results {
   za: Landmark[]
@@ -118,6 +123,8 @@ const execute = () => {
   }
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
+    const data = mocapData.popLast()
+    timeSeriesMocapLastSeen.set(peerID, Date.now())
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
     if (data && entity) {

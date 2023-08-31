@@ -323,6 +323,7 @@ export const getImageStats = async (
       }
     })
   } else {
+    console.log('file', file)
     if (typeof file === 'string') {
       file = (await (await fetch(file)).arrayBuffer()) as Buffer
     }
@@ -330,6 +331,7 @@ export const getImageStats = async (
     stream.push(file)
     stream.push(null)
     try {
+      console.log('probing image', mimeType)
       const imageDimensions = await probe(stream)
       return {
         width: imageDimensions.width as number,

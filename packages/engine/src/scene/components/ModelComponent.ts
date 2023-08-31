@@ -28,7 +28,9 @@ import { Mesh, Scene } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
@@ -77,7 +79,9 @@ export const ModelComponent = defineComponent({
       src: '',
       generateBVH: true,
       avoidCameraOcclusion: false,
-      scene: null as Scene | null
+      // internal
+      scene: null as Scene | null,
+      asset: null as VRM | GLTF | null
     }
   },
 
@@ -93,9 +97,9 @@ export const ModelComponent = defineComponent({
     setComponent(entity, LoopAnimationComponent)
 
     if (!json) return
-    if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
-    if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
-      component.generateBVH.set(json.generateBVH)
+    if (typeof json.src === 'string') component.src.set(json.src)
+    if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
+    if (typeof json.avoidCameraOcclusion === 'boolean') component.avoidCameraOcclusion.set(json.avoidCameraOcclusion)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -156,10 +160,7 @@ function ModelReactor() {
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
-              if (loadedAsset.scene.userData.type === 'vrm') {
-                setComponent(entity, LoopAnimationComponent)
-                getComponent(entity, LoopAnimationComponent).vrm = loadedAsset
-              }
+              modelComponent.asset.set(loadedAsset)
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return

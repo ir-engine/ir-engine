@@ -88,7 +88,7 @@ const debugmeshes = {}
 
 function ApplyPoseChange(entity: Entity, key, change) {
   const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig || !rig.bindRig || !rig.bindRig.hips || !rig.bindRig.hips.node) {
+  if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
     console.warn('pose change no rig')
     return
   }
