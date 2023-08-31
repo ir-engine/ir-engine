@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { useCallback } from 'react'
+import React, { SyntheticEvent, useCallback } from 'react'
 
 import {
   ImageTransformParameters,
@@ -56,6 +56,12 @@ export default function GLTFTransformProperties({
     }
   }, [])
 
+  const onChangeTransformStringParm = useCallback((scope: State<any>) => {
+    return (value: SyntheticEvent) => {
+      scope.set((value.target as HTMLInputElement).value)
+    }
+  }, [])
+
   const onChangeParameter = useCallback(
     (scope: State<any>, key: string) => (val: any) => {
       scope[key].set(val)
@@ -74,12 +80,12 @@ export default function GLTFTransformProperties({
         }}
       >
         <InputGroup name="dst" label={t('editor:properties.model.transform.dst')}>
-          <StringInput value={transformParms.dst.value} onChange={onChangeTransformParm(transformParms.dst)} />
+          <StringInput value={transformParms.dst.value} onChange={onChangeTransformStringParm(transformParms.dst)} />
         </InputGroup>
         <InputGroup name="resource uri" label={t('editor:properties.model.transform.resourceUri')}>
           <StringInput
             value={transformParms.resourceUri.value}
-            onChange={onChangeTransformParm(transformParms.resourceUri)}
+            onChange={onChangeTransformStringParm(transformParms.resourceUri)}
           />
         </InputGroup>
       </div>

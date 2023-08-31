@@ -1303,6 +1303,16 @@ class GLTFTextureBasisUExtension {
 
 		const parser = this.parser;
 		const json = parser.json;
+		/*
+		// if no texture at textureIndex, check if image exists
+		if ( ! json.textures[textureIndex] && json.images[ textureIndex ]) {
+			//if image exists, create textureDef for it
+			json.textures[textureIndex] = {
+				source: textureIndex,
+				sampler: 0
+			}
+		}*/
+		
 
 		const textureDef = json.textures[ textureIndex ];
 
