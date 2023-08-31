@@ -23,16 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
-
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import {
   InstanceActiveQuery,
   InstanceActiveType
 } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 
@@ -43,14 +40,10 @@ export interface InstanceActiveParams extends RootParams<InstanceActiveQuery> {}
  * A class for InstanceActive service
  */
 
-export class InstanceActiveService<
-  T = InstanceActiveType,
-  ServiceParams extends Params = InstanceActiveParams
-> extends KnexAdapter<InstanceActiveType, InstanceActiveParams> {
+export class InstanceActiveService implements ServiceInterface<InstanceActiveType, InstanceActiveParams> {
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 
