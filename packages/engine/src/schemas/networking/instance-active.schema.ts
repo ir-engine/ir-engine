@@ -26,42 +26,24 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-import { TypedString } from '../../common/types/TypeboxUtils'
-import { locationSchema } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { InstanceID } from './instance.schema'
+import { instanceSchema } from './instance.schema'
 
 export const instanceActivePath = 'instance-active'
 
 export const instanceActiveMethods = ['find'] as const
 
 // Main data model schema
-export const instanceActiveSchema = Type.Object(
-  {
-    id: TypedString<InstanceID>({
-      format: 'uuid'
-    }),
-    currentUsers: Type.Integer(),
-    location: Type.Ref(locationSchema)
-  },
+export const instanceActiveSchema = Type.Pick(
+  instanceSchema,
+  ['id', 'currentUsers', 'locationId'],
+
   { $id: 'InstanceActive', additionalProperties: false }
 )
 export type InstanceActiveType = Static<typeof instanceActiveSchema>
 
-// Schema for creating new entries
-export const instanceActiveDataSchema = Type.Pick(instanceActiveSchema, ['location', 'currentUsers'], {
-  $id: 'InstanceActiveData'
-})
-export type InstanceActiveData = Static<typeof instanceActiveDataSchema>
-
-// Schema for updating existing entries
-export const instanceActivePatchSchema = Type.Partial(instanceActiveSchema, {
-  $id: 'InstanceActivePatch'
-})
-export type InstanceActivePatch = Static<typeof instanceActivePatchSchema>
-
 // Schema for allowed query properties
-export const instanceActiveQueryProperties = Type.Pick(instanceActiveSchema, ['id', 'location', 'currentUsers'])
+export const instanceActiveQueryProperties = Type.Pick(instanceActiveSchema, ['id', 'locationId', 'currentUsers'])
 export const instanceActiveQuerySchema = Type.Intersect(
   [
     querySyntax(instanceActiveQueryProperties),
@@ -73,6 +55,4 @@ export const instanceActiveQuerySchema = Type.Intersect(
 export type InstanceActiveQuery = Static<typeof instanceActiveQuerySchema>
 
 export const instanceActiveValidator = getValidator(instanceActiveSchema, dataValidator)
-export const instanceActiveDataValidator = getValidator(instanceActiveDataSchema, dataValidator)
-export const instanceActivePatchValidator = getValidator(instanceActivePatchSchema, dataValidator)
 export const instanceActiveQueryValidator = getValidator(instanceActiveQuerySchema, queryValidator)

@@ -26,16 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 import {
-  instanceActiveDataSchema,
-  instanceActivePatchSchema,
   instanceActiveQuerySchema,
   instanceActiveSchema
 } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    instanceActiveDataSchema,
-    instanceActivePatchSchema,
     instanceActiveQuerySchema,
     instanceActiveSchema
   },

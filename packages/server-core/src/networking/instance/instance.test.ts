@@ -121,6 +121,6 @@ describe('instance.test', () => {
     assert.equal(activeInstances.length, 1)
     assert.equal(activeInstances[0].id, testInstance.id)
     assert.equal(activeInstances[0].currentUsers, 0)
-    assert.equal(activeInstances[0].location, testLocation.id)
+    assert.equal(activeInstances[0].locationId, testLocation.id)
   })
 })

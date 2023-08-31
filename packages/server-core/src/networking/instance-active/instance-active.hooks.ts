@@ -25,17 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import {
-  instanceActiveDataValidator,
-  instanceActivePatchValidator,
-  instanceActiveQueryValidator
-} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { instanceActiveQueryValidator } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
-  instanceActiveDataResolver,
   instanceActiveExternalResolver,
-  instanceActivePatchResolver,
   instanceActiveQueryResolver,
   instanceActiveResolver
 } from './instance-active.resolvers'
@@ -57,15 +51,9 @@ export default {
       schemaHooks.resolveQuery(instanceActiveQueryResolver)
     ],
     get: [],
-    create: [
-      () => schemaHooks.validateData(instanceActiveDataValidator),
-      schemaHooks.resolveData(instanceActiveDataResolver)
-    ],
+    create: [],
     update: [],
-    patch: [
-      () => schemaHooks.validateData(instanceActivePatchValidator),
-      schemaHooks.resolveData(instanceActivePatchResolver)
-    ],
+    patch: [],
     remove: []
   },
   after: {

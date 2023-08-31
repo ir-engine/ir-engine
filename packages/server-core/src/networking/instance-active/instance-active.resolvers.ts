@@ -36,8 +36,4 @@ export const instanceActiveResolver = resolve<InstanceActiveType, HookContext>({
 
 export const instanceActiveExternalResolver = resolve<InstanceActiveType, HookContext>({})
 
-export const instanceActiveDataResolver = resolve<InstanceActiveType, HookContext>({})
-
-export const instanceActivePatchResolver = resolve<InstanceActiveType, HookContext>({})
-
 export const instanceActiveQueryResolver = resolve<InstanceActiveQuery, HookContext>({})

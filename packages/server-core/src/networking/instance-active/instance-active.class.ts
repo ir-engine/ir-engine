@@ -27,13 +27,11 @@ import type { Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import {
-  InstanceActiveData,
-  InstanceActivePatch,
   InstanceActiveQuery,
   InstanceActiveType
 } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
-import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
@@ -48,7 +46,7 @@ export interface InstanceActiveParams extends RootParams<InstanceActiveQuery> {}
 export class InstanceActiveService<
   T = InstanceActiveType,
   ServiceParams extends Params = InstanceActiveParams
-> extends KnexAdapter<InstanceActiveType, InstanceActiveData, InstanceActiveParams, InstanceActivePatch> {
+> extends KnexAdapter<InstanceActiveType, InstanceActiveParams> {
   app: Application
 
   constructor(options: KnexAdapterOptions, app: Application) {
@@ -70,31 +68,22 @@ export class InstanceActiveService<
 
     if (locations.length === 0) return []
 
-    const instances = (
-      (await Promise.all(
-        locations.map(async (location) => {
-          const instances = await this.app.service('instance').Model.findAll({
-            where: {
-              ended: false,
-              locationId: location.id
-            }
-          })
-
-          for (const instance of instances) {
-            instance.location = location
-          }
-
-          return instances
-        })
-      )) as InstanceType[]
-    ).flat()
+    const instances = (await this.app.service('instance')._find({
+      query: {
+        ended: false,
+        locationId: {
+          $in: locations.map((location) => location.id)
+        },
+        paginate: false
+      }
+    })) as Instance[]
 
     // return all active instances for each location
     const instancesData: InstanceActiveType[] = instances
       .map((instance) => {
         return {
           id: instance.id,
-          location: instance.location,
+          locationId: instance.locationId,
           currentUsers: instance.currentUsers
         }
       })
