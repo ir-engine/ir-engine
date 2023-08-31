@@ -66,6 +66,7 @@ export class Water extends Mesh {
   }
 
   setupRenderTarget() {
+    if (typeof window === 'undefined') return
     // Target for computing the water refraction
     this.refractionRT = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
   }
