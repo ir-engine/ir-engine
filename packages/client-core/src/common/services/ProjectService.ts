@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
-import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -34,13 +32,16 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
+import { builderInfoPath, BuilderInfoType } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
 import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import {
   projectBuildPath,
   ProjectUpdateInterfaceType
 } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
-import { projectBuilderTagsPath } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import {
+  projectBuilderTagsPath,
+  ProjectBuilderTagsType
+} from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { projectCommitsPath } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
@@ -63,7 +64,7 @@ export const ProjectState = defineState({
     rebuilding: true,
     succeeded: false,
     failed: false,
-    builderTags: [] as Array<BuilderTag>,
+    builderTags: [] as Array<ProjectBuilderTagsType>,
     builderInfo: {
       engineVersion: '',
       engineCommit: ''
@@ -327,7 +328,7 @@ export const ProjectService = {
   fetchBuilderTags: async () => {
     try {
       const result = await API.instance.client.service(projectBuilderTagsPath).find()
-      dispatchAction(ProjectAction.builderTagsFetched({ builderTags: result.builderTags }))
+      dispatchAction(ProjectAction.builderTagsFetched({ builderTags: result }))
     } catch (err) {
       logger.error('Error with getting builder tags', err)
       throw err
@@ -337,7 +338,7 @@ export const ProjectService = {
   getBuilderInfo: async () => {
     try {
       const result = await API.instance.client.service(builderInfoPath).get()
-      dispatchAction(ProjectAction.builderInfoFetched({ builderInfo: result.info }))
+      dispatchAction(ProjectAction.builderInfoFetched({ builderInfo: result }))
     } catch (err) {
       logger.error('Error with getting engine info', err)
       throw err
@@ -384,12 +385,12 @@ export class ProjectAction {
 
   static builderTagsFetched = defineAction({
     type: 'ee.client.Project.BUILDER_TAGS_RETRIEVED' as const,
-    builderTags: matches.array as Validator<unknown, BuilderTag[]>
+    builderTags: matches.array as Validator<unknown, ProjectBuilderTagsType[]>
   })
 
   static builderInfoFetched = defineAction({
     type: 'ee.client.project.BUILDER_INFO_FETCHED' as const,
-    builderInfo: matches.object as Validator<unknown, BuilderInfo>
+    builderInfo: matches.object as Validator<unknown, BuilderInfoType>
   })
 
   static setGithubRepoAccessRefreshing = defineAction({

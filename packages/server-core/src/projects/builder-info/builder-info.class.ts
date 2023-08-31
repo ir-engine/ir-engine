@@ -36,10 +36,8 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
 
   async get() {
     const returned: BuilderInfoType = {
-      info: {
-        engineVersion: getEnginePackageJson().version || '',
-        engineCommit: ''
-      }
+      engineVersion: getEnginePackageJson().version || '',
+      engineCommit: ''
     }
     const k8AppsClient = getState(ServerState).k8AppsClient
     const k8BatchClient = getState(ServerState).k8BatchClient
@@ -80,7 +78,7 @@ export class BuilderInfoService implements ServiceInterface<BuilderInfoType> {
           const dockerHubRegexExec = dockerHubRegex.exec(image)
           const publicECRRegexExec = publicECRTagRegex.exec(image)
           const privateECRRegexExec = privateECRTagRegex.exec(image)
-          returned.info.engineCommit =
+          returned.engineCommit =
             dockerHubRegexExec && !publicECRRegexExec
               ? dockerHubRegexExec[1]
               : publicECRRegexExec

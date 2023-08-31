@@ -25,6 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
+import {
+  ProjectInterface,
+  ProjectPackageJsonType,
+  ProjectUpdateType
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { getState } from '@etherealengine/hyperflux'
+import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
@@ -35,17 +44,7 @@ import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
 import { promisify } from 'util'
 
-import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
-import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
-import {
-  ProjectInterface,
-  ProjectPackageJsonType,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import { getState } from '@etherealengine/hyperflux'
-import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
-
+import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -739,7 +738,7 @@ export const getProjectCommits = async (
   }
 }
 
-export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
+export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> => {
   const builderRepo = (process.env.BUILDER_REPOSITORY as string) || ''
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)

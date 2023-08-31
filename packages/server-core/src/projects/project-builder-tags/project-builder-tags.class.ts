@@ -32,9 +32,6 @@ export class ProjectBuilderTagsService implements ServiceInterface<ProjectBuilde
   }
 
   async find() {
-    const builerTags = await findBuilderTags()
-
-    const projectBuilderTags: ProjectBuilderTagsType = { builderTags: builerTags }
-    return projectBuilderTags
+    return findBuilderTags()
   }
 }

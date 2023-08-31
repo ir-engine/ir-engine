@@ -30,10 +30,8 @@ export const builderInfoMethods = ['get'] as const
 // Main data model schema
 export const builderInfoSchema = Type.Object(
   {
-    info: Type.Object({
-      engineVersion: Type.String(),
-      engineCommit: Type.String()
-    })
+    engineVersion: Type.String(),
+    engineCommit: Type.String()
   },
   { $id: 'BuilderInfo', additionalProperties: false }
 )

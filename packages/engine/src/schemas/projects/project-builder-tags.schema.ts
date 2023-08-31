@@ -30,14 +30,10 @@ export const projectBuilderTagsMethods = ['find'] as const
 // Main data model schema
 export const projectBuilderTagsSchema = Type.Object(
   {
-    builderTags: Type.Array(
-      Type.Object({
-        tag: Type.String(),
-        commitSHA: Type.String(),
-        engineVersion: Type.String(),
-        pushedAt: Type.String()
-      })
-    )
+    tag: Type.String(),
+    commitSHA: Type.String(),
+    engineVersion: Type.String(),
+    pushedAt: Type.String()
   },
   { $id: 'ProjectBuilderTags', additionalProperties: false }
 )
