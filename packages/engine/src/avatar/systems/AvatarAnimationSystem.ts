@@ -521,7 +521,8 @@ const execute = () => {
       ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
     }
     //todo: lerp this
-    if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
+    if (rig.hips?.node && rigComponent.localRig?.hips?.node)
+      if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
     rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
 

@@ -77,6 +77,7 @@ export const ModelComponent = defineComponent({
       src: '',
       generateBVH: true,
       avoidCameraOcclusion: false,
+      // internal
       scene: null as Scene | null
     }
   },
@@ -93,9 +94,9 @@ export const ModelComponent = defineComponent({
     setComponent(entity, LoopAnimationComponent)
 
     if (!json) return
-    if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
-    if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
-      component.generateBVH.set(json.generateBVH)
+    if (typeof json.src === 'string') component.src.set(json.src)
+    if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
+    if (typeof json.avoidCameraOcclusion === 'boolean') component.avoidCameraOcclusion.set(json.avoidCameraOcclusion)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -158,7 +159,7 @@ function ModelReactor() {
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               if (loadedAsset.scene.userData.type === 'vrm') {
                 setComponent(entity, LoopAnimationComponent)
-                getComponent(entity, LoopAnimationComponent).vrm = loadedAsset
+                getMutableComponent(entity, LoopAnimationComponent).vrm.set(loadedAsset)
               }
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)

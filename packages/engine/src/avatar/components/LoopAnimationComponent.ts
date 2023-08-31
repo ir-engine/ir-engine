@@ -53,9 +53,10 @@ export const LoopAnimationComponent = defineComponent({
       hasAvatarAnimations: false,
       animationSpeed: 1,
       activeClipIndex: -1,
-      vrm: undefined as VRM | undefined,
       animationPack: '',
+      // internal
       animationPackScene: undefined as Object3D | undefined,
+      vrm: undefined as VRM | undefined,
       action: null as AnimationAction | null
     }
   },
@@ -64,7 +65,7 @@ export const LoopAnimationComponent = defineComponent({
     if (!json) return
     if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
-    if (typeof json.animationSpeed === 'number') component.activeClipIndex.set(json.animationSpeed)
+    if (typeof json.animationSpeed === 'number') component.animationSpeed.set(json.animationSpeed)
     if (typeof json.animationPack === 'string') component.animationPack.set(json.animationPack)
   },
 
@@ -129,6 +130,12 @@ export const LoopAnimationComponent = defineComponent({
       animComponent.mixer.timeScale.set(loopAnimationComponent.animationSpeed.value)
     }, [loopAnimationComponent.animationSpeed])
 
+    console.error(
+      modelComponent?.scene?.value,
+      animComponent?.animations?.value,
+      loopAnimationComponent?.vrm?.value,
+      loopAnimationComponent?.animationPack?.value
+    )
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
 
@@ -136,6 +143,7 @@ export const LoopAnimationComponent = defineComponent({
       const animationComponent = getComponent(entity, AnimationComponent)
 
       if (!loopAnimationComponent || !loopAnimationComponent.animationPack.value) return
+
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
         const animations = model.userData ? model.animations : model.scene.animations
         loopAnimationComponent.animationPackScene.set(model.scene)
@@ -144,7 +152,12 @@ export const LoopAnimationComponent = defineComponent({
       })
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [animComponent?.animations, loopAnimationComponent?.vrm, loopAnimationComponent?.animationPack])
+    }, [
+      modelComponent?.scene,
+      animComponent?.animations,
+      loopAnimationComponent?.vrm,
+      loopAnimationComponent?.animationPack
+    ])
 
     return null
   }
@@ -154,6 +167,7 @@ export const playAnimationClip = (
   animationComponent: ComponentType<typeof AnimationComponent>,
   loopAnimationComponent: ComponentType<typeof LoopAnimationComponent>
 ) => {
+  console.log('playAnimationClip', animationComponent, loopAnimationComponent)
   if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
   if (
     loopAnimationComponent.activeClipIndex >= 0 &&
