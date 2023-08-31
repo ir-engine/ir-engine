@@ -114,9 +114,12 @@ describe('instance.test', () => {
   })
 
   it('should find active instances', async () => {
-    const activeInstances = await app
-      .service(instanceActivePath)
-      .find({ query: { sceneId: testLocation.sceneId }, ...params })
+    const activeInstances = await app.service(instanceActivePath).find({
+      query: {
+        sceneId: testLocation.sceneId
+      },
+      ...params
+    })
 
     assert.equal(activeInstances.length, 1)
     assert.equal(activeInstances[0].id, testInstance.id)

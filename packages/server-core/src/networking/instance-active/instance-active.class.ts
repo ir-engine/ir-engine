@@ -73,9 +73,9 @@ export class InstanceActiveService<
         ended: false,
         locationId: {
           $in: locations.map((location) => location.id)
-        },
-        paginate: false
-      }
+        }
+      },
+      paginate: false
     })) as Instance[]
 
     // return all active instances for each location
