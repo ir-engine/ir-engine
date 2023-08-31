@@ -59,7 +59,7 @@ export class InstanceActiveService<
     if (!sceneId) return []
 
     // get all locationIds for sceneId
-    const locations = (await this.app.service(locationPath).find({
+    const locations = (await this.app.service(locationPath)._find({
       query: {
         sceneId
       },
@@ -80,6 +80,7 @@ export class InstanceActiveService<
 
     // return all active instances for each location
     const instancesData: InstanceActiveType[] = instances
+      .filter((a) => !!a)
       .map((instance) => {
         return {
           id: instance.id,
@@ -87,7 +88,6 @@ export class InstanceActiveService<
           currentUsers: instance.currentUsers
         }
       })
-      .filter((a) => !!a)
 
     return instancesData
   }

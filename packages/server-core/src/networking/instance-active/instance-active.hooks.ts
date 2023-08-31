@@ -43,13 +43,11 @@ export default {
   },
 
   before: {
-    all: [],
-    find: [
-      authenticate(),
-      verifyScope('editor', 'write'),
+    all: [
       () => schemaHooks.validateQuery(instanceActiveQueryValidator),
       schemaHooks.resolveQuery(instanceActiveQueryResolver)
     ],
+    find: [authenticate(), verifyScope('editor', 'write')],
     get: [],
     create: [],
     update: [],
