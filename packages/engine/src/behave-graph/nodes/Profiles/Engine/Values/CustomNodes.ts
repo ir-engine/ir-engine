@@ -389,7 +389,7 @@ export const switchScene = makeFlowNodeDefinition({
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const projectName = read<string>('projectName')
     const sceneName = read<string>('sceneName')
-    SceneServices.fetchCurrentScene(projectName, sceneName)
+    SceneServices.setCurrentScene(projectName, sceneName)
   }
 })
 
