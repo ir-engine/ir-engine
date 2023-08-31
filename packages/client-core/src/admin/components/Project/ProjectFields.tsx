@@ -33,7 +33,6 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
@@ -48,6 +47,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -86,9 +86,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   const selfUser = useHookstate(getMutableState(AuthState).user)
 
   const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
-    (commit: ProjectCommitInterface) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
+    (commit: ProjectCommitType) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
   )
-  const matchesEngineVersion = matchingCommit ? (matchingCommit as ProjectCommitInterface).matchesEngineVersion : false
+  const matchesEngineVersion = matchingCommit ? (matchingCommit as ProjectCommitType).matchesEngineVersion : false
 
   const handleChangeSource = (e) => {
     const { value } = e.target
@@ -193,9 +193,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         ProjectUpdateService.setCommitData(project, projectResponse)
 
         if (project.commitSHA) {
-          const commitExists = projectResponse.find(
-            (item: ProjectCommitInterface) => item.commitSHA === project.commitSHA
-          )
+          const commitExists = projectResponse.find((item: ProjectCommitType) => item.commitSHA === project.commitSHA)
 
           if (commitExists) {
             handleCommitChange({ target: { value: project.commitSHA, commitData: projectResponse } })
@@ -263,7 +261,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     }
   })
 
-  const commitMenu: InputMenuItem[] = projectUpdateStatus?.value?.commitData.map((el: ProjectCommitInterface) => {
+  const commitMenu: InputMenuItem[] = projectUpdateStatus?.value?.commitData.map((el: ProjectCommitType) => {
     let label = `Commit ${el.commitSHA?.slice(0, 8)}`
     if (el.projectVersion) label += ` -- Project Ver. ${el.projectVersion}`
     if (el.engineVersion) label += ` -- Engine Ver. ${el.engineVersion}`

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
-import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   ProjectInterface,
   ProjectPackageJsonType,
@@ -46,6 +45,7 @@ import { promisify } from 'util'
 
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -661,7 +661,7 @@ export const getProjectCommits = async (
   app: Application,
   url: string,
   params?: ProjectParams
-): Promise<ProjectCommitInterface[] | { error: string; text: string }> => {
+): Promise<ProjectCommitType[] | { error: string; text: string }> => {
   try {
     const octokitResponse = await getOctokitForChecking(app, url, params!)
     const { owner, repo, octoKit } = octokitResponse
@@ -720,7 +720,7 @@ export const getProjectCommits = async (
             }
           })
       )
-    )) as ProjectCommitInterface[]
+    )) as ProjectCommitType[]
     return mappedCommits.filter((commit) => !commit.discard)
   } catch (err) {
     logger.error('error getting repo commits %o', err)
