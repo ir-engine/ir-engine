@@ -102,8 +102,6 @@ function ApplyPoseChange(entity: Entity, key, change) {
   const shown = change.shown ? true : false
   const euler = change.euler || null
   const debug = change.debug || true
-  const threshold = change.threshold || 0.5
-  const wingspan = change.wingspan || 1.0
   const blendweight = change.blendweight || 1.0
 
   // get part in question
@@ -113,16 +111,23 @@ function ApplyPoseChange(entity: Entity, key, change) {
     return
   }
 
-  // promote euler to quaternion if any
-  if (euler) {
-    quaternion = new Quaternion().setFromEuler(new Euler(euler.x, euler.y, euler.z))
+  // dampen xyz
+  if (xyz) {
+    xyz.x *= dampener
+    xyz.y *= dampener
+    xyz.z *= dampener
   }
 
-  // apply wingspan if desired
-  if (xyz && wingspan != 1.0) {
-    xyz.x *= wingspan
-    xyz.y *= wingspan
-    xyz.z *= wingspan
+  // promote euler to quaternion if any with dampener
+  if (euler) {
+    quaternion = new Quaternion().setFromEuler(
+      new Euler(
+        (euler?.x || 0) * dampener,
+        (euler?.y || 0) * dampener,
+        (euler?.z || 0) * dampener,
+        euler?.rotationOrder || 'XYZ'
+      )
+    )
   }
 
   // ik part?
@@ -158,18 +163,10 @@ function ApplyPoseChange(entity: Entity, key, change) {
   // directly set joint not using ik
   if (!ik) {
     if (quaternion) {
-      if (lerp != 1.0) {
-        part.quaternion.slerp(quaternion.clone(), lerp)
-      } else {
-        part.quaternion.copy(quaternion)
-      }
+      part.quaternion.slerp(quaternion.clone(), lerp)
     }
     if (xyz) {
-      if (lerp != 1.0) {
-        part.position.lerp(xyz, lerp)
-      } else {
-        part.position.copy(xyz)
-      }
+      part.position.lerp(xyz, lerp)
     }
   }
 
@@ -207,28 +204,21 @@ export default function UpdateAvatar(data, userID, entity) {
     return
   }
 
-  /*
-
-  // const poseEnsemble: any = GetPoseEnsemble(userID,entity)
-
   // use landmarks to directly set head orientation and facial features
-  const changes1 = changesUpdateLandmarkFace(data?.faceLandmarks, changes)
+  // const changes1 = UpdateLandmarkFace(data?.faceLandmarks)
+  // ApplyPoseChanges(entity,changes1)
 
   // use landmarks to directly set fingers
-  const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, changes)
+  // const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks)
+  // ApplyPoseChanges(entity,changes2)
 
   // use landmarks to set coarse pose
-  const changes3 = UpdateLandmarkPose(data?.za, data?.poseLandmarks, poseEnsemble, changes)
-
-  const changes = { ...changes1, ...changes2, ...changes3 }
-
-  */
+  // const changes3 = UpdateLandmarkPose(data?.za, data?.poseLandmarks)
+  // ApplyPoseChanges(entity,changes3)
 
   // publish ik targets rather than directly setting body parts
-  const changes = UpdateIkPose(data)
-
-  // apply changes once
-  ApplyPoseChanges(entity, changes)
+  const changes4 = UpdateIkPose(data)
+  ApplyPoseChanges(entity, changes4)
 }
 
 /*

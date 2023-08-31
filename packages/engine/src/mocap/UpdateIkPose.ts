@@ -34,13 +34,14 @@ function UpdateIkPose(data) {
   const lm3d = data?.za
   const lm2d = data?.poseLandmarks
   const face = data?.faceLandmarks
+  const wingspan = 1.2
 
   const changes = {}
 
   // @todo go and do a real hips calculation from the landmarks (see updatelandmarkpose.ts)
   // this hips value is also used by hands and other targets since all targets have to be in world coords
   // for now just force it to be a floater because hips in general are super flakey upstream; isolate that first
-  const hips = { x: 0, y: 1, z: 0 }
+  const hips = { x: 0, y: 0.8, z: 0 }
 
   /*
   // hips target
@@ -103,7 +104,11 @@ function UpdateIkPose(data) {
     changes[VRMHumanBoneName.LeftHand] = {
       ik: true,
       quaternion,
-      xyz: { x: hips.x + lm3d[15].x, y: hips.y - lm3d[15].y, z: hips.z - lm3d[15].z },
+      xyz: {
+        x: (hips.x + lm3d[15].x) * wingspan,
+        y: (hips.y - lm3d[15].y) * wingspan,
+        z: (hips.z - lm3d[15].z) * wingspan
+      },
       //wingspan: 1.0,
       color: 0xee0000
     }
@@ -135,7 +140,11 @@ function UpdateIkPose(data) {
     changes[VRMHumanBoneName.RightHand] = {
       ik: true,
       quaternion,
-      xyz: { x: hips.x + lm3d[16].x, y: hips.y - lm3d[16].y, z: hips.z - lm3d[16].z },
+      xyz: {
+        x: (hips.x + lm3d[16].x) * wingspan,
+        y: (hips.y - lm3d[16].y) * wingspan,
+        z: (hips.z - lm3d[16].z) * wingspan
+      },
       //wingspan: 1.0,
       color: 0xee0000
     }

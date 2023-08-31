@@ -36,7 +36,7 @@ import { calcLegs } from './solvers/PoseSolver/calcLegs'
 /// Update pose from landmarks
 ///
 
-export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], tpose: any) {
+export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[]) {
   const changes = {}
 
   if (!lm3d || !lm2d) return null
@@ -125,13 +125,15 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], t
     const hipleft = new Vector3(lm3d[23].x, lm3d[23].y, lm3d[23].z)
     const hipright = new Vector3(lm3d[24].x, lm3d[24].y, lm3d[24].z)
     const hipdir = hipright.clone().sub(hipleft).normalize()
-    const x = tpose[VRMHumanBoneName.Hips].euler.x // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
-    const y = tpose[VRMHumanBoneName.Hips].euler.y + Math.atan2(hipdir.x, hipdir.z) + Math.PI / 2
-    const z = tpose[VRMHumanBoneName.Hips].euler.z // + Math.atan2( hipdir.y, hipdir.x) + Math.PI
-    changes[VRMHumanBoneName.Hips] = {
-      euler: { x, y, z }
-    }
-    permit_feet = true
+    const x = 0 // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
+    const y = Math.atan2(hipdir.x, hipdir.z) + Math.PI / 2
+    const z = Math.atan2(hipdir.y, hipdir.x) + Math.PI
+
+    // disable hips for now
+    //    changes[VRMHumanBoneName.Hips] = { euler: { x, y, z } }
+
+    // disable changing legs for now
+    permit_feet = false
 
     /* debugging
     console.log(
@@ -176,9 +178,7 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], t
   //
   else if (!hips && shoulders) {
     // if hips are not present then reset the hip orientation at least; arguably also the height
-    changes[VRMHumanBoneName.Hips] = {
-      euler: tpose[VRMHumanBoneName.Hips].euler
-    }
+    // changes[VRMHumanBoneName.Hips] = { euler: { x:0, y:0, z:0 } }
     permit_feet = false
     // state.shoulders.euler = ... some calculation...
     // state.shoulders.euler.x = 0
@@ -202,9 +202,7 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], t
   //
   else if (!hips && !shoulders) {
     // if hips are not present then reset the hip orientation at least; arguably also the height
-    changes[VRMHumanBoneName.Hips] = {
-      euler: tpose[VRMHumanBoneName.Hips].euler
-    }
+    // changes[VRMHumanBoneName.Hips] = { euler: { x:0, y:0, z:0 } }
     permit_feet = false
   }
 
@@ -222,16 +220,13 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], t
   }
 
   if (permit_feet == false) {
-    // force hips up to default height but do not attempt to set the orientation of hips here!
-    const change = changes[VRMHumanBoneName.Hips] || {}
-    change.euler = tpose[VRMHumanBoneName.Hips].position
-    changes[VRMHumanBoneName.Hips] = change
-
+    // @todo later preserve hip orientation but not height
+    // changes[VRMHumanBoneName.Hips] = { euler: { x:0, y:0, z:0 } }
     // reset the feet to a rest pose
-    changes[VRMHumanBoneName.LeftUpperLeg] = { euler: tpose[VRMHumanBoneName.LeftUpperLeg] }
-    changes[VRMHumanBoneName.LeftLowerLeg] = { euler: tpose[VRMHumanBoneName.LeftLowerLeg] }
-    changes[VRMHumanBoneName.RightUpperLeg] = { euler: tpose[VRMHumanBoneName.RightUpperLeg] }
-    changes[VRMHumanBoneName.RightLowerLeg] = { euler: tpose[VRMHumanBoneName.RightLowerLeg] }
+    // changes[VRMHumanBoneName.LeftUpperLeg] = { euler: tpose[VRMHumanBoneName.LeftUpperLeg] }
+    // changes[VRMHumanBoneName.LeftLowerLeg] = { euler: tpose[VRMHumanBoneName.LeftLowerLeg] }
+    // changes[VRMHumanBoneName.RightUpperLeg] = { euler: tpose[VRMHumanBoneName.RightUpperLeg] }
+    // changes[VRMHumanBoneName.RightLowerLeg] = { euler: tpose[VRMHumanBoneName.RightLowerLeg] }
   } else {
     const legs = calcLegs(lm3d)
     changes[VRMHumanBoneName.LeftUpperLeg] = { euler: legs.UpperLeg.l }
@@ -255,6 +250,9 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], t
     // @todo should visibility be a part of this?
     //
 
+    /*
+    // @todo fix turned this off because something else may be attempting to do something similar? or it is buggy
+
     let unset = true
     let lowest = 999.0
     lm3d.forEach((landmark, i) => {
@@ -264,11 +262,11 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], t
       }
     })
 
-    // @todo fix turned this off because something else may be attempting to do something similar? or it is buggy
-    //state.hips.xyz = poseEnsemble.rest[VRMHumanBoneName.Hips].xyz
-    //if (!unset) {
-    //  state.hips.xyz.y = lowest - poseEnsemble.lowest
-    //}
+    state.hips.xyz = poseEnsemble.rest[VRMHumanBoneName.Hips].xyz
+    if (!unset) {
+      state.hips.xyz.y = lowest - poseEnsemble.lowest
+    }
+    */
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,6 +287,7 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], t
   if (leftHand || rightHand) {
     const arms = calcArms(lm3d)
 
+    // @todo hands are backwards!
     if (!leftHand) {
       arms.UpperArm.r = arms.UpperArm.r.multiply(0)
       arms.UpperArm.r.z = RestingDefault.Pose.RightUpperArm.z
@@ -320,7 +319,7 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], t
 
 /*
 
-// this is old code to discard
+// this is old code to discard 
 // attempting to estimate head pose from lm3d data - just doesn't seem stable
 // faceLandmarks (as the existing code uses) seems to produce much better results
 
