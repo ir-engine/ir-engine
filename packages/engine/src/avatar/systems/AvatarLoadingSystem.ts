@@ -124,7 +124,7 @@ const tweenOutEffect = (entity, effectComponent) => {
         2000
       )
       .start()
-      .onComplete(async () => {
+      .onComplete(() => {
         const objects = getOptionalComponent(entity, GroupComponent)
         let pillar: Mesh = null!
         let plate: Mesh = null!
