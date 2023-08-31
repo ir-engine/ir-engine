@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -36,6 +35,7 @@ import { builderInfoPath, BuilderInfoType } from '@etherealengine/engine/src/sch
 import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import {
   projectBuildPath,
+  ProjectBuildType,
   ProjectUpdateInterfaceType
 } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import {
@@ -367,7 +367,7 @@ export class ProjectAction {
 
   static reloadStatusFetched = defineAction({
     type: 'ee.client.Project.RELOAD_STATUS_RETRIEVED' as const,
-    status: matches.object as Validator<unknown, BuildStatus>
+    status: matches.object as Validator<unknown, ProjectBuildType>
   })
 
   static postProject = defineAction({
