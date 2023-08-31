@@ -50,11 +50,6 @@ const execute = () => {
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
   }
-
-  for (const entity of loopAnimationQuery()) {
-    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-    if (loopAnimationComponent.vrm) loopAnimationComponent.vrm.update(getState(EngineState).deltaSeconds)
-  }
 }
 
 export const AnimationSystem = defineSystem({

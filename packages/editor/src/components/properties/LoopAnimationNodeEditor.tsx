@@ -36,6 +36,7 @@ import AnimationIcon from '@mui/icons-material/Animation'
 
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
@@ -104,6 +105,12 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <NumericInput
           value={loopAnimationComponent.animationSpeed.value}
           onChange={updateProperty(LoopAnimationComponent, 'animationSpeed')}
+        />
+      </InputGroup>
+      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
+        <BooleanInput
+          value={loopAnimationComponent.hasAvatarAnimations.value}
+          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
     </NodeEditor>

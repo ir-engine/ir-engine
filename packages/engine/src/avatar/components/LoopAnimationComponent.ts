@@ -57,7 +57,8 @@ export const LoopAnimationComponent = defineComponent({
       animationPack: '',
       // internal
       animationPackScene: undefined as Object3D | undefined,
-      action: null as AnimationAction | null
+      action: null as AnimationAction | null,
+      vrm: false
     }
   },
 
@@ -73,7 +74,8 @@ export const LoopAnimationComponent = defineComponent({
     return {
       activeClipIndex: component.activeClipIndex.value,
       animationPack: component.animationPack.value,
-      animationSpeed: component.animationSpeed.value
+      animationSpeed: component.animationSpeed.value,
+      hasAvatarAnimations: component.hasAvatarAnimations.value
     }
   },
 
@@ -114,13 +116,16 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
       const model = getComponent(entity, ModelComponent)
-
       if (loopAnimationComponent.hasAvatarAnimations.value && !(model.asset as VRM)?.humanoid) {
         const vrm = parseAvatarModelAsset(model.scene)
+        loopAnimationComponent.vrm.set(vrm instanceof VRM)
         if (vrm) {
           modelComponent.asset.set(vrm)
           modelComponent.scene.set(vrm.scene as any)
         }
+      } else if (model.asset instanceof VRM) {
+        loopAnimationComponent.hasAvatarAnimations.set(true)
+        loopAnimationComponent.vrm.set(true)
       }
 
       if (!hasComponent(entity, AnimationComponent)) {
