@@ -29,7 +29,8 @@ import {
   defineComponent,
   hasComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
@@ -108,7 +109,7 @@ export const PositionalAudioComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(entity, PositionalAudioComponent)
-    const mediaElement = useComponent(entity, MediaElementComponent)
+    const mediaElement = useOptionalComponent(entity, MediaElementComponent)
     useEffect(() => {
       if (hasComponent(entity, MediaComponent)) return
 
