@@ -50,6 +50,7 @@ import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { toDateTimeSql } from '../../util/datetime-sql'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { createExecutorJob, getProjectPushJobBody } from './project-helper'
@@ -342,7 +343,7 @@ const uploadToRepo = async (
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
 
-  await app.service(projectPath)._patch(project.id, { commitSHA: newCommit.sha, commitDate: new Date().toISOString() })
+  await app.service(projectPath)._patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()) })
 
   try {
     //This pushes the commit to the main branch in GitHub

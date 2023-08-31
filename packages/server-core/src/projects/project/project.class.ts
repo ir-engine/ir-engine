@@ -62,7 +62,7 @@ import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { cleanString } from '../../util/cleanString'
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
@@ -464,7 +464,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-    const commitDateISO = commitDate.toISOString()
+    const commitDateISO = toDateTimeSql(commitDate)
 
     await super._create({
       id: v4(),
@@ -517,7 +517,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-      await super._patch(null, { commitSHA, commitDate: commitDate.toISOString() }, { query: { name: projectName } })
+      await super._patch(null, { commitSHA, commitDate: toDateTimeSql(commitDate) }, { query: { name: projectName } })
 
       promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }

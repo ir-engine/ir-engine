@@ -125,7 +125,8 @@ export const projectQuerySchema = Type.Intersect(
         inputProjectURL: Type.Optional(Type.String()),
         branchName: Type.Optional(Type.String()),
         selectedSHA: Type.Optional(Type.String()),
-        allowed: Type.Optional(Type.Boolean())
+        allowed: Type.Optional(Type.Boolean()),
+        reset: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )
@@ -135,6 +136,7 @@ export const projectQuerySchema = Type.Intersect(
 export type ProjectQuery = Static<typeof projectQuerySchema>
 
 export const projectValidator = getValidator(projectSchema, dataValidator)
+export const projectSettingValidator = getValidator(projectSettingSchema, dataValidator)
 export const projectDataValidator = getValidator(projectDataSchema, dataValidator)
 export const projectPatchValidator = getValidator(projectPatchSchema, dataValidator)
 export const projectQueryValidator = getValidator(projectQuerySchema, queryValidator)
