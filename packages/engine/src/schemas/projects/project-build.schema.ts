@@ -20,12 +20,30 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
+import { StringEnum, Type, getValidator } from '@feathersjs/typebox'
 import { dataValidator } from '../validators'
 
 export const projectBuildPath = 'project-build'
 
 export const projectBuildMethods = ['find', 'patch'] as const
+
+// TODO: Use projectUpdateType from project service once its migrated to feathers 5
+export const projectUpdateTypes = ['none', 'commit', 'tag']
+
+export const projectUpdateSchema = Type.Object(
+  {
+    sourceURL: Type.String(),
+    destinationURL: Type.String(),
+    name: Type.String(),
+    reset: Type.Boolean(),
+    commitSHA: Type.String(),
+    sourceBranch: Type.String(),
+    updateType: StringEnum(projectUpdateTypes),
+    updateSchedule: Type.String()
+  },
+  { $id: 'ProjectUpdate', additionalProperties: false }
+)
+export type ProjectUpdateInterfaceType = Static<typeof projectUpdateSchema>
 
 // Main data model schema
 export const projectBuildSchema = Type.Object(
@@ -38,9 +56,15 @@ export const projectBuildSchema = Type.Object(
 export type ProjectBuildType = Static<typeof projectBuildSchema>
 
 // Schema for updating existing entries
-export const projectBuildPatchSchema = Type.Partial(projectBuildSchema, {
-  $id: 'ProjectBuildPatch'
-})
+export const projectBuildPatchSchema = Type.Object(
+  {
+    updateProjects: Type.Optional(Type.Boolean()),
+    projectsToUpdate: Type.Optional(Type.Array(Type.Ref(projectUpdateSchema)))
+  },
+  {
+    $id: 'ProjectBuildPatch'
+  }
+)
 
 export type ProjectBuildPatch = Static<typeof projectBuildPatchSchema>
 

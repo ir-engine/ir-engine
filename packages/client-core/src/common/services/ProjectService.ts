@@ -29,7 +29,6 @@ import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
@@ -37,7 +36,10 @@ import { defineAction, defineState, dispatchAction, getMutableState } from '@eth
 
 import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
 import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
-import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import {
+  projectBuildPath,
+  ProjectUpdateInterfaceType
+} from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { projectBuilderTagsPath } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
@@ -305,7 +307,7 @@ export const ProjectService = {
     }
   },
 
-  updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: UpdateProjectInterface[]) => {
+  updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectUpdateInterfaceType[]) => {
     try {
       console.log('projectToUpdate', projectsToUpdate)
       await API.instance.client.service(projectBuildPath).patch(
