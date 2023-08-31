@@ -94,7 +94,7 @@ const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 const execute = () => {
   const network = Engine.instance.worldNetwork
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
+    if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
