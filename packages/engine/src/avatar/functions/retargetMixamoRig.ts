@@ -63,8 +63,8 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
   const leftArm = mixamoRig.getObjectByName('mixamorigLeftArm')!
 
   const userData = (vrm as any).userData
-  if (userData.flipped) hips.quaternion.copy(hipsOffset)
-  if (userData.needsMixamoPrefix) {
+  if (userData?.flipped) hips.quaternion.copy(hipsOffset)
+  if (userData?.needsMixamoPrefix) {
     rightArm.quaternion.copy(rightArmOffset)
     leftArm.quaternion.copy(leftArmOffset)
   }

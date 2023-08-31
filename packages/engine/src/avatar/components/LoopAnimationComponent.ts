@@ -85,7 +85,7 @@ export const LoopAnimationComponent = defineComponent({
 
     const modelComponent = useOptionalComponent(entity, ModelComponent)
 
-    const animComponent = useComponent(entity, AnimationComponent)
+    const animComponent = useOptionalComponent(entity, AnimationComponent)
 
     /**
      * Callback functions
@@ -130,14 +130,8 @@ export const LoopAnimationComponent = defineComponent({
       animComponent.mixer.timeScale.set(loopAnimationComponent.animationSpeed.value)
     }, [loopAnimationComponent.animationSpeed])
 
-    console.error(
-      modelComponent?.scene?.value,
-      animComponent?.animations?.value,
-      loopAnimationComponent?.vrm?.value,
-      loopAnimationComponent?.animationPack?.value
-    )
     useEffect(() => {
-      if (!modelComponent?.scene?.value) return
+      if (!modelComponent?.scene?.value || !animComponent) return
 
       const loopComponent = getComponent(entity, LoopAnimationComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
