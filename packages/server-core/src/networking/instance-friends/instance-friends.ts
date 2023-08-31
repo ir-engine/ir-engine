@@ -46,7 +46,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(instanceFriendsPath, new InstanceFriendsService(options, app), {
+  app.use(instanceFriendsPath, new InstanceFriendsService(app), {
     // A list of all methods this service exposes externally
     methods: instanceFriendsMethods,
     // You can add additional custom events to be sent to clients here

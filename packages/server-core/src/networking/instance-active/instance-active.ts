@@ -46,7 +46,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(instanceActivePath, new InstanceActiveService(options, app), {
+  app.use(instanceActivePath, new InstanceActiveService(app), {
     // A list of all methods this service exposes externally
     methods: instanceActiveMethods,
     // You can add additional custom events to be sent to clients here
