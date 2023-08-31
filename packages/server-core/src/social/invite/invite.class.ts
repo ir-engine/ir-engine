@@ -38,7 +38,8 @@ import {
   InviteData,
   InvitePatch,
   InviteQuery,
-  InviteType
+  InviteType,
+  invitePath
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import {
   IdentityProviderType,
@@ -82,8 +83,8 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteType>) 
   }
 }
 
-export const inviteReceived = async (inviteService: InviteService, query) => {
-  const identityProviders = (await inviteService.app.service(identityProviderPath).find({
+export const inviteReceived = async (app: Application, query) => {
+  const identityProviders = (await app.service(identityProviderPath)._find({
     query: {
       userId: query.userId
     }
@@ -112,7 +113,7 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
 
   delete query.type
   delete query.search
-  return (await inviteService._find({
+  return (await app.service(invitePath)._find({
     query: {
       ...query,
       $or: [
@@ -129,7 +130,7 @@ export const inviteReceived = async (inviteService: InviteService, query) => {
   })) as Paginated<InviteType>
 }
 
-export const inviteSent = async (inviteService: InviteService, query: Query) => {
+export const inviteSent = async (app: Application, query: Query) => {
   const { search } = query
 
   if (search) {
@@ -152,7 +153,7 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
 
   delete query.type
   delete query.search
-  return (await inviteService._find({
+  return (await app.service(invitePath)._find({
     query: {
       ...query,
       userId: query.userId
@@ -160,7 +161,7 @@ export const inviteSent = async (inviteService: InviteService, query: Query) => 
   })) as Paginated<InviteType>
 }
 
-export const inviteAll = async (inviteService: InviteService, query: Query, user: UserType) => {
+export const inviteAll = async (app: Application, query: Query, user: UserType) => {
   if ((!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) && !query.existenceCheck)
     throw new Forbidden('Must be admin to search invites in this way')
 
@@ -186,7 +187,7 @@ export const inviteAll = async (inviteService: InviteService, query: Query, user
   if (!query.existenceCheck) delete query.userId
   delete query.existenceCheck
   delete query.search
-  return (await inviteService.find({
+  return (await app.service(invitePath)._find({
     query: {
       // userId: query.userId,
       ...query
@@ -235,11 +236,11 @@ export class InviteService<T = InviteType, ServiceParams extends Params = Invite
     if (params && params.query) {
       const query = params.query
       if (query.type === 'received') {
-        result = await inviteReceived(this, query)
+        result = await inviteReceived(this.app, query)
       } else if (query.type === 'sent') {
-        result = await inviteSent(this, query)
+        result = await inviteSent(this.app, query)
       } else {
-        result = await inviteAll(this, query, params.user!)
+        result = await inviteAll(this.app, query, params.user!)
       }
     } else {
       result = (await super._find(params)) as Paginated<InviteType>
