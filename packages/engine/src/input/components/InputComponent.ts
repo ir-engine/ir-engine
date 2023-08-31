@@ -26,9 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
+import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
@@ -53,7 +60,7 @@ export const InputComponent = defineComponent({
     const input = useComponent(entity, InputComponent)
     useLayoutEffect(() => {
       if (!input.inputSources.length || !input.highlight.value) return
-      setComponent(entity, HighlightComponent)
+      if (!hasComponent(entity, XRUIComponent)) setComponent(entity, HighlightComponent)
       return () => {
         removeComponent(entity, HighlightComponent)
       }
