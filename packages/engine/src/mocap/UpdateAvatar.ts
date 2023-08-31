@@ -29,11 +29,7 @@ import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponen
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-
 import { Euler, Quaternion, Vector3 } from 'three'
-
-import UpdateIkPose from './UpdateIkPose'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
@@ -42,7 +38,11 @@ import { Entity } from '../ecs/classes/Entity'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 
 import { ArrowHelper, AxesHelper, BoxGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
+import UpdateLandmarkFace from './UpdateLandmarkFace'
+import UpdateLandmarkHands from './UpdateLandmarkHands'
+import UpdateLandmarkPose from './UpdateLandmarkPose'
 
+/*
 ///
 /// Capture the rest pose, elevation and wingspan at startup, and act as a store for inter-frame state
 ///
@@ -80,8 +80,10 @@ function GetPoseEnsemble(userID, entity) {
   })
   return ensemble
 }
+*/
 
-const demirror = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+//const demirror = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+
 const debugmeshes = {}
 
 function ApplyPoseChange(entity: Entity, key, change) {
@@ -95,7 +97,7 @@ function ApplyPoseChange(entity: Entity, key, change) {
   // props we can set on body parts
   let xyz = change.xyz || null
   let quaternion = change.quaternion || null
-  const dampener = change.dampener || 1.0
+  //const dampener = change.dampener || 1.0 <- @todo disabled until we have previous joint
   const lerp = change.lerp || 1.0
   const color = change.color || 0x000000
   const ik = change.ik ? true : false
@@ -111,20 +113,22 @@ function ApplyPoseChange(entity: Entity, key, change) {
     return
   }
 
+  /*
   // dampen xyz
   if (xyz) {
     xyz.x *= dampener
     xyz.y *= dampener
     xyz.z *= dampener
   }
+  */
 
   // promote euler to quaternion if any with dampener
   if (euler) {
     quaternion = new Quaternion().setFromEuler(
       new Euler(
-        (euler?.x || 0) * dampener,
-        (euler?.y || 0) * dampener,
-        (euler?.z || 0) * dampener,
+        euler?.x || 0, // * dampener,
+        euler?.y || 0, // * dampener,
+        euler?.z || 0, // * dampener,
         euler?.rotationOrder || 'XYZ'
       )
     )
@@ -132,17 +136,6 @@ function ApplyPoseChange(entity: Entity, key, change) {
 
   // ik part?
   if (ik) {
-    // ik requires you to supply an avatar relative position (relative to ground at origin)
-    if (!xyz) {
-      //xyz = rig.vrm.humanoid.rawRestPose[key].node.getWorldPosition(new Vector3())
-      //console.log('bindpose', key, xyz.x.toFixed(3), xyz.y.toFixed(3), xyz.z.toFixed(3))
-      console.warn('ik requires xyz')
-      return
-    }
-
-    // ik requires xyz to be in absolute world position for the absolute world target, so must add avatar current position
-    xyz = new Vector3(xyz.x, xyz.y, xyz.z).applyQuaternion(transform.rotation).add(transform.position)
-
     // this is how we will get iktargets later on:
     //const target = getComponent(entity, AvatarAnimationComponent).ikTarget[key]
 
@@ -154,6 +147,19 @@ function ApplyPoseChange(entity: Entity, key, change) {
       return
     }
 
+    // ik requires you to supply an avatar relative position (relative to ground at origin)
+    if (!xyz) {
+      //xyz = rig.vrm.humanoid.rawRestPose[key].node.getWorldPosition(new Vector3())
+      //console.log('bindpose', key, xyz.x.toFixed(3), xyz.y.toFixed(3), xyz.z.toFixed(3))
+      console.warn('ik requires xyz')
+      return
+    }
+
+    // ik requires xyz to be in absolute world position for the absolute world target, so must add avatar current position
+    xyz = new Vector3(xyz.x, xyz.y, xyz.z).applyQuaternion(transform.rotation).add(transform.position)
+
+    // @todo - we have to rotate the part to world coordinates also??!
+
     // if we have a handle on a target then set it
     const targetTransform = getComponent(target, TransformComponent)
     if (xyz) targetTransform?.position.copy(xyz)
@@ -161,7 +167,7 @@ function ApplyPoseChange(entity: Entity, key, change) {
   }
 
   // directly set joint not using ik
-  if (!ik) {
+  else {
     if (quaternion) {
       part.quaternion.slerp(quaternion.clone(), lerp)
     }
@@ -204,21 +210,24 @@ export default function UpdateAvatar(data, userID, entity) {
     return
   }
 
-  // use landmarks to directly set head orientation and facial features
-  // const changes1 = UpdateLandmarkFace(data?.faceLandmarks)
-  // ApplyPoseChanges(entity,changes1)
+  const DIRECT = true
+  if (DIRECT) {
+    // use landmarks to directly set head orientation and facial features
+    const changes1 = UpdateLandmarkFace(data?.faceLandmarks)
+    ApplyPoseChanges(entity, changes1)
 
-  // use landmarks to directly set fingers
-  // const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks)
-  // ApplyPoseChanges(entity,changes2)
+    // use landmarks to directly set fingers
+    const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks)
+    ApplyPoseChanges(entity, changes2)
 
-  // use landmarks to set coarse pose
-  // const changes3 = UpdateLandmarkPose(data?.za, data?.poseLandmarks)
-  // ApplyPoseChanges(entity,changes3)
+    // use landmarks to set coarse pose
+    const changes3 = UpdateLandmarkPose(data?.za, data?.poseLandmarks)
+    ApplyPoseChanges(entity, changes3)
+  }
 
   // publish ik targets rather than directly setting body parts
-  const changes4 = UpdateIkPose(data)
-  ApplyPoseChanges(entity, changes4)
+  // const changes4 = UpdateIkPose(data)
+  // ApplyPoseChanges(entity, changes4)
 }
 
 /*

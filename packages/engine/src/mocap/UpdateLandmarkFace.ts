@@ -40,7 +40,7 @@ export default function UpdateLandmarkFace(faceLandmarks: Landmark[]) {
 
   changes[VRMHumanBoneName.Neck] = {
     euler: faceData.head,
-    dampener: 1,
+    dampener: 1.0,
     lerp: 0.7
   }
 

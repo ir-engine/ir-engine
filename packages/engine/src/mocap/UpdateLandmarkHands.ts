@@ -30,7 +30,7 @@ import { LEFT, RIGHT } from './solvers/Types'
 
 export default function UpdateLandmarkHands(leftHandLandmarks: Landmark[], rightHandLandmarks: Landmark[]) {
   const changes = {}
-  const dampener = 1
+  const dampener = 1.0
   const lerp = 0.5
 
   if (leftHandLandmarks) {
