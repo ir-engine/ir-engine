@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import type { Knex } from 'knex'
 
 /**
@@ -36,34 +36,23 @@ export async function up(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(invitePath)
+  const tableExists = await trx.schema.hasTable(messagePath)
 
   if (tableExists === false) {
-    await trx.schema.createTable(invitePath, (table) => {
+    await trx.schema.createTable(messagePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
-      table.string('token', 255).defaultTo(null)
-      table.string('identityProviderType', 255).defaultTo(null)
-      table.string('passcode', 255).notNullable()
-      table.string('targetObjectId', 255).defaultTo(null)
-      table.boolean('deleteOnUse').defaultTo(true)
-      table.boolean('makeAdmin').defaultTo(false)
-      table.string('spawnType', 255).defaultTo(null)
-      table.json('spawnDetails').nullable()
-      table.boolean('timed').defaultTo(false)
-      table.dateTime('startTime').defaultTo(null)
-      table.dateTime('endTime').defaultTo(null)
+      table.string('text', 1023).notNullable()
+      table.boolean('isNotification').notNullable().defaultTo(false)
       //@ts-ignore
-      table.uuid('userId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.uuid('channelId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       //@ts-ignore
-      table.uuid('inviteeId', 36).collate('utf8mb4_bin').defaultTo(null).index()
-      table.string('inviteType', 255).defaultTo(null).index()
+      table.uuid('senderId', 36).collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
-      table.foreign('inviteeId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
-      table.foreign('inviteType').references('type').inTable('invite-type').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('channelId').references('id').inTable('channel').onDelete('CASCADE').onUpdate('CASCADE')
+      table.foreign('senderId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     })
 
     await trx.raw('SET FOREIGN_KEY_CHECKS=1')
@@ -79,10 +68,10 @@ export async function down(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(invitePath)
+  const tableExists = await trx.schema.hasTable(messagePath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(invitePath)
+    await trx.schema.dropTable(messagePath)
   }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')

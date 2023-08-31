@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -85,7 +86,6 @@ describe.skip('invite service', () => {
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!,
       deleteOnUse: true
     })) as InviteType
     invites.push(item)
@@ -108,7 +108,6 @@ describe.skip('invite service', () => {
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!,
       deleteOnUse: true
     })) as InviteType
     invites.push(item)
@@ -131,7 +130,6 @@ describe.skip('invite service', () => {
       token,
       targetObjectId: user.userId,
       identityProviderType,
-      inviteeId: null!,
       deleteOnUse: true
     })) as InviteType
     invites.push(item)
@@ -142,6 +140,19 @@ describe.skip('invite service', () => {
     assert.equal(item.identityProviderType, identityProviderType)
     assert.ok(item.id)
     assert.ok(item.passcode)
+  })
+
+  it('should find invites with empty search string', async () => {
+    const items = await app.service('invite').find({ query: { search: '' } })
+    assert.ok(items)
+    assert.equal((items as Paginated<InviteType>).data.length, invites.length)
+  })
+
+  it('should find invites with search string present', async () => {
+    const lastInvite = invites.at(-1)
+    const item = await app.service('invite').find({ query: { search: invites.passcode } })
+
+    assert.equal((item as Paginated<InviteType>).data[0].passcode, lastInvite.passcode)
   })
 
   it('should find received invites', async () => {

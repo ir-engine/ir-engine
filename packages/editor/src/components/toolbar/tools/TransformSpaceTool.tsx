@@ -31,6 +31,8 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import LanguageIcon from '@mui/icons-material/Language'
 
+import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import { setTransformSpace, toggleTransformSpace } from '../../../functions/transformFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
@@ -38,30 +40,42 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const transformSpaceOptions = [
-  { label: 'Selection', value: TransformSpace.Local },
-  { label: 'World', value: TransformSpace.World }
+  {
+    label: t('editor:toolbar.transformSpace.lbl-selection'),
+    info: t('editor:toolbar.transformSpace.info-selection'),
+    value: TransformSpace.Local
+  },
+  {
+    label: t('editor:toolbar.transformSpace.lbl-world'),
+    info: t('editor:toolbar.transformSpace.info-world'),
+    value: TransformSpace.World
+  }
 ]
 
 const TransformSpaceTool = () => {
+  const { t } = useTranslation()
+
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
   return (
-    <div className={styles.toolbarInputGroup} id="transform-space">
-      <InfoTooltip title="[Z] Toggle Transform Space">
-        <button onClick={toggleTransformSpace} className={styles.toolButton}>
-          <LanguageIcon fontSize="small" />
-        </button>
-      </InfoTooltip>
-      <SelectInput
-        key={transformSpace.value}
-        className={styles.selectInput}
-        onChange={setTransformSpace}
-        options={transformSpaceOptions}
-        value={transformSpace.value}
-        creatable={false}
-        isSearchable={false}
-      />
-    </div>
+    <InfoTooltip title={t('editor:toolbar.transformSpace.description')} placement="right">
+      <div className={styles.toolbarInputGroup} id="transform-space">
+        <InfoTooltip title={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
+          <button onClick={toggleTransformSpace} className={styles.toolButton}>
+            <LanguageIcon fontSize="small" />
+          </button>
+        </InfoTooltip>
+        <SelectInput
+          key={transformSpace.value}
+          className={styles.selectInput}
+          onChange={setTransformSpace}
+          options={transformSpaceOptions}
+          value={transformSpace.value}
+          creatable={false}
+          isSearchable={false}
+        />
+      </div>
+    </InfoTooltip>
   )
 }
 

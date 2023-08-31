@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import classNames from 'classnames'
-import dayjs, { Dayjs } from 'dayjs'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -51,7 +50,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { InvitePatch, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -85,8 +84,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const setSpawn = useHookstate(false)
   const spawnTypeTab = useHookstate(0)
   const timed = useHookstate(false)
-  const startTime = useHookstate<Dayjs>(dayjs(null))
-  const endTime = useHookstate<Dayjs>(dayjs(null))
+  const startTime = useHookstate<Date>(new Date())
+  const endTime = useHookstate<Date>(new Date())
 
   const adminInstances = useFind('instance').data
   const adminLocations = useFind(locationPath).data
@@ -98,7 +97,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-  const updateInvite = useMutation(invitePath).patch
+  const patchInvite = useMutation(invitePath).patch
 
   useEffect(() => {
     inviteTypeTab.set(
@@ -147,8 +146,10 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     }
     if (invite.timed) {
       timed.set(true)
-      startTime.set(dayjs(invite.startTime))
-      endTime.set(dayjs(invite.endTime))
+      const sTime = invite.startTime ? new Date(invite.startTime) : new Date()
+      startTime.set(sTime)
+      const eTime = invite.endTime ? new Date(invite.endTime) : new Date()
+      endTime.set(eTime)
     }
   }, [invite])
 
@@ -232,22 +233,14 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       const isPhone = PHONE_REGEX.test(target)
       const isEmail = EMAIL_REGEX.test(target)
       const sendData = {
-        id: invite.id,
         inviteType: inviteType,
-        inviteeId: invite.inviteeId,
-        passcode: invite.passcode,
         identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
         targetObjectId: instanceId.value || locationId.value || null,
-        createdAt: invite.createdAt || toDateTimeSql(new Date()),
-        updatedAt: invite.updatedAt || toDateTimeSql(new Date()),
         makeAdmin: makeAdmin.value,
         deleteOnUse: oneTimeUse.value,
-        invitee: undefined,
-        user: undefined,
         userId: invite.userId
       } as InvitePatch
-      if (target.length === 8) sendData.inviteCode = target
-      else sendData.token = target
+      if (target.length !== 8) sendData.token = target
       if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
         sendData.spawnType = 'inviteCode'
         sendData.spawnDetails = { inviteCode: userInviteCode.value }
@@ -257,10 +250,10 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       }
       sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
       if (sendData.timed) {
-        sendData.startTime = toDateTimeSql(startTime.value?.toDate())
-        sendData.endTime = toDateTimeSql(endTime.value?.toDate())
+        sendData.startTime = toDateTimeSql(startTime.value)
+        sendData.endTime = toDateTimeSql(endTime.value)
       }
-      await updateInvite(invite.id, sendData)
+      await patchInvite(invite.id, sendData)
       instanceId.set('')
       locationId.set('')
       textValue.set('')
@@ -272,8 +265,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       spawnTypeTab.set(0)
       inviteTypeTab.set(0)
       timed.set(false)
-      startTime.set(dayjs(null))
-      endTime.set(dayjs(null))
+      startTime.set(new Date())
+      endTime.set(new Date())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -352,23 +345,27 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
                   <DateTimePicker
                     label="Start Time"
                     value={startTime.value}
-                    onChange={(e) => startTime.set(dayjs(e))}
+                    onChange={(e) => startTime.set(e || new Date())}
                   />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => startTime.set(dayjs(null))}
+                    onClick={() => startTime.set(new Date())}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>
                 <div className={styles.pickerControls}>
-                  <DateTimePicker label="End Time" value={endTime.value} onChange={(e) => endTime.set(dayjs(e))} />
+                  <DateTimePicker
+                    label="End Time"
+                    value={endTime.value}
+                    onChange={(e) => endTime.set(e || new Date())}
+                  />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => endTime.set(dayjs(null))}
+                    onClick={() => endTime.set(new Date())}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>
