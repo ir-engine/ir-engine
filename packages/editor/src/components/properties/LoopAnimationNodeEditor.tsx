@@ -66,7 +66,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         { label: 'None', value: -1 },
         ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
       ])
-  }, [modelComponent.scene, loopAnimationComponent.vrm, loopAnimationComponent.animationPack])
+  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations, loopAnimationComponent.animationPack])
 
   const onChangePlayingAnimation = (index) => {
     updateProperties(LoopAnimationComponent, {
@@ -93,7 +93,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {loopAnimationComponent.vrm.value && (
+      {loopAnimationComponent.hasAvatarAnimations.value && (
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
           <ModelInput value={loopAnimationComponent.animationPack.value} onChange={updateResources} />
           {errors?.LOADING_ERROR && (
