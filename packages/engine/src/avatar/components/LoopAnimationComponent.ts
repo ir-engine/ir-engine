@@ -161,7 +161,6 @@ export const playAnimationClip = (
   animationComponent: ComponentType<typeof AnimationComponent>,
   loopAnimationComponent: ComponentType<typeof LoopAnimationComponent>
 ) => {
-  console.log('playAnimationClip', animationComponent, loopAnimationComponent)
   if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
   if (
     loopAnimationComponent.activeClipIndex >= 0 &&

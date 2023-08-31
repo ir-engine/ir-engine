@@ -155,7 +155,6 @@ export const createIKAnimator = async (entity: Entity) => {
       rigComponent.vrm,
       'glb'
     )
-    console.log(animations[i])
   }
 
   setComponent(entity, AnimationComponent, {

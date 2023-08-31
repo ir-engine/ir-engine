@@ -108,7 +108,7 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
-        //onClick: () => runAnimation(animationStates.laugh)
+        onClick: () => runAnimation(animationStates.laugh)
       }
     },
     {
