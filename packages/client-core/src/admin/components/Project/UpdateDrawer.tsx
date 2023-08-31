@@ -30,11 +30,6 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
-import {
-  DefaultUpdateSchedule,
-  ProjectInterface,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -44,7 +39,9 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
@@ -120,7 +117,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
           reset: true,
           commitSHA: projectUpdateStatus[name].selectedSHA.value,
           sourceBranch: projectUpdateStatus[name].selectedBranch.value,
-          updateType: projectUpdateStatus[name].updateType.value || ('none' as ProjectUpdateType),
+          updateType: projectUpdateStatus[name].updateType.value || ('none' as ProjectType['updateType']),
           updateSchedule: projectUpdateStatus[name].updateSchedule.value || DefaultUpdateSchedule
         }
       })
@@ -129,7 +126,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     handleClose()
   }
 
-  const toggleProjectToUpdate = async (e: React.ChangeEvent<HTMLInputElement>, project: ProjectInterface) => {
+  const toggleProjectToUpdate = async (e: React.ChangeEvent<HTMLInputElement>, project: ProjectType) => {
     const thisProjectName = project.name
     const newProjects = new Map(projectsToUpdate.get({ noproxy: true }))
     if (newProjects.get(thisProjectName)) {

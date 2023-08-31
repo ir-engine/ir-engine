@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
@@ -36,12 +35,13 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  selectedProject: ProjectInterface
+  selectedProject: ProjectType
   onClose: () => void
 }
 

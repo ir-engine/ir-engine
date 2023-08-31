@@ -27,11 +27,8 @@ import { none } from '@hookstate/core'
 
 import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
-import {
-  DefaultUpdateSchedule,
-  ProjectInterface,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const ProjectUpdateState = defineState({
@@ -39,21 +36,13 @@ export const ProjectUpdateState = defineState({
   initial: () => ({})
 })
 
-const updateProjectField = ({
-  project,
-  fieldName,
-  value
-}: {
-  project: ProjectInterface
-  fieldName: string
-  value: any
-}) => {
+const updateProjectField = ({ project, fieldName, value }: { project: ProjectType; fieldName: string; value: any }) => {
   const state = getMutableState(ProjectUpdateState)
   if (state[project.name] && state[project.name][fieldName]) state[project.name][fieldName].set(value)
 }
 
 export const ProjectUpdateService = {
-  initializeProjectUpdate: (project: ProjectInterface) => {
+  initializeProjectUpdate: (project: ProjectType) => {
     getMutableState(ProjectUpdateState)[project.name].set({
       branchProcessing: false,
       destinationProcessing: false,
@@ -82,59 +71,59 @@ export const ProjectUpdateService = {
       projectName: '',
       submitDisabled: true,
       triggerSetDestination: '',
-      updateType: 'none' as ProjectUpdateType,
+      updateType: 'none' as ProjectType['updateType'],
       updateSchedule: DefaultUpdateSchedule
     })
   },
-  clearProjectUpdate: (project: ProjectInterface) => {
+  clearProjectUpdate: (project: ProjectType) => {
     getMutableState(ProjectUpdateState)[project.name].set(none)
   },
-  setSourceURL: (project: ProjectInterface, sourceURL: string) => {
+  setSourceURL: (project: ProjectType, sourceURL: string) => {
     updateProjectField({ project, fieldName: 'sourceURL', value: sourceURL })
   },
-  setDestinationURL: (project: ProjectInterface, destinationURL: string) => {
+  setDestinationURL: (project: ProjectType, destinationURL: string) => {
     updateProjectField({ project, fieldName: 'destinationURL', value: destinationURL })
   },
-  setBranchProcessing: (project: ProjectInterface, processing: boolean) => {
+  setBranchProcessing: (project: ProjectType, processing: boolean) => {
     updateProjectField({ project, fieldName: 'branchProcessing', value: processing })
   },
-  setDestinationProcessing: (project: ProjectInterface, processing: boolean) => {
+  setDestinationProcessing: (project: ProjectType, processing: boolean) => {
     updateProjectField({ project, fieldName: 'destinationProcessing', value: processing })
   },
-  setSourceValid: (project: ProjectInterface, valid: boolean) => {
+  setSourceValid: (project: ProjectType, valid: boolean) => {
     updateProjectField({ project, fieldName: 'sourceValid', value: valid })
   },
-  setDestinationValid: (project: ProjectInterface, valid: boolean) => {
+  setDestinationValid: (project: ProjectType, valid: boolean) => {
     updateProjectField({ project, fieldName: 'destinationValid', value: valid })
   },
-  setDestinationError: (project: ProjectInterface, error: string) => {
+  setDestinationError: (project: ProjectType, error: string) => {
     updateProjectField({ project, fieldName: 'destinationError', value: error })
   },
-  setCommitsProcessing: (project: ProjectInterface, processing: boolean) => {
+  setCommitsProcessing: (project: ProjectType, processing: boolean) => {
     updateProjectField({ project, fieldName: 'commitsProcessing', value: processing })
   },
-  setSourceURLError: (project: ProjectInterface, error: string) => {
+  setSourceURLError: (project: ProjectType, error: string) => {
     updateProjectField({ project, fieldName: 'sourceURLError', value: error })
   },
-  setBranchError: (project: ProjectInterface, error: string) => {
+  setBranchError: (project: ProjectType, error: string) => {
     updateProjectField({ project, fieldName: 'branchError', value: error })
   },
-  setCommitError: (project: ProjectInterface, error: string) => {
+  setCommitError: (project: ProjectType, error: string) => {
     updateProjectField({ project, fieldName: 'commitError', value: error })
   },
-  setShowBranchSelector: (project: ProjectInterface, show: boolean) => {
+  setShowBranchSelector: (project: ProjectType, show: boolean) => {
     updateProjectField({ project, fieldName: 'showBranchSelector', value: show })
   },
-  setShowCommitSelector: (project: ProjectInterface, show: boolean) => {
+  setShowCommitSelector: (project: ProjectType, show: boolean) => {
     updateProjectField({ project, fieldName: 'showCommitSelector', value: show })
   },
-  setBranchData: (project: ProjectInterface, data: ProjectBranchInterface[]) => {
+  setBranchData: (project: ProjectType, data: ProjectBranchInterface[]) => {
     updateProjectField({ project, fieldName: 'branchData', value: data })
   },
-  setCommitData: (project: ProjectInterface, data: ProjectCommitInterface[]) => {
+  setCommitData: (project: ProjectType, data: ProjectCommitInterface[]) => {
     updateProjectField({ project, fieldName: 'commitData', value: data })
   },
-  mergeCommitData: (project: ProjectInterface, data: ProjectCommitInterface) => {
+  mergeCommitData: (project: ProjectType, data: ProjectCommitInterface) => {
     const state = getMutableState(ProjectUpdateState)
     if (state[project.name] && state[project.name]['commitData']) {
       const field = state[project.name]['commitData']
@@ -145,61 +134,61 @@ export const ProjectUpdateService = {
       else return field.merge([data])
     }
   },
-  setSelectedBranch: (project: ProjectInterface, branchName: string) => {
+  setSelectedBranch: (project: ProjectType, branchName: string) => {
     updateProjectField({ project, fieldName: 'selectedBranch', value: branchName })
   },
-  setSourceVsDestinationProcessing: (project: ProjectInterface, processing: boolean) => {
+  setSourceVsDestinationProcessing: (project: ProjectType, processing: boolean) => {
     updateProjectField({
       project,
       fieldName: 'sourceVsDestinationProcessing',
       value: processing
     })
   },
-  setSourceVsDestinationError: (project: ProjectInterface, error: string) => {
+  setSourceVsDestinationError: (project: ProjectType, error: string) => {
     updateProjectField({ project, fieldName: 'sourceVsDestinationError', value: error })
   },
-  setSourceVsDestinationChecked: (project: ProjectInterface, checked: boolean) => {
+  setSourceVsDestinationChecked: (project: ProjectType, checked: boolean) => {
     updateProjectField({ project, fieldName: 'sourceVsDestinationChecked', value: checked })
   },
-  setSourceProjectMatchesDestination: (project: ProjectInterface, matches: boolean) => {
+  setSourceProjectMatchesDestination: (project: ProjectType, matches: boolean) => {
     updateProjectField({
       project,
       fieldName: 'sourceProjectMatchesDestination',
       value: matches
     })
   },
-  setDestinationProjectName: (project: ProjectInterface, projectName: string) => {
+  setDestinationProjectName: (project: ProjectType, projectName: string) => {
     updateProjectField({ project, fieldName: 'destinationProjectName', value: projectName })
   },
-  setDestinationRepoEmpty: (project: ProjectInterface, empty: boolean) => {
+  setDestinationRepoEmpty: (project: ProjectType, empty: boolean) => {
     updateProjectField({ project, fieldName: 'destinationRepoEmpty', value: empty })
   },
-  setSourceProjectName: (project: ProjectInterface, projectName: string) => {
+  setSourceProjectName: (project: ProjectType, projectName: string) => {
     updateProjectField({ project, fieldName: 'sourceProjectName', value: projectName })
   },
-  setSelectedSHA: (project: ProjectInterface, commitSHA: string) => {
+  setSelectedSHA: (project: ProjectType, commitSHA: string) => {
     updateProjectField({ project, fieldName: 'selectedSHA', value: commitSHA })
   },
-  setSubmitDisabled: (project: ProjectInterface, disabled: boolean) => {
+  setSubmitDisabled: (project: ProjectType, disabled: boolean) => {
     updateProjectField({ project, fieldName: 'submitDisabled', value: disabled })
   },
-  setProjectName: (project: ProjectInterface, projectName: string) => {
+  setProjectName: (project: ProjectType, projectName: string) => {
     updateProjectField({ project, fieldName: 'projectName', value: projectName })
   },
-  setTriggerSetDestination: (project: ProjectInterface, trigger: string) => {
+  setTriggerSetDestination: (project: ProjectType, trigger: string) => {
     ProjectUpdateService.setUpdateType(project, project.updateType || 'none')
     ProjectUpdateService.setUpdateSchedule(project, project.updateSchedule || DefaultUpdateSchedule)
 
     updateProjectField({ project, fieldName: 'triggerSetDestination', value: trigger })
   },
-  setUpdateType: (project: ProjectInterface, type: ProjectUpdateType) => {
+  setUpdateType: (project: ProjectType, type: ProjectType['updateType']) => {
     updateProjectField({ project, fieldName: 'updateType', value: type })
   },
-  setUpdateSchedule: (project: ProjectInterface, schedule: string) => {
+  setUpdateSchedule: (project: ProjectType, schedule: string) => {
     updateProjectField({ project, fieldName: 'updateSchedule', value: schedule })
   },
 
-  resetSourceState: (project: ProjectInterface, { resetSourceURL = true, resetBranch = true }) => {
+  resetSourceState: (project: ProjectType, { resetSourceURL = true, resetBranch = true }) => {
     if (resetSourceURL) ProjectUpdateService.setSourceURL(project, '')
     if (resetBranch) {
       ProjectUpdateService.setSelectedBranch(project, '')
@@ -219,7 +208,7 @@ export const ProjectUpdateService = {
     ProjectUpdateService.setSourceVsDestinationError(project, '')
   },
 
-  resetDestinationState: (project: ProjectInterface, { resetDestinationURL = true }) => {
+  resetDestinationState: (project: ProjectType, { resetDestinationURL = true }) => {
     ProjectUpdateService.setSubmitDisabled(project, true)
     if (resetDestinationURL) ProjectUpdateService.setDestinationURL(project, '')
     ProjectUpdateService.setDestinationValid(project, false)

@@ -135,8 +135,8 @@ export const projectQuerySchema = Type.Intersect(
 )
 export type ProjectQuery = Static<typeof projectQuerySchema>
 
-export const projectValidator = getValidator(projectSchema, dataValidator)
 export const projectSettingValidator = getValidator(projectSettingSchema, dataValidator)
+export const projectValidator = getValidator(projectSchema, dataValidator)
 export const projectDataValidator = getValidator(projectDataSchema, dataValidator)
 export const projectPatchValidator = getValidator(projectPatchSchema, dataValidator)
 export const projectQueryValidator = getValidator(projectQuerySchema, queryValidator)

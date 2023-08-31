@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectUpdateType } from './ProjectInterface'
+import { ProjectType } from '../../../engine/src/schemas/projects/project.schema'
 
 export type UpdateProjectInterface = {
   sourceURL: string
@@ -32,6 +32,6 @@ export type UpdateProjectInterface = {
   reset: boolean
   commitSHA: string
   sourceBranch: string
-  updateType: ProjectUpdateType
+  updateType: ProjectType['updateType']
   updateSchedule: string
 }

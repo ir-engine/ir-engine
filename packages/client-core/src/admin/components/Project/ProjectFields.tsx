@@ -35,11 +35,6 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
-import {
-  DefaultUpdateSchedule,
-  ProjectInterface,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -48,13 +43,15 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  inputProject?: ProjectInterface | null | undefined
+  inputProject?: ProjectType | null | undefined
   existingProject?: boolean | undefined
   changeDestination?: boolean | undefined
   processing: boolean
@@ -66,16 +63,16 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   const project =
     existingProject && inputProject
       ? inputProject
-      : {
+      : ({
           id: '',
           name: 'tempProject',
           thumbnail: '',
           repositoryPath: '',
           needsRebuild: false,
-          updateType: 'none' as ProjectUpdateType,
+          updateType: 'none' as ProjectType['updateType'],
           commitSHA: '',
           commitDate: new Date()
-        }
+        } as any)
 
   useEffect(() => {
     ProjectUpdateService.initializeProjectUpdate(project)

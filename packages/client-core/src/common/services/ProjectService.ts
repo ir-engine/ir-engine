@@ -28,7 +28,6 @@ import { useEffect } from 'react'
 import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
-import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -36,7 +35,7 @@ import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
@@ -48,7 +47,7 @@ export const PROJECT_PAGE_LIMIT = 100
 export const ProjectState = defineState({
   name: 'ProjectState',
   initial: () => ({
-    projects: [] as Array<ProjectInterface>,
+    projects: [] as Array<ProjectType>,
     updateNeeded: true,
     rebuilding: true,
     succeeded: false,
@@ -109,22 +108,20 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  uploadProject: async (
-    sourceURL: string,
-    destinationURL: string,
-    name: string,
-    reset: boolean,
-    commitSHA: string,
-    sourceBranch: string,
-    updateType: ProjectUpdateType,
-    updateSchedule: string
-  ) => {
-    const result = await API.instance.client
-      .service(projectPath)
-      .update({ sourceURL, destinationURL, name, reset, commitSHA, sourceBranch, updateType, updateSchedule })
+  uploadProject: async (data: UpdateProjectInterface) => {
+    const result = await API.instance.client.service(projectPath).update({
+      sourceURL: data.sourceURL,
+      destinationURL: data.destinationURL,
+      name: data.name,
+      reset: data.reset,
+      commitSHA: data.commitSHA,
+      sourceBranch: data.sourceBranch,
+      updateType: data.updateType,
+      updateSchedule: data.updateSchedule
+    })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
-    await API.instance.client.service('project-invalidate').patch({ projectName: name })
+    await API.instance.client.service('project-invalidate').patch({ projectName: data.name })
     await ProjectService.fetchProjects()
   },
 
@@ -351,7 +348,7 @@ export const ProjectService = {
 export class ProjectAction {
   static projectsFetched = defineAction({
     type: 'ee.client.Project.PROJECTS_RETRIEVED' as const,
-    projectResult: matches.array as Validator<unknown, ProjectInterface[]>
+    projectResult: matches.array as Validator<unknown, ProjectType[]>
   })
 
   static reloadStatusFetched = defineAction({
@@ -369,7 +366,7 @@ export class ProjectAction {
 
   static patchedProject = defineAction({
     type: 'ee.client.Project.PROJECT_PATCHED' as const,
-    project: matches.object as Validator<unknown, ProjectInterface>
+    project: matches.object as Validator<unknown, ProjectType>
   })
 
   static builderTagsFetched = defineAction({
