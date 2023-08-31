@@ -57,7 +57,6 @@ export const PositionalAudioComponent = defineComponent({
   jsonID: 'audio',
 
   onInit: (entity) => {
-    if (!hasComponent(entity, MediaComponent)) setComponent(entity, MediaComponent, {})
     return {
       // default values as suggested at https://medium.com/@kfarr/understanding-web-audio-api-positional-audio-distance-models-for-webxr-e77998afcdff
       distanceModel: 'inverse' as DistanceModelType,
@@ -110,6 +109,11 @@ export const PositionalAudioComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useComponent(entity, MediaElementComponent)
+    useEffect(() => {
+      if (hasComponent(entity, MediaComponent)) return
+
+      setComponent(entity, MediaComponent, {})
+    }, [])
 
     useEffect(() => {
       if (
