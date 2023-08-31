@@ -25,14 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  setComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -52,6 +57,7 @@ export const PositionalAudioComponent = defineComponent({
   jsonID: 'audio',
 
   onInit: (entity) => {
+    if (!hasComponent(entity, MediaComponent)) setComponent(entity, MediaComponent, {})
     return {
       // default values as suggested at https://medium.com/@kfarr/understanding-web-audio-api-positional-audio-distance-models-for-webxr-e77998afcdff
       distanceModel: 'inverse' as DistanceModelType,
