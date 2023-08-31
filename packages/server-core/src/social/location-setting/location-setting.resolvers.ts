@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -33,9 +33,12 @@ import {
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const locationSettingResolver = resolve<LocationSettingType, HookContext>({})
+export const locationSettingResolver = resolve<LocationSettingType, HookContext>({
+  createdAt: virtual(async (locationSetting) => fromDateTimeSql(locationSetting.createdAt)),
+  updatedAt: virtual(async (locationSetting) => fromDateTimeSql(locationSetting.updatedAt))
+})
 
 export const locationSettingExternalResolver = resolve<LocationSettingType, HookContext>({})
 
