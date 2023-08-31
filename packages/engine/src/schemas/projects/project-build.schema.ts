@@ -68,5 +68,6 @@ export const projectBuildPatchSchema = Type.Object(
 
 export type ProjectBuildPatch = Static<typeof projectBuildPatchSchema>
 
+export const projectUpdateValidator = getValidator(projectUpdateSchema, dataValidator)
 export const projectBuildValidator = getValidator(projectBuildSchema, dataValidator)
 export const projectBuildPatchValidator = getValidator(projectBuildPatchSchema, dataValidator)

@@ -45,6 +45,7 @@ import {
 import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { projectCommitsPath } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
+import { projectDestinationCheckPath } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
 import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
@@ -258,7 +259,7 @@ export const ProjectService = {
 
   checkDestinationURLValid: async ({ url, inputProjectURL }: { url: string; inputProjectURL?: string }) => {
     try {
-      return API.instance.client.service('project-destination-check').get(url, {
+      return API.instance.client.service(projectDestinationCheckPath).get(url, {
         query: {
           inputProjectURL
         }

@@ -56,4 +56,5 @@ export const projectCommitsSchema = Type.Object(
 )
 export type ProjectCommitsType = Static<typeof projectCommitsSchema>
 
+export const projectCommitValidator = getValidator(projectCommitSchema, dataValidator)
 export const projectCommitsValidator = getValidator(projectCommitsSchema, dataValidator)

@@ -51,4 +51,5 @@ export const projectBranchesSchema = Type.Object(
 )
 export type ProjectBranchesType = Static<typeof projectBranchesSchema>
 
+export const projectBranchValidator = getValidator(projectBranchSchema, dataValidator)
 export const projectBranchesValidator = getValidator(projectBranchesSchema, dataValidator)
