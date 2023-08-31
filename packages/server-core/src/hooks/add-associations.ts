@@ -35,6 +35,7 @@ import {
   createLocationAdminModel,
   createLocationBanModel,
   createLocationModel,
+  createMessageModel,
   createUserApiKeyModel
 } from '../all.model'
 
@@ -46,7 +47,8 @@ const getMigratedModels = (app: Application) => {
     'user-api-key': createUserApiKeyModel(app),
     'instance-attendance': createInstanceAttendanceModel(app),
     'location-admin': createLocationAdminModel(app),
-    'identity-provider': createIdentityProviderModel(app)
+    'identity-provider': createIdentityProviderModel(app),
+    message: createMessageModel(app)
   }
 }
 
