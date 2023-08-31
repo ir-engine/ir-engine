@@ -63,7 +63,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
-import { DissolveEffect } from '.././DissolveEffect'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from '.././components/AvatarEffectComponent'
@@ -235,10 +234,11 @@ const execute = () => {
               }
             }
           }
-          setComponent(entity, AvatarDissolveComponent, {
-            /** @todo refactor to not be just the first index */
-            effect: new DissolveEffect(avatarObjects[0], bbox.min.y / scale, bbox.max.y / scale)
-          })
+          if (typeof avatarObjects === 'object' && avatarObjects.length > 0)
+            setComponent(entity, AvatarDissolveComponent, {
+              minHeight: bbox.min.y / scale,
+              maxHeight: bbox.max.y / scale
+            })
         })
     )
   }
@@ -285,11 +285,9 @@ const execute = () => {
   }
 
   for (const entity of dissolveQuery()) {
-    const disolveEffect = getComponent(entity, AvatarDissolveComponent).effect
-
-    if (disolveEffect.update(delta)) {
+    const effectComponent = getComponent(entity, AvatarEffectComponent)
+    if (AvatarDissolveComponent.updateDissolveEffect(effectComponent.dissolveMaterials, entity, delta)) {
       removeComponent(entity, AvatarDissolveComponent)
-      const effectComponent = getComponent(entity, AvatarEffectComponent)
       const avatarGroup = getOptionalComponent(effectComponent.sourceEntity, GroupComponent)
       if (avatarGroup?.length)
         effectComponent.originMaterials.forEach(({ id, material }) => {
