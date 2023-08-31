@@ -50,7 +50,7 @@ const GridTool = () => {
 
   return (
     <div id="transform-grid" className={styles.toolbarInputGroup}>
-      <InfoTooltip title="Toggle Grid Visibility">
+      <InfoTooltip title={t('editor:toolbar.grid.info-toggleGridVisibility')}>
         <button
           onClick={onToggleGridVisible}
           className={styles.toolButton + ' ' + (rendererState.gridVisibility.value ? styles.selected : '')}
@@ -58,19 +58,23 @@ const GridTool = () => {
           <GridOnIcon fontSize="small" />
         </button>
       </InfoTooltip>
-      <NumericStepperInput
-        style={{ width: '120px' }}
-        className={styles.toolbarNumericStepperInput}
-        value={rendererState.gridHeight.value}
-        onChange={onChangeGridHeight}
-        precision={0.01}
-        smallStep={0.5}
-        mediumStep={1}
-        largeStep={5}
-        unit="m"
-        incrementTooltip={t('editor:toolbar.grid.info-incrementHeight')}
-        decrementTooltip={t('editor:toolbar.grid.info-decrementHeight')}
-      />
+      <InfoTooltip title={t('editor:toolbar.grid.info-gridSpacing')} placement="right">
+        <div>
+          <NumericStepperInput
+            style={{ width: '120px' }}
+            className={styles.toolbarNumericStepperInput}
+            value={rendererState.gridHeight.value}
+            onChange={onChangeGridHeight}
+            precision={0.01}
+            smallStep={0.5}
+            mediumStep={1}
+            largeStep={5}
+            unit="m"
+            incrementTooltip={t('editor:toolbar.grid.info-incrementHeight')}
+            decrementTooltip={t('editor:toolbar.grid.info-decrementHeight')}
+          />
+        </div>
+      </InfoTooltip>
     </div>
   )
 }

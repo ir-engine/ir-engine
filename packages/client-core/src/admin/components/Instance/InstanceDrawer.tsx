@@ -37,9 +37,10 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -57,7 +58,7 @@ const INFINITY = 'INFINITY'
 
 const INSTANCE_USERS_PAGE_LIMIT = 10
 
-const useUsersInInstance = (instanceId: string) => {
+const useUsersInInstance = (instanceId: InstanceID) => {
   const instanceAttendances = useFind(instanceAttendancePath, {
     query: {
       instanceId
@@ -99,11 +100,11 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
   const openKickDialog = useHookstate(false)
   const kickData = useHookstate({
     userId: '' as UserID,
-    instanceId: '',
+    instanceId: '' as InstanceID,
     duration: '8'
   })
 
-  const instanceUsersQuery = useUsersInInstance(selectedInstance?.id ?? '')
+  const instanceUsersQuery = useUsersInInstance(selectedInstance?.id ?? ('' as InstanceID))
   const kickUser = useKickUser()
 
   const createData = (id: UserID, name: string) => ({

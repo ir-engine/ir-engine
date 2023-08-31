@@ -24,65 +24,88 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { InstanceID } from '../networking/instance.schema'
+import { UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { InstanceID } from './instance.schema'
 
-export const instanceAuthorizedUserPath = 'instance-authorized-user'
+export const messagePath = 'message'
 
-export const instanceAuthorizedUserMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const messageMethods = ['create', 'find'] as const
 
 // Main data model schema
-export const instanceAuthorizedUserSchema = Type.Object(
+export const messageSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserID>({
+    text: Type.String(),
+    isNotification: Type.Boolean(),
+    channelId: TypedString<ChannelID>({
       format: 'uuid'
     }),
-    instanceId: TypedString<InstanceID>({
+    senderId: TypedString<UserID>({
       format: 'uuid'
     }),
+    sender: Type.Ref(userSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'InstanceAuthorizedUser', additionalProperties: false }
+  { $id: 'Message', additionalProperties: false }
 )
-export type InstanceAuthorizedUserType = Static<typeof instanceAuthorizedUserSchema>
+export type MessageType = Static<typeof messageSchema>
 
 // Schema for creating new entries
-export const instanceAuthorizedUserDataSchema = Type.Pick(instanceAuthorizedUserSchema, ['userId', 'instanceId'], {
-  $id: 'InstanceAuthorizedUserData'
-})
-export type InstanceAuthorizedUserData = Static<typeof instanceAuthorizedUserDataSchema>
+export const messageDataProperties = Type.Partial(messageSchema)
+
+export const messageDataSchema = Type.Intersect(
+  [
+    messageDataProperties,
+    Type.Object({
+      instanceId: Type.Optional(
+        TypedString<InstanceID>({
+          format: 'uuid'
+        })
+      )
+    })
+  ],
+  {
+    $id: 'MessageData',
+    additionalProperties: false
+  }
+)
+export type MessageData = Static<typeof messageDataSchema>
 
 // Schema for updating existing entries
-export const instanceAuthorizedUserPatchSchema = Type.Partial(instanceAuthorizedUserSchema, {
-  $id: 'InstanceAuthorizedUserPatch'
+export const messagePatchSchema = Type.Partial(messageSchema, {
+  $id: 'MessagePatch'
 })
-export type InstanceAuthorizedUserPatch = Static<typeof instanceAuthorizedUserPatchSchema>
+export type MessagePatch = Static<typeof messagePatchSchema>
 
 // Schema for allowed query properties
-export const instanceAuthorizedUserQueryProperties = Type.Pick(instanceAuthorizedUserSchema, [
+export const messageQueryProperties = Type.Pick(messageSchema, [
   'id',
-  'userId',
-  'instanceId'
+  'text',
+  'isNotification',
+  'channelId',
+  'senderId',
+  'createdAt'
 ])
-export const instanceAuthorizedUserQuerySchema = Type.Intersect(
+export const messageQuerySchema = Type.Intersect(
   [
-    querySyntax(instanceAuthorizedUserQueryProperties),
+    querySyntax(messageQueryProperties, {}),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type InstanceAuthorizedUserQuery = Static<typeof instanceAuthorizedUserQuerySchema>
+export type MessageQuery = Static<typeof messageQuerySchema>
 
-export const instanceAuthorizedUserValidator = getValidator(instanceAuthorizedUserSchema, dataValidator)
-export const instanceAuthorizedUserDataValidator = getValidator(instanceAuthorizedUserDataSchema, dataValidator)
-export const instanceAuthorizedUserPatchValidator = getValidator(instanceAuthorizedUserPatchSchema, dataValidator)
-export const instanceAuthorizedUserQueryValidator = getValidator(instanceAuthorizedUserQuerySchema, queryValidator)
+export const messageValidator = getValidator(messageSchema, dataValidator)
+export const messageDataValidator = getValidator(messageDataSchema, dataValidator)
+export const messagePatchValidator = getValidator(messagePatchSchema, dataValidator)
+export const messageQueryValidator = getValidator(messageQuerySchema, queryValidator)

@@ -28,7 +28,8 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { LocationInstanceConnectionService } from '../../common/services/LocationInstanceConnectionService'
 import { AuthState } from '../services/AuthService'
 
@@ -49,9 +50,9 @@ export const userPatched = (user: UserType) => {
   if (selfUser.id.value === patchedUser.id) {
     getMutableState(AuthState).merge({ user: patchedUser })
     const currentInstanceId = patchedUser.instanceAttendance?.find((attendance) => !attendance.isChannel)
-      ?.instanceId as UserID
+      ?.instanceId as InstanceID
     if (worldHostID && currentInstanceId && worldHostID !== currentInstanceId) {
-      LocationInstanceConnectionService.changeActiveConnectionHostId(worldHostID, currentInstanceId)
+      LocationInstanceConnectionService.changeActiveConnectionID(worldHostID, currentInstanceId)
     }
   }
 }

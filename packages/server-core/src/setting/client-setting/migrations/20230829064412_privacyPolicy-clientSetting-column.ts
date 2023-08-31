@@ -23,4 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export {}
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import type { Knex } from 'knex'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
+  if (!privacyPolicyColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.string('privacyPolicy')
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const privacyPolicyColumnExists = await knex.schema.hasColumn(clientSettingPath, 'privacyPolicy')
+
+  if (privacyPolicyColumnExists) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('privacyPolicy')
+    })
+  }
+}
