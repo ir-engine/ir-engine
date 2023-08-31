@@ -33,7 +33,6 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
@@ -48,6 +47,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -115,7 +115,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         ProjectUpdateService.setShowBranchSelector(project, true)
         ProjectUpdateService.setBranchData(project, branchResponse)
         if (project.sourceBranch) {
-          const branchExists = branchResponse.find((item: ProjectBranchInterface) => item.name === project.sourceBranch)
+          const branchExists = branchResponse.find((item: ProjectBranchType) => item.name === project.sourceBranch)
 
           if (branchExists) {
             handleChangeBranch({ target: { value: project.sourceBranch } })
@@ -254,7 +254,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     ProjectUpdateService.setSourceValid(project, true)
   }
 
-  const branchMenu: InputMenuItem[] = projectUpdateStatus?.value?.branchData.map((el: ProjectBranchInterface) => {
+  const branchMenu: InputMenuItem[] = projectUpdateStatus?.value?.branchData.map((el: ProjectBranchType) => {
     return {
       value: el.name,
       label: `Branch: ${el.name} ${

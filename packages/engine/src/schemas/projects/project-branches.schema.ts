@@ -27,16 +27,20 @@ export const projectBranchesPath = 'project-branches'
 
 export const projectBranchesMethods = ['get'] as const
 
+export const projectBranchSchema = Type.Object(
+  {
+    name: Type.String(),
+    branchType: Type.String()
+  },
+  { $id: 'ProjectBranch', additionalProperties: false }
+)
+export type ProjectBranchType = Static<typeof projectBranchSchema>
+
 // Main data model schema
 export const projectBranchesSchema = Type.Object(
   {
     branches: Type.Union([
-      Type.Array(
-        Type.Object({
-          name: Type.String(),
-          branchType: Type.String()
-        })
-      ),
+      Type.Array(Type.Ref(projectBranchSchema)),
       Type.Object({
         error: Type.String(),
         text: Type.String()
