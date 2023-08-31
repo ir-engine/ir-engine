@@ -116,6 +116,7 @@ export class MessageService<T = MessageType, ServiceParams extends Params = Mess
     }
     if (!channel) throw new BadRequest('Could not find or create channel')
 
+    delete data.instanceId
     const messageData = {
       ...data,
       senderId: userId,
