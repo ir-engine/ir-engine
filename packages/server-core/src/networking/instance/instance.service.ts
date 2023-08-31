@@ -33,8 +33,6 @@ import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.s
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
-import authenticate from '../../hooks/authenticate'
-import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
 import logger from '../../ServerLogger'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
@@ -44,9 +42,6 @@ import createModel from './instance.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     instance: Instance
-    'instance-friends': {
-      find: ReturnType<typeof getActiveInstancesForUserFriends>
-    }
   }
 }
 
@@ -171,16 +166,6 @@ export default (app: Application) => {
       }
     } catch (e) {
       // fine - channel already cleaned up elsewhere
-    }
-  })
-
-  app.use('instance-friends', {
-    find: getActiveInstancesForUserFriends(app)
-  })
-
-  app.service('instance-friends').hooks({
-    before: {
-      find: [authenticate(), setLoggedInUser('userId')]
     }
   })
 }
