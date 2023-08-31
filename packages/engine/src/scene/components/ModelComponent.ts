@@ -28,7 +28,9 @@ import { Mesh, Scene } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
@@ -78,7 +80,8 @@ export const ModelComponent = defineComponent({
       generateBVH: true,
       avoidCameraOcclusion: false,
       // internal
-      scene: null as Scene | null
+      scene: null as Scene | null,
+      asset: null as VRM | GLTF | null
     }
   },
 
@@ -157,10 +160,7 @@ function ModelReactor() {
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
-              if (loadedAsset.scene.userData.type === 'vrm') {
-                setComponent(entity, LoopAnimationComponent)
-                getMutableComponent(entity, LoopAnimationComponent).vrm.set(loadedAsset)
-              }
+              modelComponent.asset.set(loadedAsset)
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return

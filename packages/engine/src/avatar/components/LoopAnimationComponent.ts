@@ -29,8 +29,8 @@ import { AnimationAction, AnimationClip, AnimationMixer, Object3D } from 'three'
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
+import { Entity } from '../../ecs/classes/Entity'
 import {
-  ComponentType,
   defineComponent,
   getComponent,
   hasComponent,
@@ -41,6 +41,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { parseAvatarModelAsset } from '../functions/avatarFunctions'
 import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
@@ -56,7 +57,6 @@ export const LoopAnimationComponent = defineComponent({
       animationPack: '',
       // internal
       animationPackScene: undefined as Object3D | undefined,
-      vrm: undefined as VRM | undefined,
       action: null as AnimationAction | null
     }
   },
@@ -93,7 +93,7 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (hasComponent(entity, CallbackComponent)) return
       const play = () => {
-        playAnimationClip(getComponent(entity, AnimationComponent), getComponent(entity, LoopAnimationComponent))
+        playAnimationClip(entity)
       }
       const pause = () => {
         const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
@@ -113,17 +113,24 @@ export const LoopAnimationComponent = defineComponent({
      */
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
+      const model = getComponent(entity, ModelComponent)
 
-      const scene = modelComponent.scene.value
+      if (loopAnimationComponent.hasAvatarAnimations.value && !(model.asset as VRM)?.humanoid) {
+        const vrm = parseAvatarModelAsset(model.scene)
+        if (vrm) {
+          modelComponent.asset.set(vrm)
+          modelComponent.scene.set(vrm.scene as any)
+        }
+      }
 
       if (!hasComponent(entity, AnimationComponent)) {
         setComponent(entity, AnimationComponent, {
-          mixer: new AnimationMixer(scene),
+          mixer: new AnimationMixer(model.scene!),
           animations: []
         })
         getComponent(entity, AnimationComponent).mixer.timeScale = loopAnimationComponent.animationSpeed.value
       }
-    }, [modelComponent?.scene])
+    }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
 
     useEffect(() => {
       if (!animComponent) return
@@ -131,36 +138,31 @@ export const LoopAnimationComponent = defineComponent({
     }, [loopAnimationComponent.animationSpeed])
 
     useEffect(() => {
-      if (!modelComponent?.scene?.value || !animComponent) return
-
-      const loopComponent = getComponent(entity, LoopAnimationComponent)
-      const animationComponent = getComponent(entity, AnimationComponent)
-
-      if (!loopAnimationComponent || !loopAnimationComponent.animationPack.value) return
+      if (!modelComponent?.scene?.value || !animComponent || !loopAnimationComponent.animationPack.value) return
 
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
         const animations = model.userData ? model.animations : model.scene.animations
         loopAnimationComponent.animationPackScene.set(model.scene)
+        const animationComponent = getComponent(entity, AnimationComponent)
         animationComponent.animations = animations
-        playAnimationClip(animationComponent, loopComponent)
       })
+    }, [modelComponent?.scene, modelComponent?.asset, animComponent?.animations, loopAnimationComponent.animationPack])
 
-      if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [
-      modelComponent?.scene,
-      animComponent?.animations,
-      loopAnimationComponent?.vrm,
-      loopAnimationComponent?.animationPack
-    ])
+    useEffect(() => {
+      if (!modelComponent?.scene?.value || !loopAnimationComponent.animationPackScene.value) return
+
+      playAnimationClip(entity)
+    }, [loopAnimationComponent.activeClipIndex, loopAnimationComponent.animationPackScene, modelComponent?.scene])
 
     return null
   }
 })
 
-export const playAnimationClip = (
-  animationComponent: ComponentType<typeof AnimationComponent>,
-  loopAnimationComponent: ComponentType<typeof LoopAnimationComponent>
-) => {
+export const playAnimationClip = (entity: Entity) => {
+  const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+  const animationComponent = getComponent(entity, AnimationComponent)
+  const modelComponent = getComponent(entity, ModelComponent)
+
   if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
   if (
     loopAnimationComponent.activeClipIndex >= 0 &&
@@ -174,8 +176,8 @@ export const playAnimationClip = (
     animationComponent.mixer.time = 0
     loopAnimationComponent.action = animationComponent.mixer
       .clipAction(
-        loopAnimationComponent.vrm
-          ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene!, loopAnimationComponent.vrm, 'glb')
+        modelComponent.asset instanceof VRM
+          ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene!, modelComponent.asset)
           : clip
       )
       .play()

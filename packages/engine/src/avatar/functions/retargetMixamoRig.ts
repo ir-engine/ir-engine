@@ -46,7 +46,12 @@ const leftArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0
  * based upon https://github.com/pixiv/three-vrm/blob/dev/packages/three-vrm-core/examples/humanoidAnimation/loadMixamoAnimation.js
  *
  */
-export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object3D, vrm: VRM, type: 'fbx' | 'glb') {
+export function retargetMixamoAnimation(
+  clip: AnimationClip,
+  mixamoScene: Object3D,
+  vrm: VRM,
+  type = 'glb' as 'fbx' | 'glb'
+) {
   const tracks = [] as KeyframeTrack[] // KeyframeTracks compatible with VRM will be added here
 
   const restRotationInverse = new Quaternion()
