@@ -42,6 +42,7 @@ function UpdateIkPose(data) {
   // for now just force it to be a floater because hips in general are super flakey upstream; isolate that first
   const hips = { x: 0, y: 1, z: 0 }
 
+  /*
   // hips target
   {
     const threshhold = 0.5
@@ -67,6 +68,7 @@ function UpdateIkPose(data) {
       }
     }
   }
+  */
 
   // left hand visible?
   if (data?.leftHandLandmarks) {

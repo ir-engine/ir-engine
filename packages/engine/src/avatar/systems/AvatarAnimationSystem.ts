@@ -515,14 +515,6 @@ const execute = () => {
         weights['hips'] = worldSpaceTargets.head.blendWeight
         weights['spine'] = worldSpaceTargets.head.blendWeight
       }
-
-      // set hips if changed
-      // @todo for now force hips to be at default height
-      if (worldSpaceTargets.hips.blendWeight < 1) {
-        weights['hips'] = 0.0
-        rig.hips.node.quaternion.copy(worldSpaceTargets.hips.rotation)
-        rig.hips.node.position.set(0, worldSpaceTargets.hips.position.y, 0)
-      }
     }
 
     for (const [key, animatedBone] of Object.entries(rigComponent.bindRig)) {
