@@ -66,7 +66,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const localTransformComponent = useOptionalComponent(props.entity, LocalTransformComponent)
-  const useLocalTransformComponent = useHookstate(false)
+  const useGlobalTransformComponent = useHookstate(false)
 
   const onRelease = () => {
     dispatchAction(EditorHistoryAction.createSnapshot({}))
@@ -83,7 +83,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.positionObject(nodes, [value])
 
-    if (!useLocalTransformComponent.value) {
+    if (useGlobalTransformComponent.value) {
       transformComponent.position.set(value)
     }
     const gizmoQuery = defineQuery([TransformGizmoComponent])
@@ -97,7 +97,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateObject(nodes, [value])
 
-    if (!useLocalTransformComponent.value) {
+    if (useGlobalTransformComponent.value) {
       transformComponent.rotation.set(transformComponent.rotation.value.setFromEuler(value))
     }
     const gizmoQuery = defineQuery([TransformGizmoComponent])
@@ -108,7 +108,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   const onChangeScale = (value: Vector3) => {
-    if (!useLocalTransformComponent.value) {
+    if (useGlobalTransformComponent.value) {
       transformComponent.scale.set(value)
     }
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
@@ -116,7 +116,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   let transform: State<TransformComponentType> = transformComponent
-  if (useLocalTransformComponent.value) {
+  if (!useGlobalTransformComponent.value) {
     transform = localTransformComponent!
   }
 
@@ -136,10 +136,10 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         )}
       </InputGroup>
       {localTransformComponent && (
-        <InputGroup name="Use Local Transform" label={t('editor:properties.transform.lbl-useLocalTransform')}>
+        <InputGroup name="Use Local Transform" label={t('editor:properties.transform.lbl-useGlobalTransform')}>
           <BooleanInput
-            value={useLocalTransformComponent.value}
-            onChange={() => useLocalTransformComponent.set((prev) => !prev)}
+            value={useGlobalTransformComponent.value}
+            onChange={() => useGlobalTransformComponent.set((prev) => !prev)}
           />
         </InputGroup>
       )}
