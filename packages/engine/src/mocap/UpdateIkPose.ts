@@ -37,13 +37,12 @@ function UpdateIkPose(data) {
 
   const changes = {}
 
-  // we must estimate hips because hands and other parts have to be avatar relative to ground
-  // @todo i have to determine if the hips are visible or if we are in a hipless floating mode
-  // if the hips are visible then can compute them, else should mark the hips as not visible for upstream rest pose use
-  // for now i am forcing them to be at some reasonable height
+  // @todo go and do a real hips calculation from the landmarks (see updatelandmarkpose.ts)
+  // this hips value is also used by hands and other targets since all targets have to be in world coords
+  // for now just force it to be a floater because hips in general are super flakey upstream; isolate that first
   const hips = { x: 0, y: 1, z: 0 }
 
-  // hips
+  // hips target
   {
     const threshhold = 0.5
     const shown =
@@ -103,7 +102,7 @@ function UpdateIkPose(data) {
       ik: true,
       quaternion,
       xyz: { x: hips.x + lm3d[15].x, y: hips.y - lm3d[15].y, z: hips.z - lm3d[15].z },
-      wingspan: 1.2,
+      //wingspan: 1.0,
       color: 0xee0000
     }
   }
@@ -135,31 +134,10 @@ function UpdateIkPose(data) {
       ik: true,
       quaternion,
       xyz: { x: hips.x + lm3d[16].x, y: hips.y - lm3d[16].y, z: hips.z - lm3d[16].z },
-      wingspan: 1.2,
+      //wingspan: 1.0,
       color: 0xee0000
     }
   }
-
-  // unused
-
-  //strategies[0] = { color: 0xffffff, key: 'head', ik: true, rest: { x: 0, y: -0.6, z: -0.2 } }
-  //strategies[1] = { color: 0xffffff, key: 'chest' }
-  //strategies[2] = { color: 0xffffff, key: 'hips' }
-
-  //strategies[POSE_LANDMARKS.LEFT_SHOULDER] = { color: 0x880000, key: 'leftShoulder' }
-  //strategies[POSE_LANDMARKS.RIGHT_SHOULDER] = { color: 0x880000, key: 'rightShoulder' }
-
-  //strategies[POSE_LANDMARKS.LEFT_ELBOW] =        { color:0xaa0000, key:'leftElbow', ik:false }
-  //strategies[POSE_LANDMARKS.RIGHT_ELBOW] =       { color:0xaa0000, key:'rightElbow', ik:false }
-
-  //strategies[POSE_LANDMARKS.LEFT_HIP] =          { color:0x880000, key:'leftHip' }
-  //strategies[POSE_LANDMARKS.RIGHT_HIP] =         { color:0x880000, key:'rightHip' }
-
-  //strategies[POSE_LANDMARKS_LEFT.LEFT_KNEE] =    { color:0xaa0000, key:'leftAnkle', ik:false }
-  //strategies[POSE_LANDMARKS_RIGHT.RIGHT_KNEE] =  { color:0xaa0000, key:'rightAnkle', ik:false }
-
-  //strategies[POSE_LANDMARKS_LEFT.LEFT_ANKLE] =   { color:0xee0000, key:'leftAnkle', ik:true }
-  //strategies[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE] = { color:0xee0000, key:'rightAnkle', ik:true }
 
   return changes
 }

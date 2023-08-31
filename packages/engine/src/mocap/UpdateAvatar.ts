@@ -119,7 +119,7 @@ function ApplyPoseChange(entity: Entity, key, change) {
   }
 
   // apply wingspan if desired
-  if (xyz && wingspan) {
+  if (xyz && wingspan != 1.0) {
     xyz.x *= wingspan
     xyz.y *= wingspan
     xyz.z *= wingspan
@@ -153,8 +153,6 @@ function ApplyPoseChange(entity: Entity, key, change) {
     const targetTransform = getComponent(target, TransformComponent)
     if (xyz) targetTransform?.position.copy(xyz)
     if (quaternion) targetTransform?.rotation.copy(quaternion)
-
-    //console.log('worldpose', key, xyz.x.toFixed(3), xyz.y.toFixed(3), xyz.z.toFixed(3))
   }
 
   // directly set joint not using ik
@@ -213,19 +211,20 @@ export default function UpdateAvatar(data, userID, entity) {
 
   // const poseEnsemble: any = GetPoseEnsemble(userID,entity)
 
-  {
-    // head orientation and facial features
-    changesUpdateLandmarkFace(data?.faceLandmarks, changes)
+  // use landmarks to directly set head orientation and facial features
+  const changes1 = changesUpdateLandmarkFace(data?.faceLandmarks, changes)
 
-    // fingers
-    // UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, changes)
+  // use landmarks to directly set fingers
+  const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, changes)
 
-    // coarse pose
-    UpdateLandmarkPose(data?.za, data?.poseLandmarks, poseEnsemble, changes)
-  }
+  // use landmarks to set coarse pose
+  const changes3 = UpdateLandmarkPose(data?.za, data?.poseLandmarks, poseEnsemble, changes)
+
+  const changes = { ...changes1, ...changes2, ...changes3 }
+
   */
 
-  // find ik pose estimations
+  // publish ik targets rather than directly setting body parts
   const changes = UpdateIkPose(data)
 
   // apply changes once
@@ -242,23 +241,35 @@ NOTES Aug 2023
   - raw z data does exist but fairly weak; good enough for hips pirouette however
   - note that 'visibility' also is slightly unclear as a concept; tensorflow appears to speculate even if no visibility
 
-BUGS
-  - i need to introduce a hips concept
-  - fingers are not working still; although they are being set
+BUGS aug 31 2023
+
+  - applying hips through the animation system is screwy
+
+  - fingers do exist but finger twiddling does not show up visually
+
   - i would like to delete ik targets after set once; and get the handle on them instantly
+
   - wrists angle is wrong for ik
+
   - support real wingspan estimation
-  - can i get head pose to work with the ik system? it is being discarded; maybe I should use an ik head? maybe write to the neck also?
+
+  - ik system totally fights the non ik system; we should allow both to co-exist
+
   - jumping is broken
 
 HIPS
-  * default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ... use vrm model as rest pose?
-  * hips/shoulders must be estimated correctly or else everything else gets thrown off
-  * hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk
-  * can we use the shoulder midpoint to improve? cross the hip horizontal with the spine?
-  * can we improve forward pitch estimation using z depth between shoulder and hip?
 
-  ? what if i put the entire rig on soft physics springs and then allow parts to tug around?
+  * default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ...
+      - use vrm model as rest pose? is that a good idea or not?
+      - shouldn't the default hips be at 0,0,0?
+      - perhaps the engine starts the player at a random position
+
+  * hips/shoulders must be estimated correctly or else everything else gets thrown off!
+  * hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk; should not set roll!
+  * can we use the shoulder midpoint to improve? cross the hip horizontal with the spine? (yes works well)
+  * can we improve forward pitch estimation using z depth between shoulder and hip? (yes works well)
+
+  x what if i put the entire rig on soft physics springs and then allow parts to tug around?
   ? Does it even make sense to be computing the hips by hand?
   ? I notice that kalikokit pretty much ignores the visibility flags - why? is there something i don't understand?
   ? TEST: It is not clear if low visibility per component == bad/zero data or if it reverts to tensorflow speculation
