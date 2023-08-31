@@ -39,6 +39,7 @@ import {
   LocationInterface,
   LocationSettingsInterface,
   LocationTypeInterface,
+  MessageInterface,
   ProjectPermissionInterface,
   UserApiKeyInterface,
   UserInterface,
@@ -818,4 +819,42 @@ export const createBotCommandModel = (app: Application) => {
   }
 
   return BotCommand
+}
+
+export const createMessageModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const message = sequelizeClient.define<Model<MessageInterface>>(
+    'message',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      text: {
+        type: DataTypes.STRING(1023),
+        allowNull: false
+      },
+      isNotification: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(message as any).associate = (models: any): any => {
+    ;(message as any).belongsTo(models.channel, { allowNull: false })
+    ;(message as any).belongsTo(createUserModel(app), { foreignKey: 'senderId', as: 'sender' })
+  }
+
+  return message
 }
