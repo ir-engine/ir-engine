@@ -97,13 +97,18 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
   }
 
   const handleClose = () => {
-    ProjectUpdateService.clearProjectUpdate(project)
+    ProjectUpdateService.clearProjectUpdate(project.name)
     onClose()
   }
 
   useEffect(() => {
     if (open && inputProject && projectUpdateStatus?.triggerSetDestination?.length === 0) {
-      ProjectUpdateService.setTriggerSetDestination(project, inputProject.repositoryPath)
+      ProjectUpdateService.setTriggerSetDestination(
+        project.name,
+        inputProject.repositoryPath,
+        inputProject.updateType,
+        inputProject.updateSchedule
+      )
     }
   }, [open, projectUpdateStatus?.triggerSetDestination])
 

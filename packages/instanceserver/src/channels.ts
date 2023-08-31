@@ -45,7 +45,7 @@ import { dispatchAction, getMutableState, getState, State } from '@etherealengin
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
-import { getProjectsList } from '@etherealengine/server-core/src/projects/project/project.service'
+import { getProjectsList } from '@etherealengine/server-core/src/projects/project/project'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'

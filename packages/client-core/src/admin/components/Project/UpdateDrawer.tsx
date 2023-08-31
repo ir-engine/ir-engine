@@ -77,7 +77,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     updateProjects.set(false)
     adminProjects.get({ noproxy: true }).forEach((adminProject) => {
       if (projectsToUpdate.get({ noproxy: true }).get(adminProject.name))
-        ProjectUpdateService.clearProjectUpdate(adminProject)
+        ProjectUpdateService.clearProjectUpdate(adminProject.name)
     })
     projectsToUpdate.set(new Map())
     processing.set(false)
@@ -131,11 +131,16 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     const newProjects = new Map(projectsToUpdate.get({ noproxy: true }))
     if (newProjects.get(thisProjectName)) {
       newProjects.delete(thisProjectName)
-      ProjectUpdateService.clearProjectUpdate(project)
+      ProjectUpdateService.clearProjectUpdate(project.name)
     } else {
       newProjects.set(thisProjectName, true)
-      ProjectUpdateService.initializeProjectUpdate(project)
-      ProjectUpdateService.setTriggerSetDestination(project, project.repositoryPath)
+      ProjectUpdateService.initializeProjectUpdate(project.name)
+      ProjectUpdateService.setTriggerSetDestination(
+        project.name,
+        project.repositoryPath,
+        project.updateType,
+        project.updateSchedule
+      )
     }
     projectsToUpdate.set(newProjects)
   }
