@@ -110,17 +110,7 @@ export const inviteDataSchema = Type.Intersect(
   [
     inviteDataProperties,
     // Add additional query properties here
-    Type.Object(
-      {
-        inviteCode: Type.Optional(
-          Type.String({
-            maxLength: 8,
-            minLength: 8
-          })
-        )
-      },
-      { additionalProperties: false }
-    )
+    Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
