@@ -148,7 +148,7 @@ export const playAvatarAnimationFromMixamo = (
 
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
-    retargetedAnimation = retargetMixamoAnimation(animation.animations[0], animation, rigComponent.vrm, fileType as any)
+    retargetedAnimation = retargetMixamoAnimation(animation.animations[0], animation, rigComponent.vrm)
     animationComponent.animations.push(retargetedAnimation)
   }
   const currentAction = avatarAnimationComponent.animationGraph.blendAnimation
