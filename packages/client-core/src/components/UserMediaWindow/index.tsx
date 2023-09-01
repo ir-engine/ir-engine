@@ -48,7 +48,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
@@ -81,7 +81,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioProducerGlobalMute,
     videoElement,
     audioElement
-  } = peerMediaChannelState.get({ noproxy: true })
+  } = peerMediaChannelState.get(NO_PROXY)
 
   const audioTrackClones = useHookstate<any[]>([])
   const videoTrackClones = useHookstate<any[]>([])
@@ -100,7 +100,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const _volume = useHookstate(1)
 
-  const selfUser = useHookstate(getMutableState(AuthState).user).get({ noproxy: true })
+  const selfUser = useHookstate(getMutableState(AuthState).user).get(NO_PROXY)
   const currentLocation = useHookstate(getMutableState(LocationState).currentLocation.location)
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
@@ -157,7 +157,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       }
       if (audioStream != null) {
         const newAudioTrack = audioStream.track!.clone()
-        const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
+        const updateAudioTrackClones = audioTrackClones.get(NO_PROXY).concat(newAudioTrack)
         audioTrackClones.set(updateAudioTrackClones)
         audioElement.srcObject = new MediaStream([newAudioTrack])
         newHark = hark(audioElement.srcObject, { play: false })
@@ -175,7 +175,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     }
 
     return () => {
-      audioTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+      audioTrackClones.get(NO_PROXY).forEach((track) => track.stop())
       unmounted = true
       if (newHark) newHark.stop()
     }
@@ -195,7 +195,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           // if (!videoRef?.srcObject?.active || !videoRef?.srcObject?.getVideoTracks()[0].enabled) {
           const newVideoTrack = videoStream.track!.clone()
-          videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+          videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
           videoTrackClones.set([newVideoTrack])
           videoElement!.srcObject = new MediaStream([newVideoTrack])
           if (isScreen) {
@@ -208,7 +208,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     }
 
     return () => {
-      videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+      videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
     }
   }, [videoTrackId.value])
 
@@ -220,7 +220,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           if (!(videoElement?.srcObject as MediaStream)?.getVideoTracks()[0].enabled) {
             const newVideoTrack = videoStream.track!.clone()
-            videoTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
+            videoTrackClones.get(NO_PROXY).forEach((track) => track.stop())
             videoTrackClones.set([newVideoTrack])
             videoElement!.srcObject = new MediaStream([newVideoTrack])
           }
@@ -237,7 +237,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
           if (!(audioElement?.srcObject as MediaStream)?.getAudioTracks()[0].enabled) {
             const newAudioTrack = audioStream.track!.clone()
-            const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
+            const updateAudioTrackClones = audioTrackClones.get(NO_PROXY).concat(newAudioTrack)
             audioTrackClones.set(updateAudioTrackClones)
             audioElement!.srcObject = new MediaStream([newAudioTrack])
           }
@@ -316,7 +316,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = userId ? usernames.get({ noproxy: true })[userId] : 'A User'
+    const username = userId ? usernames.get(NO_PROXY)[userId] : 'A User'
     if (!isSelf && isScreen) return username + "'s Screen"
     return username
   }

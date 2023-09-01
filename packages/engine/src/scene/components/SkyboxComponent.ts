@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { Color, CubeTexture, SRGBColorSpace, Texture } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -75,7 +75,7 @@ export const SkyboxComponent = defineComponent({
       equirectangularPath: component.equirectangularPath.value,
       cubemapPath: component.cubemapPath.value,
       backgroundType: component.backgroundType.value,
-      skyboxProps: component.skyboxProps.get({ noproxy: true }) as any
+      skyboxProps: component.skyboxProps.get(NO_PROXY) as any
     }
   },
 
