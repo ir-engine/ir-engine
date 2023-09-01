@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import type { ServiceInterface } from '@feathersjs/feathers'
 
-import { InstanceInterface } from '@etherealengine/common/src/dbmodels/Instance'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -41,7 +41,7 @@ export interface InstanceFriendsParams extends RootParams {}
  * A class for InstanceFriends service
  */
 
-export class InstanceFriendsService implements ServiceInterface<InstanceInterface, InstanceFriendsParams> {
+export class InstanceFriendsService implements ServiceInterface<InstanceType, InstanceFriendsParams> {
   app: Application
 
   constructor(app: Application) {
@@ -56,9 +56,9 @@ export class InstanceFriendsService implements ServiceInterface<InstanceInterfac
           ended: false
         },
         paginate: false
-      })) as InstanceInterface[]
+      })) as InstanceType[]
 
-      const filteredInstances: InstanceInterface[] = []
+      const filteredInstances: InstanceType[] = []
       await Promise.all(
         instances.map(async (instance) => {
           const knexClient: Knex = this.app.get('knexClient')
