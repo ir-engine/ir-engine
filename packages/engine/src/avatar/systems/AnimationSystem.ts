@@ -57,9 +57,9 @@ const execute = () => {
   for (const entity of loopAnimationQuery()) {
     const model = getComponent(entity, ModelComponent)
     if (model.asset instanceof VRM) {
+      const position = getComponent(entity, TransformComponent).position
       model.asset.update(deltaSeconds)
-      //hack to fix model transform position fighting with animation
-      getComponent(entity, TransformComponent).position.set(0, 0, 0)
+      getComponent(entity, TransformComponent).position.copy(position)
     }
   }
 }
