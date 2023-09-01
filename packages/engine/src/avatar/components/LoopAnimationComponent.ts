@@ -151,7 +151,12 @@ export const LoopAnimationComponent = defineComponent({
     }, [modelComponent?.scene, modelComponent?.asset, animComponent?.animations, loopAnimationComponent.animationPack])
 
     useEffect(() => {
-      if (!modelComponent?.scene?.value || !loopAnimationComponent.animationPackScene.value) return
+      if (
+        !modelComponent?.scene?.value ||
+        !modelComponent.asset.value ||
+        (modelComponent.asset.value instanceof VRM && !loopAnimationComponent.animationPackScene.value)
+      )
+        return
 
       playAnimationClip(entity)
     }, [loopAnimationComponent.activeClipIndex, loopAnimationComponent.animationPackScene, modelComponent?.scene])
@@ -164,7 +169,6 @@ export const playAnimationClip = (entity: Entity) => {
   const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
   const modelComponent = getComponent(entity, ModelComponent)
-
   if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
   if (
     loopAnimationComponent.activeClipIndex >= 0 &&
@@ -175,11 +179,12 @@ export const playAnimationClip = (entity: Entity) => {
       animationComponent.animations,
       animationComponent.animations[loopAnimationComponent.activeClipIndex].name
     )
+
     animationComponent.mixer.time = 0
     loopAnimationComponent.action = animationComponent.mixer
       .clipAction(
         modelComponent.asset instanceof VRM
-          ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene!, modelComponent.asset, 'fbx')
+          ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene!, modelComponent.asset)
           : clip
       )
       .play()
