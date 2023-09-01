@@ -38,6 +38,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 
 import { ArrowHelper, AxesHelper, BoxGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
+import UpdateIkPose from './UpdateIkPose'
 import UpdateLandmarkFace from './UpdateLandmarkFace'
 import UpdateLandmarkHands from './UpdateLandmarkHands'
 import UpdateLandmarkPose from './UpdateLandmarkPose'
@@ -210,7 +211,7 @@ export default function UpdateAvatar(data, userID, entity) {
     return
   }
 
-  const DIRECT = true
+  const DIRECT = false
   if (DIRECT) {
     // use landmarks to directly set head orientation and facial features
     const changes1 = UpdateLandmarkFace(data?.faceLandmarks)
@@ -223,11 +224,11 @@ export default function UpdateAvatar(data, userID, entity) {
     // use landmarks to set coarse pose
     const changes3 = UpdateLandmarkPose(data?.za, data?.poseLandmarks)
     ApplyPoseChanges(entity, changes3)
+  } else {
+    // publish ik targets rather than directly setting body parts
+    const changes4 = UpdateIkPose(data)
+    ApplyPoseChanges(entity, changes4)
   }
-
-  // publish ik targets rather than directly setting body parts
-  // const changes4 = UpdateIkPose(data)
-  // ApplyPoseChanges(entity, changes4)
 }
 
 /*
