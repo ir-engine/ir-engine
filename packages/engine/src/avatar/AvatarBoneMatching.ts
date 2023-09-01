@@ -633,7 +633,6 @@ export const recursiveHipsLookup = (model: Object3D) => {
   const name = model.name.toLowerCase()
 
   if (name.includes('hip')) {
-    console.log(model)
     return model
   }
   if (model.children.length > 0) {

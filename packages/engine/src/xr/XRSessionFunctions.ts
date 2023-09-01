@@ -177,7 +177,7 @@ export const requestXRSession = createHookableFunction(
 
       getReferenceSpaces(xrSession)
 
-      dispatchAction(XRAction.sessionChanged({ active: true, override: 'xr' }))
+      dispatchAction(XRAction.sessionChanged({ active: true }))
 
       xrSession.addEventListener('end', onSessionEnd)
     } catch (e) {
