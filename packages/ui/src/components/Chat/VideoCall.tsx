@@ -42,7 +42,7 @@ import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/fun
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import { Resizable } from 're-resizable'
 import React, { useEffect, useRef } from 'react'
