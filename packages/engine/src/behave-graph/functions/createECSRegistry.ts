@@ -30,7 +30,7 @@ import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from 
 import { registerSceneProfile } from '@behave-graph/scene'
 import { EEScene } from '../nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
 
-export const useRegistry = () => {
+export const createECSRegistry = () => {
   const registry = registerEngineProfile(
     registerSceneProfile(
       registerCoreProfile({
