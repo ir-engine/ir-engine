@@ -144,7 +144,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     return super._create(
       {
         id: v4(),
-        thumbnail: packageData.thumbnail,
         name: projectName,
         needsRebuild: true,
         createdAt: await getDateTimeSql(),
@@ -468,7 +467,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     await super._create({
       id: v4(),
-      thumbnail: projectConfig.thumbnail,
       name: projectName,
       repositoryPath: gitData.repositoryPath,
       sourceRepo: gitData.sourceRepo,
