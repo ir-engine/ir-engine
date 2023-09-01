@@ -148,7 +148,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         ProjectUpdateService.setDestinationProcessing(project, false)
         if (destinationResponse.error) {
           ProjectUpdateService.setDestinationValid(project, false)
-          ProjectUpdateService.setDestinationError(project, destinationResponse.text)
+          ProjectUpdateService.setDestinationError(project, destinationResponse.text!)
         } else {
           if (destinationResponse.destinationValid) {
             if (existingProject && changeDestination) ProjectUpdateService.setSubmitDisabled(project, false)
@@ -164,7 +164,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               handleCommitChange({ target: { value: projectUpdateStatus.value.selectedSHA } })
           } else {
             ProjectUpdateService.setDestinationValid(project, false)
-            ProjectUpdateService.setDestinationError(project, destinationResponse.text)
+            ProjectUpdateService.setDestinationError(project, destinationResponse.text!)
           }
         }
       } catch (err) {

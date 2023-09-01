@@ -46,6 +46,7 @@ import { promisify } from 'util'
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
+import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -501,7 +502,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
   const octokitResponse = await getOctokitForChecking(app, url, params!)
   const { owner, repo, octoKit, token } = octokitResponse
 
-  const returned = {} as any
+  const returned = {} as ProjectDestinationCheckType
   if (!owner || !repo)
     return {
       error: 'invalidUrl',
@@ -578,7 +579,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
         const existingProjectName = JSON.parse(
           Buffer.from(existingProjectPackage.data.content, 'base64').toString()
         ).name
-        if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName.toLowerCase()) {
+        if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName?.toLowerCase()) {
           returned.error = 'mismatchedProjects'
           returned.text = `The new destination repo contains project '${returned.projectName}', which is different than the current project '${existingProjectName}'`
         }
