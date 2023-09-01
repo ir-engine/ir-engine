@@ -26,16 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
@@ -43,21 +36,30 @@ export const InputComponent = defineComponent({
   onInit: () => {
     return {
       /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[]
+      inputSources: [] as Entity[],
+      highlight: true
       // priority: 0
     }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (typeof json.highlight === 'string') component.highlight.set(json.highlight)
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const input = useComponent(entity, InputComponent)
+
     useLayoutEffect(() => {
-      if (!input.inputSources.length) return
-      if (!hasComponent(entity, XRUIComponent)) setComponent(entity, HighlightComponent)
+      if (!input.inputSources.length || !input.highlight.value) return
+      setComponent(entity, HighlightComponent)
       return () => {
         removeComponent(entity, HighlightComponent)
       }
-    }, [input.inputSources])
+    }, [input.inputSources, input.highlight])
+
     return null
   }
 })
