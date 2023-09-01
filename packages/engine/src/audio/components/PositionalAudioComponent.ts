@@ -29,7 +29,8 @@ import {
   defineComponent,
   hasComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
@@ -57,7 +58,6 @@ export const PositionalAudioComponent = defineComponent({
   jsonID: 'audio',
 
   onInit: (entity) => {
-    if (!hasComponent(entity, MediaComponent)) setComponent(entity, MediaComponent, {})
     return {
       // default values as suggested at https://medium.com/@kfarr/understanding-web-audio-api-positional-audio-distance-models-for-webxr-e77998afcdff
       distanceModel: 'inverse' as DistanceModelType,
@@ -109,7 +109,12 @@ export const PositionalAudioComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(entity, PositionalAudioComponent)
-    const mediaElement = useComponent(entity, MediaElementComponent)
+    const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+    useEffect(() => {
+      if (hasComponent(entity, MediaComponent)) return
+
+      setComponent(entity, MediaComponent, {})
+    }, [])
 
     useEffect(() => {
       if (
