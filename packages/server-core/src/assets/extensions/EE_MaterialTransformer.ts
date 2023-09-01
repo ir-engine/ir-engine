@@ -37,6 +37,8 @@ import {
 
 import { prototypeFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { initializeMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { KHRTextureTransform } from '@gltf-transform/extensions'
+import { generateUUID } from 'three/src/math/MathUtils'
 
 const EXTENSION_NAME = 'EE_material'
 
@@ -143,6 +145,8 @@ export class EEMaterialExtension extends Extension {
   public readonly extensionName = EXTENSION_NAME
   public static readonly EXTENSION_NAME = EXTENSION_NAME
 
+  textureInfoMap: Map<string, TextureInfo> = new Map()
+
   public read(readerContext: ReaderContext): this {
     initializeMaterialLibrary()
     const materialDefs = readerContext.jsonDoc.json.materials || []
@@ -171,7 +175,23 @@ export class EEMaterialExtension extends Extension {
               return //ignore deprecated fields
             }
             if (defaultArgs[field].type === 'texture') {
-              processedArgs.setPropRef(field, value ? readerContext.textures[value.index] : null)
+              const texture = value ? readerContext.textures[value.index] : null
+              if (texture) {
+                const textureInfo = new TextureInfo(this.document.getGraph())
+                readerContext.setTextureInfo(textureInfo, value)
+                if (texture && value.extensions?.KHR_texture_transform) {
+                  const extensionData = value.extensions.KHR_texture_transform
+                  const transform = new KHRTextureTransform(this.document).createTransform()
+                  extensionData.offset && transform.setOffset(extensionData.offset)
+                  extensionData.scale && transform.setScale(extensionData.scale)
+                  extensionData.rotation && transform.setRotation(extensionData.rotation)
+                  extensionData.texCoord && transform.setTexCoord(extensionData.texCoord)
+                  textureInfo.setExtension('KHR_texture_transform', transform)
+                }
+                texture.setExtras({ uuid: generateUUID() })
+                this.textureInfoMap.set(texture, textureInfo)
+              }
+              processedArgs.setPropRef(field, texture)
             } else {
               processedArgs.setProp(field, value)
             }
@@ -210,7 +230,7 @@ export class EEMaterialExtension extends Extension {
               if (value.type === 'texture') {
                 const texture = matArgs.getPropRef(field)
                 if (texture) {
-                  const textureInfo = new TextureInfo(this.document.getGraph())
+                  const textureInfo = this.textureInfoMap.get(texture)!
                   extensionDef.args![field] = writerContext.createTextureInfoDef(texture, textureInfo)
                 } else {
                   extensionDef.args![field] = null

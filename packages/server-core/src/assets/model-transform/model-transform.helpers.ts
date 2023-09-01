@@ -438,7 +438,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   args.parms.instance && (await myInstance(document))
   args.parms.dedup && (await document.transform(dedup()))
   args.parms.flatten && (await document.transform(flatten()))
-  args.parms.join && (await document.transform(join(args.parms.join.options)))
+  args.parms.join.enabled && (await document.transform(join(args.parms.join.options)))
   if (args.parms.palette.enabled) {
     removeUVsOnUntexturedMeshes(document)
     await document.transform(palette(args.parms.palette.options))
