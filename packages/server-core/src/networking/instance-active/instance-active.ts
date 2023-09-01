@@ -23,13 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IRegistry } from '@behave-graph/core'
-import { defineState } from '@etherealengine/hyperflux'
-import { BehaveGraphDomain } from '../components/BehaveGraphComponent'
+import {
+  instanceActiveMethods,
+  instanceActivePath
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { Application } from '../../../declarations'
+import { InstanceActiveService } from './instance-active.class'
+import instanceActiveDocs from './instance-active.docs'
+import hooks from './instance-active.hooks'
 
-export const BehaveGraphState = defineState({
-  name: 'BehaveGraphState',
-  initial: () => ({
-    registries: {} as Record<BehaveGraphDomain, IRegistry>
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [instanceActivePath]: InstanceActiveService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: instanceActivePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(instanceActivePath, new InstanceActiveService(app), {
+    // A list of all methods this service exposes externally
+    methods: instanceActiveMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceActiveDocs
   })
-})
+
+  const service = app.service(instanceActivePath)
+  service.hooks(hooks)
+}

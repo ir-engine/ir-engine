@@ -23,13 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IRegistry } from '@behave-graph/core'
-import { defineState } from '@etherealengine/hyperflux'
-import { BehaveGraphDomain } from '../components/BehaveGraphComponent'
+import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEngineProfile'
 
-export const BehaveGraphState = defineState({
-  name: 'BehaveGraphState',
-  initial: () => ({
-    registries: {} as Record<BehaveGraphDomain, IRegistry>
-  })
-})
+import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
+
+import { registerSceneProfile } from '@behave-graph/scene'
+import { EEScene } from '../nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
+
+export const createECSRegistry = () => {
+  const registry = registerEngineProfile(
+    registerSceneProfile(
+      registerCoreProfile({
+        values: {},
+        nodes: {},
+        dependencies: {
+          ILogger: new DefaultLogger(),
+          ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
+          IScene: new EEScene()
+        }
+      })
+    )
+  )
+  return registry
+}

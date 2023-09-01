@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IRegistry } from '@behave-graph/core'
-import { defineState } from '@etherealengine/hyperflux'
-import { BehaveGraphDomain } from '../components/BehaveGraphComponent'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export const BehaveGraphState = defineState({
-  name: 'BehaveGraphState',
-  initial: () => ({
-    registries: {} as Record<BehaveGraphDomain, IRegistry>
-  })
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Instance friends service description',
+    securities: ['all']
+  }
 })

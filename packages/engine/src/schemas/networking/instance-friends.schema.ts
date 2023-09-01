@@ -23,26 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEngineProfile'
-
-import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
-
-import { registerSceneProfile } from '@behave-graph/scene'
-import { EEScene } from '../nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
-
-export const useRegistry = () => {
-  const registry = registerEngineProfile(
-    registerSceneProfile(
-      registerCoreProfile({
-        values: {},
-        nodes: {},
-        dependencies: {
-          ILogger: new DefaultLogger(),
-          ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
-          IScene: new EEScene()
-        }
-      })
-    )
-  )
-  return registry
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+export const instanceFriendsPath = 'instance-friends'
+export const instanceFriendsMethods = ['find'] as const

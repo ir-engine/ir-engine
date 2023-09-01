@@ -23,13 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IRegistry } from '@behave-graph/core'
-import { defineState } from '@etherealengine/hyperflux'
-import { BehaveGraphDomain } from '../components/BehaveGraphComponent'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-export const BehaveGraphState = defineState({
-  name: 'BehaveGraphState',
-  initial: () => ({
-    registries: {} as Record<BehaveGraphDomain, IRegistry>
-  })
-})
+import {
+  InstanceActiveQuery,
+  InstanceActiveType
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const instanceActiveResolver = resolve<InstanceActiveType, HookContext>({})
+
+export const instanceActiveExternalResolver = resolve<InstanceActiveType, HookContext>({})
+
+export const instanceActiveQueryResolver = resolve<InstanceActiveQuery, HookContext>({})

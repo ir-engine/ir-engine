@@ -23,13 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IRegistry } from '@behave-graph/core'
-import { defineState } from '@etherealengine/hyperflux'
-import { BehaveGraphDomain } from '../components/BehaveGraphComponent'
+import {
+  instanceFriendsMethods,
+  instanceFriendsPath
+} from '@etherealengine/engine/src/schemas/networking/instance-friends.schema'
+import { Application } from '../../../declarations'
+import { InstanceFriendsService } from './instance-friends.class'
+import instanceFriendsDocs from './instance-friends.docs'
+import hooks from './instance-friends.hooks'
 
-export const BehaveGraphState = defineState({
-  name: 'BehaveGraphState',
-  initial: () => ({
-    registries: {} as Record<BehaveGraphDomain, IRegistry>
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [instanceFriendsPath]: InstanceFriendsService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: instanceFriendsPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(instanceFriendsPath, new InstanceFriendsService(app), {
+    // A list of all methods this service exposes externally
+    methods: instanceFriendsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceFriendsDocs
   })
-})
+
+  const service = app.service(instanceFriendsPath)
+  service.hooks(hooks)
+}
