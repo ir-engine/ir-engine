@@ -66,7 +66,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         { label: 'None', value: -1 },
         ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
       ])
-  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations, loopAnimationComponent.animationPack])
+  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations, loopAnimationComponent.animationPackScene])
 
   const onChangePlayingAnimation = (index) => {
     updateProperties(LoopAnimationComponent, {
