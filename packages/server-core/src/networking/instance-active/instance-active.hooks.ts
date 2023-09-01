@@ -23,37 +23,53 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+
+import { instanceActiveQueryValidator } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import authenticate from '../../hooks/authenticate'
+import verifyScope from '../../hooks/verify-scope'
 import {
-  staticResourceFiltersMethods,
-  staticResourceFiltersPath
-} from '@etherealengine/engine/src/schemas/media/static-resource-filters.schema'
-import { Application } from '../../../declarations'
-import { StaticResourceFiltersService } from './static-resource-filters.class'
-import staticResourceFiltersDocs from './static-resource-filters.docs'
-import hooks from './static-resource-filters.hooks'
+  instanceActiveExternalResolver,
+  instanceActiveQueryResolver,
+  instanceActiveResolver
+} from './instance-active.resolvers'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [staticResourceFiltersPath]: StaticResourceFiltersService
+export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(instanceActiveExternalResolver),
+      schemaHooks.resolveResult(instanceActiveResolver)
+    ]
+  },
+
+  before: {
+    all: [
+      () => schemaHooks.validateQuery(instanceActiveQueryValidator),
+      schemaHooks.resolveQuery(instanceActiveQueryResolver)
+    ],
+    find: [authenticate(), verifyScope('editor', 'write')],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    name: staticResourceFiltersPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(staticResourceFiltersPath, new StaticResourceFiltersService(app), {
-    // A list of all methods this service exposes externally
-    methods: staticResourceFiltersMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: staticResourceFiltersDocs
-  })
-
-  const service = app.service(staticResourceFiltersPath)
-  service.hooks(hooks)
-}
+} as any
