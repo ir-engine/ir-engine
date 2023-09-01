@@ -27,27 +27,26 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
+import { MessageQuery, MessageType } from '@etherealengine/engine/src/schemas/social/message.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import {
-  RecordingResourceQuery,
-  RecordingResourceType
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
-  staticResource: virtual(async (recordingResource, context) => {
-    const staticResource = await context.app.service(staticResourcePath).get(recordingResource.staticResourceId)
-    return staticResource
+export const messageResolver = resolve<MessageType, HookContext>({
+  sender: virtual(async (message, context) => {
+    if (message.senderId) {
+      const sender = await context.app.service(userPath)._get(message.senderId)
+      return sender
+    }
   }),
-  createdAt: virtual(async (recordingResource) => fromDateTimeSql(recordingResource.createdAt)),
-  updatedAt: virtual(async (recordingResource) => fromDateTimeSql(recordingResource.updatedAt))
+  createdAt: virtual(async (message) => fromDateTimeSql(message.createdAt)),
+  updatedAt: virtual(async (message) => fromDateTimeSql(message.updatedAt))
 })
 
-export const recordingResourceExternalResolver = resolve<RecordingResourceType, HookContext>({})
+export const messageExternalResolver = resolve<MessageType, HookContext>({})
 
-export const recordingResourceDataResolver = resolve<RecordingResourceType, HookContext>({
+export const messageDataResolver = resolve<MessageType, HookContext>({
   id: async () => {
     return v4()
   },
@@ -55,8 +54,8 @@ export const recordingResourceDataResolver = resolve<RecordingResourceType, Hook
   updatedAt: getDateTimeSql
 })
 
-export const recordingResourcePatchResolver = resolve<RecordingResourceType, HookContext>({
+export const messagePatchResolver = resolve<MessageType, HookContext>({
   updatedAt: getDateTimeSql
 })
 
-export const recordingResourceQueryResolver = resolve<RecordingResourceQuery, HookContext>({})
+export const messageQueryResolver = resolve<MessageQuery, HookContext>({})

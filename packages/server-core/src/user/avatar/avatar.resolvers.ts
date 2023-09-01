@@ -31,7 +31,7 @@ import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/sta
 import { AvatarDatabaseType, AvatarQuery, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
   modelResource: virtual(async (avatar, context) => {
@@ -45,7 +45,9 @@ export const avatarResolver = resolve<AvatarType, HookContext>({
       const thumbnailStaticResource = await context.app.service(staticResourcePath).get(avatar.thumbnailResourceId)
       return thumbnailStaticResource
     }
-  })
+  }),
+  createdAt: virtual(async (avatar) => fromDateTimeSql(avatar.createdAt)),
+  updatedAt: virtual(async (avatar) => fromDateTimeSql(avatar.updatedAt))
 })
 
 export const avatarExternalResolver = resolve<AvatarType, HookContext>({})

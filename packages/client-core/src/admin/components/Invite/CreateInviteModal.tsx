@@ -50,7 +50,7 @@ import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHoo
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { toDateTimeSql } from '@etherealengine/server-core/src/util/get-datetime-sql'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
@@ -179,6 +179,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         const inviteType = INVITE_TYPE_TAB_MAP[inviteTypeTab.value]
         const isPhone = PHONE_REGEX.test(target)
         const isEmail = EMAIL_REGEX.test(target)
+        let inviteCode = ''
         const sendData = {
           inviteType,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
@@ -186,7 +187,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
         } as InviteData
-        if (target.length === 8) sendData.inviteCode = target
+        if (target.length === 8) inviteCode = target
         else sendData.token = target
         if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
@@ -200,7 +201,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           sendData.startTime = toDateTimeSql(startTime.value?.toDate())
           sendData.endTime = toDateTimeSql(endTime.value?.toDate())
         }
-        await InviteService.sendInvite(sendData)
+        await InviteService.sendInvite(sendData, inviteCode)
         instanceId.set('')
         locationId.set('')
         textValue.set('')

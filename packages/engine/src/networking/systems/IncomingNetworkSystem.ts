@@ -82,7 +82,6 @@ function oldestFirstComparator(a: JitterBufferEntry, b: JitterBufferEntry) {
 
 const execute = () => {
   const engineState = getState(EngineState)
-  if (!engineState.isEngineInitialized) return
 
   const { jitterBufferTaskList, jitterBufferDelay, incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } =
     getState(IncomingNetworkState)
