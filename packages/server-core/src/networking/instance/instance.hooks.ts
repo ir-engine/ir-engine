@@ -23,20 +23,50 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import {
+  instanceDataValidator,
+  instancePatchValidator,
+  instanceQueryValidator
+} from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import {
+  instanceDataResolver,
+  instanceExternalResolver,
+  instancePatchResolver,
+  instanceQueryResolver,
+  instanceResolver
+} from './instance.resolvers'
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(instanceExternalResolver), schemaHooks.resolveResult(instanceResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(instanceQueryValidator),
+      schemaHooks.resolveQuery(instanceQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    patch: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)]
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(instanceDataValidator),
+      schemaHooks.resolveData(instanceDataResolver)
+    ],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    patch: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(instancePatchValidator),
+      schemaHooks.resolveData(instancePatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
   },
 
   after: {

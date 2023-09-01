@@ -31,7 +31,7 @@ import { InstanceID, InstanceQuery, InstanceType } from '@etherealengine/engine/
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {
@@ -39,7 +39,9 @@ export const instanceResolver = resolve<InstanceType, HookContext>({
       const location = await context.app.service(locationPath)._get(instance.locationId)
       return location
     }
-  })
+  }),
+  createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
+  updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))
 })
 
 export const instanceExternalResolver = resolve<InstanceType, HookContext>({})

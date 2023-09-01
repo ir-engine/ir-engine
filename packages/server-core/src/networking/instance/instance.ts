@@ -23,39 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
+import { Application } from '../../../declarations'
 
+import {
+  instanceMethods,
+  instancePath,
+  InstanceType
+} from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { Instance } from './instance.class'
+import { InstanceService } from './instance.class'
 import instanceDocs from './instance.docs'
 import hooks from './instance.hooks'
-import createModel from './instance.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    instance: Instance
+    [instancePath]: InstanceService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: instancePath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Instance(options, app)
-  event.docs = instanceDocs
-  app.use('instance', event)
+  app.use(instancePath, new InstanceService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: instanceMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceDocs
+  })
 
-  const service = app.service('instance')
-
+  const service = app.service(instancePath)
   service.hooks(hooks)
 
   /**
@@ -88,7 +92,7 @@ export default (app: Application) => {
     }
   })
 
-  service.publish('patched', async (data: InstanceInterface): Promise<any> => {
+  service.publish('patched', async (data: InstanceType): Promise<any> => {
     try {
       /** Remove channel if instance is a world server and it has ended */
       if (data.locationId && data.ended && !data.channelId) {
