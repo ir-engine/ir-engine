@@ -36,7 +36,7 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 export const instanceResolver = resolve<InstanceType, HookContext>({
   location: virtual(async (instance, context) => {
     if (instance.locationId) {
-      const location = await context.app.service(locationPath).get(instance.locationId)
+      const location = await context.app.service(locationPath)._get(instance.locationId)
       return location
     }
   })
