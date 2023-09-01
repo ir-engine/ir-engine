@@ -23,20 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision.service'
-import Instance from './instance/instance.service'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+import {
+  instanceFriendsMethods,
+  instanceFriendsPath
+} from '@etherealengine/engine/src/schemas/networking/instance-friends.schema'
+import { Application } from '../../../declarations'
+import { InstanceFriendsService } from './instance-friends.class'
+import instanceFriendsDocs from './instance-friends.docs'
+import hooks from './instance-friends.hooks'
 
-export default [
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [instanceFriendsPath]: InstanceFriendsService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: instanceFriendsPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(instanceFriendsPath, new InstanceFriendsService(app), {
+    // A list of all methods this service exposes externally
+    methods: instanceFriendsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceFriendsDocs
+  })
+
+  const service = app.service(instanceFriendsPath)
+  service.hooks(hooks)
+}
