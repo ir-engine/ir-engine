@@ -26,13 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import matches, { Validator } from 'ts-matches'
 
 import { GraphJSON } from '@behave-graph/core'
+import { config } from '@etherealengine/common/src/config'
 
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useGraphRunner } from '../functions/useGraphRunner'
+import { fetchBehaviorGraphJson, useGraphRunner } from '../functions/useGraphRunner'
 import DefaultGraph from '../graph/default.graph.json'
 import { BehaveGraphState } from '../state/BehaveGraphState'
 
@@ -48,7 +50,7 @@ export const BehaveGraphComponent = defineComponent({
   onInit: (entity) => {
     const domain = BehaveGraphDomain.ECS
     const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
-    const filepath = '' // "${project_dir}/assets/graphs/randomUUID"
+    const filepath = `${config.client.fileServer}/projects/assets/graphs/${uniqueId('new_graph')}.graph.json` // "${project_dir}/assets/graphs/randomUUID"
     return {
       filepath: filepath,
       domain: domain,
@@ -79,31 +81,44 @@ export const BehaveGraphComponent = defineComponent({
     if (domainValidator.test(json.domain)) {
       component.domain.value !== json.domain && component.domain.set(json.domain!)
     }
+    /*
     const graphValidator = matches.object as Validator<unknown, GraphJSON>
     if (graphValidator.test(json.graph)) {
       component.graph.set(parseStorageProviderURLs(json.graph)!) // load from file instead
-    }
+    }*/
   },
 
   // we make reactor for each component handle the engine
   reactor: () => {
     const entity = useEntityContext()
-    const graph = useComponent(entity, BehaveGraphComponent)
-    const behaveGraph = useHookstate(getMutableState(BehaveGraphState))
+    const graphComponent = useComponent(entity, BehaveGraphComponent)
+    const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
 
-    const canPlay = graph.run && !graph.disabled
-    const registry = behaveGraph.registries[graph.domain.value].get(NO_PROXY)
-    const graphRunner = useGraphRunner({ graphJson: graph.graph.get(NO_PROXY), autoRun: canPlay, registry })
+    const canPlay = graphComponent.run && !graphComponent.disabled
+    const registry = behaveGraphState.registries[graphComponent.domain.value].get(NO_PROXY)
+    const graphRunner = useGraphRunner({ graphJson: graphComponent.graph.get(NO_PROXY), autoRun: canPlay, registry })
+    useEffect(() => {
+      // create the path and save the graph there
+      ;(async () => {})()
+    }, [])
+    useEffect(() => {
+      if (graphComponent.filepath.value.split('.').slice(-2, -1)[0] !== 'graph')
+        return // dont set if json not of type graph
+      ;(async () => {
+        const graphJson = await fetchBehaviorGraphJson(graphComponent.filepath.value)
+        graphComponent.graph.set(graphJson)
+      })()
+    }, [graphComponent.filepath])
 
     useEffect(() => {
-      if (graph.disabled.value) return
-      graph.run.value ? graphRunner.play() : graphRunner.pause()
-    }, [graph.run])
+      if (graphComponent.disabled.value) return
+      graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
+    }, [graphComponent.run])
 
     useEffect(() => {
-      if (!graph.disabled.value) return
-      graph.run.set(false)
-    }, [graph.disabled])
+      if (!graphComponent.disabled.value) return
+      graphComponent.run.set(false)
+    }, [graphComponent.disabled])
 
     return null
   }
