@@ -32,7 +32,7 @@ import {
   hasComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import 'reactflow/dist/style.css'
@@ -46,9 +46,9 @@ const BehaveFlow = () => {
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
-  const graphState = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
+  const graphComponent = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
   const forceUpdate = useForceUpdate()
-  const registry = getState(BehaveGraphState).registry
+  const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
   const addGraph = () => {
     setComponent(entity as Entity, BehaveGraphComponent)
     forceUpdate()
@@ -79,12 +79,12 @@ const BehaveFlow = () => {
           )}
           {validEntity && (
             <Flow
-              initialGraph={graphState?.value?.graph}
+              initialGraph={graphComponent?.value?.graph}
               examples={{}}
-              registry={registry}
+              registry={behaveGraphState.registry.get({ noproxy: true })}
               onChangeGraph={(newGraph) => {
-                if (!graphState.graph) return
-                graphState.graph.set(JSON.parse(JSON.stringify(newGraph)))
+                if (!graphComponent.graph) return
+                graphComponent.graph.set(JSON.parse(JSON.stringify(newGraph)))
               }}
             />
           )}
