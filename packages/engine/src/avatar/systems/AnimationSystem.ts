@@ -38,7 +38,13 @@ import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-const loopAnimationQuery = defineQuery([AnimationComponent, LoopAnimationComponent, ModelComponent, TransformComponent])
+const loopAnimationQuery = defineQuery([
+  VisibleComponent,
+  AnimationComponent,
+  LoopAnimationComponent,
+  ModelComponent,
+  TransformComponent
+])
 
 const execute = () => {
   const { deltaSeconds } = getState(EngineState)
@@ -52,14 +58,16 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
+    TransformComponent.dirtyTransforms[entity] = true
   }
 
   for (const entity of loopAnimationQuery()) {
     const model = getComponent(entity, ModelComponent)
     if (model.asset instanceof VRM) {
-      model.asset.update(deltaSeconds)
       //hack to fix model transform position fighting with animation
-      getComponent(entity, TransformComponent).position.set(0, 0, 0)
+      const position = getComponent(entity, TransformComponent).position
+      model.asset.update(deltaSeconds)
+      getComponent(entity, TransformComponent).position.copy(position)
     }
   }
 }

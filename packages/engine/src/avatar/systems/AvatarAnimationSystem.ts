@@ -57,6 +57,7 @@ import {
   compareDistanceToCamera
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -70,7 +71,7 @@ import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
   initial: () => {
-    const accumulationBudget = 100 //isMobileXRHeadset ? 3 : 6
+    const accumulationBudget = isMobileXRHeadset ? 1 : 5
 
     const priorityQueue = createPriorityQueue({
       accumulationBudget
@@ -517,7 +518,8 @@ const execute = () => {
       ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
     }
     //todo: lerp this
-    if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
+    if (!weights['hips'] && rig.hips?.node && rigComponent.localRig?.hips?.node)
+      rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
     rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
 
