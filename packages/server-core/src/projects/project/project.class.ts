@@ -81,6 +81,7 @@ import {
   getAuthenticatedRepo
 } from './github-helper'
 import {
+  createExecutorJob,
   createOrUpdateProjectUpdateJob,
   getEnginePackageJson,
   getProjectConfig,
@@ -89,8 +90,6 @@ import {
   onProjectEvent,
   removeProjectUpdateJob
 } from './project-helper'
-
-import { getPodsData } from '../../cluster/server-info/server-info-helper'
 
 const UPDATE_JOB_TIMEOUT = 60 * 5 //5 minute timeout on project update jobs completing or failing
 
@@ -576,66 +575,15 @@ export class Project extends Service {
   ) {
     if (!config.kubernetes.enabled || params?.isJob) return updateProject(this.app, data, params)
     else {
-      const k8BatchClient = getState(ServerState).k8BatchClient
       const urlParts = data.sourceURL.split('/')
       let projectName = data.name || urlParts.pop()
       if (!projectName) throw new Error('Git repo must be plain URL')
       projectName = projectName.toLowerCase()
       if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
       if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
-      const apiPods = await getPodsData(
-        `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
-        'api',
-        'Api',
-        this.app
-      )
-
-      const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
-      try {
-        await k8BatchClient.deleteNamespacedJob(
-          `${process.env.RELEASE_NAME}-${data.name}-update`,
-          'default',
-          undefined,
-          undefined,
-          0,
-          undefined,
-          'Background'
-        )
-      } catch (err) {
-        console.log('Old update job did not exist, continuing...')
-      }
-      const job = await k8BatchClient.createNamespacedJob(
-        'default',
-        getProjectUpdateJobBody(data, image, params!.user!.id)
-      )
-      let counter = 0
-      const jobFinishedPromise = new Promise((resolve, reject) => {
-        const interval = setInterval(async () => {
-          counter++
-          const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
-
-          const updateJob = await k8BatchClient.listNamespacedJob(
-            'default',
-            undefined,
-            false,
-            undefined,
-            undefined,
-            jobLabelSelector
-          )
-
-          if (updateJob && updateJob.body.items.length > 0) {
-            const succeeded = updateJob.body.items.filter((item) => item.status && item.status.succeeded === 1)
-            const failed = updateJob.body.items.filter((item) => item.status && item.status.failed === 1)
-            if (succeeded.length > 0 || failed.length > 0) clearInterval(interval)
-            if (succeeded.length > 0) resolve(null)
-            if (failed.length > 0) reject()
-          }
-          if (counter >= UPDATE_JOB_TIMEOUT) {
-            clearInterval(interval)
-            reject('Project update timed out; try again later or check error logs of update job')
-          }
-        }, 1000)
-      })
+      const jobBody = await getProjectUpdateJobBody(data, this.app, params!.user!.id)
+      const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+      const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, 1000)
       try {
         await jobFinishedPromise
         const result = (await super._find({
@@ -813,7 +761,7 @@ export class Project extends Service {
       const projectPermissions = await knexClient
         .from(projectPermissionPath)
         .join('project', 'project.id', `${projectPermissionPath}.projectId`)
-        .where({ userId: params.user!.id })
+        .where(`${projectPermissionPath}.userId`, params.user!.id)
         .select()
         .options({ nestTables: true })
 

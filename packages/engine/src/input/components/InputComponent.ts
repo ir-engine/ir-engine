@@ -51,6 +51,7 @@ export const InputComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const input = useComponent(entity, InputComponent)
+
     useLayoutEffect(() => {
       if (!input.inputSources.length || !input.highlight.value) return
       setComponent(entity, HighlightComponent)
@@ -58,6 +59,7 @@ export const InputComponent = defineComponent({
         removeComponent(entity, HighlightComponent)
       }
     }, [input.inputSources, input.highlight])
+
     return null
   }
 })

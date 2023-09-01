@@ -43,6 +43,8 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
+import { SportsBarTwoTone } from '@mui/icons-material'
+
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
  */
@@ -157,5 +159,5 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     </NodeEditor>
   )
 }
-
+EnvMapEditor.iconComponent = SportsBarTwoTone
 export default EnvMapEditor

@@ -53,7 +53,7 @@ const helperMaterial = new MeshLambertMaterial({ color: 'white' })
 const lineGeometry = new BufferGeometry()
 lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
 
-interface ISplineElement {
+export interface ISplineElement {
   position: Vector3
   quaternion: Quaternion
 }

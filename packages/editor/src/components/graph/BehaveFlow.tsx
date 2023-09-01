@@ -26,13 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
-import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getMutableComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import {
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import 'reactflow/dist/style.css'
 import { SelectionState } from '../../services/SelectionServices'
+import { PropertiesPanelButton } from '../inputs/Button'
 import { Flow } from './ee-flow'
 import './ee-flow/styles.css'
 
@@ -41,11 +46,14 @@ const BehaveFlow = () => {
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
-  const graphState = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
+  const graphComponent = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
   const forceUpdate = useForceUpdate()
-  const registries = getState(BehaveGraphState).registries
-  const registry = registries[graphState?.domain.value]
+  const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
 
+  const addGraph = () => {
+    setComponent(entity as Entity, BehaveGraphComponent)
+    forceUpdate()
+  }
   useEffect(() => {
     forceUpdate()
   }, [selectionState.objectChangeCounter])
@@ -54,14 +62,30 @@ const BehaveFlow = () => {
     <AutoSizer>
       {({ width, height }) => (
         <div style={{ width, height }}>
+          {!validEntity && (
+            <PropertiesPanelButton
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+              }}
+              onClick={() => {
+                addGraph()
+              }}
+            >
+              {' '}
+              Add Graph
+            </PropertiesPanelButton>
+          )}
           {validEntity && (
             <Flow
-              initialGraph={graphState?.value?.graph}
+              initialGraph={graphComponent?.value?.graph}
               examples={{}}
-              registry={registry}
+              registry={behaveGraphState.registries.get(NO_PROXY)[graphComponent?.domain.value]}
               onChangeGraph={(newGraph) => {
-                if (!graphState.graph) return
-                graphState.graph.set(JSON.parse(JSON.stringify(newGraph)))
+                if (!graphComponent.graph) return
+                graphComponent.graph.set(JSON.parse(JSON.stringify(newGraph)))
               }}
             />
           )}

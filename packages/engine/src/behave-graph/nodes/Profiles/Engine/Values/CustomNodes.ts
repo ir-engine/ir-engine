@@ -44,7 +44,12 @@ import { FollowCameraComponent } from '../../../../../camera/components/FollowCa
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneServices } from '../../../../../ecs/classes/Scene'
-import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
 import { StandardCallbacks, getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
@@ -157,7 +162,8 @@ export const playAudio = makeFlowNodeDefinition({
       volume: volume,
       playMode: playMode!
     }) // play
-    const component = getComponent(entity, MediaComponent)
+    const component = getMutableComponent(entity, MediaComponent)
+    component.paused.set(false)
     commit('flow')
   }
 })
@@ -389,7 +395,7 @@ export const switchScene = makeFlowNodeDefinition({
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const projectName = read<string>('projectName')
     const sceneName = read<string>('sceneName')
-    SceneServices.fetchCurrentScene(projectName, sceneName)
+    SceneServices.setCurrentScene(projectName, sceneName)
   }
 })
 
