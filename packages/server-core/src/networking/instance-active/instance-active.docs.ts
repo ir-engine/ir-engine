@@ -26,21 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 import {
-  messageDataSchema,
-  messagePatchSchema,
-  messageQuerySchema,
-  messageSchema
-} from '@etherealengine/engine/src/schemas/social/message.schema'
+  instanceActiveQuerySchema,
+  instanceActiveSchema
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    messageDataSchema,
-    messagePatchSchema,
-    messageQuerySchema,
-    messageSchema
+    instanceActiveQuerySchema,
+    instanceActiveSchema
   },
   docs: {
-    description: 'Message service description',
+    description: 'Instance active service description',
     securities: ['all']
   }
 })

@@ -23,53 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
-
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  instanceFriendsMethods,
+  instanceFriendsPath
+} from '@etherealengine/engine/src/schemas/networking/instance-friends.schema'
 import { Application } from '../../../declarations'
-import { Message } from './message.class'
-import messageDocs from './message.docs'
-import hooks from './message.hooks'
-import createModel from './message.model'
+import { InstanceFriendsService } from './instance-friends.class'
+import instanceFriendsDocs from './instance-friends.docs'
+import hooks from './instance-friends.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    message: Message
+    [instanceFriendsPath]: InstanceFriendsService
   }
 }
 
-export const onCRUD =
-  (app: Application) =>
-  async (data: MessageInterface): Promise<any> => {
-    data.sender = await app.service(userPath).get(data.senderId)
-    const channelUsers = await app.service('channel-user').find({
-      query: {
-        channelId: data.channelId
-      }
-    })
-
-    const userIds = (channelUsers as any).data.map((channelUser) => {
-      return channelUser.userId
-    })
-
-    return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
-  }
-
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
+    name: instanceFriendsPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  const event = new Message(options, app)
-  event.docs = messageDocs
-  app.use('message', event)
+  app.use(instanceFriendsPath, new InstanceFriendsService(app), {
+    // A list of all methods this service exposes externally
+    methods: instanceFriendsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceFriendsDocs
+  })
 
-  const service = app.service('message')
-
+  const service = app.service(instanceFriendsPath)
   service.hooks(hooks)
-
-  service.publish('created', onCRUD(app))
-  service.publish('removed', onCRUD(app))
-  service.publish('patched', onCRUD(app))
 }

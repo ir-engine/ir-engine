@@ -23,24 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
 import {
-  messageDataSchema,
-  messagePatchSchema,
-  messageQuerySchema,
-  messageSchema
-} from '@etherealengine/engine/src/schemas/social/message.schema'
+  InstanceActiveQuery,
+  InstanceActiveType
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    messageDataSchema,
-    messagePatchSchema,
-    messageQuerySchema,
-    messageSchema
-  },
-  docs: {
-    description: 'Message service description',
-    securities: ['all']
-  }
-})
+export const instanceActiveResolver = resolve<InstanceActiveType, HookContext>({})
+
+export const instanceActiveExternalResolver = resolve<InstanceActiveType, HookContext>({})
+
+export const instanceActiveQueryResolver = resolve<InstanceActiveQuery, HookContext>({})

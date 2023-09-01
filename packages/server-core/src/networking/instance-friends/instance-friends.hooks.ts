@@ -23,4 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export {}
+import authenticate from '../../hooks/authenticate'
+import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
+
+export default {
+  before: {
+    all: [],
+    find: [authenticate(), setLoggedInUser('userId')],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+} as any

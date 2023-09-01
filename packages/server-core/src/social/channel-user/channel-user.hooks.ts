@@ -28,6 +28,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -57,7 +58,7 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         const { app, result, params } = context
         const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
-        await app.service('message').create(
+        await app.service(messagePath).create(
           {
             channelId: result.channelId,
             text: `${user.name} joined the channel`,
@@ -78,7 +79,7 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         const { app, params, result } = context
         const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
-        await app.service('message').create({
+        await app.service(messagePath).create({
           channelId: result.channelId,
           text: `${user.name} left the channel`,
           isNotification: true

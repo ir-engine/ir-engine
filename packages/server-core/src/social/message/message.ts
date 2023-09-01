@@ -23,39 +23,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  inviteCodeLookupMethods,
-  inviteCodeLookupPath
-} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { MessageType, messageMethods, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { InviteCodeLookupService } from './invite-code-lookup.class'
-import inviteCodeLookupDocs from './invite-code-lookup.docs'
-import hooks from './invite-code-lookup.hooks'
+import { MessageService } from './message.class'
+import messageDocs from './message.docs'
+import hooks from './message.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [inviteCodeLookupPath]: InviteCodeLookupService
+    [messagePath]: MessageService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    id: 'type',
-    name: inviteCodeLookupPath,
+    name: messagePath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
   }
 
-  app.use(inviteCodeLookupPath, new InviteCodeLookupService(app), {
+  app.use(messagePath, new MessageService(options, app), {
     // A list of all methods this service exposes externally
-    methods: inviteCodeLookupMethods,
+    methods: messageMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: inviteCodeLookupDocs
+    docs: messageDocs
   })
 
-  const service = app.service(inviteCodeLookupPath)
+  const service = app.service(messagePath)
   service.hooks(hooks)
+
+  const onCRUD =
+    (app: Application) =>
+    async (data: MessageType): Promise<any> => {
+      if (!data.sender) {
+        data.sender = await app.service(userPath).get(data.senderId)
+      }
+      const channelUsers = await app.service('channel-user').find({
+        query: {
+          channelId: data.channelId
+        }
+      })
+      // TODO: Remove 'as any' once channel-user service is migrated to feathers5
+      const userIds = (channelUsers as any).data.map((channelUser) => {
+        return channelUser.userId
+      })
+      return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+    }
+  service.publish('created', onCRUD(app))
+  service.publish('removed', onCRUD(app))
+  service.publish('patched', onCRUD(app))
 }

@@ -23,17 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { UserType } from '../user/user.schema'
+import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEngineProfile'
 
-export type Message = {
-  id: string
-  senderId: UserID
-  channelId: ChannelID
-  text: string
-  isNotification: boolean
-  createdAt: string
-  updatedAt: string
-  sender: UserType
+import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
+
+import { registerSceneProfile } from '@behave-graph/scene'
+import { EEScene } from '../nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
+
+export const createECSRegistry = () => {
+  const registry = registerEngineProfile(
+    registerSceneProfile(
+      registerCoreProfile({
+        values: {},
+        nodes: {},
+        dependencies: {
+          ILogger: new DefaultLogger(),
+          ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
+          IScene: new EEScene()
+        }
+      })
+    )
+  )
+  return registry
 }

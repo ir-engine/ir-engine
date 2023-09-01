@@ -23,24 +23,53 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { instanceActiveQueryValidator } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import authenticate from '../../hooks/authenticate'
+import verifyScope from '../../hooks/verify-scope'
 import {
-  messageDataSchema,
-  messagePatchSchema,
-  messageQuerySchema,
-  messageSchema
-} from '@etherealengine/engine/src/schemas/social/message.schema'
+  instanceActiveExternalResolver,
+  instanceActiveQueryResolver,
+  instanceActiveResolver
+} from './instance-active.resolvers'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    messageDataSchema,
-    messagePatchSchema,
-    messageQuerySchema,
-    messageSchema
+export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(instanceActiveExternalResolver),
+      schemaHooks.resolveResult(instanceActiveResolver)
+    ]
   },
-  docs: {
-    description: 'Message service description',
-    securities: ['all']
+
+  before: {
+    all: [
+      () => schemaHooks.validateQuery(instanceActiveQueryValidator),
+      schemaHooks.resolveQuery(instanceActiveQueryResolver)
+    ],
+    find: [authenticate(), verifyScope('editor', 'write')],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
   }
-})
+} as any

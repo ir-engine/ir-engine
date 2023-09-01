@@ -23,8 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface MessageInterface {
-  id: string
-  text: string
-  isNotification: boolean
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Instance friends service description',
+    securities: ['all']
+  }
+})

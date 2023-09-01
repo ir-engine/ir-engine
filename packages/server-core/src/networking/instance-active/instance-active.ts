@@ -23,47 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { MessageInterface } from '@etherealengine/common/src/dbmodels/Message'
-
+import {
+  instanceActiveMethods,
+  instanceActivePath
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import { Application } from '../../../declarations'
-import { createUserModel } from '../../all.model'
+import { InstanceActiveService } from './instance-active.class'
+import instanceActiveDocs from './instance-active.docs'
+import hooks from './instance-active.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const message = sequelizeClient.define<Model<MessageInterface>>(
-    'message',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      text: {
-        type: DataTypes.STRING(1023),
-        allowNull: false
-      },
-      isNotification: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [instanceActivePath]: InstanceActiveService
+  }
+}
 
-  ;(message as any).associate = (models: any): any => {
-    ;(message as any).belongsTo(models.channel, { allowNull: false })
-    ;(message as any).belongsTo(createUserModel(app), { foreignKey: 'senderId', as: 'sender' })
+export default (app: Application): void => {
+  const options = {
+    name: instanceActivePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  return message
+  app.use(instanceActivePath, new InstanceActiveService(app), {
+    // A list of all methods this service exposes externally
+    methods: instanceActiveMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceActiveDocs
+  })
+
+  const service = app.service(instanceActivePath)
+  service.hooks(hooks)
 }
