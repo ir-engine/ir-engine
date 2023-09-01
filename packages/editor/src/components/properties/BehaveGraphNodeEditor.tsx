@@ -31,7 +31,6 @@ import { useComponent } from '@etherealengine/engine/src/ecs/functions/Component
 
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 
-import { getRelativeURI } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import BooleanInput from '../inputs/BooleanInput'
 import GraphInput from '../inputs/GraphInput'
 import InputGroup from '../inputs/InputGroup'
@@ -58,7 +57,7 @@ export const BehaveGraphNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Graph Url" label={t('editor:properties.graph.lbl-graphURL')}>
         <GraphInput
-          value={getRelativeURI(behaveGraphComponent.filepath.value)}
+          value={behaveGraphComponent.filepath.value}
           onChange={updateProperty(BehaveGraphComponent, 'filepath')}
         />
       </InputGroup>
