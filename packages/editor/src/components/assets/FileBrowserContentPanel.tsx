@@ -47,6 +47,7 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
 
+import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -79,6 +80,7 @@ export const FileIconType = {
   gltf: ViewInArIcon,
   'gltf-binary': ViewInArIcon,
   glb: ViewInArIcon,
+  vrm: AccessibilityNewIcon,
   usdz: ViewInArIcon,
   fbx: ViewInArIcon,
   png: PhotoSizeSelectActualIcon,
@@ -91,6 +93,7 @@ export const FileIconType = {
   'model/gltf-binary': ViewInArIcon,
   'model/gltf': ViewInArIcon,
   'model/glb': ViewInArIcon,
+  'model/vrm': AccessibilityNewIcon,
   'model/usdz': ViewInArIcon,
   'model/fbx': ViewInArIcon,
   'image/png': PhotoSizeSelectActualIcon,

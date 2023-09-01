@@ -333,7 +333,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-isAvatar": "Is Avatar",
+      "lbl-isAvatar": "Force Avatar Animations",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isEquippable": "Is Equippable",
       "lbl-castShadow": "Cast Shadow",
