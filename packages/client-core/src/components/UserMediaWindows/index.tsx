@@ -29,7 +29,7 @@ import React from 'react'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
 
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -53,7 +53,7 @@ export const useMediaWindows = () => {
   const selfUser = useHookstate(getMutableState(AuthState).user)
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
-  const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
+  const consumers = Object.entries(peerMediaChannelState.get(NO_PROXY)) as [
     PeerID,
     { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
   ][]
@@ -128,7 +128,7 @@ export const UserMediaWindows = () => {
 export const UserMediaWindowsWidget = () => {
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
 
-  const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
+  const consumers = Object.entries(peerMediaChannelState.get(NO_PROXY)) as [
     PeerID,
     { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
   ][]

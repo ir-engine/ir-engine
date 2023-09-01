@@ -40,6 +40,7 @@ import {
 
 import { useEffect } from 'react'
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -80,7 +81,7 @@ export const SplineComponent = defineComponent({
   },
 
   toJSON: (entity, component) => {
-    return { elements: component.elements.get({ noproxy: true }) }
+    return { elements: component.elements.get(NO_PROXY) }
   },
 
   reactor: () => {

@@ -42,7 +42,7 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -136,8 +136,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   useEffect(() => {
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
-    if (selfUser.identityProviders.get({ noproxy: true }))
-      for (const ip of selfUser.identityProviders.get({ noproxy: true })!) {
+    if (selfUser.identityProviders.get(NO_PROXY))
+      for (const ip of selfUser.identityProviders.get(NO_PROXY)!) {
         switch (ip.type) {
           case 'discord':
             oauthConnectedState.merge({ discord: true })

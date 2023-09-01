@@ -69,7 +69,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
   const getUsername = () => {
     if (isSelf && !isScreen) return t('user:person.you')
     if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = userID ? usernames.get({ noproxy: true })[userID] : 'A User'
+    const username = userID ? usernames.get(NO_PROXY)[userID] : 'A User'
     if (!isSelf && isScreen) return username + "'s Screen"
     return username
   }
@@ -88,7 +88,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
     audioProducerGlobalMute,
     videoElement,
     audioElement
-  } = peerMediaChannelState.get({ noproxy: true })
+  } = peerMediaChannelState.get(NO_PROXY)
 
   const { videoStream: videoStreamState } = peerMediaChannelState
 

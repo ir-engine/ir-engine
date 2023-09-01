@@ -31,7 +31,7 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import logger from '@etherealengine/common/src/logger'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
-import { defineAction, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, NO_PROXY, useState } from '@etherealengine/hyperflux'
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { API } from '../../API'
@@ -200,7 +200,7 @@ export const LocationInstanceConnectionService = {
   },
   changeActiveConnectionID: (currentInstanceId: InstanceID, newInstanceId: InstanceID) => {
     const state = getMutableState(LocationInstanceState)
-    const currentNetwork = state.instances[currentInstanceId].get({ noproxy: true })
+    const currentNetwork = state.instances[currentInstanceId].get(NO_PROXY)
     const networkState = getMutableState(NetworkState)
     const currentNework = getState(NetworkState).networks[currentInstanceId]
     updateNetworkID(currentNework as SocketWebRTCClientNetwork, newInstanceId)

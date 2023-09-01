@@ -36,7 +36,7 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -95,7 +95,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   const friendState = useHookstate(getMutableState(FriendState))
   const selfUser = useHookstate(getMutableState(AuthState).user)
   const userId = selfUser.id.value
-  const userNames = worldState.userNames.get({ noproxy: true })
+  const userNames = worldState.userNames.get(NO_PROXY)
 
   const privateChannels = channels.data.filter((channel) => !channel.instanceId)
 

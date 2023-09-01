@@ -32,7 +32,7 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
 import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
@@ -89,7 +89,7 @@ const CreateBot = () => {
 
   const addCommandData = (addCommand: BotCommandData) => {
     if (addCommand.name) {
-      const found = commandData.get({ noproxy: true }).find((el) => el.name === addCommand.name)
+      const found = commandData.get(NO_PROXY).find((el) => el.name === addCommand.name)
       if (found) {
         NotificationService.dispatchNotify(t('admin:components.bot.uniqueCommand'), { variant: 'error' })
       } else {
@@ -120,7 +120,7 @@ const CreateBot = () => {
       name: state.name.value,
       instanceId: state.instance.value || ('' as InstanceID),
       userId: user.id.value,
-      botCommands: commandData.get({ noproxy: true }),
+      botCommands: commandData.get(NO_PROXY),
       description: state.description.value,
       locationId: state.location.value
     }
@@ -142,7 +142,7 @@ const CreateBot = () => {
   }
 
   const removeCommand = (id: string) => {
-    const data = commandData.get({ noproxy: true }).filter((el) => el.id !== id)
+    const data = commandData.get(NO_PROXY).filter((el) => el.id !== id)
     commandData.set(data)
   }
 
@@ -160,7 +160,7 @@ const CreateBot = () => {
     }
   })
 
-  const instanceMenu: InputMenuItem[] = currentInstance.get({ noproxy: true }).map((el) => {
+  const instanceMenu: InputMenuItem[] = currentInstance.get(NO_PROXY).map((el) => {
     return {
       value: el.id,
       label: el.ipAddress
@@ -236,7 +236,7 @@ const CreateBot = () => {
             command={command.value}
             handleChangeCommand={handleChangeCommand}
             addCommandData={addCommandData}
-            commandData={commandData.get({ noproxy: true })}
+            commandData={commandData.get(NO_PROXY)}
             removeCommand={removeCommand}
           />
         </form>

@@ -27,7 +27,7 @@ import matches, { Validator } from 'ts-matches'
 
 import { GraphJSON } from '@behave-graph/core'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -63,7 +63,7 @@ export const BehaveGraphComponent = defineComponent({
     return {
       filepath: component.filepath.value,
       domain: component.domain.value,
-      graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))), // this goes away
+      graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get(NO_PROXY)))), // this goes away
       run: false,
       disabled: component.disabled.value
     }
@@ -92,8 +92,8 @@ export const BehaveGraphComponent = defineComponent({
     const behaveGraph = useHookstate(getMutableState(BehaveGraphState))
 
     const canPlay = graph.run && !graph.disabled
-    const registry = behaveGraph.registries[graph.domain.value].get({ noproxy: true })
-    const graphRunner = useGraphRunner({ graphJson: graph.graph.get({ noproxy: true }), autoRun: canPlay, registry })
+    const registry = behaveGraph.registries[graph.domain.value].get(NO_PROXY)
+    const graphRunner = useGraphRunner({ graphJson: graph.graph.get(NO_PROXY), autoRun: canPlay, registry })
 
     useEffect(() => {
       if (graph.disabled.value) return

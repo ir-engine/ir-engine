@@ -33,7 +33,7 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
-import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarUIState } from '../../state/AvatarUIState'
 import styleString from './index.scss?inline'
@@ -61,7 +61,7 @@ const AvatarDetailView = () => {
   const user = Engine.instance.worldNetworkState?.peers
     ? Object.values(Engine.instance.worldNetwork.peers).find((peer) => peer.userId === detailState.id.value)
     : undefined
-  const worldState = useHookstate(getMutableState(WorldState)).get({ noproxy: true })
+  const worldState = useHookstate(getMutableState(WorldState)).get(NO_PROXY)
   const usersTypingState = useHookstate(getMutableState(AvatarUIState).usersTyping)
   const usersTyping = usersTypingState[detailState.id.value]?.value
   const username = worldState?.userNames && user ? worldState.userNames[user.userId] : 'A user'

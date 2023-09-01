@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -94,13 +94,13 @@ const ProjectTable = ({ className }: Props) => {
   ProjectService.useAPIListeners()
 
   useEffect(() => {
-    if (project) setProject(adminProjects.get({ noproxy: true }).find((proj) => proj.name === project.name)!)
+    if (project) setProject(adminProjects.get(NO_PROXY).find((proj) => proj.name === project.name)!)
   }, [adminProjects])
 
   const handleRemoveProject = async () => {
     try {
       if (projectRef.current) {
-        const projectToRemove = adminProjects.get({ noproxy: true }).find((p) => p.name === projectRef.current?.name)!
+        const projectToRemove = adminProjects.get(NO_PROXY).find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()

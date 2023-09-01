@@ -33,7 +33,7 @@ import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/Medi
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
@@ -190,7 +190,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }
 
   return {
-    dimensions: dimensions.get({ noproxy: true }),
+    dimensions: dimensions.get(NO_PROXY),
     handleComposingMessageChange,
     packageMessage,
     composingMessage: composingMessage.value,

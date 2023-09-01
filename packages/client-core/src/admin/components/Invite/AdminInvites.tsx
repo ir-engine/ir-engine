@@ -207,7 +207,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
           updateModalOpen.set(false)
           selectedInvite.set(defaultInvite)
         }}
-        invite={selectedInvite.get({ noproxy: true })}
+        invite={selectedInvite.get(NO_PROXY)}
       />
       <ConfirmDialog
         open={openConfirm.value}

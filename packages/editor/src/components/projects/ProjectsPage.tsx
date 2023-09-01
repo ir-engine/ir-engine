@@ -32,7 +32,7 @@ import { RouterService } from '@etherealengine/client-core/src/common/services/R
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -309,7 +309,7 @@ const ProjectsPage = () => {
     updatingProject.set(true)
     if (activeProject.value) {
       try {
-        const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
+        const proj = installedProjects.get(NO_PROXY).find((proj) => proj.id === activeProject.value?.id)!
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()
       } catch (err) {

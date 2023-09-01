@@ -35,7 +35,7 @@ import {
   ProjectInterface,
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -78,9 +78,8 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     error.set('')
     selectedTag.set('')
     updateProjects.set(false)
-    adminProjects.get({ noproxy: true }).forEach((adminProject) => {
-      if (projectsToUpdate.get({ noproxy: true }).get(adminProject.name))
-        ProjectUpdateService.clearProjectUpdate(adminProject)
+    adminProjects.get(NO_PROXY).forEach((adminProject) => {
+      if (projectsToUpdate.get(NO_PROXY).get(adminProject.name)) ProjectUpdateService.clearProjectUpdate(adminProject)
     })
     projectsToUpdate.set(new Map())
     processing.set(false)
@@ -131,7 +130,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
 
   const toggleProjectToUpdate = async (e: React.ChangeEvent<HTMLInputElement>, project: ProjectInterface) => {
     const thisProjectName = project.name
-    const newProjects = new Map(projectsToUpdate.get({ noproxy: true }))
+    const newProjects = new Map(projectsToUpdate.get(NO_PROXY))
     if (newProjects.get(thisProjectName)) {
       newProjects.delete(thisProjectName)
       ProjectUpdateService.clearProjectUpdate(project)
@@ -205,21 +204,21 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
             </div>
             <div className={styles.projectSelector}>
               {adminProjects
-                .get({ noproxy: true })
+                .get(NO_PROXY)
                 ?.filter((project) => project.name !== 'default-project' && project.repositoryPath?.length > 0)
                 .map((project) => (
                   <div key={project.id} className={styles.projectUpdateContainer}>
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={projectsToUpdate.get({ noproxy: true }).get(project.name)}
+                          checked={projectsToUpdate.get(NO_PROXY).get(project.name)}
                           onChange={(e) => toggleProjectToUpdate(e, project)}
                         />
                       }
                       label={project.name}
                     />
 
-                    {projectsToUpdate.get({ noproxy: true }).get(project.name) && projectUpdateStatus[project.name] && (
+                    {projectsToUpdate.get(NO_PROXY).get(project.name) && projectUpdateStatus[project.name] && (
                       <ProjectFields
                         inputProject={project}
                         existingProject={true}

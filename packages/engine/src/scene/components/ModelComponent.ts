@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Mesh, Scene } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
@@ -183,7 +183,7 @@ function ModelReactor() {
 
   // update scene
   useEffect(() => {
-    const scene = modelComponent.scene.get({ noproxy: true })
+    const scene = modelComponent.scene.get(NO_PROXY)
 
     if (!scene) return
     addObjectToGroup(entity, scene)

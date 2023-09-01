@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import multiLogger from '@etherealengine/common/src/logger'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -39,7 +39,7 @@ export const userPatched = (user: UserType) => {
   logger.info('USER PATCHED %o', user)
 
   const selfUser = getMutableState(AuthState).user
-  const patchedUser = user || selfUser.get({ noproxy: true })
+  const patchedUser = user || selfUser.get(NO_PROXY)
   const worldHostID = getState(NetworkState).hostIds.world
 
   logger.info('Resolved patched user %o', patchedUser)

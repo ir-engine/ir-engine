@@ -33,7 +33,7 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
@@ -61,19 +61,19 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
   const selfId = authState.user.id?.value ?? ''
 
   const isFriend = friendState.relationships
-    .get({ noproxy: true })
+    .get(NO_PROXY)
     .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'friend')
   const isRequested = friendState.relationships
-    .get({ noproxy: true })
+    .get(NO_PROXY)
     .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'requested')
   const isPending = friendState.relationships
-    .get({ noproxy: true })
+    .get(NO_PROXY)
     .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'pending')
   const isBlocked = friendState.relationships
-    .get({ noproxy: true })
+    .get(NO_PROXY)
     .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'blocked')
   const isBlocking = friendState.relationships
-    .get({ noproxy: true })
+    .get(NO_PROXY)
     .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'blocking')
 
   const userName = isFriend

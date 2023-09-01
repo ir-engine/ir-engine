@@ -30,7 +30,7 @@ import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { ScopeTypeData, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -192,7 +192,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       name: state.name.value,
       avatarId: state.avatar.value,
       isGuest: state.isGuest.value,
-      scopes: state.scopes.get({ noproxy: true })
+      scopes: state.scopes.get(NO_PROXY)
     }
 
     state.formErrors.merge({
@@ -356,7 +356,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           <AutoComplete
             data={scopeMenu}
             label={t('admin:components.user.grantScope')}
-            value={state.scopes.get({ noproxy: true })}
+            value={state.scopes.get(NO_PROXY)}
             disabled
           />
         )}
@@ -366,7 +366,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
             <AutoComplete
               data={scopeMenu}
               label={t('admin:components.user.grantScope')}
-              value={state.scopes.get({ noproxy: true })}
+              value={state.scopes.get(NO_PROXY)}
               onChange={handleChangeScopeType}
             />
             <div className={styles.scopeButtons}>

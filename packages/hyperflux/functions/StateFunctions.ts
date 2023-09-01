@@ -45,7 +45,7 @@ export * from '@hookstate/core'
 
 const logger = multiLogger.child({ component: 'hyperflux:State' })
 
-export const NO_PROXY = { noproxy: true }
+export const NO_PROXY = NO_PROXY
 
 export type StateActionReceptor<S, A extends ActionShape<Action>> = [
   ActionCreator<A>,
@@ -167,7 +167,7 @@ export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof def
           else
             localStorage.setItem(
               `${stateNamespaceKey}.${stateDefinition.name}.${key}`,
-              JSON.stringify(state[key].get({ noproxy: true }))
+              JSON.stringify(state[key].get(NO_PROXY))
             )
         }
       }
