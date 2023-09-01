@@ -31,6 +31,7 @@ import {
   Property,
   PropertyType,
   ReaderContext,
+  Texture,
   TextureInfo,
   WriterContext
 } from '@gltf-transform/core'
@@ -188,8 +189,9 @@ export class EEMaterialExtension extends Extension {
                   extensionData.texCoord && transform.setTexCoord(extensionData.texCoord)
                   textureInfo.setExtension('KHR_texture_transform', transform)
                 }
-                texture.setExtras({ uuid: generateUUID() })
-                this.textureInfoMap.set(texture, textureInfo)
+                const uuid = generateUUID()
+                texture.setExtras({ uuid })
+                this.textureInfoMap.set(uuid, textureInfo)
               }
               processedArgs.setPropRef(field, texture)
             } else {
@@ -228,9 +230,10 @@ export class EEMaterialExtension extends Extension {
             const defaultArgs = prototypeFromId(eeMaterial.prototype).arguments
             Object.entries(defaultArgs).map(([field, value]) => {
               if (value.type === 'texture') {
-                const texture = matArgs.getPropRef(field)
+                const texture = matArgs.getPropRef(field) as Texture
                 if (texture) {
-                  const textureInfo = this.textureInfoMap.get(texture)!
+                  const uuid = texture.getExtras().uuid as string
+                  const textureInfo = this.textureInfoMap.get(uuid)!
                   extensionDef.args![field] = writerContext.createTextureInfoDef(texture, textureInfo)
                 } else {
                   extensionDef.args![field] = null
