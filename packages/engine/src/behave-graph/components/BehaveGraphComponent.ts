@@ -48,7 +48,9 @@ export const BehaveGraphComponent = defineComponent({
   onInit: (entity) => {
     const domain = 'ECS' as GraphDomainID
     const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
+    const filepath = '' // "${project_dir}/assets/graphs/randomUUID"
     return {
+      filepath: filepath,
       domain: domain,
       graph: graph,
       run: false,
@@ -57,16 +59,20 @@ export const BehaveGraphComponent = defineComponent({
   },
 
   toJSON: (entity, component) => {
+    // save the graph json into file and not in scene
     return {
+      filepath: component.filepath.value,
       domain: component.domain.value,
-      graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))),
+      graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))), // this goes away
       run: false,
       disabled: component.disabled.value
     }
   },
 
   onSet: (entity, component, json) => {
+    // if filepath exists and is valid, use that to load the graph json
     if (!json) return
+    if (typeof json.filepath === 'string' && json.filepath.endsWith('.json')) component.filepath.set(json.filepath)
     if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
     if (typeof json.run === 'boolean') component.run.set(json.run)
     const domainValidator = matches.string as Validator<unknown, GraphDomainID>
@@ -75,7 +81,7 @@ export const BehaveGraphComponent = defineComponent({
     }
     const graphValidator = matches.object as Validator<unknown, GraphJSON>
     if (graphValidator.test(json.graph)) {
-      component.graph.set(parseStorageProviderURLs(json.graph)!)
+      component.graph.set(parseStorageProviderURLs(json.graph)!) // load from file instead
     }
   },
 
@@ -103,6 +109,14 @@ export const BehaveGraphComponent = defineComponent({
     }, [])
 
     useEffect(() => {
+      //check path validity
+      if (!graphComponent.filepath.value.endsWith('.json')) return
+      //load the new graph
+      const graph = null! as GraphJSON
+      graphComponent.graph.set(parseStorageProviderURLs(graph)!)
+    }, [graphComponent.filepath])
+
+    useEffect(() => {
       if (graphComponent.disabled.value) {
         graphRunner.pause()
         if (graphComponent.run.value) graphComponent.run.set(false)
@@ -110,6 +124,7 @@ export const BehaveGraphComponent = defineComponent({
         graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
       }
     }, [graphComponent.run, graphComponent.disabled])
+
     const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })
     return null
   }
