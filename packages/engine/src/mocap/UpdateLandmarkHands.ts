@@ -28,9 +28,10 @@ import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { HandSolver } from './solvers/HandSolver'
 import { LEFT, RIGHT } from './solvers/Types'
 
-export default function UpdateLandmarkHands(leftHandLandmarks: Landmark[], rightHandLandmarks: Landmark[], changes) {
-  const dampener = 1
-  const lerp = 0.03
+export default function UpdateLandmarkHands(leftHandLandmarks: Landmark[], rightHandLandmarks: Landmark[]) {
+  const changes = {}
+  const dampener = 1.0
+  const lerp = 0.5
 
   if (leftHandLandmarks) {
     const side = LEFT
@@ -63,7 +64,6 @@ export default function UpdateLandmarkHands(leftHandLandmarks: Landmark[], right
   }
 
   if (rightHandLandmarks) {
-    console.log('right')
     const side = RIGHT
     const solved = HandSolver.solve(rightHandLandmarks, side)
     if (solved) {
@@ -92,4 +92,6 @@ export default function UpdateLandmarkHands(leftHandLandmarks: Landmark[], right
       changes[VRMHumanBoneName.RightLittleDistal] = { euler: solved[side + 'LittleDistal'], dampener, lerp }
     }
   }
+
+  return changes
 }

@@ -30,14 +30,21 @@ import { FaceSolver } from './solvers/FaceSolver'
 
 const oldLookTarget = new Euler()
 
-export default function UpdateLandmarkFace(faceLandmarks: Landmark[], changes) {
-  if (!faceLandmarks) return
+export default function UpdateLandmarkFace(faceLandmarks: Landmark[]) {
+  const changes = {}
+  if (!faceLandmarks) return null
   const faceData = FaceSolver.solve(faceLandmarks)
-  if (!faceData) return
+  if (!faceData) return null
 
-  // changes[VRMHumanBoneName.Head] = { xyz: faceData.head.position, dampener: 1, lerp: 0.7 }
+  //changes[VRMHumanBoneName.Head] = { xyz: faceData.head.position, dampener: 1, lerp: 0.7 }
 
-  changes[VRMHumanBoneName.Neck] = { euler: faceData.head, dampener: 1, lerp: 0.7 }
+  changes[VRMHumanBoneName.Neck] = {
+    euler: faceData.head,
+    dampener: 1.0,
+    lerp: 0.7
+  }
+
+  return changes
 
   /*
 

@@ -27,18 +27,29 @@ import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponen
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import UpdateIkPose from './UpdateIkPose'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
+import { Engine } from '../ecs/classes/Engine'
+import { Entity } from '../ecs/classes/Entity'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
 
+import { ArrowHelper, AxesHelper, BoxGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
+import UpdateIkPose from './UpdateIkPose'
+import UpdateLandmarkFace from './UpdateLandmarkFace'
+import UpdateLandmarkHands from './UpdateLandmarkHands'
+import UpdateLandmarkPose from './UpdateLandmarkPose'
+
+import { dispatchAction } from '@etherealengine/hyperflux'
+
+/*
 ///
 /// Capture the rest pose, elevation and wingspan at startup, and act as a store for inter-frame state
 ///
 
 const ensembles = {}
-function GetPoseEnsemble(userID, rig) {
+function GetPoseEnsemble(userID, entity) {
   let ensemble = ensembles[userID]
   if (ensemble) {
     return ensemble
@@ -47,58 +58,145 @@ function GetPoseEnsemble(userID, rig) {
     lowest: 999,
     rest: {}
   }
+  const rig = getComponent(entity, AvatarRigComponent)
+  if (!rig || !rig.bindRig || !rig.bindRig.hips || !rig.bindRig.hips.node) {
+    console.warn('pose no rig')
+    return
+  }
+  console.log(rig.bindRig)
+
+  //const temp = rig.bindRig.hips.node.getWorldQuaternion(new Quaternion()).invert()
+  const temp2 = rig.bindRig.hips.node.getWorldPosition(new Vector3())
+  console.log(temp2)
+
+  // @todo actually each piece should be in world space relative to the hips
   Object.entries(VRMHumanBoneName).forEach(([key, key2]) => {
     const part = rig.vrm.humanoid!.getNormalizedBoneNode(key2)
     if (!part) return
-    if (part.position.y < ensemble.lowest) ensemble.lowest = part.position.y
-    ensemble.rest[key2] = {
-      xyz: part.position.clone(),
-      quaternion: part.quaternion.clone(),
-      euler: new Euler().setFromQuaternion(part.quaternion)
-    }
+    const xyz = part.position
+    const quaternion = part.quaternion
+    const euler = new Euler().setFromQuaternion(part.quaternion)
+    ensemble.rest[key2] = { xyz, quaternion, euler }
+    console.log(key, xyz.x, xyz.y, xyz.z)
   })
   return ensemble
 }
+*/
 
-const useIk = true
-const updateRigPosition = (rig, key, xyz, dampener = 1, lerpAmount = 0.1) => {
-  const vector = new Vector3((xyz?.x || 0) * dampener, (xyz?.y || 0) * dampener, (xyz?.z || 0) * dampener)
-  const part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
-  if (!part) {
-    //console.warn(`can't position ${key}`)
+//const demirror = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+
+const debugmeshes = {}
+
+function ApplyPoseChange(entity: Entity, key, change) {
+  const rig = getComponent(entity, AvatarRigComponent)
+  if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
+    console.warn('pose change no rig')
     return
   }
-  part.position.lerp(vector, lerpAmount) // interpolate
-}
+  const transform = getComponent(entity, TransformComponent)
 
-const updateRigRotation = (rig, key, euler, dampener = 1, lerpAmount = 0.3) => {
-  const quaternion = new Quaternion().setFromEuler(
-    new Euler(
-      (euler?.x || 0) * dampener,
-      (euler?.y || 0) * dampener,
-      (euler?.z || 0) * dampener,
-      euler?.rotationOrder || 'XYZ'
+  // props we can set on body parts
+  let xyz = change.xyz || null
+  let quaternion = change.quaternion || null
+  //const dampener = change.dampener || 1.0 <- @todo disabled until we have previous joint
+  const lerp = change.lerp || 1.0
+  const color = change.color || 0x000000
+  const ik = change.ik ? true : false
+  const shown = change.shown ? true : false
+  const euler = change.euler || null
+  const debug = change.debug || true
+  const blendweight = change.blendweight || 1.0
+
+  // get part in question
+  const part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
+  if (!part) {
+    console.warn('cannot set', key)
+    return
+  }
+
+  /*
+  // dampen xyz
+  if (xyz) {
+    xyz.x *= dampener
+    xyz.y *= dampener
+    xyz.z *= dampener
+  }
+  */
+
+  // promote euler to quaternion if any with dampener
+  if (euler) {
+    quaternion = new Quaternion().setFromEuler(
+      new Euler(
+        euler?.x || 0, // * dampener,
+        euler?.y || 0, // * dampener,
+        euler?.z || 0, // * dampener,
+        euler?.rotationOrder || 'XYZ'
+      )
     )
-  )
-  const part = rig.vrm.humanoid!.getNormalizedBoneNode(key)
-  if (!part) {
-    //console.warn(`can't rotate ${key}`)
-    return
   }
-  part.quaternion.slerp(quaternion.clone(), lerpAmount) // interpolate
+
+  // ik part?
+  if (ik) {
+    // this is how we will get iktargets later on:
+    //const target = getComponent(entity, AvatarAnimationComponent).ikTarget[key]
+
+    // for now get a dispatch target
+    const entityUUID = `${Engine?.instance?.userID}_mocap_${key}` as EntityUUID
+    const target = UUIDComponent.entitiesByUUID[entityUUID]
+    if (!target) {
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: key as any }))
+      return
+    }
+
+    // ik requires you to supply an avatar relative position (relative to ground at origin)
+    if (!xyz) {
+      //xyz = rig.vrm.humanoid.rawRestPose[key].node.getWorldPosition(new Vector3())
+      //console.log('bindpose', key, xyz.x.toFixed(3), xyz.y.toFixed(3), xyz.z.toFixed(3))
+      console.warn('ik requires xyz')
+      return
+    }
+
+    // ik requires xyz to be in absolute world position for the absolute world target, so must add avatar current position
+    xyz = new Vector3(xyz.x, xyz.y, xyz.z).applyQuaternion(transform.rotation).add(transform.position)
+
+    // @todo - we have to rotate the part to world coordinates also??!
+
+    // if we have a handle on a target then set it
+    const targetTransform = getComponent(target, TransformComponent)
+    if (xyz) targetTransform?.position.copy(xyz)
+    if (quaternion) targetTransform?.rotation.copy(quaternion)
+  }
+
+  // directly set joint not using ik
+  else {
+    if (quaternion) {
+      part.quaternion.slerp(quaternion.clone(), lerp)
+    }
+    if (xyz) {
+      part.position.lerp(xyz, lerp)
+    }
+  }
+
+  // visualize for debugging - can only handle one avatar
+  if (debug) {
+    let mesh = debugmeshes[key]
+    if (!mesh) {
+      debugmeshes[key] = mesh = new Mesh(new BoxGeometry(0.01, 0.4, 0.01), new MeshBasicMaterial({ color }))
+      const gizmo = new AxesHelper()
+      gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
+      mesh.add(gizmo)
+      Engine.instance.scene.add(mesh)
+    }
+    mesh.material.color.setHex(shown == true ? color : 0x000000)
+    if (xyz) mesh.position.copy(xyz)
+    if (quaternion) mesh.rotation.setFromQuaternion(quaternion)
+    mesh.updateMatrixWorld()
+  }
 }
 
-function ApplyPoseChanges(changes, rig) {
-  Object.entries(changes).forEach(([key, args]) => {
-    const scratch: any = args
-    const dampener = scratch.dampener || 1
-    const lerp = scratch.lerp || 1
-    if (scratch.euler) {
-      updateRigRotation(rig, key, scratch.euler, scratch.dampener, scratch.lerp)
-    }
-    if (scratch.xyz) {
-      updateRigPosition(rig, key, scratch.xyz, scratch.dampener, scratch.lerp)
-    }
+function ApplyPoseChanges(entity: Entity, changes) {
+  Object.entries(changes).forEach(([key, change]) => {
+    ApplyPoseChange(entity, key, change)
   })
 }
 
@@ -106,54 +204,36 @@ function ApplyPoseChanges(changes, rig) {
 /// Update Avatar overall; fingers, face, pose, head orientation, hips, feet, ik, non ik...
 ///
 
-export default function UpdataAvatar(data, userID, entity) {
+export default function UpdateAvatar(data, userID, entity) {
   // sanity check
   if (!data || !data.za || !data.poseLandmarks) {
+    console.warn('no data')
     return
   }
 
-  // get avatar rig
-  const avatarRig = getComponent(entity, AvatarRigComponent)
-  const avatarTransform = getComponent(entity, TransformComponent)
-  if (!avatarRig || !avatarTransform) {
-    return
+  const DIRECT = false
+  if (DIRECT) {
+    // use landmarks to directly set head orientation and facial features
+    const changes1 = UpdateLandmarkFace(data?.faceLandmarks)
+    ApplyPoseChanges(entity, changes1)
+
+    // use landmarks to directly set fingers
+    const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks)
+    ApplyPoseChanges(entity, changes2)
+
+    // use landmarks to set coarse pose
+    const changes3 = UpdateLandmarkPose(data?.za, data?.poseLandmarks)
+    ApplyPoseChanges(entity, changes3)
+  } else {
+    // publish ik targets rather than directly setting body parts
+    const changes4 = UpdateIkPose(data)
+    ApplyPoseChanges(entity, changes4)
   }
-
-  // get avatar world pose
-  const avatarHips = avatarRig?.localRig?.hips?.node
-  const position = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
-  const rotation = avatarTransform.rotation
-
-  // get or create persistent state
-  const poseEnsemble: any = GetPoseEnsemble(userID, avatarRig)
-
-  /*
-  {
-    const changes = {}
-
-    // head orientation and facial features
-    UpdateLandmarkFace(data?.faceLandmarks, changes)
-
-    // fingers
-    UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks, changes)
-
-    // coarse pose
-    UpdateLandmarkPose(data?.za, data?.poseLandmarks, poseEnsemble, changes)
-
-    // apply changes
-    ApplyPoseChanges(poseEnsemble.changes, avatarRig)
-  }
-  */
-
-  // test ik
-  UpdateIkPose(data, position, rotation, poseEnsemble)
 }
 
 /*
 
 NOTES Aug 2023
-
-on lm3d normalized data:
   - all points are centered on the avatar as a vitrivian man with radius 0.5 or diameter 1
   - for example the left shoulder is often at 0.14 in the x axis and the right shoulder is at -0.14
   - raw data y is negative upwards, so the shoulder y is at -0.45; which is the opposite of the 3js convention
@@ -161,37 +241,35 @@ on lm3d normalized data:
   - raw z data does exist but fairly weak; good enough for hips pirouette however
   - note that 'visibility' also is slightly unclear as a concept; tensorflow appears to speculate even if no visibility
 
-FRONT BURNER
+BUGS aug 31 2023
 
-  - i really need the hips to work in ik mode - test?
+  - applying hips through the animation system is screwy
 
-  - i think i want the wrist ik targets deleted after they are set?
-      also can i get the target in one frame?
-      is this a good way to send ordinary pose data for consistency?
-  
-  - is the avatar still flipped?
+  - fingers do exist but finger twiddling does not show up visually
 
-  - can i get the wrists aligned?
+  - i would like to delete ik targets after set once; and get the handle on them instantly
 
-  - can the ik system in general take advantage of the existing knee position?
-
-  - should i flip the hands in the code? they are backwards in code
-
-  - support the concept of jumping by using latency of ground pose estimation
+  - wrists angle is wrong for ik
 
   - support real wingspan estimation
 
-  - can i get head pose to work with the ik system? it is being discarded; maybe I should use an ik head? maybe write to the neck also?
+  - ik system totally fights the non ik system; we should allow both to co-exist
 
-HIPS ISSUES
+  - jumping is broken
 
-  * default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ... use vrm model as rest pose?
-  * hips/shoulders must be estimated correctly or else everything else gets thrown off
-  * hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk
-  * can we use the shoulder midpoint to improve? cross the hip horizontal with the spine?
-  * can we improve forward pitch estimation using z depth between shoulder and hip?
+HIPS
 
-  ? what if i put the entire rig on soft physics springs and then allow parts to tug around?
+  * default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ...
+      - use vrm model as rest pose? is that a good idea or not?
+      - shouldn't the default hips be at 0,0,0?
+      - perhaps the engine starts the player at a random position
+
+  * hips/shoulders must be estimated correctly or else everything else gets thrown off!
+  * hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk; should not set roll!
+  * can we use the shoulder midpoint to improve? cross the hip horizontal with the spine? (yes works well)
+  * can we improve forward pitch estimation using z depth between shoulder and hip? (yes works well)
+
+  x what if i put the entire rig on soft physics springs and then allow parts to tug around?
   ? Does it even make sense to be computing the hips by hand?
   ? I notice that kalikokit pretty much ignores the visibility flags - why? is there something i don't understand?
   ? TEST: It is not clear if low visibility per component == bad/zero data or if it reverts to tensorflow speculation

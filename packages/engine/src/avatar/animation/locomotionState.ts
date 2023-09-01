@@ -103,6 +103,7 @@ export function updateLocomotionStateBlendValues(state: LocomotionState, delta: 
 }
 
 export function updateLocomotionState(state: LocomotionState, delta: number) {
+  console.log(state)
   updateLocomotionStateBlendValues(state, delta)
 
   const updatedNodesX = updateBlendSpace1D(state.xAxisBlendSpace, -state.blendValue.x)

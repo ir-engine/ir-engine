@@ -36,56 +36,36 @@ import { calcLegs } from './solvers/PoseSolver/calcLegs'
 /// Update pose from landmarks
 ///
 
-export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], poseEnsemble: any, changes: any) {
-  if (!lm3d || !lm2d) return
+export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[]) {
+  const changes = {}
+
+  if (!lm3d || !lm2d) return null
 
   const threshhold = 0.6
 
-  const state: any = {
-    head: {
-      dampener: 1,
-      lerp: 0.3,
-      shown: lm3d[0] && lm3d[0].visibility && lm3d[0].visibility > threshhold
-    },
-    hips: {
-      dampener: 1,
-      lerp: 0.3,
-      shown:
-        lm3d[23] &&
-        lm3d[23].visibility &&
-        lm3d[23].visibility > threshhold &&
-        lm3d[24] &&
-        lm3d[24].visibility &&
-        lm3d[24].visibility > threshhold
-    },
-    shoulders: {
-      dampener: 1,
-      lerp: 0.1,
-      shown:
-        lm3d[11] &&
-        lm3d[11].visibility &&
-        lm3d[11].visibility > threshhold &&
-        lm3d[12] &&
-        lm3d[12].visibility &&
-        lm3d[12].visibility > threshhold
-    },
-    leftHand: {
-      shown: lm3d[15] && lm3d[15].visibility && lm3d[15].visibility > threshhold
-    },
-    rightHand: {
-      shown: lm3d[16] && lm3d[16].visibility && lm3d[16].visibility > threshhold
-    },
-    leftFoot: {
-      shown: lm3d[31] && lm3d[31].visibility && lm3d[31].visibility > threshhold
-    },
-    rightFoot: {
-      shown: lm3d[32] && lm3d[32].visibility && lm3d[32].visibility > threshhold
-    }
-  }
+  const hips =
+    lm3d[23] &&
+    lm3d[23].visibility &&
+    lm3d[23].visibility > threshhold &&
+    lm3d[24] &&
+    lm3d[24].visibility &&
+    lm3d[24].visibility > threshhold
+      ? true
+      : false
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  const shoulders =
+    lm3d[11] &&
+    lm3d[11].visibility &&
+    lm3d[11].visibility > threshhold &&
+    lm3d[12] &&
+    lm3d[12].visibility &&
+    lm3d[12].visibility > threshhold
+      ? true
+      : false
 
   let permit_feet = false
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //
   // hips and shoulders
@@ -101,7 +81,7 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], p
   // @todo why is the estimated hips xyz half a meter in the x and y? it should near zero -> it is using lm2d but still the relative displacement should be zero?
   //
 
-  if (state.hips.shown && state.shoulders.shown) {
+  if (hips && shoulders) {
     /*
     // test getting hip pose using 3d data with weak z to estimate hips pose
     const hipsleft3d = Vector.fromArray(lm3d[23])
@@ -140,18 +120,22 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], p
     // state.hips.euler = Vector.rollPitchYaw(new Vector(lm3d[23]),new Vector(lm3d[24]),manubrium3d)
 
     // test: get hips pose from scratch; the manual values tacked on the end are trial and error, the euler order is XYZ
+    // note: the hips at rest are NOT 0,0,0!
     // @todo note that i've turned off the pitch and roll for now!
     const hipleft = new Vector3(lm3d[23].x, lm3d[23].y, lm3d[23].z)
     const hipright = new Vector3(lm3d[24].x, lm3d[24].y, lm3d[24].z)
     const hipdir = hipright.clone().sub(hipleft).normalize()
-    const x = poseEnsemble.rest[VRMHumanBoneName.Hips].euler.x // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
-    const y = poseEnsemble.rest[VRMHumanBoneName.Hips].euler.y + Math.atan2(hipdir.x, hipdir.z) + Math.PI / 2
-    const z = poseEnsemble.rest[VRMHumanBoneName.Hips].euler.z // + Math.atan2( hipdir.y, hipdir.x) + Math.PI
-    state.hips.euler = { x, y, z }
-    changes[VRMHumanBoneName.Hips] = state.hips
-    permit_feet = true
+    const x = 0 // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
+    const y = Math.atan2(hipdir.x, hipdir.z) + Math.PI / 2
+    const z = Math.atan2(hipdir.y, hipdir.x) + Math.PI
 
-    /*
+    // disable hips for now
+    //    changes[VRMHumanBoneName.Hips] = { euler: { x, y, z } }
+
+    // disable changing legs for now
+    permit_feet = false
+
+    /* debugging
     console.log(
 
       // pelvis3d  values are consistently near 0,0,0 - that is good
@@ -192,12 +176,10 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], p
   // @todo could estimate shoulder pitch,yaw,role (from head) and set the spine or upper chest in the vrm model?
   // @todo what is the difference between the 'left shoulder' and the 'upper arm'???
   //
-  else if (!state.hips.shown && state.shoulders.shown) {
+  else if (!hips && shoulders) {
     // if hips are not present then reset the hip orientation at least; arguably also the height
-    state.hips.euler = poseEnsemble.rest[VRMHumanBoneName.Hips].euler
-    changes[VRMHumanBoneName.Hips] = state.hips
+    // changes[VRMHumanBoneName.Hips] = { euler: { x:0, y:0, z:0 } }
     permit_feet = false
-
     // state.shoulders.euler = ... some calculation...
     // state.shoulders.euler.x = 0
     //changes[VRMHumanBoneName.Spine] = state.shoulders
@@ -218,10 +200,9 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], p
   //
   // @todo it is arguable if we want to reset this at all - it could be best to just leave it as it was before visibility was lost
   //
-  else if (!state.hips.shown && !state.shoulders.shown) {
+  else if (!hips && !shoulders) {
     // if hips are not present then reset the hip orientation at least; arguably also the height
-    state.hips.euler = poseEnsemble.rest[VRMHumanBoneName.Hips].euler
-    changes[VRMHumanBoneName.Hips] = state.hips
+    // changes[VRMHumanBoneName.Hips] = { euler: { x:0, y:0, z:0 } }
     permit_feet = false
   }
 
@@ -231,39 +212,27 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], p
   // feet
   //
 
-  if (!permit_feet || (!state.leftFoot.shown && !state.rightFoot.shown)) {
-    // force hips up to default height but do not attempt to set the orientation of hips here
-    state.hips.xyz = poseEnsemble.rest[VRMHumanBoneName.Hips].position
-    changes[VRMHumanBoneName.Hips] = state.hips
+  const leftFoot = lm3d[31] && lm3d[31].visibility && lm3d[31].visibility > threshhold ? true : false
+  const rightFoot = lm3d[32] && lm3d[32].visibility && lm3d[32].visibility > threshhold ? true : false
 
+  if (leftFoot == false && rightFoot == false) {
+    permit_feet = false
+  }
+
+  if (permit_feet == false) {
+    // @todo later preserve hip orientation but not height
+    // changes[VRMHumanBoneName.Hips] = { euler: { x:0, y:0, z:0 } }
     // reset the feet to a rest pose
-    changes[VRMHumanBoneName.LeftUpperLeg] = {
-      euler: poseEnsemble.rest[VRMHumanBoneName.LeftUpperLeg],
-      dampener: 1,
-      lerp: 0.3
-    }
-    changes[VRMHumanBoneName.LeftLowerLeg] = {
-      euler: poseEnsemble.rest[VRMHumanBoneName.LeftLowerLeg],
-      dampener: 1,
-      lerp: 0.3
-    }
-    changes[VRMHumanBoneName.RightUpperLeg] = {
-      euler: poseEnsemble.rest[VRMHumanBoneName.RightUpperLeg],
-      dampener: 1,
-      lerp: 0.3
-    }
-    changes[VRMHumanBoneName.RightLowerLeg] = {
-      euler: poseEnsemble.rest[VRMHumanBoneName.RightLowerLeg],
-      dampener: 1,
-      lerp: 0.3
-    }
+    // changes[VRMHumanBoneName.LeftUpperLeg] = { euler: tpose[VRMHumanBoneName.LeftUpperLeg] }
+    // changes[VRMHumanBoneName.LeftLowerLeg] = { euler: tpose[VRMHumanBoneName.LeftLowerLeg] }
+    // changes[VRMHumanBoneName.RightUpperLeg] = { euler: tpose[VRMHumanBoneName.RightUpperLeg] }
+    // changes[VRMHumanBoneName.RightLowerLeg] = { euler: tpose[VRMHumanBoneName.RightLowerLeg] }
   } else {
     const legs = calcLegs(lm3d)
-
-    changes[VRMHumanBoneName.LeftUpperLeg] = { euler: legs.UpperLeg.l, dampener: 1, lerp: 0.3 }
-    changes[VRMHumanBoneName.LeftLowerLeg] = { euler: legs.LowerLeg.l, dampener: 1, lerp: 0.3 }
-    changes[VRMHumanBoneName.RightUpperLeg] = { euler: legs.UpperLeg.r, dampener: 1, lerp: 0.3 }
-    changes[VRMHumanBoneName.RightLowerLeg] = { euler: legs.LowerLeg.r, dampener: 1, lerp: 0.3 }
+    changes[VRMHumanBoneName.LeftUpperLeg] = { euler: legs.UpperLeg.l }
+    changes[VRMHumanBoneName.LeftLowerLeg] = { euler: legs.LowerLeg.l }
+    changes[VRMHumanBoneName.RightUpperLeg] = { euler: legs.UpperLeg.r }
+    changes[VRMHumanBoneName.RightLowerLeg] = { euler: legs.LowerLeg.r }
 
     //
     // place the avatar vertically in space
@@ -281,6 +250,9 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], p
     // @todo should visibility be a part of this?
     //
 
+    /*
+    // @todo fix turned this off because something else may be attempting to do something similar? or it is buggy
+
     let unset = true
     let lowest = 999.0
     lm3d.forEach((landmark, i) => {
@@ -290,11 +262,11 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], p
       }
     })
 
-    // @todo fix turned this off because something else may be attempting to do something similar? or it is buggy
-    //state.hips.xyz = poseEnsemble.rest[VRMHumanBoneName.Hips].xyz
-    //if (!unset) {
-    //  state.hips.xyz.y = lowest - poseEnsemble.lowest
-    //}
+    state.hips.xyz = poseEnsemble.rest[VRMHumanBoneName.Hips].xyz
+    if (!unset) {
+      state.hips.xyz.y = lowest - poseEnsemble.lowest
+    }
+    */
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -309,34 +281,45 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[], p
   // @todo populate ik from here rather than by hand as done currently in ik module
   //
 
-  const arms = calcArms(lm3d)
+  const leftHand = lm3d[15] && lm3d[15].visibility && lm3d[15].visibility > threshhold ? true : false
+  const rightHand = lm3d[16] && lm3d[16].visibility && lm3d[16].visibility > threshhold ? true : false
 
-  if (!state.rightHand.shown || !state.shoulders.shown) {
-    arms.UpperArm.l = arms.UpperArm.l.multiply(0)
-    arms.UpperArm.l.z = RestingDefault.Pose.LeftUpperArm.z
-    arms.LowerArm.l = arms.LowerArm.l.multiply(0)
-    arms.Hand.l = arms.Hand.l.multiply(0)
+  if (leftHand || rightHand) {
+    const arms = calcArms(lm3d)
+
+    // @todo hands are backwards!
+    if (!leftHand) {
+      arms.UpperArm.r = arms.UpperArm.r.multiply(0)
+      arms.UpperArm.r.z = RestingDefault.Pose.RightUpperArm.z
+      arms.LowerArm.r = arms.LowerArm.r.multiply(0)
+      arms.Hand.r = arms.Hand.r.multiply(0)
+    }
+
+    if (!rightHand) {
+      arms.UpperArm.l = arms.UpperArm.l.multiply(0)
+      arms.UpperArm.l.z = RestingDefault.Pose.LeftUpperArm.z
+      arms.LowerArm.l = arms.LowerArm.l.multiply(0)
+      arms.Hand.l = arms.Hand.l.multiply(0)
+    }
+
+    const dampener = 1.0
+    const lerp = 0.3
+
+    changes[VRMHumanBoneName.LeftHand] = { xyz: arms.Hand.l, dampener, lerp }
+    changes[VRMHumanBoneName.LeftUpperArm] = { euler: arms.UpperArm.l, dampener, lerp }
+    changes[VRMHumanBoneName.LeftLowerArm] = { euler: arms.LowerArm.l, dampener, lerp }
+
+    changes[VRMHumanBoneName.RightHand] = { xyz: arms.Hand.r, dampener, lerp }
+    changes[VRMHumanBoneName.RightUpperArm] = { euler: arms.UpperArm.r, dampener, lerp }
+    changes[VRMHumanBoneName.RightLowerArm] = { euler: arms.LowerArm.r, dampener, lerp }
   }
 
-  if (!state.leftHand.shown || !state.shoulders.shown) {
-    arms.UpperArm.r = arms.UpperArm.r.multiply(0)
-    arms.UpperArm.r.z = RestingDefault.Pose.RightUpperArm.z
-    arms.LowerArm.r = arms.LowerArm.r.multiply(0)
-    arms.Hand.r = arms.Hand.r.multiply(0)
-  }
-
-  changes[VRMHumanBoneName.LeftHand] = { xyz: arms.Hand.l, dampener: 1, lerp: 0.3 }
-  changes[VRMHumanBoneName.LeftUpperArm] = { euler: arms.UpperArm.l, dampener: 1, lerp: 0.3 }
-  changes[VRMHumanBoneName.LeftLowerArm] = { euler: arms.LowerArm.l, dampener: 1, lerp: 0.3 }
-
-  changes[VRMHumanBoneName.RightHand] = { xyz: arms.Hand.r, dampener: 1, lerp: 0.3 }
-  changes[VRMHumanBoneName.RightUpperArm] = { euler: arms.UpperArm.r, dampener: 1, lerp: 0.3 }
-  changes[VRMHumanBoneName.RightLowerArm] = { euler: arms.LowerArm.r, dampener: 1, lerp: 0.3 }
+  return changes
 }
 
 /*
 
-// this is old code to discard
+// this is old code to discard 
 // attempting to estimate head pose from lm3d data - just doesn't seem stable
 // faceLandmarks (as the existing code uses) seems to produce much better results
 

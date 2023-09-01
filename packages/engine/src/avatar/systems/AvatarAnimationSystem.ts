@@ -128,12 +128,14 @@ export const worldSpaceTargets = {
   rightFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   leftFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   head: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  hips: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
 
   rightElbowHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   leftElbowHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   rightKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   leftKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  headHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform
+  headHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  hipsHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform
 }
 let weights = {} as Record<string, number>
 
@@ -301,8 +303,8 @@ const execute = () => {
 
     /**
      * Apply procedural IK based animations or FK animations depending on the animation state
+     * First reset targets
      */
-    //clear some data
     for (const [key, value] of Object.entries(worldSpaceTargets)) {
       value.blendWeight = 1
       value.position = new Vector3()
@@ -360,6 +362,7 @@ const execute = () => {
               // to do: get blend weight from networked ik component
             }
             break
+          case ikTargets.hips:
           case ikTargets.leftFoot:
           case ikTargets.rightFoot:
           case ikTargets.leftHand:
@@ -370,7 +373,7 @@ const execute = () => {
           case ikTargets.rightElbowHint:
             worldSpaceTargets[ikTargetName].position.copy(ikTransform.position)
             worldSpaceTargets[ikTargetName].rotation.copy(ikTransform.rotation)
-            // to do: get blend weight from networked ik component
+            // @todo: get blend weight from networked ik component
             worldSpaceTargets[ikTargetName].blendWeight = 0
         }
       }

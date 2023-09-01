@@ -94,6 +94,7 @@ globalThis.ReferenceSpace = ReferenceSpace
 export class XRAction {
   static sessionChanged = defineAction({
     type: 'xre.xr.sessionChanged' as const,
+    override: matches.string.optional(),
     active: matches.boolean,
     $cache: { removePrevious: true }
   })
