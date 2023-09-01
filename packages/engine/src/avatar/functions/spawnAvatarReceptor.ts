@@ -59,7 +59,7 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-export const avatarRadius = 0.25
+export const avatarRadius = 0.125
 export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
@@ -101,13 +101,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     animations: [] as AnimationClip[]
   })
 
-  addComponent(entity, AvatarAnimationComponent, {
-    animationGraph: {
-      states: {},
-      transitionRules: {},
-      currentState: null!,
-      stateChanged: null!
-    },
+  setComponent(entity, AvatarAnimationComponent, {
     rootYRatio: 1,
     locomotion: new Vector3()
   })
@@ -136,10 +130,10 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   rigidBody.rotation.copy(transform.rotation)
 
   const bodyColliderDesc = ColliderDesc.capsule(
-    avatarComponent.avatarHalfHeight - avatarRadius,
+    avatarComponent.avatarHalfHeight - avatarRadius - 0.25,
     avatarRadius
   ).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight, 0)
+  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight + 0.25, 0)
 
   return Physics.createColliderAndAttachToRigidBody(
     getState(PhysicsState).physicsWorld,
