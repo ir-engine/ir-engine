@@ -31,6 +31,7 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { builderInfoPath, BuilderInfoType } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
 import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import {
@@ -237,7 +238,7 @@ export const ProjectService = {
 
   fetchProjectBranches: async (url: string) => {
     try {
-      return (await API.instance.client.service(projectBranchesPath).get(url)).branches
+      return (await Engine.instance.api.service(projectBranchesPath).get(url)).branches
     } catch (err) {
       logger.error('Error with fetching tags for a project', err)
       throw err
@@ -246,7 +247,7 @@ export const ProjectService = {
 
   fetchProjectCommits: async (url: string, branchName: string) => {
     try {
-      return API.instance.client.service(projectCommitsPath).get(url, {
+      return Engine.instance.api.service(projectCommitsPath).get(url, {
         query: {
           branchName: branchName
         }
@@ -259,7 +260,7 @@ export const ProjectService = {
 
   checkDestinationURLValid: async ({ url, inputProjectURL }: { url: string; inputProjectURL?: string }) => {
     try {
-      return API.instance.client.service(projectDestinationCheckPath).get(url, {
+      return Engine.instance.api.service(projectDestinationCheckPath).get(url, {
         query: {
           inputProjectURL
         }
@@ -272,7 +273,7 @@ export const ProjectService = {
 
   checkUnfetchedCommit: async ({ url, selectedSHA }: { url: string; selectedSHA?: string }) => {
     try {
-      return API.instance.client.service(projectCheckUnfetchedCommitPath).get(url, {
+      return Engine.instance.api.service(projectCheckUnfetchedCommitPath).get(url, {
         query: {
           selectedSHA
         }
@@ -295,7 +296,7 @@ export const ProjectService = {
     existingProject: boolean
   }) => {
     try {
-      return API.instance.client.service(projectCheckSourceDestinationMatchPath).find({
+      return Engine.instance.api.service(projectCheckSourceDestinationMatchPath).find({
         query: {
           sourceURL,
           selectedSHA,
@@ -312,7 +313,7 @@ export const ProjectService = {
   updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectUpdateInterfaceType[]) => {
     try {
       console.log('projectToUpdate', projectsToUpdate)
-      await API.instance.client.service(projectBuildPath).patch(
+      await Engine.instance.api.service(projectBuildPath).patch(
         tag,
         {
           updateProjects,
@@ -328,7 +329,7 @@ export const ProjectService = {
 
   fetchBuilderTags: async () => {
     try {
-      const result = await API.instance.client.service(projectBuilderTagsPath).find()
+      const result = await Engine.instance.api.service(projectBuilderTagsPath).find()
       dispatchAction(ProjectAction.builderTagsFetched({ builderTags: result }))
     } catch (err) {
       logger.error('Error with getting builder tags', err)
@@ -338,7 +339,7 @@ export const ProjectService = {
 
   getBuilderInfo: async () => {
     try {
-      const result = await API.instance.client.service(builderInfoPath).get()
+      const result = await Engine.instance.api.service(builderInfoPath).get()
       dispatchAction(ProjectAction.builderInfoFetched({ builderInfo: result }))
     } catch (err) {
       logger.error('Error with getting engine info', err)

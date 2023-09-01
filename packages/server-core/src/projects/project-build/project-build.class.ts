@@ -36,7 +36,8 @@ export class ProjectBuildService implements ServiceInterface<ProjectBuildType, P
     return await checkBuilderService(this.app)
   }
 
-  async patch(tag: string, data: ProjectBuildPatch, params?: ProjectParamsClient): Promise<any> {
-    return await updateBuilder(this.app, tag, data, params as ProjectParams)
+  async patch(tag: string, data: ProjectBuildPatch, params?: ProjectParamsClient) {
+    await updateBuilder(this.app, tag, data, params as ProjectParams)
+    return {} as ProjectBuildType
   }
 }
