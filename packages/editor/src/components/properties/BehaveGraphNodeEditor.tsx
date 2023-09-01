@@ -31,7 +31,9 @@ import { useComponent } from '@etherealengine/engine/src/ecs/functions/Component
 
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 
+import { getRelativeURI } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import BooleanInput from '../inputs/BooleanInput'
+import GraphInput from '../inputs/GraphInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
@@ -49,14 +51,24 @@ export const BehaveGraphNodeEditor: EditorComponentType = (props) => {
   const behaveGraphComponent = useComponent(props.entity, BehaveGraphComponent)
 
   return (
-    <NodeEditor {...props} name={'Behave Graph Component'} description={' adds a visual script to the entity'}>
-      <InputGroup name="Disable Graph" label="Disable Graph">
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.graph.name')}
+      description={t('editor:properties.graph.description')}
+    >
+      <InputGroup name="Graph Url" label={t('editor:properties.graph.lbl-graphURL')}>
+        <GraphInput
+          value={getRelativeURI(behaveGraphComponent.filepath.value)}
+          onChange={updateProperty(BehaveGraphComponent, 'filepath')}
+        />
+      </InputGroup>
+      <InputGroup name="Disable Graph" label={t('editor:properties.graph.lbl-disableGraph')}>
         <BooleanInput
           value={behaveGraphComponent.disabled.value}
           onChange={updateProperty(BehaveGraphComponent, 'disabled')}
         />
       </InputGroup>
-      <InputGroup name="Play Graph" label="Play Graph">
+      <InputGroup name="Play Graph" label={t('editor:properties.image.lbl-playGraph')}>
         <BooleanInput value={behaveGraphComponent.run.value} onChange={updateProperty(BehaveGraphComponent, 'run')} />
       </InputGroup>
     </NodeEditor>

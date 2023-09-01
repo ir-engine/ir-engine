@@ -33,7 +33,7 @@ import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useGraphRunner } from '../functions/useGraphRunner'
-import DefaultGraph from '../graph/default-graph.json'
+import DefaultGraph from '../graph/default.graph.json'
 import { BehaveGraphState } from '../state/BehaveGraphState'
 
 export enum BehaveGraphDomain {
@@ -72,7 +72,7 @@ export const BehaveGraphComponent = defineComponent({
   onSet: (entity, component, json) => {
     // if filepath exists and is valid, use that to load the graph json
     if (!json) return
-    if (typeof json.filepath === 'string' && json.filepath.endsWith('.json')) component.filepath.set(json.filepath)
+    if (typeof json.filepath === 'string' && json.filepath.endsWith('graph.json')) component.filepath.set(json.filepath)
     if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
     if (typeof json.run === 'boolean') component.run.set(json.run)
     const domainValidator = matches.string as Validator<unknown, BehaveGraphDomain>

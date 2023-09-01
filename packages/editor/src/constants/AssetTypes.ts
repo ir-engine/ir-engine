@@ -52,10 +52,10 @@ export const ItemTypes = {
   Volumetrics: ['manifest'],
   Text: [AssetType.PlainText, 'txt'],
   ECS: [AssetType.XRE, 'scene.json'],
+  Graph: ['json'],
   Node: 'Node',
   Material: 'Material',
-  Prefab: 'Prefab',
-  Graph: ['json']
+  Prefab: 'Prefab'
 }
 
 export const SupportedFileTypes = [
@@ -65,7 +65,7 @@ export const SupportedFileTypes = [
   ...ItemTypes.Volumetrics,
   ...ItemTypes.Models,
   ...ItemTypes.Scripts,
+  ...ItemTypes.Graph,
   ItemTypes.Folder,
-  ItemTypes.File,
-  ItemTypes.Graph
+  ItemTypes.File
 ]
