@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clamp, clone } from 'lodash'
+import { clamp, cloneDeep } from 'lodash'
 import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
@@ -134,7 +134,7 @@ export const playAvatarAnimationFromMixamo = (
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
     retargetedAnimation = retargetMixamoAnimation(
-      clone(
+      cloneDeep(
         clipName
           ? animationsScene.animations.find((clip) => clip.name == clipName) ?? animationsScene.animations[0]
           : animationsScene.animations[0]
