@@ -28,6 +28,17 @@ import { useEdges, useNodes } from 'reactflow'
 
 import { NodeSpecJSON } from '@behave-graph/core'
 
+import { getFileName } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { useHookstate } from '@hookstate/core'
+import { EditorState } from '../../../../../services/EditorServices'
+import { SelectionState } from '../../../../../services/SelectionServices'
+import GraphInput from '../../../../inputs/GraphInput'
+import { uploadGraphFilefromJson } from '../../../../properties/BehaveGraphNodeEditor'
+import { updateProperty } from '../../../../properties/Util'
 import { flowToBehave } from '../../transformers/flowToBehave'
 import { Modal } from './Modal'
 
@@ -37,7 +48,7 @@ export type SaveModalProps = {
   specJson: NodeSpecJSON[]
 }
 
-export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, specJson }) => {
+export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, specJson, ...rest }) => {
   const ref = useRef<HTMLTextAreaElement>(null)
   const [copied, setCopied] = useState(false)
 
@@ -47,6 +58,11 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
   const flow = useMemo(() => flowToBehave(nodes, edges, specJson), [nodes, edges, specJson])
 
   const jsonString = JSON.stringify(flow, null, 2)
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const entities = selectionState.selectedEntities.value
+  const entity = entities[entities.length - 1]
+  const behaveGraphComponent = useComponent(entity as Entity, BehaveGraphComponent)
+  const editorState = useHookstate(getMutableState(EditorState))
 
   const handleCopy = () => {
     ref.current?.select()
@@ -58,21 +74,36 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
     }, 1000)
   }
 
+  const handleSave = async () => {
+    const relativePath = `projects/${editorState.projectName.value}/assets/graphs`
+    const fileName = getFileName(behaveGraphComponent.filepath.value)
+    await uploadGraphFilefromJson(relativePath, fileName, flow)
+  }
+
   return (
     <Modal
       title="Save Graph"
       actions={[
         { label: 'Cancel', onClick: onClose },
-        { label: copied ? 'Copied' : 'Copy', onClick: handleCopy }
+        { label: 'Save', onClick: handleSave }
       ]}
       open={open}
       onClose={onClose}
     >
-      <textarea
-        ref={ref}
-        style={{ border: '1px solid #cbd5e0', width: '100%', padding: '0.5rem', height: '8rem' }}
-        defaultValue={jsonString}
-      ></textarea>
+      <textarea ref={ref} defaultValue={jsonString}></textarea>
+      <GraphInput
+        value={behaveGraphComponent.filepath.value}
+        onChange={updateProperty(BehaveGraphComponent, 'filepath')}
+        {...{
+          style: {
+            fontSize: '0.875rem',
+            border: '1px solid var(--border)',
+            width: '100%',
+            padding: '0.5rem',
+            height: '1rem'
+          }
+        }}
+      />
     </Modal>
   )
 }

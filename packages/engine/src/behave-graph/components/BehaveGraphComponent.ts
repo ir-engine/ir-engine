@@ -29,7 +29,7 @@ import { GraphJSON } from '@behave-graph/core'
 
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
+import { parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { fetchBehaviorGraphJson, useGraphRunner } from '../functions/useGraphRunner'
@@ -61,7 +61,6 @@ export const BehaveGraphComponent = defineComponent({
     return {
       filepath: component.filepath.value,
       domain: component.domain.value,
-      graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get(NO_PROXY)))), // this goes away
       run: false,
       disabled: component.disabled.value
     }

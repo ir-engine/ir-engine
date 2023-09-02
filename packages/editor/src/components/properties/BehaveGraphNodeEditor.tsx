@@ -31,13 +31,14 @@ import { useComponent } from '@etherealengine/engine/src/ecs/functions/Component
 
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 
+import { GraphJSON } from '@behave-graph/core'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { uniqueId } from 'lodash'
-import { getFileName } from '../../../../engine/src/assets/functions/pathResolver'
+import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
 import GraphInput from '../inputs/GraphInput'
@@ -45,6 +46,19 @@ import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
+export const uploadGraphFilefromJson = async (directoryPath: string, fileName: string, graph: GraphJSON) => {
+  const data = cleanStorageProviderURLs(JSON.parse(JSON.stringify(graph)))
+  const blob = new Blob([JSON.stringify(data)], { type: ItemTypes.Graph[0] })
+  const file = new File([blob], fileName, { type: ItemTypes.Graph[0] })
+  console.log('DEBUG uploading file', file, directoryPath)
+  const response = await uploadToFeathersService('file-browser/upload', [file], {
+    fileName: processFileName(file.name),
+    path: directoryPath,
+    contentType: file.type
+  }).promise
+  console.log('DEBUG Uploaded file', response)
+  return
+}
 /**
  *
  * AmbientLightNodeEditor component used to customize the ambient light element on the scene
@@ -57,25 +71,18 @@ export const BehaveGraphNodeEditor: EditorComponentType = (props) => {
 
   const behaveGraphComponent = useComponent(props.entity, BehaveGraphComponent)
   const editorState = useHookstate(getMutableState(EditorState))
-
   useEffect(() => {
+    if (behaveGraphComponent.filepath.value.length > 0) return // only set if there is no value already set
+
     const relativePath = `projects/${editorState.projectName.value}/assets/graphs`
     const fileName = `${uniqueId(`${editorState.sceneName.value}Graph`)}.graph.json`
-    const data = cleanStorageProviderURLs(JSON.parse(JSON.stringify(behaveGraphComponent.graph.get(NO_PROXY))))
-    const blob = new Blob([JSON.stringify(data)], { type: 'json' })
-    const file = new File([blob], getFileName(behaveGraphComponent.filepath.value), { type: 'json' })
-
     ;(async () => {
-      console.log('DEBUG uploading file', file, relativePath)
-      await uploadToFeathersService('file-browser/upload', [file], {
-        fileName: processFileName(file.name),
-        path: relativePath,
-        contentType: file.type
-      }).promise
-      console.log('DEBUG Uploaded file')
+      await uploadGraphFilefromJson(relativePath, fileName, behaveGraphComponent.graph.get(NO_PROXY))
+      //set the filepath after upload finishes so that file exists and reactors using the file dont break
       behaveGraphComponent.filepath.set(`${config.client.fileServer}/${relativePath}/${fileName}`)
     })()
   }, [])
+
   return (
     <NodeEditor
       {...props}

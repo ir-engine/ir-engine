@@ -38,7 +38,7 @@ import { StringInputProps } from './StringInput'
  * @param       {any} rest
  * @constructor
  */
-export function ScriptInput({ onChange, ...rest }: StringInputProps) {
+export function GraphInput({ onChange, ...rest }: StringInputProps) {
   return (
     <FileBrowserInput
       acceptFileTypes={GraphFileTypes}
@@ -49,4 +49,4 @@ export function ScriptInput({ onChange, ...rest }: StringInputProps) {
   )
 }
 
-export default ScriptInput
+export default GraphInput
