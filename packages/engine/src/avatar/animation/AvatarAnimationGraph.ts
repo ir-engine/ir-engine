@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clamp, cloneDeep } from 'lodash'
+import { clamp, clone } from 'lodash'
 import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
@@ -120,7 +120,7 @@ export const loadAvatarAnimation = (entity: Entity, filePath: string, clipName?:
 /** Retargets a mixamo animation to the entity's avatar model, then blends in and out of the default locomotion state. */
 export const playAvatarAnimationFromMixamo = (
   entity: Entity,
-  animationsAsset: Object3D,
+  animationsScene: Object3D,
   loop?: boolean,
   clipName?: string
 ) => {
@@ -129,16 +129,17 @@ export const playAvatarAnimationFromMixamo = (
   const rigComponent = getComponent(entity, AvatarRigComponent)
   //if animation is already present on animation component, use it instead of retargeting again
   let retargetedAnimation = animationComponent.animations.find(
-    (clip) => clip.name == (clipName ?? animationsAsset.animations[0].name)
+    (clip) => clip.name == (clipName ?? animationsScene.animations[0].name)
   )
   //otherwise retarget and push to animation component's animations
   if (!retargetedAnimation) {
-    const animationToRetarget = cloneDeep(animationsAsset)
     retargetedAnimation = retargetMixamoAnimation(
-      clipName
-        ? animationToRetarget.animations.find((clip) => clip.name == clipName) ?? animationToRetarget.animations[0]
-        : animationToRetarget.animations[0],
-      animationToRetarget,
+      clone(
+        clipName
+          ? animationsScene.animations.find((clip) => clip.name == clipName) ?? animationsScene.animations[0]
+          : animationsScene.animations[0]
+      ),
+      animationsScene,
       rigComponent.vrm
     )
     animationComponent.animations.push(retargetedAnimation)
