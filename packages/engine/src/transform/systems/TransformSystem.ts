@@ -48,6 +48,7 @@ import {
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { TransformSerialization } from '../TransformSerialization'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -273,12 +274,15 @@ const updateBoundingBox = (entity: Entity) => {
 
 const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
-// necessary until all animations are entity-based
-const isDirtyOrAnimating = (entity: Entity) => {
+// @todo: once all animations are entity-based, we no longer need to check for AnimationComponent
+// @todo: currently this assumes if not visible, it doesn't need to be updated.
+// This is not necessarily true (there might be reasons for updating invisible entities),
+// especially if they are referenced by visible objects
+const isDirtyOrAnimatingAndVisible = (entity: Entity) => {
   return (
     TransformComponent.dirtyTransforms[entity] ||
-    hasComponent(entity, AnimationComponent) ||
-    hasComponent(entity, XRUIComponent)
+    (hasComponent(entity, VisibleComponent) &&
+      (hasComponent(entity, AnimationComponent) || hasComponent(entity, XRUIComponent)))
   )
 }
 
@@ -372,7 +376,7 @@ const execute = () => {
   for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
-  const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirtyOrAnimating)
+  const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirtyOrAnimatingAndVisible)
   for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
   if (!xrFrame) {
