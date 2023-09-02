@@ -53,10 +53,9 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ReferenceSpace } from '../../xr/XRState'
-import { XRUIState } from '../XRUIState'
 import { XRUIComponent } from '../components/XRUIComponent'
+import { XRUIState } from '../XRUIState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -92,7 +91,6 @@ export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<Ring
 const hitColor = new Color(0x00e6e6)
 const normalColor = new Color(0xffffff)
 const visibleInteractableXRUIQuery = defineQuery([XRUIComponent, VisibleComponent, InputComponent])
-const visibleXRUIQuery = defineQuery([XRUIComponent, VisibleComponent])
 const xruiQuery = defineQuery([XRUIComponent])
 
 // todo - hoist to hyperflux state
@@ -254,11 +252,6 @@ const execute = () => {
   for (const entity of visibleInteractableXRUIQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
     xrui.update()
-  }
-
-  /** @todo remove this once XRUI is implemented on ECS */
-  for (const entity of visibleXRUIQuery()) {
-    TransformComponent.dirtyTransforms[entity] = true
   }
 
   /** @todo remove this once XRUI no longer forces it internally */

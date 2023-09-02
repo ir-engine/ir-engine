@@ -30,6 +30,7 @@ import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from '
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -47,6 +48,8 @@ import {
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { TransformSerialization } from '../TransformSerialization'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
@@ -271,6 +274,18 @@ const updateBoundingBox = (entity: Entity) => {
 
 const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
+// @todo: once all animations are entity-based, we no longer need to check for AnimationComponent
+// @todo: currently this assumes if not visible, it doesn't need to be updated.
+// This is not necessarily true (there might be reasons for updating invisible entities),
+// especially if they are referenced by visible objects
+const isDirtyOrAnimatingAndVisible = (entity: Entity) => {
+  return (
+    TransformComponent.dirtyTransforms[entity] ||
+    (hasComponent(entity, VisibleComponent) &&
+      (hasComponent(entity, AnimationComponent) || hasComponent(entity, XRUIComponent)))
+  )
+}
+
 const isDirtyNonKinematic = (entity: Entity) =>
   TransformComponent.dirtyTransforms[entity] &&
   !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
@@ -361,8 +376,8 @@ const execute = () => {
   for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
-  const dirtyGroupEntities = groupQuery().filter(isDirty)
-  for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
+  const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirtyOrAnimatingAndVisible)
+  for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
   if (!xrFrame) {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
