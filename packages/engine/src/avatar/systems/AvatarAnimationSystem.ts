@@ -310,7 +310,7 @@ const execute = () => {
       value.rotation.identity()
     }
     weights = {}
-    if (rigComponent.ikOverride != '') {
+    if (rigComponent.ikOverride !== '') {
       if (!rig.hips?.node) continue
 
       //calculate world positions

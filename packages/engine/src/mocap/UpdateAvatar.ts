@@ -28,8 +28,10 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
 import {
+  Box3,
   BufferAttribute,
   BufferGeometry,
+  Color,
   Euler,
   LineBasicMaterial,
   LineSegments,
@@ -46,10 +48,10 @@ import { UUIDComponent } from '../scene/components/UUIDComponent'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 import UpdateIkPose from './UpdateIkPose'
-import UpdateLandmarkPose from './UpdateLandmarkPose'
 
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { NormalizedLandmarkList, POSE_CONNECTIONS } from '@mediapipe/holistic'
+import { NormalizedLandmarkList, POSE_CONNECTIONS, POSE_LANDMARKS } from '@mediapipe/holistic'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { MotionCaptureStream } from './MotionCaptureSystem'
 
 /*
@@ -215,12 +217,67 @@ function ApplyPoseChanges(entity: Entity, changes) {
 
 const debug = true
 
-const debugMeshesWorld = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
+const drawDebug = () => {
+  const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
 
-const worldPositionLineSegment = new LineSegments<BufferGeometry, LineBasicMaterial>()
-worldPositionLineSegment.material.linewidth = 5
-const worldPosAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 3).fill(0), 3)
-worldPositionLineSegment.geometry.setAttribute('position', worldPosAttr)
+  const positionLineSegment = new LineSegments<BufferGeometry, LineBasicMaterial>()
+  positionLineSegment.material.linewidth = 4
+  const posAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 3).fill(0), 3)
+  positionLineSegment.geometry.setAttribute('position', posAttr)
+  const colAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 4).fill(1), 4)
+  positionLineSegment.geometry.setAttribute('color', colAttr)
+
+  return (landmarks: NormalizedLandmarkList) => {
+    const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
+    for (const [key, value] of Object.entries(landmarks)) {
+      const confidence = value.visibility ?? 0
+      const color = new Color().set(1 - confidence, confidence, 0)
+      if (!debugMeshes[key]) {
+        const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
+        debugMeshes[key] = mesh
+        Engine.instance.scene.add(mesh)
+      }
+      const mesh = debugMeshes[key]
+      mesh.material.color.set(color)
+      mesh.matrixWorld.setPosition(value.x, lowestWorldY - value.y, value.z)
+    }
+
+    if (!positionLineSegment.parent) Engine.instance.scene.add(positionLineSegment)
+
+    for (let i = 0; i < POSE_CONNECTIONS.length * 2; i += 2) {
+      const [first, second] = POSE_CONNECTIONS[i / 2]
+      const firstPoint = debugMeshes[first]
+      const secondPoint = debugMeshes[second]
+
+      posAttr.setXYZ(
+        i,
+        firstPoint.matrixWorld.elements[12],
+        firstPoint.matrixWorld.elements[13],
+        firstPoint.matrixWorld.elements[14]
+      )
+      posAttr.setXYZ(
+        i + 1,
+        secondPoint.matrixWorld.elements[12],
+        secondPoint.matrixWorld.elements[13],
+        secondPoint.matrixWorld.elements[14]
+      )
+      // todo color doesnt work
+      colAttr.setXYZW(i, firstPoint.material.color.r, firstPoint.material.color.g, firstPoint.material.color.b, 1)
+      colAttr.setXYZW(
+        i + 1,
+        secondPoint.material.color.r,
+        secondPoint.material.color.g,
+        secondPoint.material.color.b,
+        1
+      )
+    }
+    posAttr.needsUpdate = true
+    colAttr.needsUpdate = true
+  }
+}
+
+const debugWorld = drawDebug()
+const debugScreen = drawDebug()
 
 export default function UpdateAvatar(data: MotionCaptureStream, userID, entity) {
   // sanity check
@@ -230,43 +287,14 @@ export default function UpdateAvatar(data: MotionCaptureStream, userID, entity) 
   }
 
   const worldLandmarks = data.za as NormalizedLandmarkList
+  const screenLandmarks = data.poseLandmarks as NormalizedLandmarkList
 
-  const lowestWorldY = worldLandmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
+  const normalizedScreenLandmarks = normalizeLandmarks(worldLandmarks, screenLandmarks)
 
   if (debug) {
-    for (const [key, value] of Object.entries(worldLandmarks)) {
-      const color = value.visibility && value.visibility > 0.6 ? 0xaaaaff : 0x000055
-      if (!debugMeshesWorld[key]) {
-        const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
-        debugMeshesWorld[key] = mesh
-        Engine.instance.scene.add(mesh)
-      }
-      const mesh = debugMeshesWorld[key]
-      mesh.material.color.set(color)
-      mesh.matrixWorld.setPosition(value.x, lowestWorldY - value.y, value.z)
-    }
-
-    if (!worldPositionLineSegment.parent) Engine.instance.scene.add(worldPositionLineSegment)
-
-    for (let i = 0; i < POSE_CONNECTIONS.length * 2; i += 2) {
-      const [first, second] = POSE_CONNECTIONS[i / 2]
-      const firstPoint = debugMeshesWorld[first]
-      const secondPoint = debugMeshesWorld[second]
-
-      worldPosAttr.setXYZ(
-        i,
-        firstPoint.matrixWorld.elements[12],
-        firstPoint.matrixWorld.elements[13],
-        firstPoint.matrixWorld.elements[14]
-      )
-      worldPosAttr.setXYZ(
-        i + 1,
-        secondPoint.matrixWorld.elements[12],
-        secondPoint.matrixWorld.elements[13],
-        secondPoint.matrixWorld.elements[14]
-      )
-    }
-    worldPositionLineSegment.geometry.getAttribute('position').needsUpdate = true
+    debugWorld(worldLandmarks)
+    // debugScreen(screenLandmarks)
+    debugScreen(normalizedScreenLandmarks)
   }
 
   const DIRECT = true
@@ -280,8 +308,10 @@ export default function UpdateAvatar(data: MotionCaptureStream, userID, entity) 
     // ApplyPoseChanges(entity, changes2)
 
     // use landmarks to set coarse pose
-    const changes3 = UpdateLandmarkPose(data?.za)
-    ApplyPoseChanges(entity, changes3)
+    // const changes3 = UpdateLandmarkPose(data?.za)
+    // ApplyPoseChanges(entity, changes3)
+    solveHips(entity, worldLandmarks)
+    solveSpine(entity, worldLandmarks)
   } else {
     // publish ik targets rather than directly setting body parts
     const changes4 = UpdateIkPose(data)
@@ -289,105 +319,101 @@ export default function UpdateAvatar(data: MotionCaptureStream, userID, entity) 
   }
 }
 
-/*
+const bboxWorld = new Box3()
+const bboxScreen = new Box3()
 
-NOTES Aug 2023
-  - all points are centered on the avatar as a vitrivian man with radius 0.5 or diameter 1
-  - for example the left shoulder is often at 0.14 in the x axis and the right shoulder is at -0.14
-  - raw data y is negative upwards, so the shoulder y is at -0.45; which is the opposite of the 3js convention
-  - z pose estimates are poor from the front, we don't really know exactly where the wrists are in 3d space; you could be punching forward for example at full extent, or have a hand on your chest
-  - raw z data does exist but fairly weak; good enough for hips pirouette however
-  - note that 'visibility' also is slightly unclear as a concept; tensorflow appears to speculate even if no visibility
+export const normalizeLandmarks = (worldLandmarks: NormalizedLandmarkList, screenLandmarks: NormalizedLandmarkList) => {
+  // take the head height in world space, and multiiply all screen space landmarks by this to get world space landmarks
 
-BUGS aug 31 2023
+  bboxWorld.setFromPoints(worldLandmarks as Vector3[])
+  bboxScreen.setFromPoints(screenLandmarks as Vector3[])
 
-  - applying hips through the animation system is screwy
+  const xRatio = (bboxWorld.max.x - bboxWorld.min.x) / (bboxScreen.max.x - bboxScreen.min.x)
+  const yRatio = (bboxWorld.max.y - bboxWorld.min.y) / (bboxScreen.max.y - bboxScreen.min.y)
+  const zRatio = (bboxWorld.max.z - bboxWorld.min.z) / (bboxScreen.max.z - bboxScreen.min.z)
 
-  - fingers do exist but finger twiddling does not show up visually
+  const normalizedScreenLandmarks = screenLandmarks.map((landmark) => ({
+    ...landmark,
+    x: landmark.x * xRatio,
+    y: landmark.y * yRatio,
+    z: landmark.z * zRatio
+  }))
 
-  - i would like to delete ik targets after set once; and get the handle on them instantly
+  const hipCenterX =
+    (normalizedScreenLandmarks[POSE_LANDMARKS.LEFT_HIP].x + normalizedScreenLandmarks[POSE_LANDMARKS.RIGHT_HIP].x) / 2
+  const hipCenterZ =
+    (normalizedScreenLandmarks[POSE_LANDMARKS.LEFT_HIP].z + normalizedScreenLandmarks[POSE_LANDMARKS.RIGHT_HIP].z) / 2
 
-  - wrists angle is wrong for ik
+  // translate all landmarks to the origin
+  for (const landmark of normalizedScreenLandmarks) {
+    landmark.x -= hipCenterX
+    landmark.z -= hipCenterZ + 1
+  }
 
-  - support real wingspan estimation
+  return normalizedScreenLandmarks
+}
 
-  - ik system totally fights the non ik system; we should allow both to co-exist
+const threshhold = 0.6
+const ninetyDegreeXZTurnQuaternion = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
 
-  - jumping is broken
+const solveHips = (entity: Entity, landmarks: NormalizedLandmarkList) => {
+  const rig = getComponent(entity, AvatarRigComponent)
+  if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
+    return
+  }
 
-HIPS
+  const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
+  const leftHip = landmarks[POSE_LANDMARKS.LEFT_HIP]
 
-  * default hips pose from vrm model is x=3.089, y=0.090, z=-3.081 ... ... whereas "zero" for me is 0,0,0 ...
-      - use vrm model as rest pose? is that a good idea or not?
-      - shouldn't the default hips be at 0,0,0?
-      - perhaps the engine starts the player at a random position
+  if (!rightHip || !leftHip) return
 
-  * hips/shoulders must be estimated correctly or else everything else gets thrown off!
-  * hip orientation (yawpitchroll()) is off axis a bit; it makes avatar look drunk; should not set roll!
-  * can we use the shoulder midpoint to improve? cross the hip horizontal with the spine? (yes works well)
-  * can we improve forward pitch estimation using z depth between shoulder and hip? (yes works well)
+  // ignore visibility checks as we always want to set hips
+  // const hips = rightHip.visibility! > threshhold && leftHip.visibility! > threshhold
+  // if (!hips) return
 
-  x what if i put the entire rig on soft physics springs and then allow parts to tug around?
-  ? Does it even make sense to be computing the hips by hand?
-  ? I notice that kalikokit pretty much ignores the visibility flags - why? is there something i don't understand?
-  ? TEST: It is not clear if low visibility per component == bad/zero data or if it reverts to tensorflow speculation
-  ? what level of participant mediated correction can we rely on - can the user know to capture their shoulders?
-  ? rotating hips does not rotate the entire avatar root node - do we want to do that?
+  const transform = getComponent(entity, TransformComponent)
 
-ARMS / SHOULDERS ISSUES
+  const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
-  !!! insanely the left and right arms/legs are swapped in the source code; all the english words say left, but the indexes refer to the right
-  ? see https://github.com/yeemachine/kalidokit/blob/main/src/PoseSolver/calcHips.ts
-  ? seems like there are assumptions about being upright; how can one estimate arm joint angles from an arbitrary shoulder orientation?
-  ? i need to understand better the frame of reference for the kalidokit shoulder to arm pose estimation - is it local or world?
-  ? if a part is not shown (such as wrists) what is the right strategy? revert to rest pose or leave it as is? what happens if you then rotate your body?
+  const hipsBone = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)!
 
-FINGERS
+  const hipleft = new Vector3(rightHip.x, rightHip.y, rightHip.z)
+  const hipright = new Vector3(leftHip.x, leftHip.y, leftHip.z)
 
-  - test fingers once that is merged again
+  hipsBone.position.copy(hipleft).add(hipright).multiplyScalar(0.5).y += lowestWorldY
 
-GROUND IMPROVE
+  // take the rotation of the two hip points around it's center as an XZ rotation
+  hipsBone.quaternion
+    .setFromUnitVectors(
+      new Vector3(0, 0, 1),
+      new Vector3(hipright.x - hipleft.x, 0, hipright.z - hipleft.z).normalize()
+    )
+    .multiply(ninetyDegreeXZTurnQuaternion)
+}
 
-  x hips are normally at 0,0,0 - we can find the inverse of the lowest limb to improve this
-  x what if i simply avoid changing the real rig height; or i find the original rig hip height rest position?
-  ? can i cache the lowest feature temporally so that a person can jump in the air?
-  ? does visibility matter for finding lowest feature?
-  ! i had to turn off ground sensing for now - something is fighting my settings?
+/**
+ * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
+ */
 
-IK IMPROVE
+const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) => {
+  const rig = getComponent(entity, AvatarRigComponent)
+  if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
+    return
+  }
 
-  - mysteriously if not both the left and right hands have ik targets then the animation system does not apply ik to hands at all
-  - mysteriously rotations appear to be ignored on ik targets
-  - the body is flipped in the latest build which is causing problems
-  
-  - @todo since ik fights with direct pose setting - set the direct stuff via ik now instead - but also get the support fixed for both?
-  - @todo the hands orientation is not being set - set it
+  const rightShoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER]
+  const leftShoulder = landmarks[POSE_LANDMARKS.LEFT_SHOULDER]
 
-  - test feeding the ik with the manually approximated estimated joint rotations and positions
-  - we need a way to use IK AND ordinary coercion of features such as elbows?
-  ? should i do ik in world space or local space? do i even have the option?
-  - can i set state on the vrm rig and then have all changelists consolidated in the animation system??
+  if (!rightShoulder || !leftShoulder) return
 
-   - the body seems to jump or something when i remove an ik??? why???
+  const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
-OTHER LATER
+  const shoulderLeft = new Vector3(rightShoulder.x, rightShoulder.y, rightShoulder.z)
+  const shoulderRight = new Vector3(leftShoulder.x, leftShoulder.y, leftShoulder.z)
 
-  - test multiple cameras <- this is probably the best thing we could do actually
-  - try new pose algo from mediapipe that is more recent than holistic
-  - may still be worth trying hip rotations using 2d landmark data - it may have paradoxically better z depth
-  - review this approach in detail: https://github.com/ju1ce/Mediapipe-VR-Fullbody-Tracking/blob/main/bin/inference_gui.py 
+  const spine = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Spine)!
+  const spine1 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Chest)!
+  const spine2 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.UpperChest)!
 
-RANDOM QUESTIONS
-
-  - i notice a spring system in vrm - what is it?
-  - what are the rest bone positions for a given rig??? i am grabbing them at startup - is that the best way?
-  - what does it mean that bones are 'normalized'?
-
-REFERENCE
-
-  https://github.com/kimgooq/MoCap-Rigging
-  https://www.mdpi.com/2076-3417/13/4/2700
-  https://github.com/digital-standard/ThreeDPoseUnityBarracuda/blob/f4ad45e83e72bf140128d95b668aef97037c1379/Assets/Scripts/VNectBarracudaRunner.cs <- very impressive
-  https://github.com/Kariaro/VRigUnity/tree/main
-
-*/
+  // get ratio of each spine bone, and apply that ratio of rotation such that the shoulders are in the correct position
+}
