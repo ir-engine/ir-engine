@@ -45,7 +45,7 @@ export const InputComponent = defineComponent({
   onSet(entity, component, json) {
     if (!json) return
 
-    if (typeof json.highlight === 'string') component.highlight.set(json.highlight)
+    if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
   },
 
   reactor: () => {
