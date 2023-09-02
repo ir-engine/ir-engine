@@ -55,7 +55,7 @@ export const AvatarAnimationComponent = defineComponent({
     return {
       animationGraph: {
         blendAnimation: undefined as undefined | AnimationAction,
-        needsSkip: false,
+        fadingOut: false,
         blendStrength: 0,
         layer: 0
       },
