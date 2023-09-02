@@ -70,7 +70,7 @@ export const resetAnimationLogic = (entity: Entity) => {
   setComponent(entity, AvatarAnimationComponent, {
     animationGraph: {
       blendAnimation: undefined,
-      needsSkip: false,
+      fadingOut: false,
       blendStrength: 0,
       layer: 0
     },

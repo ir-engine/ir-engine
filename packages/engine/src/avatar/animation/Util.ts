@@ -34,6 +34,7 @@ import {
   Vector3
 } from 'three'
 
+import config from '@etherealengine/common/src/config'
 import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
 
 export const ikTargets = {
@@ -64,14 +65,10 @@ export const animationStates = {
   falling: 'falling'
 }
 
-export const animationFileTypes = { fbx: 'fbx', glb: 'glb' }
+export const defaultAnimationPath = `${config.client.fileServer}/projects/default-project/assets/animations/`
 
 export const matchesIkTarget = matches.some(
   ...Object.keys(ikTargets).map((k: keyof typeof ikTargets) => matches.literal(k))
-)
-
-export const matchesAnimationFiles = matches.some(
-  ...Object.keys(animationFileTypes).map((k: keyof typeof animationFileTypes) => matches.literal(k))
 )
 
 const matchesMovementType = matches.shape({
