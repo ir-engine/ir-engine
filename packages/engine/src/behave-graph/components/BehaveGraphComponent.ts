@@ -76,11 +76,6 @@ export const BehaveGraphComponent = defineComponent({
     if (domainValidator.test(json.domain)) {
       component.domain.value !== json.domain && component.domain.set(json.domain!)
     }
-    /*
-    const graphValidator = matches.object as Validator<unknown, GraphJSON>
-    if (graphValidator.test(json.graph)) {
-      component.graph.set(parseStorageProviderURLs(json.graph)!) // load from file instead
-    }*/
   },
 
   // we make reactor for each component handle the engine
@@ -98,7 +93,8 @@ export const BehaveGraphComponent = defineComponent({
         return // dont set if json not of type graph
       ;(async () => {
         const graphJson = await fetchBehaviorGraphJson(graphComponent.filepath.value)
-        graphComponent.graph.set(graphJson)
+
+        graphComponent.graph.set(parseStorageProviderURLs(graphJson)!)
       })()
     }, [graphComponent.filepath])
 

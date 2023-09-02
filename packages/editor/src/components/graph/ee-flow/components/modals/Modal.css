@@ -44,17 +44,48 @@
 .modal-content {
   padding: 0.75rem;
   color: var(--textColor);
+}
 
-  & > textarea { 
-     background: var(--drawerBackground); 
-     color: var(--textColor);
-     border: 1px solid var(--border); 
-     width: 100%; 
-     padding: 0.5rem; 
-     height: 8rem;
-  }
+.modal-content textarea {
+  background: var(--drawerBackground); 
+  color: var(--textColor);
+  border: 1px solid var(--border); 
+  width: 100%; 
+  max-width: 100%;
+  min-width: 100%;  
+  padding: 0.5rem; 
+  height: 8rem;
+}
+
+.modal-content select {
+  background-color: var(--dockBackground);
+  border: 1px solid var(--border);
+  color: var(--textColor);
+  font-size: 14px;
+  border-radius: 0.25rem;
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
   
 }
+
+.modal-content select option{
+  background-color: var(--dropdownMenuBackground);
+  color:var(--textColor);
+  height: 1rem;
+  min-height: 1rem;
+}
+
+.modal-content select option:hover{
+  background-color: var(--dropdownMenuHoverBackground);
+}
+.modal-content select option:first-child {
+  background-color: var(--dropdownMenuSelectedBackground);
+  font-weight: bold; 
+  color:var(--textColor);
+}
+
+
 
 /* Styles for the modal actions container */
 .modal-actions {
@@ -73,11 +104,11 @@
 }
 
 .modal-primary-action {
-  background-color: var(--iconButtonBackground); /* Equivalent to 'bg-teal-400' */
+  background-color: var(--buttonFilled); /* Equivalent to 'bg-teal-400' */
 }
 
 .modal-secondary-action {
-  background-color: var(--iconButtonHoverColor); /* Equivalent to 'bg-gray-400' */
+  background-color: var(--buttonFilled); /* Equivalent to 'bg-gray-400' */
 }
 
 /* Hover styles for primary and secondary action buttons */

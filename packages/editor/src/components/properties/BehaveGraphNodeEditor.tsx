@@ -35,6 +35,7 @@ import { GraphJSON } from '@behave-graph/core'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { getFileDirectory, getFileName } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { uniqueId } from 'lodash'
@@ -46,7 +47,9 @@ import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
-export const uploadGraphFilefromJson = async (directoryPath: string, fileName: string, graph: GraphJSON) => {
+export const uploadGraphFilefromJson = async (fullURL: string, graph: GraphJSON) => {
+  const directoryPath = getFileDirectory(fullURL)
+  const fileName = getFileName(fullURL)
   const data = cleanStorageProviderURLs(JSON.parse(JSON.stringify(graph)))
   const blob = new Blob([JSON.stringify(data)], { type: ItemTypes.Graph[0] })
   const file = new File([blob], fileName, { type: ItemTypes.Graph[0] })
@@ -77,7 +80,7 @@ export const BehaveGraphNodeEditor: EditorComponentType = (props) => {
     const relativePath = `projects/${editorState.projectName.value}/assets/graphs`
     const fileName = `${uniqueId(`${editorState.sceneName.value}Graph`)}.graph.json`
     ;(async () => {
-      await uploadGraphFilefromJson(relativePath, fileName, behaveGraphComponent.graph.get(NO_PROXY))
+      await uploadGraphFilefromJson(behaveGraphComponent.filepath.value, behaveGraphComponent.graph.get(NO_PROXY))
       //set the filepath after upload finishes so that file exists and reactors using the file dont break
       behaveGraphComponent.filepath.set(`${config.client.fileServer}/${relativePath}/${fileName}`)
     })()

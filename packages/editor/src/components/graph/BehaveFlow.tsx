@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { getFileDirectory } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { BehaveGraphState } from '@etherealengine/engine/src/behave-graph/state/BehaveGraphState'
 import { Entity, UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -86,6 +87,7 @@ const BehaveFlow = () => {
               onChangeGraph={(newGraph) => {
                 if (!graphComponent.graph) return
                 graphComponent.graph.set(JSON.parse(JSON.stringify(newGraph)))
+                console.log('DEBUG', getFileDirectory(graphComponent.value.filepath))
               }}
             />
           )}

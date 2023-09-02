@@ -51,7 +51,8 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
   placeholder = 'Select...',
   disabled,
   creatable,
-  isSearchable
+  isSearchable,
+  ...rest
 }: SelectInputProp<T>) {
   // const autoComponentValue = options.find((el) => el.value === value)!.label
 
@@ -124,6 +125,7 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
           }
         }}
         IconComponent={ExpandMoreIcon}
+        {...rest}
       >
         {options.map((option, index) => (
           <MenuItem key={`${option.value}${index}`} value={option.value}>

@@ -43,6 +43,14 @@ export function getProjectName(path: string) {
   return pathResolver().exec(path)?.[2] ?? ''
 }
 
+export function getFileDirectory(path: string) {
+  return /^https:\/\/[^/]+\/(.+?)\/[^/]+\.*$/.exec(path)?.[1] ?? ''
+}
+
+export function getDomainURL(path: string) {
+  return pathResolver().exec(path)?.[0] ?? ''
+}
+
 export function modelResourcesPath(modelName: string) {
   return `model-resources/${modelName.split('.').at(-2)!}`
 }

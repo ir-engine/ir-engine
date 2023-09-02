@@ -28,13 +28,11 @@ import { useEdges, useNodes } from 'reactflow'
 
 import { NodeSpecJSON } from '@behave-graph/core'
 
-import { getFileName } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 import { useHookstate } from '@hookstate/core'
-import { EditorState } from '../../../../../services/EditorServices'
 import { SelectionState } from '../../../../../services/SelectionServices'
 import GraphInput from '../../../../inputs/GraphInput'
 import { uploadGraphFilefromJson } from '../../../../properties/BehaveGraphNodeEditor'
@@ -62,7 +60,6 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]
   const behaveGraphComponent = useComponent(entity as Entity, BehaveGraphComponent)
-  const editorState = useHookstate(getMutableState(EditorState))
 
   const handleCopy = () => {
     ref.current?.select()
@@ -75,9 +72,7 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
   }
 
   const handleSave = async () => {
-    const relativePath = `projects/${editorState.projectName.value}/assets/graphs`
-    const fileName = getFileName(behaveGraphComponent.filepath.value)
-    await uploadGraphFilefromJson(relativePath, fileName, flow)
+    await uploadGraphFilefromJson(behaveGraphComponent.filepath.value, flow)
   }
 
   return (
@@ -99,8 +94,9 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
             fontSize: '0.875rem',
             border: '1px solid var(--border)',
             width: '100%',
-            padding: '0.5rem',
-            height: '1rem'
+            padding: '0.75rem',
+            height: '1rem',
+            marginTop: '.3rem'
           }
         }}
       />
