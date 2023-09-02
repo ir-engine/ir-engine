@@ -26,10 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import matches, { Validator } from 'ts-matches'
 
 import { GraphJSON } from '@behave-graph/core'
-import { config } from '@etherealengine/common/src/config'
 
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { uniqueId } from 'lodash'
 import { useEffect } from 'react'
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -48,12 +46,10 @@ export const BehaveGraphComponent = defineComponent({
   jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
-    const domain = BehaveGraphDomain.ECS
     const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
-    const filepath = `${config.client.fileServer}/projects/assets/graphs/${uniqueId('new_graph')}.graph.json` // "${project_dir}/assets/graphs/randomUUID"
     return {
-      filepath: filepath,
-      domain: domain,
+      filepath: '',
+      domain: BehaveGraphDomain.ECS,
       graph: graph,
       run: false,
       disabled: false
@@ -97,10 +93,7 @@ export const BehaveGraphComponent = defineComponent({
     const canPlay = graphComponent.run && !graphComponent.disabled
     const registry = behaveGraphState.registries[graphComponent.domain.value].get(NO_PROXY)
     const graphRunner = useGraphRunner({ graphJson: graphComponent.graph.get(NO_PROXY), autoRun: canPlay, registry })
-    useEffect(() => {
-      // create the path and save the graph there
-      ;(async () => {})()
-    }, [])
+
     useEffect(() => {
       if (graphComponent.filepath.value.split('.').slice(-2, -1)[0] !== 'graph')
         return // dont set if json not of type graph
