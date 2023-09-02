@@ -306,7 +306,7 @@ const execute = () => {
      */
     for (const [key, value] of Object.entries(worldSpaceTargets)) {
       value.blendWeight = 1
-      value.position = new Vector3()
+      value.position.set(0, 0, 0)
       value.rotation.identity()
     }
     weights = {}

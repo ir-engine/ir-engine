@@ -41,7 +41,6 @@ export const CaptureClientSettingsState = defineState({
         name: 'Tracking',
         tabOrder: 1,
         enableFaceGeometry: false,
-        selfieMode: false,
         modelComplexity: 2,
         smoothLandmarks: true,
         enableSegmentation: true,

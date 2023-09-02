@@ -41,6 +41,11 @@ import { Landmark, Results } from '@mediapipe/holistic'
 
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { entityExists } from '../ecs/functions/EntityFunctions'
+import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import UpdateAvatar from './UpdateAvatar'
 
 export interface MotionCaptureStream extends Results {
@@ -89,6 +94,8 @@ const handleMocapData = (
   timeSeriesMocapData.get(peerID)!.add(results)
 }
 
+const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
+
 export const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
@@ -98,15 +105,36 @@ const execute = () => {
     if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
+
+      const userID = network.peers[peerID]!.userId
+      const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+      if (entity && entityExists(entity)) removeComponent(entity, MotionCaptureRigComponent)
     }
   }
+
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.popLast()
     timeSeriesMocapLastSeen.set(peerID, Date.now())
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+
     if (data && entity) {
+      setComponent(entity, MotionCaptureRigComponent)
       UpdateAvatar(data, userID, entity)
+    }
+  }
+
+  for (const entity of motionCaptureQuery()) {
+    for (const boneName of VRMHumanBoneList) {
+      const rig = getComponent(entity, AvatarRigComponent)
+      const bone = rig.vrm.humanoid.getNormalizedBoneNode(boneName)
+      if (!bone) continue
+      bone.quaternion.set(
+        MotionCaptureRigComponent.rig[boneName].x[entity],
+        MotionCaptureRigComponent.rig[boneName].y[entity],
+        MotionCaptureRigComponent.rig[boneName].z[entity],
+        MotionCaptureRigComponent.rig[boneName].w[entity]
+      )
     }
   }
 }

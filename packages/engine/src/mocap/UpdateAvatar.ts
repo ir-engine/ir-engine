@@ -52,6 +52,8 @@ import UpdateIkPose from './UpdateIkPose'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { NormalizedLandmarkList, POSE_CONNECTIONS, POSE_LANDMARKS } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
+import { V_001 } from '../common/constants/MathConstants'
+import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { MotionCaptureStream } from './MotionCaptureSystem'
 
 /*
@@ -286,13 +288,18 @@ export default function UpdateAvatar(data: MotionCaptureStream, userID, entity) 
     return
   }
 
+  const rig = getComponent(entity, AvatarRigComponent)
+  if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
+    return
+  }
+
   const worldLandmarks = data.za as NormalizedLandmarkList
   const screenLandmarks = data.poseLandmarks as NormalizedLandmarkList
 
   const normalizedScreenLandmarks = normalizeLandmarks(worldLandmarks, screenLandmarks)
 
   if (debug) {
-    debugWorld(worldLandmarks)
+    // debugWorld(worldLandmarks)
     // debugScreen(screenLandmarks)
     debugScreen(normalizedScreenLandmarks)
   }
@@ -312,6 +319,8 @@ export default function UpdateAvatar(data: MotionCaptureStream, userID, entity) 
     // ApplyPoseChanges(entity, changes3)
     solveHips(entity, worldLandmarks)
     solveSpine(entity, worldLandmarks)
+    solveArm(entity, worldLandmarks, 'left')
+    solveArm(entity, worldLandmarks, 'right')
   } else {
     // publish ik targets rather than directly setting body parts
     const changes4 = UpdateIkPose(data)
@@ -347,20 +356,21 @@ export const normalizeLandmarks = (worldLandmarks: NormalizedLandmarkList, scree
   // translate all landmarks to the origin
   for (const landmark of normalizedScreenLandmarks) {
     landmark.x -= hipCenterX
-    landmark.z -= hipCenterZ + 1
+    landmark.z -= hipCenterZ
   }
 
   return normalizedScreenLandmarks
 }
 
-const threshhold = 0.6
+const threshhold = 0.2
 const ninetyDegreeXZTurnQuaternion = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
+
+const quaternion = new Quaternion()
+const quat = new Quaternion()
+const vec3 = new Vector3()
 
 const solveHips = (entity: Entity, landmarks: NormalizedLandmarkList) => {
   const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
-    return
-  }
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
   const leftHip = landmarks[POSE_LANDMARKS.LEFT_HIP]
@@ -370,8 +380,6 @@ const solveHips = (entity: Entity, landmarks: NormalizedLandmarkList) => {
   // ignore visibility checks as we always want to set hips
   // const hips = rightHip.visibility! > threshhold && leftHip.visibility! > threshhold
   // if (!hips) return
-
-  const transform = getComponent(entity, TransformComponent)
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
@@ -383,12 +391,14 @@ const solveHips = (entity: Entity, landmarks: NormalizedLandmarkList) => {
   hipsBone.position.copy(hipleft).add(hipright).multiplyScalar(0.5).y += lowestWorldY
 
   // take the rotation of the two hip points around it's center as an XZ rotation
-  hipsBone.quaternion
-    .setFromUnitVectors(
-      new Vector3(0, 0, 1),
-      new Vector3(hipright.x - hipleft.x, 0, hipright.z - hipleft.z).normalize()
-    )
+  quaternion
+    .setFromUnitVectors(V_001, vec3.set(hipright.x - hipleft.x, 0, hipright.z - hipleft.z).normalize())
     .multiply(ninetyDegreeXZTurnQuaternion)
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = quaternion.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = quaternion.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = quaternion.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = quaternion.w
 }
 
 /**
@@ -397,23 +407,117 @@ const solveHips = (entity: Entity, landmarks: NormalizedLandmarkList) => {
 
 const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) => {
   const rig = getComponent(entity, AvatarRigComponent)
-  if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
-    return
-  }
 
   const rightShoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER]
   const leftShoulder = landmarks[POSE_LANDMARKS.LEFT_SHOULDER]
 
   if (!rightShoulder || !leftShoulder) return
 
-  const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
+  // ignore visibility checks as we always want to set hips
+  if (rightShoulder.visibility! < threshhold || leftShoulder.visibility! < threshhold) return
 
   const shoulderLeft = new Vector3(rightShoulder.x, rightShoulder.y, rightShoulder.z)
   const shoulderRight = new Vector3(leftShoulder.x, leftShoulder.y, leftShoulder.z)
 
-  const spine = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Spine)!
-  const spine1 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Chest)!
-  const spine2 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.UpperChest)!
+  // get quaternion that represents the rotation of the shoulders
+
+  const shoulderQuaternion = new Quaternion()
+    .setFromUnitVectors(V_001, vec3.subVectors(shoulderRight, shoulderLeft).normalize())
+    .multiply(ninetyDegreeXZTurnQuaternion)
 
   // get ratio of each spine bone, and apply that ratio of rotation such that the shoulders are in the correct position
+
+  const hips = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)!
+  const spine = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Spine)!
+  const spine1 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Chest)!
+  const spine2 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Neck)!
+
+  const spine0Length = hips.position.distanceTo(spine.position)
+  const spine1Length = spine.position.distanceTo(spine1.position)
+  const spine2Length = spine1.position.distanceTo(spine2.position)
+
+  const totalSpineLength = spine0Length + spine1Length + spine2Length
+
+  const spineRatio = spine0Length / totalSpineLength
+  const spine1Ratio = spine1Length / totalSpineLength
+  const spine2Ratio = spine2Length / totalSpineLength
+
+  // apply rotation to each spine bone
+
+  // get world space rotation of each segment
+  const spine0Quaternion = new Quaternion().copy(hips.quaternion).slerp(shoulderQuaternion, spineRatio)
+  const spine1Quaternion = new Quaternion().copy(hips.quaternion).slerp(shoulderQuaternion, spine1Ratio)
+  const spine2Quaternion = new Quaternion().copy(hips.quaternion).slerp(shoulderQuaternion, spine2Ratio)
+
+  // get local space rotation of each segment
+  const spine0Local = new Quaternion().copy(spine0Quaternion).premultiply(hips.quaternion.clone().invert())
+  const spine1Local = new Quaternion().copy(spine1Quaternion).premultiply(spine0Quaternion.clone().invert())
+  const spine2Local = new Quaternion().copy(spine2Quaternion).premultiply(spine1Quaternion.clone().invert())
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].x[entity] = spine0Local.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].y[entity] = spine0Local.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].z[entity] = spine0Local.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].w[entity] = spine0Local.w
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].x[entity] = spine1Local.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].y[entity] = spine1Local.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].z[entity] = spine1Local.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].w[entity] = spine1Local.w
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].x[entity] = spine2Local.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].y[entity] = spine2Local.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].z[entity] = spine2Local.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].w[entity] = spine2Local.w
+}
+
+export const solveArm = (entity: Entity, landmarks: NormalizedLandmarkList, side: 'left' | 'right') => {
+  const rig = getComponent(entity, AvatarRigComponent)
+
+  // todo - why is this backwards?
+  const shoulder = landmarks[side === 'right' ? POSE_LANDMARKS.LEFT_SHOULDER : POSE_LANDMARKS.RIGHT_SHOULDER]
+  const elbow = landmarks[side === 'right' ? POSE_LANDMARKS.LEFT_ELBOW : POSE_LANDMARKS.RIGHT_ELBOW]
+  const wrist = landmarks[side === 'right' ? POSE_LANDMARKS.LEFT_WRIST : POSE_LANDMARKS.RIGHT_WRIST]
+
+  if (!shoulder || !elbow || !wrist) return
+
+  if (shoulder.visibility! < threshhold || elbow.visibility! < threshhold || wrist.visibility! < threshhold) return
+
+  const neckQuaternion = new Quaternion(
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].x[entity],
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].y[entity],
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].z[entity],
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].w[entity]
+  )
+
+  const shoulderPoint = new Vector3(shoulder.x, -shoulder.y, shoulder.z)
+  const elbowPoint = new Vector3(elbow.x, -elbow.y, elbow.z)
+  const wristPoint = new Vector3(wrist.x, -wrist.y, wrist.z)
+
+  // get quaternion that represents the rotation of the shoulders
+
+  const shoulderQuaternion = new Quaternion().setFromUnitVectors(
+    new Vector3(side === 'right' ? -1 : 1, 0, 0),
+    vec3.subVectors(shoulderPoint, elbowPoint).normalize()
+  )
+
+  // get quaternion that represents the rotation of the elbow
+
+  const elbowQuaternion = new Quaternion().setFromUnitVectors(
+    new Vector3(side === 'right' ? -1 : 1, 0, 0),
+    vec3.subVectors(elbowPoint, wristPoint).normalize()
+  )
+
+  // convert to local space
+  const shoulderLocal = new Quaternion().copy(shoulderQuaternion).premultiply(neckQuaternion.clone().invert())
+  const elbowLocal = new Quaternion().copy(elbowQuaternion).premultiply(shoulderQuaternion.clone().invert())
+
+  MotionCaptureRigComponent.rig[`${side}UpperArm`].x[entity] = shoulderLocal.x
+  MotionCaptureRigComponent.rig[`${side}UpperArm`].y[entity] = shoulderLocal.y
+  MotionCaptureRigComponent.rig[`${side}UpperArm`].z[entity] = shoulderLocal.z
+  MotionCaptureRigComponent.rig[`${side}UpperArm`].w[entity] = shoulderLocal.w
+
+  MotionCaptureRigComponent.rig[`${side}LowerArm`].x[entity] = elbowLocal.x
+  MotionCaptureRigComponent.rig[`${side}LowerArm`].y[entity] = elbowLocal.y
+  MotionCaptureRigComponent.rig[`${side}LowerArm`].z[entity] = elbowLocal.z
+  MotionCaptureRigComponent.rig[`${side}LowerArm`].w[entity] = elbowLocal.w
 }

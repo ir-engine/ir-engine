@@ -163,7 +163,6 @@ const CaptureDashboard = () => {
 
   useEffect(() => {
     const factor = displaySettings.flipVideo === true ? '-1' : '1'
-    canvasRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.style.transform = `scaleX(${factor})`
   }, [displaySettings.flipVideo])
 
@@ -186,7 +185,7 @@ const CaptureDashboard = () => {
         })
         holistic.setOptions({
           enableFaceGeometry: trackingSettings?.enableFaceGeometry,
-          selfieMode: trackingSettings?.selfieMode,
+          selfieMode: displaySettings?.flipVideo,
           modelComplexity: trackingSettings?.modelComplexity,
           smoothLandmarks: trackingSettings?.smoothLandmarks,
           enableSegmentation: trackingSettings?.enableSegmentation,
