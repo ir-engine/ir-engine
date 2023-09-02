@@ -27,7 +27,16 @@ import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponen
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
-import { Euler, Quaternion, Vector3 } from 'three'
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Euler,
+  LineBasicMaterial,
+  LineSegments,
+  Quaternion,
+  SphereGeometry,
+  Vector3
+} from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
@@ -35,13 +44,13 @@ import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 
-import { ArrowHelper, AxesHelper, BoxGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
+import { Mesh, MeshBasicMaterial } from 'three'
 import UpdateIkPose from './UpdateIkPose'
-import UpdateLandmarkFace from './UpdateLandmarkFace'
-import UpdateLandmarkHands from './UpdateLandmarkHands'
 import UpdateLandmarkPose from './UpdateLandmarkPose'
 
 import { dispatchAction } from '@etherealengine/hyperflux'
+import { NormalizedLandmarkList, POSE_CONNECTIONS } from '@mediapipe/holistic'
+import { MotionCaptureStream } from './MotionCaptureSystem'
 
 /*
 ///
@@ -104,7 +113,7 @@ function ApplyPoseChange(entity: Entity, key, change) {
   const ik = change.ik ? true : false
   const shown = change.shown ? true : false
   const euler = change.euler || null
-  const debug = change.debug || true
+  const debug = false //change.debug || true
   const blendweight = change.blendweight || 1.0
 
   // get part in question
@@ -178,20 +187,20 @@ function ApplyPoseChange(entity: Entity, key, change) {
   }
 
   // visualize for debugging - can only handle one avatar
-  if (debug) {
-    let mesh = debugmeshes[key]
-    if (!mesh) {
-      debugmeshes[key] = mesh = new Mesh(new BoxGeometry(0.01, 0.4, 0.01), new MeshBasicMaterial({ color }))
-      const gizmo = new AxesHelper()
-      gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
-      mesh.add(gizmo)
-      Engine.instance.scene.add(mesh)
-    }
-    mesh.material.color.setHex(shown == true ? color : 0x000000)
-    if (xyz) mesh.position.copy(xyz)
-    if (quaternion) mesh.rotation.setFromQuaternion(quaternion)
-    mesh.updateMatrixWorld()
-  }
+  // if (debug) {
+  //   let mesh = debugmeshes[key]
+  //   if (!mesh) {
+  //     debugmeshes[key] = mesh = new Mesh(new BoxGeometry(0.01, 0.4, 0.01), new MeshBasicMaterial({ color }))
+  //     const gizmo = new AxesHelper()
+  //     gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
+  //     mesh.add(gizmo)
+  //     Engine.instance.scene.add(mesh)
+  //   }
+  //   mesh.material.color.setHex(shown == true ? color : 0x000000)
+  //   if (xyz) mesh.position.copy(xyz)
+  //   if (quaternion) mesh.rotation.setFromQuaternion(quaternion)
+  //   mesh.updateMatrixWorld()
+  // }
 }
 
 function ApplyPoseChanges(entity: Entity, changes) {
@@ -204,25 +213,74 @@ function ApplyPoseChanges(entity: Entity, changes) {
 /// Update Avatar overall; fingers, face, pose, head orientation, hips, feet, ik, non ik...
 ///
 
-export default function UpdateAvatar(data, userID, entity) {
+const debug = true
+
+const debugMeshesWorld = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
+
+const worldPositionLineSegment = new LineSegments<BufferGeometry, LineBasicMaterial>()
+worldPositionLineSegment.material.linewidth = 5
+const worldPosAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 3).fill(0), 3)
+worldPositionLineSegment.geometry.setAttribute('position', worldPosAttr)
+
+export default function UpdateAvatar(data: MotionCaptureStream, userID, entity) {
   // sanity check
   if (!data || !data.za || !data.poseLandmarks) {
     console.warn('no data')
     return
   }
 
-  const DIRECT = false
+  const worldLandmarks = data.za as NormalizedLandmarkList
+
+  const lowestWorldY = worldLandmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
+
+  if (debug) {
+    for (const [key, value] of Object.entries(worldLandmarks)) {
+      const color = value.visibility && value.visibility > 0.6 ? 0xaaaaff : 0x000055
+      if (!debugMeshesWorld[key]) {
+        const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
+        debugMeshesWorld[key] = mesh
+        Engine.instance.scene.add(mesh)
+      }
+      const mesh = debugMeshesWorld[key]
+      mesh.material.color.set(color)
+      mesh.matrixWorld.setPosition(value.x, lowestWorldY - value.y, value.z)
+    }
+
+    if (!worldPositionLineSegment.parent) Engine.instance.scene.add(worldPositionLineSegment)
+
+    for (let i = 0; i < POSE_CONNECTIONS.length * 2; i += 2) {
+      const [first, second] = POSE_CONNECTIONS[i / 2]
+      const firstPoint = debugMeshesWorld[first]
+      const secondPoint = debugMeshesWorld[second]
+
+      worldPosAttr.setXYZ(
+        i,
+        firstPoint.matrixWorld.elements[12],
+        firstPoint.matrixWorld.elements[13],
+        firstPoint.matrixWorld.elements[14]
+      )
+      worldPosAttr.setXYZ(
+        i + 1,
+        secondPoint.matrixWorld.elements[12],
+        secondPoint.matrixWorld.elements[13],
+        secondPoint.matrixWorld.elements[14]
+      )
+    }
+    worldPositionLineSegment.geometry.getAttribute('position').needsUpdate = true
+  }
+
+  const DIRECT = true
   if (DIRECT) {
     // use landmarks to directly set head orientation and facial features
-    const changes1 = UpdateLandmarkFace(data?.faceLandmarks)
-    ApplyPoseChanges(entity, changes1)
+    // const changes1 = UpdateLandmarkFace(data?.faceLandmarks)
+    // ApplyPoseChanges(entity, changes1)
 
     // use landmarks to directly set fingers
-    const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks)
-    ApplyPoseChanges(entity, changes2)
+    // const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks)
+    // ApplyPoseChanges(entity, changes2)
 
     // use landmarks to set coarse pose
-    const changes3 = UpdateLandmarkPose(data?.za, data?.poseLandmarks)
+    const changes3 = UpdateLandmarkPose(data?.za)
     ApplyPoseChanges(entity, changes3)
   } else {
     // publish ik targets rather than directly setting body parts

@@ -58,7 +58,7 @@ import RecordingsList from '@etherealengine/ui/src/components/tailwind/Recording
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { FACEMESH_TESSELATION, HAND_CONNECTIONS, Holistic, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
+import { HAND_CONNECTIONS, Holistic, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import Toolbar from '../../components/tailwind/Toolbar'
 
@@ -270,11 +270,11 @@ const CaptureDashboard = () => {
           })
 
           // Face Connections
-          drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
-            color: '#fff',
-            lineWidth: 1
-          })
-          // Face Landmarks
+          // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
+          //   color: '#fff',
+          //   lineWidth: 1
+          // })
+          // // Face Landmarks
           // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
           //   color: '#fff',
           //   lineWidth: 1
@@ -301,9 +301,7 @@ const CaptureDashboard = () => {
 
     if (holisticDetector.value) {
       processingFrame.set(true)
-      holisticDetector.value?.send({ image: videoRef.current! }).finally(() => {
-        processingFrame.set(false)
-      })
+      holisticDetector.value?.send({ image: videoRef.current! })
     }
   })
 

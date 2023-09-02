@@ -147,7 +147,7 @@ export const AvatarRigComponent = defineComponent({
 
     useEffect(() => {
       if (debugEnabled.value && !anim.helper.value && !pending?.value && anim.value.rig?.hips?.node) {
-        const helper = new SkeletonHelper(anim.value.rig.hips.node.parent!)
+        const helper = new SkeletonHelper(anim.value.rig.hips.node.parent!.parent!)
         helper.frustumCulled = false
         helper.name = `skeleton-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.PhysicsHelper)

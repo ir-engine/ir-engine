@@ -46,7 +46,7 @@ export const CaptureClientSettingsState = defineState({
         smoothLandmarks: true,
         enableSegmentation: true,
         smoothSegmentation: true,
-        refineFaceLandmarks: true,
+        refineFaceLandmarks: false,
         minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5
       },

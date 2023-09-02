@@ -25,41 +25,123 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { Landmark } from '@mediapipe/holistic'
+import { Landmark, POSE_LANDMARKS, POSE_LANDMARKS_LEFT, POSE_LANDMARKS_RIGHT } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { RestingDefault } from './solvers/utils/helpers'
 
 import { calcArms } from './solvers/PoseSolver/calcArms'
 import { calcLegs } from './solvers/PoseSolver/calcLegs'
 
+// const POSE_LANDMARKS = {
+//   NOSE: 0,
+//   LEFT_EYE_INNER: 1,
+//   LEFT_EYE: 2,
+//   LEFT_EYE_OUTER: 3,
+//   RIGHT_EYE_INNER: 4,
+//   RIGHT_EYE: 5,
+//   RIGHT_EYE_OUTER: 6,
+//   LEFT_EAR: 7,
+//   RIGHT_EAR: 8,
+//   LEFT_RIGHT: 9,
+//   RIGHT_LEFT: 10,
+//   LEFT_SHOULDER: 11,
+//   RIGHT_SHOULDER: 12,
+//   LEFT_ELBOW: 13,
+//   RIGHT_ELBOW: 14,
+//   LEFT_WRIST: 15,
+//   RIGHT_WRIST: 16,
+//   LEFT_PINKY: 17,
+//   RIGHT_PINKY: 18,
+//   LEFT_INDEX: 19,
+//   RIGHT_INDEX: 20,
+//   LEFT_THUMB: 21,
+//   RIGHT_THUMB: 22,
+//   LEFT_HIP: 23,
+//   RIGHT_HIP: 24,
+//   LEFT_KNEE: 25,
+//   RIGHT_KNEE: 26,
+//   LEFT_ANKLE: 27,
+//   RIGHT_ANKLE: 28,
+//   LEFT_HEEL: 29,
+//   RIGHT_HEEL: 30,
+//   LEFT_FOOT_INDEX: 31,
+//   RIGHT_FOOT_INDEX: 32
+// }
+// const POSE_LANDMARKS_LEFT = {
+//   LEFT_EYE_INNER: 1,
+//   LEFT_EYE: 2,
+//   LEFT_EYE_OUTER: 3,
+//   LEFT_EAR: 7,
+//   LEFT_RIGHT: 9,
+//   LEFT_SHOULDER: 11,
+//   LEFT_ELBOW: 13,
+//   LEFT_WRIST: 15,
+//   LEFT_PINKY: 17,
+//   LEFT_INDEX: 19,
+//   LEFT_THUMB: 21,
+//   LEFT_HIP: 23,
+//   LEFT_KNEE: 25,
+//   LEFT_ANKLE: 27,
+//   LEFT_HEEL: 29,
+//   LEFT_FOOT_INDEX: 31
+// }
+// const POSE_LANDMARKS_RIGHT = {
+//   RIGHT_EYE_INNER: 4,
+//   RIGHT_EYE: 5,
+//   RIGHT_EYE_OUTER: 6,
+//   RIGHT_EAR: 8,
+//   RIGHT_LEFT: 10,
+//   RIGHT_SHOULDER: 12,
+//   RIGHT_ELBOW: 14,
+//   RIGHT_WRIST: 16,
+//   RIGHT_PINKY: 18,
+//   RIGHT_INDEX: 20,
+//   RIGHT_THUMB: 22,
+//   RIGHT_HIP: 24,
+//   RIGHT_KNEE: 26,
+//   RIGHT_ANKLE: 28,
+//   RIGHT_HEEL: 30,
+//   RIGHT_FOOT_INDEX: 32
+// }
+// const POSE_LANDMARKS_NEUTRAL = { NOSE: 0 }
+
 ///
 /// Update pose from landmarks
 ///
 
-export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[]) {
+export default function UpdateLandmarkPose(lm3d: Landmark[]) {
   const changes = {}
 
-  if (!lm3d || !lm2d) return null
+  if (!lm3d) return null
 
   const threshhold = 0.6
 
+  const rightHip = lm3d[POSE_LANDMARKS.RIGHT_HIP]
+  const leftHip = lm3d[POSE_LANDMARKS.LEFT_HIP]
+
+  const rightShoulder = lm3d[POSE_LANDMARKS.RIGHT_SHOULDER]
+  const leftShoulder = lm3d[POSE_LANDMARKS.LEFT_SHOULDER]
+
+  const leftFoot = lm3d[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX]
+  const rightFoot = lm3d[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX]
+
   const hips =
-    lm3d[23] &&
-    lm3d[23].visibility &&
-    lm3d[23].visibility > threshhold &&
-    lm3d[24] &&
-    lm3d[24].visibility &&
-    lm3d[24].visibility > threshhold
+    rightHip &&
+    rightHip.visibility &&
+    rightHip.visibility > threshhold &&
+    leftHip &&
+    leftHip.visibility &&
+    leftHip.visibility > threshhold
       ? true
       : false
 
   const shoulders =
-    lm3d[11] &&
-    lm3d[11].visibility &&
-    lm3d[11].visibility > threshhold &&
-    lm3d[12] &&
-    lm3d[12].visibility &&
-    lm3d[12].visibility > threshhold
+    rightShoulder &&
+    rightShoulder.visibility &&
+    rightShoulder.visibility > threshhold &&
+    leftShoulder &&
+    leftShoulder.visibility &&
+    leftShoulder.visibility > threshhold
       ? true
       : false
 
@@ -122,15 +204,15 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[]) {
     // test: get hips pose from scratch; the manual values tacked on the end are trial and error, the euler order is XYZ
     // note: the hips at rest are NOT 0,0,0!
     // @todo note that i've turned off the pitch and roll for now!
-    const hipleft = new Vector3(lm3d[23].x, lm3d[23].y, lm3d[23].z)
-    const hipright = new Vector3(lm3d[24].x, lm3d[24].y, lm3d[24].z)
+    const hipleft = new Vector3(rightHip.x, rightHip.y, rightHip.z)
+    const hipright = new Vector3(leftHip.x, leftHip.y, leftHip.z)
     const hipdir = hipright.clone().sub(hipleft).normalize()
     const x = 0 // - Math.atan2( spine3d.y, spine3d.z) - Math.PI/2
     const y = Math.atan2(hipdir.x, hipdir.z) + Math.PI / 2
     const z = Math.atan2(hipdir.y, hipdir.x) + Math.PI
 
     // disable hips for now
-    //    changes[VRMHumanBoneName.Hips] = { euler: { x, y, z } }
+    // changes[VRMHumanBoneName.Hips] = { euler: { x, y, z } }
 
     // disable changing legs for now
     permit_feet = false
@@ -212,10 +294,10 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[]) {
   // feet
   //
 
-  const leftFoot = lm3d[31] && lm3d[31].visibility && lm3d[31].visibility > threshhold ? true : false
-  const rightFoot = lm3d[32] && lm3d[32].visibility && lm3d[32].visibility > threshhold ? true : false
+  const leftFootVisible = leftFoot && leftFoot.visibility && leftFoot.visibility > threshhold ? true : false
+  const rightFootVisible = rightFoot && rightFoot.visibility && rightFoot.visibility > threshhold ? true : false
 
-  if (leftFoot == false && rightFoot == false) {
+  if (leftFootVisible == false && rightFootVisible == false) {
     permit_feet = false
   }
 
@@ -281,21 +363,24 @@ export default function UpdateLandmarkPose(lm3d: Landmark[], lm2d: Landmark[]) {
   // @todo populate ik from here rather than by hand as done currently in ik module
   //
 
-  const leftHand = lm3d[15] && lm3d[15].visibility && lm3d[15].visibility > threshhold ? true : false
-  const rightHand = lm3d[16] && lm3d[16].visibility && lm3d[16].visibility > threshhold ? true : false
+  const leftHand = lm3d[POSE_LANDMARKS_LEFT.LEFT_WRIST]
+  const rightHand = lm3d[POSE_LANDMARKS_RIGHT.RIGHT_WRIST]
 
-  if (leftHand || rightHand) {
+  const leftHandVisible = leftHand && leftHand.visibility && leftHand.visibility > threshhold ? true : false
+  const rightHandVisible = rightHand && rightHand.visibility && rightHand.visibility > threshhold ? true : false
+
+  if (leftHandVisible || rightHandVisible) {
     const arms = calcArms(lm3d)
 
     // @todo hands are backwards!
-    if (!leftHand) {
+    if (!leftHandVisible) {
       arms.UpperArm.r = arms.UpperArm.r.multiply(0)
       arms.UpperArm.r.z = RestingDefault.Pose.RightUpperArm.z
       arms.LowerArm.r = arms.LowerArm.r.multiply(0)
       arms.Hand.r = arms.Hand.r.multiply(0)
     }
 
-    if (!rightHand) {
+    if (!rightHandVisible) {
       arms.UpperArm.l = arms.UpperArm.l.multiply(0)
       arms.UpperArm.l.z = RestingDefault.Pose.LeftUpperArm.z
       arms.LowerArm.l = arms.LowerArm.l.multiply(0)
