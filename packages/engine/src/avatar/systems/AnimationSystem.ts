@@ -48,11 +48,6 @@ const execute = () => {
     tween.update()
   }
 
-  for (const entity of loopAnimationQuery()) {
-    const model = getComponent(entity, ModelComponent)
-    if (model.asset instanceof VRM) model.asset.update(deltaSeconds)
-  }
-
   for (const entity of animationQuery()) {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds

@@ -122,8 +122,8 @@ export class LocalStorage implements StorageProviderInterface {
         /.git\/workflows/.test(item)
     )
     return {
-      Contents: globResult?.map((result) => {
-        return { Key: result?.replace(path.join(this.PATH_PREFIX), '') }
+      Contents: globResult.map((result) => {
+        return { Key: result.replace(path.join(this.PATH_PREFIX), '') }
       })
     }
   }
