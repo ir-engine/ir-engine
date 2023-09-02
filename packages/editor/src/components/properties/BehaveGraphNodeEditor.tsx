@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
@@ -31,6 +31,14 @@ import { useComponent } from '@etherealengine/engine/src/ecs/functions/Component
 
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import config from '@etherealengine/common/src/config'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { uniqueId } from 'lodash'
+import { getFileName } from '../../../../engine/src/assets/functions/pathResolver'
+import { EditorState } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
 import GraphInput from '../inputs/GraphInput'
 import InputGroup from '../inputs/InputGroup'
@@ -48,7 +56,26 @@ export const BehaveGraphNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const behaveGraphComponent = useComponent(props.entity, BehaveGraphComponent)
+  const editorState = useHookstate(getMutableState(EditorState))
 
+  useEffect(() => {
+    const relativePath = `projects/${editorState.projectName.value}/assets/graphs`
+    const fileName = `${uniqueId(`${editorState.sceneName.value}Graph`)}.graph.json`
+    const data = cleanStorageProviderURLs(JSON.parse(JSON.stringify(behaveGraphComponent.graph.get(NO_PROXY))))
+    const blob = new Blob([JSON.stringify(data)], { type: 'json' })
+    const file = new File([blob], getFileName(behaveGraphComponent.filepath.value), { type: 'json' })
+
+    ;(async () => {
+      console.log('DEBUG uploading file', file, relativePath)
+      await uploadToFeathersService('file-browser/upload', [file], {
+        fileName: processFileName(file.name),
+        path: relativePath,
+        contentType: file.type
+      }).promise
+      console.log('DEBUG Uploaded file')
+      behaveGraphComponent.filepath.set(`${config.client.fileServer}/${relativePath}/${fileName}`)
+    })()
+  }, [])
   return (
     <NodeEditor
       {...props}
