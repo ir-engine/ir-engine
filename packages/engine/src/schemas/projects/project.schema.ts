@@ -31,7 +31,7 @@ import { projectPermissionSchema } from './project-permission.schema'
 
 export const projectPath = 'project'
 
-export const projectMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
+export const projectMethods = ['get', 'find', 'create', 'patch', 'remove', 'update'] as const
 
 export const projectSettingSchema = Type.Object(
   {

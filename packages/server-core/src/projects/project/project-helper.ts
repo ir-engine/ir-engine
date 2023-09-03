@@ -1471,7 +1471,6 @@ export const updateProject = async (
       await app.service(projectPath)._create(
         {
           id: v4(),
-          thumbnail: projectConfig.thumbnail,
           name: projectName,
           repositoryPath,
           needsRebuild: data.needsRebuild ? data.needsRebuild : true,
