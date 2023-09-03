@@ -23,22 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers/lib'
-
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Knex } from 'knex'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { UserParams } from '../../api/root-params'
-import authenticate from '../../hooks/authenticate'
-import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
-import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
@@ -48,129 +37,6 @@ import createModel from './instance.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     instance: Instance
-    'instances-active': {
-      find: ReturnType<typeof getActiveInstancesForScene>
-    }
-    'instance-friends': {
-      find: ReturnType<typeof getActiveInstancesForUserFriends>
-    }
-  }
-}
-
-type ActiveInstance = {
-  id: InstanceID
-  location: string
-  currentUsers: number
-}
-
-// TODO: paginate this
-
-export const getActiveInstancesForScene =
-  (app: Application) =>
-  async (params: Params & { query: { sceneId: string } }): Promise<ActiveInstance[]> => {
-    const sceneId = params.query!.sceneId
-    if (!sceneId) return []
-
-    // get all locationIds for sceneId
-    const locations = (await app.service(locationPath).find({
-      query: {
-        sceneId
-      },
-      paginate: false
-    })) as any as LocationType[]
-
-    if (locations.length === 0) return []
-
-    const instances = (
-      (await Promise.all(
-        locations.map(async (location) => {
-          const instances = await app.service('instance').Model.findAll({
-            where: {
-              ended: false,
-              locationId: location.id
-            }
-          })
-
-          for (const instance of instances) {
-            instance.location = location
-          }
-
-          return instances
-        })
-      )) as InstanceInterface[]
-    ).flat()
-
-    // return all active instances for each location
-    const instancesData: ActiveInstance[] = instances
-      .map((instance) => {
-        return {
-          id: instance.id,
-          location: (instance.location as LocationType).id,
-          currentUsers: instance.currentUsers
-        }
-      })
-      .filter((a) => !!a)
-
-    return instancesData
-  }
-
-export const getActiveInstancesForUserFriends = (app: Application) => async (data: UserParams, params) => {
-  if (!data.user) throw new Error('User not found')
-  try {
-    const instances = (await app.service('instance').Model.findAll({
-      where: {
-        ended: false
-      }
-    })) as InstanceInterface[]
-
-    const filteredInstances = (
-      await Promise.all(
-        instances.map(async (instance) => {
-          const knexClient: Knex = app.get('knexClient')
-
-          const instanceAttendance = await knexClient
-            .from(instanceAttendancePath)
-            .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
-            .join(userPath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
-            .join(userRelationshipPath, `${userPath}.id`, '=', `${userRelationshipPath}.userId`)
-            .where(`${instanceAttendancePath}.ended`, '=', false)
-            .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
-            .andWhere(`${'instance'}.id`, '=', instance.id)
-            .andWhere(`${userRelationshipPath}.userRelationshipType`, '=', 'friend')
-            .andWhere(`${userRelationshipPath}.relatedUserId`, '=', data.user!.id)
-            .select()
-            .options({ nestTables: true })
-
-          if (instanceAttendance.length > 0) return instance
-        })
-      )
-    ).filter(Boolean)
-
-    // TODO: Populating location property here manually. Once instance service is moved to feathers 5. This should be part of its resolver.
-
-    const locationIds = filteredInstances
-      .map((instance) => (instance?.locationId ? instance.locationId : undefined))
-      .filter((instance) => instance !== undefined) as string[]
-
-    const locations = (await app.service(locationPath)._find({
-      query: {
-        id: {
-          $in: locationIds
-        }
-      },
-      paginate: false
-    })) as LocationType[]
-
-    for (const instance of filteredInstances) {
-      if (instance && instance.locationId) {
-        instance.location = locations.find((item) => item.id === instance.locationId)!
-      }
-    }
-
-    return filteredInstances
-  } catch (err) {
-    console.log(err)
-    return []
   }
 }
 
@@ -235,26 +101,6 @@ export default (app: Application) => {
       }
     } catch (e) {
       // fine - channel already cleaned up elsewhere
-    }
-  })
-
-  app.use('instances-active', {
-    find: getActiveInstancesForScene(app)
-  })
-
-  app.service('instances-active').hooks({
-    before: {
-      find: [authenticate(), verifyScope('editor', 'write')]
-    }
-  })
-
-  app.use('instance-friends', {
-    find: getActiveInstancesForUserFriends(app)
-  })
-
-  app.service('instance-friends').hooks({
-    before: {
-      find: [authenticate(), setLoggedInUser('userId')]
     }
   })
 }

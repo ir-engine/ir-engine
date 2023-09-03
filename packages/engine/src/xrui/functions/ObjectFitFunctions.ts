@@ -119,7 +119,7 @@ export const ObjectFitFunctions = {
   attachObjectToHand: (container: WebContainer3D, scale: number) => {
     const { localClientEntity } = Engine.instance
     const avatarAnimationComponent = getComponent(localClientEntity, AvatarRigComponent)
-    if (avatarAnimationComponent && avatarAnimationComponent.rig.LeftHand) {
+    if (avatarAnimationComponent && avatarAnimationComponent.rig.leftHand.node) {
       // todo: figure out how to scale this properly
       // container.scale.x = container.scale.y = 0.5 * scale
       // todo: use handedness option to settings
@@ -128,13 +128,13 @@ export const ObjectFitFunctions = {
         Engine.instance.scene.add(container)
       }
 
-      _pos.copy(avatarAnimationComponent.rig.LeftHand.position)
+      _pos.copy(avatarAnimationComponent.rig.leftHand.node.position)
       _pos.x -= 0.1
       _pos.y -= 0.1
-      container.position.copy(avatarAnimationComponent.rig.LeftHand.localToWorld(_pos))
+      container.position.copy(avatarAnimationComponent.rig.leftHand.node.localToWorld(_pos))
       container.quaternion
         .set(0, 0, 0, 1)
-        .multiply(Object3DUtils.getWorldQuaternion(avatarAnimationComponent.rig.LeftHand, _quat))
+        .multiply(Object3DUtils.getWorldQuaternion(avatarAnimationComponent.rig.leftHand.node, _quat))
         .multiply(_handRotation)
       container.updateMatrixWorld(true)
     }
