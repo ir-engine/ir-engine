@@ -33,6 +33,4 @@ export const projectBuildResolver = resolve<ProjectBuildType, HookContext>({})
 
 export const projectBuildExternalResolver = resolve<ProjectBuildType, HookContext>({})
 
-export const projectBuildDataResolver = resolve<ProjectBuildType, HookContext>({})
-
 export const projectBuildPatchResolver = resolve<ProjectBuildPatch, HookContext>({})

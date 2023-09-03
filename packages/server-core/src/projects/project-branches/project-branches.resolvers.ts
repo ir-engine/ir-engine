@@ -32,5 +32,3 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 export const projectBranchesResolver = resolve<ProjectBranchesType, HookContext>({})
 
 export const projectBranchesExternalResolver = resolve<ProjectBranchesType, HookContext>({})
-
-export const projectBranchesDataResolver = resolve<ProjectBranchesType, HookContext>({})

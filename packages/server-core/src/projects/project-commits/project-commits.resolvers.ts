@@ -32,5 +32,3 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 export const projectCommitsResolver = resolve<ProjectCommitsType, HookContext>({})
 
 export const projectCommitsExternalResolver = resolve<ProjectCommitsType, HookContext>({})
-
-export const projectCommitsDataResolver = resolve<ProjectCommitsType, HookContext>({})

@@ -32,5 +32,3 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 export const builderInfoResolver = resolve<BuilderInfoType, HookContext>({})
 
 export const builderInfoExternalResolver = resolve<BuilderInfoType, HookContext>({})
-
-export const builderInfoDataResolver = resolve<BuilderInfoType, HookContext>({})

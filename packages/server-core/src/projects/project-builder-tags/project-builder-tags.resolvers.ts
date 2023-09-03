@@ -32,5 +32,3 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 export const projectBuilderTagsResolver = resolve<ProjectBuilderTagsType, HookContext>({})
 
 export const projectBuilderTagsExternalResolver = resolve<ProjectBuilderTagsType, HookContext>({})
-
-export const projectBuilderTagsDataResolver = resolve<ProjectBuilderTagsType, HookContext>({})

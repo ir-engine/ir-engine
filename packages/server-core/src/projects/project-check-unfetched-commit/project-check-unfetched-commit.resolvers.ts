@@ -32,5 +32,3 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 export const projectCheckUnfetchedCommitResolver = resolve<ProjectCheckUnfetchedCommitType, HookContext>({})
 
 export const projectCheckUnfetchedCommitExternalResolver = resolve<ProjectCheckUnfetchedCommitType, HookContext>({})
-
-export const projectCheckUnfetchedCommitDataResolver = resolve<ProjectCheckUnfetchedCommitType, HookContext>({})
