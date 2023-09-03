@@ -9,7 +9,7 @@ then
 
         docker-compose up -d
         if [[ -z "${IS_LOCAL_FS}" || "${IS_LOCAL_FS}" == 'false' ]]; then
-            docker-compose up -d -f docker-compose-minio.yml
+            docker-compose -f docker-compose-minio.yml up -d
         fi
     else
         echo "❌ Please install docker-compose..."
