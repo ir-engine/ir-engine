@@ -391,7 +391,7 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
   const shoulderQuaternion = new Quaternion().setFromRotationMatrix(mx)
 
   planeHelper2.position.set(shoulderCenter.x, lowestWorldY - shoulderCenter.y, shoulderCenter.z)
-  planeHelper2.quaternion.copy(shoulderQuaternion).multiply(rotate180YQuaternion)
+  planeHelper2.quaternion.copy(shoulderQuaternion)
   planeHelper2.updateMatrixWorld()
 
   // get ratio of each spine bone, and apply that ratio of rotation such that the shoulders are in the correct position
