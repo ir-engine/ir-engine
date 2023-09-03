@@ -39,6 +39,7 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 
 import { Landmark, Results } from '@mediapipe/holistic'
 
+import { NormalizedLandmarkList } from '@mediapipe/holistic'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
@@ -52,7 +53,7 @@ export interface MotionCaptureStream extends Results {
   za: Landmark[]
 }
 
-export const sendResults = (results: MotionCaptureStream) => {
+export const sendResults = (results: NormalizedLandmarkList) => {
   return encode({
     timestamp: Date.now(),
     peerID: Engine.instance.peerID,
@@ -64,7 +65,7 @@ export const receiveResults = (buff: ArrayBuffer) => {
   const { timestamp, peerID, results } = decode(new Uint8Array(buff)) as {
     timestamp: number
     peerID: PeerID
-    results: MotionCaptureStream
+    results: NormalizedLandmarkList
   }
   // console.log('received mocap data', peerID, results)
   return { timestamp, peerID, results }
@@ -96,7 +97,7 @@ const handleMocapData = (
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
 
-const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
+const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmarkList>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {

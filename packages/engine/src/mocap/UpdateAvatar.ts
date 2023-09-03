@@ -28,13 +28,16 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
 import {
-  Box3,
   BufferAttribute,
   BufferGeometry,
   Color,
+  DoubleSide,
   Euler,
   LineBasicMaterial,
   LineSegments,
+  Matrix4,
+  Plane,
+  PlaneGeometry,
   Quaternion,
   SphereGeometry,
   Vector3
@@ -52,9 +55,8 @@ import UpdateIkPose from './UpdateIkPose'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { NormalizedLandmarkList, POSE_CONNECTIONS, POSE_LANDMARKS } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { V_001, V_010 } from '../common/constants/MathConstants'
+import { V_000, V_010 } from '../common/constants/MathConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import { MotionCaptureStream } from './MotionCaptureSystem'
 
 /*
 ///
@@ -220,7 +222,7 @@ function ApplyPoseChanges(entity: Entity, changes) {
 const debug = true
 const grey = new Color(0.5, 0.5, 0.5)
 
-const drawDebug = () => {
+export const drawMocapDebug = () => {
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
 
   const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
@@ -277,88 +279,28 @@ const drawDebug = () => {
   }
 }
 
-const debugWorld = drawDebug()
-const debugScreen = drawDebug()
+const drawDebug = drawMocapDebug()
 
-export default function UpdateAvatar(data: MotionCaptureStream, userID, entity) {
-  // sanity check
-  if (!data || !data.za || !data.poseLandmarks) {
-    console.warn('no data')
-    return
-  }
-
+export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, entity) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
     return
   }
 
-  const worldLandmarks = data.za as NormalizedLandmarkList
-  const screenLandmarks = data.poseLandmarks as NormalizedLandmarkList
-
-  const normalizedScreenLandmarks = normalizeLandmarks(worldLandmarks, screenLandmarks)
-
   if (debug) {
-    // debugWorld(worldLandmarks)
-    // debugScreen(screenLandmarks)
-    debugScreen(normalizedScreenLandmarks)
+    drawDebug(landmarks)
   }
 
   const DIRECT = true
   if (DIRECT) {
-    // use landmarks to directly set head orientation and facial features
-    // const changes1 = UpdateLandmarkFace(data?.faceLandmarks)
-    // ApplyPoseChanges(entity, changes1)
-
-    // use landmarks to directly set fingers
-    // const changes2 = UpdateLandmarkHands(data?.leftHandLandmarks, data?.rightHandLandmarks)
-    // ApplyPoseChanges(entity, changes2)
-
-    // use landmarks to set coarse pose
-    // const changes3 = UpdateLandmarkPose(data?.za)
-    // ApplyPoseChanges(entity, changes3)
-    solveHips(entity, worldLandmarks)
-    solveSpine(entity, worldLandmarks)
-    solveArm(entity, worldLandmarks, 'left')
-    solveArm(entity, worldLandmarks, 'right')
+    solveSpine(entity, landmarks)
+    solveArm(entity, landmarks, 'left')
+    solveArm(entity, landmarks, 'right')
   } else {
     // publish ik targets rather than directly setting body parts
-    const changes4 = UpdateIkPose(data)
+    const changes4 = UpdateIkPose(landmarks)
     ApplyPoseChanges(entity, changes4)
   }
-}
-
-const bboxWorld = new Box3()
-const bboxScreen = new Box3()
-
-export const normalizeLandmarks = (worldLandmarks: NormalizedLandmarkList, screenLandmarks: NormalizedLandmarkList) => {
-  // take the head height in world space, and multiiply all screen space landmarks by this to get world space landmarks
-
-  bboxWorld.setFromPoints(worldLandmarks as Vector3[])
-  bboxScreen.setFromPoints(screenLandmarks as Vector3[])
-
-  const xRatio = (bboxWorld.max.x - bboxWorld.min.x) / (bboxScreen.max.x - bboxScreen.min.x)
-  const yRatio = (bboxWorld.max.y - bboxWorld.min.y) / (bboxScreen.max.y - bboxScreen.min.y)
-  const zRatio = (bboxWorld.max.z - bboxWorld.min.z) / (bboxScreen.max.z - bboxScreen.min.z)
-
-  const normalizedScreenLandmarks = screenLandmarks.map((landmark) => ({
-    ...landmark,
-    x: landmark.x * xRatio,
-    y: landmark.y * yRatio,
-    z: landmark.z * zRatio
-  }))
-
-  const hipCenterX =
-    (normalizedScreenLandmarks[POSE_LANDMARKS.LEFT_HIP].x + normalizedScreenLandmarks[POSE_LANDMARKS.RIGHT_HIP].x) / 2
-  const hipCenterZ =
-    (normalizedScreenLandmarks[POSE_LANDMARKS.LEFT_HIP].z + normalizedScreenLandmarks[POSE_LANDMARKS.RIGHT_HIP].z) / 2
-
-  // translate all landmarks to the origin
-  for (const landmark of normalizedScreenLandmarks) {
-    landmark.x -= hipCenterX
-    landmark.z -= hipCenterZ
-  }
-
-  return normalizedScreenLandmarks
 }
 
 const threshhold = 0.6
@@ -368,14 +310,38 @@ const rotate180YQuaternion = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 const quaternion = new Quaternion()
 const quat = new Quaternion()
 const vec3 = new Vector3()
+console.log({ POSE_LANDMARKS })
 
-const solveHips = (entity: Entity, landmarks: NormalizedLandmarkList) => {
+const plane = new Plane()
+const planeHelper1 = new Mesh(
+  new PlaneGeometry(1, 1),
+  new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2, side: DoubleSide })
+)
+const planeHelper2 = new Mesh(
+  new PlaneGeometry(1, 1),
+  new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.2, side: DoubleSide })
+)
+
+Engine.instance.scene.add(planeHelper1)
+Engine.instance.scene.add(planeHelper2)
+
+/**
+ * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
+ */
+
+export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
   const leftHip = landmarks[POSE_LANDMARKS.LEFT_HIP]
 
   if (!rightHip || !leftHip) return
+
+  const rightShoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER]
+  const leftShoulder = landmarks[POSE_LANDMARKS.LEFT_SHOULDER]
+
+  // ignore visibility checks as we always want to set hips
+  if (rightShoulder.visibility! < threshhold || leftShoulder.visibility! < threshhold) return
 
   // ignore visibility checks as we always want to set hips
   // const hips = rightHip.visibility! > threshhold && leftHip.visibility! > threshhold
@@ -387,43 +353,46 @@ const solveHips = (entity: Entity, landmarks: NormalizedLandmarkList) => {
 
   const hipleft = new Vector3(rightHip.x, rightHip.y, rightHip.z)
   const hipright = new Vector3(leftHip.x, leftHip.y, leftHip.z)
-
-  hipsBone.position.copy(hipleft).add(hipright).multiplyScalar(0.5).y += lowestWorldY
-
-  // take the rotation of the two hip points around it's center as an XZ rotation
-  quaternion
-    .setFromUnitVectors(V_001, vec3.set(hipright.x - hipleft.x, 0, hipright.z - hipleft.z).normalize())
-    .multiply(ninetyDegreeXZTurnQuaternion)
-
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = quaternion.x
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = quaternion.y
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = quaternion.z
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = quaternion.w
-}
-
-/**
- * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
- */
-
-const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) => {
-  const rig = getComponent(entity, AvatarRigComponent)
-
-  const rightShoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER]
-  const leftShoulder = landmarks[POSE_LANDMARKS.LEFT_SHOULDER]
-
-  if (!rightShoulder || !leftShoulder) return
-
-  // ignore visibility checks as we always want to set hips
-  if (rightShoulder.visibility! < threshhold || leftShoulder.visibility! < threshhold) return
+  const hipcenter = new Vector3().copy(hipleft).add(hipright).multiplyScalar(0.5)
 
   const shoulderLeft = new Vector3(rightShoulder.x, rightShoulder.y, rightShoulder.z)
   const shoulderRight = new Vector3(leftShoulder.x, leftShoulder.y, leftShoulder.z)
 
+  const shoulderCenter = new Vector3().copy(shoulderLeft).add(shoulderRight).multiplyScalar(0.5)
+
+  hipsBone.position.copy(hipcenter).y += lowestWorldY
+
+  plane.setFromCoplanarPoints(hipright, hipleft, shoulderCenter)
+  /** @todo why do we need to rtate the normal??? */
+  plane.normal.applyQuaternion(rotate180YQuaternion)
+
+  const mx = new Matrix4().lookAt(plane.normal, V_000, V_010)
+  const hipNormalQuaterion = new Quaternion().setFromRotationMatrix(mx)
+
+  // multiply the hip normal quaternion by the rotation of the hips around this new axis
+
+  // const hipNormalQuaterion = normalToQuaternion(plane.normal, new Quaternion())
+
+  planeHelper1.position.set(hipcenter.x, lowestWorldY - hipcenter.y, hipcenter.z).y
+  planeHelper1.quaternion.copy(hipNormalQuaterion)
+  planeHelper1.updateMatrixWorld()
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipNormalQuaterion.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipNormalQuaterion.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipNormalQuaterion.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipNormalQuaterion.w
+
   // get quaternion that represents the rotation of the shoulders
 
-  const shoulderQuaternion = new Quaternion()
-    .setFromUnitVectors(V_001, vec3.subVectors(shoulderRight, shoulderLeft).normalize())
-    .multiply(ninetyDegreeXZTurnQuaternion)
+  plane.setFromCoplanarPoints(shoulderRight, shoulderLeft, hipcenter)
+  plane.normal.applyQuaternion(rotate180YQuaternion)
+
+  mx.lookAt(plane.normal, V_000, V_010)
+  const shoulderQuaternion = new Quaternion().setFromRotationMatrix(mx)
+
+  planeHelper2.position.set(shoulderCenter.x, lowestWorldY - shoulderCenter.y, shoulderCenter.z)
+  planeHelper2.quaternion.copy(shoulderQuaternion).multiply(rotate180YQuaternion)
+  planeHelper2.updateMatrixWorld()
 
   // get ratio of each spine bone, and apply that ratio of rotation such that the shoulders are in the correct position
 
@@ -438,7 +407,10 @@ const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) => {
 
   // const hips = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)! // rig.localRig[VRMHumanBoneName.Hips]?.node!
 
-  // get spine lengths from normalized rest pose data @todo cache this (and all other bones)
+  /**
+   * get spine lengths from normalized rest pose data
+   * @todo cache this (and all other bones)
+   */
   const spine0Length = new Vector3()
     .fromArray(rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Spine]!.position as number[])
     .length()

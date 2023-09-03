@@ -48,6 +48,7 @@ import {
   MotionCaptureStream,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { normalizeLandmarks } from '@etherealengine/engine/src/mocap/NormalizeLandmarks'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
@@ -58,7 +59,7 @@ import RecordingsList from '@etherealengine/ui/src/components/tailwind/Recording
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { HAND_CONNECTIONS, Holistic, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
+import { HAND_CONNECTIONS, Holistic, NormalizedLandmarkList, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import Toolbar from '../../components/tailwind/Toolbar'
 
@@ -88,7 +89,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true) => {
 }
 
 let creatingProducer = false
-const sendResults = (results: MotionCaptureStream) => {
+const sendResults = (results: NormalizedLandmarkList) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
   const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
@@ -207,10 +208,12 @@ const CaptureDashboard = () => {
 
         const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
 
+        const normalizedLandmarks = normalizeLandmarks(results.za, poseLandmarks)
+
         if (debugSettings?.throttleSend) {
-          throttledSend(results)
+          throttledSend(normalizedLandmarks)
         } else {
-          sendResults(results)
+          sendResults(normalizedLandmarks)
         }
 
         processingFrame.set(false)
