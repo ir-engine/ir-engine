@@ -1,0 +1,22 @@
+
+version: '2.3'
+services:
+  minio:
+    image: docker.io/bitnami/minio:latest
+    container_name: etherealengine_minio_s3
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - 'minio_data:/data'
+      - ../certs/minio:/certs
+    environment:
+      MINIO_ROOT_USER: server
+      MINIO_ROOT_PASSWORD: password
+      BITNAMI_DEBUG: 'true'
+      MINIO_SCHEME: https
+      MINIO_DEFAULT_BUCKETS: etherealengine-static-resources:public,etherealengine-microk8s-static-resources:public,etherealengine-minikube-static-resources:public
+
+volumes:
+  minio_data:
+    driver: local
