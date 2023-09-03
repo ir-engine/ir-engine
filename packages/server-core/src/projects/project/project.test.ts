@@ -101,7 +101,7 @@ describe('project.test', () => {
         const { data } = await app.service(projectPath).find(findParams)
         await app.service(projectPath).remove(data[0].id, params)
         const project = await app.service(projectPath).find(findParams)
-        assert.strictEqual(project, null)
+        assert.strictEqual(project.data.length, 0)
       })
     })
 

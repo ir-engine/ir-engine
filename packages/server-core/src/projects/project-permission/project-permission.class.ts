@@ -144,7 +144,7 @@ export class ProjectPermissionService<
       if (existing.total > 0) return existing.data[0]
       const project = await this.app.service(projectPath).get(data.projectId!)
 
-      if (project) throw new BadRequest('Invalid project ID')
+      if (!project) throw new BadRequest('Invalid project ID')
       const existingPermissionsCount = (await super._find({
         query: {
           projectId: data.projectId

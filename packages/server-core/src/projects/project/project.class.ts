@@ -280,22 +280,13 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     await this.app.service(routePath).remove(null, {
       query: {
-        $and: [{ project: { $ne: undefined } }, { project: name }]
+        project: name
       }
     })
 
     const avatarItems = (await this.app.service(avatarPath).find({
       query: {
-        $and: [
-          {
-            project: name
-          },
-          {
-            project: {
-              $ne: undefined
-            }
-          }
-        ]
+        project: name
       },
       paginate: false
     })) as AvatarType[]
@@ -308,16 +299,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     const staticResourceItems = (await this.app.service(staticResourcePath).find({
       query: {
-        $and: [
-          {
-            project: name
-          },
-          {
-            project: {
-              $ne: undefined
-            }
-          }
-        ]
+        project: name
       },
       paginate: false
     })) as StaticResourceType[]

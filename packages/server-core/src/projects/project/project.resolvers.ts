@@ -62,14 +62,16 @@ export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => 
 
 export const projectResolver = resolve<ProjectType, HookContext>({
   projectPermissions: virtual(async (project, context) => {
-    const projectPermissions = (await context.app.service(projectPermissionPath).find({
-      query: {
-        projectId: project.id
-      },
-      paginate: false
-    })) as ProjectPermissionType[]
+    if (context.params?.query?.allowed) {
+      const projectPermissions = (await context.app.service(projectPermissionPath).find({
+        query: {
+          projectId: project.id
+        },
+        paginate: false
+      })) as ProjectPermissionType[]
 
-    return projectPermissions
+      return projectPermissions
+    }
   }),
 
   commitDate: virtual(async (project) => {

@@ -55,7 +55,7 @@ export default () => {
           ).data[0].projectId
         : context.data.id || context.data.projectId
     const project = await app.service(projectPath).get(projectId)
-    if (project) throw new BadRequest('Invalid project ID')
+    if (!project) throw new BadRequest('Invalid project ID')
     const projectPermission = (await app.service(projectPermissionPath)._find({
       query: {
         userId: loggedInUser.id,
