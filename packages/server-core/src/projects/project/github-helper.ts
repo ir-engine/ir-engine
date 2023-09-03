@@ -315,9 +315,13 @@ const uploadToRepo = async (
   //LFS files need to be included in a .gitattributes file at the top of the repo in order to be populated properly.
   //If the file exists because there's at least one file now in LFS, but it's not already in the list of files in
   //the repo, then make the blob for it and add to the tree.
+  console.log('filePaths', filePaths)
   const hasGitAttributes = fs.existsSync(path.join(projectDirectory, '.gitattributes'))
+  console.log('hasGitAttributes', hasGitAttributes)
   const gitAttributesFilePath = `projects/${project.name}/.gitattributes`
+  console.log('filePaths indexof gitattributes', filePaths.indexOf(gitAttributesFilePath))
   if (hasGitAttributes && filePaths.indexOf(gitAttributesFilePath) < 0) {
+    console.log('making gitattributes')
     const blob = await createBlobForFile(
       octo,
       org,
@@ -329,6 +333,7 @@ const uploadToRepo = async (
     fileBlobs.push(blob)
     filePaths.push(gitAttributesFilePath)
   }
+  console.log('final filePaths', filePaths)
   // Create a new tree from all of the files, so that a new commit can be made from it
   const newTree = await createNewTree(
     octo,
@@ -491,11 +496,18 @@ const createBlobForFile =
       //it does not need to be uploaded again.
       if (actions) {
         const uploadActions = actions.upload
+        const verifyActions = actions.verify
         await fetch(uploadActions.href, {
           method: 'PUT',
           headers: uploadActions.header,
           body: buffer
         })
+        //If a verify action is returned, it is seemingly required to hit it in order to complete the LFS upload
+        if (verifyActions)
+          await fetch(verifyActions.href, {
+            method: 'POST',
+            headers: verifyActions.header
+          })
       }
       content = Buffer.from(lfsPointer).toString(encoding)
     } else {

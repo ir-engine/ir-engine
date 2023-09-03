@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
-
 import { Application } from '../../../declarations'
 
 import {
@@ -33,17 +30,17 @@ import {
   InviteCodeLookupType
 } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ServiceInterface } from '@feathersjs/feathers'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InviteCodeLookupParams extends RootParams<InviteCodeLookupQuery> {}
 
 // export class InviteCodeLookupService extends KnexAdapter<InviteCodeLookupParams> {
-export class InviteCodeLookupService extends KnexAdapter<InviteCodeLookupType, InviteCodeLookupParams> {
+export class InviteCodeLookupService implements ServiceInterface<InviteCodeLookupType, InviteCodeLookupParams> {
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 
