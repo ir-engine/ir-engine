@@ -29,17 +29,22 @@ import { Euler, MathUtils, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 }
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { V_010 } from '../../common/constants/MathConstants'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { timeSeriesMocapData } from '../../mocap/MotionCaptureSystem'
+import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -142,7 +147,7 @@ const ikTargetSpawnQueue = defineActionQueue(AvatarNetworkAction.spawnIKTarget.m
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
-  const { debugEnable } = getMutableState(RendererState)
+  const { physicsDebug: debugEnable } = getMutableState(RendererState)
   if (!debugEnable.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
@@ -209,7 +214,7 @@ let footRaycastTimer = 0
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds, localClientEntity } = Engine.instance
-  const { debugEnable } = getState(RendererState)
+  const { avatarDebug } = getState(RendererState)
 
   /**
    * 1 - Sort & apply avatar priority queue
@@ -265,18 +270,11 @@ const execute = () => {
     const rig = rigComponent.rig
 
     // temp for mocap
-    const networkObject = getComponent(entity, NetworkObjectComponent)
-    const network = Engine.instance.worldNetwork
-    if (network) {
-      const isPeerForEntity = Array.from(timeSeriesMocapData.keys()).find(
-        (peerID: PeerID) => network.peers[peerID]?.userId === networkObject.ownerId
-      )
-      if (isPeerForEntity && ikEntities.length == 0) {
-        // just animate and exit
-        animationComponent.mixer.stopAllAction()
-        rigComponent.vrm.update(getState(EngineState).deltaSeconds)
-        continue
-      }
+    if (hasComponent(entity, MotionCaptureRigComponent) && ikEntities.length == 0) {
+      // just animate and exit
+      animationComponent.mixer.stopAllAction()
+      rigComponent.vrm.update(getState(EngineState).deltaSeconds)
+      continue
     }
 
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
@@ -377,7 +375,7 @@ const execute = () => {
         }
       }
 
-      if (debugEnable) {
+      if (avatarDebug) {
         let i = 0
         for (const [key, value] of Object.entries(worldSpaceTargets)) {
           //if xr is active, set select targets to xr tracking data
@@ -538,7 +536,7 @@ const reactor = () => {
   const renderState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
     setVisualizers()
-  }, [renderState.debugEnable])
+  }, [renderState.physicsDebug])
   return null
 }
 

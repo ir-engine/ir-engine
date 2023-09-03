@@ -96,7 +96,7 @@ const handleMocapData = (
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
 
-export const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
+const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
@@ -128,6 +128,7 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const rig = getComponent(entity, AvatarRigComponent)
       const bone = rig.vrm.humanoid.getNormalizedBoneNode(boneName)
+      // const bone = rig.localRig[boneName]?.node
       if (!bone) continue
       bone.quaternion.set(
         MotionCaptureRigComponent.rig[boneName].x[entity],

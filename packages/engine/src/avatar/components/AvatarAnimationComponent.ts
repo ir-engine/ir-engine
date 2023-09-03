@@ -31,17 +31,17 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
-  getMutableComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
@@ -140,24 +140,23 @@ export const AvatarRigComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
-    const anim = useComponent(entity, AvatarRigComponent)
+    const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
+    const rigComponent = useComponent(entity, AvatarRigComponent)
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
-    const rigComponent = getMutableComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (debugEnabled.value && !anim.helper.value && !pending?.value && anim.value.rig?.hips?.node) {
-        const helper = new SkeletonHelper(anim.value.rig.hips.node.parent!.parent!)
+      if (debugEnabled.value && !rigComponent.helper.value && !pending?.value && rigComponent.value.rig?.hips?.node) {
+        const helper = new SkeletonHelper(rigComponent.value.rig.hips.node.parent?.parent!)
         helper.frustumCulled = false
         helper.name = `skeleton-helper-${entity}`
-        setObjectLayers(helper, ObjectLayers.PhysicsHelper)
-        addObjectToGroup(entity, helper)
-        anim.helper.set(helper)
+        setObjectLayers(helper, ObjectLayers.AvatarHelper)
+        Engine.instance.scene.add(helper)
+        rigComponent.helper.set(helper)
       }
 
-      if ((!debugEnabled.value || pending?.value) && anim.helper.value) {
-        removeObjectFromGroup(entity, anim.helper.value)
-        anim.helper.set(none)
+      if ((!debugEnabled.value || pending?.value) && rigComponent.helper.value) {
+        rigComponent.helper.value.removeFromParent()
+        rigComponent.helper.set(none)
       }
     }, [debugEnabled, pending])
 
@@ -166,11 +165,12 @@ export const AvatarRigComponent = defineComponent({
       const userData = (rigComponent.value.vrm as any).userData
       if (userData) rigComponent.flipped.set(userData && userData.flipped)
     }, [rigComponent.vrm])
+
     /**
      * Proxify the rig bones with the bitecs store
      */
     useEffect(() => {
-      const rig = anim.rig.value
+      const rig = rigComponent.rig.value
       if (!rig) return
       for (const [boneName, bone] of Object.entries(rig)) {
         if (!bone) continue
@@ -180,7 +180,7 @@ export const AvatarRigComponent = defineComponent({
         proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.node.position)
         proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.node.quaternion)
       }
-    }, [anim.rig])
+    }, [rigComponent.rig])
 
     return null
   }

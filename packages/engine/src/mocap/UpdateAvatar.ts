@@ -218,11 +218,12 @@ function ApplyPoseChanges(entity: Entity, changes) {
 ///
 
 const debug = true
+const grey = new Color(0.5, 0.5, 0.5)
 
 const drawDebug = () => {
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
 
-  const positionLineSegment = new LineSegments<BufferGeometry, LineBasicMaterial>()
+  const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
   positionLineSegment.material.linewidth = 4
   const posAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 3).fill(0), 3)
   positionLineSegment.geometry.setAttribute('position', posAttr)
@@ -235,7 +236,7 @@ const drawDebug = () => {
       const confidence = value.visibility ?? 0
       const color = new Color().set(1 - confidence, confidence, 0)
       if (!debugMeshes[key]) {
-        const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
+        const mesh = new Mesh(new SphereGeometry(0.02), new MeshBasicMaterial({ color }))
         debugMeshes[key] = mesh
         Engine.instance.scene.add(mesh)
       }
@@ -264,14 +265,12 @@ const drawDebug = () => {
         secondPoint.matrixWorld.elements[14]
       )
       // todo color doesnt work
-      colAttr.setXYZW(i, firstPoint.material.color.r, firstPoint.material.color.g, firstPoint.material.color.b, 1)
-      colAttr.setXYZW(
-        i + 1,
-        secondPoint.material.color.r,
-        secondPoint.material.color.g,
-        secondPoint.material.color.b,
-        1
-      )
+      const confident = firstPoint.material.color.g > threshhold && secondPoint.material.color.g > threshhold
+      const firstColor = confident ? firstPoint.material.color : grey
+      const secondColor = confident ? secondPoint.material.color : grey
+
+      colAttr.setXYZW(i, firstColor.r, firstColor.g, firstColor.b, 1)
+      colAttr.setXYZW(i + 1, secondColor.r, secondColor.g, secondColor.b, 1)
     }
     posAttr.needsUpdate = true
     colAttr.needsUpdate = true
@@ -362,7 +361,7 @@ export const normalizeLandmarks = (worldLandmarks: NormalizedLandmarkList, scree
   return normalizedScreenLandmarks
 }
 
-const threshhold = 0.2
+const threshhold = 0.6
 const ninetyDegreeXZTurnQuaternion = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
 
 const quaternion = new Quaternion()
@@ -383,7 +382,7 @@ const solveHips = (entity: Entity, landmarks: NormalizedLandmarkList) => {
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
-  const hipsBone = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)!
+  const hipsBone = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)! // rig.localRig[VRMHumanBoneName.Hips]?.node!
 
   const hipleft = new Vector3(rightHip.x, rightHip.y, rightHip.z)
   const hipright = new Vector3(leftHip.x, leftHip.y, leftHip.z)
@@ -427,10 +426,10 @@ const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) => {
 
   // get ratio of each spine bone, and apply that ratio of rotation such that the shoulders are in the correct position
 
-  const hips = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)!
-  const spine = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Spine)!
-  const spine1 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Chest)!
-  const spine2 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Neck)!
+  const hips = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)! // rig.localRig[VRMHumanBoneName.Hips]?.node!
+  const spine = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Spine)! // rig.localRig[VRMHumanBoneName.Spine]?.node!
+  const spine1 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Chest)! // rig.localRig[VRMHumanBoneName.Chest]?.node!
+  const spine2 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Neck)! // rig.localRig[VRMHumanBoneName.Neck]?.node!
 
   const spine0Length = hips.position.distanceTo(spine.position)
   const spine1Length = spine.position.distanceTo(spine1.position)
