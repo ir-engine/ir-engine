@@ -52,7 +52,7 @@ import UpdateIkPose from './UpdateIkPose'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { NormalizedLandmarkList, POSE_CONNECTIONS, POSE_LANDMARKS } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { V_001 } from '../common/constants/MathConstants'
+import { V_001, V_010 } from '../common/constants/MathConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { MotionCaptureStream } from './MotionCaptureSystem'
 
@@ -363,6 +363,7 @@ export const normalizeLandmarks = (worldLandmarks: NormalizedLandmarkList, scree
 
 const threshhold = 0.6
 const ninetyDegreeXZTurnQuaternion = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
+const rotate180YQuaternion = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 const quaternion = new Quaternion()
 const quat = new Quaternion()
@@ -426,32 +427,37 @@ const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) => {
 
   // get ratio of each spine bone, and apply that ratio of rotation such that the shoulders are in the correct position
 
-  const hips = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)! // rig.localRig[VRMHumanBoneName.Hips]?.node!
-  const spine = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Spine)! // rig.localRig[VRMHumanBoneName.Spine]?.node!
-  const spine1 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Chest)! // rig.localRig[VRMHumanBoneName.Chest]?.node!
-  const spine2 = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Neck)! // rig.localRig[VRMHumanBoneName.Neck]?.node!
+  const hipsRotation = new Quaternion(
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity],
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity],
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity],
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity]
+  )
+    .multiply(getComponent(entity, TransformComponent).rotation)
+    .multiply(rotate180YQuaternion)
 
-  const spine0Length = hips.position.distanceTo(spine.position)
-  const spine1Length = spine.position.distanceTo(spine1.position)
-  const spine2Length = spine1.position.distanceTo(spine2.position)
+  // const hips = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)! // rig.localRig[VRMHumanBoneName.Hips]?.node!
 
-  const totalSpineLength = spine0Length + spine1Length + spine2Length
+  // get spine lengths from normalized rest pose data @todo cache this (and all other bones)
+  const spine0Length = new Vector3()
+    .fromArray(rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Spine]!.position as number[])
+    .length()
+  const spine1Length = new Vector3()
+    .fromArray(rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Chest]!.position as number[])
+    .length()
+
+  const totalSpineLength = spine0Length + spine1Length
 
   const spineRatio = spine0Length / totalSpineLength
-  const spine1Ratio = spine1Length / totalSpineLength
-  const spine2Ratio = spine2Length / totalSpineLength
 
   // apply rotation to each spine bone
 
   // get world space rotation of each segment
-  const spine0Quaternion = new Quaternion().copy(hips.quaternion).slerp(shoulderQuaternion, spineRatio)
-  const spine1Quaternion = new Quaternion().copy(hips.quaternion).slerp(shoulderQuaternion, spine1Ratio)
-  const spine2Quaternion = new Quaternion().copy(hips.quaternion).slerp(shoulderQuaternion, spine2Ratio)
+  const spine0Quaternion = new Quaternion().copy(hipsRotation).slerp(shoulderQuaternion, spineRatio)
 
   // get local space rotation of each segment
-  const spine0Local = new Quaternion().copy(spine0Quaternion).premultiply(hips.quaternion.clone().invert())
-  const spine1Local = new Quaternion().copy(spine1Quaternion).premultiply(spine0Quaternion.clone().invert())
-  const spine2Local = new Quaternion().copy(spine2Quaternion).premultiply(spine1Quaternion.clone().invert())
+  const spine0Local = new Quaternion().copy(spine0Quaternion).premultiply(new Quaternion().copy(hipsRotation).invert())
+  const spine1Local = new Quaternion().copy(shoulderQuaternion).premultiply(spine0Quaternion.clone().invert())
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].x[entity] = spine0Local.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].y[entity] = spine0Local.y
@@ -462,11 +468,6 @@ const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) => {
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].y[entity] = spine1Local.y
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].z[entity] = spine1Local.z
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Chest].w[entity] = spine1Local.w
-
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].x[entity] = spine2Local.x
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].y[entity] = spine2Local.y
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].z[entity] = spine2Local.z
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Neck].w[entity] = spine2Local.w
 }
 
 export const solveArm = (entity: Entity, landmarks: NormalizedLandmarkList, side: 'left' | 'right') => {
