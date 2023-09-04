@@ -319,7 +319,7 @@ const planeHelper1 = new Mesh(
 )
 const planeHelper2 = new Mesh(
   new PlaneGeometry(1, 1),
-  new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.2, side: DoubleSide })
+  new MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2, side: DoubleSide })
 )
 
 /**
@@ -348,63 +348,55 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
 
   const hipsBone = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)! // rig.localRig[VRMHumanBoneName.Hips]?.node!
 
-  const hipleft = new Vector3(rightHip.x, rightHip.y, rightHip.z)
-  const hipright = new Vector3(leftHip.x, leftHip.y, leftHip.z)
+  const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
+  const hipright = new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
   const hipcenter = new Vector3().copy(hipleft).add(hipright).multiplyScalar(0.5)
 
-  const shoulderLeft = new Vector3(rightShoulder.x, rightShoulder.y, rightShoulder.z)
-  const shoulderRight = new Vector3(leftShoulder.x, leftShoulder.y, leftShoulder.z)
+  const shoulderLeft = new Vector3(rightShoulder.x, lowestWorldY - rightShoulder.y, rightShoulder.z)
+  const shoulderRight = new Vector3(leftShoulder.x, lowestWorldY - leftShoulder.y, leftShoulder.z)
 
   const shoulderCenter = new Vector3().copy(shoulderLeft).add(shoulderRight).multiplyScalar(0.5)
 
-  hipsBone.position.copy(hipcenter).y += lowestWorldY
+  hipsBone.position.copy(hipcenter)
 
-  plane.setFromCoplanarPoints(hipright, hipleft, shoulderCenter)
-  /** @todo why do we need to rtate the normal??? */
-  plane.normal.applyQuaternion(rotate180YQuaternion)
+  plane.setFromCoplanarPoints(hipleft, hipright, shoulderCenter)
 
   const mx = new Matrix4().lookAt(plane.normal, V_000, V_010)
-  const hipNormalQuaterion = new Quaternion().setFromRotationMatrix(mx)
+  const hipWorldNormalQuaterion = new Quaternion().setFromRotationMatrix(mx)
 
   // multiply the hip normal quaternion by the rotation of the hips around this new axis
-
-  // const hipNormalQuaterion = normalToQuaternion(plane.normal, new Quaternion())
 
   if (!planeHelper1.parent) {
     Engine.instance.scene.add(planeHelper1)
     Engine.instance.scene.add(planeHelper2)
   }
-  planeHelper1.position.set(hipcenter.x, lowestWorldY - hipcenter.y, hipcenter.z).y
-  planeHelper1.quaternion.copy(hipNormalQuaterion)
+
+  // multiply the hip normal quaternion by the rotation of the hips around this ne
+  planeHelper1.position.set(hipcenter.x, hipcenter.y, hipcenter.z).y
+  planeHelper1.quaternion.copy(hipWorldNormalQuaterion)
   planeHelper1.updateMatrixWorld()
 
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipNormalQuaterion.x
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipNormalQuaterion.y
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipNormalQuaterion.z
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipNormalQuaterion.w
+  const hipLocalRotation = new Quaternion()
+    .copy(hipWorldNormalQuaterion)
+    .premultiply(hipsBone.parent!.getWorldQuaternion(new Quaternion()).invert())
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipLocalRotation.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipLocalRotation.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipLocalRotation.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipLocalRotation.w
 
   // get quaternion that represents the rotation of the shoulders
 
   plane.setFromCoplanarPoints(shoulderRight, shoulderLeft, hipcenter)
-  plane.normal.applyQuaternion(rotate180YQuaternion)
 
   mx.lookAt(plane.normal, V_000, V_010)
-  const shoulderQuaternion = new Quaternion().setFromRotationMatrix(mx)
+  const shoulderWorldQuaternion = new Quaternion().setFromRotationMatrix(mx)
 
-  planeHelper2.position.set(shoulderCenter.x, lowestWorldY - shoulderCenter.y, shoulderCenter.z)
-  planeHelper2.quaternion.copy(shoulderQuaternion)
+  planeHelper2.position.set(shoulderCenter.x, shoulderCenter.y, shoulderCenter.z)
+  planeHelper2.quaternion.copy(shoulderWorldQuaternion)
   planeHelper2.updateMatrixWorld()
 
   // get ratio of each spine bone, and apply that ratio of rotation such that the shoulders are in the correct position
-
-  const hipsRotation = new Quaternion(
-    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity],
-    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity],
-    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity],
-    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity]
-  )
-    .multiply(getComponent(entity, TransformComponent).rotation)
-    .multiply(rotate180YQuaternion)
 
   // const hips = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)! // rig.localRig[VRMHumanBoneName.Hips]?.node!
 
@@ -426,11 +418,13 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
   // apply rotation to each spine bone
 
   // get world space rotation of each segment
-  const spine0Quaternion = new Quaternion().copy(hipsRotation).slerp(shoulderQuaternion, spineRatio)
+  const spine0Quaternion = new Quaternion().copy(hipWorldNormalQuaterion).slerp(shoulderWorldQuaternion, spineRatio)
 
   // get local space rotation of each segment
-  const spine0Local = new Quaternion().copy(spine0Quaternion).premultiply(new Quaternion().copy(hipsRotation).invert())
-  const spine1Local = new Quaternion().copy(shoulderQuaternion).premultiply(spine0Quaternion.clone().invert())
+  const spine0Local = new Quaternion()
+    .copy(spine0Quaternion)
+    .premultiply(new Quaternion().copy(hipWorldNormalQuaterion).invert())
+  const spine1Local = new Quaternion().copy(shoulderWorldQuaternion).premultiply(spine0Quaternion.clone().invert())
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].x[entity] = spine0Local.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].y[entity] = spine0Local.y
