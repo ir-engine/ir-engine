@@ -25,16 +25,30 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
-import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
-import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { builderInfoPath, BuilderInfoType } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
+import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import {
+  projectBuildPath,
+  ProjectBuildType,
+  ProjectUpdateInterfaceType
+} from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import {
+  projectBuilderTagsPath,
+  ProjectBuilderTagsType
+} from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import { projectCheckSourceDestinationMatchPath } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
+import { projectCheckUnfetchedCommitPath } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { projectCommitsPath } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
+import { projectDestinationCheckPath } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
+import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
+import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -52,7 +66,7 @@ export const ProjectState = defineState({
     rebuilding: true,
     succeeded: false,
     failed: false,
-    builderTags: [] as Array<BuilderTag>,
+    builderTags: [] as Array<ProjectBuilderTagsType>,
     builderInfo: {
       engineVersion: '',
       engineCommit: ''
@@ -123,7 +137,7 @@ export const ProjectService = {
       .update({ sourceURL, destinationURL, name, reset, commitSHA, sourceBranch, updateType, updateSchedule })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
-    await API.instance.client.service('project-invalidate').patch({ projectName: name })
+    await API.instance.client.service(projectInvalidatePath).patch(null, { projectName: name })
     await ProjectService.fetchProjects()
   },
 
@@ -136,7 +150,7 @@ export const ProjectService = {
 
   // restricted to admin scope
   checkReloadStatus: async () => {
-    const result = await API.instance.client.service('project-build').find()
+    const result = await API.instance.client.service(projectBuildPath).find()
     logger.info({ result }, 'Check reload projects result')
     dispatchAction(ProjectAction.reloadStatusFetched({ status: result }))
   },
@@ -144,7 +158,7 @@ export const ProjectService = {
   // restricted to admin scope
   invalidateProjectCache: async (projectName: string) => {
     try {
-      await API.instance.client.service('project-invalidate').patch({ projectName })
+      await API.instance.client.service(projectInvalidatePath).patch(null, { projectName })
       await ProjectService.fetchProjects()
     } catch (err) {
       logger.error(err, 'Error invalidating project cache.')
@@ -165,7 +179,7 @@ export const ProjectService = {
 
   pushProject: async (id: string) => {
     try {
-      await API.instance.client.service('project-github-push').patch(id, {})
+      await API.instance.client.service(projectGithubPushPath).patch(id, {})
     } catch (err) {
       logger.error('Error with project push', err)
       throw err
@@ -206,7 +220,7 @@ export const ProjectService = {
   useAPIListeners: () => {
     useEffect(() => {
       // TODO #7254
-      // API.instance.client.service('project-build').on('patched', (params) => {
+      // API.instance.client.service(projectBuildPath).on('patched', (params) => {
       //   store.dispatch(ProjectAction.buildProgress(params.message))
       // })
 
@@ -224,7 +238,7 @@ export const ProjectService = {
 
   fetchProjectBranches: async (url: string) => {
     try {
-      return API.instance.client.service('project-branches').get(url)
+      return (await Engine.instance.api.service(projectBranchesPath).get(url)).branches
     } catch (err) {
       logger.error('Error with fetching tags for a project', err)
       throw err
@@ -233,7 +247,7 @@ export const ProjectService = {
 
   fetchProjectCommits: async (url: string, branchName: string) => {
     try {
-      return API.instance.client.service('project-commits').get(url, {
+      return Engine.instance.api.service(projectCommitsPath).get(url, {
         query: {
           branchName: branchName
         }
@@ -246,7 +260,7 @@ export const ProjectService = {
 
   checkDestinationURLValid: async ({ url, inputProjectURL }: { url: string; inputProjectURL?: string }) => {
     try {
-      return API.instance.client.service('project-destination-check').get(url, {
+      return Engine.instance.api.service(projectDestinationCheckPath).get(url, {
         query: {
           inputProjectURL
         }
@@ -259,7 +273,7 @@ export const ProjectService = {
 
   checkUnfetchedCommit: async ({ url, selectedSHA }: { url: string; selectedSHA?: string }) => {
     try {
-      return API.instance.client.service('project-check-unfetched-commit').get(url, {
+      return Engine.instance.api.service(projectCheckUnfetchedCommitPath).get(url, {
         query: {
           selectedSHA
         }
@@ -282,7 +296,7 @@ export const ProjectService = {
     existingProject: boolean
   }) => {
     try {
-      return API.instance.client.service('project-check-source-destination-match').find({
+      return Engine.instance.api.service(projectCheckSourceDestinationMatchPath).find({
         query: {
           sourceURL,
           selectedSHA,
@@ -296,17 +310,13 @@ export const ProjectService = {
     }
   },
 
-  updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: UpdateProjectInterface[]) => {
+  updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectUpdateInterfaceType[]) => {
     try {
       console.log('projectToUpdate', projectsToUpdate)
-      await API.instance.client.service('project-build').patch(
-        tag,
-        {
-          updateProjects,
-          projectsToUpdate
-        },
-        null!
-      )
+      await Engine.instance.api.service(projectBuildPath).patch(tag, {
+        updateProjects,
+        projectsToUpdate
+      })
     } catch (err) {
       logger.error('Error with updating engine version', err)
       throw err
@@ -315,7 +325,7 @@ export const ProjectService = {
 
   fetchBuilderTags: async () => {
     try {
-      const result = await API.instance.client.service('project-builder-tags').find()
+      const result = await Engine.instance.api.service(projectBuilderTagsPath).find()
       dispatchAction(ProjectAction.builderTagsFetched({ builderTags: result }))
     } catch (err) {
       logger.error('Error with getting builder tags', err)
@@ -325,7 +335,7 @@ export const ProjectService = {
 
   getBuilderInfo: async () => {
     try {
-      const result = await API.instance.client.service('builder-info').get()
+      const result = await Engine.instance.api.service(builderInfoPath).get()
       dispatchAction(ProjectAction.builderInfoFetched({ builderInfo: result }))
     } catch (err) {
       logger.error('Error with getting engine info', err)
@@ -355,7 +365,7 @@ export class ProjectAction {
 
   static reloadStatusFetched = defineAction({
     type: 'ee.client.Project.RELOAD_STATUS_RETRIEVED' as const,
-    status: matches.object as Validator<unknown, BuildStatus>
+    status: matches.object as Validator<unknown, ProjectBuildType>
   })
 
   static postProject = defineAction({
@@ -373,12 +383,12 @@ export class ProjectAction {
 
   static builderTagsFetched = defineAction({
     type: 'ee.client.Project.BUILDER_TAGS_RETRIEVED' as const,
-    builderTags: matches.array as Validator<unknown, BuilderTag[]>
+    builderTags: matches.array as Validator<unknown, ProjectBuilderTagsType[]>
   })
 
   static builderInfoFetched = defineAction({
     type: 'ee.client.project.BUILDER_INFO_FETCHED' as const,
-    builderInfo: matches.object as Validator<unknown, BuilderInfo>
+    builderInfo: matches.object as Validator<unknown, BuilderInfoType>
   })
 
   static setGithubRepoAccessRefreshing = defineAction({
