@@ -322,9 +322,6 @@ const planeHelper2 = new Mesh(
   new MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.2, side: DoubleSide })
 )
 
-Engine.instance.scene.add(planeHelper1)
-Engine.instance.scene.add(planeHelper2)
-
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
  */
@@ -373,6 +370,10 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
 
   // const hipNormalQuaterion = normalToQuaternion(plane.normal, new Quaternion())
 
+  if (!planeHelper1.parent) {
+    Engine.instance.scene.add(planeHelper1)
+    Engine.instance.scene.add(planeHelper2)
+  }
   planeHelper1.position.set(hipcenter.x, lowestWorldY - hipcenter.y, hipcenter.z).y
   planeHelper1.quaternion.copy(hipNormalQuaterion)
   planeHelper1.updateMatrixWorld()
