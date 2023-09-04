@@ -41,6 +41,7 @@ import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfo
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import EditorContainer from '../components/EditorContainer'
 import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
 import { EditorAction, EditorState } from '../services/EditorServices'
@@ -78,12 +79,12 @@ export const EditorPage = () => {
     // TODO: This is a hack to prevent the editor from loading the engine twice
     if (isEditor.value) return
     isEditor.set(true)
-    const projects = Engine.instance.api.service('projects').find()
+    const projects = Engine.instance.api.service(projectsPath).find()
     startClientSystems()
 
     editorSystems()
     projects.then((proj) => {
-      loadEngineInjection(proj).then(() => {
+      loadEngineInjection(proj.projectsList).then(() => {
         setEngineReady(true)
         dispatchAction(EngineActions.initializeEngine({ initialised: true }))
       })

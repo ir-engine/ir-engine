@@ -27,10 +27,14 @@ import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { Group } from 'three'
 import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
+import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
+import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { CachedImageLoadExtension } from '../loaders/gltf/extensions/CachedImageLoadExtension'
 import EEECSImporterExtension from '../loaders/gltf/extensions/EEECSImporterExtension'
 import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMaterialImporterExtension'
@@ -39,10 +43,7 @@ import { HubsComponentsExtension } from '../loaders/gltf/extensions/HubsComponen
 import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtension'
 import RegisterMaterialsExtension from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMaterialsExtension'
-import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
-import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
-import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
@@ -64,7 +65,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   }
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
-  loader.register((parser) => new VRMLoaderPlugin(parser))
+  loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: true }))
   loader.register((parser) => new CachedImageLoadExtension(parser))
   loader.setMeshoptDecoder(MeshoptDecoder)
 
