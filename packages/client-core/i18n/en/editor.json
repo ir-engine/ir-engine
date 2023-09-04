@@ -484,7 +484,14 @@
       "mesh": "Particle Mesh",
       "blending": "Blending",
       "transparent": "Transparent",
-      "world-space": "Use World Space"
+      "world-space": "Use World Space",
+      "burst": {
+        "time":"Burst Time",
+        "count":"Burst Count",
+        "cycle":"Burst Cycle",
+        "interval":"Burst Interval",
+        "probability":"Burst Probability"
+      }
     },
     "clouds": {
       "name": "Cloud",
