@@ -313,14 +313,10 @@ export const ProjectService = {
   updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectUpdateInterfaceType[]) => {
     try {
       console.log('projectToUpdate', projectsToUpdate)
-      await Engine.instance.api.service(projectBuildPath).patch(
-        tag,
-        {
-          updateProjects,
-          projectsToUpdate
-        },
-        null!
-      )
+      await Engine.instance.api.service(projectBuildPath).patch(tag, {
+        updateProjects,
+        projectsToUpdate
+      })
     } catch (err) {
       logger.error('Error with updating engine version', err)
       throw err
