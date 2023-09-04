@@ -208,8 +208,8 @@ export const RecordingPeerList = () => {
   }
 
   useEffect(() => {
-    if (!mediaNetworkState?.users) return
-    peerIDs.set(mediaNetworkState.users.value[Engine.instance.userID] ?? [])
+    const mediaNetwork = Engine.instance.mediaNetwork
+    peerIDs.set(mediaNetwork?.users?.[Engine.instance.userID] ?? [])
   }, [mediaNetworkState?.peers, mediaNetworkState?.users])
 
   return (
