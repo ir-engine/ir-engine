@@ -36,8 +36,3 @@ export const projectCheckSourceDestinationMatchExternalResolver = resolve<
   ProjectCheckSourceDestinationMatchType,
   HookContext
 >({})
-
-export const projectCheckSourceDestinationMatchDataResolver = resolve<
-  ProjectCheckSourceDestinationMatchType,
-  HookContext
->({})

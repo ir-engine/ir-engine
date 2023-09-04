@@ -31,5 +31,3 @@ import { resolve } from '@feathersjs/schema'
 export const projectDestinationCheckResolver = resolve<ProjectDestinationCheckType, HookContext>({})
 
 export const projectDestinationCheckExternalResolver = resolve<ProjectDestinationCheckType, HookContext>({})
-
-export const projectDestinationCheckDataResolver = resolve<ProjectDestinationCheckType, HookContext>({})
