@@ -39,7 +39,6 @@ import {
 import { prototypeFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { initializeMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { KHRTextureTransform } from '@gltf-transform/extensions'
-import { generateUUID } from 'three/src/math/MathUtils'
 
 const EXTENSION_NAME = 'EE_material'
 
@@ -151,6 +150,7 @@ export class EEMaterialExtension extends Extension {
   public read(readerContext: ReaderContext): this {
     initializeMaterialLibrary()
     const materialDefs = readerContext.jsonDoc.json.materials || []
+    let uuidIndex = 0
     materialDefs.map((def, idx) => {
       if (def.extensions?.[EXTENSION_NAME]) {
         const eeMaterial = new EEMaterial(this.document.getGraph())
@@ -189,7 +189,8 @@ export class EEMaterialExtension extends Extension {
                   extensionData.texCoord && transform.setTexCoord(extensionData.texCoord)
                   textureInfo.setExtension('KHR_texture_transform', transform)
                 }
-                const uuid = generateUUID()
+                const uuid = uuidIndex.toString()
+                uuidIndex++
                 texture.setExtras({ uuid })
                 this.textureInfoMap.set(uuid, textureInfo)
               }
