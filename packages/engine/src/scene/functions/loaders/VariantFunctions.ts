@@ -44,7 +44,9 @@ export function setModelVariant(entity: Entity) {
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //set model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
-    deviceVariant && modelComponent.src.value !== deviceVariant.src.value && modelComponent.src.set(deviceVariant.src)
+    deviceVariant &&
+      modelComponent.src.value !== deviceVariant.src.value &&
+      modelComponent.src.set(deviceVariant.src.value)
   } else if (variantComponent.heuristic.value === 'DISTANCE') {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
@@ -53,7 +55,7 @@ export function setModelVariant(entity: Entity) {
       const minDistance = Math.pow(level.metadata['minDistance'], 2)
       const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
       const useLevel = minDistance <= distance && distance <= maxDistance
-      useLevel && modelComponent.src.value !== level.src.value && modelComponent.src.set(level.src)
+      useLevel && modelComponent.src.value !== level.src.value && modelComponent.src.set(level.src.value)
       if (useLevel) break
     }
   }
