@@ -46,33 +46,6 @@ export interface ArrayInputGroupState {
   values: string[]
 }
 
-const groupContainerStyle: React.CSSProperties = {
-  backgroundColor: 'transparent',
-  color: '#9fa4b5',
-  whiteSpace: 'pre-wrap',
-  padding: '0 8px 8px'
-}
-
-const arrayInputGroupContentStyle: React.CSSProperties = {
-  margin: '4px 0px',
-  display: 'flex',
-  flexWrap: 'wrap',
-  flexDirection: 'column'
-}
-
-const labelStyle = {
-  maxWidth: '20%'
-}
-
-const inputStyle = {
-  maxWidth: '80%',
-  margin: 0
-}
-
-const divStyle = {
-  maxWidth: '80%'
-}
-// + button on first - button on rest
 const ArrayInputGroup = ({
   name,
   isStringInput,

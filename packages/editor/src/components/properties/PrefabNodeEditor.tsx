@@ -75,17 +75,19 @@ export const PrefabNodeEditor: EditorComponentType = (props) => {
         <PrefabInput value={prefab.src.value} onChange={updateProperty(PrefabComponent, 'src')} />
       </InputGroup>
       {isLoaded === LoadState.UNLOADED && (
-        <PropertiesPanelButton onClick={onLoad}>{t('editor:properties:prefab.lbl-load')}</PropertiesPanelButton>
+        <InputGroup name="loadOptions" label={t('editor:properties:prefab.lbl-loadOptions')}>
+          <PropertiesPanelButton onClick={onLoad}>{t('editor:properties:prefab.lbl-load')}</PropertiesPanelButton>
+        </InputGroup>
       )}
       {isLoaded === LoadState.LOADING && <p>{t('Loading...')}</p>}
       {isLoaded === LoadState.LOADED && (
-        <InputGroup name={t('editor:properties:prefab.lbl-options')}>
+        <InputGroup name="loadedOptions" label={t('editor:properties:prefab.lbl-options')}>
           <PropertiesPanelButton onClick={onUnload}>{t('editor:properties:prefab.lbl-unload')}</PropertiesPanelButton>
           <PropertiesPanelButton onClick={onReload}>{t('editor:properties:prefab.lbl-reload')}</PropertiesPanelButton>
         </InputGroup>
       )}
       {isLoaded !== LoadState.LOADING && (
-        <InputGroup name={t('editor:properties:prefab.lbl-exportOptions')}>
+        <InputGroup name="exportOptions" label={t('editor:properties:prefab.lbl-exportOptions')}>
           <PropertiesPanelButton onClick={onExportAsset}>
             {t('editor:properties:prefab.lbl-export')}
           </PropertiesPanelButton>
