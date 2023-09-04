@@ -23,13 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getState } from '@etherealengine/hyperflux'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { XRState } from '../../xr/XRState'
 import { LinkComponent } from '../components/LinkComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
 
-const linkQuery = defineQuery([LinkComponent, InputComponent])
+const linkQuery = defineQuery([LinkComponent, VisibleComponent, InputComponent])
 
 const execute = () => {
   for (const entity of linkQuery()) {
@@ -41,11 +45,16 @@ const execute = () => {
       const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
       const buttons = inputSource?.buttons
 
-      if (buttons?.PrimaryClick?.touched) {
-        if (buttons.PrimaryClick.up) {
-          typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
+      if (buttons)
+        if (buttons.PrimaryClick?.touched) {
+          if (buttons.PrimaryClick.up) {
+            typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
+          }
+        } else if (buttons[XRStandardGamepadButton.Trigger]?.down) {
+          const xrState = getState(XRState)
+          xrState.session?.end()
+          typeof window === 'object' && window && window.open(linkComponent.url)
         }
-      }
     }
   }
 }
