@@ -24,8 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { ProjectGithubPushPatch } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
+import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { resolve } from '@feathersjs/schema'
 
-export const projectGithubPushPatchResolver = resolve<ProjectGithubPushPatch, HookContext>({})
+export const projectCheckSourceDestinationMatchResolver = resolve<ProjectCheckSourceDestinationMatchType, HookContext>(
+  {}
+)
+
+export const projectCheckSourceDestinationMatchExternalResolver = resolve<
+  ProjectCheckSourceDestinationMatchType,
+  HookContext
+>({})
+
+export const projectCheckSourceDestinationMatchDataResolver = resolve<
+  ProjectCheckSourceDestinationMatchType,
+  HookContext
+>({})

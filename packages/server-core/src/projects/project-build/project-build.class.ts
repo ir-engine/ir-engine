@@ -25,7 +25,7 @@ import { ServiceInterface } from '@feathersjs/feathers'
 import { checkBuilderService, updateBuilder } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'
 
-export class ProjectBuildService implements ServiceInterface<ProjectBuildType, ProjectBuildPatch> {
+export class ProjectBuildService implements ServiceInterface<ProjectBuildType | void, ProjectBuildPatch> {
   app: Application
 
   constructor(app: Application) {
@@ -38,6 +38,5 @@ export class ProjectBuildService implements ServiceInterface<ProjectBuildType, P
 
   async patch(tag: string, data: ProjectBuildPatch, params?: ProjectParamsClient) {
     await updateBuilder(this.app, tag, data, params as ProjectParams)
-    return {} as ProjectBuildType
   }
 }

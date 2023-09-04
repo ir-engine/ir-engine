@@ -18,25 +18,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectGithubPushPatch } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 import { pushProjectToGithub } from '../project/github-helper'
 
-export class ProjectGithubPushService implements ServiceInterface<ProjectGithubPushPatch> {
+export class ProjectGithubPushService implements ServiceInterface<void> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async patch(id: NullableId, data: any, params?: RootParams): Promise<any> {
-    const project = await this.app.service('project').Model.findOne({
-      where: {
-        id
-      }
-    })
+  async patch(id: NullableId, data: any, params?: RootParams): Promise<void> {
+    const project = await this.app.service('project')._get(id!)
     return pushProjectToGithub(this.app, project, params!.user!)
   }
 }

@@ -18,14 +18,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
 
 import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  projectCheckSourceDestinationMatchExternalResolver,
+  projectCheckSourceDestinationMatchResolver
+} from './project-check-source-destination-match.resolvers'
 
 export default {
   around: {
-    all: []
+    all: [
+      schemaHooks.resolveExternal(projectCheckSourceDestinationMatchExternalResolver),
+      schemaHooks.resolveResult(projectCheckSourceDestinationMatchResolver)
+    ]
   },
 
   before: {

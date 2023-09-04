@@ -19,19 +19,5 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
-
 export const projectGithubPushPath = 'project-github-push'
-
 export const projectGithubPushMethods = ['patch'] as const
-
-// Schema for updating existing entries
-export const projectGithubPushPatchSchema = Type.Partial(Type.Object({ data: Type.Any() }), {
-  $id: 'ProjectGithubPushPatch'
-})
-
-export type ProjectGithubPushPatch = Static<typeof projectGithubPushPatchSchema>
-
-export const projectGithubPushPatchValidator = getValidator(projectGithubPushPatchSchema, dataValidator)

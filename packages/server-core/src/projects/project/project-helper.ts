@@ -44,6 +44,7 @@ import Sequelize, { Op } from 'sequelize'
 import { promisify } from 'util'
 
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
@@ -367,7 +368,10 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
   }
 }
 
-export const checkProjectDestinationMatch = async (app: Application, params: ProjectParams) => {
+export const checkProjectDestinationMatch = async (
+  app: Application,
+  params: ProjectParams
+): Promise<ProjectCheckSourceDestinationMatchType> => {
   const { sourceURL, selectedSHA, destinationURL, existingProject } = params.query!
   const {
     owner: destinationOwner,

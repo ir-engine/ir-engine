@@ -18,12 +18,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { checkProjectDestinationMatch } from '../project/project-helper'
 import { ProjectParams, ProjectParamsClient } from '../project/project.class'
 
-export class ProjectCheckSourceDestinationMatchService implements ServiceInterface<any> {
+export class ProjectCheckSourceDestinationMatchService
+  implements ServiceInterface<ProjectCheckSourceDestinationMatchType>
+{
   app: Application
 
   constructor(app: Application) {

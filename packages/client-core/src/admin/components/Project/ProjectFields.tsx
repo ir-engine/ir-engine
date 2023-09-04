@@ -296,16 +296,16 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       }).then((res) => {
         ProjectUpdateService.setSourceVsDestinationChecked(project, true)
         ProjectUpdateService.setSourceVsDestinationProcessing(project, false)
-        if (res.error || res.message) {
+        if (res.error || res.text) {
           ProjectUpdateService.setProjectName(project, '')
           ProjectUpdateService.setSubmitDisabled(project, true)
           ProjectUpdateService.setSourceProjectMatchesDestination(project, false)
-          ProjectUpdateService.setSourceVsDestinationError(project, res.text)
+          ProjectUpdateService.setSourceVsDestinationError(project, res.text!)
           ProjectUpdateService.setSourceValid(project, false)
         } else {
-          ProjectUpdateService.setProjectName(project, res.projectName)
+          ProjectUpdateService.setProjectName(project, res.projectName!)
           ProjectUpdateService.setSubmitDisabled(project, !res.sourceProjectMatchesDestination)
-          ProjectUpdateService.setSourceProjectMatchesDestination(project, res.sourceProjectMatchesDestination)
+          ProjectUpdateService.setSourceProjectMatchesDestination(project, res.sourceProjectMatchesDestination!)
           ProjectUpdateService.setSourceVsDestinationError(project, '')
           ProjectUpdateService.setSourceValid(project, true)
         }

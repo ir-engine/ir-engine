@@ -26,7 +26,7 @@ import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 //export interface ProjectInvalidateParams extends RootParams<ProjectInvalidateQuery> {}
 
-export class ProjectInvalidateService implements ServiceInterface<ProjectInvalidatePatch> {
+export class ProjectInvalidateService implements ServiceInterface<void, ProjectInvalidatePatch> {
   app: Application
 
   constructor(app: Application) {
@@ -35,7 +35,7 @@ export class ProjectInvalidateService implements ServiceInterface<ProjectInvalid
 
   async patch(id: NullableId, data: ProjectInvalidatePatch) {
     if (data.projectName) {
-      return await getStorageProvider(data.storageProviderName).createInvalidation([`projects/${data.projectName}*`])
+      await getStorageProvider(data.storageProviderName).createInvalidation([`projects/${data.projectName}*`])
     }
   }
 }
