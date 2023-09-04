@@ -34,10 +34,6 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
-export const xrTargetHeadSuffix = '_xr_target_head'
-export const xrTargetLeftHandSuffix = '_xr_target_left_hand'
-export const xrTargetRightHandSuffix = '_xr_target_right_hand'
-
 const EPSILON = 1e-6
 
 export const AvatarHeadDecapComponent = defineComponent({
@@ -51,9 +47,9 @@ export const AvatarHeadDecapComponent = defineComponent({
 
     useEffect(() => {
       if (rig?.value) {
-        if (headDecap?.value) rig.value.rig.Head?.scale.setScalar(EPSILON)
+        if (headDecap?.value) rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
         return () => {
-          rig.value.rig.Head?.scale.setScalar(1)
+          rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
         }
       }
     }, [headDecap, rig])
@@ -72,15 +68,10 @@ export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
 
   onInit(entity) {
-    return {
-      handedness: 'none' as XRHandedness
-    }
+    return {}
   },
 
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.handedness === 'string') component.handedness.set(json.handedness)
-  }
+  onSet(entity, component, json) {}
 })
 
 /**
@@ -105,19 +96,19 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   switch (hand) {
     case 'left':
       return {
-        position: rig.rig.LeftHand.getWorldPosition(vec3),
-        rotation: rig.rig.LeftHand.getWorldQuaternion(quat)
+        position: rig.rig.leftHand.node.getWorldPosition(vec3),
+        rotation: rig.rig.leftHand.node.getWorldQuaternion(quat)
       }
     case 'right':
       return {
-        position: rig.rig.RightHand.getWorldPosition(vec3),
-        rotation: rig.rig.RightHand.getWorldQuaternion(quat)
+        position: rig.rig.rightHand.node.getWorldPosition(vec3),
+        rotation: rig.rig.rightHand.node.getWorldQuaternion(quat)
       }
     default:
     case 'none':
       return {
-        position: rig.rig.Head.getWorldPosition(vec3),
-        rotation: rig.rig.Head.getWorldQuaternion(quat)
+        position: rig.rig.head.node.getWorldPosition(vec3),
+        rotation: rig.rig.head.node.getWorldQuaternion(quat)
       }
   }
 }

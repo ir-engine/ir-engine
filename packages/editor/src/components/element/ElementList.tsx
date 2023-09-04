@@ -53,6 +53,7 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -102,7 +103,14 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   ],
   FX: [ParticleSystemComponent, EnvmapComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
-  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
+  Misc: [
+    VariantComponent,
+    EnvMapBakeComponent,
+    ScenePreviewCameraComponent,
+    SkyboxComponent,
+    SplineTrackComponent,
+    SplineComponent
+  ]
 }
 
 export const addSceneComponentElement = (

@@ -687,7 +687,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
         id: '',
         dataProducerId: '',
         sctpStreamParameters: {
-          streamId: 0,
+          streamId: 1000000,
           ordered: true,
           maxPacketLifeTime: 0
         },

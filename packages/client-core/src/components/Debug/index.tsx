@@ -312,7 +312,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
               </>
             )
           }}
-          shouldExpandNodeInitially={() => false}
+          shouldExpandNodeInitially={() => true}
         />
       </div>
     </div>

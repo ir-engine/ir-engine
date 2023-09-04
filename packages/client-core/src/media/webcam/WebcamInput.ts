@@ -29,7 +29,6 @@ import * as Comlink from 'comlink'
 import { isDev } from '@etherealengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
@@ -44,6 +43,7 @@ import { GroupComponent } from '@etherealengine/engine/src/scene/components/Grou
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1

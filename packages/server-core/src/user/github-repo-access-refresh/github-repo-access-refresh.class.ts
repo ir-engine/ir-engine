@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 
 import {
   githubRepoAccessPath,
@@ -47,14 +45,10 @@ export interface GithubRepoAccessRefreshParams extends RootParams {}
 /**
  * A class for Github Repo Access Refresh service
  */
-export class GithubRepoAccessRefreshService<
-  T = any,
-  ServiceParams extends Params = GithubRepoAccessRefreshParams
-> extends KnexAdapter<T, T, GithubRepoAccessRefreshParams, T> {
+export class GithubRepoAccessRefreshService implements ServiceInterface<void, GithubRepoAccessRefreshParams> {
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 

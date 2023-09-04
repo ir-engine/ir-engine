@@ -115,6 +115,8 @@ const Avatar = ({
           alt={alt}
           src={imageSrc}
           crossOrigin="anonymous"
+          width={`${size}px`}
+          height={`${size}px`}
         />
         {!imageSrc && (
           <Text className={commonStyles.previewText} variant="body2">
