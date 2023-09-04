@@ -35,7 +35,7 @@ export default {
 
   before: {
     all: [],
-    find: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read') as any) as any],
+    find: [authenticate(), iff(isProvider('external'), verifyScope('projects', 'read'))],
     get: [],
     create: [],
     update: [],
