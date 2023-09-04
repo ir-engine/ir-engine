@@ -359,6 +359,8 @@ export class LocalStorage implements StorageProviderInterface {
     const oldFilePath = path.join(this.PATH_PREFIX, oldPath, oldName)
     const newFilePath = path.join(this.PATH_PREFIX, newPath, newName)
 
+    if (!fs.existsSync(path.dirname(newFilePath))) fs.mkdirSync(path.dirname(newFilePath), { recursive: true })
+
     try {
       isCopy ? copyRecursiveSync(oldFilePath, newFilePath) : fs.renameSync(oldFilePath, newFilePath)
     } catch (err) {
