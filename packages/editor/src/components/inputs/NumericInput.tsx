@@ -104,10 +104,10 @@ const NumericInput = ({
   value,
   convertFrom,
   precision,
-  mediumStep,
   onChange,
   onCommit,
   smallStep,
+  mediumStep,
   largeStep,
   min,
   max,
@@ -222,7 +222,7 @@ const NumericInput = ({
   }
 
   return (
-    <NumericInputContainer className={className}>
+    <NumericInputContainer className={className} {...rest}>
       {prefix ? prefix : null}
       <StyledNumericInput
         {...rest}

@@ -119,6 +119,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.paths')}
         acceptFileTypes={VolumetricFileTypes}
         itemType={ItemTypes.Volumetrics}
+        isStringInput
       ></ArrayInputGroup>
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
