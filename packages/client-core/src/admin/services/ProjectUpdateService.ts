@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { none } from '@hookstate/core'
 
-import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
-import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const ProjectUpdateState = defineState({
@@ -128,13 +128,13 @@ export const ProjectUpdateService = {
   setShowCommitSelector: (project: ProjectInterface, show: boolean) => {
     updateProjectField({ project, fieldName: 'showCommitSelector', value: show })
   },
-  setBranchData: (project: ProjectInterface, data: ProjectBranchInterface[]) => {
+  setBranchData: (project: ProjectInterface, data: ProjectBranchType[]) => {
     updateProjectField({ project, fieldName: 'branchData', value: data })
   },
-  setCommitData: (project: ProjectInterface, data: ProjectCommitInterface[]) => {
+  setCommitData: (project: ProjectInterface, data: ProjectCommitType[]) => {
     updateProjectField({ project, fieldName: 'commitData', value: data })
   },
-  mergeCommitData: (project: ProjectInterface, data: ProjectCommitInterface) => {
+  mergeCommitData: (project: ProjectInterface, data: ProjectCommitType) => {
     const state = getMutableState(ProjectUpdateState)
     if (state[project.name] && state[project.name]['commitData']) {
       const field = state[project.name]['commitData']
