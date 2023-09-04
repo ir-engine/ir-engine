@@ -365,6 +365,11 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
   const hipWorldNormalQuaterion = new Quaternion().setFromRotationMatrix(mx)
 
   // multiply the hip normal quaternion by the rotation of the hips around this new axis
+  const directionVector = new Vector3().subVectors(hipright, hipleft).normalize()
+  const orthogonalVector = plane.normal
+  const thirdVector = new Vector3().crossVectors(directionVector, orthogonalVector)
+  const rotationMatrix = new Matrix4().makeBasis(directionVector, orthogonalVector, thirdVector)
+  const hipWorldQuaterion = new Quaternion().setFromRotationMatrix(rotationMatrix)
 
   if (!planeHelper1.parent) {
     Engine.instance.scene.add(planeHelper1)
@@ -373,11 +378,11 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
 
   // multiply the hip normal quaternion by the rotation of the hips around this ne
   planeHelper1.position.set(hipcenter.x, hipcenter.y, hipcenter.z).y
-  planeHelper1.quaternion.copy(hipWorldNormalQuaterion)
+  planeHelper1.quaternion.copy(hipWorldQuaterion)
   planeHelper1.updateMatrixWorld()
 
   const hipLocalRotation = new Quaternion()
-    .copy(hipWorldNormalQuaterion)
+    .copy(hipWorldQuaterion)
     .premultiply(hipsBone.parent!.getWorldQuaternion(new Quaternion()).invert())
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipLocalRotation.x
