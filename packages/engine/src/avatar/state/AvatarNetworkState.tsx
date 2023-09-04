@@ -24,53 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, defineState, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
 
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { avatarPath } from '../../schemas/user/avatar.schema'
-import { changeAvatarAnimationState } from '../animation/AvatarAnimationGraph'
-import { AvatarStates, matchesAvatarState } from '../animation/Util'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
-
-export class AvatarNetworkAction {
-  static spawn = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar'
-  })
-
-  static setAnimationState = defineAction({
-    type: 'ee.engine.avatar.SET_ANIMATION_STATE',
-    entityUUID: matchesEntityUUID,
-    animationState: matchesAvatarState,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-
-  static setAvatarID = defineAction({
-    type: 'ee.engine.avatar.SET_AVATAR_ID',
-    entityUUID: matchesEntityUUID,
-    avatarID: matches.string,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-}
+import { AvatarNetworkAction } from './AvatarNetworkActions'
 
 export const AvatarState = defineState({
   name: 'ee.engine.avatar.AvatarState',
@@ -78,26 +47,11 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      animationState: keyof typeof AvatarStates
       avatarID?: string
     }
   >,
 
   receptors: [
-    [
-      AvatarNetworkAction.spawn,
-      (state, action: typeof AvatarNetworkAction.spawn.matches._TYPE) => {
-        state[action.entityUUID].merge({ animationState: AvatarStates.LOCOMOTION })
-      }
-    ],
-
-    [
-      AvatarNetworkAction.setAnimationState,
-      (state, action: typeof AvatarNetworkAction.setAnimationState.matches._TYPE) => {
-        state[action.entityUUID].merge({ animationState: action.animationState })
-      }
-    ],
-
     [
       AvatarNetworkAction.setAvatarID,
       (state, action: typeof AvatarNetworkAction.setAvatarID.matches._TYPE) => {
@@ -128,9 +82,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     if (!networkObject) {
       return console.warn(`Avatar Entity for user id ${entityUUID} does not exist! You should probably reconnect...`)
     }
-
-    changeAvatarAnimationState(avatarEntity, state.animationState.value)
-  }, [state.animationState, entityUUID])
+  }, [entityUUID])
 
   useEffect(() => {
     if (!state.avatarID.value) return

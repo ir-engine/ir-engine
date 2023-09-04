@@ -54,8 +54,7 @@ export const AvatarControllerComponent = defineComponent({
       // Below two values used to smoothly transition between
       // walk and run speeds
       /** @todo refactor animation system */
-      speedVelocity: { value: 0 },
-      translationApplied: new Vector3()
+      speedVelocity: 0
     }
   },
 
@@ -73,7 +72,6 @@ export const AvatarControllerComponent = defineComponent({
     if (matches.boolean.test(json.gamepadJumpActive)) component.gamepadJumpActive.set(json.gamepadJumpActive)
     if (matches.object.test(json.gamepadLocalInput)) component.gamepadLocalInput.set(json.gamepadLocalInput)
     if (matches.object.test(json.gamepadWorldMovement)) component.gamepadWorldMovement.set(json.gamepadWorldMovement)
-    if (matches.object.test(json.speedVelocity)) component.speedVelocity.set(json.speedVelocity)
-    if (matches.object.test(json.translationApplied)) component.translationApplied.set(json.translationApplied)
+    if (matches.number.test(json.speedVelocity)) component.speedVelocity.set(json.speedVelocity)
   }
 })
