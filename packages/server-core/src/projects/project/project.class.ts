@@ -445,7 +445,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-    const commitDateISO = toDateTimeSql(commitDate)
 
     await super._create({
       id: v4(),
@@ -454,7 +453,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       sourceRepo: gitData.sourceRepo,
       sourceBranch: gitData.sourceBranch,
       commitSHA,
-      commitDate: commitDateISO,
+      commitDate: toDateTimeSql(commitDate),
       needsRebuild: true,
       updateType: 'none' as ProjectType['updateType'],
       updateSchedule: DefaultUpdateSchedule,

@@ -68,7 +68,7 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
-import { getDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
@@ -1465,7 +1465,6 @@ export const updateProject = async (
   if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
   const { commitSHA, commitDate } = await getCommitSHADate(projectName)
 
-  const commitDateISO = commitDate.toISOString()
   const returned = !existingProject
     ? // Add to DB
       await app.service(projectPath)._create(
@@ -1480,7 +1479,7 @@ export const updateProject = async (
           updateSchedule: data.updateSchedule,
           updateUserId: userId,
           commitSHA,
-          commitDate: commitDateISO,
+          commitDate: toDateTimeSql(commitDate),
           createdAt: await getDateTimeSql(),
           updatedAt: await getDateTimeSql()
         },
@@ -1488,7 +1487,7 @@ export const updateProject = async (
       )
     : await app.service(projectPath)._patch(existingProject.id, {
         commitSHA,
-        commitDate: commitDateISO,
+        commitDate: toDateTimeSql(commitDate),
         sourceRepo: data.sourceURL,
         sourceBranch: data.sourceBranch,
         updateType: data.updateType,
@@ -1517,10 +1516,9 @@ export const updateProject = async (
     await git.raw(['lfs', 'fetch', '--all'])
     await git.push('destination', branchName, ['-f', '--tags'])
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-    const commitDateISO = commitDate.toISOString()
     await app.service(projectPath)._patch(returned.id, {
       commitSHA,
-      commitDate: commitDateISO
+      commitDate: toDateTimeSql(commitDate)
     })
   }
   // run project install script
@@ -1594,14 +1592,14 @@ export const uploadLocalProjectToProvider = async (
   }
 
   // upload new files to storage provider
-  const projectPath = path.resolve(projectsRootFolder, projectName)
-  const files = getFilesRecursive(projectPath)
+  const projectRootPath = path.resolve(projectsRootFolder, projectName)
+  const files = getFilesRecursive(projectRootPath)
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
   for (let file of filtered) {
     try {
       const fileResult = await uploadSceneToStaticResources(app, projectName, file)
-      const filePathRelative = processFileName(file.slice(projectPath.length))
+      const filePathRelative = processFileName(file.slice(projectRootPath.length))
       await storageProvider.putObject(
         {
           Body: fileResult,
