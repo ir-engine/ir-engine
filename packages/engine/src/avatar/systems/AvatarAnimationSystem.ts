@@ -63,7 +63,6 @@ import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
-import { ikTargets } from '../animation/Util'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
@@ -327,46 +326,35 @@ const execute = () => {
 
         const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
         const ikTransform = getComponent(ikEntity, TransformComponent)
+        const ikComponent = getComponent(ikEntity, AvatarIKTargetComponent)
 
-        switch (ikTargetName) {
-          case ikTargets.head:
-            worldSpaceTargets.head.blendWeight = 1
-            if (rigComponent.ikOverride == 'xr') {
-              rig.hips.node.position.copy(
-                _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
-              )
+        //special case for the head if we're in xr mode
+        //todo: automatically infer whether or not we need to set hips position from the head position
+        if (rigComponent.ikOverride == 'xr' && ikTargetName == 'head') {
+          worldSpaceTargets.head.blendWeight = 1
+          rig.hips.node.position.copy(
+            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
+          )
 
-              //offset target forward to account for hips being behind the head
-              hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
-              hipsForward.multiplyScalar(0.125)
-              rig.hips.node.position.sub(hipsForward)
+          //offset target forward to account for hips being behind the head
+          hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
+          hipsForward.multiplyScalar(0.125)
+          rig.hips.node.position.sub(hipsForward)
 
-              //calculate head look direction and apply to head bone
-              //look direction should be set outside of the xr switch
-              rig.head.node.quaternion.copy(
-                _quat.multiplyQuaternions(
-                  rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
-                  ikTransform.rotation
-                )
-              )
-            } else {
-              worldSpaceTargets.head.position.copy(ikTransform.position)
-              // to do: get blend weight from networked ik component
-            }
-            break
-          case ikTargets.leftFoot:
-          case ikTargets.rightFoot:
-          case ikTargets.leftHand:
-          case ikTargets.rightHand:
-          case ikTargets.leftKneeHint:
-          case ikTargets.rightKneeHint:
-          case ikTargets.leftElbowHint:
-          case ikTargets.rightElbowHint:
-            worldSpaceTargets[ikTargetName].position.copy(ikTransform.position)
-            worldSpaceTargets[ikTargetName].rotation.copy(ikTransform.rotation)
-            // to do: get blend weight from networked ik component
-            worldSpaceTargets[ikTargetName].blendWeight = 1
+          //calculate head look direction and apply to head bone
+          //look direction should be set outside of the xr switch
+          rig.head.node.quaternion.copy(
+            _quat.multiplyQuaternions(
+              rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
+              ikTransform.rotation
+            )
+          )
+          continue
         }
+        //otherwise just set the target position, rotation and blend weight
+        worldSpaceTargets[ikTargetName].position.copy(ikTransform.position)
+        worldSpaceTargets[ikTargetName].rotation.copy(ikTransform.rotation)
+        worldSpaceTargets[ikTargetName].blendWeight = ikComponent.blendWeight
       }
 
       if (debugEnable) {
