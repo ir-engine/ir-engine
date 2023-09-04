@@ -128,15 +128,24 @@ const execute = () => {
   for (const entity of motionCaptureQuery()) {
     for (const boneName of VRMHumanBoneList) {
       const rig = getComponent(entity, AvatarRigComponent)
-      const bone = rig.vrm.humanoid.getNormalizedBoneNode(boneName)
+      const bone = rig.rig[boneName]?.node
       // const bone = rig.localRig[boneName]?.node
-      if (!bone) continue
-      bone.quaternion.set(
-        MotionCaptureRigComponent.rig[boneName].x[entity],
-        MotionCaptureRigComponent.rig[boneName].y[entity],
-        MotionCaptureRigComponent.rig[boneName].z[entity],
-        MotionCaptureRigComponent.rig[boneName].w[entity]
-      )
+      if (bone)
+        bone.quaternion.set(
+          MotionCaptureRigComponent.rig[boneName].x[entity],
+          MotionCaptureRigComponent.rig[boneName].y[entity],
+          MotionCaptureRigComponent.rig[boneName].z[entity],
+          MotionCaptureRigComponent.rig[boneName].w[entity]
+        )
+
+      const localbone = rig.localRig[boneName]?.node
+      if (localbone)
+        localbone.quaternion.set(
+          MotionCaptureRigComponent.rig[boneName].x[entity],
+          MotionCaptureRigComponent.rig[boneName].y[entity],
+          MotionCaptureRigComponent.rig[boneName].z[entity],
+          MotionCaptureRigComponent.rig[boneName].w[entity]
+        )
     }
   }
 }

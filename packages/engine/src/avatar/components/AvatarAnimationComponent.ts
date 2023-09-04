@@ -148,7 +148,7 @@ export const AvatarRigComponent = defineComponent({
       if (debugEnabled.value && !rigComponent.helper.value && !pending?.value && rigComponent.value.rig?.hips?.node) {
         const helper = new SkeletonHelper(rigComponent.value.rig.hips.node.parent?.parent!)
         helper.frustumCulled = false
-        helper.name = `skeleton-helper-${entity}`
+        helper.name = `target-rig-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.AvatarHelper)
         Engine.instance.scene.add(helper)
         rigComponent.helper.set(helper)
@@ -176,7 +176,7 @@ export const AvatarRigComponent = defineComponent({
         if (!bone) continue
         // const axesHelper = new AxesHelper(0.1)
         // setObjectLayers(axesHelper, ObjectLayers.Scene)
-        // bone.add(axesHelper)
+        // bone.node.add(axesHelper)
         proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.node.position)
         proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.node.quaternion)
       }

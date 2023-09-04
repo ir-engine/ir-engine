@@ -28,6 +28,7 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
 import {
+  AxesHelper,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -55,7 +56,7 @@ import UpdateIkPose from './UpdateIkPose'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { NormalizedLandmarkList, POSE_CONNECTIONS, POSE_LANDMARKS } from '@mediapipe/holistic'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { V_000, V_010 } from '../common/constants/MathConstants'
+import { V_010 } from '../common/constants/MathConstants'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 /*
@@ -312,15 +313,17 @@ const quat = new Quaternion()
 const vec3 = new Vector3()
 console.log({ POSE_LANDMARKS })
 
-const plane = new Plane()
 const planeHelper1 = new Mesh(
   new PlaneGeometry(1, 1),
   new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2, side: DoubleSide })
 )
+planeHelper1.add(new AxesHelper())
+
 const planeHelper2 = new Mesh(
   new PlaneGeometry(1, 1),
   new MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2, side: DoubleSide })
 )
+planeHelper2.add(new AxesHelper())
 
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
@@ -359,17 +362,7 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
 
   hipsBone.position.copy(hipcenter)
 
-  plane.setFromCoplanarPoints(hipleft, hipright, shoulderCenter)
-
-  const mx = new Matrix4().lookAt(plane.normal, V_000, V_010)
-  const hipWorldNormalQuaterion = new Quaternion().setFromRotationMatrix(mx)
-
-  // multiply the hip normal quaternion by the rotation of the hips around this new axis
-  const directionVector = new Vector3().subVectors(hipright, hipleft).normalize()
-  const orthogonalVector = plane.normal
-  const thirdVector = new Vector3().crossVectors(directionVector, orthogonalVector)
-  const rotationMatrix = new Matrix4().makeBasis(directionVector, orthogonalVector, thirdVector)
-  const hipWorldQuaterion = new Quaternion().setFromRotationMatrix(rotationMatrix)
+  const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(hipright, hipleft, shoulderCenter, new Quaternion(), true)
 
   if (!planeHelper1.parent) {
     Engine.instance.scene.add(planeHelper1)
@@ -392,10 +385,12 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
 
   // get quaternion that represents the rotation of the shoulders
 
-  plane.setFromCoplanarPoints(shoulderRight, shoulderLeft, hipcenter)
-
-  mx.lookAt(plane.normal, V_000, V_010)
-  const shoulderWorldQuaternion = new Quaternion().setFromRotationMatrix(mx)
+  const shoulderWorldQuaternion = getQuaternionFromPointsAlongPlane(
+    shoulderRight,
+    shoulderLeft,
+    hipcenter,
+    new Quaternion()
+  )
 
   planeHelper2.position.set(shoulderCenter.x, shoulderCenter.y, shoulderCenter.z)
   planeHelper2.quaternion.copy(shoulderWorldQuaternion)
@@ -423,12 +418,12 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
   // apply rotation to each spine bone
 
   // get world space rotation of each segment
-  const spine0Quaternion = new Quaternion().copy(hipWorldNormalQuaterion).slerp(shoulderWorldQuaternion, spineRatio)
+  const spine0Quaternion = new Quaternion().copy(hipWorldQuaterion).slerp(shoulderWorldQuaternion, spineRatio)
 
   // get local space rotation of each segment
   const spine0Local = new Quaternion()
     .copy(spine0Quaternion)
-    .premultiply(new Quaternion().copy(hipWorldNormalQuaterion).invert())
+    .premultiply(new Quaternion().copy(hipWorldQuaterion).invert())
   const spine1Local = new Quaternion().copy(shoulderWorldQuaternion).premultiply(spine0Quaternion.clone().invert())
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].x[entity] = spine0Local.x
@@ -492,4 +487,24 @@ export const solveArm = (entity: Entity, landmarks: NormalizedLandmarkList, side
   MotionCaptureRigComponent.rig[`${side}LowerArm`].y[entity] = elbowLocal.y
   MotionCaptureRigComponent.rig[`${side}LowerArm`].z[entity] = elbowLocal.z
   MotionCaptureRigComponent.rig[`${side}LowerArm`].w[entity] = elbowLocal.w
+}
+
+const plane = new Plane()
+const directionVector = new Vector3()
+const thirdVector = new Vector3()
+const rotationMatrix = new Matrix4()
+
+const getQuaternionFromPointsAlongPlane = (
+  a: Vector3,
+  b: Vector3,
+  planeRestraint: Vector3,
+  target: Quaternion,
+  invert = false
+) => {
+  plane.setFromCoplanarPoints(invert ? b : a, invert ? a : b, planeRestraint)
+  directionVector.subVectors(a, b).normalize()
+  const orthogonalVector = plane.normal
+  thirdVector.crossVectors(orthogonalVector, directionVector)
+  rotationMatrix.makeBasis(directionVector, thirdVector, orthogonalVector)
+  return target.setFromRotationMatrix(rotationMatrix)
 }

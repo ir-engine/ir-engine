@@ -273,6 +273,14 @@ const execute = () => {
     if (hasComponent(entity, MotionCaptureRigComponent) && ikEntities.length == 0) {
       // just animate and exit
       animationComponent.mixer.stopAllAction()
+
+      // retargeting
+      // for (const [key, animatedBone] of Object.entries(rigComponent.localRig)) {
+      //   const ikBone = rigComponent.rig[key].node as Object3D
+      //   ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
+      // }
+      // rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
+
       rigComponent.vrm.update(getState(EngineState).deltaSeconds)
       continue
     }
