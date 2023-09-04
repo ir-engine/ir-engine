@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ChannelID } from './Channel'
 
 export interface UserInterface {
   id: string
@@ -158,4 +159,22 @@ export interface MessageInterface {
   id: string
   text: string
   isNotification: boolean
+}
+
+export interface InstanceInterface {
+  id: string
+  roomCode: string
+  ipAddress: string
+  channelId?: ChannelID
+  currentUsers: number
+  ended: boolean
+  podName: string
+  assigned: boolean
+  assignedAt: Date
+  locationId?: string
+  location?: LocationInterface
+}
+
+export interface InstanceAuthorizedUserInterface {
+  id: string
 }

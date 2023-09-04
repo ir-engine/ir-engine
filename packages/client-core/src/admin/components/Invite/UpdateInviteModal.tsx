@@ -47,6 +47,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InvitePatch, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -87,7 +88,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const startTime = useHookstate<Date>(new Date())
   const endTime = useHookstate<Date>(new Date())
 
-  const adminInstances = useFind('instance').data
+  const adminInstances = useFind(instancePath).data
   const adminLocations = useFind(locationPath).data
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
 

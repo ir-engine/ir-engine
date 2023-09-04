@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
 import logger from '../ServerLogger'
@@ -62,13 +62,13 @@ export default (): Hook => {
 
     const freeInstance = await getFreeInstanceserver({ app, iteration: 0, locationId: location.data[0].id })
     try {
-      const existingInstance = (await app.service('instance').find({
+      const existingInstance = (await app.service(instancePath).find({
         query: {
           ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
           locationId: location.data[0].id,
           ended: false
         }
-      })) as Paginated<Instance>
+      })) as Paginated<InstanceType>
 
       let instanceId
       if (existingInstance.total === 0) {
@@ -79,7 +79,7 @@ export default (): Hook => {
           assigned: true,
           assignedAt: new Date()
         }
-        const newInstanceResult = (await app.service('instance').create(newInstance)) as Instance
+        const newInstanceResult = (await app.service(instancePath).create(newInstance)) as InstanceType
         instanceId = newInstanceResult.id
       } else {
         instanceId = existingInstance.data[0].id

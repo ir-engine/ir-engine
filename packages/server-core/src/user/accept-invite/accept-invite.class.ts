@@ -28,6 +28,7 @@ import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/f
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
@@ -274,8 +275,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
         .createAccessToken({}, { subject: params[identityProviderPath].id.toString() })
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
-        let instance =
-          invite.inviteType === 'instance' ? await this.app.service('instance').get(invite.targetObjectId) : null
+        const instance =
+          invite.inviteType === 'instance' ? await this.app.service(instancePath)._get(invite.targetObjectId) : null
         const locationId = instance ? instance.locationId : invite.targetObjectId
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName

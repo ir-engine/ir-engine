@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { HookContext, NextFunction } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
@@ -41,6 +42,40 @@ import {
   instanceQueryResolver,
   instanceResolver
 } from './instance.resolvers'
+
+const applyLocationNameSort = async (context: HookContext, next: NextFunction) => {
+  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
+
+  const hasLocationNameSort =
+    context.params.query && context.params.query.$sort && context.params.query.$sort['locationName']
+
+  if (hasLocationNameSort) {
+    const { dispatch } = context
+    const data = dispatch.data ? dispatch.data : dispatch
+
+    data.sort((a, b) => {
+      let fa = a['locationName'],
+        fb = b['locationName']
+
+      if (typeof fa === 'string') {
+        fa = fa.toLowerCase()
+        fb = fb.toLowerCase()
+      }
+
+      if (fa < fb) {
+        return -1
+      }
+      if (fa > fb) {
+        return 1
+      }
+      return 0
+    })
+
+    if (context.params.query.$sort['user'] === 1) {
+      data.reverse()
+    }
+  }
+}
 
 export default {
   around: {

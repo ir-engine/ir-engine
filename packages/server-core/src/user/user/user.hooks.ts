@@ -34,6 +34,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'
@@ -52,7 +53,8 @@ const addInstanceAttendanceLocation = () => {
     const { result } = context
 
     for (const attendance of result.instanceAttendance || []) {
-      if (attendance.instanceId) attendance.instance = await context.app.service('instance').get(attendance.instanceId)
+      if (attendance.instanceId)
+        attendance.instance = await context.app.service(instancePath).get(attendance.instanceId)
       if (attendance.instance && attendance.instance.locationId) {
         attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
       }

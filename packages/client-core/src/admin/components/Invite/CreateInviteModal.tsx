@@ -47,6 +47,7 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -86,7 +87,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const startTime = useHookstate<Dayjs>(dayjs(null))
   const endTime = useHookstate<Dayjs>(dayjs(null))
 
-  const adminInstances = useFind('instance').data
+  const adminInstances = useFind(instancePath).data
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
   const adminLocations = useFind(locationPath).data
 

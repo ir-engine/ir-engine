@@ -25,16 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/client'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { API } from '../../API'
 
 //Service
 export const InstanceService = {
   checkRoom: async (roomCode: string) => {
     const { data } = (await API.instance.client
-      .service('instance')
-      .find({ query: { roomCode, ended: false, locationId: { $ne: null } } })) as Paginated<Instance>
-    return data[0] as Instance
+      .service(instancePath)
+      .find({ query: { roomCode, ended: false, locationId: { $ne: undefined } } })) as Paginated<InstanceType>
+    return data[0] as InstanceType
   }
 }

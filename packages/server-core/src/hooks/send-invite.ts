@@ -34,6 +34,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -70,7 +71,7 @@ async function generateEmail(
   }
 
   if (inviteType === 'instance') {
-    const instance = await app.service('instance').get(targetObjectId!)
+    const instance = await app.service(instancePath).get(targetObjectId!)
     const location = await app.service(locationPath).get(instance.locationId!)
     locationName = location.name
   }
@@ -115,7 +116,7 @@ async function generateSMS(
   }
 
   if (inviteType === 'instance') {
-    const instance = await app.service('instance').get(targetObjectId!)
+    const instance = await app.service(instancePath).get(targetObjectId!)
     const location = await app.service(locationPath).get(instance.locationId!)
     locationName = location.name
   }

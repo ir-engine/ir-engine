@@ -29,8 +29,8 @@ import { createFeathersKoaApp } from '../../createApp'
 
 import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
@@ -114,13 +114,10 @@ describe('channel service', () => {
       scopes: []
     })
 
-    const instance = (await app.service('instance').create(
-      {},
-      {
-        // @ts-ignore
-        isInternal: true
-      }
-    )) as Instance
+    const instance = (await app.service(instancePath).create({
+      // @ts-ignore
+      isInternal: true
+    })) as InstanceType
 
     const channel = await app.service('channel').create(
       {
@@ -161,13 +158,10 @@ describe('channel service', () => {
       scopes: []
     })
 
-    const instance = (await app.service('instance').create(
-      {},
-      {
-        // @ts-ignore
-        isInternal: true
-      }
-    )) as Instance
+    const instance = (await app.service(instancePath).create({
+      // @ts-ignore
+      isInternal: true
+    })) as InstanceType
 
     try {
       await app.service('channel').create(
@@ -191,13 +185,10 @@ describe('channel service', () => {
       scopes: []
     })
 
-    const instance = (await app.service('instance').create(
-      {},
-      {
-        // @ts-ignore
-        isInternal: true
-      }
-    )) as Instance
+    const instance = (await app.service(instancePath).create({
+      // @ts-ignore
+      isInternal: true
+    })) as InstanceType
 
     const channel = await app.service('channel').create(
       {

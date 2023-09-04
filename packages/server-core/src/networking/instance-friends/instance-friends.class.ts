@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import type { ServiceInterface } from '@feathersjs/feathers'
 
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -51,7 +51,7 @@ export class InstanceFriendsService implements ServiceInterface<InstanceType, In
   async find(params?: InstanceFriendsParams) {
     if (params!.user) throw new Error('User not found')
     try {
-      const instances = (await this.app.service('instance')._find({
+      const instances = (await this.app.service(instancePath)._find({
         query: {
           ended: false
         },
@@ -65,12 +65,12 @@ export class InstanceFriendsService implements ServiceInterface<InstanceType, In
 
           const instanceAttendance = await knexClient
             .from(instanceAttendancePath)
-            .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
+            .join(instancePath, `${instanceAttendancePath}.instanceId`, '=', `${instancePath}.id`)
             .join(userPath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
             .join(userRelationshipPath, `${userPath}.id`, '=', `${userRelationshipPath}.userId`)
             .where(`${instanceAttendancePath}.ended`, '=', false)
             .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
-            .andWhere(`${'instance'}.id`, '=', instance.id)
+            .andWhere(`${instancePath}.id`, '=', instance.id)
             .andWhere(`${userRelationshipPath}.userRelationshipType`, '=', 'friend')
             .andWhere(`${userRelationshipPath}.relatedUserId`, '=', params!.user!.id)
             .select()

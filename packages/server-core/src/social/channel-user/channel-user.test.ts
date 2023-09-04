@@ -27,8 +27,8 @@ import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
@@ -108,13 +108,10 @@ describe('channel-user service', () => {
       scopes: []
     })
 
-    const instance = (await app.service('instance').create(
-      {},
-      {
-        // @ts-ignore
-        isInternal: true
-      }
-    )) as Instance
+    const instance = (await app.service(instancePath).create({
+      // @ts-ignore
+      isInternal: true
+    })) as InstanceType
 
     const channel = await app.service('channel').create(
       {

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import * as k8s from '@kubernetes/client-node'
 import { Op } from 'sequelize'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import {
   ServerContainerInfo,
   ServerInfoInterface,
@@ -36,6 +35,7 @@ import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/s
 import { getState } from '@etherealengine/hyperflux'
 
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -233,11 +233,12 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
     return
   }
 
-  const instances = (await app.service('instance').Model.findAll({
-    where: {
+  const instances = (await app.service(instancePath)._find({
+    query: {
       ended: false
-    }
-  })) as Instance[]
+    },
+    paginate: false
+  })) as InstanceType[]
 
   if (instances.length === 0) {
     return
