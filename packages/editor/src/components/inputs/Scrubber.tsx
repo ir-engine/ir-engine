@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode, useEffect, useRef } from 'react'
-import './Scrubber.css'
 
 import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
 

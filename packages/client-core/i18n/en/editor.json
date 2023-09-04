@@ -258,7 +258,10 @@
       "error-url": "Error Loading From URL"
     },
     "collider": {
+      "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
+      "lbl-type": "Type",
+      "lbl-shape": "Shape",
       "lbl-isTrigger": "Trigger"
     },
     "camera": {

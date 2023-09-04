@@ -9,6 +9,7 @@
   display: flex;
   flex: 1;
   align-items: center;
+  overflow-x :hidden;
 }
 
 .StyledColorInput:focus-visible { 
@@ -16,7 +17,6 @@
 }
 
 .ColorPreview {
-  width: 32px;
   height: auto;
   border-radius: 2px;
   padding: 6px;
@@ -25,6 +25,7 @@
 
 .ColorText {
   padding-top: 2px;
+  overflow: hidden;
 }
 
 .ColorInputPopover {
