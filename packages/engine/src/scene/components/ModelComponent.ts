@@ -28,7 +28,9 @@ import { Mesh, Scene } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
@@ -77,7 +79,9 @@ export const ModelComponent = defineComponent({
       src: '',
       generateBVH: true,
       avoidCameraOcclusion: false,
-      scene: null as Scene | null
+      // internal
+      scene: null as Scene | null,
+      asset: null as VRM | GLTF | null
     }
   },
 
@@ -93,9 +97,9 @@ export const ModelComponent = defineComponent({
     setComponent(entity, LoopAnimationComponent)
 
     if (!json) return
-    if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
-    if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
-      component.generateBVH.set(json.generateBVH)
+    if (typeof json.src === 'string') component.src.set(json.src)
+    if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
+    if (typeof json.avoidCameraOcclusion === 'boolean') component.avoidCameraOcclusion.set(json.avoidCameraOcclusion)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -142,8 +146,8 @@ function ModelReactor() {
         case 'glb':
         case 'gltf':
         case 'fbx':
-        case 'usdz':
         case 'vrm':
+        case 'usdz':
           AssetLoader.load(
             model.src,
             {
@@ -156,6 +160,8 @@ function ModelReactor() {
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
+              modelComponent.asset.set(loadedAsset)
+              if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
@@ -183,7 +189,7 @@ function ModelReactor() {
 
   // update scene
   useEffect(() => {
-    const scene = modelComponent.scene.get({ noproxy: true })
+    const scene = getComponent(entity, ModelComponent).scene
 
     if (!scene) return
     addObjectToGroup(entity, scene)

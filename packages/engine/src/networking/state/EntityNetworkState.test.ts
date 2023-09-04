@@ -36,7 +36,7 @@ import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'

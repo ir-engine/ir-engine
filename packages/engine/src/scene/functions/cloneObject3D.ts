@@ -25,11 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AnimationClip, Bone, KeyframeTrack, Mesh, Object3D, PropertyBinding, SkinnedMesh } from 'three'
 
-import { AnimationManager } from '../../avatar/AnimationManager'
-import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DWithEntity } from '../components/GroupComponent'
-import { ModelComponent } from '../components/ModelComponent'
 
 // Modified version of Don McCurdy's AnimationUtils.clone
 // https://github.com/mrdoob/three.js/pull/14494
@@ -110,6 +106,7 @@ export default function cloneObject3D(source: Object3D, preserveUUIDs?: boolean)
     }
 
     if ((node as Mesh).isMesh && (node as Mesh).geometry.boundsTree) {
+      // eslint-disable-next-line @typescript-eslint/no-extra-semi
       ;(clonedNode as Mesh).geometry.boundsTree = (node as Mesh).geometry.boundsTree
     }
 
@@ -125,23 +122,4 @@ export default function cloneObject3D(source: Object3D, preserveUUIDs?: boolean)
   })
 
   return clone
-}
-
-export const getAnimationClips = (): AnimationClip[] => {
-  const loopAnimationQuery = defineQuery([LoopAnimationComponent])
-  const result = new Set<AnimationClip>()
-
-  for (let entity of loopAnimationQuery()) {
-    const comp = getComponent(entity, LoopAnimationComponent)
-    if (comp.activeClipIndex < 0) continue
-
-    if (comp.hasAvatarAnimations) {
-      result.add(AnimationManager.instance._animations[comp.activeClipIndex])
-    } else {
-      const scene = getComponent(entity, ModelComponent).scene!
-      if (scene) result.add(scene.animations[comp.activeClipIndex])
-    }
-  }
-
-  return Array.from(result)
 }

@@ -23,26 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEngineProfile'
+import { EulerRotation, RotationOrder } from '../Types'
 
-import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
+/** Euler rotation class. */
+export default class Euler {
+  public x: number
+  public y: number
+  public z: number
+  public rotationOrder?: RotationOrder
 
-import { registerSceneProfile } from '@behave-graph/scene'
-import { EEScene } from '../nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
+  constructor(a?: number | EulerRotation, b?: number, c?: number, rotationOrder?: RotationOrder) {
+    if (!!a && typeof a === 'object') {
+      this.x = a.x ?? 0
+      this.y = a.y ?? 0
+      this.z = a.z ?? 0
+      this.rotationOrder = a.rotationOrder ?? 'XYZ'
+      return
+    }
 
-export const useRegistry = () => {
-  const registry = registerEngineProfile(
-    registerSceneProfile(
-      registerCoreProfile({
-        values: {},
-        nodes: {},
-        dependencies: {
-          ILogger: new DefaultLogger(),
-          ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
-          IScene: new EEScene()
-        }
-      })
-    )
-  )
-  return registry
+    this.x = a ?? 0
+    this.y = b ?? 0
+    this.z = c ?? 0
+    this.rotationOrder = rotationOrder ?? 'XYZ'
+  }
+
+  /**
+   * Multiplies a number to an Euler.
+   * @param {number} a: Number to multiply
+   */
+  multiply(v: number) {
+    return new Euler(this.x * v, this.y * v, this.z * v, this.rotationOrder)
+  }
 }
