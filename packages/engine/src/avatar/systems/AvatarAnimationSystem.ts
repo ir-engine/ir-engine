@@ -24,10 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Euler, MathUtils, Mesh, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { V_010 } from '../../common/constants/MathConstants'
@@ -64,7 +64,6 @@ import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSource
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
-import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -101,6 +100,7 @@ const filterFrustumCulledEntities = (entity: Entity) =>
 
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
+const _identityQuat = new Quaternion()
 
 const _vector3 = new Vector3()
 const _hipVector = new Vector3()
@@ -133,9 +133,6 @@ export const worldSpaceTargets = {
   leftKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   headHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform
 }
-let weights = {} as Record<string, number>
-
-const ikTargetSpawnQueue = defineActionQueue(AvatarNetworkAction.spawnIKTarget.matches)
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
@@ -297,13 +294,20 @@ const execute = () => {
     /**
      * Apply procedural IK based animations or FK animations depending on the animation state
      */
+
+    for (const [key, ikBone] of Object.entries(rigComponent.rig)) {
+      ikBone.node.quaternion.copy(rigComponent.localRig[key].node.quaternion)
+      //todo: lerp this
+      rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
+    }
+
     //clear some data
     for (const [key, value] of Object.entries(worldSpaceTargets)) {
       value.blendWeight = 0
-      value.position = new Vector3()
+      value.position.set(0, 0, 0)
       value.rotation.identity()
     }
-    weights = {}
+
     if (rigComponent.ikOverride != '') {
       if (!rig.hips?.node) continue
       hipsForward.set(0, 0, 1)
@@ -331,7 +335,7 @@ const execute = () => {
         //special case for the head if we're in xr mode
         //todo: automatically infer whether or not we need to set hips position from the head position
         if (rigComponent.ikOverride == 'xr' && ikTargetName == 'head') {
-          worldSpaceTargets.head.blendWeight = 1
+          worldSpaceTargets.head.blendWeight = ikComponent.blendWeight
           rig.hips.node.position.copy(
             _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
@@ -352,18 +356,19 @@ const execute = () => {
           continue
         }
         //otherwise just set the target position, rotation and blend weight
-        worldSpaceTargets[ikTargetName].position.copy(ikTransform.position)
-        worldSpaceTargets[ikTargetName].rotation.copy(ikTransform.rotation)
-        worldSpaceTargets[ikTargetName].blendWeight = ikComponent.blendWeight
+        worldSpaceTargets[ikTargetName] = {
+          position: ikTransform.position,
+          rotation: ikTransform.rotation,
+          blendWeight: ikComponent.blendWeight
+        } as targetTransform
       }
 
       if (debugEnable) {
         let i = 0
-        for (const [key, value] of Object.entries(worldSpaceTargets)) {
+        for (const [key] of Object.entries(worldSpaceTargets)) {
           //if xr is active, set select targets to xr tracking data
           const visualizerTransform = getComponent(visualizers[i], TransformComponent)
           visualizerTransform.position.copy(worldSpaceTargets[key].position)
-
           i++
         }
       }
@@ -402,12 +407,9 @@ const execute = () => {
           tipAxisRestriction,
           midAxisRestriction,
           null,
-          1,
-          1
+          worldSpaceTargets.rightHand.blendWeight,
+          worldSpaceTargets.rightHand.blendWeight
         )
-        weights['rightUpperArm'] = worldSpaceTargets.rightHand.blendWeight
-        weights['rightLowerArm'] = worldSpaceTargets.rightHand.blendWeight
-        weights['rightHand'] = worldSpaceTargets.rightHand.blendWeight
       }
 
       if (worldSpaceTargets.leftHand.blendWeight > 0) {
@@ -424,12 +426,9 @@ const execute = () => {
           tipAxisRestriction,
           midAxisRestriction,
           null,
-          1,
-          1
+          worldSpaceTargets.leftHand.blendWeight,
+          worldSpaceTargets.leftHand.blendWeight
         )
-        weights['leftUpperArm'] = worldSpaceTargets.leftHand.blendWeight
-        weights['leftLowerArm'] = worldSpaceTargets.leftHand.blendWeight
-        weights['leftHand'] = worldSpaceTargets.leftHand.blendWeight
       }
 
       if (footRaycastTimer >= footRaycastInterval) {
@@ -455,11 +454,11 @@ const execute = () => {
             ? worldSpaceTargets.rightKneeHint.position
             : _vector3.copy(transform.position).add(forward),
           null,
-          midAxisRestriction
+          midAxisRestriction,
+          null,
+          worldSpaceTargets.rightFoot.blendWeight,
+          worldSpaceTargets.rightFoot.blendWeight
         )
-        weights['rightUpperLeg'] = worldSpaceTargets.rightFoot.blendWeight
-        weights['rightLowerLeg'] = worldSpaceTargets.rightFoot.blendWeight
-        weights['rightFoot'] = worldSpaceTargets.rightFoot.blendWeight
       }
 
       if (worldSpaceTargets.leftFoot.blendWeight > 0) {
@@ -481,27 +480,14 @@ const execute = () => {
             ? worldSpaceTargets.leftKneeHint.position
             : _vector3.copy(transform.position).add(forward),
           null,
-          midAxisRestriction
+          midAxisRestriction,
+          null,
+          worldSpaceTargets.leftFoot.blendWeight,
+          worldSpaceTargets.leftFoot.blendWeight
         )
-        weights['leftUpperLeg'] = worldSpaceTargets.leftFoot.blendWeight
-        weights['leftLowerLeg'] = worldSpaceTargets.leftFoot.blendWeight
-        weights['leftFoot'] = worldSpaceTargets.leftFoot.blendWeight
-      }
-
-      if (worldSpaceTargets.head.blendWeight > 0) {
-        weights['head'] = worldSpaceTargets.head.blendWeight
-        weights['hips'] = worldSpaceTargets.head.blendWeight
-        weights['spine'] = worldSpaceTargets.head.blendWeight
       }
     }
 
-    for (const [key, animatedBone] of Object.entries(rigComponent.localRig)) {
-      const ikBone = rigComponent.rig[key].node as Object3D
-      //we copy a slerped quat so that ik blend weights range from 0 to 1, to keep things intuitive
-      ikBone.quaternion.copy(_quat.slerpQuaternions(animatedBone.node.quaternion, ikBone.quaternion, weights[key] ?? 0))
-    }
-    //todo: lerp this
-    if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
     rigComponent.vrm.update(deltaTime)
   }
 
