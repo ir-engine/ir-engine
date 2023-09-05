@@ -27,17 +27,15 @@ import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponen
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 
 import {
-  AxesHelper,
   BufferAttribute,
   BufferGeometry,
   Color,
-  DoubleSide,
   LineBasicMaterial,
   LineSegments,
+  MathUtils,
   Matrix4,
   Object3D,
   Plane,
-  PlaneGeometry,
   Quaternion,
   SphereGeometry,
   Vector3
@@ -48,6 +46,7 @@ import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
   NormalizedLandmarkList,
@@ -59,10 +58,14 @@ import {
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { solveTwoBoneIK } from '../avatar/animation/TwoBoneIKSolver'
 import { V_010, V_111 } from '../common/constants/MathConstants'
+import { RendererState } from '../renderer/RendererState'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
-const debug = true
 const grey = new Color(0.5, 0.5, 0.5)
+
+let lastLandmarks: NormalizedLandmarkList
 
 export const drawMocapDebug = () => {
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
@@ -73,6 +76,7 @@ export const drawMocapDebug = () => {
   positionLineSegment.geometry.setAttribute('position', posAttr)
   const colAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 4).fill(1), 4)
   positionLineSegment.geometry.setAttribute('color', colAttr)
+  setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
 
   return (landmarks: NormalizedLandmarkList) => {
     const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
@@ -81,6 +85,7 @@ export const drawMocapDebug = () => {
       const color = new Color().set(1 - confidence, confidence, 0)
       if (!debugMeshes[key]) {
         const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
+        setObjectLayers(mesh, ObjectLayers.AvatarHelper)
         debugMeshes[key] = mesh
         Engine.instance.scene.add(mesh)
       }
@@ -132,9 +137,29 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     return
   }
 
-  if (debug) {
+  const avatarDebug = getState(RendererState).avatarDebug
+
+  if (avatarDebug) {
     drawDebug(landmarks)
   }
+
+  const last = lastLandmarks
+
+  lastLandmarks = landmarks
+
+  if (!last) return
+
+  const smoothedLandmarks = landmarks.map((landmark, index) => {
+    const lastLandmark = lastLandmarks[index]
+    if (!lastLandmark.visibility || !landmark.visibility) return landmark
+    const confidence = (landmark.visibility + lastLandmark.visibility) / 2
+    return {
+      visibility: confidence,
+      x: MathUtils.lerp(lastLandmark.x, landmark.x, confidence),
+      y: MathUtils.lerp(lastLandmark.y, landmark.y, confidence),
+      z: MathUtils.lerp(lastLandmark.z, landmark.z, confidence)
+    }
+  })
 
   const DIRECT = true
   if (DIRECT) {
@@ -144,9 +169,9 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     solveLimb(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
-      landmarks[POSE_LANDMARKS.RIGHT_ELBOW],
-      landmarks[POSE_LANDMARKS.RIGHT_WRIST],
+      smoothedLandmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
+      smoothedLandmarks[POSE_LANDMARKS.RIGHT_ELBOW],
+      smoothedLandmarks[POSE_LANDMARKS.RIGHT_WRIST],
       new Vector3(1, 0, 0),
       VRMHumanBoneName.Chest,
       VRMHumanBoneName.LeftUpperArm,
@@ -155,9 +180,9 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     solveLimb(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS.LEFT_SHOULDER],
-      landmarks[POSE_LANDMARKS.LEFT_ELBOW],
-      landmarks[POSE_LANDMARKS.LEFT_WRIST],
+      smoothedLandmarks[POSE_LANDMARKS.LEFT_SHOULDER],
+      smoothedLandmarks[POSE_LANDMARKS.LEFT_ELBOW],
+      smoothedLandmarks[POSE_LANDMARKS.LEFT_WRIST],
       new Vector3(-1, 0, 0),
       VRMHumanBoneName.Chest,
       VRMHumanBoneName.RightUpperArm,
@@ -166,9 +191,9 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     solveLimb(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.LeftUpperLeg,
@@ -177,9 +202,9 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     solveLimb(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
       new Vector3(0, 1, 0),
       VRMHumanBoneName.Hips,
       VRMHumanBoneName.RightUpperLeg,
@@ -188,9 +213,9 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     solveHand(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
       false,
       VRMHumanBoneName.RightLowerArm,
       VRMHumanBoneName.RightHand
@@ -198,9 +223,9 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     solveHand(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
       true,
       VRMHumanBoneName.LeftLowerArm,
       VRMHumanBoneName.LeftHand
@@ -208,18 +233,18 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     solveFoot(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
-      landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
       VRMHumanBoneName.RightUpperLeg,
       VRMHumanBoneName.RightFoot
     )
     solveFoot(
       entity,
       lowestWorldY,
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
-      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
       VRMHumanBoneName.LeftUpperLeg,
       VRMHumanBoneName.LeftFoot
     )
@@ -234,17 +259,17 @@ const threshhold = 0.6
 
 const vec3 = new Vector3()
 
-const planeHelper1 = new Mesh(
-  new PlaneGeometry(1, 1),
-  new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2, side: DoubleSide })
-)
-planeHelper1.add(new AxesHelper())
+// const planeHelper1 = new Mesh(
+//   new PlaneGeometry(1, 1),
+//   new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2, side: DoubleSide })
+// )
+// planeHelper1.add(new AxesHelper())
 
-const planeHelper2 = new Mesh(
-  new PlaneGeometry(1, 1),
-  new MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2, side: DoubleSide })
-)
-planeHelper2.add(new AxesHelper())
+// const planeHelper2 = new Mesh(
+//   new PlaneGeometry(1, 1),
+//   new MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2, side: DoubleSide })
+// )
+// planeHelper2.add(new AxesHelper())
 
 /**
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
@@ -299,14 +324,14 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
 
   const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(hipright, hipleft, shoulderCenter, new Quaternion(), true)
 
-  if (!planeHelper1.parent) {
-    Engine.instance.scene.add(planeHelper1)
-    Engine.instance.scene.add(planeHelper2)
-  }
+  // if (!planeHelper1.parent) {
+  //   Engine.instance.scene.add(planeHelper1)
+  //   Engine.instance.scene.add(planeHelper2)
+  // }
 
-  planeHelper1.position.copy(hipcenter)
-  planeHelper1.quaternion.copy(hipWorldQuaterion)
-  planeHelper1.updateMatrixWorld()
+  // planeHelper1.position.copy(hipcenter)
+  // planeHelper1.quaternion.copy(hipWorldQuaterion)
+  // planeHelper1.updateMatrixWorld()
 
   // multiply the hip normal quaternion by the rotation of the hips around this ne
   const hipPositionAlongPlane = new Vector3(0, -averageHipToLegHeight, 0)
@@ -325,9 +350,9 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
     new Quaternion()
   )
 
-  planeHelper2.position.copy(shoulderCenter)
-  planeHelper2.quaternion.copy(shoulderWorldQuaternion)
-  planeHelper2.updateMatrixWorld()
+  // planeHelper2.position.copy(shoulderCenter)
+  // planeHelper2.quaternion.copy(shoulderWorldQuaternion)
+  // planeHelper2.updateMatrixWorld()
 
   // rather than applying shoulderWorldRotation, we need to apply a rotation that moves it towards the hips
   const shoulderPositionAlongPlane = new Vector3(0, -averageChestToShoulderHeight, 0)

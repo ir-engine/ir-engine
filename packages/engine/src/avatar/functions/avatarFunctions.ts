@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBone, VRMHumanBones } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
@@ -90,12 +90,12 @@ export const parseAvatarModelAsset = (model: any) => {
 }
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
-  if (!sourceRig) {
-    const sourceVRM = await AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/animations/mocap_skeleton.vrm`
-    )
-    sourceRig = sourceVRM.humanoid.normalizedHumanBones
-  }
+  // if (!sourceRig) {
+  //   const sourceVRM = await AssetLoader.loadAsync(
+  //     `${config.client.fileServer}/projects/default-project/assets/animations/mocap_skeleton.vrm`
+  //   )
+  //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
+  // }
   const model = await AssetLoader.loadAsync(avatarURL)
   return parseAvatarModelAsset(model)
 }
@@ -198,7 +198,7 @@ export const getAnimations = async () => {
   return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
 }
 
-let sourceRig
+let sourceRig: VRMHumanBones
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
@@ -211,7 +211,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    localRig: cloneDeep(sourceRig),
+    localRig: cloneDeep(rig), //cloneDeep(sourceRig),
     targetBones,
     skinnedMeshes,
     vrm: model
