@@ -185,40 +185,44 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
       VRMHumanBoneName.RightUpperLeg,
       VRMHumanBoneName.RightLowerLeg
     )
-    solveLimbEnd(
+    solveHand(
       entity,
       lowestWorldY,
       landmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
       landmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
       landmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
+      false,
       VRMHumanBoneName.RightLowerArm,
       VRMHumanBoneName.RightHand
     )
-    solveLimbEnd(
+    solveHand(
       entity,
       lowestWorldY,
       landmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
       landmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
       landmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
+      true,
       VRMHumanBoneName.LeftLowerArm,
       VRMHumanBoneName.LeftHand
     )
-    // solveLimbEnd(
-    //   entity,
-    //   landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-    //   landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
-    //   landmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-    //   VRMHumanBoneName.RightUpperLeg,
-    //   VRMHumanBoneName.RightFoot
-    // )
-    // solveLimbEnd(
-    //   entity,
-    //   landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-    //   landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
-    //   landmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-    //   VRMHumanBoneName.RightUpperLeg,
-    //   VRMHumanBoneName.RightFoot
-    // )
+    solveFoot(
+      entity,
+      lowestWorldY,
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
+      VRMHumanBoneName.RightUpperLeg,
+      VRMHumanBoneName.RightFoot
+    )
+    solveFoot(
+      entity,
+      lowestWorldY,
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
+      VRMHumanBoneName.LeftUpperLeg,
+      VRMHumanBoneName.LeftFoot
+    )
   } else {
     // publish ik targets rather than directly setting body parts
     // const changes4 = UpdateIkPose(landmarks)
@@ -448,7 +452,60 @@ export const solveLimb = (
   rig.localRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
-export const solveLimbEnd = (
+export const solveHand = (
+  entity: Entity,
+  lowestWorldY: number,
+  extent: NormalizedLandmark,
+  ref1: NormalizedLandmark,
+  ref2: NormalizedLandmark,
+  invertAxis: boolean,
+  parentTargetBoneName: VRMHumanBoneName,
+  extentTargetBoneName: VRMHumanBoneName
+) => {
+  if (!extent || !ref1 || !ref2) return
+
+  // if (extent.visibility! < threshhold || ref1.visibility! < threshhold || ref2.visibility! < threshhold) return
+
+  const rig = getComponent(entity, AvatarRigComponent)
+
+  const parentQuaternion = rig.localRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
+
+  const startPoint = new Vector3(extent.x, lowestWorldY - extent.y, extent.z)
+  const ref1Point = new Vector3(ref1.x, lowestWorldY - ref1.y, ref1.z)
+  const ref2Point = new Vector3(ref2.x, lowestWorldY - ref2.y, ref2.z)
+
+  plane.setFromCoplanarPoints(ref1Point, ref2Point, startPoint)
+  directionVector.addVectors(ref1Point, ref2Point).multiplyScalar(0.5).sub(startPoint).normalize()
+  const orthogonalVector = plane.normal
+  if (invertAxis) {
+    directionVector.negate()
+    thirdVector.crossVectors(directionVector, orthogonalVector).negate()
+    orthogonalVector.negate()
+  } else {
+    thirdVector.crossVectors(directionVector, orthogonalVector)
+  }
+
+  // for the hands, negative x is forward, palm up is negative y, thumb side is positive z on left hand, negative z on right hand
+  rotationMatrix.makeBasis(directionVector, orthogonalVector, thirdVector)
+
+  const limbExtentQuaternion = new Quaternion().setFromRotationMatrix(rotationMatrix)
+
+  // convert to local space
+  const extentQuaternionLocal = new Quaternion()
+    .copy(limbExtentQuaternion)
+    .premultiply(parentQuaternion.clone().invert())
+
+  MotionCaptureRigComponent.rig[extentTargetBoneName].x[entity] = extentQuaternionLocal.x
+  MotionCaptureRigComponent.rig[extentTargetBoneName].y[entity] = extentQuaternionLocal.y
+  MotionCaptureRigComponent.rig[extentTargetBoneName].z[entity] = extentQuaternionLocal.z
+  MotionCaptureRigComponent.rig[extentTargetBoneName].w[entity] = extentQuaternionLocal.w
+
+  rig.localRig[extentTargetBoneName]?.node.quaternion.copy(extentQuaternionLocal)
+
+  rig.localRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
+}
+
+export const solveFoot = (
   entity: Entity,
   lowestWorldY: number,
   extent: NormalizedLandmark,
@@ -470,18 +527,15 @@ export const solveLimbEnd = (
   const ref2Point = new Vector3(ref2.x, lowestWorldY - ref2.y, ref2.z)
 
   plane.setFromCoplanarPoints(ref1Point, ref2Point, startPoint)
-  directionVector.subVectors(ref2Point, ref1Point).normalize()
-  const orthogonalVector = plane.normal
-  thirdVector.crossVectors(directionVector, orthogonalVector)
 
-  // for the hands, negative x is forward, positive y is up, thumb forward is positive z
+  directionVector.subVectors(startPoint, ref2Point).normalize()
+  const orthogonalVector = plane.normal
+  thirdVector.crossVectors(orthogonalVector, directionVector)
+
+  // for the hands, negative x is forward, palm up is negative y, thumb side is positive z on left hand, negative z on right hand
   rotationMatrix.makeBasis(directionVector, orthogonalVector, thirdVector)
 
   const limbExtentQuaternion = new Quaternion().setFromRotationMatrix(rotationMatrix)
-
-  // planeHelper2.position.copy(startPoint)
-  // planeHelper2.quaternion.copy(limbExtentQuaternion)
-  // planeHelper2.updateMatrixWorld()
 
   // convert to local space
   const extentQuaternionLocal = new Quaternion()
