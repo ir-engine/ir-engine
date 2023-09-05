@@ -44,6 +44,7 @@ import { addDataChannelHandler, removeDataChannelHandler } from '../networking/s
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import {
+  AxesHelper,
   BufferAttribute,
   BufferGeometry,
   LineBasicMaterial,
@@ -56,7 +57,7 @@ import {
   Vector3
 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { V_010, V_111 } from '../common/constants/MathConstants'
+import { V_010 } from '../common/constants/MathConstants'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { entityExists } from '../ecs/functions/EntityFunctions'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
@@ -175,7 +176,8 @@ const execute = () => {
     const rawBones = rigComponent.localRig
     for (const [key, value] of Object.entries(rawBones)) {
       if (!boneHelpers[key]) {
-        const mesh = new Mesh(new SphereGeometry(0.02), new MeshBasicMaterial())
+        const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial())
+        mesh.add(new AxesHelper(0.1))
         if (key === 'hips') mesh.material.color.setHex(0xff0000)
         if (key === 'spine') mesh.material.color.setHex(0x00ff00)
         if (key === 'chest') mesh.material.color.setHex(0x0000ff)
@@ -183,11 +185,10 @@ const execute = () => {
         Engine.instance.scene.add(mesh)
       }
       const mesh = boneHelpers[key]
-      mesh.matrixWorld.compose(
-        value.node.getWorldPosition(new Vector3()),
-        value.node.getWorldQuaternion(new Quaternion()),
-        V_111
-      )
+
+      value.node.getWorldPosition(mesh.position)
+      value.node.getWorldQuaternion(mesh.quaternion)
+      mesh.updateMatrixWorld(true)
     }
 
     const bones = Object.values(rigComponent.localRig).filter(
@@ -207,6 +208,9 @@ const execute = () => {
     }
 
     positionLineSegment.geometry.setAttribute('position', posAttr)
+
+    // rotate hips 180 degrees
+    hipBone.quaternion.premultiply(rotate180YQuaternion)
   }
 }
 

@@ -208,6 +208,8 @@ const CaptureDashboard = () => {
 
         const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
 
+        if (!results.za || !poseLandmarks) return
+
         const normalizedLandmarks = normalizeLandmarks(results.za, poseLandmarks)
 
         if (debugSettings?.throttleSend) {
