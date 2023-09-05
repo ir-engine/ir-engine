@@ -33,6 +33,7 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { isEqual } from 'lodash'
 import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import 'reactflow/dist/style.css'
@@ -84,7 +85,7 @@ const BehaveFlow = () => {
               examples={{}}
               registry={behaveGraphState.registries.get(NO_PROXY)[graphComponent?.domain.value]}
               onChangeGraph={(newGraph) => {
-                if (!graphComponent.graph) return
+                if (!graphComponent.graph || isEqual(graphComponent.graph.get(NO_PROXY), newGraph)) return
                 graphComponent.graph.set(JSON.parse(JSON.stringify(newGraph)))
               }}
             />

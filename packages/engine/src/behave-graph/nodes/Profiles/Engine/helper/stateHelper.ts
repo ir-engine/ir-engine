@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
 import { Engine } from '../../../../../ecs/classes/Engine'
-import { BehaveGraphState } from '../../../../state/BehaveGraphState'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
-const skipState = [BehaveGraphState.name]
+const skipState = [''] // behave graph state is skipped since its a type of record we do want to skip it anyways
 
 export function generateStateNodeSchema(state) {
   const nodeschema = {}
