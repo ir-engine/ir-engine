@@ -100,9 +100,10 @@ const filterFrustumCulledEntities = (entity: Entity) =>
 
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
-const _identityQuat = new Quaternion()
 
 const _vector3 = new Vector3()
+const _right = new Vector3()
+const _forward = new Vector3()
 const _hipVector = new Vector3()
 const _hipRot = new Quaternion()
 const leftLegVector = new Vector3()
@@ -356,11 +357,9 @@ const execute = () => {
           continue
         }
         //otherwise just set the target position, rotation and blend weight
-        worldSpaceTargets[ikTargetName] = {
-          position: ikTransform.position,
-          rotation: ikTransform.rotation,
-          blendWeight: ikComponent.blendWeight
-        } as targetTransform
+        worldSpaceTargets[ikTargetName].position.copy(ikTransform.position)
+        worldSpaceTargets[ikTargetName].rotation.copy(ikTransform.rotation)
+        worldSpaceTargets[ikTargetName].blendWeight = ikComponent.blendWeight
       }
 
       if (debugEnable) {
@@ -380,8 +379,8 @@ const execute = () => {
         rightLegVector.subVectors(rig.hips.node.position, worldSpaceTargets.rightFoot.position).length() +
         rigComponent.footHeight
 
-      const forward = new Vector3(0, 0, 5).applyQuaternion(transform.rotation)
-      const right = new Vector3(5, 0, 0).applyQuaternion(transform.rotation)
+      const forward = _forward.set(0, 0, 5).applyQuaternion(transform.rotation)
+      const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
 
       //calculate hips to head
       rig.hips.node.position.applyMatrix4(transform.matrixInverse)
