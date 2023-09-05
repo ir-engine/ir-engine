@@ -318,7 +318,7 @@ const execute = () => {
       const transform = getComponent(entity, TransformComponent)
 
       applyInputSourcePoseToIKTargets()
-      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength)
+      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
 
       for (const ikEntity of ikEntities) {
         if (ikEntities.length <= 1) continue
@@ -379,7 +379,7 @@ const execute = () => {
         rightLegVector.subVectors(rig.hips.node.position, worldSpaceTargets.rightFoot.position).length() +
         rigComponent.footHeight
 
-      const forward = _forward.set(0, 0, 5).applyQuaternion(transform.rotation)
+      const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
       const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
 
       //calculate hips to head
