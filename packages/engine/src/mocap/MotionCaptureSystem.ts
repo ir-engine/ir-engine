@@ -56,7 +56,7 @@ import {
   Vector3
 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
-import { V_111 } from '../common/constants/MathConstants'
+import { V_010, V_111 } from '../common/constants/MathConstants'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { entityExists } from '../ecs/functions/EntityFunctions'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
@@ -144,22 +144,23 @@ const execute = () => {
     for (const boneName of VRMHumanBoneList) {
       const localbone = rigComponent.localRig[boneName]?.node
       if (!localbone) continue
+
+      if (
+        MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
+        MotionCaptureRigComponent.rig[boneName].y[entity] === 0 &&
+        MotionCaptureRigComponent.rig[boneName].z[entity] === 0 &&
+        MotionCaptureRigComponent.rig[boneName].w[entity] === 0
+      ) {
+        MotionCaptureRigComponent.rig[boneName].w[entity] === 1
+      }
       localbone.quaternion.set(
         MotionCaptureRigComponent.rig[boneName].x[entity],
         MotionCaptureRigComponent.rig[boneName].y[entity],
         MotionCaptureRigComponent.rig[boneName].z[entity],
         MotionCaptureRigComponent.rig[boneName].w[entity]
       )
-      if (
-        localbone.quaternion.x === 0 &&
-        localbone.quaternion.y === 0 &&
-        localbone.quaternion.z === 0 &&
-        localbone.quaternion.w === 0
-      ) {
-        localbone.quaternion.set(0, 0, 0, 1)
-      }
 
-      localbone.position.copy(rigComponent.targetBones[boneName].position)
+      localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
       localbone.scale.set(1, 1, 1)
     }
 
@@ -175,6 +176,9 @@ const execute = () => {
     for (const [key, value] of Object.entries(rawBones)) {
       if (!boneHelpers[key]) {
         const mesh = new Mesh(new SphereGeometry(0.02), new MeshBasicMaterial())
+        if (key === 'hips') mesh.material.color.setHex(0xff0000)
+        if (key === 'spine') mesh.material.color.setHex(0x00ff00)
+        if (key === 'chest') mesh.material.color.setHex(0x0000ff)
         boneHelpers[key] = mesh
         Engine.instance.scene.add(mesh)
       }
@@ -186,7 +190,9 @@ const execute = () => {
       )
     }
 
-    const bones = Object.values(rigComponent.localRig).filter((bone) => bone.node.parent)
+    const bones = Object.values(rigComponent.localRig).filter(
+      (bone) => bone.node.parent && !bone.node.name.toLowerCase().includes('hips')
+    )
 
     if (!positionLineSegment.parent) Engine.instance.scene.add(positionLineSegment)
     const posAttr = new BufferAttribute(new Float32Array(bones.length * 2 * 3).fill(0), 3)
@@ -203,6 +209,8 @@ const execute = () => {
     positionLineSegment.geometry.setAttribute('position', posAttr)
   }
 }
+
+const rotate180YQuaternion = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 const boneHelpers = {} as Record<string, Object3D>
 const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
 positionLineSegment.material.linewidth = 4

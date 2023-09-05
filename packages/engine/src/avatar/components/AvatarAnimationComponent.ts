@@ -52,6 +52,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
@@ -157,9 +158,16 @@ export const AvatarRigComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
     const rigComponent = useComponent(entity, AvatarRigComponent)
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
+    const visible = useOptionalComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (debugEnabled.value && !rigComponent.helper.value && !pending?.value && rigComponent.value.rig?.hips?.node) {
+      if (
+        visible?.value &&
+        debugEnabled.value &&
+        !rigComponent.helper.value &&
+        !pending?.value &&
+        rigComponent.value.rig?.hips?.node
+      ) {
         const helper = new SkeletonHelper(rigComponent.value.targetBones.hips.parent!)
         helper.frustumCulled = false
         helper.name = `target-rig-helper-${entity}`
@@ -168,11 +176,11 @@ export const AvatarRigComponent = defineComponent({
         rigComponent.helper.set(helper)
       }
 
-      if ((!debugEnabled.value || pending?.value) && rigComponent.helper.value) {
+      if ((!visible?.value || !debugEnabled.value || pending?.value) && rigComponent.helper.value) {
         rigComponent.helper.value.removeFromParent()
         rigComponent.helper.set(none)
       }
-    }, [debugEnabled, pending])
+    }, [visible, debugEnabled, pending])
 
     useEffect(() => {
       if (!rigComponent.value || !rigComponent.value.vrm) return
