@@ -43,7 +43,20 @@ import { NormalizedLandmarkList } from '@mediapipe/holistic'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import {
+  BufferAttribute,
+  BufferGeometry,
+  LineBasicMaterial,
+  LineSegments,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Quaternion,
+  SphereGeometry,
+  Vector3
+} from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { V_111 } from '../common/constants/MathConstants'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { entityExists } from '../ecs/functions/EntityFunctions'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
@@ -126,29 +139,73 @@ const execute = () => {
   }
 
   for (const entity of motionCaptureQuery()) {
-    for (const boneName of VRMHumanBoneList) {
-      const rig = getComponent(entity, AvatarRigComponent)
-      const bone = rig.rig[boneName]?.node
-      // const bone = rig.localRig[boneName]?.node
-      if (bone)
-        bone.quaternion.set(
-          MotionCaptureRigComponent.rig[boneName].x[entity],
-          MotionCaptureRigComponent.rig[boneName].y[entity],
-          MotionCaptureRigComponent.rig[boneName].z[entity],
-          MotionCaptureRigComponent.rig[boneName].w[entity]
-        )
+    const rigComponent = getComponent(entity, AvatarRigComponent)
 
-      const localbone = rig.localRig[boneName]?.node
-      if (localbone)
-        localbone.quaternion.set(
-          MotionCaptureRigComponent.rig[boneName].x[entity],
-          MotionCaptureRigComponent.rig[boneName].y[entity],
-          MotionCaptureRigComponent.rig[boneName].z[entity],
-          MotionCaptureRigComponent.rig[boneName].w[entity]
-        )
+    for (const boneName of VRMHumanBoneList) {
+      const localbone = rigComponent.localRig[boneName]?.node
+      if (!localbone) continue
+      localbone.quaternion.set(
+        MotionCaptureRigComponent.rig[boneName].x[entity],
+        MotionCaptureRigComponent.rig[boneName].y[entity],
+        MotionCaptureRigComponent.rig[boneName].z[entity],
+        MotionCaptureRigComponent.rig[boneName].w[entity]
+      )
+      if (
+        localbone.quaternion.x === 0 &&
+        localbone.quaternion.y === 0 &&
+        localbone.quaternion.z === 0 &&
+        localbone.quaternion.w === 0
+      ) {
+        localbone.quaternion.set(0, 0, 0, 1)
+      }
+
+      localbone.position.copy(rigComponent.targetBones[boneName].position)
+      localbone.scale.set(1, 1, 1)
     }
+
+    const hipBone = rigComponent.localRig.hips.node
+    hipBone.position.set(
+      MotionCaptureRigComponent.hipPosition.x[entity],
+      MotionCaptureRigComponent.hipPosition.y[entity],
+      MotionCaptureRigComponent.hipPosition.z[entity]
+    )
+
+    hipBone.updateMatrixWorld(true)
+    const rawBones = rigComponent.localRig
+    for (const [key, value] of Object.entries(rawBones)) {
+      if (!boneHelpers[key]) {
+        const mesh = new Mesh(new SphereGeometry(0.02), new MeshBasicMaterial())
+        boneHelpers[key] = mesh
+        Engine.instance.scene.add(mesh)
+      }
+      const mesh = boneHelpers[key]
+      mesh.matrixWorld.compose(
+        value.node.getWorldPosition(new Vector3()),
+        value.node.getWorldQuaternion(new Quaternion()),
+        V_111
+      )
+    }
+
+    const bones = Object.values(rigComponent.localRig).filter((bone) => bone.node.parent)
+
+    if (!positionLineSegment.parent) Engine.instance.scene.add(positionLineSegment)
+    const posAttr = new BufferAttribute(new Float32Array(bones.length * 2 * 3).fill(0), 3)
+
+    let i = 0
+    for (const bone of bones) {
+      const pos = bone.node.getWorldPosition(new Vector3())
+      posAttr.setXYZ(i, pos.x, pos.y, pos.z)
+      const prevPos = bone.node.parent!.getWorldPosition(new Vector3())
+      posAttr.setXYZ(i + 1, prevPos.x, prevPos.y, prevPos.z)
+      i += 2
+    }
+
+    positionLineSegment.geometry.setAttribute('position', posAttr)
   }
 }
+const boneHelpers = {} as Record<string, Object3D>
+const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
+positionLineSegment.material.linewidth = 4
 
 const reactor = () => {
   useEffect(() => {

@@ -29,7 +29,7 @@ import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponen
 import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
 import { defineComponent } from '../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../ecs/functions/EntityFunctions'
-import { QuaternionSchema } from '../transform/components/TransformComponent'
+import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
@@ -38,7 +38,8 @@ export const MotionCaptureRigComponent = defineComponent({
     rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
       VRMHumanBoneName,
       typeof QuaternionSchema
-    >
+    >,
+    hipPosition: Vector3Schema
   },
 
   reactor: function () {

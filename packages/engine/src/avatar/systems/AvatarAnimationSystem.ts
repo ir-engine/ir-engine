@@ -35,16 +35,9 @@ import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -265,25 +258,8 @@ const execute = () => {
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
-    const animationComponent = getComponent(entity, AnimationComponent)
 
     const rig = rigComponent.rig
-
-    // temp for mocap
-    if (hasComponent(entity, MotionCaptureRigComponent) && ikEntities.length == 0) {
-      // just animate and exit
-      animationComponent.mixer.stopAllAction()
-
-      // retargeting
-      // for (const [key, animatedBone] of Object.entries(rigComponent.localRig)) {
-      //   const ikBone = rigComponent.rig[key].node as Object3D
-      //   ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
-      // }
-      // rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
-
-      rigComponent.vrm.update(getState(EngineState).deltaSeconds)
-      continue
-    }
 
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
@@ -525,17 +501,18 @@ const execute = () => {
       const ikBone = rigComponent.rig[key].node as Object3D
       ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
     }
+
     //todo: lerp this
-    if (weights['hips'] == undefined) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
+    if (!weights['hips']) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
     rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
 
   /** Run debug */
   for (const entity of Engine.instance.priorityAvatarEntities) {
-    const avatarRig = getComponent(entity, AvatarRigComponent)
-    if (avatarRig?.helper) {
-      avatarRig.rig.hips.node.updateWorldMatrix(true, true)
-      avatarRig.helper?.updateMatrixWorld(true)
+    const rigComponent = getComponent(entity, AvatarRigComponent)
+    if (rigComponent?.helper) {
+      rigComponent.rig.hips.node.updateWorldMatrix(true, true)
+      rigComponent.helper?.updateMatrixWorld(true)
     }
   }
 }

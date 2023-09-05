@@ -349,7 +349,7 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
-  const hipsBone = rig.vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips)! // rig.localRig[VRMHumanBoneName.Hips]?.node!
+  const hipsBone = rig.localRig[VRMHumanBoneName.Hips]?.node
 
   const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
   const hipright = new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
@@ -360,7 +360,9 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
 
   const shoulderCenter = new Vector3().copy(shoulderLeft).add(shoulderRight).multiplyScalar(0.5)
 
-  hipsBone.position.copy(hipcenter)
+  MotionCaptureRigComponent.hipPosition.x[entity] = hipcenter.x
+  MotionCaptureRigComponent.hipPosition.y[entity] = hipcenter.y
+  MotionCaptureRigComponent.hipPosition.z[entity] = hipcenter.z
 
   const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(hipright, hipleft, shoulderCenter, new Quaternion(), true)
 
@@ -419,6 +421,22 @@ export const solveSpine = (entity: Entity, landmarks: NormalizedLandmarkList) =>
 
   // get world space rotation of each segment
   const spine0Quaternion = new Quaternion().copy(hipWorldQuaterion).slerp(shoulderWorldQuaternion, spineRatio)
+
+  // const hipObject = new Object3D()
+  // hipObject.matrixWorld.compose(hipcenter, hipWorldQuaterion, V_111)
+  // const spineObject = new Object3D()
+  // spineObject.matrixWorld.compose(hipcenter, spine0Quaternion, V_111)
+  // const shoulderObject = new Object3D()
+  // shoulderObject.matrixWorld.compose(shoulderCenter, shoulderWorldQuaternion, V_111)
+  // solveTwoBoneIK(
+  //   hipObject,
+  //   spineObject,
+  //   shoulderObject,
+  //   targetPosition,
+  //   targetRotation,
+  //   null, // rotationOffset
+  //   null, // hint
+  // )
 
   // get local space rotation of each segment
   const spine0Local = new Quaternion()

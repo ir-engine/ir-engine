@@ -23,9 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBoneList, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationAction, Euler, KeyframeTrack, Matrix4, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import {
+  AnimationAction,
+  Bone,
+  Euler,
+  KeyframeTrack,
+  Matrix4,
+  Quaternion,
+  SkeletonHelper,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
@@ -92,6 +102,9 @@ export const AvatarRigComponent = defineComponent({
       rig: null! as VRMHumanBones,
       /** Read-only bones in bind pose */
       localRig: null! as VRMHumanBones,
+      /** the target */
+      targetBones: null! as Record<VRMHumanBoneName, Bone>,
+
       helper: null as SkeletonHelper | null,
       /** The length of the torso in a t-pose, from the hip joint to the head joint */
       torsoLength: 0,
@@ -120,8 +133,9 @@ export const AvatarRigComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.object.test(json.rig)) component.rig.set(json.rig as VRMHumanBones)
-    if (matches.object.test(json.localRig)) component.localRig.set(json.localRig as VRMHumanBones)
+    if (matches.object.test(json.rig)) component.rig.set(json.rig)
+    if (matches.object.test(json.localRig)) component.localRig.set(json.localRig)
+    if (matches.object.test(json.targetBones)) component.targetBones.set(json.targetBones)
     if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
@@ -146,7 +160,7 @@ export const AvatarRigComponent = defineComponent({
 
     useEffect(() => {
       if (debugEnabled.value && !rigComponent.helper.value && !pending?.value && rigComponent.value.rig?.hips?.node) {
-        const helper = new SkeletonHelper(rigComponent.value.rig.hips.node.parent?.parent!)
+        const helper = new SkeletonHelper(rigComponent.value.targetBones.hips.parent!)
         helper.frustumCulled = false
         helper.name = `target-rig-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.AvatarHelper)
@@ -174,9 +188,6 @@ export const AvatarRigComponent = defineComponent({
       if (!rig) return
       for (const [boneName, bone] of Object.entries(rig)) {
         if (!bone) continue
-        // const axesHelper = new AxesHelper(0.1)
-        // setObjectLayers(axesHelper, ObjectLayers.Scene)
-        // bone.node.add(axesHelper)
         proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.node.position)
         proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.node.quaternion)
       }

@@ -53,7 +53,12 @@ import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, {
+  BoneNames,
+  findSkinnedMeshes,
+  getAllBones,
+  recursiveHipsLookup
+} from '../AvatarBoneMatching'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
@@ -76,6 +81,7 @@ export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
+  console.log(model)
   const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
 
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
@@ -193,10 +199,12 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const rig = model.humanoid?.normalizedHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
+  const targetBones = getAllBones(recursiveHipsLookup(model.scene))
 
   setComponent(entity, AvatarRigComponent, {
     rig,
     localRig: cloneDeep(rig),
+    targetBones,
     skinnedMeshes,
     vrm: model
   })
