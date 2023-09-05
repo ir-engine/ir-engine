@@ -161,6 +161,7 @@ const execute = () => {
         MotionCaptureRigComponent.rig[boneName].w[entity]
       )
 
+      if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
       localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
       localbone.scale.set(1, 1, 1)
     }

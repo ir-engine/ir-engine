@@ -90,6 +90,12 @@ export const parseAvatarModelAsset = (model: any) => {
 }
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
+  if (!sourceRig) {
+    const sourceVRM = await AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/animations/mocap_skeleton.vrm`
+    )
+    sourceRig = sourceVRM.humanoid.normalizedHumanBones
+  }
   const model = await AssetLoader.loadAsync(avatarURL)
   return parseAvatarModelAsset(model)
 }
@@ -192,6 +198,8 @@ export const getAnimations = async () => {
   return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
 }
 
+let sourceRig
+
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
@@ -203,7 +211,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    localRig: cloneDeep(rig),
+    localRig: cloneDeep(sourceRig),
     targetBones,
     skinnedMeshes,
     vrm: model
