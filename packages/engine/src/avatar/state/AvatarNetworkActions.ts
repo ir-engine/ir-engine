@@ -61,6 +61,7 @@ export class AvatarNetworkAction {
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'ik-target',
     name: matchesIkTarget,
+    blendWeight: matches.number,
     $cache: {
       removePrevious: true
     },

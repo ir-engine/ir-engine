@@ -82,7 +82,9 @@ function ApplyStrategy(poseEnsemble, avatarPosition: Vector3, avatarRotation: Qu
     const entityUUID = `${Engine?.instance?.userID}_mocap_${props.key}` as EntityUUID
     const target = UUIDComponent.entitiesByUUID[entityUUID]
     if (!target) {
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: props.key as any }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: entityUUID, name: props.key as any, blendWeight: 1 })
+      )
       return
     }
     const transform = getComponent(target, TransformComponent)
