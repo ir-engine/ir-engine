@@ -52,7 +52,8 @@ export const VariantComponent = defineComponent({
 
   onInit: (entity) => ({
     levels: [] as VariantLevel[],
-    heuristic: 'MANUAL' as 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE'
+    heuristic: 'MANUAL' as 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
+    calculated: false
   }),
 
   onSet: (entity, component, json) => {
@@ -72,6 +73,7 @@ export const VariantComponent = defineComponent({
     ) {
       component.levels.set(json.levels)
     }
+    if (typeof json.calculated === 'boolean') component.calculated.set(json.calculated)
   },
 
   toJSON: (entity, component) => ({
