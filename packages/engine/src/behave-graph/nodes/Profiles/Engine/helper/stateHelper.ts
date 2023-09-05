@@ -30,7 +30,7 @@ import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelpe
 
 const skipState = [BehaveGraphState.name]
 
-export function generateStateNodeschema(state) {
+export function generateStateNodeSchema(state) {
   const nodeschema = {}
   const schema = state.value
   if (schema === null) {
@@ -54,7 +54,7 @@ export function getStateSetters() {
       skipped.push(stateName)
       continue
     }
-    const inputsockets = generateStateNodeschema(state)
+    const inputsockets = generateStateNodeSchema(state)
     if (Object.keys(inputsockets).length === 0) {
       skipped.push(stateName)
       continue
@@ -91,7 +91,7 @@ export function getStateGetters() {
       skipped.push(stateName)
       continue
     }
-    const outputsockets = generateStateNodeschema(state)
+    const outputsockets = generateStateNodeSchema(state)
     if (Object.keys(outputsockets).length === 0) {
       skipped.push(stateName)
       continue
