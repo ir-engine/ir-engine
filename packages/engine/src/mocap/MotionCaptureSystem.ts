@@ -103,6 +103,7 @@ const handleMocapData = (
 ) => {
   if (network.isHosting) {
     network.transport.bufferToAll(mocapDataChannelType, message)
+    return
   }
   const { peerID, results } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
   if (!peerID) return
