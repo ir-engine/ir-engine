@@ -79,6 +79,9 @@ export default {
       addAssociations({
         models: [
           {
+            model: 'channel-user'
+          },
+          {
             model: 'message'
           },
           {

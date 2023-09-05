@@ -224,7 +224,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           ]
         })
 
-        // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
         for (const channel of channels) {
           channel.messages = (await this.app.service(messagePath).find({
             query: {
@@ -265,7 +264,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
       /** @todo figure out how to do this as part of the query */
       for (const channel of allChannels) {
-        channel.channel_users = (await this.app.service(channelUserPath).find({
+        channel.dataValues.channel_users = (await this.app.service(channelUserPath).find({
           query: {
             channelId: channel.id
           },
@@ -274,7 +273,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       }
 
       allChannels = allChannels.filter((channel) => {
-        return channel.channel_users.find((channelUser) => channelUser.userId === userId)
+        return channel.dataValues.channel_users.find((channelUser) => channelUser.userId === userId)
       })
 
       for (const channel of allChannels) {
