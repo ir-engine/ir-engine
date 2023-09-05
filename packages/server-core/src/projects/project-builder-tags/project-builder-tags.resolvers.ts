@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectUpdateType } from './ProjectInterface'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-export type UpdateProjectInterface = {
-  sourceURL: string
-  destinationURL: string
-  name: string
-  reset: boolean
-  commitSHA: string
-  sourceBranch: string
-  updateType: ProjectUpdateType
-  updateSchedule: string
-}
+import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const projectBuilderTagsResolver = resolve<ProjectBuilderTagsType, HookContext>({})
+
+export const projectBuilderTagsExternalResolver = resolve<ProjectBuilderTagsType, HookContext>({})

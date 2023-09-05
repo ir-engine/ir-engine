@@ -56,6 +56,7 @@ import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './Group
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VariantComponent } from './VariantComponent'
 
 function clearMaterials(model: ComponentType<typeof ModelComponent>) {
   if (!model.scene) return
@@ -125,6 +126,7 @@ function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
+  const variantComponent = useOptionalComponent(entity, VariantComponent)
   const model = modelComponent.value
   const source = model.src
 
@@ -142,6 +144,8 @@ function ModelReactor() {
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
+      //wait for variant component to calculate if present
+      if (variantComponent && variantComponent.calculated.value === false) return
       switch (fileExtension) {
         case 'glb':
         case 'gltf':
@@ -185,7 +189,7 @@ function ModelReactor() {
       console.error(err)
       addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
     }
-  }, [modelComponent.src])
+  }, [modelComponent.src, variantComponent?.calculated])
 
   // update scene
   useEffect(() => {
