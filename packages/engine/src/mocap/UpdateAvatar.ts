@@ -76,7 +76,6 @@ export const drawMocapDebug = () => {
   positionLineSegment.geometry.setAttribute('position', posAttr)
   const colAttr = new BufferAttribute(new Float32Array(POSE_CONNECTIONS.length * 2 * 4).fill(1), 4)
   positionLineSegment.geometry.setAttribute('color', colAttr)
-  setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
 
   return (landmarks: NormalizedLandmarkList) => {
     const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
@@ -97,7 +96,10 @@ export const drawMocapDebug = () => {
       mesh.matrixWorld.setPosition(value.x, lowestWorldY - value.y, value.z)
     }
 
-    if (!positionLineSegment.parent) Engine.instance.scene.add(positionLineSegment)
+    if (!positionLineSegment.parent) {
+      Engine.instance.scene.add(positionLineSegment)
+      setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
+    }
 
     for (let i = 0; i < POSE_CONNECTIONS.length * 2; i += 2) {
       const [first, second] = POSE_CONNECTIONS[i / 2]

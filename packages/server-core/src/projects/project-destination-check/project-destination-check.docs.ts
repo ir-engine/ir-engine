@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface BuildStatus {
-  succeeded: boolean
-  failed: boolean
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Project destination check service description',
+    securities: ['all']
+  }
+})

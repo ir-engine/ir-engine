@@ -188,7 +188,7 @@ export const setEntityTransform = makeFlowNodeDefinition({
     const scale = toVector3(read('scale'))
     const entity = Number(read('entity')) as Entity
     if (entity === Engine.instance.localClientEntity) {
-      teleportAvatar(entity, position, true)
+      teleportAvatar(entity, position!, true)
     } else {
       setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
       copyTransformToRigidBody(entity)
