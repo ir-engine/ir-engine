@@ -220,7 +220,7 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
  * @param actionShape
  * @returns a function that creates an instance of the defined action
  */
-export const actionDefinitions = {} as Record<string, any>
+export const ActionDefinitions = {} as Record<string, any>
 
 function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
   type ResolvedAction = ResolvedActionType<Shape>
@@ -288,7 +288,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
   actionCreator.type = actionShape.type as Shape['type']
   actionCreator.matches = matchesShape
 
-  actionDefinitions[actionCreator.type as string] = actionCreator
+  ActionDefinitions[actionCreator.type as string] = actionCreator
   return actionCreator
 }
 
