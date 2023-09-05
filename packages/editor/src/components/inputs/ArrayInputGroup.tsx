@@ -24,16 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import FileBrowserInput from './FileBrowserInput'
 
 export interface ArrayInputGroupProp {
   name?: string
   prefix?: string
-  isStringInput?: boolean
   label?: any
   values: string[]
   onChange?: (values: string[]) => void
   acceptFileTypes?: any
-  itemType?: any
+  acceptDropItems?: any
 }
 
 export interface ArrayInputGroupState {
@@ -91,13 +91,12 @@ const divStyle = {
 }
 
 const ArrayInputGroup = ({
-  isStringInput,
   prefix,
   label,
   values,
   onChange,
   acceptFileTypes,
-  itemType
+  acceptDropItems
 }: ArrayInputGroupProp) => {
   let count = 0
   if (values && values.length) count = values.length
@@ -124,23 +123,12 @@ const ArrayInputGroup = ({
                   {' '}
                   {prefix} {index + 1}:{' '}
                 </label>
-                {isStringInput ? (
-                  <input
-                    style={inputStyle}
-                    value={value}
-                    onChange={(e) => {
-                      onChangeText(e.target.value, index, values, onChange)
-                    }}
-                  />
-                ) : (
-                  <input
-                    style={inputStyle}
-                    value={value}
-                    onChange={(e) => {
-                      onChangeText(e.target.value, index, values, onChange)
-                    }}
-                  />
-                )}
+                <FileBrowserInput
+                  value={value}
+                  onChange={(value) => onChangeText(value, index, values, onChange)}
+                  acceptFileTypes={acceptFileTypes}
+                  acceptDropItems={acceptDropItems}
+                />
               </div>
             )
           })}
