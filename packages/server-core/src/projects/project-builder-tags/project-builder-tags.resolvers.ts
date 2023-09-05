@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface ProjectCommitInterface {
-  projectName: string
-  projectVersion: string
-  engineVersion: string
-  commitSHA: string
-  datetime: string
-  matchesEngineVersion: boolean
-  discard?: boolean
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+
+import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const projectBuilderTagsResolver = resolve<ProjectBuilderTagsType, HookContext>({})
+
+export const projectBuilderTagsExternalResolver = resolve<ProjectBuilderTagsType, HookContext>({})
