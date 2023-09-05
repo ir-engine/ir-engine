@@ -28,7 +28,7 @@ export const projectBuildPath = 'project-build'
 
 export const projectBuildMethods = ['find', 'patch'] as const
 
-export const projectUpdateSchema = Type.Object(
+export const ProjectBuildUpdateItemSchema = Type.Object(
   {
     sourceURL: Type.String(),
     destinationURL: Type.String(),
@@ -41,7 +41,7 @@ export const projectUpdateSchema = Type.Object(
   },
   { $id: 'ProjectUpdate', additionalProperties: false }
 )
-export type ProjectUpdateInterfaceType = Static<typeof projectUpdateSchema>
+export type ProjectBuildUpdateItemType = Static<typeof ProjectBuildUpdateItemSchema>
 
 // Main data model schema
 export const projectBuildSchema = Type.Object(
@@ -57,7 +57,7 @@ export type ProjectBuildType = Static<typeof projectBuildSchema>
 export const projectBuildPatchSchema = Type.Object(
   {
     updateProjects: Type.Optional(Type.Boolean()),
-    projectsToUpdate: Type.Optional(Type.Array(Type.Ref(projectUpdateSchema)))
+    projectsToUpdate: Type.Optional(Type.Array(Type.Ref(ProjectBuildUpdateItemSchema)))
   },
   {
     $id: 'ProjectBuildPatch'
@@ -66,6 +66,6 @@ export const projectBuildPatchSchema = Type.Object(
 
 export type ProjectBuildPatch = Static<typeof projectBuildPatchSchema>
 
-export const projectUpdateValidator = getValidator(projectUpdateSchema, dataValidator)
+export const projectUpdateValidator = getValidator(ProjectBuildUpdateItemSchema, dataValidator)
 export const projectBuildValidator = getValidator(projectBuildSchema, dataValidator)
 export const projectBuildPatchValidator = getValidator(projectBuildPatchSchema, dataValidator)

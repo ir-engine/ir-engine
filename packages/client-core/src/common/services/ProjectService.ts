@@ -36,7 +36,7 @@ import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects
 import {
   projectBuildPath,
   ProjectBuildType,
-  ProjectUpdateInterfaceType
+  ProjectBuildUpdateItemType
 } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import {
   projectBuilderTagsPath,
@@ -122,7 +122,7 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  uploadProject: async (data: ProjectUpdateInterfaceType) => {
+  uploadProject: async (data: ProjectBuildUpdateItemType) => {
     const result = await API.instance.client.service(projectPath).update({
       sourceURL: data.sourceURL,
       destinationURL: data.destinationURL,
@@ -245,11 +245,13 @@ export const ProjectService = {
 
   fetchProjectCommits: async (url: string, branchName: string) => {
     try {
-      return Engine.instance.api.service(projectCommitsPath).get(url, {
+      const projectCommits = await Engine.instance.api.service(projectCommitsPath).get(url, {
         query: {
           branchName: branchName
         }
       })
+
+      return projectCommits.commits
     } catch (err) {
       logger.error('Error with fetching commits for a project', err)
       throw err
@@ -308,7 +310,7 @@ export const ProjectService = {
     }
   },
 
-  updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectUpdateInterfaceType[]) => {
+  updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectBuildUpdateItemType[]) => {
     try {
       console.log('projectToUpdate', projectsToUpdate)
       await Engine.instance.api.service(projectBuildPath).patch(tag, {

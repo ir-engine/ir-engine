@@ -327,7 +327,10 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   ])
 
   useEffect(() => {
-    if (projectUpdateStatus?.value?.triggerSetDestination?.length > 0) {
+    if (
+      projectUpdateStatus?.value?.triggerSetDestination?.length > 0 &&
+      projectUpdateStatus?.value?.destinationURL?.length === 0
+    ) {
       ProjectUpdateService.setDestinationURL(project.name, projectUpdateStatus.value.triggerSetDestination)
       handleChangeDestinationRepo({
         target: {

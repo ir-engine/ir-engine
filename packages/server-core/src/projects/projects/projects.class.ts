@@ -18,9 +18,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 
-import { ProjectsType } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
@@ -28,7 +28,7 @@ import path from 'path'
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-export class ProjectsService implements ServiceInterface<ProjectsType> {
+export class ProjectsService implements ServiceInterface<ProjectType['name'][]> {
   app: Application
 
   constructor(app: Application) {
@@ -39,10 +39,8 @@ export class ProjectsService implements ServiceInterface<ProjectsType> {
    * returns a list of projects installed by name from their folder names
    */
   async find() {
-    let projectsList = fs
+    return fs
       .readdirSync(projectsRootFolder)
       .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
-
-    return { projectsList: projectsList }
   }
 }

@@ -69,7 +69,7 @@ export const initializeEngineForRecorder = async () => {
   const projects = API.instance.client.service(projectsPath).find()
 
   startCaptureSystems()
-  await loadEngineInjection((await projects).projectsList)
+  await loadEngineInjection(await projects)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
   dispatchAction(EngineActions.sceneLoaded({}))

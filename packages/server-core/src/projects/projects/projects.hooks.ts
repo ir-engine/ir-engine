@@ -18,14 +18,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
-
-import { projectsExternalResolver, projectsResolver } from './projects.resolvers'
 
 export default {
   around: {
-    all: [schemaHooks.resolveExternal(projectsExternalResolver), schemaHooks.resolveResult(projectsResolver)]
+    all: []
   },
 
   before: {
