@@ -37,7 +37,7 @@ const skipComponents = [
   AvatarAnimationComponent.name // needs special attention
 ]
 
-export function generateComponentNodeschema(component: Component) {
+export function generateComponentNodeSchema(component: Component) {
   const nodeschema = {}
   if (skipComponents.includes(component.name)) return nodeschema
   const schema = component?.onInit(UndefinedEntity)
@@ -68,7 +68,7 @@ export function getComponentSetters() {
       skipped.push(componentName)
       continue
     }
-    const inputsockets = generateComponentNodeschema(component)
+    const inputsockets = generateComponentNodeSchema(component)
     if (Object.keys(inputsockets).length === 0) {
       skipped.push(componentName)
       continue
@@ -110,7 +110,7 @@ export function getComponentGetters() {
       skipped.push(componentName)
       continue
     }
-    const outputsockets = generateComponentNodeschema(component)
+    const outputsockets = generateComponentNodeSchema(component)
     if (Object.keys(outputsockets).length === 0) {
       skipped.push(componentName)
       continue
