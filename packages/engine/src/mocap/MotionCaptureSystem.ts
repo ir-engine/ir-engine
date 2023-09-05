@@ -58,6 +58,7 @@ import {
 } from 'three'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { V_010 } from '../common/constants/MathConstants'
+import { isClient } from '../common/functions/getEnvironment'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { entityExists } from '../ecs/functions/EntityFunctions'
 import { RendererState } from '../renderer/RendererState'
@@ -103,7 +104,6 @@ const handleMocapData = (
 ) => {
   if (network.isHosting) {
     network.transport.bufferToAll(mocapDataChannelType, message)
-    return
   }
   const { peerID, results } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
   if (!peerID) return
@@ -119,6 +119,8 @@ const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmarkList>>(
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
+  // for now, it is unnecessary to compute anything on the server
+  if (!isClient) return
   const network = Engine.instance.worldNetwork
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {

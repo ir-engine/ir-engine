@@ -255,7 +255,6 @@ const execute = () => {
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
-    const animationComponent = getComponent(entity, AnimationComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     const deltaTime = elapsedSeconds - avatarAnimationComponent.deltaAccumulator
@@ -298,7 +297,6 @@ const execute = () => {
     }
 
     if (rigComponent.ikOverride != '') {
-      if (!rig.hips?.node) continue
       hipsForward.set(0, 0, 1)
 
       //calculate world positions
