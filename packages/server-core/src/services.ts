@@ -51,8 +51,8 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => {
         try {
-          const config: ProjectConfigInterface =
-            require(`../../projects/projects/${dirent.name}/xrengine.config.ts`).default
+          const configPath = `../../projects/projects/${dirent.name}/xrengine.config.ts`
+          const config: ProjectConfigInterface = require(configPath).default
           if (!config.services) return null
           return path.join(dirent.name, config.services)
         } catch (e) {

@@ -42,7 +42,8 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { MediasoupDataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediasoupMediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { MediasoupTransportStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
@@ -63,12 +64,12 @@ const startCaptureSystems = () => {
 }
 
 export const initializeEngineForRecorder = async () => {
-  if (getMutableState(EngineState).isEngineInitialized.value) return
+  if (getState(EngineState).isEngineInitialized) return
 
-  const projects = API.instance.client.service('projects').find()
+  const projects = API.instance.client.service(projectsPath).find()
 
   startCaptureSystems()
-  await loadEngineInjection(await projects)
+  await loadEngineInjection((await projects).projectsList)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
   dispatchAction(EngineActions.sceneLoaded({}))
@@ -98,7 +99,7 @@ export const CaptureLocation = () => {
 
   const engineState = useHookstate(getMutableState(EngineState))
 
-  if (!engineState.isEngineInitialized.value && !engineState.connectedWorld.value) return <></>
+  if (!engineState.connectedWorld.value) return <></>
 
   return <CaptureUI />
 }

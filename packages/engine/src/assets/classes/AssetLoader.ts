@@ -244,7 +244,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     return AssetClass.Model
   } else if (/\.png|jpg|jpeg|tga|ktx2|dds$/.test(assetFileName)) {
     return AssetClass.Image
-  } else if (/\.mp4|avi|webm|mkv|mov|m3u8$/.test(assetFileName)) {
+  } else if (/\.mp4|avi|webm|mkv|mov|m3u8|mpd$/.test(assetFileName)) {
     return AssetClass.Video
   } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
     return AssetClass.Audio

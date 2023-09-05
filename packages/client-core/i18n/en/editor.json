@@ -99,6 +99,36 @@
   "toolbar": {
     "lbl-publish": "Publish",
     "lbl-published": "Published",
+    "gizmo": {
+      "description": "Transform Gizmo",
+      "translate": "[T] Translate",
+      "rotate": "[R] Rotate",
+      "scale": "[S] Scale"
+    },
+    "transformSpace": {
+      "description": "Sets your transform control to be oriented to the object(selection) or world",
+      "lbl-world": "World",
+      "info-world": "World space relates to the entire scene’s orientation",
+      "lbl-selection": "Object",
+      "info-selection": "Object Space (your selection) relates to transforms made to a specific object in relationship to the world space",
+      "lbl-toggleTransformSpace": "[Z] Toggle Transform Space"
+    },
+    "transformPivot": {
+      "toggleTransformPivot" : "[X] Toggle Transform Pivot",
+      "lbl-selection": "Selection",
+      "info-selection": "The center pivot of the final asset you selected in the sequence.",
+      "lbl-center": "Center",
+      "info-center": "A pivot that sits at an equal distance between all selections.",
+      "lbl-bottom": "Bottom",
+      "info-bottom": "A pivot that sits equally between all selections and at the bottom of your final selection in the sequence.",
+      "lbl-origin": "Origin",
+      "info-origin": "Sets pivot mode to the world origin (0,0,0)"
+    },
+    "transformSnapTool": {
+      "toggleSnapMode": "[C] Toggle Snap Mode",
+      "info-translate": "Translate objects by a unit of measurement.",
+      "info-rotate": "Rotate objects by a specific degrees."
+    },
     "command": {
       "translate": "Translate",
       "rotate": "Rotate",
@@ -109,8 +139,10 @@
       "toggleGrid": "Toggle Grid Visibility",
       "increaseGridSize": "Increase Grid Size",
       "descreaseGridSize": "Decrease Grid Size",
-      "stopPreview": "Stop Previewing Scene",
-      "playPreview": "Preview Scene"
+      "lbl-stopPreview": "Stop Previewing Scene",
+      "info-stopPreview": "Remove your avatar from scene",
+      "lbl-playPreview": "Preview Scene",
+      "info-playPreview": "Spawns you into the scene"
     },
     "instance": {
       "none": "None",
@@ -118,6 +150,8 @@
       "user": "User"
     },
     "render-settings":{
+      "lbl": "Render Settings",
+      "info": "How you view materials in the Engine",
       "lbl-usePostProcessing":"Use Post Processing",
       "info-usePostProcessing":"Enables post processing",
       "lbl-shadowMapResolution":"Shadow Map Resolution",
@@ -126,12 +160,29 @@
       "info-renderMode":"Choose render mode"
     },
     "grid": {
+      "info-toggleGridVisibility": "Toggle Grid Visibility",
+      "info-gridSpacing": "Set grid spacing meters",
       "info-incrementHeight": "Increment Grid Height",
       "info-decrementHeight": "Decrement Grid Height"
+    },
+    "stats": {
+      "lbl": "Toggle Stats",
+      "info": "Show stats about the scene and gives you a clue as to how optimized your scene is."
+    },
+    "helpersToggle": {
+      "lbl-helpers": "Toggle Helpers",
+      "info-helpers": "View hidden information about your scene, ie: colliders",
+      "lbl-nodeHelpers": "Toggle Node Helpers",
+      "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive."
+    },
+    "sceneScreenshot": {
+      "lbl": "Screenshot",
+      "info": "Takes a screenshot of your scene at the current view."
     }
   },
   "properties": {
     "title": "Properties",
+    "info": "Propeties let you access and edit detailed information about objects in your scene.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
@@ -282,7 +333,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-isAvatar": "Is Avatar",
+      "lbl-isAvatar": "Force Avatar Animations",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isEquippable": "Is Equippable",
       "lbl-castShadow": "Cast Shadow",
@@ -746,7 +797,33 @@
       "placeObjectAtOrigin": "Place Object at Origin",
       "copyURL": "Copy URL",
       "openInNewTab": "Open URL in New Tab",
-      "deleteAsset": "Delete Asset"
+      "deleteAsset": "Delete Asset",
+      "tooltip": {
+        "EE_model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
+        "EE_volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
+        "EE_video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
+        "EE_positionalAudio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
+        "EE_image": "Imports an image into the scene",
+        "GroundPlaneComponent": "Create collision ground plane.",
+        "GroupComponent": "Collection of models or assets.",
+        "PrefabComponent": "Create prefabs from groups or objects that are saved to the assets folder. Saving requires specific naming: 'assetName'.xre.gltf",
+        "ColliderComponent": "Creates a collision ball, cuboid, capsule, or cylinder to be manually placement.",
+        "SpawnPointComponent": "A point where people will appear when they enter your scene.",
+        "PortalComponent": "A portal to teleport a player to a port in a different location.",
+        "AmbientLightComponent": "A combination of direct and indirect light, provides general lighting to all assets.",
+        "PointLightComponent": "A light which emits in all directions from a single point.",
+        "SpotLightComponent": "Creates a light that shines in a specific direction.",
+        "DirectionalLightComponent": "Creates a light that emits evenly in a single direction.",
+        "HemisphereLightComponent": "A light which illuminates the scene from directly overhead.",
+        "EE_ParticleSystem": "Creates a particle emitter.",
+        "SystemComponent": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
+        "EE_behaveGraph": "Customizes state and behavior of entities through a node graph connection.",
+        "EnvMapBakeComponent": "Add Env Mapbake to your scene.",
+        "EE_scenePreviewCamera": "A preview camera which generates a scene thumbnail and the starting position.",
+        "SkyboxComponent": "Sets the area outside your map (skybox) with a specific sky type.",
+        "SplineTrackComponent": "Creates a spline track.",
+        "SplineComponent": "Create and customize curves."
+      }
     },
     "filebrowser": {
       "addNewFolder": "Add New Folder",
@@ -770,6 +847,8 @@
     }
   },
   "hierarchy": {
+    "lbl": "Hierarchy",
+    "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
@@ -779,6 +858,10 @@
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
     "isseus": "Issues:"
+  },
+  "materialLibrary": {
+    "lbl": "Material Library",
+    "info": "Location of an assets materials and where you can select and edit them."
   },
   "dnd": {
     "nodes": "{{count}} Nodes Selected",

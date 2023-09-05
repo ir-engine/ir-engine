@@ -48,7 +48,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(inviteCodeLookupPath, new InviteCodeLookupService(options, app), {
+  app.use(inviteCodeLookupPath, new InviteCodeLookupService(app), {
     // A list of all methods this service exposes externally
     methods: inviteCodeLookupMethods,
     // You can add additional custom events to be sent to clients here

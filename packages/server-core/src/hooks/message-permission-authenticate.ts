@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 
+import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from './../../declarations'
 
@@ -34,13 +35,14 @@ export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
     const { id, method, data, params, app } = context
     const loggedInUser = params.user as UserType
-    if (method === 'remove' || method === 'patch') {
-      const match = await app.service('message').Model.findOne({
-        where: {
-          id: id,
-          senderId: loggedInUser.id
+    if ((method === 'remove' || method === 'patch') && id) {
+      const match = (await app.service(messagePath)._find({
+        query: {
+          id: id.toString(),
+          senderId: loggedInUser.id,
+          $limit: 1
         }
-      })
+      })) as Paginated<MessageType>
 
       if (match == null) {
         throw new BadRequest('Message not owned by requesting user')

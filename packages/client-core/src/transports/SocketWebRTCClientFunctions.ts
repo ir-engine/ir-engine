@@ -453,8 +453,6 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
     transport = await network.transport.mediasoupDevice.createSendTransport(transportOptions)
   } else throw new Error(`bad transport 'direction': ${direction}`)
 
-  getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
-
   // mediasoup-client will emit a connect event when media needs to
   // start flowing for the first time. send dtlsParameters to the
   // server, then call callback() on success or errback() on failure.
@@ -597,6 +595,7 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
         errback: (error: Error) => void
       ) => {
         const { sctpStreamParameters, label, protocol, appData } = parameters
+        if (label === '__CONNECT__') return callback({ id: '__CONNECT__' })
 
         const requestID = MathUtils.generateUUID()
         dispatchAction(
@@ -677,6 +676,51 @@ export const onTransportCreated = async (action: typeof MediasoupTransportAction
       }, 5000)
     }
   })
+
+  /**
+   * Since mediasoup only connects the transport upon a consumer or producer being created,
+   * we need to create a dummy consumer/producer to trigger the transport to connect.
+   */
+  try {
+    if (direction === 'recv') {
+      const consumer = await transport.consumeData({
+        id: '',
+        dataProducerId: '',
+        sctpStreamParameters: {
+          streamId: 1000000,
+          ordered: true,
+          maxPacketLifeTime: 0
+        },
+        label: '__CONNECT__'
+      })
+      consumer.close()
+    } else {
+      const producer = await transport.produceData({
+        label: '__CONNECT__'
+      })
+      producer.close()
+    }
+  } catch (e) {
+    // no-op
+  }
+
+  // /**
+  //  * Since mediasoup only connects the transport upon a consumer or producer being created,
+  //  * we need to manually dive in and call it's internal implementation.
+  //  * - NOTE this does not work for Edge11
+  // */
+  // const handler = (transport as any)._handler
+  // const offer = await handler._pc.createOffer()
+  // const localSdpObject = sdpTransform.parse(offer.sdp)
+  // const _dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject })
+  // _dtlsParameters.role = handler._forcedLocalDtlsRole
+  // handler._remoteSdp!.updateDtlsRole(handler._forcedLocalDtlsRole === 'client' ? 'server' : 'client')
+  // await new Promise<void>((resolve, reject) => {
+  //   transport.safeEmit('connect', { dtlsParameters: _dtlsParameters }, resolve, reject)
+  // })
+  // handler._transportReady = true
+
+  getMutableState(MediasoupTransportObjectsState)[transportID].set(transport)
 }
 
 export async function configureMediaTransports(mediaTypes: string[]): Promise<boolean> {
@@ -803,6 +847,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
   }
 }
 
+/** @todo this is unused, see if it's ever needed to add these checks */
 export async function subscribeToTrack(
   network: SocketWebRTCClientNetwork,
   peerID: PeerID,
