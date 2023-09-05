@@ -28,10 +28,11 @@ import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceData, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
 import logger from '../ServerLogger'
+import { toDateTimeSql } from '../util/datetime-sql'
 
 export default (): Hook => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
@@ -77,8 +78,9 @@ export default (): Hook => {
           currentUsers: 0,
           locationId: location.data[0].id,
           assigned: true,
-          assignedAt: new Date()
-        }
+          assignedAt: toDateTimeSql(new Date()),
+          roomCode: ''
+        } as InstanceData
         const newInstanceResult = (await app.service(instancePath).create(newInstance)) as InstanceType
         instanceId = newInstanceResult.id
       } else {

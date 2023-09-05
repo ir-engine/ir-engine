@@ -40,6 +40,7 @@ export const instanceResolver = resolve<InstanceType, HookContext>({
       return location
     }
   }),
+  assignedAt: virtual(async (location) => (location.assignedAt ? fromDateTimeSql(location.assignedAt) : '')),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
   updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))
 })
