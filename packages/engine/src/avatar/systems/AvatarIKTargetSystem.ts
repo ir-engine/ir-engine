@@ -87,7 +87,7 @@ const execute = () => {
       continue
     }
     setComponent(entity, NameComponent, action.$from + '_' + action.name)
-    setComponent(entity, AvatarIKTargetComponent)
+    setComponent(entity, AvatarIKTargetComponent, { blendWeight: action.blendWeight })
 
     setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: 'xr' })
 
@@ -125,17 +125,26 @@ const execute = () => {
     if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
-    if (head && !ikTargetHead) dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head' }))
+    if (head && !ikTargetHead)
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head', blendWeight: 1 }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand', position }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand', position, blendWeight: 1 })
+      )
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', position }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', position, blendWeight: 1 })
+      )
 
     if (!ikTargetLeftFoot)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', position }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', position, blendWeight: 1 })
+      )
 
     if (!ikTargetRightFoot)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', position }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', position, blendWeight: 1 })
+      )
   }
 }
 
