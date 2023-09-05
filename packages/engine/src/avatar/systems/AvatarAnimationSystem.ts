@@ -260,6 +260,7 @@ const execute = () => {
     const rigComponent = getComponent(entity, AvatarRigComponent)
 
     const rig = rigComponent.rig
+    if (!rig?.hips?.node) continue
 
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
@@ -497,15 +498,19 @@ const execute = () => {
       }
     }
 
-    for (const [key, animatedBone] of Object.entries(rigComponent.localRig)) {
-      if (!rigComponent.rig[key]) continue
-      const ikBone = rigComponent.rig[key].node as Object3D
-      ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
-    }
+    try {
+      for (const [key, animatedBone] of Object.entries(rigComponent.localRig)) {
+        if (!rigComponent.rig[key]) continue
+        const ikBone = rigComponent.rig[key].node as Object3D
+        ikBone.quaternion.slerp(animatedBone.node.quaternion, weights[key] ?? 1)
+      }
 
-    //todo: lerp this
-    if (!weights['hips']) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
-    rigComponent.vrm.update(getState(EngineState).deltaSeconds)
+      //todo: lerp this
+      if (!weights['hips']) rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
+      rigComponent.vrm.update(getState(EngineState).deltaSeconds)
+    } catch (e) {
+      console.error(entity, e)
+    }
   }
 
   /** Run debug */

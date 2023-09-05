@@ -81,7 +81,6 @@ export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
-  console.log(model)
   const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
 
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
