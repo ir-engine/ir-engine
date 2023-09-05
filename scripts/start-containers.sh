@@ -7,6 +7,8 @@ then
         echo "✅ Docker & Docker-Compose Detected:"
         echo -e "\e[32m💾 Initializing docker containers..."
 
+        export COMPOSE_IGNORE_ORPHANS=true
+
         docker-compose up -d
         if [[ -z "${IS_LOCAL_FS}" || "${IS_LOCAL_FS}" == 'false' ]]; then
             docker-compose -f docker-compose-minio.yml up -d
