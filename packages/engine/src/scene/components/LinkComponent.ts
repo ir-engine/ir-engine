@@ -37,24 +37,31 @@ export const LinkComponent = defineComponent({
   jsonID: 'link',
 
   onInit: (entity) => {
-    setComponent(entity, InputComponent)
+    try {
+      setComponent(entity, InputComponent) // TODO implement schemas for componenets to use in behave graph
+    } catch {
+      null
+    }
     return {
-      url: 'https://www.etherealengine.org'
+      url: 'https://www.etherealengine.org',
+      changePath: false
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     matches.string.test(json.url) && component.url.set(json.url as string)
+    matches.boolean.test(json.changePath) && component.changePath.set(json.changePath as boolean)
   },
 
   toJSON: (entity, component) => {
     return {
-      url: component.url.value
+      url: component.url.value,
+      changePath: component.changePath.value
     }
   },
 
-  errors: ['INVALID_URL'],
+  errors: ['INVALID_URL', 'INVALID_PATH'],
 
   reactor: function () {
     const entity = useEntityContext()
@@ -73,13 +80,20 @@ export const LinkComponent = defineComponent({
 
     useEffect(() => {
       clearErrors(entity, LinkComponent)
-      try {
-        new URL(link.url.value)
-      } catch {
-        return addError(entity, LinkComponent, 'INVALID_URL', 'Please enter a valid URL.')
+      if (link.changePath.value) {
+        const regex = new RegExp('^/(?!.*//)([a-zA-Z-/]+)$', 'gim')
+        if (!regex.test(link.url.value)) {
+          return addError(entity, LinkComponent, 'INVALID_PATH', 'Please enter a valid Path.')
+        }
+      } else {
+        try {
+          new URL(link.url.value)
+        } catch {
+          return addError(entity, LinkComponent, 'INVALID_URL', 'Please enter a valid URL.')
+        }
       }
       return
-    }, [link.url])
+    }, [link.url, link.changePath])
 
     return null
   }

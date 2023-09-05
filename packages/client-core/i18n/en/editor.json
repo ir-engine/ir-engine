@@ -670,6 +670,8 @@
     },
     "link": {
       "name": "link",
+      "inp-label": "Link URL or Path",
+      "bool-label": "Enable navigation over new tab",
       "description": "Adds an interactable that opens a hyperlink in a new tab on click"
     },
     "spotLight": {

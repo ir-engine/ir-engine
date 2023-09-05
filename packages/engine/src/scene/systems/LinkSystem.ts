@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { getState } from '@etherealengine/hyperflux'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -48,12 +49,22 @@ const execute = () => {
       if (buttons)
         if (buttons.PrimaryClick?.touched) {
           if (buttons.PrimaryClick.up) {
-            typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
+            if (!linkComponent.changePath) {
+              typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
+            } else {
+              RouterService.navigate(linkComponent.url)
+              window.location.reload()
+            }
           }
         } else if (buttons[XRStandardGamepadButton.Trigger]?.down) {
           const xrState = getState(XRState)
-          xrState.session?.end()
-          typeof window === 'object' && window && window.open(linkComponent.url)
+          if (!linkComponent.changePath) {
+            linkComponent.changePath && xrState.session?.end()
+            typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
+          } else {
+            RouterService.navigate(linkComponent.url)
+            window.location.reload()
+          }
         }
     }
   }

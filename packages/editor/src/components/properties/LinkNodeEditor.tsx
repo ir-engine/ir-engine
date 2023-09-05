@@ -32,6 +32,7 @@ import LinkIcon from '@mui/icons-material/Link'
 
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
@@ -63,8 +64,11 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
       ) : (
         <></>
       )}
-      <InputGroup name="Link Url" label={t('editor:properties.image.lbl-imgURL')}>
+      <InputGroup name="Link Url" label={t('editor:properties.link.label')}>
         <ControlledStringInput value={linkComponent.url.value} onChange={updateProperty(LinkComponent, 'url')} />
+      </InputGroup>
+      <InputGroup name="Navigate Path" label={t('editor:properties.link.bool-label')}>
+        <BooleanInput value={linkComponent.changePath.value} onChange={updateProperty(LinkComponent, 'changePath')} />
       </InputGroup>
     </NodeEditor>
   )
