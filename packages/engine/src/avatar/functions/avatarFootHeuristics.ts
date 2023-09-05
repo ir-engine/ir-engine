@@ -89,7 +89,7 @@ export const setIkFootTarget = (stepThreshold: number) => {
         .copy(footOffset)
         .sub(walkDirection.normalize().multiplyScalar(stepThreshold * stepThreshold * 1.5))
 
-      nextStep[key].rotation.identity().setFromUnitVectors(V_010, walkDirection.normalize().multiplyScalar(-1))
+      nextStep[key].rotation.identity().setFromUnitVectors(V_010, walkDirection.normalize())
     }
 
     //if we're at the target, switch to the other foot
