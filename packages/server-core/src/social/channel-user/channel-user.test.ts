@@ -108,10 +108,16 @@ describe('channel-user service', () => {
       scopes: []
     })
 
-    const instance = (await app.service(instancePath).create({
-      // @ts-ignore
-      isInternal: true
-    })) as InstanceType
+    const instance = (await app.service(instancePath).create(
+      {
+        roomCode: '',
+        currentUsers: 0
+      },
+      {
+        // @ts-ignore
+        isInternal: true
+      }
+    )) as InstanceType
 
     const channel = await app.service('channel').create(
       {

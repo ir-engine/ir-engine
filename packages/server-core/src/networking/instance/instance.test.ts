@@ -31,7 +31,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
-import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -68,6 +68,17 @@ describe('instance.test', () => {
       },
       params
     )
+
+    testInstance = {
+      id: '' as InstanceID,
+      locationId: testLocation.id,
+      roomCode: '',
+      currentUsers: 0,
+      ended: false,
+      createdAt: '',
+      updatedAt: '',
+      location: testLocation
+    }
   })
 
   after(() => {

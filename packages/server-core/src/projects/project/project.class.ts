@@ -382,7 +382,7 @@ export const uploadLocalProjectToProvider = async (
   const files = getFilesRecursive(projectPath)
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
-  for (let file of filtered) {
+  for (const file of filtered) {
     try {
       const fileResult = await uploadSceneToStaticResources(app, projectName, file)
       const filePathRelative = processFileName(file.slice(projectPath.length))

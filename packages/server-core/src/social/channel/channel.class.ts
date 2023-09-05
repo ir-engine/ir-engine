@@ -30,8 +30,10 @@ import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -169,7 +171,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             const item: any[] = []
 
             if (name === 'instance') {
-              //item.push(this.app.service('instance').Model)
               item.push(Sequelize.literal('`instance.ipAddress`'))
             } else {
               item.push(name)
@@ -207,24 +208,14 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       }
 
       if (query.instanceId) {
-        const channels = await this.app.service('channel').Model.findAll({
-          include: [
-            {
-              model: this.app.service('instance').Model,
-              required: true,
-              where: {
-                id: query.instanceId,
-                ended: false
-              },
-              include: [
-                /** @todo - couldn't figure out how to include active users */
-                // {
-                //   model: this.app.service(userPath).Model,
-                // },
-              ]
-            }
-          ]
-        })
+        const knexClient: Knex = this.app.get('knexClient')
+        const channels = await knexClient
+          .from('channel')
+          .join(instancePath, `${instancePath}.id`, 'channel.instanceId')
+          .where(`${instancePath}.id`, '=', query.instanceId)
+          .andWhere(`${instancePath}.ended`, '=', false)
+          .select()
+          .options({ nestTables: true })
 
         // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
         for (const channel of channels) {
@@ -247,28 +238,27 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         // })
       }
 
-      let allChannels = await this.app.service('channel').Model.findAll({
-        where: {
-          [Op.or]: [
-            {
-              '$instance.ended$': false
-            },
-            {
-              instanceId: null
-            }
-          ]
-        },
-        include: [
-          {
-            model: this.app.service('channel-user').Model
-          },
-          {
-            model: this.app.service('instance').Model
-          }
-        ]
-      })
+      const knexClient: Knex = this.app.get('knexClient')
+
+      let allChannels = await knexClient
+        .from('channel')
+        .leftJoin(instancePath, `${instancePath}.id`, 'channel.instanceId')
+        .where(`${instancePath}.ended`, '=', false)
+        .orWhereNull('channel.instanceId')
+        .select()
+        .options({ nestTables: true })
 
       /** @todo figure out how to do this as part of the query */
+      allChannels = allChannels.map((item) => item.channel)
+
+      for (const channel of allChannels) {
+        channel.channel_users = (await this.app.service('channel-user').find({
+          query: {
+            channelId: channel.id
+          },
+          paginate: false
+        })) as ChannelUser[]
+      }
 
       allChannels = allChannels.filter((channel) => {
         return channel.channel_users.find((channelUser) => channelUser.userId === userId)
@@ -276,8 +266,8 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
       for (const channel of allChannels) {
         // TODO: Populating ChannelUser's sender property here manually. Once channel-user service is moved to feathers 5. This should be part of its resolver.
-        if (channel.dataValues.channel_users && channel.dataValues.channel_users.length > 0) {
-          for (const channelUser of channel.dataValues.channel_users) {
+        if (channel.channel_users && channel.channel_users.length > 0) {
+          for (const channelUser of channel.channel_users) {
             channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
           }
         }
