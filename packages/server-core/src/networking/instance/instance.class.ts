@@ -155,4 +155,8 @@ export class InstanceService<T = InstanceType, ServiceParams extends Params = In
   async get(id: Id, params?: InstanceParams) {
     return super._get(id, params)
   }
+
+  async remove(id: Id, params?: InstanceParams) {
+    return super._remove(id, params)
+  }
 }

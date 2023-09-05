@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 
 export interface InstanceColumn {
   id: 'id' | 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'podName' | 'action'
@@ -63,7 +63,7 @@ export const instanceColumns: InstanceColumn[] = [
 ]
 
 export interface InstanceData {
-  el: Instance
+  el: InstanceType
   id: string
   ipAddress: string
   currentUsers: number
