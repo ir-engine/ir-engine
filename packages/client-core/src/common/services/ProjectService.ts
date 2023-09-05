@@ -122,7 +122,7 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  uploadProject: async (data: UpdateProjectInterface) => {
+  uploadProject: async (data: ProjectUpdateInterfaceType) => {
     const result = await API.instance.client.service(projectPath).update({
       sourceURL: data.sourceURL,
       destinationURL: data.destinationURL,
@@ -135,7 +135,7 @@ export const ProjectService = {
     })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
-    await API.instance.client.service(projectInvalidatePath).patch(null, { projectName: name })
+    await API.instance.client.service(projectInvalidatePath).patch(null, { projectName: data.name })
     await ProjectService.fetchProjects()
   },
 

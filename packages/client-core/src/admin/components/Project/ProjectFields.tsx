@@ -297,7 +297,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       }).then((res) => {
         ProjectUpdateService.setSourceVsDestinationChecked(project.name, true)
         ProjectUpdateService.setSourceVsDestinationProcessing(project.name, false)
-        if (res.error || res.message) {
+        if (res.error || res.text) {
           ProjectUpdateService.setProjectName(project.name, '')
           ProjectUpdateService.setSubmitDisabled(project.name, true)
           ProjectUpdateService.setSourceProjectMatchesDestination(project.name, false)

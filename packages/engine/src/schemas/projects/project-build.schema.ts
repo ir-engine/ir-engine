@@ -22,13 +22,11 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { StringEnum, Type, getValidator } from '@feathersjs/typebox'
 import { dataValidator } from '../validators'
+import { projectUpdateTypes } from './project.schema'
 
 export const projectBuildPath = 'project-build'
 
 export const projectBuildMethods = ['find', 'patch'] as const
-
-// TODO: Use projectUpdateType from project service once its migrated to feathers 5
-export const projectUpdateTypes = ['none', 'commit', 'tag']
 
 export const projectUpdateSchema = Type.Object(
   {

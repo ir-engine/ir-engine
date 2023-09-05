@@ -33,6 +33,8 @@ export const projectPath = 'project'
 
 export const projectMethods = ['get', 'find', 'create', 'patch', 'remove', 'update'] as const
 
+export const projectUpdateTypes = ['none', 'commit', 'tag']
+
 export const projectSettingSchema = Type.Object(
   {
     key: Type.String(),
@@ -59,7 +61,7 @@ export const projectSchema = Type.Object(
     needsRebuild: Type.Boolean(),
     sourceRepo: Type.Optional(Type.String()),
     sourceBranch: Type.Optional(Type.String()),
-    updateType: StringEnum(['none', 'commit', 'tag']),
+    updateType: StringEnum(projectUpdateTypes),
     updateSchedule: Type.Optional(Type.String()),
     updateUserId: Type.Optional(Type.String()),
     hasWriteAccess: Type.Optional(Type.Boolean()),

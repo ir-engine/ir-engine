@@ -18,6 +18,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
@@ -31,7 +32,7 @@ export class ProjectGithubPushService implements ServiceInterface<void> {
   }
 
   async patch(id: NullableId, data: any, params?: RootParams): Promise<void> {
-    const project = await this.app.service('project')._get(id!)
+    const project = await this.app.service(projectPath)._get(id!)
     return pushProjectToGithub(this.app, project, params!.user!)
   }
 }
