@@ -146,7 +146,7 @@ describe('identity-provider service', () => {
   it('should not be able to remove identity providers by user id', async () => {
     assert.rejects(
       () =>
-        app.service(identityProviderPath).remove(null as any, {
+        app.service(identityProviderPath).remove(null, {
           query: {
             userId
           }
