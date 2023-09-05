@@ -97,7 +97,7 @@ export function getActionDispatchers() {
           actionInput[input] = NodetoEnginetype(read(input as any), type)
         }
         console.log('DEBUG action is ', actionInput)
-        dispatchAction(actionDefinitions[type](actionInput as Action))
+        dispatchAction(ActionDefinitions[type](actionInput as Action))
         commit('flow')
       }
     })
