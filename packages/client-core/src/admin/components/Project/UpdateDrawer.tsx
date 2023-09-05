@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
@@ -45,6 +44,7 @@ import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlL
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
@@ -54,7 +54,7 @@ import ProjectFields from './ProjectFields'
 
 interface Props {
   open: boolean
-  builderTags: BuilderTag[]
+  builderTags: ProjectBuilderTagsType[]
   onClose: () => void
 }
 

@@ -34,7 +34,7 @@ import LocationBan from './location-ban/location-ban'
 import LocationSetting from './location-setting/location-setting'
 import LocationType from './location-type/location-type'
 import Location from './location/location'
-import Message from './message/message.service'
+import Message from './message/message'
 
 export default [
   ChannelUser,

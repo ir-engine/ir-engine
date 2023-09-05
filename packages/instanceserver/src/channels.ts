@@ -45,7 +45,6 @@ import { dispatchAction, getMutableState, getState, State } from '@etherealengin
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
-import { getProjectsList } from '@etherealengine/server-core/src/projects/project/project.service'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
@@ -53,6 +52,7 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { channelUserPath, ChannelUserType } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import {
   identityProviderPath,
@@ -257,12 +257,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
     'server-' + hostId
   )
 
-  const projects = await getProjectsList()
+  const projects = await app.service(projectsPath).find()
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
     startMediaServerSystems()
-    await loadEngineInjection(projects)
+    await loadEngineInjection(projects.projectsList)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
@@ -273,7 +273,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
     startWorldServerSystems()
-    await loadEngineInjection(projects)
+    await loadEngineInjection(projects.projectsList)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {
