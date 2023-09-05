@@ -37,14 +37,19 @@ import {
   UpdateFunctionCommand
 } from '@aws-sdk/client-cloudfront'
 import {
+  AbortMultipartUploadCommand,
+  CompleteMultipartUploadCommand,
+  CompletedPart,
   CopyObjectCommand,
+  CreateMultipartUploadCommand,
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
   ObjectIdentifier,
   PutObjectCommand,
-  S3Client
+  S3Client,
+  UploadPartCommand
 } from '@aws-sdk/client-s3'
 
 import { Options, Upload } from '@aws-sdk/lib-storage'
@@ -68,12 +73,18 @@ import {
   PutObjectParams,
   SignedURLResponse,
   StorageListObjectInterface,
+  StorageMultipartStartInterface,
   StorageObjectInterface,
   StorageObjectPutInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
 
 const MAX_ITEMS = 1
+//s3.putObject has an upper limit on file size before it starts erroring out. On paper the limit is around 5 GB, but
+//in practice, errors were seen at around 2 GB. Setting the limit to 1 GB for safety; above this, files will be
+//uploaded via multipart upload instead of a single putObject operation. Part size is set to 100 MB.
+const MULTIPART_CUTOFF_SIZE = 1000 * 1000 * 1000
+const MULTIPART_CHUNK_SIZE = 100 * 1000 * 1000
 const CFFunctionTemplate = `
 function handler(event) {
     var request = event.request;
@@ -320,9 +331,70 @@ export class S3Provider implements StorageProviderInterface {
       const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body)
       return response
     } else {
-      const command = new PutObjectCommand(args)
-      const response = await this.provider.send(command)
-      return response
+      if (data.Body.length > MULTIPART_CUTOFF_SIZE) {
+        const multiPartStartArgs = {
+          ACL: 'public-read',
+          Bucket: this.bucket,
+          Key: key,
+          ContentType: data.ContentType
+        } as StorageMultipartStartInterface
+
+        if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
+        const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)
+        const startResponse = await this.provider.send(startCommand)
+        const uploadId = startResponse.UploadId
+        let partIndex = 0
+        let partNumber = 1
+        const parts = [] as CompletedPart[]
+        try {
+          do {
+            const part = Uint8Array.prototype.slice.call(data.Body, partIndex, partIndex + MULTIPART_CHUNK_SIZE)
+            const uploadPartArgs = {
+              Body: part,
+              Bucket: this.bucket,
+              Key: key,
+              PartNumber: partNumber,
+              UploadId: uploadId
+            }
+            const uploadPartCommand = new UploadPartCommand(uploadPartArgs)
+            const multipartResponse = await this.provider.send(uploadPartCommand)
+            parts.push({
+              PartNumber: partNumber,
+              ETag: multipartResponse.ETag as string
+            })
+            partIndex += MULTIPART_CHUNK_SIZE
+            partNumber++
+          } while (partIndex < data.Body.length)
+        } catch (err) {
+          console.error('Multipart upload failed', err)
+          const abortUploadArgs = {
+            Bucket: this.bucket,
+            Key: key,
+            UploadId: uploadId
+          }
+          const abortCommand = new AbortMultipartUploadCommand(abortUploadArgs)
+          await this.provider.send(abortCommand)
+          throw err
+        }
+        const completeUploadArgs = {
+          Bucket: this.bucket,
+          Key: key,
+          UploadId: uploadId,
+          MultipartUpload: {
+            Parts: parts
+          }
+        }
+        try {
+          const completeCommand = new CompleteMultipartUploadCommand(completeUploadArgs)
+          return this.provider.send(completeCommand)
+        } catch (err) {
+          console.error('Error in complete', err)
+          throw err
+        }
+      } else {
+        const command = new PutObjectCommand(args)
+        return this.provider.send(command)
+      }
     }
   }
 
