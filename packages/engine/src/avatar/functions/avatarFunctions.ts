@@ -168,20 +168,21 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.loadedAnimations[locomotionPack].value) {
+  console.log(manager.loadedAnimations.value[locomotionPack])
+  if (!manager.loadedAnimations.value[locomotionPack]) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const asset = (await AssetLoader.loadAsync(
       `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionPack}.glb`
     )) as GLTF
 
-    if (asset && asset.animations && asset.animations[4] && asset.animations[6]) {
-      const movement = getState(AvatarMovementSettingsState)
-      movement.runSpeed = getRootSpeed(asset.animations[4]) * 0.01
-      movement.walkSpeed = getRootSpeed(asset.animations[6]) * 0.01
-    }
-
     manager.loadedAnimations[locomotionPack].set(asset)
   }
+
+  const run = manager.loadedAnimations.value[locomotionPack].animations[4] ?? [new AnimationClip()]
+  const walk = manager.loadedAnimations.value[locomotionPack].animations[6] ?? [new AnimationClip()]
+  const movement = getState(AvatarMovementSettingsState)
+  if (run) movement.runSpeed = getRootSpeed(run) * 0.01
+  if (walk) movement.walkSpeed = getRootSpeed(walk) * 0.01
 
   return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
 }
