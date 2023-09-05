@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { MathUtils, Mesh, Vector3 } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -46,9 +46,15 @@ export const HighlightComponent = defineComponent({
 
     useEffect(() => {
       const objs = [...group.value]
-      for (const object of objs) object.traverse(addToSelection)
+      for (const object of objs)
+        object.traverse((obj) => {
+          obj.type === 'Mesh' && addToSelection(obj as Mesh)
+        })
       return () => {
-        for (const object of objs) object.traverse(removeFromSelection)
+        for (const object of objs)
+          object.traverse((obj) => {
+            obj.type === 'Mesh' && removeFromSelection(obj as Mesh)
+          })
       }
     }, [group, postProcessingSettingsState.effects, postProcessingSettingsState.enabled, usePostProcessing])
 
@@ -56,12 +62,28 @@ export const HighlightComponent = defineComponent({
   }
 })
 
-const addToSelection = (obj: Object3D) => {
+const animateScale = (obj: Mesh, v: Vector3) => {
+  let start = 0.0
+  function animate(timeStamp) {
+    if (start === 0.0) start = timeStamp
+    const elapsed = timeStamp - start
+    obj.scale.lerp(v, MathUtils.damp(0, 1, 0.01, elapsed))
+
+    if (obj.scale.x !== v.x) {
+      requestAnimationFrame(animate)
+    }
+  }
+  requestAnimationFrame(animate)
+}
+
+const addToSelection = (obj: Mesh) => {
   if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return
+  animateScale(obj, new Vector3(1.1, 1.1, 1.1))
   EngineRenderer.instance.effectComposer.HighlightEffect.selection.add(obj)
 }
 
-const removeFromSelection = (obj: Object3D) => {
+const removeFromSelection = (obj: Mesh) => {
   if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return
+  animateScale(obj, new Vector3(1, 1, 1))
   EngineRenderer.instance.effectComposer.HighlightEffect.selection.delete(obj)
 }
