@@ -31,6 +31,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { XRState } from '../../xr/XRState'
 import { RendererState } from '../RendererState'
 import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 
@@ -39,6 +40,7 @@ export const HighlightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
+    const xrSession = useHookstate(getMutableState(XRState)).session.value
 
     const postProcessingSettingsState = useHookstate(getMutableState(PostProcessingSettingsState))
     const usePostProcessing = useHookstate(getMutableState(RendererState).usePostProcessing)
@@ -48,12 +50,12 @@ export const HighlightComponent = defineComponent({
       const objs = [...group.value]
       for (const object of objs)
         object.traverse((obj) => {
-          obj.type === 'Mesh' && addToSelection(obj as Mesh)
+          obj.type === 'Mesh' && addToSelection(obj as Mesh, xrSession)
         })
       return () => {
         for (const object of objs)
           object.traverse((obj) => {
-            obj.type === 'Mesh' && removeFromSelection(obj as Mesh)
+            obj.type === 'Mesh' && removeFromSelection(obj as Mesh, xrSession)
           })
       }
     }, [group, postProcessingSettingsState.effects, postProcessingSettingsState.enabled, usePostProcessing])
@@ -62,7 +64,7 @@ export const HighlightComponent = defineComponent({
   }
 })
 
-const animateScale = (obj: Mesh, v: Vector3) => {
+const animateScale = (obj: Mesh, v: Vector3, xrSession) => {
   let start = 0.0
   function animate(timeStamp) {
     if (start === 0.0) start = timeStamp
@@ -70,20 +72,20 @@ const animateScale = (obj: Mesh, v: Vector3) => {
     obj.scale.lerp(v, MathUtils.damp(0, 1, 0.01, elapsed))
 
     if (obj.scale.x !== v.x) {
-      requestAnimationFrame(animate)
+      !xrSession ? requestAnimationFrame(animate) : xrSession?.requestAnimationFrame(animate)
     }
   }
-  requestAnimationFrame(animate)
+  !xrSession ? requestAnimationFrame(animate) : xrSession?.requestAnimationFrame(animate)
 }
 
-const addToSelection = (obj: Mesh) => {
+const addToSelection = (obj: Mesh, xrSession) => {
   if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return
-  animateScale(obj, new Vector3(1.1, 1.1, 1.1))
+  animateScale(obj, new Vector3(1.1, 1.1, 1.1), xrSession)
   EngineRenderer.instance.effectComposer.HighlightEffect.selection.add(obj)
 }
 
-const removeFromSelection = (obj: Mesh) => {
+const removeFromSelection = (obj: Mesh, xrSession) => {
   if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return
-  animateScale(obj, new Vector3(1, 1, 1))
+  animateScale(obj, new Vector3(1, 1, 1), xrSession)
   EngineRenderer.instance.effectComposer.HighlightEffect.selection.delete(obj)
 }
