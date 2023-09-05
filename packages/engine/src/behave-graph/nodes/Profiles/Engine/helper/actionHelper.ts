@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
-import { Action, actionDefinitions, dispatchAction } from '@etherealengine/hyperflux'
+import { Action, ActionDefinitions, dispatchAction } from '@etherealengine/hyperflux'
 import { startCase } from 'lodash'
 import matches from 'ts-matches'
 import { NodetoEnginetype } from './commonHelper'
@@ -64,7 +64,7 @@ export function generateActionNodeSchema(action) {
 export function getActionDispatchers() {
   const dispatchers: NodeDefinition[] = []
   const skipped: string[] = []
-  for (const [actionType, action] of Object.entries(actionDefinitions)) {
+  for (const [actionType, action] of Object.entries(ActionDefinitions)) {
     const { type, ...actionDef } = action.actionShape
     const actionInput = {}
     if (skipAction.includes(actionType)) {
