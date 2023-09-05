@@ -33,8 +33,6 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
-import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
@@ -48,6 +46,8 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
+import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -86,9 +86,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   const selfUser = useHookstate(getMutableState(AuthState).user)
 
   const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
-    (commit: ProjectCommitInterface) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
+    (commit: ProjectCommitType) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
   )
-  const matchesEngineVersion = matchingCommit ? (matchingCommit as ProjectCommitInterface).matchesEngineVersion : false
+  const matchesEngineVersion = matchingCommit ? (matchingCommit as ProjectCommitType).matchesEngineVersion : false
 
   const handleChangeSource = (e) => {
     const { value } = e.target
@@ -115,7 +115,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         ProjectUpdateService.setShowBranchSelector(project, true)
         ProjectUpdateService.setBranchData(project, branchResponse)
         if (project.sourceBranch) {
-          const branchExists = branchResponse.find((item: ProjectBranchInterface) => item.name === project.sourceBranch)
+          const branchExists = branchResponse.find((item: ProjectBranchType) => item.name === project.sourceBranch)
 
           if (branchExists) {
             handleChangeBranch({ target: { value: project.sourceBranch } })
@@ -148,7 +148,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         ProjectUpdateService.setDestinationProcessing(project, false)
         if (destinationResponse.error) {
           ProjectUpdateService.setDestinationValid(project, false)
-          ProjectUpdateService.setDestinationError(project, destinationResponse.text)
+          ProjectUpdateService.setDestinationError(project, destinationResponse.text!)
         } else {
           if (destinationResponse.destinationValid) {
             if (existingProject && changeDestination) ProjectUpdateService.setSubmitDisabled(project, false)
@@ -164,7 +164,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               handleCommitChange({ target: { value: projectUpdateStatus.value.selectedSHA } })
           } else {
             ProjectUpdateService.setDestinationValid(project, false)
-            ProjectUpdateService.setDestinationError(project, destinationResponse.text)
+            ProjectUpdateService.setDestinationError(project, destinationResponse.text!)
           }
         }
       } catch (err) {
@@ -181,10 +181,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       ProjectUpdateService.resetSourceState(project, { resetSourceURL: false, resetBranch: false })
       ProjectUpdateService.setSelectedBranch(project, e.target.value)
       ProjectUpdateService.setCommitsProcessing(project, true)
-      const projectResponse = (await ProjectService.fetchProjectCommits(
-        projectUpdateStatus.value.sourceURL,
-        e.target.value
-      )) as any
+      const projectResponse = (
+        await ProjectService.fetchProjectCommits(projectUpdateStatus.value.sourceURL, e.target.value)
+      ).commits as any
       ProjectUpdateService.setCommitsProcessing(project, false)
       if (projectResponse.error) {
         ProjectUpdateService.setShowCommitSelector(project, false)
@@ -194,9 +193,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         ProjectUpdateService.setCommitData(project, projectResponse)
 
         if (project.commitSHA) {
-          const commitExists = projectResponse.find(
-            (item: ProjectCommitInterface) => item.commitSHA === project.commitSHA
-          )
+          const commitExists = projectResponse.find((item: ProjectCommitType) => item.commitSHA === project.commitSHA)
 
           if (commitExists) {
             handleCommitChange({ target: { value: project.commitSHA, commitData: projectResponse } })
@@ -255,7 +252,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     ProjectUpdateService.setSourceValid(project, true)
   }
 
-  const branchMenu: InputMenuItem[] = projectUpdateStatus?.value?.branchData.map((el: ProjectBranchInterface) => {
+  const branchMenu: InputMenuItem[] = projectUpdateStatus?.value?.branchData.map((el: ProjectBranchType) => {
     return {
       value: el.name,
       label: `Branch: ${el.name} ${
@@ -264,7 +261,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     }
   })
 
-  const commitMenu: InputMenuItem[] = projectUpdateStatus?.value?.commitData.map((el: ProjectCommitInterface) => {
+  const commitMenu: InputMenuItem[] = projectUpdateStatus?.value?.commitData.map((el: ProjectCommitType) => {
     let label = `Commit ${el.commitSHA?.slice(0, 8)}`
     if (el.projectVersion) label += ` -- Project Ver. ${el.projectVersion}`
     if (el.engineVersion) label += ` -- Engine Ver. ${el.engineVersion}`
@@ -299,16 +296,16 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       }).then((res) => {
         ProjectUpdateService.setSourceVsDestinationChecked(project, true)
         ProjectUpdateService.setSourceVsDestinationProcessing(project, false)
-        if (res.error || res.message) {
+        if (res.error || res.text) {
           ProjectUpdateService.setProjectName(project, '')
           ProjectUpdateService.setSubmitDisabled(project, true)
           ProjectUpdateService.setSourceProjectMatchesDestination(project, false)
-          ProjectUpdateService.setSourceVsDestinationError(project, res.text)
+          ProjectUpdateService.setSourceVsDestinationError(project, res.text!)
           ProjectUpdateService.setSourceValid(project, false)
         } else {
-          ProjectUpdateService.setProjectName(project, res.projectName)
+          ProjectUpdateService.setProjectName(project, res.projectName!)
           ProjectUpdateService.setSubmitDisabled(project, !res.sourceProjectMatchesDestination)
-          ProjectUpdateService.setSourceProjectMatchesDestination(project, res.sourceProjectMatchesDestination)
+          ProjectUpdateService.setSourceProjectMatchesDestination(project, res.sourceProjectMatchesDestination!)
           ProjectUpdateService.setSourceVsDestinationError(project, '')
           ProjectUpdateService.setSourceValid(project, true)
         }
