@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Id, Params } from '@feathersjs/feathers'
+import type { Id, NullableId, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
@@ -284,7 +284,7 @@ export class IdentityProviderService<
     return super._patch(id, data, params)
   }
 
-  async remove(id: Id, params?: IdentityProviderParams) {
+  async remove(id: NullableId, params?: IdentityProviderParams) {
     return super._remove(id, params)
   }
 }

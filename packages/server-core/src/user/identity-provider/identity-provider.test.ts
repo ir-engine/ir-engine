@@ -132,7 +132,7 @@ describe('identity-provider service', () => {
   })
 
   it('should remove an identity provider by id', async () => {
-    await app.service(identityProviderPath)._remove(providers[0].id)
+    await app.service(identityProviderPath).remove(providers[0].id)
 
     const item = (await app.service(identityProviderPath).find({
       query: {
@@ -146,7 +146,7 @@ describe('identity-provider service', () => {
   it('should not be able to remove identity providers by user id', async () => {
     assert.rejects(
       () =>
-        app.service(identityProviderPath)._remove(null, {
+        app.service(identityProviderPath).remove(null, {
           query: {
             userId
           }
@@ -170,7 +170,7 @@ describe('identity-provider service', () => {
       {}
     )
 
-    assert.ok(() => app.service(identityProviderPath)._remove(item.id))
+    assert.ok(() => app.service(identityProviderPath).remove(item.id))
   })
 
   it('should not be able to remove the only identity provider as a user', async () => {
@@ -186,7 +186,7 @@ describe('identity-provider service', () => {
       {}
     )
 
-    assert.rejects(() => app.service(identityProviderPath)._remove(item.id), {
+    assert.rejects(() => app.service(identityProviderPath).remove(item.id), {
       name: 'MethodNotAllowed'
     })
   })
