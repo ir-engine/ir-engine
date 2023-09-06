@@ -64,7 +64,7 @@ import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import UpdateAvatar from './solveMotionCapturePose'
+import { solveMotionCapturePose } from './solveMotionCapturePose'
 
 export const sendResults = (results: NormalizedLandmarkList) => {
   return encode({
@@ -136,7 +136,7 @@ const execute = () => {
 
     if (data && entity) {
       setComponent(entity, MotionCaptureRigComponent)
-      UpdateAvatar(data, userID, entity)
+      solveMotionCapturePose(data, userID, entity)
     }
   }
 

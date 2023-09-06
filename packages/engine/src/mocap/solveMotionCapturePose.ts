@@ -133,7 +133,7 @@ export const drawMocapDebug = () => {
 
 const drawDebug = drawMocapDebug()
 
-export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, entity) {
+export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID, entity) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
     return
