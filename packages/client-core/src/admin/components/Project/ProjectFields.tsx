@@ -209,7 +209,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         }
       } else {
         ProjectUpdateService.setShowCommitSelector(project, false)
-        ProjectUpdateService.setBranchError(project, projectResponse.text)
+        ProjectUpdateService.setBranchError(project, (projectResponse as any).text)
       }
     } catch (err) {
       ProjectUpdateService.setCommitsProcessing(project, false)
@@ -252,7 +252,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         ProjectUpdateService.setSourceProjectName(project, '')
         return
       } else {
-        ProjectUpdateService.mergeCommitData(project, commitResponse)
+        ProjectUpdateService.mergeCommitData(project, commitResponse as ProjectCommitType)
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(null)
@@ -312,7 +312,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
             existingProject: existingProject || false
           }
         })
-        .then((res) => {
+        .then((res: any) => {
           ProjectUpdateService.setSourceVsDestinationChecked(project, true)
           ProjectUpdateService.setSourceVsDestinationProcessing(project, false)
           if (res.error || res.message) {

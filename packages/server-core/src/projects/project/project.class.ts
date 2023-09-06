@@ -196,7 +196,7 @@ export const updateProject = async (
   })
 
   let project
-  if (projectResult.data.length > 0) project = projectResult.data[0]
+  if (projectResult.length > 0) project = projectResult[0]
 
   const userId = params!.user?.id || project?.updateUserId
   if (!userId) throw new BadRequest('No user ID from call or existing project owner')
@@ -739,10 +739,9 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params?: UserParams): Promise<{ data: ProjectInterface[]; errors: any[] }> {
+  async find(params?: UserParams): Promise<ProjectInterface[]> {
     let projectPushIds: string[] = []
     let populateProjectPermissions = false
-    const errors = [] as any
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
@@ -879,9 +878,6 @@ export class Project extends Service {
       }
     }
 
-    return {
-      data,
-      errors
-    }
+    return data
   }
 }

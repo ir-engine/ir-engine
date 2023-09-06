@@ -36,6 +36,8 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { useFind, useMutation, useRealtime } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
+import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import { userIsAdmin } from '../../../user/userHasAccess'
@@ -81,14 +83,14 @@ const ProjectTable = ({ className }: Props) => {
   const [changeDestination, setChangeDestination] = useState(false)
 
   const projectsQuery = useFind('project', { query: { allowed: true } })
-  const adminProjects = projectsQuery.data
+  const adminProjects = (projectsQuery.data as any).data as ProjectInterface[]
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
   const projectMutation = useMutation('project')
-  const projectGitHubPushPatch = useMutation('project-github-push').patch
-  const projectInvalidatePatch = useMutation('project-invalidate').patch
+  const projectGitHubPushPatch = useMutation(projectGithubPushPath).patch
+  const projectInvalidatePatch = useMutation(projectInvalidatePath).patch
 
-  useRealtime('project-invalidate', () => projectsQuery.refetch())
+  useRealtime(projectInvalidatePath, () => projectsQuery.refetch())
 
   const projectRef = useRef(project)
 
@@ -137,7 +139,7 @@ const ProjectTable = ({ className }: Props) => {
   const handleInvalidateCache = async () => {
     try {
       setProcessing(true)
-      await projectInvalidatePatch({ projectName: projectRef.current!.name })
+      await projectInvalidatePatch(null, { projectName: projectRef.current!.name })
       setProcessing(false)
 
       handleCloseConfirmation()
