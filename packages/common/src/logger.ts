@@ -36,14 +36,13 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import fetch from 'cross-fetch'
-import LruCache from 'lru-cache'
 
 import config from './config'
 
-const logRequestCache = new LruCache({
-  max: 1000,
-  ttl: 1000 * 5 // 5 seconds cache expiry
-})
+// const logRequestCache = new LruCache({
+//   max: 1000,
+//   ttl: 1000 * 5 // 5 seconds cache expiry
+// })
 
 const baseComponent = 'client-core'
 /**
@@ -96,15 +95,15 @@ const multiLogger = {
       const send = (level) => {
         const url = new URL('/api/log', config.client.serverUrl)
 
-        return async (...args) => {
-          const consoleMethods = {
-            debug: console.debug.bind(console, `[${opts.component}]`),
-            info: console.log.bind(console, `[${opts.component}]`),
-            warn: console.warn.bind(console, `[${opts.component}]`),
-            error: console.error.bind(console, `[${opts.component}]`),
-            fatal: console.error.bind(console, `[${opts.component}]`)
-          }
+        const consoleMethods = {
+          debug: console.debug.bind(console, `[${opts.component}]`),
+          info: console.log.bind(console, `[${opts.component}]`),
+          warn: console.warn.bind(console, `[${opts.component}]`),
+          error: console.error.bind(console, `[${opts.component}]`),
+          fatal: console.error.bind(console, `[${opts.component}]`)
+        }
 
+        return (...args) => {
           // @ts-ignore
           const logParams = encodeLogParams(...args)
 
@@ -113,18 +112,18 @@ const multiLogger = {
 
           // Send an async rate-limited request to backend /api/log endpoint for aggregation
           // Also suppress logger.info() levels (the equivalent to console.log())
-          if (config.client.serverHost && level !== 'info') {
-            logRequestCache.set(logParams.msg, () =>
-              fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  level,
-                  component: opts.component,
-                  ...logParams
-                })
+          if (config.client.serverHost) {
+            fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                level,
+                component: opts.component,
+                ...logParams
               })
-            )
+            }).catch((err) => {
+              console.error(err)
+            })
           }
         }
       }

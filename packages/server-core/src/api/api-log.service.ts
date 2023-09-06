@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isDev } from '@etherealengine/common/src/config'
+import config from '@etherealengine/common/src/config'
 
 import { Application } from '../../declarations'
 import { elasticOnlyLogger } from '../ServerLogger'
+import { UserParams } from '../user/user/user.class'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -39,7 +40,11 @@ export default (app: Application): void => {
   app.use(
     '/api/log',
     {
-      create: () => {
+      create: (data, params: UserParams) => {
+        if (config.client.logs.forceClientAggregate === 'true') {
+          const { msg, ...mergeObject } = data
+          elasticOnlyLogger.info({ user: params.user, ...mergeObject }, msg)
+        }
         return
       }
     },
@@ -47,14 +52,22 @@ export default (app: Application): void => {
       koa: {
         before: [
           async (ctx: any, next) => {
-            const { msg, ...mergeObject } = ctx.body
-            if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
+            // const { msg, ...mergeObject } = ctx.body
+            // if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
             await next()
-            ctx.status = 204
-            return
+            // ctx.status = 204
+            // return
           }
         ]
       }
     }
   )
+
+  /** @todo - use feathers instead of fetch */
+  // const service = app.service('/api/log')
+  // service.hooks({
+  // before: {
+  //   all: [authenticate()]
+  // }
+  // })
 }
