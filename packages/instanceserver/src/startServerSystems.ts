@@ -40,8 +40,8 @@ import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 
+import { ECSRecordingSystem } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
-import { ServerRecordingSystem } from './ServerRecordingSystem'
 
 export const startMediaServerSystems = () => {
   /** Fixed */
@@ -50,7 +50,7 @@ export const startMediaServerSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ServerRecordingSystem], {
+  startSystems([ECSRecordingSystem], {
     after: PresentationSystemGroup
   })
 }
@@ -82,7 +82,7 @@ export const startWorldServerSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ECSSerializerSystem, SceneSystemLoadGroup, ServerRecordingSystem], {
+  startSystems([ECSSerializerSystem, SceneSystemLoadGroup, ECSRecordingSystem], {
     after: PresentationSystemGroup
   })
 }
