@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { createHash } from 'crypto'
 import { Router } from 'mediasoup/node/lib/types'
+import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -38,9 +39,16 @@ import { localConfig } from '@etherealengine/server-core/src/config'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { RecordingAPIState } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { RecordingID, RecordingSchemaType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { getMutableState, none } from '@etherealengine/hyperflux'
+import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { PassThrough } from 'stream'
 import { startFFMPEG } from './FFMPEG'
-import { uploadRecordingStaticResource } from './ServerRecordingSystem'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = serverLogger.child({ module: 'instanceserver:MediaRecording' })
@@ -204,8 +212,46 @@ export const startMediaRecordingPair = async (
   }
 }
 
-// todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
+type onUploadPartArgs = {
+  recordingID: RecordingID
+  key: string
+  body: PassThrough
+  mimeType: string
+  hash: string
+}
 
+export const uploadMediaStaticResource = async (props: onUploadPartArgs) => {
+  const api = Engine.instance.api
+
+  const storageProvider = getStorageProvider()
+
+  const upload = await storageProvider.putObject({
+    Key: props.key,
+    Body: props.body,
+    ContentType: props.mimeType
+  })
+
+  const url = getCachedURL(props.key, storageProvider.cacheDomain)
+
+  const staticResource = await api.service(staticResourcePath).create(
+    {
+      hash: props.hash,
+      key: props.key,
+      url,
+      mimeType: props.mimeType
+    },
+    { isInternal: true }
+  )
+
+  await api.service(recordingResourcePath).create({
+    staticResourceId: staticResource.id,
+    recordingId: props.recordingID
+  })
+
+  return upload
+}
+
+// todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
 export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchemaType['peers']) => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
 
@@ -247,13 +293,14 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     const format = recording.format === 'mp3' ? 'audio/opus' : recording.format === 'vp8' ? 'video/webm' : 'video/mp4'
     const ext = recording.format === 'mp3' ? 'mp3' : recording.format === 'vp8' ? 'webm' : 'mp4'
     const key = `recordings/${recordingID}/${recording.peerID}-${recording.mediaType}.${ext}`
+    const hash = createHash('sha3-256').update(key.split('/').pop()!.split('.')[0]).digest('hex')
 
-    const upload = uploadRecordingStaticResource({
+    const upload = uploadMediaStaticResource({
       recordingID,
       key,
       body: stream,
       mimeType: format,
-      hash: createHash('sha3-256').update(key.split('/').pop()!.split('.')[0]).digest('hex')
+      hash
     }).then(() => {
       logger.info('Uploaded media file' + key)
     })
@@ -266,3 +313,19 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     activeUploads
   }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    getMutableState(RecordingAPIState).createMediaChannelRecorder.set(startMediaRecording)
+    return () => {
+      getMutableState(RecordingAPIState).createMediaChannelRecorder.set(none)
+    }
+  }, [])
+
+  return null
+}
+
+export const MediasoupRecordingSystem = defineSystem({
+  uuid: 'MediasoupRecordingSystem',
+  reactor
+})

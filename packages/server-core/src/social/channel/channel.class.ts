@@ -29,6 +29,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -36,7 +37,6 @@ import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../api/root-params'
-import { checkScope } from '../../hooks/verify-scope'
 
 export type ChannelDataType = ChannelInterface
 
@@ -154,7 +154,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
       if (!userId) return []
 
-      const admin = query.action === 'admin' && (await checkScope(loggedInUser, this.app, 'admin', 'admin'))
+      const admin = query.action === 'admin' && (await checkScope(loggedInUser, 'admin', 'admin'))
 
       if (admin) {
         const { action, $skip, $limit, search, ...query } = params?.query ?? {}

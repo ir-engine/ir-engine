@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { State, useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'

@@ -47,7 +47,7 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'

@@ -31,19 +31,20 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { Network } from '@etherealengine/engine/src/networking/classes/Network'
+import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
-import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
-import { Application } from '@etherealengine/server-core/declarations'
-import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
-import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
-import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
-import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
+import {
+  defineAction,
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getState,
+  Topic
+} from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
@@ -56,22 +57,144 @@ import {
 } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import {
+  RecordingID,
+  recordingPath,
+  RecordingSchemaType
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
-import { startMediaRecording } from './MediaRecordingFunctions'
-import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { createOutgoingDataProducer } from './WebRTCFunctions'
+import matches, { Validator } from 'ts-matches'
+import { checkScope } from '../common/functions/checkScope'
+import { matchesUserId } from '../common/functions/MatchesUtils'
 
-const logger = multiLogger.child({ component: 'instanceserver:recording' })
+const logger = multiLogger.child({ component: 'engine:recording' })
+
+export const startRecording = (args: { recordingID: RecordingID }) => {
+  const { recordingID } = args
+  const action = ECSRecordingActions.startRecording({
+    recordingID
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.world,
+    $to: Engine.instance.worldNetwork.hostPeerID
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.media,
+    $to: Engine.instance.mediaNetwork.hostPeerID
+  })
+}
+
+export const stopRecording = (args: { recordingID: RecordingID }) => {
+  const recording = ECSRecordingActions.stopRecording({
+    recordingID: args.recordingID
+  })
+  dispatchAction({
+    ...recording,
+    $topic: NetworkTopics.world,
+    $to: Engine.instance.worldNetwork.hostPeerID
+  })
+  // todo - check that video actually needs to be stopped
+  dispatchAction({
+    ...recording,
+    $topic: NetworkTopics.media,
+    $to: Engine.instance.mediaNetwork.hostPeerID
+  })
+}
+
+export const startPlayback = (args: { recordingID: RecordingID; targetUser?: UserID }) => {
+  const { recordingID, targetUser } = args
+  const action = ECSRecordingActions.startPlayback({
+    recordingID,
+    targetUser
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.world,
+    $to: Engine.instance.worldNetwork.hostPeerID
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.media,
+    $to: Engine.instance.mediaNetwork.hostPeerID
+  })
+}
+
+export const stopPlayback = (args: { recordingID: RecordingID }) => {
+  const { recordingID } = args
+  const action = ECSRecordingActions.stopPlayback({
+    recordingID
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.world,
+    $to: Engine.instance.worldNetwork.hostPeerID
+  })
+
+  dispatchAction({
+    ...action,
+    $topic: NetworkTopics.media,
+    $to: Engine.instance.mediaNetwork.hostPeerID
+  })
+}
+
+export const ECSRecordingFunctions = {
+  startRecording,
+  stopRecording,
+  startPlayback,
+  stopPlayback
+}
+
+export class ECSRecordingActions {
+  static startRecording = defineAction({
+    type: 'ee.core.motioncapture.START_RECORDING' as const,
+    recordingID: matches.string as Validator<unknown, RecordingID>
+  })
+
+  static recordingStarted = defineAction({
+    type: 'ee.core.motioncapture.RECORDING_STARTED' as const,
+    recordingID: matches.string as Validator<unknown, RecordingID>
+  })
+
+  static stopRecording = defineAction({
+    type: 'ee.core.motioncapture.STOP_RECORDING' as const,
+    recordingID: matches.string as Validator<unknown, RecordingID>
+  })
+
+  static startPlayback = defineAction({
+    type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
+    recordingID: matches.string as Validator<unknown, RecordingID>,
+    targetUser: matchesUserId.optional()
+  })
+
+  static playbackChanged = defineAction({
+    type: 'ee.core.motioncapture.PLAYBACK_CHANGED' as const,
+    recordingID: matches.string as Validator<unknown, RecordingID>,
+    playing: matches.boolean
+  })
+
+  static stopPlayback = defineAction({
+    type: 'ee.core.motioncapture.STOP_PLAYBACK' as const,
+    recordingID: matches.string as Validator<unknown, RecordingID>
+  })
+
+  static error = defineAction({
+    type: 'ee.core.motioncapture.ERROR' as const,
+    error: matches.string
+  })
+}
 
 interface ActiveRecording {
   userID: UserID
   serializer?: ECSSerializer
   dataChannelRecorder?: any // todo
-  mediaChannelRecorder?: Awaited<ReturnType<typeof startMediaRecording>>
+  mediaChannelRecorder?: Awaited<ReturnType<MediaChannelRecorderType>>
 }
 
 interface ActivePlayback {
@@ -87,57 +210,48 @@ interface DataChannelFrame<T> {
   timecode: number
 }
 
+export type MediaChannelRecorderType = (
+  recordingID: RecordingID,
+  schema: RecordingSchemaType['peers']
+) => Promise<{
+  recordings: Array<{
+    stopRecording: () => void
+    stream: PassThrough
+    peerID: PeerID
+    mediaType: 'webcam' | 'screenshare'
+    format: string
+  }>
+  activeUploads: any[]
+}>
+
+export type UploadRecordingChunkType = (args: {
+  recordingID: RecordingID
+  key: string
+  body: Buffer
+  mimeType: string
+}) => Promise<void>
+
+export const RecordingAPIState = defineState({
+  name: 'ee.engine.recording.RecordingAPIState',
+  initial: {
+    createMediaChannelRecorder: null as null | MediaChannelRecorderType,
+    uploadRecordingChunk: null as null | UploadRecordingChunkType
+  }
+})
+
 export const activeRecordings = new Map<string, ActiveRecording>()
 export const activePlaybacks = new Map<string, ActivePlayback>()
 
-export const dispatchError = (error: string, targetPeer: PeerID) => {
-  const app = Engine.instance.api as Application
+export const dispatchError = (error: string, targetPeer: PeerID, topic: Topic) => {
   logger.error('Recording Error: ' + error)
-  dispatchAction(ECSRecordingActions.error({ error, $to: targetPeer, $topic: getServerNetwork(app).topic }))
-}
-
-export const uploadRecordingStaticResource = async (props: {
-  recordingID: RecordingID
-  key: string
-  body: Buffer | PassThrough
-  mimeType: string
-  hash: string
-}) => {
-  const app = Engine.instance.api as Application
-  const storageProvider = getStorageProvider()
-
-  const upload = await storageProvider.putObject({
-    Key: props.key,
-    Body: props.body,
-    ContentType: props.mimeType
-  })
-
-  const provider = getStorageProvider()
-  const url = getCachedURL(props.key, provider.cacheDomain)
-
-  const staticResource = await app.service(staticResourcePath).create(
-    {
-      hash: props.hash,
-      key: props.key,
-      url,
-      mimeType: props.mimeType
-    },
-    { isInternal: true }
-  )
-
-  await app.service(recordingResourcePath).create({
-    staticResourceId: staticResource.id,
-    recordingId: props.recordingID
-  })
-
-  return upload
+  dispatchAction(ECSRecordingActions.error({ error, $to: targetPeer, $topic: topic }))
 }
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
-  const app = Engine.instance.api as Application
+  const api = Engine.instance.api
 
-  const recording = await app.service(recordingPath).get(action.recordingID)
-  if (!recording) return dispatchError('Recording not found', action.$peer)
+  const recording = await api.service(recordingPath).get(action.recordingID)
+  if (!recording) return dispatchError('Recording not found', action.$peer, action.$topic)
 
   let schema = recording.schema
 
@@ -145,23 +259,21 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     schema = JSON.parse(schema)
   }
 
-  const user = await app.service(userPath).get(recording.userId)
-  if (!user) return dispatchError('Invalid user', action.$peer)
+  const user = await api.service(userPath).get(recording.userId)
+  if (!user) return dispatchError('Invalid user', action.$peer, action.$topic)
 
   const userID = user.id
 
-  const hasScopes = await checkScope(user, app, 'recording', 'write')
-  if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
-
-  const storageProvider = getStorageProvider()
+  const hasScopes = await checkScope(user, 'recording', 'write')
+  if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer, action.$topic)
 
   /** create folder in storage provider */
   try {
-    await storageProvider.putObject({ Key: 'recordings/' + recording.id } as StorageObjectInterface, {
-      isDirectory: true
+    await api.service('file-browser').create({
+      key: 'recordings/' + recording.id
     })
   } catch (error) {
-    return dispatchError('Could not create recording folder' + error.message, action.$peer)
+    return dispatchError('Could not create recording folder' + error.message, action.$peer, action.$topic)
   }
 
   const dataChannelsRecording = new Map<DataChannelType, DataChannelFrame<any>[]>()
@@ -187,6 +299,10 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     dataChannelRecorder
   } as ActiveRecording
 
+  const uploadRecordingChunk = getState(RecordingAPIState).uploadRecordingChunk
+  if (!uploadRecordingChunk)
+    return dispatchError('Recording not available - no upload method provided', action.$peer, action.$topic)
+
   if (Engine.instance.worldNetwork) {
     const serializationSchema = schema.user
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
@@ -201,12 +317,11 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       onCommitChunk(chunk, chunkIndex) {
         const key = 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee'
         const buffer = encode(chunk)
-        uploadRecordingStaticResource({
+        uploadRecordingChunk({
           recordingID: recording.id,
           key,
           body: buffer,
-          mimeType: 'application/octet-stream',
-          hash: createStaticResourceHash(buffer, { assetURL: key })
+          mimeType: 'application/octet-stream'
         }).then(() => {
           logger.info('Uploaded entities chunk', chunkIndex)
         })
@@ -215,12 +330,11 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
           if (data.length) {
             const key = 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee'
             const buffer = encode(data)
-            uploadRecordingStaticResource({
+            uploadRecordingChunk({
               recordingID: recording.id,
               key,
               body: buffer,
-              mimeType: 'application/octet-stream',
-              hash: createStaticResourceHash(buffer, { assetURL: key })
+              mimeType: 'application/octet-stream'
             }).then(() => {
               logger.info('Uploaded raw chunk', chunkIndex)
             })
@@ -243,7 +357,10 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   }
 
   if (Engine.instance.mediaNetwork) {
-    const mediaRecorder = await startMediaRecording(recording.id, schema.peers)
+    const createMediaRecording = getState(RecordingAPIState).createMediaChannelRecorder
+    if (!createMediaRecording) return dispatchError('Media recording not available', action.$peer, action.$topic)
+
+    const mediaRecorder = await createMediaRecording(recording.id, schema.peers)
 
     activeRecording.mediaChannelRecorder = mediaRecorder
     console.log('media recording started')
@@ -255,25 +372,25 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     ECSRecordingActions.recordingStarted({
       recordingID: recording.id,
       $to: action.$peer,
-      $topic: getServerNetwork(app).topic
+      $topic: action.$topic
     })
   )
 }
 
 export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActions.stopRecording>) => {
-  const app = Engine.instance.api as Application
+  const api = Engine.instance.api
 
   const activeRecording = activeRecordings.get(action.recordingID)
-  if (!activeRecording) return dispatchError('Recording not found', action.$peer)
+  if (!activeRecording) return dispatchError('Recording not found', action.$peer, action.$topic)
 
-  const user = await app.service(userPath).get(activeRecording.userID)
+  const user = await api.service(userPath).get(activeRecording.userID)
 
-  const hasScopes = await checkScope(user, app, 'recording', 'write')
-  if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
+  const hasScopes = await checkScope(user, 'recording', 'write')
+  if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer, action.$topic)
 
-  app.service(recordingPath).patch(action.recordingID, { ended: true }, { isInternal: true })
+  api.service(recordingPath).patch(action.recordingID, { ended: true }, { isInternal: true })
 
-  const recording = await app.service(recordingPath).get(action.recordingID)
+  const recording = await api.service(recordingPath).get(action.recordingID)
 
   let schema = recording.schema
 
@@ -307,9 +424,9 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 }
 
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
-  const app = Engine.instance.api as Application
+  const api = Engine.instance.api
 
-  const recording = await app.service(recordingPath).get(action.recordingID, { isInternal: true })
+  const recording = await api.service(recordingPath).get(action.recordingID, { isInternal: true })
 
   let schema = recording.schema
 
@@ -319,23 +436,21 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const isClone = !action.targetUser
 
-  const user = await app.service(userPath).get(recording.userId)
-  if (!user) return dispatchError('User not found', action.$peer)
+  const user = await api.service(userPath).get(recording.userId)
+  if (!user) return dispatchError('User not found', action.$peer, action.$topic)
 
   if (!isClone && Array.from(activePlaybacks.values()).find((rec) => rec.userID === action.targetUser)) {
-    return dispatchError('User already has an active playback', action.$peer)
+    return dispatchError('User already has an active playback', action.$peer, action.$topic)
   }
 
-  const hasScopes = await checkScope(user, app, 'recording', 'read')
-  if (!hasScopes) return dispatchError('User does not have record:read scope', action.$peer)
+  const hasScopes = await checkScope(user, 'recording', 'read')
+  if (!hasScopes) return dispatchError('User does not have record:read scope', action.$peer, action.$topic)
 
-  if (!recording.resources?.length) return dispatchError('Recording has no resources', action.$peer)
+  if (!recording.resources?.length) return dispatchError('Recording has no resources', action.$peer, action.$topic)
 
   const activePlayback = {
     userID: action.targetUser
   } as ActivePlayback
-
-  const storageProvider = getStorageProvider()
 
   const entityFiles = recording.resources.filter((resource) => resource.key.includes('entities-'))
 
@@ -349,8 +464,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     (resource) => resource.key.substring(resource.key.length - 3, resource.key.length) !== '.ee'
   )
 
-  const entityChunks = (await Promise.all(entityFiles.map((resource) => storageProvider.getObject(resource.key)))).map(
-    (data) => decode(data.Body)
+  const entityChunks = await Promise.all(
+    entityFiles.map(async (resource) => {
+      const data = await fetch(resource.url)
+      const buffer = await data.arrayBuffer()
+      return decode(new Uint8Array(buffer))
+    })
   )
 
   const dataChannelChunks = new Map<DataChannelType, DataChannelFrame<any>[][]>()
@@ -359,12 +478,13 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     rawFiles.map(async (resource) => {
       const dataChannel = resource.key.split('/')[2].split('-')[0] as DataChannelType
       if (!dataChannelChunks.has(dataChannel)) dataChannelChunks.set(dataChannel, [])
-      const data = await storageProvider.getObject(resource.key)
-      dataChannelChunks.get(dataChannel)!.push(decode(data.Body))
+      const data = await fetch(resource.url)
+      const buffer = await data.arrayBuffer()
+      dataChannelChunks.get(dataChannel)!.push(decode(new Uint8Array(buffer)))
     })
   )
 
-  const network = getServerNetwork(app) as SocketWebRTCServerNetwork
+  const network = getState(NetworkState).networks[action.$network]
 
   const entitiesSpawned = [] as (EntityUUID | UserID)[]
 
@@ -380,7 +500,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
           // override entity ID such that it is actually unique, by appendig the recording id
           const entityID = isClone ? ((uuid + '_' + recording.id) as EntityUUID) : uuid
           entityChunks[chunkIndex].entities[i] = entityID
-          app
+          api
             .service(userPath)
             .get(uuid)
             .then((user) => {
@@ -404,7 +524,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               for (const [dataChannel, chunks] of Array.from(dataChannelChunks.entries())) {
                 const chunk = chunks[chunkIndex]
                 setDataChannelChunkToReplay(entityID, dataChannel, chunk)
-                createOutgoingDataProducer(network, dataChannel)
+                // createOutgoingDataProducer(network, dataChannel)
               }
 
               if (!UUIDComponent.entitiesByUUID[entityID]) {
@@ -430,7 +550,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
         }
     },
     onEnd: () => {
-      playbackStopped(activePlayback.userID, recording.id)
+      playbackStopped(activePlayback.userID, recording.id, network)
     }
   })
 
@@ -455,9 +575,9 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 }
 
 export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActions.stopPlayback>) => {
-  const app = Engine.instance.api as Application
+  const api = Engine.instance.api
 
-  const recording = await app.service(recordingPath).get(action.recordingID)
+  const recording = await api.service(recordingPath).get(action.recordingID)
 
   let schema = recording.schema
 
@@ -465,9 +585,9 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
     schema = JSON.parse(schema)
   }
 
-  const user = await app.service(userPath).get(recording.userId)
+  const user = await api.service(userPath).get(recording.userId)
 
-  const hasScopes = await checkScope(user, app, 'recording', 'read')
+  const hasScopes = await checkScope(user, 'recording', 'read')
   if (!hasScopes) throw new Error('User does not have record:read scope')
 
   const activePlayback = activePlaybacks.get(action.recordingID)
@@ -481,12 +601,10 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
     /** @todo */
   }
 
-  playbackStopped(user.id, recording.id)
+  playbackStopped(user.id, recording.id, getState(NetworkState).networks[action.$network])
 }
 
-const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
-  const app = Engine.instance.api as Application
-
+const playbackStopped = (userId: UserID, recordingID: RecordingID, network: Network) => {
   const activePlayback = activePlaybacks.get(recordingID)!
 
   for (const entityUUID of activePlayback.entitiesSpawned) {
@@ -499,8 +617,6 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
 
   removeDataChannelToReplay(userId)
 
-  const network = getServerNetwork(app) as SocketWebRTCServerNetwork
-
   if (activePlayback.peerIDs) {
     for (const peerID of activePlayback.peerIDs) {
       NetworkPeerFunctions.destroyPeer(network, peerID)
@@ -510,13 +626,13 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
   updatePeers(network)
   activePlaybacks.delete(recordingID)
 
-  /** We only need to dispatch once, so do it on the world server */
+  /** If syncing multipile instance servers, only need to dispatch once, so do it on the world server */
   if (Engine.instance.worldNetwork) {
     dispatchAction(
       ECSRecordingActions.playbackChanged({
         recordingID,
         playing: false,
-        $topic: getServerNetwork(app).topic
+        $topic: network.topic
       })
     )
   }
@@ -562,8 +678,7 @@ const execute = () => {
 
   // todo - only set deserializer.active to true once avatar spawns, if clone mode
 
-  const app = Engine.instance.api as Application
-  const network = getServerNetwork(app)
+  const network = Engine.instance.worldNetwork // TODO - support buffer playback in media server
 
   for (const [userId, userMap] of Array.from(dataChannelToReplay.entries())) {
     if (network.users[userId])
@@ -581,7 +696,7 @@ const execute = () => {
   }
 }
 
-export const ServerRecordingSystem = defineSystem({
-  uuid: 'ee.engine.ServerRecordingSystem',
+export const ECSRecordingSystem = defineSystem({
+  uuid: 'ee.engine.ECSRecordingSystem',
   execute
 })

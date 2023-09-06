@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import {
