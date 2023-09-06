@@ -24,10 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID } from '../networking/instance.schema'
 import { UserID, userSchema } from '../user/user.schema'
@@ -37,6 +36,8 @@ import { messageSchema } from './message.schema'
 export const channelPath = 'channel'
 
 export const channelMethods = ['get', 'create', 'find', 'remove'] as const
+
+export type ChannelID = OpaqueType<'ChannelID'> & string
 
 // TODO: Remove this schema, once channel-user service is migrated to feathers 5
 export const channelUserSchema = Type.Object(
