@@ -23,17 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Assert,
-  CustomEvent,
-  Engine,
-  EventNode2,
-  IGraph,
-  NodeConfiguration,
-  NodeDescription,
-  NodeDescription2,
-  Socket
-} from '@behave-graph/core'
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { Entity } from '../../../../../ecs/classes/Entity'
@@ -44,9 +33,9 @@ import { ModelComponent } from '../../../../../scene/components/ModelComponent'
 import { PrefabComponent } from '../../../../../scene/components/PrefabComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../../../../scene/components/VolumetricComponent'
-import { addEntityToScene } from '../helper/entityHelper'
+import { addEntityToScene } from './entityHelper'
 
-async function addMediaComponent(url: string, parent?: Entity | null, before?: Entity | null) {
+export async function addMediaComponent(url: string, parent?: Entity | null, before?: Entity | null) {
   console.log(url)
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
@@ -82,61 +71,4 @@ async function addMediaComponent(url: string, parent?: Entity | null, before?: E
   }
 
   return node
-}
-
-export class onLoadAsset extends EventNode2 {
-  public static Description = new NodeDescription2({
-    typeName: 'engine/onLoadAsset',
-    category: 'Event',
-    label: 'load asset done',
-    configuration: {
-      customEventId: {
-        valueType: 'string',
-        defaultValue: '1'
-      }
-    },
-    factory: (description, graph, configuration) => new onLoadAsset(description, graph, configuration)
-  })
-
-  private readonly customEvent: CustomEvent
-
-  constructor(description: NodeDescription, graph: IGraph, configuration: NodeConfiguration) {
-    const eventParameters = [
-      new Socket('string', 'assetPath'),
-      new Socket('vec3', 'initialPosition'),
-      new Socket('vec3', 'initialRotation')
-    ]
-    const customEvent =
-      graph.customEvents[configuration.customEventId] ||
-      new CustomEvent(configuration.customEventId, configuration.label, eventParameters)
-    super({
-      description,
-      graph,
-      outputs: [new Socket('flow', 'flow'), new Socket('entity', 'entity')],
-      configuration
-    })
-    this.customEvent = customEvent
-    graph.customEvents[configuration.customEventId] = customEvent
-  }
-  private onCustomEvent: ((parameters: { [parameter: string]: any }) => void) | undefined = undefined
-
-  init(engine: Engine) {
-    Assert.mustBeTrue(this.onCustomEvent === undefined)
-
-    this.onCustomEvent = async (parameters) => {
-      const assetPath = parameters['assetPath']
-      const node = await addMediaComponent(assetPath)
-      this.writeOutput('entity', node)
-      engine.commitToNewFiber(this, 'flow')
-    }
-    this.customEvent.eventEmitter.addListener(this.onCustomEvent)
-  }
-
-  dispose(engine: Engine) {
-    Assert.mustBeTrue(this.onCustomEvent !== undefined)
-
-    if (this.onCustomEvent !== undefined) {
-      this.customEvent.eventEmitter.removeListener(this.onCustomEvent)
-    }
-  }
 }

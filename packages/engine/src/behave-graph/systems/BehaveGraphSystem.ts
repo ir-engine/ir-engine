@@ -33,9 +33,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, hasComponent, removeQuery, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { BehaveGraphComponent, BehaveGraphDomain } from '../components/BehaveGraphComponent'
-import { createECSRegistry } from '../functions/createECSRegistry'
-import { BehaveGraphState } from '../state/BehaveGraphState'
+import { BehaveGraphComponent } from '../components/BehaveGraphComponent'
 
 export const BehaveGraphActions = {
   execute: defineAction({
@@ -75,11 +73,6 @@ const execute = () => {
 const reactor = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const sceneState = useHookstate(getMutableState(SceneState))
-  const behaveGraphState = useHookstate(getMutableState(BehaveGraphState))
-
-  useEffect(() => {
-    behaveGraphState.registries[BehaveGraphDomain.ECS].set(createECSRegistry())
-  }, [])
 
   useEffect(() => {
     if (!engineState.sceneLoaded.value || engineState.isEditor.value) return

@@ -23,37 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
+import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { useEffect } from 'react'
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/createThreejsProxy'
+import { defineComponent } from '../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../ecs/functions/EntityFunctions'
+import { QuaternionSchema, Vector3Schema } from '../transform/components/TransformComponent'
 
-export const CaptureClientSettingsState = defineState({
-  name: 'CaptureClientSettingsState',
-  initial: () => ({
-    tab: 0,
-    settings: [
-      {
-        name: 'Display',
-        tabOrder: 0,
-        showVideo: true,
-        flipVideo: true,
-        show2dSkeleton: true
-      },
-      {
-        name: 'Tracking',
-        tabOrder: 1,
-        // enableFaceGeometry: false,
-        modelComplexity: 2,
-        smoothLandmarks: true,
-        enableSegmentation: true,
-        smoothSegmentation: true,
-        // refineFaceLandmarks: false,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-      },
-      {
-        name: 'Debug',
-        tabOrder: 2,
-        throttleSend: false
+export const MotionCaptureRigComponent = defineComponent({
+  name: 'MotionCaptureRigComponent',
+
+  schema: {
+    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
+      VRMHumanBoneName,
+      typeof QuaternionSchema
+    >,
+    hipPosition: Vector3Schema
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+
+    useEffect(() => {
+      for (const boneName of VRMHumanBoneList) {
+        proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
+        proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
       }
-    ]
-  })
+    }, [])
+
+    return null
+  }
 })

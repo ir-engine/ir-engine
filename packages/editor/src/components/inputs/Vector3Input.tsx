@@ -43,7 +43,7 @@ export const Vector3InputContainer: React.FC<{ children?: any }> = ({ children }
 
 interface Vector3ScrubberProps {
   tag?: string
-  axis: 'x' | 'y' | 'z' | string
+  axis?: 'x' | 'y' | 'z' | string
   value: number
   onChange: any
   onPointerUp?: any
@@ -53,7 +53,7 @@ interface Vector3ScrubberProps {
 
 export const Vector3Scrubber = ({ tag, axis, onChange, value, children, ...props }: Vector3ScrubberProps) => {
   props.className = `Vector3Scrubber ${axis}`
-  const content = children ?? axis.toUpperCase()
+  const content = children ?? axis?.toUpperCase()
   return (
     <Scrubber tag={tag} onChange={onChange} value={value} {...props}>
       {content}

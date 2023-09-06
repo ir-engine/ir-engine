@@ -145,7 +145,7 @@ const onInteract = (handedness: XRHandedness = 'none') => {
 }
 
 const onKeyP = () => {
-  getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
+  getMutableState(RendererState).physicsDebug.set(!getMutableState(RendererState).physicsDebug.value)
 }
 
 const isAvatarClicked = () => {
