@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
+import fs from 'fs'
 import path from 'path/posix'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
@@ -36,7 +37,7 @@ import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projec
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
-import { getIncrementalName } from '../FileUtil'
+import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -166,6 +167,8 @@ export class FileBrowserService implements ServiceMethods<any> {
       isDirectory: true
     })
 
+    fs.mkdirSync(path.join(projectsRootFolder, parentPath, key))
+
     return result
   }
 
@@ -186,6 +189,15 @@ export class FileBrowserService implements ServiceMethods<any> {
     const isDirectory = await storageProvider.isDirectory(data.oldName, _oldPath)
     const fileName = await getIncrementalName(data.newName, _newPath, storageProvider, isDirectory)
     const result = await storageProvider.moveObject(data.oldName, fileName, _oldPath, _newPath, data.isCopy)
+
+    const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
+    const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
+
+    if (data.isCopy) {
+      copyRecursiveSync(oldNamePath, newNamePath)
+    } else {
+      fs.renameSync(oldNamePath, newNamePath)
+    }
 
     return result
   }
@@ -215,6 +227,12 @@ export class FileBrowserService implements ServiceMethods<any> {
       }
     )
 
+    const filePath = path.join(projectsRootFolder, key)
+    const parentDirPath = path.dirname(filePath)
+
+    if (!fs.existsSync(parentDirPath)) fs.mkdirSync(parentDirPath, { recursive: true })
+    fs.writeFileSync(filePath, data.body)
+
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
     return getCachedURL(key, cacheDomain)
   }
@@ -233,6 +251,12 @@ export class FileBrowserService implements ServiceMethods<any> {
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
     const filePath = path.join(projectsRootFolder, key)
+
+    if (fs.lstatSync(filePath).isDirectory()) {
+      fs.rmSync(filePath, { force: true, recursive: true })
+    } else {
+      fs.unlinkSync(filePath)
+    }
 
     const staticResource = (await this.app.service(staticResourcePath).find({
       query: {
