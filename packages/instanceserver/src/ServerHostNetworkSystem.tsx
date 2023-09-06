@@ -35,6 +35,9 @@ import { RecordingID } from '@etherealengine/engine/src/schemas/recording/record
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
@@ -62,27 +65,29 @@ export const uploadRecordingStaticResource = async (props: {
 }) => {
   const api = Engine.instance.api
 
-  const keyParts = props.key.split('/')
-  const path = keyParts.slice(0, keyParts.length - 1).join('/')
-  const fileName = keyParts[keyParts.length - 1]
-
-  const url = await api.service('file-browser').patch(null, {
-    path,
-    fileName,
-    body: props.body,
-    contentType: props.mimeType
+  const storageProvider = getStorageProvider()
+  await storageProvider.putObject({
+    Key: props.key,
+    Body: props.body,
+    ContentType: props.mimeType
   })
 
-  const staticResource = await api.service(staticResourcePath).find({
-    query: {
-      url
-    }
-  })
+  const provider = getStorageProvider()
+  const url = getCachedURL(props.key, provider.cacheDomain)
+  const hash = createStaticResourceHash(props.body, { assetURL: props.key })
 
-  const firstStaticResource = Array.isArray(staticResource) ? staticResource[0] : staticResource.data[0]
+  const staticResource = await api.service(staticResourcePath).create(
+    {
+      hash,
+      key: props.key,
+      url,
+      mimeType: props.mimeType
+    },
+    { isInternal: true }
+  )
 
   await api.service(recordingResourcePath).create({
-    staticResourceId: firstStaticResource.id,
+    staticResourceId: staticResource.id,
     recordingId: props.recordingID
   })
 }

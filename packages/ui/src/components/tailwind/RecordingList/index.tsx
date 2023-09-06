@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 
@@ -41,8 +41,14 @@ function formatHHMMSS(time) {
   return hoursString + ':' + minutesString + ':' + secondsString
 }
 
+const sortByNewest = (a, b) => {
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+}
+
 const RecordingsList = ({ startPlayback, stopPlayback }) => {
   const recordingState = useHookstate(getMutableState(RecordingState))
+
+  const sortedRecordings = recordingState.recordings.get(NO_PROXY).sort(sortByNewest)
   return (
     <div className="w-full aspect-video overflow-hidden">
       <table className="table w-full">
@@ -56,7 +62,7 @@ const RecordingsList = ({ startPlayback, stopPlayback }) => {
           </tr>
         </thead>
         <tbody>
-          {recordingState.recordings.value.map((recording) => (
+          {sortedRecordings.map((recording) => (
             <tr key={recording.id}>
               <td>
                 <div className="bg-grey">{recording.id}</div>

@@ -267,13 +267,6 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const hasScopes = await checkScope(user, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer, action.$topic)
 
-  /** create folder in storage provider */
-  try {
-    await api.service('file-browser').create('recordings/' + recording.id)
-  } catch (error) {
-    return dispatchError('Could not create recording folder' + error.message, action.$peer, action.$topic)
-  }
-
   const dataChannelsRecording = new Map<DataChannelType, DataChannelFrame<any>[]>()
 
   const startTime = Date.now()
