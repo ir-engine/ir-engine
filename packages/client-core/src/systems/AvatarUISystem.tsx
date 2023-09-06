@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
-import { Consumer } from 'mediasoup-client/lib/Consumer'
 import { useEffect } from 'react'
 import { Group, Vector3 } from 'three'
 
@@ -58,6 +57,7 @@ import { createTransitionState } from '@etherealengine/engine/src/xrui/functions
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
@@ -152,7 +152,6 @@ const onSecondaryClick = () => {
 
 const execute = () => {
   const engineState = getState(EngineState)
-  if (!engineState.isEngineInitialized) return
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
@@ -188,6 +187,7 @@ const execute = () => {
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
+  const mediaNetwork = Engine.instance.mediaNetwork
 
   /** Render immersive media bubbles */
   for (const userEntity of userQuery()) {
@@ -216,25 +216,26 @@ const execute = () => {
     xruiTransform.position.copy(_vector3)
     xruiTransform.rotation.copy(cameraTransform.rotation)
 
-    if (Engine.instance.mediaNetwork)
+    if (mediaNetwork)
       if (immersiveMedia && videoPreviewTimer === 0) {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-        const peers = Engine.instance.mediaNetwork.peers ? Array.from(Engine.instance.mediaNetwork.peers.values()) : []
+        const peers = mediaNetwork.peers ? Object.values(mediaNetwork.peers) : []
         const peer = peers.find((peer) => {
           return peer.userId === ownerId
         })
-        const consumer = Engine.instance.mediaNetwork!.consumers.find(
-          (consumer) =>
-            consumer.appData.peerID === peer?.peerID && consumer.appData.mediaTag === webcamVideoDataChannelType
-        ) as Consumer
-        const paused = consumer && (consumer as any).producerPaused
+        const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+          mediaNetwork.id,
+          peer!.peerID,
+          webcamVideoDataChannelType
+        ) as any
+        const active = !consumer?.paused
         if (videoPreviewMesh.material.map) {
-          if (!consumer || paused) {
+          if (!active) {
             videoPreviewMesh.material.map = null!
             videoPreviewMesh.visible = false
           }
         } else {
-          if (consumer && !paused && !applyingVideo.has(ownerId)) {
+          if (active && !applyingVideo.has(ownerId)) {
             applyingVideo.set(ownerId, true)
             const track = (consumer as any).track
             const newVideoTrack = track.clone()

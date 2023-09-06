@@ -30,6 +30,7 @@ import { HookReturn } from 'sequelize/types/hooks'
 
 import {
   AvatarInterface,
+  BotCommandInterface,
   IdentityProviderInterface,
   InstanceAttendanceInterface,
   LocationAdminInterface,
@@ -38,6 +39,7 @@ import {
   LocationInterface,
   LocationSettingsInterface,
   LocationTypeInterface,
+  MessageInterface,
   ProjectPermissionInterface,
   UserApiKeyInterface,
   UserInterface,
@@ -106,7 +108,7 @@ export const createUserModel = (app: Application) => {
     ;(User as any).belongsToMany(createLocationModel(app), { through: 'location-admin' })
     ;(User as any).hasMany(createLocationAdminModel(app), { unique: false })
     ;(User as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
-    ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
+    ;(User as any).hasMany(createBotModel(app), { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
     ;(User as any).belongsToMany(models.instance, { through: 'instance-authorized-user' })
     ;(User as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
@@ -263,7 +265,7 @@ export const createLocationModel = (app: Application) => {
     ;(location as any).belongsToMany(createUserModel(app), { through: 'location-admin' })
     ;(location as any).hasOne(createLocationSettingsModel(app), { onDelete: 'cascade' })
     ;(location as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
-    ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
+    ;(location as any).hasMany(createBotModel(app), { foreignKey: 'locationId' })
     ;(location as any).hasMany(createLocationAuthorizedUserModel(app), { onDelete: 'cascade' })
   }
 
@@ -742,4 +744,117 @@ export const createProjectPermissionTypeModel = (app: Application) => {
   }
 
   return ProjectPermissionType
+}
+
+export const createBotModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const Bot = sequelizeClient.define(
+    'bot',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        defaultValue: (): string => 'etherealengine bot' + Math.floor(Math.random() * (999 - 100 + 1) + 100),
+        allowNull: false
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(Bot as any).associate = (models: any): void => {
+    ;(Bot as any).belongsTo(createLocationModel(app), { foreignKey: 'locationId' })
+    ;(Bot as any).belongsTo(models.instance, { foreignKey: { allowNull: true } })
+    ;(Bot as any).belongsTo(createUserModel(app), { foreignKey: 'userId' })
+    ;(Bot as any).hasMany(createBotCommandModel(app), { foreignKey: 'botId' })
+  }
+  return Bot
+}
+
+export const createBotCommandModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const BotCommand = sequelizeClient.define<Model<BotCommandInterface>>(
+    'bot-command',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+  ;(BotCommand as any).associate = (models: any): void => {
+    ;(BotCommand as any).belongsTo(createBotModel(app), { foreignKey: 'botId' })
+  }
+
+  return BotCommand
+}
+
+export const createMessageModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const message = sequelizeClient.define<Model<MessageInterface>>(
+    'message',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      text: {
+        type: DataTypes.STRING(1023),
+        allowNull: false
+      },
+      isNotification: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(message as any).associate = (models: any): any => {
+    ;(message as any).belongsTo(models.channel, { allowNull: false })
+    ;(message as any).belongsTo(createUserModel(app), { foreignKey: 'senderId', as: 'sender' })
+  }
+
+  return message
 }

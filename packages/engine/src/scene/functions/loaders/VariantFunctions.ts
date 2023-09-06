@@ -2,7 +2,7 @@ import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transfor
 
 import { isMobile } from '../../../common/functions/isMobile'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { ModelComponent } from '../../components/ModelComponent'
 import { VariantComponent } from '../../components/VariantComponent'
@@ -37,15 +37,17 @@ Ethereal Engine. All Rights Reserved.
  * @param entity
  */
 export function setModelVariant(entity: Entity) {
-  const variantComponent = getComponent(entity, VariantComponent)
+  const variantComponent = getMutableComponent(entity, VariantComponent)
   const modelComponent = getMutableComponent(entity, ModelComponent)
 
-  if (variantComponent.heuristic === 'DEVICE') {
+  if (variantComponent.heuristic.value === 'DEVICE') {
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //set model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
-    deviceVariant && modelComponent.src.value !== deviceVariant.src && modelComponent.src.set(deviceVariant.src)
-  } else if (variantComponent.heuristic === 'DISTANCE') {
+    deviceVariant &&
+      modelComponent.src.value !== deviceVariant.src.value &&
+      modelComponent.src.set(deviceVariant.src.value)
+  } else if (variantComponent.heuristic.value === 'DISTANCE') {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
       const level = variantComponent.levels[i]
@@ -53,8 +55,9 @@ export function setModelVariant(entity: Entity) {
       const minDistance = Math.pow(level.metadata['minDistance'], 2)
       const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
       const useLevel = minDistance <= distance && distance <= maxDistance
-      useLevel && modelComponent.src.value !== level.src && modelComponent.src.set(level.src)
+      useLevel && modelComponent.src.value !== level.src.value && modelComponent.src.set(level.src.value)
       if (useLevel) break
     }
   }
+  variantComponent.calculated.set(true)
 }

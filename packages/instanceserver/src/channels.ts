@@ -45,7 +45,6 @@ import { dispatchAction, getMutableState, getState, State } from '@etherealengin
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
-import { getProjectsList } from '@etherealengine/server-core/src/projects/project/project.service'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
@@ -53,6 +52,8 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import {
   identityProviderPath,
   IdentityProviderType
@@ -73,7 +74,7 @@ interface PrimusConnectionType {
   socketQuery?: {
     sceneId: string
     locationId?: string
-    instanceId?: string
+    instanceID?: InstanceID
     channelId?: string
     roomCode?: string
     token: string
@@ -81,7 +82,9 @@ interface PrimusConnectionType {
     transport: string
     t: string
   }
-  instanceId?: string
+  /** @deprecated - @todo refactor */
+  instanceId?: InstanceID
+  /** @deprecated - @todo refactor */
   channelId?: string
 }
 
@@ -235,7 +238,7 @@ const initializeInstance = async (
 const loadEngine = async (app: Application, sceneId: string) => {
   const instanceServerState = getState(InstanceServerState)
 
-  const hostId = instanceServerState.instance.id as UserID
+  const hostId = instanceServerState.instance.id as UserID & InstanceID
   Engine.instance.userID = hostId
   Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
@@ -254,23 +257,23 @@ const loadEngine = async (app: Application, sceneId: string) => {
     'server-' + hostId
   )
 
-  const projects = await getProjectsList()
+  const projects = await app.service(projectsPath).find()
 
   if (instanceServerState.isMediaInstance) {
-    getMutableState(NetworkState).hostIds.media.set(hostId as UserID)
+    getMutableState(NetworkState).hostIds.media.set(hostId)
     startMediaServerSystems()
-    await loadEngineInjection(projects)
+    await loadEngineInjection(projects.projectsList)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    getMutableState(NetworkState).hostIds.world.set(hostId as UserID)
+    getMutableState(NetworkState).hostIds.world.set(hostId)
 
     const [projectName, sceneName] = sceneId.split('/')
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
     startWorldServerSystems()
-    await loadEngineInjection(projects)
+    await loadEngineInjection(projects.projectsList)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {
@@ -425,7 +428,7 @@ const createOrUpdateInstance = async (
   }
 }
 
-const shutdownServer = async (app: Application, instanceId: string) => {
+const shutdownServer = async (app: Application, instanceId: InstanceID) => {
   const instanceServer = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
@@ -468,7 +471,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
-  const activeClients = getServerNetwork(app).peers
+  const activeClients = Object.entries(getServerNetwork(app).peers)
   const activeUsers = [...activeClients].filter(
     ([id, client]) => client.userId !== Engine.instance.userID && client.userId !== userToIgnore.id
   )
@@ -479,7 +482,7 @@ const handleUserDisconnect = async (
   app: Application,
   connection: PrimusConnectionType,
   user: UserType,
-  instanceId: string
+  instanceId: InstanceID
 ) => {
   const instanceServerState = getState(InstanceServerState)
 
@@ -514,7 +517,7 @@ const handleUserDisconnect = async (
 
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (network.peers.size <= 1) {
+  if (Object.keys(network.peers).length <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }
@@ -532,7 +535,7 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   })
   if (!channel) return
   const network = getServerNetwork(app)
-  const matchingPeer = Array.from(network.peers.values()).find((peer) => peer.userId === params.userId)
+  const matchingPeer = Object.values(network.peers).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
     matchingPeer.spark?.end()
     NetworkPeerFunctions.destroyPeer(network, matchingPeer.peerID)
@@ -556,6 +559,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId! as ChannelID
   let roomCode = connection.socketQuery.roomCode!
+  let instanceID = connection.socketQuery.instanceID!
 
   if (locationId === '') {
     locationId = undefined!
@@ -583,9 +587,10 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const isLocalServerNeedingNewLocation =
     !config.kubernetes.enabled &&
     instanceServerState.instance &&
-    (instanceServerState.instance.locationId != locationId ||
+    (instanceServerState.instance.id != instanceID ||
+      instanceServerState.instance.locationId != locationId ||
       instanceServerState.instance.channelId != channelId ||
-      (roomCode && instanceServerState.instance.roomCode !== roomCode))
+      (roomCode && instanceServerState.instance.roomCode != roomCode))
 
   logger.info(
     `current id: ${instanceServerState.instance?.locationId ?? instanceServerState.instance?.channelId} and new id: ${
@@ -726,12 +731,12 @@ export default (app: Application): void => {
 
     logger.info('kicking user id %s', data.userId)
 
-    const peerId = Engine.instance.worldNetwork.users.get(data.userId)
+    const peerId = Engine.instance.worldNetwork.users[data.userId]
     if (!peerId || !peerId[0]) return
 
     logger.info('kicking peerId %o', peerId)
 
-    const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
+    const peer = Engine.instance.worldNetwork.peers[peerId[0]]
     if (!peer || !peer.spark) return
 
     handleDisconnect(getServerNetwork(app), peer.peerID)

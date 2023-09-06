@@ -37,6 +37,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
+  getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
@@ -47,6 +48,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
@@ -127,13 +129,15 @@ export const MediaComponent = defineComponent({
     return {
       controls: false,
       synchronize: true,
-      paths: [] as string[],
-      paused: true,
+      autoplay: true,
       volume: 1,
       resources: [] as string[],
       playMode: PlayMode.loop as PlayMode,
       isMusic: false,
+      /**@deprecated */
+      paths: [] as string[],
       // runtime props
+      paused: true,
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
@@ -156,9 +160,8 @@ export const MediaComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       controls: component.controls.value,
-      paused: component.paused.value,
-      paths: component.paths.value,
-      resources: component.resources.value,
+      autoplay: component.autoplay.value,
+      resources: component.resources.value.filter(Boolean), // filter empty strings
       volume: component.volume.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
@@ -169,9 +172,9 @@ export const MediaComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     startTransition(() => {
-      if (typeof json.paths === 'object') {
+      if (typeof (json as any).paths === 'object') {
         // backwards-compat: update uvol paths to point to the video files
-        const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
+        const paths = (json as any).paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
         component.resources.set(paths)
       }
       if (typeof json.resources === 'object') {
@@ -214,8 +217,8 @@ export const MediaComponent = defineComponent({
         component.isMusic.set(json.isMusic)
 
       // @ts-ignore deprecated autoplay field
-      if (typeof json.autoplay === 'boolean') component.paused.set(!json.autoplay)
-      if (typeof json.paused === 'boolean') component.paused.set(json.paused)
+      if (typeof json.paused === 'boolean') component.autoplay.set(!json.paused)
+      if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
     })
   },
 
@@ -232,6 +235,35 @@ export function MediaReactor() {
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
 
   if (!isClient) return null
+
+  useEffect(() => {
+    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+    // in order to ensure media will play programmatically
+    const handleAutoplay = () => {
+      // handle when we dont have autoplay enabled but have programatically started playback
+      if (!media.autoplay.value && !media.paused.value) getComponent(entity, MediaElementComponent)?.element.play()
+      // handle when we have autoplay enabled but have paused playback
+      if (media.autoplay.value && media.paused.value) media.paused.set(false)
+      window.removeEventListener('pointerdown', handleAutoplay)
+      window.removeEventListener('keypress', handleAutoplay)
+      window.removeEventListener('touchstart', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+    }
+    window.addEventListener('pointerdown', handleAutoplay)
+    window.addEventListener('keypress', handleAutoplay)
+    window.addEventListener('touchstart', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
+
+    return () => {
+      window.removeEventListener('pointerdown', handleAutoplay)
+      window.removeEventListener('keypress', handleAutoplay)
+      window.removeEventListener('touchstart', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+    }
+  }, [])
 
   useEffect(
     function updatePlay() {
@@ -258,7 +290,7 @@ export function MediaReactor() {
 
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
-        if (assetClass !== 'audio' && assetClass !== 'video') {
+        if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
           return addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
         }
       }
@@ -266,6 +298,7 @@ export function MediaReactor() {
       const metadataListeners = [] as Array<{ tempElement: HTMLMediaElement; listener: () => void }>
 
       for (const [i, path] of paths.entries()) {
+        if (path === '') continue
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         const tempElement = document.createElement(assetClass) as HTMLMediaElement
         const listener = () => media.trackDurations[i].set(tempElement.duration)

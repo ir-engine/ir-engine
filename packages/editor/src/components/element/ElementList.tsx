@@ -53,19 +53,20 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { NO_PROXY, getState, useState } from '@etherealengine/hyperflux'
 
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
-import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
 import { IconButton, PopoverPosition } from '@mui/material'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -73,6 +74,7 @@ import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
 import { ContextMenu } from '../layout/ContextMenu'
+import { InfoTooltip } from '../layout/Tooltip'
 import styles from './styles.module.scss'
 
 export type SceneElementType = {
@@ -99,9 +101,16 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     DirectionalLightComponent,
     HemisphereLightComponent
   ],
-  FX: [ParticleSystemComponent],
+  FX: [ParticleSystemComponent, EnvmapComponent],
   Scripting: [SystemComponent, BehaveGraphComponent],
-  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
+  Misc: [
+    VariantComponent,
+    EnvMapBakeComponent,
+    ScenePreviewCameraComponent,
+    SkyboxComponent,
+    SplineTrackComponent,
+    SplineComponent
+  ]
 }
 
 export const addSceneComponentElement = (
@@ -114,6 +123,8 @@ export const addSceneComponentElement = (
 }
 
 const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {
+  const { t } = useTranslation()
+
   const onClickItem = useCallback(() => {
     onClick?.(item)
   }, [item, onClick])
@@ -127,7 +138,12 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
 
   return (
     <div onContextMenu={(event) => onContextMenu(event, item)}>
-      <Tooltip title={item.label} placement="left" disableInteractive>
+      <InfoTooltip
+        title={item.label}
+        info={t(`editor:layout.assetGrid.tooltip.${item.componentName}`)}
+        placement="left"
+        disableInteractive
+      >
         <IconButton
           className={styles.element}
           disableRipple
@@ -135,7 +151,7 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
           onClick={onClickItem}
           children={<item.Icon />}
         />
-      </Tooltip>
+      </InfoTooltip>
     </div>
   )
 }
@@ -202,7 +218,11 @@ export function ElementList() {
       <div className={styles.elementListContainer}>
         <span className={styles.searchContainer}>
           <Button onClick={() => searchBarState.set('')}>x</Button>
-          <StringInput value={searchBarState.value} onChange={searchBarState.set} placeholder={t('Search...')} />
+          <StringInput
+            value={searchBarState.value}
+            onChange={(event) => searchBarState.set(event?.target.value)}
+            placeholder={t('Search...')}
+          />
         </span>
 
         {Object.entries(validElements.get(NO_PROXY)).map(([category, items]) => (

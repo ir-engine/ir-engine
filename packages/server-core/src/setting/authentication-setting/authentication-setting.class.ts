@@ -76,10 +76,12 @@ export class AuthenticationSettingService<
           id: el.id,
           entity: el.entity,
           service: el.service,
-          authStrategies: el.authStrategies
+          authStrategies: el.authStrategies,
+          createdAt: el.createdAt,
+          updatedAt: el.updatedAt
         }
 
-      const returned = {
+      return {
         ...el,
         authStrategies: el.authStrategies,
         jwtOptions: el.jwtOptions,
@@ -89,7 +91,6 @@ export class AuthenticationSettingService<
           ...el.oauth
         }
       }
-      return returned
     })
     return {
       total: auth.total,

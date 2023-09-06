@@ -257,7 +257,8 @@
       },
       "userIdCopied": "User ID copied",
       "apiKeyCopied": "API Key copied",
-      "refreshApiKey": "Refresh API Key"
+      "refreshApiKey": "Refresh API Key",
+      "privacyPolicy": "Privacy Policy"
     },
     "oauth": {
       "authenticating": "Authenticating...",
@@ -358,23 +359,25 @@
     "avatarName": "Avatar Name"
   },
   "menu": {
-    "settings": "Settings",
-    "sendLocation": "Send Location",
+    "settings": "Profile",
+    "sendLocation": "Share",
     "emote": "Emote",
     "friends": "Friends",
-    "toggleMute": "Toggle Mute",
-    "toggleVideo": "Toggle Video",
+    "toggleMute": "Microphone",
+    "toggleVideo": "Camera",
     "cycleCamera": "Cycle Camera",
-    "poseTracking": "Pose Tracking",
-    "shareScreen": "Share Screen",
-    "enterVR": "Enter VR",
-    "enterAR": "Enter AR",
+    "poseTracking": "Motion Capture",
+    "shareScreen": "Screenshare",
+    "enterVR": "VR",
+    "enterAR": "AR",
     "exitSpectate": "Exit Spectate",
     "startRecording": "Start Recording",
     "stopRecording": "Stop Recording",
     "toggleChat": "Toggle Chat",
     "enterFullScreen": "Enter FullScreen",
-    "exitFullScreen": "Exit FullScreen"
+    "exitFullScreen": "Exit FullScreen",
+    "hide": "Hide",
+    "show": "Show"
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",

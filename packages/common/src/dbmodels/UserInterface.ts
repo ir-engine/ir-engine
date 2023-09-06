@@ -147,3 +147,15 @@ export interface ScopeInterface {
 export interface ScopeTypeInterface {
   type: string
 }
+
+export interface BotCommandInterface {
+  id: string
+  name: string
+  description?: string
+}
+
+export interface MessageInterface {
+  id: string
+  text: string
+  isNotification: boolean
+}

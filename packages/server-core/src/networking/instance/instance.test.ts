@@ -31,6 +31,7 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -113,13 +114,16 @@ describe('instance.test', () => {
   })
 
   it('should find active instances', async () => {
-    const activeInstances = await app
-      .service('instances-active')
-      .find({ query: { sceneId: testLocation.sceneId }, ...params })
+    const activeInstances = await app.service(instanceActivePath).find({
+      query: {
+        sceneId: testLocation.sceneId
+      },
+      ...params
+    })
 
     assert.equal(activeInstances.length, 1)
     assert.equal(activeInstances[0].id, testInstance.id)
     assert.equal(activeInstances[0].currentUsers, 0)
-    assert.equal(activeInstances[0].location, testLocation.id)
+    assert.equal(activeInstances[0].locationId, testLocation.id)
   })
 })

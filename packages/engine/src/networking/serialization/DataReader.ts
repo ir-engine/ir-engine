@@ -35,7 +35,7 @@ import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
-import { Network } from '../classes/Network'
+import { JitterBufferEntry, Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
@@ -216,7 +216,7 @@ export const readEntity = (
   const ownerIndex = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  const ownerId = network.userIndexToUserID.get(ownerIndex)!
+  const ownerId = network.userIndexToUserID[ownerIndex]!
 
   let entity = NetworkObjectComponent.getNetworkObject(ownerId, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
@@ -246,14 +246,14 @@ export const readMetadata = (v: ViewCursor) => {
   return { userIndex, peerIndex, simulationTime }
 }
 
-export const readDataPacket = (network: Network, packet: ArrayBuffer) => {
+export const readDataPacket = (network: Network, packet: ArrayBuffer, jitterBufferTaskList: JitterBufferEntry[]) => {
   const view = createViewCursor(packet)
   const { userIndex, peerIndex, simulationTime } = readMetadata(view)
-  const fromUserID = network.userIndexToUserID.get(userIndex)
-  const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
+  const fromUserID = network.userIndexToUserID[userIndex]
+  const fromPeerID = network.peerIndexToPeerID[peerIndex]
   const isLoopback = !!fromPeerID && fromPeerID === Engine.instance.peerID
   if (!fromUserID || isLoopback) return
-  network.jitterBufferTaskList.push({
+  jitterBufferTaskList.push({
     simulationTime,
     read: () => {
       readEntities(view, network, packet.byteLength, fromUserID)

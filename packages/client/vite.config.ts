@@ -157,14 +157,14 @@ function mediapipe_workaround() {
     name: 'mediapipe_workaround',
     load(id) {
       const MEDIAPIPE_EXPORT_NAMES = {
-        'holistic.js': [
-          'FACEMESH_TESSELATION',
-          'HAND_CONNECTIONS',
-          'Holistic',
-          'POSE_CONNECTIONS',
-          'POSE_LANDMARKS',
-          'Holistic',
-          'VERSION'
+        'tasks-vision': [
+          'Classifications',
+          'DrawingUtils',
+          'FaceLandmarker',
+          'FilesetResolver',
+          'HandLandmarker',
+          'NormalizedLandmark',
+          'PoseLandmarker'
         ],
         'camera_utils.js': ['Camera'],
         'drawing_utils.js': ['drawConnectors', 'drawLandmarks', 'lerp'],

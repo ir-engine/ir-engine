@@ -27,7 +27,7 @@ import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
@@ -47,15 +47,17 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { XRState, getCameraMode, hasMovementControls } from '../../xr/XRState'
+import { animationStates, defaultAnimationPath } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AutopilotMarker, clearWalkPoint, scaleFluctuate } from './autopilotFunctions'
 
 const avatarGroundRaycastDistanceIncrease = 0.5
 const avatarGroundRaycastDistanceOffset = 1
-const avatarGroundRaycastAcceptableDistance = 1.2
+const avatarGroundRaycastAcceptableDistance = 1.05
 
 /**
  * raycast internals
@@ -75,6 +77,7 @@ const desiredMovement = new Vector3()
 const viewerMovement = new Vector3()
 const finalAvatarMovement = new Vector3()
 const avatarHeadPosition = new Vector3()
+let beganFalling = false
 
 export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const entity = Engine.instance.localClientEntity
@@ -95,12 +98,13 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     const viewerPose = xrState.viewerPose
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
-      .set(0, avatarHeight * 0.95, 0.15)
+      .set(0, avatarHeight * 0.925, 0.25)
       .applyQuaternion(rigidbody.targetKinematicRotation)
       .add(rigidbody.targetKinematicPosition)
     viewerPose &&
       viewerMovement
         .copy(viewerPose.transform.position as any)
+        .multiplyScalar(1 / xrState.sceneScale)
         .applyMatrix4(originTransform.matrix)
         .sub(avatarHeadPosition)
     // vertical viewer movement should only apply updward movement to the rigidbody,
@@ -145,10 +149,35 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   if (groundHits.length) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
-    // controller.isInAir = !grounded
     controller.isInAir = hit.distance > 1 + controllerOffset * 10
+
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
+    if (controller.isInAir && !beganFalling) {
+      dispatchAction(
+        AvatarNetworkAction.setAnimationState({
+          filePath: defaultAnimationPath + animationStates.locomotion + '.glb',
+          clipName: 'Fall',
+          loop: true,
+          layer: 1,
+          entityUUID: getComponent(entity, UUIDComponent)
+        })
+      )
+      beganFalling = true
+    }
     if (hit.distance <= avatarGroundRaycastAcceptableDistance) {
+      if (beganFalling) {
+        dispatchAction(
+          AvatarNetworkAction.setAnimationState({
+            filePath: defaultAnimationPath + animationStates.locomotion + '.glb',
+            clipName: 'Fall',
+            loop: true,
+            layer: 1,
+            needsSkip: true,
+            entityUUID: getComponent(entity, UUIDComponent)
+          })
+        )
+      }
+      beganFalling = false
       if (attached) originTransform.position.y = hit.position.y
       /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
     }
@@ -251,6 +280,8 @@ export const applyGamepadInput = (entity: Entity) => {
     controller.gamepadWorldMovement.z
   )
 
+  controller.speedVelocity = controller.gamepadWorldMovement.lengthSq()
+
   updateLocalAvatarPosition(_additionalMovement)
 }
 
@@ -326,9 +357,10 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     originTransform.matrix.multiplyMatrices(desiredAvatarMatrix, originRelativeToAvatarMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
     originTransform.matrixInverse.copy(originTransform.matrix).invert()
-
     updateWorldOrigin()
   }
+
+  rotationNeedsUpdate = true
 }
 
 export const updateLocalAvatarPositionAttachedMode = () => {
@@ -348,30 +380,36 @@ export const updateLocalAvatarPositionAttachedMode = () => {
 const viewerQuat = new Quaternion()
 const avatarRotationAroundY = new Euler()
 const avatarRotation = new Quaternion()
+let rotationNeedsUpdate = false
 
 const _updateLocalAvatarRotationAttachedMode = () => {
   const entity = Engine.instance.localClientEntity
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
   const viewerPose = getState(XRState).viewerPose
+  const transform = getComponent(entity, TransformComponent)
 
   if (!viewerPose) return
 
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   const viewerOrientation = viewerPose.transform.orientation
+
+  //if angle between rigidbody forward and viewer forward is greater than 15 degrees, rotate rigidbody to viewer forward
   viewerQuat
     .set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
     .premultiply(originTransform.rotation)
-  // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
-  avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
-  avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
+  const viewerForward = new Vector3(0, 0, 1).applyQuaternion(viewerQuat as any).setY(0)
+  const rigidbodyForward = new Vector3(0, 0, -1).applyQuaternion(rigidbody.targetKinematicRotation).setY(0)
+  const angle = viewerForward.angleTo(rigidbodyForward)
 
+  if (angle > Math.PI * 0.25 || rotationNeedsUpdate == true) {
+    // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
+    avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
+    avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
+    rotationNeedsUpdate = false
+  }
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
-  rigidbody.targetKinematicRotation.copy(avatarRotation)
-  rigidbody.previousRotation.copy(avatarRotation)
-  rigidbody.rotation.copy(avatarRotation)
-  transform.rotation.copy(avatarRotation)
+  transform.rotation.slerp(avatarRotation, 5 * getState(EngineState).deltaSeconds)
 }
 
 export const updateLocalAvatarRotation = () => {

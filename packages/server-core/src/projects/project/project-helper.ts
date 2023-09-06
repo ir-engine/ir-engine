@@ -25,6 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import {
+  ProjectInterface,
+  ProjectPackageJsonType,
+  ProjectUpdateType
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { getState } from '@etherealengine/hyperflux'
+import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
@@ -35,20 +43,18 @@ import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
 import { promisify } from 'util'
 
-import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
-import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
-import { ProjectInterface, ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import { getState } from '@etherealengine/hyperflux'
-import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
-
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
+import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
+import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
-import { ServerState } from '../../ServerState'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
 import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
@@ -349,18 +355,23 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       projectVersion: content.version,
       engineVersion: content.etherealEngine?.version,
       commitSHA: commit.data.sha,
+      error: '',
+      text: '',
       datetime: commit.data.commit.committer.date,
       matchesEngineVersion: content.etherealEngine?.version
         ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
         : false
-    }
+    } as ProjectCheckUnfetchedCommitType
   } catch (err) {
     logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
     return Promise.reject(err)
   }
 }
 
-export const checkProjectDestinationMatch = async (app: Application, params: ProjectParams) => {
+export const checkProjectDestinationMatch = async (
+  app: Application,
+  params: ProjectParams
+): Promise<ProjectCheckSourceDestinationMatchType> => {
   const { sourceURL, selectedSHA, destinationURL, existingProject } = params.query!
   const {
     owner: destinationOwner,
@@ -495,7 +506,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
   const octokitResponse = await getOctokitForChecking(app, url, params!)
   const { owner, repo, octoKit, token } = octokitResponse
 
-  const returned = {} as any
+  const returned = {} as ProjectDestinationCheckType
   if (!owner || !repo)
     return {
       error: 'invalidUrl',
@@ -572,7 +583,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
         const existingProjectName = JSON.parse(
           Buffer.from(existingProjectPackage.data.content, 'base64').toString()
         ).name
-        if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName.toLowerCase()) {
+        if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName?.toLowerCase()) {
           returned.error = 'mismatchedProjects'
           returned.text = `The new destination repo contains project '${returned.projectName}', which is different than the current project '${existingProjectName}'`
         }
@@ -655,7 +666,7 @@ export const getProjectCommits = async (
   app: Application,
   url: string,
   params?: ProjectParams
-): Promise<ProjectCommitInterface[] | { error: string; text: string }> => {
+): Promise<ProjectCommitType[] | { error: string; text: string }> => {
   try {
     const octokitResponse = await getOctokitForChecking(app, url, params!)
     const { owner, repo, octoKit } = octokitResponse
@@ -714,7 +725,7 @@ export const getProjectCommits = async (
             }
           })
       )
-    )) as ProjectCommitInterface[]
+    )) as ProjectCommitType[]
     return mappedCommits.filter((commit) => !commit.discard)
   } catch (err) {
     logger.error('error getting repo commits %o', err)
@@ -732,7 +743,7 @@ export const getProjectCommits = async (
   }
 }
 
-export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
+export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> => {
   const builderRepo = (process.env.BUILDER_REPOSITORY as string) || ''
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
@@ -870,12 +881,187 @@ export const getLatestProjectTaggedCommitInBranch = async (
   return latestTaggedCommitInBranch
 }
 
+export async function getProjectUpdateJobBody(
+  data: {
+    sourceURL: string
+    destinationURL: string
+    name: string
+    needsRebuild?: boolean
+    reset?: boolean
+    commitSHA?: string
+    sourceBranch: string
+    updateType: ProjectUpdateType
+    updateSchedule: string
+  },
+  app: Application,
+  userId: string
+): Promise<k8s.V1Job> {
+  const apiPods = await getPodsData(
+    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
+    'api',
+    'Api',
+    app
+  )
+
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+
+  const command = [
+    'npx',
+    'cross-env',
+    'ts-node',
+    '--swc',
+    'scripts/update-project.ts',
+    `--userId`,
+    userId,
+    '--sourceURL',
+    data.sourceURL,
+    '--destinationURL',
+    data.destinationURL,
+    '--name',
+    data.name,
+    '--sourceBranch',
+    data.sourceBranch,
+    '--updateType',
+    data.updateType,
+    '--updateSchedule',
+    data.updateSchedule
+  ]
+  if (data.commitSHA) {
+    command.push('--commitSHA')
+    command.push(data.commitSHA)
+  }
+  if (data.needsRebuild) {
+    command.push('--needsRebuild')
+    command.push(data.needsRebuild.toString())
+  }
+  if (data.reset) {
+    command.push('--reset')
+    command.push(data.reset.toString())
+  }
+  return {
+    metadata: {
+      name: `${process.env.RELEASE_NAME}-${data.name}-update`,
+      labels: {
+        'etherealengine/projectUpdater': 'true',
+        'etherealengine/autoUpdate': 'false',
+        'etherealengine/projectField': data.name,
+        'etherealengine/release': process.env.RELEASE_NAME!
+      }
+    },
+    spec: {
+      template: {
+        metadata: {
+          labels: {
+            'etherealengine/projectUpdater': 'true',
+            'etherealengine/autoUpdate': 'false',
+            'etherealengine/projectField': data.name,
+            'etherealengine/release': process.env.RELEASE_NAME!
+          }
+        },
+        spec: {
+          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
+          containers: [
+            {
+              name: `${process.env.RELEASE_NAME}-${data.name}-update`,
+              image,
+              imagePullPolicy: 'IfNotPresent',
+              command,
+              env: Object.entries(process.env).map(([key, value]) => {
+                return { name: key, value: value }
+              })
+            }
+          ],
+          restartPolicy: 'Never'
+        }
+      }
+    }
+  }
+}
+export async function getProjectPushJobBody(
+  app: Application,
+  project: ProjectInterface,
+  user: UserType,
+  reset = false,
+  commitSHA?: string,
+  storageProviderName?: string
+): Promise<k8s.V1Job> {
+  const apiPods = await getPodsData(
+    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
+    'api',
+    'Api',
+    app
+  )
+
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+
+  const command = [
+    'npx',
+    'cross-env',
+    'ts-node',
+    '--swc',
+    'scripts/push-project.ts',
+    `--userId`,
+    user.id,
+    '--projectId',
+    project.id
+  ]
+  if (commitSHA) {
+    command.push('--commitSHA')
+    command.push(commitSHA)
+  }
+  if (reset) {
+    command.push('--reset')
+    command.push(reset.toString())
+  }
+  if (storageProviderName) {
+    command.push('--storageProviderName')
+    command.push(storageProviderName)
+  }
+  return {
+    metadata: {
+      name: `${process.env.RELEASE_NAME}-${project.name}-gh-push`,
+      labels: {
+        'etherealengine/projectPusher': 'true',
+        'etherealengine/projectField': project.name,
+        'etherealengine/release': process.env.RELEASE_NAME!
+      }
+    },
+    spec: {
+      template: {
+        metadata: {
+          labels: {
+            'etherealengine/projectPusher': 'true',
+            'etherealengine/projectField': project.name,
+            'etherealengine/release': process.env.RELEASE_NAME!
+          }
+        },
+        spec: {
+          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
+          containers: [
+            {
+              name: `${process.env.RELEASE_NAME}-${project.name}-push`,
+              image,
+              imagePullPolicy: 'IfNotPresent',
+              command,
+              env: Object.entries(process.env).map(([key, value]) => {
+                return { name: key, value: value }
+              })
+            }
+          ],
+          restartPolicy: 'Never'
+        }
+      }
+    }
+  }
+}
+
 export const getCronJobBody = (project: ProjectInterface, image: string): object => {
   return {
     metadata: {
       name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
       labels: {
         'etherealengine/projectUpdater': 'true',
+        'etherealengine/autoUpdate': 'true',
         'etherealengine/projectField': project.name,
         'etherealengine/projectId': project.id,
         'etherealengine/release': process.env.RELEASE_NAME
@@ -892,6 +1078,7 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
             metadata: {
               labels: {
                 'etherealengine/projectUpdater': 'true',
+                'etherealengine/autoUpdate': 'true',
                 'etherealengine/projectField': project.name,
                 'etherealengine/projectId': project.id,
                 'etherealengine/release': process.env.RELEASE_NAME
@@ -909,9 +1096,9 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
                     'cross-env',
                     'ts-node',
                     '--swc',
-                    'scripts/update-project.ts',
+                    'scripts/auto-update-project.ts',
                     '--projectName',
-                    `${project.name}`
+                    project.name
                   ],
                   env: Object.entries(process.env).map(([key, value]) => {
                     return { name: key, value: value }
@@ -921,6 +1108,64 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
               restartPolicy: 'OnFailure'
             }
           }
+        }
+      }
+    }
+  }
+}
+
+export async function getDirectoryArchiveJobBody(
+  app: Application,
+  directory: string,
+  projectName: string,
+  storageProviderName?: string
+): Promise<object> {
+  const apiPods = await getPodsData(
+    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
+    'api',
+    'Api',
+    app
+  )
+
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+
+  const command = ['npx', 'cross-env', 'ts-node', '--swc', 'scripts/archive-directory.ts', `--directory`, directory]
+  if (storageProviderName) {
+    command.push('--storageProviderName')
+    command.push(storageProviderName)
+  }
+  return {
+    metadata: {
+      name: `${process.env.RELEASE_NAME}-${projectName}-archive`,
+      labels: {
+        'etherealengine/directoryArchiver': 'true',
+        'etherealengine/directoryField': projectName,
+        'etherealengine/release': process.env.RELEASE_NAME
+      }
+    },
+    spec: {
+      template: {
+        metadata: {
+          labels: {
+            'etherealengine/directoryArchiver': 'true',
+            'etherealengine/directoryField': projectName,
+            'etherealengine/release': process.env.RELEASE_NAME
+          }
+        },
+        spec: {
+          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
+          containers: [
+            {
+              name: `${process.env.RELEASE_NAME}-${projectName}-archive`,
+              image,
+              imagePullPolicy: 'IfNotPresent',
+              command,
+              env: Object.entries(process.env).map(([key, value]) => {
+                return { name: key, value: value }
+              })
+            }
+          ],
+          restartPolicy: 'Never'
         }
       }
     }
@@ -1017,4 +1262,48 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
       null,
       { user: user }
     )
+}
+
+export const createExecutorJob = async (
+  app: Application,
+  jobBody: k8s.V1Job,
+  jobLabelSelector: string,
+  timeout: number
+) => {
+  const k8BatchClient = getState(ServerState).k8BatchClient
+
+  const name = jobBody.metadata!.name!
+  try {
+    await k8BatchClient.deleteNamespacedJob(name, 'default', undefined, undefined, 0, undefined, 'Background')
+  } catch (err) {
+    console.log('Old job did not exist, continuing...')
+  }
+  await k8BatchClient.createNamespacedJob('default', jobBody)
+  let counter = 0
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(async () => {
+      counter++
+
+      const updateJob = await k8BatchClient.listNamespacedJob(
+        'default',
+        undefined,
+        false,
+        undefined,
+        undefined,
+        jobLabelSelector
+      )
+
+      if (updateJob && updateJob.body.items.length > 0) {
+        const succeeded = updateJob.body.items.filter((item) => item.status && item.status.succeeded === 1)
+        const failed = updateJob.body.items.filter((item) => item.status && item.status.failed === 1)
+        if (succeeded.length > 0 || failed.length > 0) clearInterval(interval)
+        if (succeeded.length > 0) resolve(null)
+        if (failed.length > 0) reject()
+      }
+      if (counter >= timeout) {
+        clearInterval(interval)
+        reject('Job timed out; try again later or check error logs of job')
+      }
+    }, 1000)
+  })
 }

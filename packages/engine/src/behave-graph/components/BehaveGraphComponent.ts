@@ -25,21 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import matches, { Validator } from 'ts-matches'
 
-import { GraphJSON, IRegistry } from '@behave-graph/core'
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { GraphJSON } from '@behave-graph/core'
 
-import { getState } from '@etherealengine/hyperflux'
-import { useEffect, useState } from 'react'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useGraphRunner } from '../functions/useGraphRunner'
-import { useRegistry } from '../functions/useRegistry'
 import DefaultGraph from '../graph/default-graph.json'
 import { BehaveGraphState } from '../state/BehaveGraphState'
 
-export type GraphDomainID = OpaqueType<'GraphDomainID'> & string
+export enum BehaveGraphDomain {
+  'ECS' = 'ECS'
+}
 
 export const BehaveGraphComponent = defineComponent({
   name: 'EE_behaveGraph',
@@ -47,12 +46,8 @@ export const BehaveGraphComponent = defineComponent({
   jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
-    const domain = 'ECS' as GraphDomainID
+    const domain = BehaveGraphDomain.ECS
     const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
-    const registry = useRegistry()
-    const systemState = getState(BehaveGraphState)
-    systemState.domains[domain]?.register(registry)
-    systemState.registry = registry
     return {
       domain: domain,
       graph: graph,
@@ -65,7 +60,7 @@ export const BehaveGraphComponent = defineComponent({
     return {
       domain: component.domain.value,
       graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))),
-      run: component.run.value,
+      run: false,
       disabled: component.disabled.value
     }
   },
@@ -74,7 +69,7 @@ export const BehaveGraphComponent = defineComponent({
     if (!json) return
     if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
     if (typeof json.run === 'boolean') component.run.set(json.run)
-    const domainValidator = matches.string as Validator<unknown, GraphDomainID>
+    const domainValidator = matches.string as Validator<unknown, BehaveGraphDomain>
     if (domainValidator.test(json.domain)) {
       component.domain.value !== json.domain && component.domain.set(json.domain!)
     }
@@ -87,22 +82,23 @@ export const BehaveGraphComponent = defineComponent({
   // we make reactor for each component handle the engine
   reactor: () => {
     const entity = useEntityContext()
-    const graphComponent = useComponent(entity, BehaveGraphComponent)
-    const [graphJson, setGraphJson] = useState<GraphJSON>(graphComponent.graph.value)
-    const [registry, setRegistry] = useState<IRegistry>(getState(BehaveGraphState).registry)
-    const canPlay = graphComponent.run && !graphComponent.disabled
-    const engineState = getState(EngineState)
+    const graph = useComponent(entity, BehaveGraphComponent)
+    const behaveGraph = useHookstate(getMutableState(BehaveGraphState))
+
+    const canPlay = graph.run && !graph.disabled
+    const registry = behaveGraph.registries[graph.domain.value].get({ noproxy: true })
+    const graphRunner = useGraphRunner({ graphJson: graph.graph.get({ noproxy: true }), autoRun: canPlay, registry })
+
     useEffect(() => {
-      if (graphComponent.disabled.value) {
-        graphRunner.pause()
-        if (graphComponent.run.value) graphComponent.run.set(false)
-      } else {
-        if (!engineState.isEditor) {
-          graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
-        }
-      }
-    }, [graphComponent.run, graphComponent.disabled])
-    const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })
+      if (graph.disabled.value) return
+      graph.run.value ? graphRunner.play() : graphRunner.pause()
+    }, [graph.run])
+
+    useEffect(() => {
+      if (!graph.disabled.value) return
+      graph.run.set(false)
+    }, [graph.disabled])
+
     return null
   }
 })

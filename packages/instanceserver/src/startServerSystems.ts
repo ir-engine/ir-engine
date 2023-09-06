@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { AvatarSimulationSystemGroup } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
 import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
-  InputSystemGroup,
+  AnimationSystemGroup,
   PresentationSystemGroup,
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
@@ -40,26 +40,14 @@ import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 
-import { DataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/DataProducerConsumerState'
-import { MediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
-import { NetworkTransportStateSystem } from '@etherealengine/engine/src/networking/systems/NetworkTransportState'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 import { ServerRecordingSystem } from './ServerRecordingSystem'
 
 export const startMediaServerSystems = () => {
   /** Fixed */
-  startSystems(
-    [
-      EntityNetworkStateSystem,
-      NetworkTransportStateSystem,
-      MediaProducerConsumerStateSystem,
-      DataProducerConsumerStateSystem,
-      ServerHostNetworkSystem
-    ],
-    {
-      with: SimulationSystemGroup
-    }
-  )
+  startSystems([EntityNetworkStateSystem, ServerHostNetworkSystem], {
+    with: SimulationSystemGroup
+  })
 
   /** Post Render */
   startSystems([ServerRecordingSystem], {
@@ -68,17 +56,11 @@ export const startMediaServerSystems = () => {
 }
 
 export const startWorldServerSystems = () => {
-  /** Input */
-  startSystems([MotionCaptureSystem], { with: InputSystemGroup })
-
   /** Fixed */
   startSystems(
     [
       IncomingNetworkSystem,
       EntityNetworkStateSystem,
-      NetworkTransportStateSystem,
-      MediaProducerConsumerStateSystem,
-      DataProducerConsumerStateSystem,
       ServerHostNetworkSystem,
       GrabbableSystem,
       AvatarSimulationSystemGroup
@@ -87,6 +69,8 @@ export const startWorldServerSystems = () => {
       with: SimulationSystemGroup
     }
   )
+
+  startSystems([MotionCaptureSystem], { with: AnimationSystemGroup })
 
   startSystems([PhysicsSystem, OutgoingNetworkSystem], {
     after: SimulationSystemGroup
