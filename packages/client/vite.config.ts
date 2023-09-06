@@ -166,15 +166,6 @@ function mediapipe_workaround() {
           'NormalizedLandmark',
           'PoseLandmarker'
         ],
-        'holistic.js': [
-          'FACEMESH_TESSELATION',
-          'HAND_CONNECTIONS',
-          'Holistic',
-          'POSE_CONNECTIONS',
-          'POSE_LANDMARKS',
-          'Holistic',
-          'VERSION'
-        ],
         'camera_utils.js': ['Camera'],
         'drawing_utils.js': ['drawConnectors', 'drawLandmarks', 'lerp'],
         'control_utils.js': [
