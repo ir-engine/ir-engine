@@ -36,7 +36,8 @@ export const InputComponent = defineComponent({
   onInit: () => {
     return {
       /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[]
+      inputSources: [] as Entity[],
+      highlight: true
       // priority: 0
     }
   },
@@ -52,7 +53,7 @@ export const InputComponent = defineComponent({
     const input = useComponent(entity, InputComponent)
 
     useLayoutEffect(() => {
-      if (input.inputSources.length === 0) return
+      if (!input.inputSources.length || !input.highlight.value) return
       setComponent(entity, HighlightComponent)
       return () => {
         removeComponent(entity, HighlightComponent)

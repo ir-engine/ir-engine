@@ -60,7 +60,7 @@ import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import Toolbar from '../../components/tailwind/mocap/Toolbar'
 
 // import { VideoPlayer } from '@videojs-player/react'
-import 'video.js/dist/video-js.css'
+// import 'video.js/dist/video-js.css'
 
 /**
  * Start playback of a recording
