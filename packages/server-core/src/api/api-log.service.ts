@@ -64,7 +64,7 @@ export default (app: Application): void => {
   )
 
   /** @todo - use feathers instead of fetch */
-  // const service = app.service('/api/log')
+  const service = app.service('/api/log')
   // service.hooks({
   // before: {
   //   all: [authenticate()]
