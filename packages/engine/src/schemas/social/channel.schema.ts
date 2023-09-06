@@ -82,24 +82,9 @@ export const channelSchema = Type.Object(
 export type ChannelType = Static<typeof channelSchema>
 
 // Schema for creating new entries
-export const channelDataProperties = Type.Partial(channelSchema)
-
-export const channelDataSchema = Type.Intersect(
-  [
-    channelDataProperties,
-    Type.Object({
-      instanceId: Type.Optional(
-        TypedString<InstanceID>({
-          format: 'uuid'
-        })
-      )
-    })
-  ],
-  {
-    $id: 'ChannelData',
-    additionalProperties: false
-  }
-)
+export const channelDataSchema = Type.Partial(channelSchema, {
+  $id: 'ChannelData'
+})
 export type ChannelData = Static<typeof channelDataSchema>
 
 // Schema for updating existing entries
