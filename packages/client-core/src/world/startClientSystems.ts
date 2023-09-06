@@ -67,12 +67,9 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const startClientSystems = () => {
   /** Input */
-  startSystems(
-    [XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem],
-    {
-      with: InputSystemGroup
-    }
-  )
+  startSystems([XRSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem], {
+    with: InputSystemGroup
+  })
 
   /** Fixed */
   startSystems([IncomingNetworkSystem, EntityNetworkStateSystem, GrabbableSystem, AvatarSimulationSystemGroup], {
@@ -84,7 +81,14 @@ export const startClientSystems = () => {
 
   /** Avatar / Animation */
   startSystems(
-    [ReferenceSpaceTransformSystem, XRAnchorSystem, AnimationSystem, CameraSystem, AvatarAnimationSystemGroup],
+    [
+      ReferenceSpaceTransformSystem,
+      XRAnchorSystem,
+      AnimationSystem,
+      MotionCaptureSystem,
+      CameraSystem,
+      AvatarAnimationSystemGroup
+    ],
     {
       with: AnimationSystemGroup
     }

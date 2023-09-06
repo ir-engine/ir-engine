@@ -29,7 +29,6 @@ import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'thr
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { V_010 } from '../../common/constants/MathConstants'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
@@ -39,7 +38,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { timeSeriesMocapData } from '../../mocap/MotionCaptureSystem'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -127,17 +125,19 @@ export const worldSpaceTargets = {
   rightFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   leftFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   head: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  hips: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
 
   rightElbowHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   leftElbowHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   rightKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
   leftKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  headHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform
+  headHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
+  hipsHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform
 }
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
-  const { debugEnable } = getMutableState(RendererState)
+  const { physicsDebug: debugEnable } = getMutableState(RendererState)
   if (!debugEnable.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
@@ -204,7 +204,7 @@ let footRaycastTimer = 0
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
-  const { debugEnable } = getState(RendererState)
+  const { avatarDebug } = getState(RendererState)
 
   /**
    * 1 - Sort & apply avatar priority queue
@@ -255,27 +255,13 @@ const execute = () => {
 
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
-    const animationComponent = getComponent(entity, AnimationComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     const deltaTime = elapsedSeconds - avatarAnimationComponent.deltaAccumulator
     avatarAnimationComponent.deltaAccumulator = elapsedSeconds
     const rig = rigComponent.rig
 
-    // temp for mocap
-    const networkObject = getComponent(entity, NetworkObjectComponent)
-    const network = Engine.instance.worldNetwork
-    if (network) {
-      const isPeerForEntity = Array.from(timeSeriesMocapData.keys()).find(
-        (peerID: PeerID) => network.peers[peerID]?.userId === networkObject.ownerId
-      )
-      if (isPeerForEntity && ikEntities.length == 0) {
-        // just animate and exit
-        animationComponent.mixer.stopAllAction()
-        rigComponent.vrm.update(deltaTime)
-        continue
-      }
-    }
+    if (!rig?.hips?.node) continue
 
     const rigidbodyComponent = getOptionalComponent(entity, RigidBodyComponent)
     if (rigidbodyComponent) {
@@ -294,6 +280,7 @@ const execute = () => {
 
     /**
      * Apply procedural IK based animations or FK animations depending on the animation state
+     * First reset targets
      */
 
     for (const [key, ikBone] of Object.entries(rigComponent.rig)) {
@@ -310,7 +297,6 @@ const execute = () => {
     }
 
     if (rigComponent.ikOverride != '') {
-      if (!rig.hips?.node) continue
       hipsForward.set(0, 0, 1)
 
       //calculate world positions
@@ -362,7 +348,7 @@ const execute = () => {
         worldSpaceTargets[ikTargetName].blendWeight = ikComponent.blendWeight
       }
 
-      if (debugEnable) {
+      if (avatarDebug) {
         let i = 0
         for (const [key] of Object.entries(worldSpaceTargets)) {
           //if xr is active, set select targets to xr tracking data
@@ -492,10 +478,10 @@ const execute = () => {
 
   /** Run debug */
   for (const entity of Engine.instance.priorityAvatarEntities) {
-    const avatarRig = getComponent(entity, AvatarRigComponent)
-    if (avatarRig?.helper) {
-      avatarRig.rig.hips.node.updateWorldMatrix(true, true)
-      avatarRig.helper?.updateMatrixWorld(true)
+    const rigComponent = getComponent(entity, AvatarRigComponent)
+    if (rigComponent?.helper) {
+      rigComponent.rig.hips.node.updateWorldMatrix(true, true)
+      rigComponent.helper?.updateMatrixWorld(true)
     }
   }
 }
@@ -504,7 +490,7 @@ const reactor = () => {
   const renderState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
     setVisualizers()
-  }, [renderState.debugEnable])
+  }, [renderState.physicsDebug])
   return null
 }
 
