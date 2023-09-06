@@ -66,15 +66,6 @@ export function SaveNewSceneDialog({
   const [name, setName] = useState(initialName)
   const { t } = useTranslation()
 
-  console.log('debug1 rendered savenewscene ', initialName)
-
-  const onChangeName = useCallback(
-    (value) => {
-      setName(value)
-    },
-    [setName]
-  )
-
   const onConfirmCallback = useCallback(
     (e) => {
       e.preventDefault()
@@ -111,7 +102,7 @@ export function SaveNewSceneDialog({
               pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}
               title={t('editor:dialog.saveNewScene.info-name')}
               value={name}
-              onChange={onChangeName}
+              onChange={(e) => setName(e.target.value)}
             />
           </FormField>
         </div>
