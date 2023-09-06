@@ -39,6 +39,7 @@ import * as CustomNodes from './Values/CustomNodes'
 import * as EntityNodes from './Values/EntityNodes'
 import { EntityValue } from './Values/EntityValue'
 import * as SplineNodes from './Values/SplineNodes'
+import { getActionDispatchers } from './helper/actionHelper'
 import { getComponentGetters, getComponentSetters } from './helper/componentHelper'
 import { getStateGetters, getStateSetters } from './helper/stateHelper'
 
@@ -83,7 +84,8 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getComponentSetters(),
     ...getComponentGetters(),
     ...getStateSetters(),
-    ...getStateGetters()
+    ...getStateGetters(),
+    ...getActionDispatchers()
   ]
   return Object.fromEntries(nodeDefinitions.map((nodeDefinition) => [nodeDefinition.typeName, nodeDefinition]))
 })
