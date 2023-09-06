@@ -66,7 +66,8 @@ export default (app: Application): void => {
       const channelUsers = (await app.service(channelUserPath).find({
         query: {
           channelId: data.channelId
-        }
+        },
+        paginate: false
       })) as ChannelUserType[]
       const userIds = channelUsers.map((channelUser) => {
         return channelUser.userId
