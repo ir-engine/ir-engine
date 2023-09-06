@@ -36,6 +36,7 @@ import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
+import { copyDefaultProject, uploadLocalProjectToProvider } from '../project/project.class'
 
 const defaultProjectName = 'default-project'
 const defaultSceneName = 'default'
@@ -55,7 +56,8 @@ describe('scene.test', () => {
     deleteFolderRecursive(projectDir)
     app = createFeathersKoaApp()
     await app.setup()
-    const storageProvider = getStorageProvider()
+    copyDefaultProject()
+    await uploadLocalProjectToProvider(app, defaultProjectName)
     parsedData = Object.assign({}, parseStorageProviderURLs(_.cloneDeep(defaultSceneSeed)))
   })
   after(() => {
