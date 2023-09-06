@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
@@ -48,7 +48,7 @@ import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/en
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
@@ -59,8 +59,20 @@ import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediap
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import Toolbar from '../../components/tailwind/mocap/Toolbar'
 
-// import { VideoPlayer } from '@videojs-player/react'
-// import 'video.js/dist/video-js.css'
+import 'vidstack/styles/community-skin/video.css'
+import 'vidstack/styles/defaults.css'
+
+import { defineCustomElements } from 'vidstack/elements'
+
+defineCustomElements()
+
+export const CaptureState = defineState({
+  name: 'CaptureState',
+  initial: {
+    isDetecting: false,
+    detectingStatus: 'inactive' as 'inactive' | 'active' | 'loading'
+  }
+})
 
 /**
  * Start playback of a recording
@@ -161,8 +173,8 @@ const RecordingMode = () => {
 
   const mediaNetworkState = useMediaNetwork()
 
-  const isDetecting = useHookstate(false)
-  const [detectingStatus, setDetectingStatus] = useState<'loading' | 'active' | 'inactive'>('inactive')
+  const isDetecting = useHookstate(getMutableState(CaptureState).isDetecting)
+  const detectingStatus = useHookstate(getMutableState(CaptureState).detectingStatus)
 
   const poseDetector = useHookstate(null as null | Pose)
 
@@ -176,7 +188,6 @@ const RecordingMode = () => {
 
   useEffect(() => {
     const factor = displaySettings.flipVideo === true ? '-1' : '1'
-    canvasRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.style.transform = `scaleX(${factor})`
   }, [displaySettings.flipVideo])
 
@@ -201,11 +212,11 @@ const RecordingMode = () => {
   })
 
   useEffect(() => {
-    if (!isDetecting?.value) return
+    if (!isDetecting.value) return
 
     if (!poseDetector.value) {
       if (Pose !== undefined) {
-        setDetectingStatus('loading')
+        detectingStatus.set('loading')
         const pose = new Pose({
           locateFile: (file) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
@@ -231,7 +242,7 @@ const RecordingMode = () => {
     if (poseDetector.value) {
       poseDetector.value.onResults((results) => {
         if (Object.keys(results).length === 0) return
-        if (detectingStatus !== 'active') setDetectingStatus('active')
+        detectingStatus.set('active')
 
         const { poseLandmarks, poseWorldLandmarks } = results
 
@@ -312,11 +323,11 @@ const RecordingMode = () => {
     }
 
     return () => {
-      setDetectingStatus('inactive')
-      if (poseDetector.value) {
-        poseDetector.value.close()
-      }
-      poseDetector.set(null)
+      // detectingStatus.set('inactive')
+      // if (poseDetector.value) {
+      //   poseDetector.value.close()
+      // }
+      // poseDetector.set(null)
     }
   }, [isDetecting])
 
@@ -393,6 +404,34 @@ const PlaybackMode = () => {
             volume={0.0}
           />
         )} */}
+        {src && (
+          <media-player
+            // title="Sprite Fight"
+            src={src}
+            // poster="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/thumbnail.webp?time=268&width=980"
+            // thumbnails="https://media-files.vidstack.io/sprite-fight/thumbnails.vtt"
+            aspect-ratio="16/9"
+            crossorigin
+          >
+            <media-outlet>
+              {/* <media-poster alt="Girl walks into sprite gnomes around her friend on a campfire in danger!"></media-poster> */}
+              {/* <track
+              src="https://media-files.vidstack.io/sprite-fight/subs/english.vtt"
+              label="English"
+              srclang="en-US"
+              kind="subtitles"
+              default
+            />
+            <track
+              src="https://media-files.vidstack.io/sprite-fight/chapters.vtt"
+              srclang="en-US"
+              kind="chapters"
+              default
+            /> */}
+            </media-outlet>
+            <media-community-skin></media-community-skin>
+          </media-player>
+        )}
       </div>
       <div
         className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
@@ -409,6 +448,8 @@ const CaptureDashboard = () => {
   const recordingID = useHookstate(getMutableState(RecordingState).recordingID)
   const playback = useHookstate(getMutableState(RecordingState).playback)
   const started = useHookstate(getMutableState(RecordingState).started)
+  const isDetecting = useHookstate(getMutableState(CaptureState).isDetecting)
+  const detectingStatus = useHookstate(getMutableState(CaptureState).detectingStatus)
 
   useEffect(() => {
     RecordingFunctions.getRecordings()
@@ -455,10 +496,10 @@ const CaptureDashboard = () => {
               <Toolbar
                 className="w-full"
                 videoStatus={videoStatus}
-                // detectingStatus={mocap.detectingStatus}
+                detectingStatus={detectingStatus.value}
                 onToggleRecording={onToggleRecording}
                 toggleWebcam={toggleWebcamPaused}
-                // toggleDetecting={() => mocap.isDetecting.set((v) => !v)}
+                toggleDetecting={() => isDetecting.set((v) => !v)}
                 isRecording={started.value}
                 recordingStatus={recordingStatus}
                 cycleCamera={MediaStreamService.cycleCamera}

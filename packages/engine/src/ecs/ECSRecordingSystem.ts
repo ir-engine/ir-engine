@@ -269,9 +269,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   /** create folder in storage provider */
   try {
-    await api.service('file-browser').create({
-      key: 'recordings/' + recording.id
-    })
+    await api.service('file-browser').create('recordings/' + recording.id)
   } catch (error) {
     return dispatchError('Could not create recording folder' + error.message, action.$peer, action.$topic)
   }
@@ -388,7 +386,13 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   const hasScopes = await checkScope(user, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer, action.$topic)
 
-  api.service(recordingPath).patch(action.recordingID, { ended: true }, { isInternal: true })
+  api
+    .service(recordingPath)
+    .patch(
+      action.recordingID,
+      { ended: true, updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ') },
+      { isInternal: true }
+    )
 
   const recording = await api.service(recordingPath).get(action.recordingID)
 

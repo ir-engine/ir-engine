@@ -28,6 +28,19 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 
+function formatHHMMSS(time) {
+  const sec_num = parseInt(time, 10) // don't forget the second param
+  const hours = Math.floor(sec_num / 3600)
+  const minutes = Math.floor((sec_num - hours * 3600) / 60)
+  const seconds = sec_num - hours * 3600 - minutes * 60
+
+  const hoursString = hours < 10 ? '0' + hours : hours.toString()
+  const minutesString = minutes < 10 ? '0' + minutes : minutes.toString()
+  const secondsString = seconds < 10 ? '0' + seconds : seconds.toString()
+
+  return hoursString + ':' + minutesString + ':' + secondsString
+}
+
 const RecordingsList = ({ startPlayback, stopPlayback }) => {
   const recordingState = useHookstate(getMutableState(RecordingState))
   return (
@@ -37,6 +50,8 @@ const RecordingsList = ({ startPlayback, stopPlayback }) => {
         <thead>
           <tr>
             <th>Recording</th>
+            <th>Created At</th>
+            <th>Duration</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -45,6 +60,14 @@ const RecordingsList = ({ startPlayback, stopPlayback }) => {
             <tr key={recording.id}>
               <td>
                 <div className="bg-grey">{recording.id}</div>
+              </td>
+              <td>
+                <div className="bg-grey">{new Date(recording.createdAt).toLocaleTimeString()}</div>
+              </td>
+              <td>
+                <div className="bg-grey">
+                  {formatHHMMSS(new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime())}
+                </div>
               </td>
               <td>
                 <div key={recording.id} className="">
