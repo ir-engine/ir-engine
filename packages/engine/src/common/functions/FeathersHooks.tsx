@@ -155,7 +155,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   )
 }
 
-export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string | undefined, params: Params = {}) => {
+export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id?: string, params: Params = {}) => {
   return useQuery(serviceName, 'get', id, params)
 }
 

@@ -69,8 +69,8 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const processing = useHookstate(false)
   const helmSetting = useFind(helmSettingPath).data.at(0)
 
-  const adminProjects = useFind('project').data
-  const engineCommit = useGet(builderInfoPath, undefined).data?.engineCommit
+  const adminProjects = useFind('project', { query: { limit: 100 } }).data
+  const engineCommit = useGet(builderInfoPath).data?.engineCommit
   const projectBuildPatch = useMutation(projectBuildPath).patch
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState))

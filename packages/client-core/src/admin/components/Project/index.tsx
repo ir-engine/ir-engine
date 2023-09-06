@@ -35,6 +35,9 @@ import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
+import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { projectBuilderTagsPath } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../styles/admin.module.scss'
 import BuildStatusDrawer from './BuildStatusDrawer'
@@ -50,10 +53,10 @@ const Projects = () => {
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
   const projectsQuery = useFind('project')
-  const builderTags = useFind('project-builder-tags').data
-  const projectBuildStatusQuery = useGet('project-build', undefined)
+  const builderTags = useFind(projectBuilderTagsPath).data
+  const projectBuildStatusQuery = useGet(projectBuildPath)
   const projectRebuilding = !projectBuildStatusQuery.data?.failed && !projectBuildStatusQuery.data?.succeeded
-  const builderInfoData = useGet('builder-info', undefined).data
+  const builderInfoData = useGet(builderInfoPath).data
   const githubRepoAccessRefreshQuery = useFind(githubRepoAccessRefreshPath)
 
   const projectDrawerOpen = useHookstate(false)
