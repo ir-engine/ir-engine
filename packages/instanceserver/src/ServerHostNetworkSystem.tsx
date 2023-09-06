@@ -33,13 +33,15 @@ import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/sta
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, none } from '@etherealengine/hyperflux'
+
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
-  for (const [peerID, client] of network.peers) {
+  for (const [peerID, client] of Object.entries(network.peers)) {
     if (client.userId === Engine.instance.userID) continue
     if (Date.now() - client.lastSeenTs > 5000) {
-      NetworkPeerFunctions.destroyPeer(network, peerID)
+      NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
       updatePeers(network)
     }
   }

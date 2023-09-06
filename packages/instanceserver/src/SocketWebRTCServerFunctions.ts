@@ -37,6 +37,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupServerSystem } from './MediasoupServerSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
@@ -51,7 +52,7 @@ export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & {
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
 export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData }
 
-export const initializeNetwork = async (app: Application, id: string, hostId: UserID, topic: Topic) => {
+export const initializeNetwork = async (app: Application, id: InstanceID, hostId: UserID, topic: Topic) => {
   const { workers, routers } = await startWebRTC()
 
   const outgoingDataTransport = await routers[0].createDirectTransport()
@@ -60,12 +61,12 @@ export const initializeNetwork = async (app: Application, id: string, hostId: Us
 
   const transport = {
     messageToPeer: (peerId: PeerID, data: any) => {
-      const spark = network.peers.get(peerId)?.spark
+      const spark = network.peers[peerId]?.spark
       if (spark) spark.write(data)
     },
 
     messageToAll: (data: any) => {
-      for (const peer of Array.from(network.peers.values())) peer.spark?.write(data)
+      for (const peer of Object.values(network.peers)) peer.spark?.write(data)
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {

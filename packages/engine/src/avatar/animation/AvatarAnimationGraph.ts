@@ -23,393 +23,194 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationClip, AnimationMixer, Vector2, Vector3 } from 'three'
+import { clamp, cloneDeep } from 'lodash'
+import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Object3D, Vector3 } from 'three'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { lerp } from '../../common/functions/MathLerpFunctions'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import { getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { AnimationManager } from '../AnimationManager'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
-import { AvatarNetworkAction } from '../state/AvatarNetworkState'
-import { AnimationGraph, changeState } from './AnimationGraph'
-import { enterAnimationState } from './AnimationState'
-import {
-  animationTimeTransitionRule,
-  booleanTransitionRule,
-  compositeTransitionRule,
-  thresholdTransitionRule,
-  vectorLengthTransitionRule
-} from './AnimationStateTransitionsRule'
-import { addBlendSpace1DNode, BlendSpace1D } from './BlendSpace1D'
-import { DistanceMatchingAction } from './DistanceMatchingAction'
-import { LocomotionState } from './locomotionState'
-import { SingleAnimationState } from './singleAnimationState'
-import { AvatarAnimations, AvatarStates } from './Util'
+import { AnimationState } from '../AnimationManager'
+import { AnimationComponent } from '../components/AnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { locomotionPack } from '../functions/avatarFunctions'
+import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
+
+const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.matches)
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
-  const clip = AnimationClip.findByName(animations ?? AnimationManager.instance._animations, name)
+  const manager = getState(AnimationState)
+  const clip = AnimationClip.findByName(animations ?? manager.loadedAnimations[locomotionPack]!.animations, name)
   return mixer.clipAction(clip)
 }
 
-const getDistanceAction = (animationName: string, mixer: AnimationMixer): DistanceMatchingAction => {
-  return {
-    action: getAnimationAction(animationName, mixer),
-    distanceTrack: AnimationManager.instance._rootAnimationData[animationName].distanceTrack,
-    distanceTraveled: 0
-  } as DistanceMatchingAction
+const currentActionBlendSpeed = 7
+const epsilon = 0.01
+
+//blend between locomotion and animation overrides
+export const updateAnimationGraph = (avatarEntities: Entity[]) => {
+  for (const newAnimation of animationQueue()) {
+    const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
+    const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
+    if (newAnimation.needsSkip) graph.fadingOut.set(true)
+    graph.layer.set(newAnimation.layer ?? 0)
+    loadAvatarAnimation(targetEntity, newAnimation.filePath, newAnimation.clipName!, newAnimation.loop!)
+  }
+
+  for (const entity of avatarEntities) {
+    const animationGraph = getMutableComponent(entity, AvatarAnimationComponent).animationGraph
+
+    setAvatarLocomotionAnimation(entity)
+
+    const currentAction = animationGraph.blendAnimation
+
+    if (currentAction.value) {
+      const deltaSeconds = getState(EngineState).deltaSeconds
+      const locomotionBlend = animationGraph.blendStrength
+      currentAction.value.setEffectiveWeight(locomotionBlend.value)
+      if (
+        currentAction.value.time >= currentAction.value.getClip().duration - epsilon ||
+        animationGraph.fadingOut.value
+      ) {
+        currentAction.value.timeScale = 0
+        locomotionBlend.set(Math.max(locomotionBlend.value - deltaSeconds * currentActionBlendSpeed, 0))
+        if (locomotionBlend.value <= 0) {
+          animationGraph.fadingOut.set(false)
+          currentAction.set(undefined)
+        }
+      } else {
+        locomotionBlend.set(Math.min(locomotionBlend.value + deltaSeconds * currentActionBlendSpeed, 1))
+      }
+    }
+  }
 }
 
-export function createAvatarAnimationGraph(
+/**Attempts to get animation by name from animation manager if already loaded, or from
+ * default-project/assets/animations if not.*/
+export const loadAvatarAnimation = (entity: Entity, filePath: string, clipName?: string, loop?: boolean) => {
+  const animationState = getState(AnimationState)
+  //get state name and file type
+  const stateName = filePath.split('/').pop()!.split('.')[0]
+  const fileType = filePath.split('.').pop()!
+
+  if (animationState.loadedAnimations[stateName])
+    playAvatarAnimationFromMixamo(entity, animationState.loadedAnimations[stateName].scene, loop, clipName)
+  else {
+    //load from default-project/assets/animations
+    AssetLoader.loadAsync(filePath).then((animationsAsset: GLTF) => {
+      //if no clipname specified, set first animation name to state name for lookup
+      if (!clipName)
+        if (fileType == 'fbx') animationsAsset.scene.animations[0].name = stateName
+        else animationsAsset.animations[0].name = stateName
+      //if it's a glb, set the scene's animations to the asset's animations
+      //this lets us assume they are in the same location for both fbx and glb files
+      if (fileType == 'glb') animationsAsset.scene.animations = animationsAsset.animations
+      animationState.loadedAnimations[stateName] = animationsAsset
+      playAvatarAnimationFromMixamo(entity, animationsAsset.scene, loop, clipName)
+    })
+  }
+}
+
+/** Retargets a mixamo animation to the entity's avatar model, then blends in and out of the default locomotion state. */
+export const playAvatarAnimationFromMixamo = (
   entity: Entity,
-  mixer: AnimationMixer,
-  locomotion: Vector3,
-  jumpValue: any | null
-): AnimationGraph {
-  if (!mixer) return null!
-
-  const graph: AnimationGraph = {
-    states: {},
-    transitionRules: {},
-    currentState: null!,
-    stateChanged: (name: keyof typeof AvatarStates) => {
-      hasComponent(entity, NetworkObjectAuthorityTag) &&
-        dispatchAction(
-          AvatarNetworkAction.setAnimationState({
-            animationState: name,
-            entityUUID: getComponent(entity, UUIDComponent)
-          })
-        )
-    }
-  }
-
-  // Initialize all the states
-  // Locomotion
-
-  const walkForwardAction = getDistanceAction(AvatarAnimations.WALK_FORWARD_ROOT, mixer),
-    runForwardAction = getDistanceAction(AvatarAnimations.RUN_FORWARD_ROOT, mixer),
-    walkBackwardAction = getDistanceAction(AvatarAnimations.WALK_BACKWARD_ROOT, mixer),
-    runBackwardAction = getDistanceAction(AvatarAnimations.RUN_BACKWARD_ROOT, mixer),
-    walkLeftAction = getDistanceAction(AvatarAnimations.WALK_STRAFE_LEFT_ROOT, mixer),
-    runLeftAction = getDistanceAction(AvatarAnimations.RUN_STRAFE_LEFT_ROOT, mixer),
-    walkRightAction = getDistanceAction(AvatarAnimations.WALK_STRAFE_RIGHT_ROOT, mixer),
-    runRightAction = getDistanceAction(AvatarAnimations.RUN_STRAFE_RIGHT_ROOT, mixer)
-
-  const avatarMovementSettings = getState(AvatarMovementSettingsState)
-
-  const verticalBlendSpace: BlendSpace1D = {
-    minValue: -avatarMovementSettings.runSpeed,
-    maxValue: avatarMovementSettings.runSpeed,
-    nodes: []
-  }
-
-  const horizontalBlendSpace: BlendSpace1D = {
-    minValue: -avatarMovementSettings.runSpeed,
-    maxValue: avatarMovementSettings.runSpeed,
-    nodes: []
-  }
-
-  const locomotionState: LocomotionState = {
-    name: AvatarStates.LOCOMOTION,
-    type: 'LocomotionState',
-    yAxisBlendSpace: verticalBlendSpace,
-    xAxisBlendSpace: horizontalBlendSpace,
-    locomotion,
-    forwardMovementActions: [walkForwardAction, runForwardAction, walkBackwardAction, runBackwardAction],
-    sideMovementActions: [walkLeftAction, runLeftAction, walkRightAction, runRightAction],
-    idleAction: getAnimationAction(AvatarAnimations.IDLE, mixer),
-    blendValue: new Vector2(),
-    frameBlendValue: new Vector2()
-  }
-
-  addBlendSpace1DNode(verticalBlendSpace, locomotionState.idleAction, 0)
-  addBlendSpace1DNode(verticalBlendSpace, walkForwardAction.action, avatarMovementSettings.walkSpeed, walkForwardAction)
-  addBlendSpace1DNode(verticalBlendSpace, runForwardAction.action, avatarMovementSettings.runSpeed, runForwardAction)
-  // TODO: Set the actual root animation speeds for backward movements
-  addBlendSpace1DNode(
-    verticalBlendSpace,
-    walkBackwardAction.action,
-    -avatarMovementSettings.walkSpeed,
-    walkBackwardAction
+  animationsScene: Object3D,
+  loop?: boolean,
+  clipName?: string
+) => {
+  const animationComponent = getComponent(entity, AnimationComponent)
+  const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+  const rigComponent = getComponent(entity, AvatarRigComponent)
+  if (!rigComponent || !rigComponent.vrm) return
+  //if animation is already present on animation component, use it instead of retargeting again
+  let retargetedAnimation = animationComponent.animations.find(
+    (clip) => clip.name == (clipName ?? animationsScene.animations[0].name)
   )
-  addBlendSpace1DNode(verticalBlendSpace, runBackwardAction.action, -avatarMovementSettings.runSpeed, runBackwardAction)
-
-  addBlendSpace1DNode(horizontalBlendSpace, locomotionState.idleAction, 0)
-  addBlendSpace1DNode(horizontalBlendSpace, runLeftAction.action, -avatarMovementSettings.runSpeed, runLeftAction)
-  addBlendSpace1DNode(horizontalBlendSpace, walkLeftAction.action, -avatarMovementSettings.walkSpeed, walkLeftAction)
-  addBlendSpace1DNode(horizontalBlendSpace, walkRightAction.action, avatarMovementSettings.walkSpeed, walkRightAction)
-  addBlendSpace1DNode(horizontalBlendSpace, runRightAction.action, avatarMovementSettings.runSpeed, runRightAction)
-
-  // Jump
-
-  const jumpUpState: SingleAnimationState = {
-    name: AvatarStates.JUMP_UP,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.JUMP_UP, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const jumpDownState: SingleAnimationState = {
-    name: AvatarStates.JUMP_DOWN,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.JUMP_DOWN, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const fallState: SingleAnimationState = {
-    name: AvatarStates.FALL_IDLE,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.FALL_IDLE, mixer),
-    loop: true,
-    clamp: false
-  }
-
-  // Emotes
-
-  const clapState: SingleAnimationState = {
-    name: AvatarStates.CLAP,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.CLAP, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const cryState: SingleAnimationState = {
-    name: AvatarStates.CRY,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.CRY, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const kissState: SingleAnimationState = {
-    name: AvatarStates.KISS,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.KISS, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const waveState: SingleAnimationState = {
-    name: AvatarStates.WAVE,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.WAVE, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const laughState: SingleAnimationState = {
-    name: AvatarStates.LAUGH,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.LAUGH, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const defeatState: SingleAnimationState = {
-    name: AvatarStates.DEFEAT,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.DEFEAT, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const dance1State: SingleAnimationState = {
-    name: AvatarStates.DANCE1,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.DANCING_1, mixer),
-    loop: true,
-    clamp: false
-  }
-
-  const dance2State: SingleAnimationState = {
-    name: AvatarStates.DANCE2,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.DANCING_2, mixer),
-    loop: true,
-    clamp: false
-  }
-
-  const dance3State: SingleAnimationState = {
-    name: AvatarStates.DANCE3,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.DANCING_3, mixer),
-    loop: true,
-    clamp: false
-  }
-
-  const dance4State: SingleAnimationState = {
-    name: AvatarStates.DANCE4,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.DANCING_4, mixer),
-    loop: true,
-    clamp: false
-  }
-
-  // Mount Point
-
-  const sitEnterState: SingleAnimationState = {
-    name: AvatarStates.SIT_ENTER,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const sitLeaveState: SingleAnimationState = {
-    name: AvatarStates.SIT_LEAVE,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
-    loop: false,
-    clamp: true
-  }
-
-  const sitIdleState: SingleAnimationState = {
-    name: AvatarStates.SIT_IDLE,
-    type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
-    loop: true,
-    clamp: false
-  }
-
-  // Add states to the graph
-  graph.states[AvatarStates.LOCOMOTION] = locomotionState
-  graph.states[AvatarStates.JUMP_UP] = jumpUpState
-  graph.states[AvatarStates.FALL_IDLE] = fallState
-  graph.states[AvatarStates.JUMP_DOWN] = jumpDownState
-  graph.states[AvatarStates.CLAP] = clapState
-  graph.states[AvatarStates.CRY] = cryState
-  graph.states[AvatarStates.KISS] = kissState
-  graph.states[AvatarStates.WAVE] = waveState
-  graph.states[AvatarStates.LAUGH] = laughState
-  graph.states[AvatarStates.DEFEAT] = defeatState
-  graph.states[AvatarStates.DANCE1] = dance1State
-  graph.states[AvatarStates.DANCE2] = dance2State
-  graph.states[AvatarStates.DANCE3] = dance3State
-  graph.states[AvatarStates.DANCE4] = dance4State
-  graph.states[AvatarStates.SIT_ENTER] = sitEnterState
-  graph.states[AvatarStates.SIT_LEAVE] = sitLeaveState
-  graph.states[AvatarStates.SIT_IDLE] = sitIdleState
-
-  // Transition rules
-
-  const movementTransitionRule = vectorLengthTransitionRule(locomotion, 0.001)
-
-  if (hasComponent(entity, NetworkObjectOwnedTag)) {
-    graph.transitionRules[AvatarStates.LOCOMOTION] = [
-      // Jump
-      {
-        rule: booleanTransitionRule(jumpValue, 'isJumping'),
-        nextState: AvatarStates.JUMP_UP
-      },
-      // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
-      {
-        rule: compositeTransitionRule(
-          [
-            booleanTransitionRule(jumpValue, 'isInAir'),
-            thresholdTransitionRule(locomotion, 'y', -0.1 / getState(EngineState).simulationTimestep, false)
-          ],
-          'and'
-        ),
-        nextState: AvatarStates.FALL_IDLE
-      }
-    ]
-
-    graph.transitionRules[AvatarStates.JUMP_UP] = [
-      {
-        rule: animationTimeTransitionRule(jumpUpState.action, 0.9),
-        nextState: AvatarStates.FALL_IDLE
-      }
-    ]
-
-    graph.transitionRules[AvatarStates.FALL_IDLE] = [
-      {
-        rule: booleanTransitionRule(jumpValue, 'isInAir', true),
-        nextState: AvatarStates.JUMP_DOWN
-      }
-    ]
-
-    graph.transitionRules[AvatarStates.JUMP_DOWN] = [
-      {
-        rule: animationTimeTransitionRule(jumpDownState.action, 0.65),
-        nextState: AvatarStates.LOCOMOTION
-      }
-    ]
-  }
-
-  graph.transitionRules[AvatarStates.CLAP] = [
-    {
-      rule: compositeTransitionRule([movementTransitionRule, animationTimeTransitionRule(clapState.action, 0.9)], 'or'),
-      nextState: AvatarStates.LOCOMOTION
-    }
-  ]
-
-  graph.transitionRules[AvatarStates.CRY] = [
-    {
-      rule: compositeTransitionRule([movementTransitionRule, animationTimeTransitionRule(cryState.action, 0.9)], 'or'),
-      nextState: AvatarStates.LOCOMOTION
-    }
-  ]
-
-  graph.transitionRules[AvatarStates.KISS] = [
-    {
-      rule: compositeTransitionRule([movementTransitionRule, animationTimeTransitionRule(kissState.action, 0.9)], 'or'),
-      nextState: AvatarStates.LOCOMOTION
-    }
-  ]
-
-  graph.transitionRules[AvatarStates.WAVE] = [
-    {
-      rule: compositeTransitionRule([movementTransitionRule, animationTimeTransitionRule(waveState.action, 0.9)], 'or'),
-      nextState: AvatarStates.LOCOMOTION
-    }
-  ]
-
-  graph.transitionRules[AvatarStates.LAUGH] = [
-    {
-      rule: compositeTransitionRule(
-        [movementTransitionRule, animationTimeTransitionRule(laughState.action, 0.9)],
-        'or'
+  //otherwise retarget and push to animation component's animations
+  if (!retargetedAnimation) {
+    retargetedAnimation = retargetMixamoAnimation(
+      cloneDeep(
+        clipName
+          ? animationsScene.animations.find((clip) => clip.name == clipName) ?? animationsScene.animations[0]
+          : animationsScene.animations[0]
       ),
-      nextState: AvatarStates.LOCOMOTION
-    }
-  ]
-
-  graph.transitionRules[AvatarStates.DEFEAT] = [
-    {
-      rule: compositeTransitionRule(
-        [movementTransitionRule, animationTimeTransitionRule(defeatState.action, 0.9)],
-        'or'
-      ),
-      nextState: AvatarStates.LOCOMOTION
-    }
-  ]
-
-  graph.transitionRules[AvatarStates.DANCE1] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
-  graph.transitionRules[AvatarStates.DANCE2] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
-  graph.transitionRules[AvatarStates.DANCE3] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
-  graph.transitionRules[AvatarStates.DANCE4] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
-
-  graph.transitionRules[AvatarStates.SIT_ENTER] = [
-    {
-      rule: animationTimeTransitionRule(sitEnterState.action, 0.95),
-      nextState: AvatarStates.SIT_IDLE
-    }
-  ]
-
-  graph.currentState = locomotionState
-  enterAnimationState(graph.currentState)
-
-  return graph
+      animationsScene,
+      rigComponent.vrm
+    )
+    animationComponent.animations.push(retargetedAnimation)
+  }
+  const currentAction = avatarAnimationComponent.animationGraph.blendAnimation
+  //before setting animation, stop previous animation if it exists
+  if (currentAction.value) currentAction.value.stop()
+  //set the animation to the current action
+  currentAction.set(
+    getAnimationAction(retargetedAnimation.name, animationComponent.mixer, animationComponent.animations)
+  )
+  if (currentAction.value) {
+    currentAction.value.timeScale = 1
+    currentAction.value.time = 0
+    currentAction.value.loop = loop ? LoopRepeat : LoopOnce
+    currentAction.value.play()
+  }
 }
 
-export function changeAvatarAnimationState(entity: Entity, newStateName: string): void {
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  changeState(avatarAnimationComponent.animationGraph, newStateName)
+const moveLength = new Vector3()
+let runWeight = 0,
+  walkWeight = 0,
+  idleWeight = 1
+
+export const setAvatarLocomotionAnimation = (entity: Entity) => {
+  const animationComponent = getComponent(entity, AnimationComponent)
+  if (!animationComponent.animations) return
+  const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+
+  const idle = getAnimationAction('Idle', animationComponent.mixer, animationComponent.animations)
+  const run = getAnimationAction('Run', animationComponent.mixer, animationComponent.animations)
+  const walk = getAnimationAction('Walk', animationComponent.mixer, animationComponent.animations)
+  if (!idle || !run || !walk) return
+  idle.play()
+  run.play()
+  walk.play()
+
+  //for now we're hard coding layer overrides into the locomotion blending function
+  const animationGraph = avatarAnimationComponent.animationGraph
+  const idleBlendStrength = animationGraph.blendStrength.value
+  const layerOverride = animationGraph.layer.value > 0
+  const locomoteBlendStrength = layerOverride ? animationGraph.blendStrength.value : 0
+  const needsSkip = animationGraph.fadingOut
+
+  const magnitude = moveLength.copy(avatarAnimationComponent.value.locomotion).setY(0).lengthSq()
+  if (animationGraph.blendAnimation && magnitude > 1 && idleBlendStrength >= 1 && !layerOverride) needsSkip.set(true)
+
+  walkWeight = lerp(
+    walk.getEffectiveWeight(),
+    clamp(1 / (magnitude - 1.65) - locomoteBlendStrength, 0, 1),
+    getState(EngineState).deltaSeconds * 4
+  )
+  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) - locomoteBlendStrength // - fallWeight
+  idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) // - fallWeight
+  run.setEffectiveWeight(runWeight)
+  walk.setEffectiveWeight(walkWeight)
+  idle.setEffectiveWeight(idleWeight - idleBlendStrength)
+}
+
+export const getRootSpeed = (clip: AnimationClip) => {
+  //calculate the speed of the root motion of the clip
+  const tracks = clip.tracks
+  const rootTrack = tracks[0]
+  if (!rootTrack) return 0
+  const startPos = new Vector3(rootTrack.values[0], rootTrack.values[1], rootTrack.values[2])
+  const endPos = new Vector3(
+    rootTrack.values[rootTrack.values.length - 3],
+    rootTrack.values[rootTrack.values.length - 2],
+    rootTrack.values[rootTrack.values.length - 1]
+  )
+  const speed = new Vector3().subVectors(endPos, startPos).length() / clip.duration
+  return speed
 }

@@ -27,10 +27,10 @@ import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, none } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -48,22 +48,26 @@ function createPeer(
   userIndex: number,
   name: string
 ) {
-  network.userIDToUserIndex.set(userID, userIndex)
-  network.userIndexToUserID.set(userIndex, userID)
-  network.peerIDToPeerIndex.set(peerID, peerIndex)
-  network.peerIndexToPeerID.set(peerIndex, peerID)
+  const networkState = getMutableState(NetworkState).networks[network.id]
 
-  network.peers.set(peerID, {
-    peerID,
-    peerIndex,
-    userId: userID,
-    userIndex
+  networkState.userIDToUserIndex[userID].set(userIndex)
+  networkState.userIndexToUserID[userIndex].set(userID)
+  networkState.peerIDToPeerIndex[peerID].set(peerIndex)
+  networkState.peerIndexToPeerID[peerIndex].set(peerID)
+
+  networkState.peers.merge({
+    [peerID]: {
+      peerID,
+      peerIndex,
+      userId: userID,
+      userIndex
+    }
   })
 
-  if (!network.users.has(userID)) {
-    network.users.set(userID, [peerID])
+  if (!network.users[userID]) {
+    networkState.users.merge({ [userID]: [peerID] })
   } else {
-    if (!network.users.get(userID)!.includes(peerID)) network.users.get(userID)!.push(peerID)
+    if (!network.users[userID]!.includes(peerID)) networkState.users[userID].merge([peerID])
   }
 
   // TODO: we probably want an explicit config for detecting a non-user peer
@@ -71,38 +75,32 @@ function createPeer(
     const worldState = getMutableState(WorldState)
     worldState.userNames[userID].set(name)
   }
-
-  // reactively set
-  const networkState = getMutableState(NetworkState).networks[network.id]
-  networkState.peers.set(network.peers)
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {
-  if (!network.peers.has(peerID))
+  if (!network.peers[peerID])
     return console.warn(`[NetworkPeerFunctions]: tried to remove client with peerID ${peerID} that doesn't exit`)
 
   if (peerID === Engine.instance.peerID) return console.warn(`[NetworkPeerFunctions]: tried to remove local client`)
 
-  const userID = network.peers.get(peerID)!.userId
+  // reactively set
+  const userID = network.peers[peerID]!.userId
 
-  network.peers.delete(peerID)
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers[peerID].set(none)
 
-  const userIndex = network.userIDToUserIndex.get(userID)!
-  network.userIDToUserIndex.delete(userID)
-  network.userIndexToUserID.delete(userIndex)
+  const userIndex = network.userIDToUserIndex[userID]!
+  networkState.userIDToUserIndex[userID].set(none)
+  networkState.userIndexToUserID[userIndex].set(none)
 
-  const peerIndex = network.peerIDToPeerIndex.get(peerID)!
-  network.peerIDToPeerIndex.delete(peerID)
-  network.peerIndexToPeerID.delete(peerIndex)
+  const peerIndex = network.peerIDToPeerIndex[peerID]!
+  networkState.peerIDToPeerIndex[peerID].set(none)
+  networkState.peerIndexToPeerID[peerIndex].set(none)
 
-  const userPeers = network.users.get(userID)!
+  const userPeers = network.users[userID]!
   const peerIndexInUserPeers = userPeers.indexOf(peerID)
   userPeers.splice(peerIndexInUserPeers, 1)
-  if (!userPeers.length) network.users.delete(userID)
-
-  // reactively set
-  const networkState = getMutableState(NetworkState).networks[network.id]
-  networkState.peers.set(network.peers)
+  if (!userPeers.length) networkState.users[userID].set(none)
 
   /**
    * if no other connections exist for this user, and this action is occurring on the world network,
@@ -116,7 +114,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
     //   })
     //   .filter((peer) => !!peer)
     // console.log({remainingPeersForDisconnectingUser})
-    if (!network.users.has(userID) && network.isHosting) {
+    if (!network.users[userID] && network.isHosting) {
       // Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
       for (const eid of NetworkObjectComponent.getOwnedNetworkObjects(userID)) {
         const networkObject = getComponent(eid, NetworkObjectComponent)
@@ -133,7 +131,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
 }
 
 const destroyAllPeers = (network: Network) => {
-  for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId)
+  for (const [peerID] of Object.entries(network.peers)) NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
 }
 
 function clearActionsHistoryForUser(userId: UserID) {

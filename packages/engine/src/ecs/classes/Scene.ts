@@ -43,7 +43,7 @@ export const SceneState = defineState({
 })
 
 export const SceneServices = {
-  fetchCurrentScene: async (projectName: string, sceneName: string) => {
+  setCurrentScene: async (projectName: string, sceneName: string) => {
     const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
     getMutableState(SceneState).sceneData.set(sceneData.data)
   }

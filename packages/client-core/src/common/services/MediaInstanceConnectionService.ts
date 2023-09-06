@@ -31,6 +31,7 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { defineState, getMutableState, getState, State, useState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -47,7 +48,7 @@ type InstanceState = {
 export const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
-    instances: {} as { [id: string]: InstanceState }
+    instances: {} as { [id: InstanceID]: InstanceState }
   })
 })
 

@@ -36,14 +36,14 @@ import {
   WebGLRendererParameters
 } from 'three'
 
-import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../ecs/classes/EngineState'
+import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
@@ -113,11 +113,7 @@ export class EngineRenderer {
     const context = this.supportWebGL2 ? canvas.getContext('webgl2')! : canvas.getContext('webgl')!
 
     if (!context) {
-      dispatchAction(
-        EngineActions.browserNotSupported({
-          msg: 'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
-        }) as any
-      )
+      /** @todo - add notice for webgl not supported */
     }
 
     this.renderContext = context!
@@ -336,9 +332,16 @@ const reactor = () => {
 
   useEffect(() => {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-    if (engineRendererSettings.debugEnable.value) camera.layers.enable(ObjectLayers.PhysicsHelper)
+    if (engineRendererSettings.physicsDebug.value) camera.layers.enable(ObjectLayers.PhysicsHelper)
     else camera.layers.disable(ObjectLayers.PhysicsHelper)
-  }, [engineRendererSettings.debugEnable])
+  }, [engineRendererSettings.physicsDebug])
+
+  useEffect(() => {
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    if (engineRendererSettings.avatarDebug.value) camera.layers.enable(ObjectLayers.AvatarHelper)
+    else camera.layers.disable(ObjectLayers.AvatarHelper)
+  }, [engineRendererSettings.avatarDebug])
+
   useEffect(() => {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     if (engineRendererSettings.gridVisibility.value) camera.layers.enable(ObjectLayers.Gizmos)

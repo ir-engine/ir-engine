@@ -42,7 +42,7 @@ import {
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -131,12 +131,12 @@ describe.skip('EquippableSystem Integration Tests', () => {
     ;(Engine.instance.worldNetwork as Network).hostId = hostUserId
     const hostIndex = 0
 
-    Engine.instance.worldNetwork.peers.set(hostUserId, {
+    Engine.instance.worldNetwork.peers[hostUserId] = {
       peerID: hostUserId,
       peerIndex: hostIndex,
       userId: hostUserId,
       userIndex: hostIndex
-    })
+    }
 
     const userId = 'user id' as UserID
     const userName = 'user name'

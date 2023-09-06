@@ -29,7 +29,6 @@ import { PassThrough } from 'stream'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
@@ -48,6 +47,7 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
@@ -508,7 +508,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
               // todo, this is a hack
               for (const peerID of peerIDs) {
-                if (network.peers.has(peerID)) continue
+                if (network.peers[peerID]) continue
                 activePlayback.peerIDs!.push(peerID)
                 NetworkPeerFunctions.createPeer(
                   network,
@@ -681,12 +681,12 @@ const execute = () => {
   const network = Engine.instance.worldNetwork // TODO - support buffer playback in media server
 
   for (const [userId, userMap] of Array.from(dataChannelToReplay.entries())) {
-    if (network.users.has(userId))
+    if (network.users[userId])
       for (const [dataChannel, chunk] of userMap) {
         for (const frame of chunk.frames) {
           if (frame.timecode > Date.now() - chunk.startTime) {
             network.transport.bufferToAll(dataChannel, encode(frame.data))
-            // for (const peerID of network.users.get(userId)!) {
+            // for (const peerID of network.users[userId]) {
             //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
             // }
             break
