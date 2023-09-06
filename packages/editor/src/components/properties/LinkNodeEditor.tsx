@@ -52,8 +52,8 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties.link.name')}
-      description={t('editor:properties.link.description')}
+      name={t('editor:properties.linkComp.title')}
+      description={t('editor:properties.linkComp.description')}
     >
       {errors ? (
         Object.entries(errors).map(([err, message]) => (
@@ -64,12 +64,29 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
       ) : (
         <></>
       )}
-      <InputGroup name="Link Url" label={t('editor:properties.link.label')}>
-        <ControlledStringInput value={linkComponent.url.value} onChange={updateProperty(LinkComponent, 'url')} />
+      <InputGroup name="Navigate Path" label={t('editor:properties.linkComp.lbl-navigateScene')}>
+        <BooleanInput value={linkComponent.sceneNav.value} onChange={updateProperty(LinkComponent, 'sceneNav')} />
       </InputGroup>
-      <InputGroup name="Navigate Path" label={t('editor:properties.link.bool-label')}>
-        <BooleanInput value={linkComponent.changePath.value} onChange={updateProperty(LinkComponent, 'changePath')} />
-      </InputGroup>
+      {linkComponent.sceneNav.value ? (
+        <>
+          <InputGroup name="ProjectName" label={t('editor:properties.linkComp.lbl-projname')}>
+            <ControlledStringInput
+              value={linkComponent.projectName.value}
+              onChange={updateProperty(LinkComponent, 'projectName')}
+            />
+          </InputGroup>
+          <InputGroup name="SceneName" label={t('editor:properties.linkComp.lbl-scenename')}>
+            <ControlledStringInput
+              value={linkComponent.sceneName.value}
+              onChange={updateProperty(LinkComponent, 'sceneName')}
+            />
+          </InputGroup>
+        </>
+      ) : (
+        <InputGroup name="LinkUrl" label={t('editor:properties.linkComp.lbl-url')}>
+          <ControlledStringInput value={linkComponent.url.value} onChange={updateProperty(LinkComponent, 'url')} />
+        </InputGroup>
+      )}
     </NodeEditor>
   )
 }

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { getState } from '@etherealengine/hyperflux'
+import { SceneServices } from '../../ecs/classes/Scene'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -49,21 +49,19 @@ const execute = () => {
       if (buttons)
         if (buttons.PrimaryClick?.touched) {
           if (buttons.PrimaryClick.up) {
-            if (!linkComponent.changePath) {
+            if (!linkComponent.sceneNav) {
               typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
             } else {
-              RouterService.navigate(linkComponent.url)
-              window.location.reload()
+              SceneServices.setCurrentScene(linkComponent.projectName, linkComponent.sceneName)
             }
           }
         } else if (buttons[XRStandardGamepadButton.Trigger]?.down) {
           const xrState = getState(XRState)
-          if (!linkComponent.changePath) {
-            linkComponent.changePath && xrState.session?.end()
+          if (!linkComponent.sceneNav) {
+            linkComponent.sceneNav && xrState.session?.end()
             typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
           } else {
-            RouterService.navigate(linkComponent.url)
-            window.location.reload()
+            SceneServices.setCurrentScene(linkComponent.projectName, linkComponent.sceneName)
           }
         }
     }

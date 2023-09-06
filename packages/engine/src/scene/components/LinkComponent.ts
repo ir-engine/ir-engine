@@ -44,20 +44,26 @@ export const LinkComponent = defineComponent({
     }
     return {
       url: 'https://www.etherealengine.org',
-      changePath: false
+      sceneNav: false,
+      projectName: '',
+      sceneName: ''
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     matches.string.test(json.url) && component.url.set(json.url as string)
-    matches.boolean.test(json.changePath) && component.changePath.set(json.changePath as boolean)
+    matches.boolean.test(json.sceneNav) && component.sceneNav.set(json.sceneNav as boolean)
+    matches.string.test(json.projectName) && component.projectName.set(json.projectName as string)
+    matches.string.test(json.sceneName) && component.sceneName.set(json.sceneName as string)
   },
 
   toJSON: (entity, component) => {
     return {
       url: component.url.value,
-      changePath: component.changePath.value
+      sceneNav: component.sceneNav.value,
+      projectName: component.projectName.value,
+      sceneName: component.sceneName.value
     }
   },
 
@@ -80,20 +86,14 @@ export const LinkComponent = defineComponent({
 
     useEffect(() => {
       clearErrors(entity, LinkComponent)
-      if (link.changePath.value) {
-        const regex = new RegExp('^/(?!.*//)([a-zA-Z-/]+)$', 'gim')
-        if (!regex.test(link.url.value)) {
-          return addError(entity, LinkComponent, 'INVALID_PATH', 'Please enter a valid Path.')
-        }
-      } else {
-        try {
-          new URL(link.url.value)
-        } catch {
-          return addError(entity, LinkComponent, 'INVALID_URL', 'Please enter a valid URL.')
-        }
+      if (link.sceneNav.value) return
+      try {
+        new URL(link.url.value)
+      } catch {
+        return addError(entity, LinkComponent, 'INVALID_URL', 'Please enter a valid URL.')
       }
       return
-    }, [link.url, link.changePath])
+    }, [link.url, link.sceneNav])
 
     return null
   }
