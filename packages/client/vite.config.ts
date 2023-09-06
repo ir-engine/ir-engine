@@ -157,6 +157,16 @@ function mediapipe_workaround() {
     name: 'mediapipe_workaround',
     load(id) {
       const MEDIAPIPE_EXPORT_NAMES = {
+        pose: [
+          'NormalizedLandmark',
+          'NormalizedLandmarkList',
+          'POSE_CONNECTIONS',
+          'POSE_LANDMARKS',
+          'POSE_LANDMARKS_LEFT',
+          'POSE_LANDMARKS_RIGHT',
+          'Options',
+          'Pose'
+        ],
         'tasks-vision': [
           'Classifications',
           'DrawingUtils',
