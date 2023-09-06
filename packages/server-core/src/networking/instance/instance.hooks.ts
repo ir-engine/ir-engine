@@ -71,7 +71,7 @@ const applyLocationNameSort = async (context: HookContext, next: NextFunction) =
       return 0
     })
 
-    if (context.params.query.$sort['user'] === 1) {
+    if (context.params.query.$sort['locationName'] === 1) {
       data.reverse()
     }
   }
@@ -79,7 +79,11 @@ const applyLocationNameSort = async (context: HookContext, next: NextFunction) =
 
 export default {
   around: {
-    all: [schemaHooks.resolveExternal(instanceExternalResolver), schemaHooks.resolveResult(instanceResolver)]
+    all: [
+      applyLocationNameSort,
+      schemaHooks.resolveExternal(instanceExternalResolver),
+      schemaHooks.resolveResult(instanceResolver)
+    ]
   },
 
   before: {

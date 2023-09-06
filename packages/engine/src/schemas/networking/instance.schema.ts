@@ -34,7 +34,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const instancePath = 'instance'
 
-export const instanceMethods = ['create', 'find', 'get', 'patch'] as const
+export const instanceMethods = ['create', 'find', 'get', 'patch', 'remove'] as const
 
 export type InstanceID = OpaqueType<'InstanceID'> & string
 
