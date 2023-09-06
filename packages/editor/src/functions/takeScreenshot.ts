@@ -200,29 +200,29 @@ export async function takeScreenshot(
 
   // Rendering the scene to the new canvas with given size
   await new Promise<void>((resolve, reject) => {
+    // set up effect composer
+    EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
+    EngineRenderer.instance.effectComposer.setSize(width, height, false)
+    EngineRenderer.instance.renderer.setPixelRatio(1)
+
     const interval = setInterval(() => {
       const viewport = EngineRenderer.instance.renderContext.getParameter(
         EngineRenderer.instance.renderContext.VIEWPORT
       )
-      // todo - scrolling in and out sometimes causes weird pixel ratios that can cause this to fail
-      if (viewport[2] === Math.round(width * pixelRatio) && viewport[3] === Math.round(height * pixelRatio)) {
+      if (viewport[2] === Math.round(width) && viewport[3] === Math.round(height)) {
         console.log('Resized viewport')
         clearTimeout(timeout)
         clearInterval(interval)
         resolve()
       }
     }, 10)
+
     const timeout = setTimeout(() => {
       console.warn('Could not resize viewport in time')
       clearTimeout(timeout)
       clearInterval(interval)
       reject()
     }, 10000)
-
-    // set up effect composer
-    EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    EngineRenderer.instance.effectComposer.setSize(width, height, false)
-    EngineRenderer.instance.renderer.setPixelRatio(1)
   })
 
   let blob: Blob | null = null

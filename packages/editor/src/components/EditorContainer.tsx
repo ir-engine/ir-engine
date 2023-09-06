@@ -293,7 +293,7 @@ const EditorContainer = () => {
     } catch (error) {
       logger.error(error)
       setDialogComponent(
-        <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
+        <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
       )
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
@@ -677,12 +677,6 @@ const EditorContainer = () => {
               onClose={() => setDialogComponent(null)}
               classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
             >
-              {/* <SaveNewSceneDialog
-              thumbnailUrl={'https://picsum.photos/200/300'}
-              initialName={Engine.instance.scene.name}
-              onConfirm={()=>null}
-              onCancel={()=>null}
-            /> */}
               {DialogComponent}
             </Dialog>
           </DndWrapper>
