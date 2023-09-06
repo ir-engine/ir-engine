@@ -316,7 +316,7 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
 
 const reactor = () => {
   useEffect(() => {
-    getMutableState(RecordingAPIState).createMediaChannelRecorder.set(startMediaRecording)
+    getMutableState(RecordingAPIState).merge({ createMediaChannelRecorder: startMediaRecording })
     return () => {
       getMutableState(RecordingAPIState).createMediaChannelRecorder.set(none)
     }

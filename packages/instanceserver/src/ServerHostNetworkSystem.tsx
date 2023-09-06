@@ -89,7 +89,7 @@ export const uploadRecordingStaticResource = async (props: {
 
 const reactor = () => {
   useEffect(() => {
-    getMutableState(RecordingAPIState).uploadRecordingChunk.set(uploadRecordingStaticResource)
+    getMutableState(RecordingAPIState).merge({ uploadRecordingChunk: uploadRecordingStaticResource })
     return () => {
       getMutableState(RecordingAPIState).uploadRecordingChunk.set(none)
     }
