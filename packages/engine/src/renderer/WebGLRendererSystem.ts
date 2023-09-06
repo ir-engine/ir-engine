@@ -332,9 +332,16 @@ const reactor = () => {
 
   useEffect(() => {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-    if (engineRendererSettings.debugEnable.value) camera.layers.enable(ObjectLayers.PhysicsHelper)
+    if (engineRendererSettings.physicsDebug.value) camera.layers.enable(ObjectLayers.PhysicsHelper)
     else camera.layers.disable(ObjectLayers.PhysicsHelper)
-  }, [engineRendererSettings.debugEnable])
+  }, [engineRendererSettings.physicsDebug])
+
+  useEffect(() => {
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    if (engineRendererSettings.avatarDebug.value) camera.layers.enable(ObjectLayers.AvatarHelper)
+    else camera.layers.disable(ObjectLayers.AvatarHelper)
+  }, [engineRendererSettings.avatarDebug])
+
   useEffect(() => {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     if (engineRendererSettings.gridVisibility.value) camera.layers.enable(ObjectLayers.Gizmos)

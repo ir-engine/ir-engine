@@ -26,7 +26,15 @@ Ethereal Engine. All Rights Reserved.
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
 
-import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters } from '@pixiv/three-vrm'
+import {
+  VRM,
+  VRM1Meta,
+  VRMHumanBone,
+  VRMHumanBoneName,
+  VRMHumanBones,
+  VRMHumanoid,
+  VRMParameters
+} from '@pixiv/three-vrm'
 import { cloneDeep } from 'lodash'
 import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
@@ -575,6 +583,17 @@ export function findSkinnedMeshes(model: Object3D) {
   })
 
   return meshes
+}
+
+export function getAllBones(rootBone: Bone) {
+  const bones = {} as Record<VRMHumanBoneName, Bone>
+  rootBone.traverse((bone: Bone) => {
+    if (bone.isBone) {
+      const boneName = mixamoVRMRigMap[bone.name] ?? bone.name
+      bones[boneName] = bone
+    }
+  })
+  return bones
 }
 
 /**

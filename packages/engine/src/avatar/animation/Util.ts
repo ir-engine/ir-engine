@@ -43,6 +43,7 @@ export const ikTargets = {
   rightFoot: 'rightFoot',
   leftFoot: 'leftFoot',
   head: 'head',
+  hips: 'hips',
 
   rightElbowHint: 'rightElbowHint',
   leftElbowHint: 'leftElbowHint',

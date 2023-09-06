@@ -79,7 +79,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
 
   const debouncedOnChangeGraph = _.debounce(() => {
     onChangeGraph(graphJson ?? graph)
-  }, 1000)
+  }, 2000)
 
   useEffect(() => {
     debouncedOnChangeGraph()

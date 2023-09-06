@@ -157,6 +157,16 @@ function mediapipe_workaround() {
     name: 'mediapipe_workaround',
     load(id) {
       const MEDIAPIPE_EXPORT_NAMES = {
+        pose: [
+          'NormalizedLandmark',
+          'NormalizedLandmarkList',
+          'POSE_CONNECTIONS',
+          'POSE_LANDMARKS',
+          'POSE_LANDMARKS_LEFT',
+          'POSE_LANDMARKS_RIGHT',
+          'Options',
+          'Pose'
+        ],
         'tasks-vision': [
           'Classifications',
           'DrawingUtils',
@@ -165,15 +175,6 @@ function mediapipe_workaround() {
           'HandLandmarker',
           'NormalizedLandmark',
           'PoseLandmarker'
-        ],
-        'holistic.js': [
-          'FACEMESH_TESSELATION',
-          'HAND_CONNECTIONS',
-          'Holistic',
-          'POSE_CONNECTIONS',
-          'POSE_LANDMARKS',
-          'Holistic',
-          'VERSION'
         ],
         'camera_utils.js': ['Camera'],
         'drawing_utils.js': ['drawConnectors', 'drawLandmarks', 'lerp'],
