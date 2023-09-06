@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 
 export interface InstanceColumn {
-  id: 'id' | 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'podName' | 'action'
+  id: 'id' | 'ipAddress' | 'currentUsers' | 'locationName' | 'channelId' | 'podName' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
@@ -37,7 +37,7 @@ export const instanceColumns: InstanceColumn[] = [
   { id: 'ipAddress', label: 'IP Address', minWidth: 65 },
   { id: 'currentUsers', label: 'Current Users', minWidth: 65 },
   {
-    id: 'locationId',
+    id: 'locationName',
     label: 'Location',
     minWidth: 65,
     align: 'right'
