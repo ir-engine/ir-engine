@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
 import { AudioState } from './audio/AudioState'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { Engine } from './ecs/classes/Engine'
-import { EngineActions, EngineState } from './ecs/classes/EngineState'
+import { EngineState } from './ecs/classes/EngineState'
 import { getComponent } from './ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
@@ -75,7 +75,6 @@ export const initializeBrowser = () => {
 const setupInitialClickListener = () => {
   const canvas = EngineRenderer.instance.renderer.domElement
   const initialClickListener = () => {
-    dispatchAction(EngineActions.setUserHasInteracted({}))
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
     canvas.removeEventListener('click', initialClickListener)

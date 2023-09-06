@@ -25,6 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import {
+  ProjectInterface,
+  ProjectPackageJsonType,
+  ProjectUpdateType
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { getState } from '@etherealengine/hyperflux'
+import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
@@ -35,17 +43,11 @@ import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
 import { promisify } from 'util'
 
-import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
-import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
-import {
-  ProjectInterface,
-  ProjectPackageJsonType,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import { getState } from '@etherealengine/hyperflux'
-import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
-
+import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
+import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
+import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
+import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -353,18 +355,23 @@ export const checkUnfetchedSourceCommit = async (app: Application, sourceURL: st
       projectVersion: content.version,
       engineVersion: content.etherealEngine?.version,
       commitSHA: commit.data.sha,
+      error: '',
+      text: '',
       datetime: commit.data.commit.committer.date,
       matchesEngineVersion: content.etherealEngine?.version
         ? compareVersions(content.etherealEngine?.version, enginePackageJson.version || '0.0.0') === 0
         : false
-    }
+    } as ProjectCheckUnfetchedCommitType
   } catch (err) {
     logger.error("Error getting commit's package.json %s/%s %s", owner, repo, err.toString())
     return Promise.reject(err)
   }
 }
 
-export const checkProjectDestinationMatch = async (app: Application, params: ProjectParams) => {
+export const checkProjectDestinationMatch = async (
+  app: Application,
+  params: ProjectParams
+): Promise<ProjectCheckSourceDestinationMatchType> => {
   const { sourceURL, selectedSHA, destinationURL, existingProject } = params.query!
   const {
     owner: destinationOwner,
@@ -499,7 +506,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
   const octokitResponse = await getOctokitForChecking(app, url, params!)
   const { owner, repo, octoKit, token } = octokitResponse
 
-  const returned = {} as any
+  const returned = {} as ProjectDestinationCheckType
   if (!owner || !repo)
     return {
       error: 'invalidUrl',
@@ -576,7 +583,7 @@ export const checkDestination = async (app: Application, url: string, params?: P
         const existingProjectName = JSON.parse(
           Buffer.from(existingProjectPackage.data.content, 'base64').toString()
         ).name
-        if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName.toLowerCase()) {
+        if (!returned.repoEmpty && existingProjectName.toLowerCase() !== returned.projectName?.toLowerCase()) {
           returned.error = 'mismatchedProjects'
           returned.text = `The new destination repo contains project '${returned.projectName}', which is different than the current project '${existingProjectName}'`
         }
@@ -659,7 +666,7 @@ export const getProjectCommits = async (
   app: Application,
   url: string,
   params?: ProjectParams
-): Promise<ProjectCommitInterface[] | { error: string; text: string }> => {
+): Promise<ProjectCommitType[] | { error: string; text: string }> => {
   try {
     const octokitResponse = await getOctokitForChecking(app, url, params!)
     const { owner, repo, octoKit } = octokitResponse
@@ -718,7 +725,7 @@ export const getProjectCommits = async (
             }
           })
       )
-    )) as ProjectCommitInterface[]
+    )) as ProjectCommitType[]
     return mappedCommits.filter((commit) => !commit.discard)
   } catch (err) {
     logger.error('error getting repo commits %o', err)
@@ -736,7 +743,7 @@ export const getProjectCommits = async (
   }
 }
 
-export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
+export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> => {
   const builderRepo = (process.env.BUILDER_REPOSITORY as string) || ''
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)

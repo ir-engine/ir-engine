@@ -24,15 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { MatchTicketQuery, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const matchTicketResolver = resolve<MatchTicketType, HookContext>({})
+export const matchTicketResolver = resolve<MatchTicketType, HookContext>({
+  createdAt: virtual(async (matchTicket) => (matchTicket.createdAt ? fromDateTimeSql(matchTicket.createdAt) : '')),
+  updatedAt: virtual(async (matchTicket) => (matchTicket.updatedAt ? fromDateTimeSql(matchTicket.updatedAt) : ''))
+})
 
 export const matchTicketExternalResolver = resolve<MatchTicketType, HookContext>({})
 

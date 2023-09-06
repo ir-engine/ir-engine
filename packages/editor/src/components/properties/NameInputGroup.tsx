@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -63,8 +63,8 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const nodeName = useComponent(props.entity, NameComponent)
 
   // temp name is used to store the name of the entity, which is then updated upon onBlur event
-  const [tempName, setTempName] = useState(nodeName.value)
-  const [focusedNode, setFocusedNode] = useState<EntityOrObjectUUID>()
+  const tempName = useHookstate(nodeName.value)
+  const focusedNode = useHookstate<EntityOrObjectUUID | undefined>(undefined)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -72,32 +72,32 @@ export const NameInputGroup: EditorComponentType = (props) => {
   }, [selectionState.objectChangeCounter])
 
   const onObjectChange = (propertyName: string) => {
-    if (propertyName === 'name') setTempName(getComponent(props.entity, NameComponent))
+    if (propertyName === 'name') tempName.set(getComponent(props.entity, NameComponent))
   }
 
   //function to handle change in name property
   const updateName = () => {
-    setComponent(props.entity, NameComponent, tempName)
+    setComponent(props.entity, NameComponent, tempName.value)
 
     const group = getOptionalComponent(props.entity, GroupComponent)
-    if (group) for (const obj3d of group) obj3d.name = tempName
+    if (group) for (const obj3d of group) obj3d.name = tempName.value
   }
 
   //function called when element get focused
   const onFocus = () => {
-    setFocusedNode(props.entity)
-    setTempName(nodeName.value)
+    focusedNode.set(props.entity)
+    tempName.set(nodeName.value)
   }
 
   // function to handle onBlur event on name property
   const onBlurName = () => {
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
-    if (nodeName.value !== tempName && props.entity === focusedNode) {
+    if (nodeName.value !== tempName.value && props.entity === focusedNode.value) {
       updateName()
     }
 
-    setFocusedNode(undefined)
+    focusedNode.set(undefined)
   }
 
   //function to handle keyUp event on name property
@@ -111,8 +111,8 @@ export const NameInputGroup: EditorComponentType = (props) => {
   return (
     <InputGroup {...{ style: { styledNameInputGroupStyle } }} name="Name" label={t('editor:properties.name.lbl-name')}>
       <StringInput
-        value={tempName}
-        onChange={setTempName}
+        value={tempName.value}
+        onChange={(event) => tempName.set(event?.target.value)}
         onFocus={onFocus}
         onBlur={onBlurName}
         onKeyUp={onKeyUpName}

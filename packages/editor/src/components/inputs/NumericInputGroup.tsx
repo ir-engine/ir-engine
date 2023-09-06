@@ -54,13 +54,15 @@ export interface NumericInputGroupProp {
 }
 
 function BaseNumericInputGroup({ name, className, label, ...rest }: NumericInputGroupProp) {
-  const { displayPrecision, ...scrubberProps } = rest
+  const { displayPrecision, onChange, value, ...scrubberProps } = rest
   return (
     <InputGroupContainer>
       <Grid container spacing="10px">
         <Grid item xs={3} display="flex" alignItems="center" justifyContent="end">
           <InfoTooltip className="tooltip" title={label ?? name}>
-            <Scrubber {...scrubberProps}>{label}</Scrubber>
+            <Scrubber onChange={onChange} value={value} {...scrubberProps}>
+              {label}
+            </Scrubber>
           </InfoTooltip>
         </Grid>
         <Grid item xs={9}>

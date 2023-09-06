@@ -178,7 +178,7 @@ export const LocalTransformComponent = defineComponent({
     )
     component.scale.set(proxifyVector3WithDirty(LocalTransformComponent.scale, entity, dirtyTransforms, scale.clone()))
 
-    component.matrix.value.identity()
+    component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
   }
 })
 

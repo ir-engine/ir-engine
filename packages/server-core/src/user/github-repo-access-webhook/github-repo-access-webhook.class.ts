@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import crypto from 'crypto'
 
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
@@ -46,14 +44,10 @@ export interface GithubRepoAccessWebhookParams extends RootParams {}
 /**
  * A class for Github Repo Access Webhook service
  */
-export class GithubRepoAccessWebhookService<
-  T = any,
-  ServiceParams extends Params = GithubRepoAccessWebhookParams
-> extends KnexAdapter<T, T, GithubRepoAccessWebhookParams, T> {
+export class GithubRepoAccessWebhookService implements ServiceInterface<string, GithubRepoAccessWebhookParams> {
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 

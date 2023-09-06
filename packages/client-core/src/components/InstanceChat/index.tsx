@@ -45,6 +45,7 @@ import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { AppState } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
@@ -64,12 +65,12 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
 
-  const messages = useFind('message', {
+  const messages = useFind(messagePath, {
     query: {
       channelId: targetChannelId.value
     }
   })
-  const mutateMessage = useMutation('message')
+  const mutateMessage = useMutation(messagePath)
 
   useEffect(() => {
     if (messages.data?.length && !chatWindowOpen) setUnreadMessages(true)
@@ -459,7 +460,7 @@ export const InstanceChatWrapper = () => {
     if (worldNetwork?.connected?.value) {
       ChannelService.getInstanceChannel()
     }
-  }, [worldNetwork?.connected])
+  }, [worldNetwork?.connected?.value])
 
   return (
     <>

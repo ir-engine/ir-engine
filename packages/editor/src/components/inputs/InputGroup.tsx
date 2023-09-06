@@ -133,9 +133,7 @@ export function InputGroup({ name, children, disabled, info, label, ...rest }: I
     <InputGroupContainer disabled={disabled} {...rest}>
       <Grid container>
         <Grid item xs={4} display="flex" alignItems="center" justifyContent="end">
-          <InfoTooltip className="tooltip" title={label ?? name}>
-            <label>{label}</label>
-          </InfoTooltip>
+          <label className="label">{label}</label>
 
           {info && (
             <InfoTooltip title={info}>

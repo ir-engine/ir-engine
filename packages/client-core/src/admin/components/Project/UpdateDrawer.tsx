@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
@@ -45,6 +44,10 @@ import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlL
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useFind, useGet, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
+import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
+import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -53,7 +56,7 @@ import ProjectFields from './ProjectFields'
 
 interface Props {
   open: boolean
-  builderTags: BuilderTag[]
+  builderTags: ProjectBuilderTagsType[]
   onClose: () => void
 }
 
@@ -67,9 +70,9 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const processing = useHookstate(false)
   const helmSetting = useFind(helmSettingPath).data.at(0)
 
-  const adminProjects = useFind('project').data
-  const engineCommit = useGet('builder-info', undefined).data?.engineCommit
-  const projectBuildPatch = useMutation('project-build').patch
+  const adminProjects = (useFind(projectsPath).data as any).data as ProjectInterface[]
+  const engineCommit = useGet(builderInfoPath, undefined).data?.engineCommit
+  const projectBuildPatch = useMutation(projectBuildPath).patch
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState))
 

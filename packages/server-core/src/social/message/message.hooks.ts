@@ -23,70 +23,54 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import channelPermissionAuthenticate from '@etherealengine/server-core/src/hooks/channel-permission-authenticate'
-import messagePermissionAuthenticate from '@etherealengine/server-core/src/hooks/message-permission-authenticate'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { HookContext } from '@feathersjs/feathers'
+import {
+  messageDataValidator,
+  messagePatchValidator,
+  messageQueryValidator
+} from '@etherealengine/engine/src/schemas/social/message.schema'
 import authenticate from '../../hooks/authenticate'
-
-// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
-const populateUsers = async (context: HookContext) => {
-  const { result } = context
-
-  const data = result.data ? result.data : result
-
-  const senderIds = data.filter((item) => item.senderId).map((item) => item.senderId)
-
-  if (senderIds.length > 0) {
-    //@ts-ignore
-    const users = (await context.app.service(userPath)._find({
-      query: {
-        id: {
-          $in: senderIds
-        }
-      },
-      paginate: false
-    })) as any as UserType[]
-
-    for (const message of data) {
-      if (message.senderId && !message.sender) {
-        message.sender = users.find((user) => user.id === message.senderId)
-      }
-    }
-  }
-}
-
-// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
-const populateUser = async (context: HookContext) => {
-  const { result } = context
-
-  if (result.senderId && !result.sender) {
-    //@ts-ignore
-    result.sender = (await context.app.service(userPath)._get(result.senderId)) as UserType
-  }
-}
-
-// Don't remove this comment. It's needed to format import lines nicely.
+import channelPermissionAuthenticate from '../../hooks/channel-permission-authenticate'
+import messagePermissionAuthenticate from '../../hooks/message-permission-authenticate'
+import {
+  messageDataResolver,
+  messageExternalResolver,
+  messagePatchResolver,
+  messageQueryResolver,
+  messageResolver
+} from '../../social/message/message.resolvers'
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(messageExternalResolver), schemaHooks.resolveResult(messageResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(messageQueryValidator),
+      schemaHooks.resolveQuery(messageQueryResolver)
+    ],
     find: [channelPermissionAuthenticate()],
     get: [],
-    create: [], // TODO: disallow if message empty
+    create: [() => schemaHooks.validateData(messageDataValidator), schemaHooks.resolveData(messageDataResolver)], // TODO: disallow if message empty
     update: [messagePermissionAuthenticate()],
-    patch: [messagePermissionAuthenticate()],
+    patch: [
+      messagePermissionAuthenticate(),
+      () => schemaHooks.validateData(messagePatchValidator),
+      schemaHooks.resolveData(messagePatchResolver)
+    ],
     remove: [messagePermissionAuthenticate()]
   },
 
   after: {
     all: [],
-    find: [populateUsers],
-    get: [populateUser],
+    find: [],
+    get: [],
     create: [],
-    update: [populateUser],
-    patch: [populateUser],
+    update: [],
+    patch: [],
     remove: []
   },
 

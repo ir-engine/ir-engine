@@ -30,7 +30,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dispatchAction, getMutableState, none } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'

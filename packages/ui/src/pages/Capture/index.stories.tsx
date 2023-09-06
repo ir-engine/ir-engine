@@ -66,6 +66,7 @@ import Component from './index'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import 'daisyui/dist/full.css'
 import 'tailwindcss/tailwind.css'
 
@@ -80,7 +81,7 @@ const startCaptureSystems = () => {
 const initializeEngineForRecorder = async () => {
   // if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  // const projects = API.instance.client.service('projects').find()
+  // const projects = API.instance.client.service(projectsPath).find()
 
   startCaptureSystems()
   // await loadEngineInjection(await projects)
@@ -126,11 +127,11 @@ const decorators = [
           // @ts-ignore
           Engine.instance.api
             // @ts-ignore
-            .service('projects')
+            .service(projectsPath)
             // @ts-ignore
             .find()
             .then((projects) => {
-              loadEngineInjection(projects).then((result) => {
+              loadEngineInjection(projects.projectsList).then((result) => {
                 dispatchAction(LocationAction.setLocationName({ locationName }))
                 initializeEngineForRecorder()
                 setProjectComponents(result)

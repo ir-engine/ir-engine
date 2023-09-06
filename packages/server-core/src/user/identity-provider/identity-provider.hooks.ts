@@ -108,17 +108,12 @@ export default {
   },
 
   before: {
-    all: [],
-    find: [
-      iff(isProvider('external'), authenticate() as any),
+    all: [
       () => schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    get: [
-      iff(isProvider('external'), authenticate() as any, checkIdentityProvider()),
-      () => schemaHooks.validateQuery(identityProviderQueryValidator),
-      schemaHooks.resolveQuery(identityProviderQueryResolver)
-    ],
+    find: [iff(isProvider('external'), authenticate() as any)],
+    get: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver)

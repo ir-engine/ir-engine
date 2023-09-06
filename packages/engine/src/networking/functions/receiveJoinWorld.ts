@@ -30,7 +30,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
 import { WorldState } from '../interfaces/WorldState'
 

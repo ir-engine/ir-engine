@@ -80,7 +80,7 @@ export const useGraphRunner = ({
 
     engine.executeAllSync()
 
-    let timeout: number
+    let timeout: NodeJS.Timeout
 
     const eventEmitter = registry.dependencies?.ILifecycleEventEmitter as ILifecycleEventEmitter
 
@@ -90,7 +90,7 @@ export const useGraphRunner = ({
       // eslint-disable-next-line no-await-in-loop
       await engine.executeAllAsync(500)
 
-      timeout = window.setTimeout(onTick, 50)
+      timeout = setTimeout(onTick, 50)
     }
 
     ;(async () => {
@@ -105,7 +105,7 @@ export const useGraphRunner = ({
     })() // start up
 
     return () => {
-      window.clearTimeout(timeout)
+      clearTimeout(timeout)
     }
   }, [engine, registry.dependencies?.ILifecycleEventEmitter, run])
 

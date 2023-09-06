@@ -56,7 +56,7 @@ const visualizers = [] as MeshBVHVisualizer[]
 
 const DebugGroupChildReactor = (props: GroupReactorProps) => {
   const obj = props.obj
-  const debug = useHookstate(getMutableState(RendererState).debugEnable)
+  const debug = useHookstate(getMutableState(RendererState).physicsDebug)
 
   // add MeshBVHVisualizer to meshes when debugEnable is true
   useEffect(() => {
@@ -92,7 +92,7 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 }
 
 const execute = () => {
-  const enabled = getState(RendererState).debugEnable
+  const enabled = getState(RendererState).physicsDebug
 
   _lineSegments.visible = enabled
 

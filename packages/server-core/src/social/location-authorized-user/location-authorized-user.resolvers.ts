@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -33,9 +33,12 @@ import {
 } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const locationAuthorizedUserResolver = resolve<LocationAuthorizedUserType, HookContext>({})
+export const locationAuthorizedUserResolver = resolve<LocationAuthorizedUserType, HookContext>({
+  createdAt: virtual(async (locationAuthorizedUser) => fromDateTimeSql(locationAuthorizedUser.createdAt)),
+  updatedAt: virtual(async (locationAuthorizedUser) => fromDateTimeSql(locationAuthorizedUser.updatedAt))
+})
 
 export const locationAuthorizedUserExternalResolver = resolve<LocationAuthorizedUserType, HookContext>({})
 

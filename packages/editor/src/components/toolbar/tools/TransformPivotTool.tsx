@@ -31,6 +31,8 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import AdjustIcon from '@mui/icons-material/Adjust'
 
+import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import { setTransformPivot, toggleTransformPivot } from '../../../functions/transformFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
@@ -38,18 +40,36 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const transformPivotOptions = [
-  { label: 'Selection', value: TransformPivot.Selection },
-  { label: 'Center', value: TransformPivot.Center },
-  { label: 'Bottom', value: TransformPivot.Bottom },
-  { label: 'Origin', value: TransformPivot.Origin }
+  {
+    label: t('editor:toolbar.transformPivot.lbl-selection'),
+    info: t('editor:toolbar.transformPivot.info-selection'),
+    value: TransformPivot.Selection
+  },
+  {
+    label: t('editor:toolbar.transformPivot.lbl-center'),
+    info: t('editor:toolbar.transformPivot.info-center'),
+    value: TransformPivot.Center
+  },
+  {
+    label: t('editor:toolbar.transformPivot.lbl-bottom'),
+    info: t('editor:toolbar.transformPivot.info-bottom'),
+    value: TransformPivot.Bottom
+  },
+  {
+    label: t('editor:toolbar.transformPivot.lbl-origin'),
+    info: t('editor:toolbar.transformPivot.info-origin'),
+    value: TransformPivot.Origin
+  }
 ]
 
 const TransformPivotTool = () => {
+  const { t } = useTranslation()
+
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
-      <InfoTooltip title="[X] Toggle Transform Pivot">
+      <InfoTooltip title={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
         <button onClick={toggleTransformPivot as any} className={styles.toolButton}>
           <AdjustIcon fontSize="small" />
         </button>

@@ -42,13 +42,13 @@ export default () => {
     if (channel == null) {
       throw new BadRequest('Invalid channel ID')
     }
-    const partyUser = await app.service('channel-user').Model.findOne({
+    const channelUser = await app.service('channel-user').Model.findOne({
       where: {
         channelId: channel.id,
         userId: userId
       }
     })
-    if (partyUser == null) {
+    if (channelUser == null) {
       throw new Forbidden('You are not a member of that channel')
     }
     return context

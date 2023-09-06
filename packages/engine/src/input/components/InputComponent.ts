@@ -45,12 +45,13 @@ export const InputComponent = defineComponent({
   onSet(entity, component, json) {
     if (!json) return
 
-    if (typeof json.highlight === 'string') component.highlight.set(json.highlight)
+    if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const input = useComponent(entity, InputComponent)
+
     useLayoutEffect(() => {
       if (!input.inputSources.length || !input.highlight.value) return
       setComponent(entity, HighlightComponent)
@@ -58,6 +59,7 @@ export const InputComponent = defineComponent({
         removeComponent(entity, HighlightComponent)
       }
     }, [input.inputSources, input.highlight])
+
     return null
   }
 })

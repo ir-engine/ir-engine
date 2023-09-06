@@ -55,6 +55,7 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { RouterService } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
@@ -67,10 +68,10 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 export const initClient = async () => {
   if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  const projects = Engine.instance.api.service('projects').find()
+  const projects = Engine.instance.api.service(projectsPath).find()
 
   startClientSystems()
-  await loadEngineInjection(await projects)
+  await loadEngineInjection((await projects).projectsList)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }

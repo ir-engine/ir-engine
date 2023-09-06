@@ -44,7 +44,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const userResolver = resolve<UserType, HookContext>({
   avatar: virtual(async (user, context) => {
@@ -123,7 +123,9 @@ export const userResolver = resolve<UserType, HookContext>({
     }
 
     return []
-  })
+  }),
+  createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
+  updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
 })
 
 export const userExternalResolver = resolve<UserType, HookContext>({

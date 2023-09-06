@@ -31,14 +31,23 @@ import type { Knex } from 'knex'
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(userPath)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  let tableExists = await trx.schema.hasTable(userPath)
+
+  if (tableExists) {
+    const hasIdColum = await trx.schema.hasColumn(userPath, 'id')
+    const hasAvatarIdColumn = await trx.schema.hasColumn(userPath, 'avatarId')
+    if (!(hasIdColum && hasAvatarIdColumn)) {
+      await trx.schema.dropTable(userPath)
+      tableExists = false
+    }
+  }
 
   if (tableExists === false) {
-    // Added transaction here in order to ensure both below queries run on same pool.
-    // https://github.com/knex/knex/issues/218#issuecomment-56686210
-    const trx = await knex.transaction()
-    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
-
     await trx.schema.createTable(userPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
@@ -53,10 +62,10 @@ export async function up(knex: Knex): Promise<void> {
 
       table.foreign('avatarId').references('id').inTable('avatar').onDelete('SET NULL').onUpdate('CASCADE')
     })
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**

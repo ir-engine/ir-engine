@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -33,9 +33,12 @@ import {
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const instanceAttendanceResolver = resolve<InstanceAttendanceType, HookContext>({})
+export const instanceAttendanceResolver = resolve<InstanceAttendanceType, HookContext>({
+  createdAt: virtual(async (instanceAttendance) => fromDateTimeSql(instanceAttendance.createdAt)),
+  updatedAt: virtual(async (instanceAttendance) => fromDateTimeSql(instanceAttendance.updatedAt))
+})
 
 export const instanceAttendanceExternalResolver = resolve<InstanceAttendanceType, HookContext>({})
 

@@ -307,22 +307,32 @@ const uploadToRepo = async (
   const fileBlobs = [] as { url: string; sha: string }[]
   const repoPath = `https://github.com/${org}/${repo}`
   const authenticatedRepo = await getAuthenticatedRepo(token, repoPath)
+  const lfsFiles = [] as string[]
+  const gitattributesIndex = filePaths.indexOf('.gitattributes')
+  if (gitattributesIndex > -1) filePaths = filePaths.splice(gitattributesIndex, 1)
   for (let path of filePaths) {
-    const blob = await createBlobForFile(octo, org, repo, git, branch, authenticatedRepo)(path, project.name)
+    const blob = await createBlobForFile(octo, org, repo, git, branch, lfsFiles, authenticatedRepo)(path, project.name)
     fileBlobs.push(blob)
   }
   //LFS files need to be included in a .gitattributes file at the top of the repo in order to be populated properly.
   //If the file exists because there's at least one file now in LFS, but it's not already in the list of files in
   //the repo, then make the blob for it and add to the tree.
-  const hasGitAttributes = fs.existsSync(path.join(projectDirectory, '.gitattributes'))
+  const gitattributesPath = path.join(projectDirectory, '.gitattributes')
   const gitAttributesFilePath = `projects/${project.name}/.gitattributes`
-  if (hasGitAttributes && filePaths.indexOf(gitAttributesFilePath) < 0) {
+  let gitattributesContent = ''
+  if (lfsFiles.length > 0) {
+    for (let lfsFile of lfsFiles)
+      gitattributesContent += `${lfsFile.replace(/ /g, '[[:space:]]')} filter=lfs diff=lfs merge=lfs -text\n`
+    await fs.writeFileSync(gitattributesPath, gitattributesContent)
+  }
+  if (lfsFiles.length > 0) {
     const blob = await createBlobForFile(
       octo,
       org,
       repo,
       git,
       branch,
+      lfsFiles,
       authenticatedRepo
     )(gitAttributesFilePath, project.name)
     fileBlobs.push(blob)
@@ -456,7 +466,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
 }
 
 const createBlobForFile =
-  (octo: Octokit, org: string, repo: string, git: any, branch: string, repoPath?: string) =>
+  (octo: Octokit, org: string, repo: string, git: any, branch: string, lfsFiles = [] as string[], repoPath?: string) =>
   async (filePath: string, projectName: string) => {
     const encoding = isBase64Encoded(filePath) ? 'base64' : 'utf-8'
     const rootPath = path.join(appRootPath.path, 'packages/projects', filePath)
@@ -466,7 +476,7 @@ const createBlobForFile =
     if (buffer.length > GITHUB_LFS_FLOOR) {
       const lfsEndpoint = `${repoPath}/info/lfs`
       const trimPath = filePath.replace(`projects/${projectName}/`, '')
-      await git.raw(['lfs', 'track', trimPath])
+      lfsFiles.push(trimPath)
       const lfsPointer = await git.raw(['lfs', 'pointer', `--file=${rootPath}`])
       const oidRegexExec = OID_REGEX.exec(lfsPointer)
       const oid = oidRegexExec![1]
@@ -498,11 +508,18 @@ const createBlobForFile =
       //it does not need to be uploaded again.
       if (actions) {
         const uploadActions = actions.upload
+        const verifyActions = actions.verify
         await fetch(uploadActions.href, {
           method: 'PUT',
           headers: uploadActions.header,
           body: buffer
         })
+        //If a verify action is returned, it is seemingly required to hit it in order to complete the LFS upload
+        if (verifyActions)
+          await fetch(verifyActions.href, {
+            method: 'POST',
+            headers: verifyActions.header
+          })
       }
       content = Buffer.from(lfsPointer).toString(encoding)
     } else {

@@ -152,7 +152,6 @@ const onSecondaryClick = () => {
 
 const execute = () => {
   const engineState = getState(EngineState)
-  if (!engineState.isEngineInitialized) return
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return

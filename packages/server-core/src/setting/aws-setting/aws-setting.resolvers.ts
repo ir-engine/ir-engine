@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -38,9 +38,7 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
-
-export const awsSettingResolver = resolve<AwsSettingType, HookContext>({})
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const awsDbToSchema = (rawData: AwsSettingDatabaseType): AwsSettingType => {
   let eks = JSON.parse(rawData.eks || '{}') as AwsEksType
@@ -83,6 +81,11 @@ export const awsDbToSchema = (rawData: AwsSettingDatabaseType): AwsSettingType =
     sms
   }
 }
+
+export const awsSettingResolver = resolve<AwsSettingType, HookContext>({
+  createdAt: virtual(async (awsSetting) => fromDateTimeSql(awsSetting.createdAt)),
+  updatedAt: virtual(async (awsSetting) => fromDateTimeSql(awsSetting.updatedAt))
+})
 
 export const awsSettingExternalResolver = resolve<AwsSettingType, HookContext>(
   {},

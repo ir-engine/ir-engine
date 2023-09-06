@@ -74,7 +74,7 @@ export const WorldInstanceConnection = () => {
     }
     const instance = activeInstanceState.activeInstances.value.find(({ id }) => id === selectedInstance)
     if (!instance) return
-    EditorActiveInstanceService.provisionServer(instance.location, instance.id, sceneId)
+    EditorActiveInstanceService.provisionServer(instance.locationId!, instance.id, sceneId)
   }
   // const decrementPage = () => { }
   // const incrementPage = () => { }

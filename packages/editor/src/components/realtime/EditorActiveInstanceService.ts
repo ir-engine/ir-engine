@@ -28,20 +28,17 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import logger from '@etherealengine/common/src/logger'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import {
+  InstanceActiveType,
+  instanceActivePath
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-
-export type ActiveInstance = {
-  id: InstanceID
-  location: string
-  currentUsers: number
-  // todo: assignedAt so we can sort by most recent?
-}
 
 export const EditorActiveInstanceState = defineState({
   name: 'EditorActiveInstanceState',
   initial: () => ({
-    activeInstances: [] as ActiveInstance[],
+    activeInstances: [] as InstanceActiveType[],
     fetching: false
   })
 })
@@ -84,7 +81,7 @@ export const EditorActiveInstanceService = {
   },
   getActiveInstances: async (sceneId: string) => {
     dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances({}))
-    const activeInstances = await Engine.instance.api.service('instances-active').find({
+    const activeInstances = await Engine.instance.api.service(instanceActivePath).find({
       query: { sceneId }
     })
     dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))
@@ -99,6 +96,6 @@ export class EditorActiveInstanceAction {
 
   static fetchedActiveInstances = defineAction({
     type: 'ee.editor.EditorActiveInstance.FETCHED_ACTIVE_INSTANCES' as const,
-    activeInstances: matches.array as Validator<unknown, ActiveInstance[]>
+    activeInstances: matches.array as Validator<unknown, InstanceActiveType[]>
   })
 }

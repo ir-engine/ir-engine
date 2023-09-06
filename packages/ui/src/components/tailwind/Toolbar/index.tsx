@@ -30,7 +30,9 @@ import { twMerge } from 'tailwind-merge'
 
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
+import CaptureSettings from '../../../components/tailwind/Settings'
 import Button from '../../../primitives/tailwind/Button'
+import Modal from '../../../primitives/tailwind/Modal'
 
 /**
  * Props for Toolbar component
@@ -46,15 +48,7 @@ export interface ToolbarProps {
   isRecording: boolean // Flag indicating if recording is active
   recordingStatus: string | null // Status of the recording
   onToggleRecording: () => void // Function to toggle recording
-  isVideoFlipped: boolean // Flag indicating if video is flipped
-  flipVideo: (val: boolean) => void // Function to flip the video
   cycleCamera: () => void // Function to cycle the camera
-  drawBody: (val: boolean) => void // Function to toggle drawing body
-  isDrawingBody: boolean // Flag indicating if drawing body is active
-  drawFace: (val: boolean) => void // Function to toggle drawing face
-  isDrawingFace: boolean // Flag indicating if drawing face is active
-  drawHands: (val: boolean) => void // Function to toggle drawing hands
-  isDrawingHands: boolean // Flag indicating if drawing hands is active
 }
 
 /**
@@ -71,15 +65,7 @@ const Toolbar = ({
   isRecording,
   recordingStatus,
   onToggleRecording,
-  isVideoFlipped,
-  flipVideo,
-  cycleCamera,
-  drawBody,
-  isDrawingBody,
-  drawFace,
-  isDrawingFace,
-  drawHands,
-  isDrawingHands
+  cycleCamera
 }: ToolbarProps) => {
   /**
    * Renders the Toolbar component.
@@ -232,68 +218,17 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
           />
         </div>
         <div className="dropdown dropdown-top dropdown-end">
-          <ul className="dropdown-content menu bg-base-100 p-2 rounded-box w-80">
-            <li>
-              <label className="label cursor-pointer">
-                <span className="label-text whitespace-nowrap">Mirror Video</span>
-                <input
-                  type="checkbox"
-                  className="toggle"
-                  defaultChecked={isVideoFlipped}
-                  onChange={(e) => {
-                    flipVideo(e.target.checked)
-                  }}
-                />
-              </label>
-            </li>
-            <li>
-              <label className="label cursor-pointer">
-                <span className="label-text whitespace-nowrap">Draw Body</span>
-                <input
-                  type="checkbox"
-                  className="toggle"
-                  defaultChecked={isDrawingBody}
-                  onChange={(e) => {
-                    drawBody(e.target.checked)
-                  }}
-                />
-              </label>
-            </li>
-            <li>
-              <label className="label cursor-pointer">
-                <span className="label-text whitespace-nowrap">Draw Hands</span>
-                <input
-                  type="checkbox"
-                  className="toggle"
-                  defaultChecked={isDrawingHands}
-                  onChange={(e) => {
-                    drawHands(e.target.checked)
-                  }}
-                />
-              </label>
-            </li>
-            <li>
-              <label className="label cursor-pointer">
-                <span className="label-text whitespace-nowrap">Draw Face</span>
-                <input
-                  type="checkbox"
-                  className="toggle"
-                  defaultChecked={isDrawingFace}
-                  onChange={(e) => {
-                    drawFace(e.target.checked)
-                  }}
-                />
-              </label>
-            </li>
-          </ul>
           <Button
-            {...(videoStatus !== 'active' ? { disabled: true } : {})}
             className={twMerge('btn', buttonSize === 'lg' ? 'btn-lg' : '', buttonSize === 'sm' ? 'btn-sm' : '')}
             icon={<CogIcon className={`block w-6 h-6`} />}
             title="Settings"
             showLabel={showLabels}
             labelPosition="below"
+            onClick={() => window.globalThis['capture_settings']?.showModal()}
           />
+          <Modal id="capture_settings">
+            <CaptureSettings />
+          </Modal>
         </div>
       </div>
     </nav>
@@ -311,15 +246,7 @@ Toolbar.defaultProps = {
   isRecording: false,
   recordingStatus: undefined,
   onToggleRecording: () => {},
-  isVideoFlipped: true,
-  flipVideo: () => {},
-  cycleCamera: () => {},
-  drawBody: () => {},
-  isDrawingBody: true,
-  drawFace: () => {},
-  isDrawingFace: true,
-  drawHands: () => {},
-  isDrawingHands: true
+  cycleCamera: () => {}
 }
 
 export default Toolbar

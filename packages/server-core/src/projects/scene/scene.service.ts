@@ -29,6 +29,7 @@ import Multer from '@koa/multer'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getState } from '@etherealengine/hyperflux'
 
+import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
 import {
   InstanceAttendanceType,
   instanceAttendancePath
@@ -38,7 +39,6 @@ import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
-import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
 import { getAllPortals, getPortal } from './scene-helper'
 import { Scene, getSceneData } from './scene.class'
 import projectDocs from './scene.docs'
@@ -209,12 +209,14 @@ export default (app: Application) => {
 
   if (getState(ServerState).serverMode === ServerMode.API)
     service.publish('updated', async (data, context) => {
-      const instances = await getActiveInstancesForScene(app)({ query: { sceneId: data.sceneId } })
+      const instanceActive = await app.service(instanceActivePath).find({
+        query: { sceneId: data.sceneId }
+      })
 
       const instanceAttendances = (await app.service(instanceAttendancePath)._find({
         query: {
           instanceId: {
-            $in: instances.map((item) => item.id)
+            $in: instanceActive.map((item) => item.id)
           },
           ended: false
         },

@@ -27,15 +27,18 @@ import React from 'react'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon/index'
 
+import { useTranslation } from 'react-i18next'
 import { downloadScreenshot } from '../../../functions/takeScreenshot'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const SceneScreenshot = () => {
+  const { t } = useTranslation()
+
   return (
     <>
       <div id="scene-screenshot" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip title="Take a Screenshot">
+        <InfoTooltip title={t('editor:toolbar.sceneScreenshot.lbl')} info={t('editor:toolbar.sceneScreenshot.info')}>
           <button onClick={downloadScreenshot} className={styles.toolButton}>
             <Icon type={'CameraAlt'} fontSize="small" />
           </button>

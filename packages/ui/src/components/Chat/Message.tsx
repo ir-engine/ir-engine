@@ -40,6 +40,7 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { Resizable } from 're-resizable'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
@@ -70,7 +71,7 @@ export const getChannelName = (channel: Channel) => {
 export const MessageList = (props: { channelID: ChannelID }) => {
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userID)
 
-  const { data: messages } = useFind('message', {
+  const { data: messages } = useFind(messagePath, {
     query: {
       channelId: props.channelID
     }
@@ -140,7 +141,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
   }
 
   const MessageField = () => {
-    const mutateMessage = useMutation('message')
+    const mutateMessage = useMutation(messagePath)
 
     const composingMessage = useHookstate('')
 

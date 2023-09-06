@@ -12,7 +12,7 @@
   opacity: 0.3;
 }
 
-.tooltip {
+.label {
   color: var(--textColor);
   overflow: hidden;
   text-overflow: ellipsis;

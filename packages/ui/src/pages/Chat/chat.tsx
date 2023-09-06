@@ -39,6 +39,7 @@ import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/class
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
@@ -50,10 +51,10 @@ const startChatSystems = () => {
 export const initializeEngineForChat = async () => {
   if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  const projects = Engine.instance.api.service('projects').find()
+  const projects = Engine.instance.api.service(projectsPath).find()
 
   startChatSystems()
-  await loadEngineInjection(await projects)
+  await loadEngineInjection((await projects).projectsList)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
   dispatchAction(EngineActions.sceneLoaded({}))

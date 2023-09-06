@@ -31,7 +31,7 @@ import {
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { getDateTimeSql } from '../../util/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig

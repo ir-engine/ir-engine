@@ -761,7 +761,7 @@ export class Project extends Service {
       const projectPermissions = await knexClient
         .from(projectPermissionPath)
         .join('project', 'project.id', `${projectPermissionPath}.projectId`)
-        .where({ userId: params.user!.id })
+        .where(`${projectPermissionPath}.userId`, params.user!.id)
         .select()
         .options({ nestTables: true })
 

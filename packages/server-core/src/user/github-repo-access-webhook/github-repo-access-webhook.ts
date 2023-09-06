@@ -47,7 +47,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(githubRepoAccessWebhookPath, new GithubRepoAccessWebhookService(options, app), {
+  app.use(githubRepoAccessWebhookPath, new GithubRepoAccessWebhookService(app), {
     // A list of all methods this service exposes externally
     methods: githubRepoAccessWebhookMethods,
     // You can add additional custom events to be sent to clients here

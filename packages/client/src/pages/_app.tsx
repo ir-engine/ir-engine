@@ -46,6 +46,7 @@ import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjectio
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from '../themes/themeContext'
 
@@ -99,10 +100,10 @@ const AppPage = ({ route }: { route: string }) => {
       if (!fetchedProjectComponents) {
         setFetchedProjectComponents(true)
         Engine.instance.api
-          .service('projects')
+          .service(projectsPath)
           .find()
           .then((projects) => {
-            loadWebappInjection(projects).then((result) => {
+            loadWebappInjection(projects.projectsList).then((result) => {
               setProjectComponents(result)
             })
           })

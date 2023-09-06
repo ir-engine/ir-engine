@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import InstanceActive from './instance-active/instance-active'
 import InstanceAttendance from './instance-attendance/instance-attendance'
 import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
 import InstanceProvision from './instance-provision/instance-provision.service'
@@ -36,5 +37,6 @@ export default [
   InstanceServerProvision,
   InstanceProvision,
   InstanceAttendance,
-  InstanceAuthorizedUser
+  InstanceAuthorizedUser,
+  InstanceActive
 ]

@@ -39,7 +39,7 @@ export default {
       path: '../../.env.local'
     }).parsed
   }),
-  stories: ['./**/*.stories.@(js|jsx|ts|tsx)', '../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
     '@storybook/addon-toolbars',
     '@storybook/manager-api',

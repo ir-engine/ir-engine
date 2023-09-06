@@ -28,7 +28,6 @@ import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from '
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import logger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
@@ -95,8 +94,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     else removeComponent(entity, component)
   }
 
-  /** @todo remove when all scene components migrated to reactor pattern #6892 */
-  dispatchAction(EngineActions.sceneObjectUpdate({ entities: nodes as Entity[] }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
@@ -117,12 +114,6 @@ const modifyProperty = <C extends Component<any, any>>(
     updateComponent(node, component, properties)
   }
 
-  /** @todo remove when all scene components migrated to reactor pattern #6892 */
-  dispatchAction(
-    EngineActions.sceneObjectUpdate({
-      entities: nodes.filter((node) => typeof node !== 'string') as Entity[]
-    })
-  )
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }

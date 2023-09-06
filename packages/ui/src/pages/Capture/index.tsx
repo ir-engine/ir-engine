@@ -2,7 +2,7 @@
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
+Version 1.0. (the "License") you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
@@ -25,16 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import {
-  FACEMESH_TESSELATION,
-  HAND_CONNECTIONS,
-  Holistic,
-  NormalizedLandmarkList,
-  Options,
-  POSE_CONNECTIONS
-} from '@mediapipe/holistic'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
@@ -48,6 +40,9 @@ import {
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
+import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
+import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -56,10 +51,12 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
-import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
+import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
+import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
+import Toolbar from '../../components/tailwind/Toolbar'
 
 /**
  * Start playback of a recording
@@ -100,32 +97,25 @@ const sendResults = (results: NormalizedLandmarkList) => {
     createDataProducer(network, { label: mocapDataChannelType, ordered: true })
     return
   }
-  if (!dataProducer.closed && dataProducer.readyState === 'open') {
+  if (!dataProducer?.closed && dataProducer?.readyState === 'open') {
+    // console.log('sending results', results)
     const data = MotionCaptureFunctions.sendResults(results)
-    dataProducer.send(data)
+    dataProducer?.send(data)
   }
 }
 
 const CaptureDashboard = () => {
-  const [isVideoFlipped, setIsVideoFlipped] = useState(true)
-  const [isDrawingBody, setIsDrawingBody] = useState(true)
-  const [isDrawingHands, setIsDrawingHands] = useState(true)
-  const [isDrawingFace, setIsDrawingFace] = useState(true)
+  const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
+  const captureSettings = captureState?.nested('settings')?.value
+  const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
+  const trackingSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
+  const debugSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'debug')[0]
 
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
 
-  const detector = useHookstate(null as null | Holistic)
-  const poseOptions = useHookstate({
-    enableFaceGeometry: isDrawingFace,
-    selfieMode: false,
-    modelComplexity: 1,
-    smoothLandmarks: true,
-    enableSegmentation: false,
-    smoothSegmentation: false,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5
-  } as Options)
+  const poseDetector = useHookstate(null as null | Pose)
+
   const processingFrame = useHookstate(false)
 
   const videoRef = useRef<HTMLVideoElement>()
@@ -140,15 +130,26 @@ const CaptureDashboard = () => {
 
   const videoActive = videoStream.value && !videoPaused.value
 
+  const throttledSend = throttle(sendResults, 1)
+
   const resizeCanvas = () => {
-    canvasRef.current!.width = videoRef.current!.clientWidth
-    canvasRef.current!.height = videoRef.current!.clientHeight
+    if (canvasRef.current?.width !== videoRef.current?.clientWidth) {
+      canvasRef.current!.width = videoRef.current!.clientWidth
+    }
+
+    if (canvasRef.current?.height !== videoRef.current?.clientHeight) {
+      canvasRef.current!.height = videoRef.current!.clientHeight
+    }
   }
 
   useEffect(() => {
-    window.addEventListener('resize', resizeCanvas)
+    window.addEventListener('resize', () => {
+      resizeCanvas()
+    })
     return () => {
-      window.removeEventListener('resize', resizeCanvas)
+      window.removeEventListener('resize', () => {
+        resizeCanvas()
+      })
     }
   }, [])
 
@@ -157,62 +158,69 @@ const CaptureDashboard = () => {
   }, [])
 
   useEffect(() => {
-    const factor = isVideoFlipped === true ? '-1' : '1'
-    canvasRef.current!.style.transform = `scaleX(${factor})`
+    const factor = displaySettings.flipVideo === true ? '-1' : '1'
     videoRef.current!.style.transform = `scaleX(${factor})`
-  }, [isVideoFlipped])
+  }, [displaySettings.flipVideo])
 
   useLayoutEffect(() => {
     canvasCtxRef.current = canvasRef.current!.getContext('2d')!
     videoRef.current!.srcObject = videoStream.value
     resizeCanvas()
-  }, [videoStream, poseOptions.selfieMode])
-
-  useEffect(() => {
-    detector.value?.setOptions(poseOptions.value)
-  }, [detector, poseOptions])
+  }, [videoStream])
 
   useEffect(() => {
     if (!isDetecting?.value) return
 
-    if (!detector.value) {
-      if (Holistic !== undefined) {
+    if (!poseDetector.value) {
+      if (Pose !== undefined) {
         setDetectingStatus('loading')
-        const holistic = new Holistic({
+        const pose = new Pose({
           locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
           }
         })
-        detector.set(holistic)
+        pose.setOptions({
+          // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
+          selfieMode: displaySettings?.flipVideo,
+          modelComplexity: trackingSettings?.modelComplexity,
+          smoothLandmarks: trackingSettings?.smoothLandmarks,
+          enableSegmentation: trackingSettings?.enableSegmentation,
+          smoothSegmentation: trackingSettings?.smoothSegmentation,
+          // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
+          minDetectionConfidence: trackingSettings?.minDetectionConfidence,
+          minTrackingConfidence: trackingSettings?.minTrackingConfidence
+        } as Options)
+        poseDetector.set(pose)
       }
     }
 
     processingFrame.set(false)
 
-    if (detector.value) {
-      detector.value.onResults((results) => {
+    if (poseDetector.value) {
+      poseDetector.value.onResults((results) => {
+        if (Object.keys(results).length === 0) return
         if (detectingStatus !== 'active') setDetectingStatus('active')
 
-        const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
+        const { poseLandmarks, poseWorldLandmarks } = results
 
-        /**
-         * Holistic model currently has no export for poseWorldLandmarks, instead as za (likely to change for new builds of the package)
-         * See https://github.com/google/mediapipe/issues/3155
-         */
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        sendResults(results.za)
+        if (!poseWorldLandmarks || !poseLandmarks) return
+
+        if (debugSettings?.throttleSend) {
+          throttledSend(poseWorldLandmarks)
+        } else {
+          sendResults(poseWorldLandmarks)
+        }
 
         processingFrame.set(false)
 
-        if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
+        if (displaySettings?.show2dSkeleton) {
+          if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
 
-        //draw!!!
-        canvasCtxRef.current.save()
-        canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-        canvasCtxRef.current.globalCompositeOperation = 'source-over'
+          //draw!!!
+          canvasCtxRef.current.save()
+          canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+          canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
-        if (isDrawingBody) {
           // Pose Connections
           drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
             color: '#fff',
@@ -221,68 +229,64 @@ const CaptureDashboard = () => {
           // Pose Landmarks
           drawLandmarks(canvasCtxRef.current, poseLandmarks, {
             color: '#fff',
-            lineWidth: 2
-          })
-        }
-
-        if (isDrawingHands) {
-          // Left Hand Connections
-          drawConnectors(
-            canvasCtxRef.current,
-            leftHandLandmarks !== undefined ? leftHandLandmarks : [],
-            HAND_CONNECTIONS,
-            {
-              color: '#fff',
-              lineWidth: 4
-            }
-          )
-
-          // Left Hand Landmarks
-          drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-            color: '#fff',
-            lineWidth: 2
+            radius: 2
           })
 
-          // Right Hand Connections
-          drawConnectors(
-            canvasCtxRef.current,
-            rightHandLandmarks !== undefined ? rightHandLandmarks : [],
-            HAND_CONNECTIONS,
-            {
-              color: '#fff',
-              lineWidth: 4
-            }
-          )
+          // // Left Hand Connections
+          // drawConnectors(
+          //   canvasCtxRef.current,
+          //   leftHandLandmarks !== undefined ? leftHandLandmarks : [],
+          //   HAND_CONNECTIONS,
+          //   {
+          //     color: '#fff',
+          //     lineWidth: 4
+          //   }
+          // )
 
-          // Right Hand Landmarks
-          drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
-            color: '#fff',
-            lineWidth: 2
-          })
-        }
+          // // Left Hand Landmarks
+          // drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
+          //   color: '#fff',
+          //   radius: 2
+          // })
 
-        if (isDrawingFace) {
-          // Face Connections
-          drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
-            color: '#fff',
-            lineWidth: 2
-          })
-          // Face Landmarks
+          // // Right Hand Connections
+          // drawConnectors(
+          //   canvasCtxRef.current,
+          //   rightHandLandmarks !== undefined ? rightHandLandmarks : [],
+          //   HAND_CONNECTIONS,
+          //   {
+          //     color: '#fff',
+          //     lineWidth: 4
+          //   }
+          // )
+
+          // // Right Hand Landmarks
+          // drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
+          //   color: '#fff',
+          //   radius: 2
+          // })
+
+          // // Face Connections
+          // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
+          //   color: '#fff',
+          //   lineWidth: 1
+          // })
+          // // Face Landmarks
           // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
           //   color: '#fff',
           //   lineWidth: 1
           // })
+          canvasCtxRef.current.restore()
         }
-        canvasCtxRef.current.restore()
       })
     }
 
     return () => {
       setDetectingStatus('inactive')
-      if (detector.value) {
-        detector.value.close()
+      if (poseDetector.value) {
+        poseDetector.value.close()
       }
-      detector.set(null)
+      poseDetector.set(null)
     }
   }, [isDetecting])
 
@@ -292,11 +296,9 @@ const CaptureDashboard = () => {
 
     if (processingFrame.value) return
 
-    if (detector.value) {
+    if (poseDetector.value) {
       processingFrame.set(true)
-      detector.value?.send({ image: videoRef.current! }).finally(() => {
-        processingFrame.set(false)
-      })
+      poseDetector.value?.send({ image: videoRef.current! })
     }
   })
 
@@ -332,119 +334,20 @@ const CaptureDashboard = () => {
   const recordingStatus = getRecordingStatus()
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto">
-      <Drawer
-        settings={
-          <div className="w-100 bg-base-100">
-            <div tabIndex={0} className="collapse collapse-open">
-              <div className="collapse-title w-full h-[50px]">
-                <h1>Pose Options</h1>
-              </div>
-              <div className="collapse-content w-full h-auto">
-                <ul className="text-base-content w-full h-auto">
-                  <li>
-                    <label className="label">
-                      <span className="label-text">Model Complexity: {poseOptions.modelComplexity.value}</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="1"
-                      value={poseOptions.modelComplexity.value}
-                      className="range w-full"
-                      onChange={(e) => {
-                        poseOptions.modelComplexity.set(parseInt(e.currentTarget.value) as 0 | 1 | 2)
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <label className="cursor-pointer label">
-                      <span className="label-text">
-                        Min Detection Confidence: {poseOptions.minDetectionConfidence.value}
-                      </span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.0"
-                      max="1.0"
-                      step="0.1"
-                      value={poseOptions.minDetectionConfidence.value}
-                      className="w-full range"
-                      onChange={(e) => {
-                        poseOptions.minDetectionConfidence.set(parseFloat(e.currentTarget.value))
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <label className="cursor-pointer label">
-                      <span className="label-text">
-                        Min Tracking Confidence: {poseOptions.minTrackingConfidence.value}
-                      </span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.0"
-                      max="1.0"
-                      step="0.1"
-                      value={poseOptions.minTrackingConfidence.value}
-                      className="w-full range"
-                      onChange={(e) => {
-                        poseOptions.minTrackingConfidence.set(parseFloat(e.currentTarget.value))
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <label className="label">
-                      <span className="label-text">Smooth Landmarks</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        defaultChecked={poseOptions.smoothLandmarks?.value}
-                        onChange={(e) => {
-                          poseOptions.smoothLandmarks.set(e.currentTarget.checked)
-                        }}
-                      />
-                    </label>
-                  </li>
-                  <li>
-                    <label className="cursor-pointer label">
-                      <span className="label-text">Enable Segmentation</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        defaultChecked={poseOptions.enableSegmentation?.value}
-                        onChange={(e) => {
-                          poseOptions.enableSegmentation.set(e.currentTarget.checked)
-                        }}
-                      />
-                    </label>
-                  </li>
-                  <li>
-                    <label className="cursor-pointer label">
-                      <span className="label-text">Smooth Segmentation</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        defaultChecked={poseOptions.smoothSegmentation?.value}
-                        onChange={(e) => {
-                          poseOptions.smoothSegmentation.set(e.currentTarget.checked)
-                        }}
-                      />
-                    </label>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        }
-      >
+    <div className="w-full container mx-auto">
+      <Drawer settings={<div></div>}>
         <Header />
-        <div className="w-full container mx-auto">
+        <div className="w-full container mx-auto pointer-events-auto">
           <div className="w-full h-auto px-2">
-            <div className="w-full h-auto relative aspect-w-16 aspect-h-9 overflow-hidden">
-              <div className="absolute w-full h-auto top-0 left-0" style={{ backgroundColor: '#000000' }}>
-                <Video ref={videoRef} className="w-full h-auto" />
+            <div className="w-full h-auto relative aspect-video overflow-hidden">
+              <div
+                className="absolute w-full h-full top-0 left-0 flex items-center"
+                style={{ backgroundColor: '#000000' }}
+              >
+                <Video
+                  ref={videoRef}
+                  className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+                />
               </div>
               <div
                 className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
@@ -474,23 +377,7 @@ const CaptureDashboard = () => {
               toggleDetecting={() => isDetecting.set((v) => !v)}
               isRecording={recordingState?.started?.value}
               recordingStatus={recordingStatus}
-              isVideoFlipped={isVideoFlipped}
-              flipVideo={(v) => {
-                setIsVideoFlipped(v)
-              }}
               cycleCamera={MediaStreamService.cycleCamera}
-              isDrawingBody={isDrawingBody}
-              drawBody={(v) => {
-                setIsDrawingBody(v)
-              }}
-              isDrawingHands={isDrawingHands}
-              drawHands={(v) => {
-                setIsDrawingHands(v)
-              }}
-              isDrawingFace={isDrawingFace}
-              drawFace={(v) => {
-                setIsDrawingFace(v)
-              }}
             />
           </div>
           <div className="w-full container mx-auto">

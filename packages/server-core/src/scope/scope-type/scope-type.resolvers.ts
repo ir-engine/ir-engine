@@ -24,14 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 
 import { ScopeTypeQuery, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const scopeTypeResolver = resolve<ScopeTypeType, HookContext>({})
+export const scopeTypeResolver = resolve<ScopeTypeType, HookContext>({
+  createdAt: virtual(async (scopeType) => fromDateTimeSql(scopeType.createdAt)),
+  updatedAt: virtual(async (scopeType) => fromDateTimeSql(scopeType.updatedAt))
+})
 
 export const scopeTypeExternalResolver = resolve<ScopeTypeType, HookContext>({})
 

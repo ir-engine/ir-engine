@@ -66,6 +66,7 @@ export class MediaProducerActions {
     type: 'ee.engine.network.mediasoup.MEDIA_PRODUCER_CREATED',
     requestID: matches.string,
     producerID: matches.string,
+    transportID: matches.string,
     peerID: matchesPeerID,
     mediaTag: matches.string as Validator<unknown, DataChannelType>,
     channelID: matches.string as Validator<unknown, ChannelID>,
@@ -101,6 +102,7 @@ export class MediasoupMediaConsumerActions {
   static consumerCreated = defineAction({
     type: 'ee.engine.network.mediasoup.MEDIA_CREATED_CONSUMER',
     consumerID: matches.string,
+    transportID: matches.string,
     peerID: matchesPeerID,
     mediaTag: matches.string as Validator<unknown, DataChannelType>,
     channelID: matches.string as Validator<unknown, ChannelID>,
@@ -149,6 +151,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
           producerID: string
           peerID: PeerID
           mediaTag: DataChannelType
+          transportID: string
           channelID: ChannelID
           paused?: boolean
           globalMute?: boolean
@@ -159,6 +162,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
           consumerID: string
           peerID: PeerID
           mediaTag: DataChannelType
+          transportID: string
           channelID: ChannelID
           producerID: string
           paused?: boolean
@@ -194,12 +198,13 @@ export const MediasoupMediaProducerConsumerState = defineState({
     [
       MediaProducerActions.producerCreated,
       (state, action: typeof MediaProducerActions.producerCreated.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
         state[networkID].producers.merge({
           [action.producerID]: {
+            transportID: action.transportID,
             producerID: action.producerID,
             peerID: action.peerID,
             mediaTag: action.mediaTag,
@@ -224,7 +229,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
           cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
         }
 
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) return
 
         state[networkID].producers[action.producerID].set(none)
@@ -237,7 +242,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     [
       MediaProducerActions.producerPaused,
       (state, action: typeof MediaProducerActions.producerPaused.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]?.producers[action.producerID]) return
 
         const producerState = state[networkID].producers[action.producerID]
@@ -262,7 +267,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     [
       MediasoupMediaConsumerActions.consumerCreated,
       (state, action: typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
@@ -271,6 +276,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
             consumerID: action.consumerID,
             peerID: action.peerID,
             mediaTag: action.mediaTag,
+            transportID: action.transportID,
             channelID: action.channelID,
             producerID: action.producerID,
             kind: action.kind!,

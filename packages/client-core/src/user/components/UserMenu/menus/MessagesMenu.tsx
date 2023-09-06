@@ -31,6 +31,7 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import { useTranslation } from 'react-i18next'
 import InputText from '../../../../common/components/InputText'
@@ -53,9 +54,12 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
 
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userID)
 
-  const { data: messages } = useFind('message', {
+  const { data: messages } = useFind(messagePath, {
     query: {
-      channelId: props.channelID
+      channelId: props.channelID,
+      $sort: {
+        createdAt: 1
+      }
     }
   })
 
@@ -123,7 +127,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
   const MessageField = () => {
     const composingMessage = useHookstate('')
 
-    const mutateMessage = useMutation('message')
+    const mutateMessage = useMutation(messagePath)
 
     const sendMessage = () => {
       mutateMessage.create({

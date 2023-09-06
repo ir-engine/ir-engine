@@ -25,11 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { AvatarStates } from '../../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../../avatar/functions/moveAvatar'
 import { switchCameraMode } from '../../../avatar/functions/switchCameraMode'
-import { AvatarNetworkAction } from '../../../avatar/state/AvatarNetworkState'
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
@@ -42,12 +40,13 @@ import { UUIDComponent } from '../../components/UUIDComponent'
 export const setAvatarToLocationTeleportingState = () => {
   switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
   getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = false
-  dispatchAction(
+  /*dispatchAction(
     AvatarNetworkAction.setAnimationState({
       animationState: AvatarStates.FALL_IDLE,
       entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent)
     })
   )
+  */
 }
 
 export const revertAvatarToMovingStateFromTeleport = () => {

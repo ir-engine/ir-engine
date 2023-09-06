@@ -23,8 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import {
+  NodeCategory,
+  makeAsyncNodeDefinition,
+  makeFlowNodeDefinition,
+  makeFunctionNodeDefinition
+} from '@behave-graph/core'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import {
   AdditiveAnimationBlendMode,
   AnimationActionLoopStyles,
@@ -36,20 +41,26 @@ import {
   NormalAnimationBlendMode
 } from 'three'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
-import { AnimationManager } from '../../../../../avatar/AnimationManager'
-import { AnimationComponent } from '../../../../../avatar/components/AnimationComponent'
+import { AnimationState } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { CameraActions } from '../../../../../camera/CameraState'
 import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneServices } from '../../../../../ecs/classes/Scene'
-import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
 import { StandardCallbacks, getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
+import { endXRSession, requestXRSession } from '../../../../../xr/XRSessionFunctions'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
+import { addMediaComponent } from '../helper/assetHelper'
 
 export const playVideo = makeFlowNodeDefinition({
   typeName: 'engine/media/playVideo',
@@ -157,7 +168,8 @@ export const playAudio = makeFlowNodeDefinition({
       volume: volume,
       playMode: playMode!
     }) // play
-    const component = getComponent(entity, MediaComponent)
+    const component = getMutableComponent(entity, MediaComponent)
+    component.paused.set(false)
     commit('flow')
   }
 })
@@ -213,14 +225,8 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
   label: 'Get Avatar Animations',
   in: {
     animationName: (_, graphApi) => {
-      const getAnims = async () => {
-        return await AnimationManager.instance.loadDefaultAnimations()
-      }
-      const animations = AnimationManager.instance?._animations ?? getAnims()
-
-      const choices = Array.from(animations)
-        .map((clip) => clip.name)
-        .sort()
+      const animations = getState(AnimationState).loadedAnimations
+      const choices = Object.keys(animations).sort()
       choices.unshift('none')
       return {
         valueType: 'string',
@@ -253,28 +259,29 @@ export const playAnimation = makeFlowNodeDefinition({
         choices: choices
       }
     },
-    animationName: 'string',
     animationSpeed: 'float',
+    animationPack: 'string',
+    activeClipIndex: 'number',
     isAvatar: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const entity = read<Entity>('entity')
-    const animation = read<string>('animationName')
     const action = read<string>('action')
     const animationSpeed = read<number>('animationSpeed')
-    setComponent(entity, LoopAnimationComponent, { animationSpeed: animationSpeed })
+    const animationPack = read<string>('animationPack')
+    const activeClipIndex = read<number>('activeClipIndex')
+    const isAvatar = read<boolean>('isAvatar')
+    setComponent(entity, LoopAnimationComponent, {
+      hasAvatarAnimations: isAvatar,
+      animationSpeed: animationSpeed,
+      animationPack: animationPack,
+      activeClipIndex: activeClipIndex
+    })
 
-    if (animation.length > 0) {
-      const isAvatar: boolean = read('isAvatar')
-      const animationComponent = getComponent(entity, AnimationComponent)
-      const animations = isAvatar ? AnimationManager.instance._animations : animationComponent.animations
-      const animIndex: number = animations.findIndex((clip) => clip.name === animation)
-      setComponent(entity, LoopAnimationComponent, { activeClipIndex: animIndex, hasAvatarAnimations: isAvatar })
-      const trigger = getCallback(entity, action)
-      trigger?.()
-    }
+    const trigger = getCallback(entity, action)
+    trigger?.()
 
     commit('flow')
   }
@@ -341,6 +348,38 @@ export const setAnimationAction = makeFlowNodeDefinition({
   }
 })
 
+const initialState = () => {}
+export const loadAsset = makeAsyncNodeDefinition({
+  typeName: 'engine/asset/loadAsset',
+  category: NodeCategory.Action,
+  label: 'Load asset',
+  in: {
+    flow: 'flow',
+    assetPath: 'string'
+  },
+  out: { flow: 'flow', loadEnd: 'flow', entity: 'entity' },
+  initialState: initialState(),
+  triggered: ({ read, write, commit, finished }) => {
+    const loadAsset = async () => {
+      const assetPath = read<string>('assetPath')
+      const node = await addMediaComponent(assetPath)
+      return node
+    }
+
+    commit('flow', async () => {
+      const entity = await loadAsset()
+      write('entity', entity)
+      commit('loadEnd', () => {
+        finished?.()
+      })
+    })
+    return null
+  },
+  dispose: ({ state, graph: { getDependency } }) => {
+    return initialState()
+  }
+})
+
 export const fadeCamera = makeFlowNodeDefinition({
   typeName: 'engine/camera/cameraFade',
   category: NodeCategory.Action,
@@ -375,6 +414,44 @@ export const setCameraZoom = makeFlowNodeDefinition({
   }
 })
 
+export const startXRSession = makeFlowNodeDefinition({
+  typeName: 'engine/xr/startSession',
+  category: NodeCategory.Action,
+  label: 'Start XR Session',
+  in: {
+    flow: 'flow',
+    XRmode: (_, graphApi) => {
+      const choices = ['inline', 'immersive-ar', 'immersive-vr']
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const XRmode = read<'inline' | 'immersive-ar' | 'immersive-vr'>('XRmode')
+    requestXRSession({ mode: XRmode })
+    commit('flow')
+  }
+})
+
+export const finishXRSession = makeFlowNodeDefinition({
+  typeName: 'engine/xr/endSession',
+  category: NodeCategory.Action,
+  label: 'End XR Session',
+  in: {
+    flow: 'flow'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    endXRSession()
+    commit('flow')
+  }
+})
+
 export const switchScene = makeFlowNodeDefinition({
   typeName: 'engine/switchScene',
   category: NodeCategory.Action,
@@ -389,7 +466,7 @@ export const switchScene = makeFlowNodeDefinition({
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const projectName = read<string>('projectName')
     const sceneName = read<string>('sceneName')
-    SceneServices.fetchCurrentScene(projectName, sceneName)
+    SceneServices.setCurrentScene(projectName, sceneName)
   }
 })
 

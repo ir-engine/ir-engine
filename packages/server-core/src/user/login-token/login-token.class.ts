@@ -39,7 +39,7 @@ import {
 
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
-import { toDateTimeSql } from '../../util/get-datetime-sql'
+import { toDateTimeSql } from '../../util/datetime-sql'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LoginTokenParams extends RootParams<LoginTokenQuery> {}

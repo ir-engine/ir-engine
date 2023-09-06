@@ -37,6 +37,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
+  getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
@@ -239,6 +240,9 @@ export function MediaReactor() {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
+      // handle when we dont have autoplay enabled but have programatically started playback
+      if (!media.autoplay.value && !media.paused.value) getComponent(entity, MediaElementComponent)?.element.play()
+      // handle when we have autoplay enabled but have paused playback
       if (media.autoplay.value && media.paused.value) media.paused.set(false)
       window.removeEventListener('pointerdown', handleAutoplay)
       window.removeEventListener('keypress', handleAutoplay)

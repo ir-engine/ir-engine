@@ -66,7 +66,7 @@ const AvatarContextMenu = () => {
   const authState = useHookstate(getMutableState(AuthState))
   const selfId = authState.user.id?.value ?? ''
 
-  const peers = Engine.instance.worldNetwork.peers
+  const peers = Engine.instance.worldNetwork?.peers
   const user = peers
     ? Object.values(peers).find((peer) => peer.userId === detailState.id.value) || undefined
     : undefined

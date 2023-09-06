@@ -56,7 +56,7 @@ const StatsTool = () => {
   return (
     <>
       <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="stats">
-        <InfoTooltip title="Toggle Stats">
+        <InfoTooltip title={t('editor:toolbar.stats.lbl')} info={t('editor:toolbar.stats.info')}>
           <button onClick={toggleStats} className={styles.toolButton + ' ' + (isVisible ? styles.selected : '')}>
             <SsidChartIcon fontSize="small" />
           </button>

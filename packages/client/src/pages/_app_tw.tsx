@@ -52,6 +52,7 @@ import EngineTW from '../engine_tw'
 import PublicRouter from '../route/public_tw'
 import { ThemeContextProvider } from '../themes/themeContext'
 
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import 'daisyui/dist/full.css'
 import 'tailwindcss/tailwind.css'
 import '../themes/base.css'
@@ -84,10 +85,10 @@ const AppPage = () => {
       if (!fetchedProjectComponents) {
         setFetchedProjectComponents(true)
         Engine.instance.api
-          .service('projects')
+          .service(projectsPath)
           .find()
           .then((projects) => {
-            loadWebappInjection(projects).then((result) => {
+            loadWebappInjection(projects.projectsList).then((result) => {
               setProjectComponents(result)
             })
           })

@@ -27,15 +27,23 @@ import React from 'react'
 
 import TuneIcon from '@mui/icons-material/Tune'
 
+import { useTranslation } from 'react-i18next'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import { InfoTooltip } from '../layout/Tooltip'
 import styles from '../styles.module.scss'
 
 export const PropertiesPanelTitle = () => {
+  const { t } = useTranslation()
+
   return (
     <div className={styles.dockableTab}>
       <PanelDragContainer>
         <PanelIcon as={TuneIcon} size={12} />
-        <PanelTitle>Properties</PanelTitle>
+        <PanelTitle>
+          <InfoTooltip title={t('editor:properties.info')}>
+            <span>{t('editor:properties.title')}</span>
+          </InfoTooltip>
+        </PanelTitle>
       </PanelDragContainer>
     </div>
   )

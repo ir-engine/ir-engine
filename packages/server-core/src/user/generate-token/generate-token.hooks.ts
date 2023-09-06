@@ -46,11 +46,11 @@ export default {
   },
 
   before: {
-    all: [],
-    find: [
+    all: [
       () => schemaHooks.validateQuery(generateTokenQueryValidator),
       schemaHooks.resolveQuery(generateTokenQueryResolver)
     ],
+    find: [],
     get: [],
     create: [
       authenticate(),

@@ -47,7 +47,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(githubRepoAccessRefreshPath, new GithubRepoAccessRefreshService(options, app), {
+  app.use(githubRepoAccessRefreshPath, new GithubRepoAccessRefreshService(app), {
     // A list of all methods this service exposes externally
     methods: githubRepoAccessRefreshMethods,
     // You can add additional custom events to be sent to clients here

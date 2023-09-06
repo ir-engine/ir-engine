@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -33,9 +33,12 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const chargebeeSettingResolver = resolve<ChargebeeSettingType, HookContext>({})
+export const chargebeeSettingResolver = resolve<ChargebeeSettingType, HookContext>({
+  createdAt: virtual(async (chargebeeSetting) => fromDateTimeSql(chargebeeSetting.createdAt)),
+  updatedAt: virtual(async (chargebeeSetting) => fromDateTimeSql(chargebeeSetting.updatedAt))
+})
 
 export const chargebeeSettingExternalResolver = resolve<ChargebeeSettingType, HookContext>({})
 

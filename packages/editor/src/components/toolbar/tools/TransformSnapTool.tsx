@@ -31,6 +31,7 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 
+import { useTranslation } from 'react-i18next'
 import { toggleSnapMode } from '../../../functions/transformFunctions'
 import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
@@ -58,6 +59,8 @@ const rotationSnapOptions = [
 ]
 
 const TransformSnapTool = () => {
+  const { t } = useTranslation()
+
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   const onChangeTranslationSnap = (snapValue: number) => {
@@ -85,7 +88,7 @@ const TransformSnapTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-snap">
-      <InfoTooltip title="[C] Toggle Snap Mode">
+      <InfoTooltip title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
         <button
           onClick={toggleSnapMode}
           className={
@@ -95,24 +98,32 @@ const TransformSnapTool = () => {
           <AttractionsIcon fontSize="small" />
         </button>
       </InfoTooltip>
-      <SelectInput
-        key={editorHelperState.translationSnap.value}
-        className={styles.selectInput}
-        onChange={onChangeTranslationSnap}
-        options={translationSnapOptions}
-        value={editorHelperState.translationSnap.value}
-        creatable={false}
-        isSearchable={false}
-      />
-      <SelectInput
-        key={editorHelperState.rotationSnap.value}
-        className={styles.selectInput}
-        onChange={onChangeRotationSnap}
-        options={rotationSnapOptions}
-        value={editorHelperState.rotationSnap.value}
-        creatable={false}
-        isSearchable={false}
-      />
+      <InfoTooltip title={t('editor:toolbar.transformSnapTool.info-translate')} placement="right">
+        <div>
+          <SelectInput
+            key={editorHelperState.translationSnap.value}
+            className={styles.selectInput}
+            onChange={onChangeTranslationSnap}
+            options={translationSnapOptions}
+            value={editorHelperState.translationSnap.value}
+            creatable={false}
+            isSearchable={false}
+          />
+        </div>
+      </InfoTooltip>
+      <InfoTooltip title={t('editor:toolbar.transformSnapTool.info-rotate')} placement="right">
+        <div>
+          <SelectInput
+            key={editorHelperState.rotationSnap.value}
+            className={styles.selectInput}
+            onChange={onChangeRotationSnap}
+            options={rotationSnapOptions}
+            value={editorHelperState.rotationSnap.value}
+            creatable={false}
+            isSearchable={false}
+          />
+        </div>
+      </InfoTooltip>
     </div>
   )
 }

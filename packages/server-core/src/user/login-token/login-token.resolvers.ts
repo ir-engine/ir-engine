@@ -24,15 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { LoginTokenQuery, LoginTokenType } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const loginTokenResolver = resolve<LoginTokenType, HookContext>({})
+export const loginTokenResolver = resolve<LoginTokenType, HookContext>({
+  expiresAt: virtual(async (loginToken) => fromDateTimeSql(loginToken.expiresAt)),
+  createdAt: virtual(async (loginToken) => fromDateTimeSql(loginToken.createdAt)),
+  updatedAt: virtual(async (loginToken) => fromDateTimeSql(loginToken.updatedAt))
+})
 
 export const loginTokenExternalResolver = resolve<LoginTokenType, HookContext>({})
 

@@ -24,14 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 
 import { BuildStatusQuery, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const buildStatusResolver = resolve<BuildStatusType, HookContext>({})
+export const buildStatusResolver = resolve<BuildStatusType, HookContext>({
+  createdAt: virtual(async (buildStatus) => fromDateTimeSql(buildStatus.createdAt)),
+  updatedAt: virtual(async (buildStatus) => fromDateTimeSql(buildStatus.updatedAt))
+})
 
 export const buildStatusExternalResolver = resolve<BuildStatusType, HookContext>({})
 

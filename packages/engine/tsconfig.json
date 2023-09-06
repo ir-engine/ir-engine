@@ -26,7 +26,7 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha"]
+    "types": ["vite/client", "mocha",  "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"],
   },
   "exclude": [
     "../projects/projects/**",
