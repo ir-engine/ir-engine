@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBone, VRMHumanBones } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
@@ -53,7 +53,12 @@ import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, {
+  BoneNames,
+  findSkinnedMeshes,
+  getAllBones,
+  recursiveHipsLookup
+} from '../AvatarBoneMatching'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
@@ -84,6 +89,12 @@ export const parseAvatarModelAsset = (model: any) => {
 }
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
+  // if (!sourceRig) {
+  //   const sourceVRM = await AssetLoader.loadAsync(
+  //     `${config.client.fileServer}/projects/default-project/assets/animations/mocap_skeleton.vrm`
+  //   )
+  //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
+  // }
   const model = await AssetLoader.loadAsync(avatarURL)
   return parseAvatarModelAsset(model)
 }
@@ -187,6 +198,8 @@ export const getAnimations = async () => {
   return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
 }
 
+let sourceRig: VRMHumanBones
+
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
@@ -194,10 +207,12 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const rig = model.humanoid?.normalizedHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
+  const targetBones = getAllBones(recursiveHipsLookup(model.scene))
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    localRig: cloneDeep(rig),
+    localRig: cloneDeep(rig), //cloneDeep(sourceRig),
+    targetBones,
     skinnedMeshes,
     vrm: model
   })
