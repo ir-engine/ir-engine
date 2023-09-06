@@ -31,7 +31,7 @@ import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
@@ -57,13 +57,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
   async get(id: ChannelID, params?: UserParams) {
     const channel = (await super.get(id, params)) as ChannelDataType
-
-    // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
-    for (const message of channel.messages) {
-      if (message && message.senderId && !message.sender) {
-        message.sender = await this.app.service(userPath)._get(message.senderId)
-      }
-    }
 
     return channel as T
   }
@@ -277,7 +270,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       })
 
       for (const channel of allChannels) {
-        channel.messages = (await this.app.service(messagePath).find({
+        channel.dataValues.messages = (await this.app.service(messagePath).find({
           query: {
             channelId: channel.id,
             $limit: 20,
