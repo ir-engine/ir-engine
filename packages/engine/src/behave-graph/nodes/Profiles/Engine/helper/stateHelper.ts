@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, NodeDefinition, makeFlowNodeDefinition } from '@behave-graph/core'
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { EnginetoNodetype, NodetoEnginetype, getSocketType } from './commonHelper'
 
@@ -31,7 +32,7 @@ const skipState = [''] // behave graph state is skipped since its a type of reco
 
 export function generateStateNodeSchema(state) {
   const nodeschema = {}
-  const schema = state.value
+  const schema = state.get(NO_PROXY)
   if (schema === null) {
     return nodeschema
   }
