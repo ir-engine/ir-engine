@@ -40,12 +40,12 @@ export const CaptureClientSettingsState = defineState({
       {
         name: 'Tracking',
         tabOrder: 1,
-        enableFaceGeometry: false,
+        // enableFaceGeometry: false,
         modelComplexity: 2,
         smoothLandmarks: true,
         enableSegmentation: true,
         smoothSegmentation: true,
-        refineFaceLandmarks: false,
+        // refineFaceLandmarks: false,
         minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5
       },

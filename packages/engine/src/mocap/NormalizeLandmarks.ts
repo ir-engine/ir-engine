@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NormalizedLandmarkList, POSE_LANDMARKS } from '@mediapipe/holistic'
+import { NormalizedLandmarkList, POSE_LANDMARKS } from '@mediapipe/pose'
 import { Box3, Vector3 } from 'three'
 
 const bboxWorld = new Box3()

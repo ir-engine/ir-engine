@@ -37,9 +37,8 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
-import { Landmark, Results } from '@mediapipe/holistic'
+import { NormalizedLandmarkList } from '@mediapipe/pose'
 
-import { NormalizedLandmarkList } from '@mediapipe/holistic'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { getState } from '@etherealengine/hyperflux'
@@ -66,10 +65,6 @@ import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import UpdateAvatar from './UpdateAvatar'
-
-export interface MotionCaptureStream extends Results {
-  za: Landmark[]
-}
 
 export const sendResults = (results: NormalizedLandmarkList) => {
   return encode({

@@ -54,7 +54,7 @@ import {
   POSE_LANDMARKS,
   POSE_LANDMARKS_LEFT,
   POSE_LANDMARKS_RIGHT
-} from '@mediapipe/holistic'
+} from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { solveTwoBoneIK } from '../avatar/animation/TwoBoneIKSolver'
 import { V_010, V_111 } from '../common/constants/MathConstants'
@@ -163,98 +163,96 @@ export default function UpdateAvatar(landmarks: NormalizedLandmarkList, userID, 
     }
   })
 
-  const DIRECT = true
-  if (DIRECT) {
-    const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
+  const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
-    solveSpine(entity, lowestWorldY, landmarks)
-    solveLimb(
-      entity,
-      lowestWorldY,
-      smoothedLandmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
-      smoothedLandmarks[POSE_LANDMARKS.RIGHT_ELBOW],
-      smoothedLandmarks[POSE_LANDMARKS.RIGHT_WRIST],
-      new Vector3(1, 0, 0),
-      VRMHumanBoneName.Chest,
-      VRMHumanBoneName.LeftUpperArm,
-      VRMHumanBoneName.LeftLowerArm
-    )
-    solveLimb(
-      entity,
-      lowestWorldY,
-      smoothedLandmarks[POSE_LANDMARKS.LEFT_SHOULDER],
-      smoothedLandmarks[POSE_LANDMARKS.LEFT_ELBOW],
-      smoothedLandmarks[POSE_LANDMARKS.LEFT_WRIST],
-      new Vector3(-1, 0, 0),
-      VRMHumanBoneName.Chest,
-      VRMHumanBoneName.RightUpperArm,
-      VRMHumanBoneName.RightLowerArm
-    )
-    solveLimb(
-      entity,
-      lowestWorldY,
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-      new Vector3(0, 1, 0),
-      VRMHumanBoneName.Hips,
-      VRMHumanBoneName.LeftUpperLeg,
-      VRMHumanBoneName.LeftLowerLeg
-    )
-    solveLimb(
-      entity,
-      lowestWorldY,
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-      new Vector3(0, 1, 0),
-      VRMHumanBoneName.Hips,
-      VRMHumanBoneName.RightUpperLeg,
-      VRMHumanBoneName.RightLowerLeg
-    )
-    solveHand(
-      entity,
-      lowestWorldY,
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
-      false,
-      VRMHumanBoneName.RightLowerArm,
-      VRMHumanBoneName.RightHand
-    )
-    solveHand(
-      entity,
-      lowestWorldY,
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
-      true,
-      VRMHumanBoneName.LeftLowerArm,
-      VRMHumanBoneName.LeftHand
-    )
-    solveFoot(
-      entity,
-      lowestWorldY,
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
-      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
-      VRMHumanBoneName.RightUpperLeg,
-      VRMHumanBoneName.RightFoot
-    )
-    solveFoot(
-      entity,
-      lowestWorldY,
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
-      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
-      VRMHumanBoneName.LeftUpperLeg,
-      VRMHumanBoneName.LeftFoot
-    )
-  } else {
-    // publish ik targets rather than directly setting body parts
-    // const changes4 = UpdateIkPose(landmarks)
-    // ApplyPoseChanges(entity, changes4)
-  }
+  solveSpine(entity, lowestWorldY, landmarks)
+  solveLimb(
+    entity,
+    lowestWorldY,
+    smoothedLandmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
+    smoothedLandmarks[POSE_LANDMARKS.RIGHT_ELBOW],
+    smoothedLandmarks[POSE_LANDMARKS.RIGHT_WRIST],
+    new Vector3(1, 0, 0),
+    VRMHumanBoneName.Chest,
+    VRMHumanBoneName.LeftUpperArm,
+    VRMHumanBoneName.LeftLowerArm
+  )
+  solveLimb(
+    entity,
+    lowestWorldY,
+    smoothedLandmarks[POSE_LANDMARKS.LEFT_SHOULDER],
+    smoothedLandmarks[POSE_LANDMARKS.LEFT_ELBOW],
+    smoothedLandmarks[POSE_LANDMARKS.LEFT_WRIST],
+    new Vector3(-1, 0, 0),
+    VRMHumanBoneName.Chest,
+    VRMHumanBoneName.RightUpperArm,
+    VRMHumanBoneName.RightLowerArm
+  )
+  solveLimb(
+    entity,
+    lowestWorldY,
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+    new Vector3(0, 1, 0),
+    VRMHumanBoneName.Hips,
+    VRMHumanBoneName.LeftUpperLeg,
+    VRMHumanBoneName.LeftLowerLeg
+  )
+  solveLimb(
+    entity,
+    lowestWorldY,
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+    new Vector3(0, 1, 0),
+    VRMHumanBoneName.Hips,
+    VRMHumanBoneName.RightUpperLeg,
+    VRMHumanBoneName.RightLowerLeg
+  )
+  solveHand(
+    entity,
+    lowestWorldY,
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
+    false,
+    VRMHumanBoneName.RightLowerArm,
+    VRMHumanBoneName.RightHand
+  )
+  solveHand(
+    entity,
+    lowestWorldY,
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
+    true,
+    VRMHumanBoneName.LeftLowerArm,
+    VRMHumanBoneName.LeftHand
+  )
+  solveFoot(
+    entity,
+    lowestWorldY,
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
+    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
+    VRMHumanBoneName.RightUpperLeg,
+    VRMHumanBoneName.RightFoot
+  )
+  solveFoot(
+    entity,
+    lowestWorldY,
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
+    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
+    VRMHumanBoneName.LeftUpperLeg,
+    VRMHumanBoneName.LeftFoot
+  )
+
+  // if (!planeHelper1.parent) {
+  //   Engine.instance.scene.add(planeHelper1)
+  //   Engine.instance.scene.add(planeHelper2)
+  // }
 }
 
 const threshhold = 0.6
@@ -325,11 +323,6 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   )
 
   const hipWorldQuaterion = getQuaternionFromPointsAlongPlane(hipright, hipleft, shoulderCenter, new Quaternion(), true)
-
-  // if (!planeHelper1.parent) {
-  //   Engine.instance.scene.add(planeHelper1)
-  //   Engine.instance.scene.add(planeHelper2)
-  // }
 
   // planeHelper1.position.copy(hipcenter)
   // planeHelper1.quaternion.copy(hipWorldQuaterion)
@@ -516,6 +509,10 @@ export const solveHand = (
   rotationMatrix.makeBasis(directionVector, orthogonalVector, thirdVector)
 
   const limbExtentQuaternion = new Quaternion().setFromRotationMatrix(rotationMatrix)
+
+  // planeHelper2.position.copy(startPoint)
+  // planeHelper2.quaternion.copy(limbExtentQuaternion)
+  // planeHelper2.updateMatrixWorld()
 
   // convert to local space
   const extentQuaternionLocal = new Quaternion()

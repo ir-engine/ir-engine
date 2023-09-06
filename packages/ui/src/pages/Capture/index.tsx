@@ -43,11 +43,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import {
-  MotionCaptureFunctions,
-  MotionCaptureStream,
-  mocapDataChannelType
-} from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { normalizeLandmarks } from '@etherealengine/engine/src/mocap/NormalizeLandmarks'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
@@ -59,7 +55,7 @@ import RecordingsList from '@etherealengine/ui/src/components/tailwind/Recording
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { HAND_CONNECTIONS, Holistic, NormalizedLandmarkList, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
+import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import Toolbar from '../../components/tailwind/Toolbar'
 
@@ -119,7 +115,7 @@ const CaptureDashboard = () => {
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
 
-  const holisticDetector = useHookstate(null as null | Holistic)
+  const poseDetector = useHookstate(null as null | Pose)
 
   const processingFrame = useHookstate(false)
 
@@ -176,41 +172,41 @@ const CaptureDashboard = () => {
   useEffect(() => {
     if (!isDetecting?.value) return
 
-    if (!holisticDetector.value) {
-      if (Holistic !== undefined) {
+    if (!poseDetector.value) {
+      if (Pose !== undefined) {
         setDetectingStatus('loading')
-        const holistic = new Holistic({
+        const pose = new Pose({
           locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
           }
         })
-        holistic.setOptions({
-          enableFaceGeometry: trackingSettings?.enableFaceGeometry,
+        pose.setOptions({
+          // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
           selfieMode: displaySettings?.flipVideo,
           modelComplexity: trackingSettings?.modelComplexity,
           smoothLandmarks: trackingSettings?.smoothLandmarks,
           enableSegmentation: trackingSettings?.enableSegmentation,
           smoothSegmentation: trackingSettings?.smoothSegmentation,
-          refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
+          // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
           minDetectionConfidence: trackingSettings?.minDetectionConfidence,
           minTrackingConfidence: trackingSettings?.minTrackingConfidence
         } as Options)
-        holisticDetector.set(holistic)
+        poseDetector.set(pose)
       }
     }
 
     processingFrame.set(false)
 
-    if (holisticDetector.value) {
-      holisticDetector.value.onResults((results: MotionCaptureStream) => {
+    if (poseDetector.value) {
+      poseDetector.value.onResults((results) => {
         if (Object.keys(results).length === 0) return
         if (detectingStatus !== 'active') setDetectingStatus('active')
 
-        const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
+        const { poseLandmarks, poseWorldLandmarks } = results
 
-        if (!results.za || !poseLandmarks) return
+        if (!poseWorldLandmarks || !poseLandmarks) return
 
-        const normalizedLandmarks = normalizeLandmarks(results.za, poseLandmarks)
+        const normalizedLandmarks = normalizeLandmarks(poseWorldLandmarks, poseLandmarks)
 
         if (debugSettings?.throttleSend) {
           throttledSend(normalizedLandmarks)
@@ -239,41 +235,41 @@ const CaptureDashboard = () => {
             radius: 2
           })
 
-          // Left Hand Connections
-          drawConnectors(
-            canvasCtxRef.current,
-            leftHandLandmarks !== undefined ? leftHandLandmarks : [],
-            HAND_CONNECTIONS,
-            {
-              color: '#fff',
-              lineWidth: 4
-            }
-          )
+          // // Left Hand Connections
+          // drawConnectors(
+          //   canvasCtxRef.current,
+          //   leftHandLandmarks !== undefined ? leftHandLandmarks : [],
+          //   HAND_CONNECTIONS,
+          //   {
+          //     color: '#fff',
+          //     lineWidth: 4
+          //   }
+          // )
 
-          // Left Hand Landmarks
-          drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-            color: '#fff',
-            radius: 2
-          })
+          // // Left Hand Landmarks
+          // drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
+          //   color: '#fff',
+          //   radius: 2
+          // })
 
-          // Right Hand Connections
-          drawConnectors(
-            canvasCtxRef.current,
-            rightHandLandmarks !== undefined ? rightHandLandmarks : [],
-            HAND_CONNECTIONS,
-            {
-              color: '#fff',
-              lineWidth: 4
-            }
-          )
+          // // Right Hand Connections
+          // drawConnectors(
+          //   canvasCtxRef.current,
+          //   rightHandLandmarks !== undefined ? rightHandLandmarks : [],
+          //   HAND_CONNECTIONS,
+          //   {
+          //     color: '#fff',
+          //     lineWidth: 4
+          //   }
+          // )
 
-          // Right Hand Landmarks
-          drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
-            color: '#fff',
-            radius: 2
-          })
+          // // Right Hand Landmarks
+          // drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
+          //   color: '#fff',
+          //   radius: 2
+          // })
 
-          // Face Connections
+          // // Face Connections
           // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
           //   color: '#fff',
           //   lineWidth: 1
@@ -290,10 +286,10 @@ const CaptureDashboard = () => {
 
     return () => {
       setDetectingStatus('inactive')
-      if (holisticDetector.value) {
-        holisticDetector.value.close()
+      if (poseDetector.value) {
+        poseDetector.value.close()
       }
-      holisticDetector.set(null)
+      poseDetector.set(null)
     }
   }, [isDetecting])
 
@@ -303,9 +299,9 @@ const CaptureDashboard = () => {
 
     if (processingFrame.value) return
 
-    if (holisticDetector.value) {
+    if (poseDetector.value) {
       processingFrame.set(true)
-      holisticDetector.value?.send({ image: videoRef.current! })
+      poseDetector.value?.send({ image: videoRef.current! })
     }
   })
 
