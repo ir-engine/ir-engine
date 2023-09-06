@@ -82,7 +82,7 @@ const ProjectTable = ({ className }: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
   const [changeDestination, setChangeDestination] = useState(false)
 
-  const projectsQuery = useFind('project', { query: { allowed: true } })
+  const projectsQuery = useFind('project', { query: { allowed: true, $limit: rowsPerPage } })
   const adminProjects = (projectsQuery.data as any).data as ProjectInterface[]
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
