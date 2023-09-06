@@ -357,7 +357,6 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     originTransform.matrix.multiplyMatrices(desiredAvatarMatrix, originRelativeToAvatarMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
     originTransform.matrixInverse.copy(originTransform.matrix).invert()
-
     updateWorldOrigin()
   }
 
@@ -386,8 +385,8 @@ let rotationNeedsUpdate = false
 const _updateLocalAvatarRotationAttachedMode = () => {
   const entity = Engine.instance.localClientEntity
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
   const viewerPose = getState(XRState).viewerPose
+  const transform = getComponent(entity, TransformComponent)
 
   if (!viewerPose) return
 
@@ -408,10 +407,9 @@ const _updateLocalAvatarRotationAttachedMode = () => {
     avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
     rotationNeedsUpdate = false
   }
-
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
-  rigidbody.targetKinematicRotation.slerp(avatarRotation, 5 * getState(EngineState).deltaSeconds)
+  transform.rotation.slerp(avatarRotation, 5 * getState(EngineState).deltaSeconds)
 }
 
 export const updateLocalAvatarRotation = () => {
