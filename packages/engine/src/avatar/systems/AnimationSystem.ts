@@ -25,17 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { VRM } from '@pixiv/three-vrm'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
-const loopAnimationQuery = defineQuery([LoopAnimationComponent, VisibleComponent])
+const loopAnimationQuery = defineQuery([AnimationComponent, LoopAnimationComponent, ModelComponent, TransformComponent])
 
 const execute = () => {
   const { deltaSeconds } = getState(EngineState)
@@ -52,8 +55,12 @@ const execute = () => {
   }
 
   for (const entity of loopAnimationQuery()) {
-    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-    if (loopAnimationComponent.vrm) loopAnimationComponent.vrm.update(getState(EngineState).deltaSeconds)
+    const model = getComponent(entity, ModelComponent)
+    if (model.asset instanceof VRM) {
+      const position = getComponent(entity, TransformComponent).position
+      model.asset.update(deltaSeconds)
+      getComponent(entity, TransformComponent).position.copy(position)
+    }
   }
 }
 

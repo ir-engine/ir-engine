@@ -42,7 +42,7 @@ import { Validator, matches, matchesPeerID } from '../../common/functions/Matche
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { UserID } from '../../schemas/user/user.schema'
+import { InstanceID } from '../../schemas/networking/instance.schema'
 import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
 
 export class MediaProducerActions {
@@ -66,6 +66,7 @@ export class MediaProducerActions {
     type: 'ee.engine.network.mediasoup.MEDIA_PRODUCER_CREATED',
     requestID: matches.string,
     producerID: matches.string,
+    transportID: matches.string,
     peerID: matchesPeerID,
     mediaTag: matches.string as Validator<unknown, DataChannelType>,
     channelID: matches.string as Validator<unknown, ChannelID>,
@@ -101,6 +102,7 @@ export class MediasoupMediaConsumerActions {
   static consumerCreated = defineAction({
     type: 'ee.engine.network.mediasoup.MEDIA_CREATED_CONSUMER',
     consumerID: matches.string,
+    transportID: matches.string,
     peerID: matchesPeerID,
     mediaTag: matches.string as Validator<unknown, DataChannelType>,
     channelID: matches.string as Validator<unknown, ChannelID>,
@@ -142,13 +144,14 @@ export const MediasoupMediaProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupMediaProducerConsumerState',
 
   initial: {} as Record<
-    string, // NetworkID
+    InstanceID,
     {
       producers: {
         [producerID: string]: {
           producerID: string
           peerID: PeerID
           mediaTag: DataChannelType
+          transportID: string
           channelID: ChannelID
           paused?: boolean
           globalMute?: boolean
@@ -159,6 +162,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
           consumerID: string
           peerID: PeerID
           mediaTag: DataChannelType
+          transportID: string
           channelID: ChannelID
           producerID: string
           paused?: boolean
@@ -170,7 +174,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     }
   >,
 
-  getProducerByPeerIdAndMediaTag: (networkID: string, peerID: string, mediaTag: MediaTagType) => {
+  getProducerByPeerIdAndMediaTag: (networkID: InstanceID, peerID: string, mediaTag: MediaTagType) => {
     const state = getState(MediasoupMediaProducerConsumerState)[networkID]
     if (!state) return
 
@@ -180,7 +184,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     return getState(MediasoupMediaProducersConsumersObjectsState).producers[producer.producerID]
   },
 
-  getConsumerByPeerIdAndMediaTag: (networkID: string, peerID: string, tag: MediaTagType) => {
+  getConsumerByPeerIdAndMediaTag: (networkID: InstanceID, peerID: string, tag: MediaTagType) => {
     const state = getState(MediasoupMediaProducerConsumerState)[networkID]
     if (!state) return
 
@@ -194,12 +198,13 @@ export const MediasoupMediaProducerConsumerState = defineState({
     [
       MediaProducerActions.producerCreated,
       (state, action: typeof MediaProducerActions.producerCreated.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
         state[networkID].producers.merge({
           [action.producerID]: {
+            transportID: action.transportID,
             producerID: action.producerID,
             peerID: action.peerID,
             mediaTag: action.mediaTag,
@@ -224,7 +229,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
           cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
         }
 
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) return
 
         state[networkID].producers[action.producerID].set(none)
@@ -237,7 +242,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     [
       MediaProducerActions.producerPaused,
       (state, action: typeof MediaProducerActions.producerPaused.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]?.producers[action.producerID]) return
 
         const producerState = state[networkID].producers[action.producerID]
@@ -252,7 +257,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
 
         const { globalMute, paused } = action
         const network = getState(NetworkState).networks[networkID]
-        const media = network.peers.get(peerID)?.media
+        const media = network.peers[peerID]?.media
         if (media && media[mediatag]) {
           media[mediatag].paused = paused
           media[mediatag].globalMute = globalMute
@@ -262,7 +267,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
     [
       MediasoupMediaConsumerActions.consumerCreated,
       (state, action: typeof MediasoupMediaConsumerActions.consumerCreated.matches._TYPE) => {
-        const networkID = action.$network
+        const networkID = action.$network as InstanceID
         if (!state.value[networkID]) {
           state.merge({ [networkID]: { producers: {}, consumers: {} } })
         }
@@ -271,6 +276,7 @@ export const MediasoupMediaProducerConsumerState = defineState({
             consumerID: action.consumerID,
             peerID: action.peerID,
             mediaTag: action.mediaTag,
+            transportID: action.transportID,
             channelID: action.channelID,
             producerID: action.producerID,
             kind: action.kind!,
@@ -312,7 +318,7 @@ const execute = () => {
   receiveActions(MediasoupMediaProducerConsumerState)
 }
 
-export const NetworkProducer = (props: { networkID: UserID; producerID: string }) => {
+export const NetworkProducer = (props: { networkID: InstanceID; producerID: string }) => {
   const { networkID, producerID } = props
   const producerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
@@ -338,7 +344,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
       const network = getState(NetworkState).networks[networkID]
 
       // remove from the peer state
-      const media = network.peers.get(peerID)?.media
+      const media = network.peers[peerID]?.media
       if (media && media[producer.appData.mediaTag]) {
         delete media[producer.appData.mediaTag]
       }
@@ -386,7 +392,7 @@ export const NetworkProducer = (props: { networkID: UserID; producerID: string }
   return null
 }
 
-export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }) => {
+export const NetworkConsumer = (props: { networkID: InstanceID; consumerID: string }) => {
   const { networkID, consumerID } = props
   const consumerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers[consumerID]
@@ -419,7 +425,7 @@ export const NetworkConsumer = (props: { networkID: UserID; consumerID: string }
   return null
 }
 
-const NetworkReactor = (props: { networkID: UserID }) => {
+const NetworkReactor = (props: { networkID: InstanceID }) => {
   const { networkID } = props
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
   const producers = useHookstate(getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers)
@@ -428,13 +434,13 @@ const NetworkReactor = (props: { networkID: UserID }) => {
   useEffect(() => {
     if (producers?.value)
       for (const [producerID, producer] of Object.entries(producers.value)) {
-        if (!networkState.peers.value.get(producer.peerID)) {
+        if (!networkState.peers.value[producer.peerID]) {
           producers[producerID].set(none)
         }
       }
     if (consumers?.value)
       for (const [consumerID, consumer] of Object.entries(consumers.value)) {
-        if (!networkState.peers.value.get(consumer.peerID)) {
+        if (!networkState.peers.value[consumer.peerID]) {
           consumers[consumerID].set(none)
         }
       }
@@ -456,8 +462,8 @@ const reactor = () => {
   const networkIDs = useHookstate(getMutableState(MediasoupMediaProducerConsumerState))
   return (
     <>
-      {networkIDs.keys.map((hostId: UserID) => (
-        <NetworkReactor key={hostId} networkID={hostId} />
+      {networkIDs.keys.map((id: InstanceID) => (
+        <NetworkReactor key={id} networkID={id} />
       ))}
     </>
   )

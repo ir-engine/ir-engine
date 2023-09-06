@@ -30,6 +30,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -144,7 +145,7 @@ const onInteract = (handedness: XRHandedness = 'none') => {
 }
 
 const onKeyP = () => {
-  getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
+  getMutableState(RendererState).physicsDebug.set(!getMutableState(RendererState).physicsDebug.value)
 }
 
 const isAvatarClicked = () => {
@@ -171,6 +172,9 @@ const secondClickTimeout = 0.2
 let secondClickTimer = 0
 
 const getAvatarDoubleClick = (buttons): boolean => {
+  const followComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  if (followComponent && followComponent.zoomLevel < 1) return false
+
   if (getState(XRState).sessionActive) return false
   if (buttons.PrimaryClick?.up) {
     if (!isAvatarClicked()) {

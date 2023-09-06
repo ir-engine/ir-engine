@@ -23,20 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
-
 import { Application } from '../../../declarations'
 
-import { Paginated } from '@feathersjs/feathers'
+import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 
-import {
-  GenerateTokenData,
-  GenerateTokenPatch,
-  GenerateTokenQuery,
-  GenerateTokenType
-} from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+import { GenerateTokenData, GenerateTokenQuery } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -51,14 +42,12 @@ export interface GenerateTokenParams extends RootParams<GenerateTokenQuery> {
  * A class for GenerateToken service
  */
 
-export class GenerateTokenService<
-  T = GenerateTokenType,
-  ServiceParams extends Params = GenerateTokenParams
-> extends KnexAdapter<GenerateTokenType, GenerateTokenData, GenerateTokenParams, GenerateTokenPatch> {
+export class GenerateTokenService
+  implements ServiceInterface<GenerateTokenData | null, GenerateTokenData, GenerateTokenParams>
+{
   app: Application
 
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
+  constructor(app: Application) {
     this.app = app
   }
 

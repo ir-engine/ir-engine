@@ -32,7 +32,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { animationStates } from '@etherealengine/engine/src/avatar/animation/Util'
+import { animationStates, defaultAnimationPath } from '@etherealengine/engine/src/avatar/animation/Util'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -108,7 +108,7 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
-        //onClick: () => runAnimation(animationStates.laugh)
+        onClick: () => runAnimation(animationStates.laugh)
       }
     },
     {
@@ -146,9 +146,8 @@ export const useEmoteMenuHooks = () => {
     const entity = Engine.instance.localClientEntity
     dispatchAction(
       AvatarNetworkAction.setAnimationState({
-        animationState: stateName,
+        filePath: defaultAnimationPath + stateName + '.fbx',
         loop: false,
-        fileType: 'fbx',
         layer: 0,
         entityUUID: getComponent(entity, UUIDComponent)
       })

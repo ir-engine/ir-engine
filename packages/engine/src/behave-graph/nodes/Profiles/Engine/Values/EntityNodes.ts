@@ -31,6 +31,7 @@ import {
 } from '@behave-graph/core'
 import { toQuat, toVector3 } from '@behave-graph/scene'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { ComponentMap, defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
@@ -39,6 +40,7 @@ import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
 import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
+import { copyTransformToRigidBody } from '../../../../../transform/systems/TransformSystem'
 import { addEntityToScene } from '../helper/entityHelper'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
@@ -185,9 +187,22 @@ export const setEntityTransform = makeFlowNodeDefinition({
     const rotation = toQuat(read('rotation'))
     const scale = toVector3(read('scale'))
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
+    if (entity === Engine.instance.localClientEntity) {
+      teleportAvatar(entity, position!, true)
+    } else {
+      setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
+      copyTransformToRigidBody(entity)
+    }
     commit('flow')
   }
+})
+
+export const getUUID = makeInNOutFunctionDesc({
+  name: 'engine/entity/getUuid',
+  label: 'Entity uuid',
+  in: ['entity'],
+  out: 'string',
+  exec: (entity: Entity) => getComponent(entity, UUIDComponent)
 })
 
 export const Constant = makeInNOutFunctionDesc({

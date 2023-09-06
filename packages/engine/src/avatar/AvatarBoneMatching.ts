@@ -26,7 +26,15 @@ Ethereal Engine. All Rights Reserved.
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
 
-import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters } from '@pixiv/three-vrm'
+import {
+  VRM,
+  VRM1Meta,
+  VRMHumanBone,
+  VRMHumanBoneName,
+  VRMHumanBones,
+  VRMHumanoid,
+  VRMParameters
+} from '@pixiv/three-vrm'
 import { cloneDeep } from 'lodash'
 import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
@@ -577,6 +585,17 @@ export function findSkinnedMeshes(model: Object3D) {
   return meshes
 }
 
+export function getAllBones(rootBone: Bone) {
+  const bones = {} as Record<VRMHumanBoneName, Bone>
+  rootBone.traverse((bone: Bone) => {
+    if (bone.isBone) {
+      const boneName = mixamoVRMRigMap[bone.name] ?? bone.name
+      bones[boneName] = bone
+    }
+  })
+  return bones
+}
+
 /**
  * Creates a skeleton form given bone chain
  * @param bone first bone in the chain
@@ -629,29 +648,45 @@ function findRootBone(bone: Bone): Bone {
   return node
 }
 
-function findFirstTwistChildBone(parent: Object3D, hand: Object3D, left: boolean): Bone {
-  const existingBone = parent?.children?.find((child) => /twist/i.test(child.name)) as Bone
-  // if (!existingBone) {
-  //   const bone = new Bone()
-  //   // const vec3 = hand.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()))
-  //   // bone.position.copy(vec3.multiplyScalar(0.5))
-  //   hand.add(bone)
-  //   bone.position.y += 0.1
-  //   return bone
-  // }
-  return existingBone
+export const recursiveHipsLookup = (model: Object3D) => {
+  const name = model.name.toLowerCase()
+
+  if (name.includes('hip')) {
+    return model
+  }
+  if (model.children.length > 0) {
+    for (const child of model.children) {
+      return recursiveHipsLookup(child)
+    }
+  }
 }
 
 export default function avatarBoneMatching(model: Object3D): VRM {
   const bones = {} as VRMHumanBones
-
-  const isReadyPlayerMe = model.getObjectByName('Hips') !== undefined
-
-  model = model.children[0]
-  //model.remove(model.children[0])
+  //use hips name as a standard to determine what to do with the mixamo prefix
+  let needsMixamoPrefix = false
+  let mixamoPrefix = ''
+  let removeIdentifier = false
+  let foundHips = false
 
   model.traverse((target) => {
-    const bone = mixamoVRMRigMap[(isReadyPlayerMe ? 'mixamorig' : '') + target.name] as string
+    //see if we find hips
+    if (target.name.toLowerCase().includes('hip')) {
+      needsMixamoPrefix = !target.name.includes('mixamorig')
+      if (needsMixamoPrefix) {
+        mixamoPrefix = 'mixamorig'
+      } else {
+        if (target.name[9].toLowerCase() != 'h') removeIdentifier = true
+      }
+      foundHips = true
+    }
+    if (!foundHips) return
+
+    if (removeIdentifier) {
+      target.name = target.name.slice(0, 9) + target.name.slice(10)
+    }
+
+    const bone = mixamoVRMRigMap[mixamoPrefix + target.name] as string
 
     if (bone) {
       //if hips bone does not have mixamo prefix, remove it from the current bone
@@ -671,8 +706,7 @@ export default function avatarBoneMatching(model: Object3D): VRM {
   } as VRMParameters)
 
   //quick dirty tag to disable flipping on mixamo rigs
-  ;(vrm as any).userData = { flipped: false, isReadyPlayerMe } as any
-
+  ;(vrm as any).userData = { flipped: false, needsMixamoPrefix: needsMixamoPrefix } as any
   return vrm
 }
 

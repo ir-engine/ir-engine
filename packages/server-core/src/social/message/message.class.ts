@@ -24,37 +24,43 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
-import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import {
+  MessageData,
+  MessagePatch,
+  MessageQuery,
+  MessageType
+} from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 
-export interface MessageParams extends UserParams {
-  'identity-provider': {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface MessageParams extends RootParams<MessageQuery> {
+  'identity-provider'?: {
     userId: UserID
   }
 }
 
-export type MessageDataType = MessageInterface
+/**
+ * A class for Message service
+ */
 
-export type CreateMessageDataType = {
-  channelId?: ChannelID
-  instanceId?: string
-  text: string
-  isNotification?: boolean
-}
-
-export class Message<T = MessageDataType> extends Service<T> {
+export class MessageService<T = MessageType, ServiceParams extends Params = MessageParams> extends KnexAdapter<
+  MessageType,
+  MessageData,
+  MessageParams,
+  MessagePatch
+> {
   app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
@@ -67,7 +73,7 @@ export class Message<T = MessageDataType> extends Service<T> {
    * @returns {@Object} created message
    */
   // @ts-ignore
-  async create(data: CreateMessageDataType, params?: MessageParams): Promise<T> {
+  async create(data: MessageData, params?: MessageParams) {
     let channel: Channel | null = null
     let userIdList: any[] = []
     const loggedInUser = params!.user as UserType
@@ -110,15 +116,19 @@ export class Message<T = MessageDataType> extends Service<T> {
     }
     if (!channel) throw new BadRequest('Could not find or create channel')
 
+    delete data.instanceId
     const messageData = {
+      ...data,
       senderId: userId,
-      channelId: channel.id,
-      text: data.text,
-      isNotification: data.isNotification
+      channelId: channel.id
     }
-    const newMessage = (await super.create(messageData as any)) as MessageInterface
+    const newMessage = await super._create(messageData)
     newMessage.sender = loggedInUser
 
-    return newMessage as T
+    return newMessage
+  }
+
+  async find(params?: MessageParams) {
+    return await super._find(params)
   }
 }

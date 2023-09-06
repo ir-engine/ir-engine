@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBone, VRMHumanBones } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
 import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
@@ -53,7 +53,12 @@ import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, {
+  BoneNames,
+  findSkinnedMeshes,
+  getAllBones,
+  recursiveHipsLookup
+} from '../AvatarBoneMatching'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
@@ -72,8 +77,7 @@ const tempVec3ForCenter = new Vector3()
 
 export const locomotionPack = 'locomotion'
 
-export const loadAvatarModelAsset = async (avatarURL: string) => {
-  const model = await AssetLoader.loadAsync(avatarURL)
+export const parseAvatarModelAsset = (model: any) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
@@ -82,6 +86,17 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   if (!vrm.userData) vrm.userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
 
   return vrm as VRM
+}
+
+export const loadAvatarModelAsset = async (avatarURL: string) => {
+  // if (!sourceRig) {
+  //   const sourceVRM = await AssetLoader.loadAsync(
+  //     `${config.client.fileServer}/projects/default-project/assets/animations/mocap_skeleton.vrm`
+  //   )
+  //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
+  // }
+  const model = await AssetLoader.loadAsync(avatarURL)
+  return parseAvatarModelAsset(model)
 }
 
 export const loadAvatarForUser = async (
@@ -152,37 +167,38 @@ export const createIKAnimator = async (entity: Entity) => {
     animations[i] = retargetMixamoAnimation(
       animations[i],
       manager.loadedAnimations[locomotionPack]?.scene!,
-      rigComponent.vrm,
-      'glb'
+      rigComponent.vrm
     )
-    console.log(animations[i])
   }
 
   setComponent(entity, AnimationComponent, {
     animations: clone(animations),
-    mixer: new AnimationMixer(rigComponent.bindRig.hips.node.parent!)
+    mixer: new AnimationMixer(rigComponent.localRig.hips.node.parent!)
   })
 }
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.loadedAnimations[locomotionPack].value) {
+  console.log(manager.loadedAnimations.value[locomotionPack])
+  if (!manager.loadedAnimations.value[locomotionPack]) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const asset = (await AssetLoader.loadAsync(
       `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionPack}.glb`
     )) as GLTF
 
-    if (asset && asset.animations && asset.animations[4] && asset.animations[6]) {
-      const movement = getState(AvatarMovementSettingsState)
-      movement.runSpeed = getRootSpeed(asset.animations[4]) * 0.01
-      movement.walkSpeed = getRootSpeed(asset.animations[6]) * 0.01
-    }
-
     manager.loadedAnimations[locomotionPack].set(asset)
   }
 
+  const run = manager.loadedAnimations.value[locomotionPack].animations[4] ?? [new AnimationClip()]
+  const walk = manager.loadedAnimations.value[locomotionPack].animations[6] ?? [new AnimationClip()]
+  const movement = getState(AvatarMovementSettingsState)
+  if (run) movement.runSpeed = getRootSpeed(run) * 0.01
+  if (walk) movement.walkSpeed = getRootSpeed(walk) * 0.01
+
   return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
 }
+
+let sourceRig: VRMHumanBones
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
@@ -191,10 +207,12 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const rig = model.humanoid?.normalizedHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
+  const targetBones = getAllBones(recursiveHipsLookup(model.scene))
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    bindRig: cloneDeep(rig),
+    localRig: cloneDeep(rig), //cloneDeep(sourceRig),
+    targetBones,
     skinnedMeshes,
     vrm: model
   })

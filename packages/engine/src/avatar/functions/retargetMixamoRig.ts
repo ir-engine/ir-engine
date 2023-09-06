@@ -46,7 +46,7 @@ const leftArmOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.325, 0
  * based upon https://github.com/pixiv/three-vrm/blob/dev/packages/three-vrm-core/examples/humanoidAnimation/loadMixamoAnimation.js
  *
  */
-export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object3D, vrm: VRM, type: 'fbx' | 'glb') {
+export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object3D, vrm: VRM) {
   const tracks = [] as KeyframeTrack[] // KeyframeTracks compatible with VRM will be added here
 
   const restRotationInverse = new Quaternion()
@@ -63,8 +63,8 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
   const leftArm = mixamoRig.getObjectByName('mixamorigLeftArm')!
 
   const userData = (vrm as any).userData
-  if (userData.flipped) hips.quaternion.copy(hipsOffset)
-  if (userData.isReadyPlayerMe) {
+  if (userData?.flipped) hips.quaternion.copy(hipsOffset)
+  if (userData?.needsMixamoPrefix) {
     rightArm.quaternion.copy(rightArmOffset)
     leftArm.quaternion.copy(leftArmOffset)
   }

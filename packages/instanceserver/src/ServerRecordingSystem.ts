@@ -388,7 +388,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
               // todo, this is a hack
               for (const peerID of peerIDs) {
-                if (network.peers.has(peerID)) continue
+                if (network.peers[peerID]) continue
                 activePlayback.peerIDs!.push(peerID)
                 NetworkPeerFunctions.createPeer(
                   network,
@@ -566,12 +566,12 @@ const execute = () => {
   const network = getServerNetwork(app)
 
   for (const [userId, userMap] of Array.from(dataChannelToReplay.entries())) {
-    if (network.users.has(userId))
+    if (network.users[userId])
       for (const [dataChannel, chunk] of userMap) {
         for (const frame of chunk.frames) {
           if (frame.timecode > Date.now() - chunk.startTime) {
             network.transport.bufferToAll(dataChannel, encode(frame.data))
-            // for (const peerID of network.users.get(userId)!) {
+            // for (const peerID of network.users[userId]) {
             //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
             // }
             break

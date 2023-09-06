@@ -43,7 +43,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(generateTokenPath, new GenerateTokenService(options, app), {
+  app.use(generateTokenPath, new GenerateTokenService(app), {
     // A list of all methods this service exposes externally
     methods: generateTokenMethods,
     // You can add additional custom events to be sent to clients here

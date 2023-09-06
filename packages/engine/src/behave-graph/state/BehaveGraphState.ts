@@ -25,16 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { IRegistry } from '@behave-graph/core'
 import { defineState } from '@etherealengine/hyperflux'
-import { GraphDomainID } from '../components/BehaveGraphComponent'
-
-export type BehaveGraphDomainType = {
-  register: (registry?: IRegistry) => void
-}
+import { BehaveGraphDomain } from '../components/BehaveGraphComponent'
+import { createECSRegistry } from '../functions/createECSRegistry'
 
 export const BehaveGraphState = defineState({
   name: 'BehaveGraphState',
-  initial: {
-    domains: {} as Record<GraphDomainID, BehaveGraphDomainType>,
-    registry: {} as IRegistry
-  }
+  initial: () => ({
+    registries: { ECS: createECSRegistry() } as Record<BehaveGraphDomain, IRegistry>
+  })
 })

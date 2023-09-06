@@ -47,7 +47,7 @@ import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { XRState, getCameraMode, hasMovementControls } from '../../xr/XRState'
-import { animationStates } from '../animation/Util'
+import { animationStates, defaultAnimationPath } from '../animation/Util'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -155,8 +155,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     if (controller.isInAir && !beganFalling) {
       dispatchAction(
         AvatarNetworkAction.setAnimationState({
-          animationState: animationStates.locomotion,
-          fileType: 'glb',
+          filePath: defaultAnimationPath + animationStates.locomotion + '.glb',
           clipName: 'Fall',
           loop: true,
           layer: 1,
@@ -169,8 +168,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
       if (beganFalling) {
         dispatchAction(
           AvatarNetworkAction.setAnimationState({
-            animationState: animationStates.locomotion,
-            fileType: 'glb',
+            filePath: defaultAnimationPath + animationStates.locomotion + '.glb',
             clipName: 'Fall',
             loop: true,
             layer: 1,
@@ -179,7 +177,6 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
           })
         )
       }
-
       beganFalling = false
       if (attached) originTransform.position.y = hit.position.y
       /** @todo after a physical jump, only apply viewer vertical movement once the user is back on the virtual ground */
@@ -360,7 +357,6 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
     originTransform.matrix.multiplyMatrices(desiredAvatarMatrix, originRelativeToAvatarMatrix)
     originTransform.matrix.decompose(originTransform.position, originTransform.rotation, originTransform.scale)
     originTransform.matrixInverse.copy(originTransform.matrix).invert()
-
     updateWorldOrigin()
   }
 
@@ -389,8 +385,8 @@ let rotationNeedsUpdate = false
 const _updateLocalAvatarRotationAttachedMode = () => {
   const entity = Engine.instance.localClientEntity
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
   const viewerPose = getState(XRState).viewerPose
+  const transform = getComponent(entity, TransformComponent)
 
   if (!viewerPose) return
 
@@ -411,10 +407,9 @@ const _updateLocalAvatarRotationAttachedMode = () => {
     avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
     rotationNeedsUpdate = false
   }
-
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
-  rigidbody.targetKinematicRotation.slerp(avatarRotation, 5 * getState(EngineState).deltaSeconds)
+  transform.rotation.slerp(avatarRotation, 5 * getState(EngineState).deltaSeconds)
 }
 
 export const updateLocalAvatarRotation = () => {

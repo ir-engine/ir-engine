@@ -36,6 +36,7 @@ import AnimationIcon from '@mui/icons-material/Animation'
 
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
@@ -65,7 +66,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         { label: 'None', value: -1 },
         ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
       ])
-  }, [modelComponent.scene, loopAnimationComponent.vrm, loopAnimationComponent.animationPack])
+  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations, loopAnimationComponent.animationPackScene])
 
   const onChangePlayingAnimation = (index) => {
     updateProperties(LoopAnimationComponent, {
@@ -92,7 +93,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {loopAnimationComponent.vrm.value && (
+      {loopAnimationComponent.hasAvatarAnimations.value && (
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
           <ModelInput value={loopAnimationComponent.animationPack.value} onChange={updateResources} />
           {errors?.LOADING_ERROR && (
@@ -104,6 +105,12 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <NumericInput
           value={loopAnimationComponent.animationSpeed.value}
           onChange={updateProperty(LoopAnimationComponent, 'animationSpeed')}
+        />
+      </InputGroup>
+      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
+        <BooleanInput
+          value={loopAnimationComponent.hasAvatarAnimations.value}
+          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
     </NodeEditor>
