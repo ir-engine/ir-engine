@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /**
  * A server-side only multi-stream logger.
- * For isomorphic or client-side logging, use packages/common/src/logger.ts
+ * For isomorphic or client-side logging, use packages/engine/src/common/functions/logger.ts
  * (which will send all log events to this server-side logger here, via an
  *  API endpoint).
  */

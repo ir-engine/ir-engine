@@ -33,9 +33,9 @@ import probe from 'probe-image-size'
 import { Readable } from 'stream'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import multiLogger from '@etherealengine/common/src/logger'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Paginated } from '@feathersjs/feathers'

@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import multiLogger from '@etherealengine/common/src/logger'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getState } from '@etherealengine/hyperflux'
 
 import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'

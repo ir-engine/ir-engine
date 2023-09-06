@@ -29,7 +29,7 @@ import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import logger from '@etherealengine/common/src/logger'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   addActionReceptor,

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import _ from 'lodash'
 
-import logger from '@etherealengine/common/src/logger'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'

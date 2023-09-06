@@ -23,51 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config from '@etherealengine/common/src/config'
-
-import { Application } from '../../declarations'
-import { elasticOnlyLogger } from '../ServerLogger'
-import { UserParams } from '../user/user/user.class'
+import { logsApiMethods, logsApiPath } from '@etherealengine/engine/src/schemas/cluster/logs-api.schema'
+import { Application } from '../../../declarations'
+import { LogsApiService } from './logs-api.class'
+import logsApiDocs from './logs-api.docs'
+import hooks from './logs-api.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    '/api/log': any
+    [logsApiPath]: LogsApiService
   }
 }
 
-// Receive client-side log events (only active when APP_ENV != 'development')
 export default (app: Application): void => {
-  app.use(
-    '/api/log',
-    {
-      create: (data, params: UserParams) => {
-        if (config.client.logs.forceClientAggregate === 'true') {
-          const { msg, ...mergeObject } = data
-          elasticOnlyLogger.info({ user: params.user, ...mergeObject }, msg)
-        }
-        return
-      }
-    },
-    {
-      koa: {
-        before: [
-          async (ctx: any, next) => {
-            // const { msg, ...mergeObject } = ctx.body
-            // if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
-            await next()
-            // ctx.status = 204
-            // return
-          }
-        ]
-      }
-    }
-  )
+  app.use(logsApiPath, new LogsApiService(app), {
+    // A list of all methods this service exposes externally
+    methods: logsApiMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: logsApiDocs
+  })
 
-  /** @todo - use feathers instead of fetch */
-  const service = app.service('/api/log')
-  // service.hooks({
-  // before: {
-  //   all: [authenticate()]
-  // }
-  // })
+  const service = app.service(logsApiPath)
+  service.hooks(hooks)
 }

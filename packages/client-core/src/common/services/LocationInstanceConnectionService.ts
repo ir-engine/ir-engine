@@ -28,7 +28,7 @@ import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import logger from '@etherealengine/common/src/logger'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineAction, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
