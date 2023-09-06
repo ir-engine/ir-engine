@@ -209,13 +209,15 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
       if (query.instanceId) {
         const knexClient: Knex = this.app.get('knexClient')
-        const channels = await knexClient
+        let channels = await knexClient
           .from('channel')
           .join(instancePath, `${instancePath}.id`, 'channel.instanceId')
           .where(`${instancePath}.id`, '=', query.instanceId)
           .andWhere(`${instancePath}.ended`, '=', false)
           .select()
           .options({ nestTables: true })
+
+        channels = channels.map((item) => item.channel)
 
         // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
         for (const channel of channels) {
