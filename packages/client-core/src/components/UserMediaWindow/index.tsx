@@ -687,7 +687,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
       )}
       <div
         style={{
-          fontFamily: "'Roboto', sans-serif",
+          fontFamily: 'var(--lato)',
           textAlign: 'center',
           width: '100%',
           margin: '14px 0',
