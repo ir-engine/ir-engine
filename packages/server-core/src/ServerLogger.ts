@@ -48,8 +48,8 @@ const streamToOpenSearch = pinoOpensearch({
   consistency: 'one',
   node: nodeOpensearch,
   auth: {
-    username: process.env.OPENSEARCH_USER | 'admin',
-    password: process.env.OPENSEARCH_PASSWORD | 'admin'
+    username: process.env.OPENSEARCH_USER || 'admin',
+    password: process.env.OPENSEARCH_PASSWORD || 'admin'
   },
   'es-version': 7,
   'flush-bytes': 1000
