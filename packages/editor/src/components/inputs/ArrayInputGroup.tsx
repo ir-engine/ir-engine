@@ -23,8 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
 import React from 'react'
 import FileBrowserInput from './FileBrowserInput'
+import InputGroup from './InputGroup'
+import NumericStepperInput from './NumericStepperInput'
 
 export interface ArrayInputGroupProp {
   name?: string
@@ -78,18 +81,6 @@ const arrayInputGroupContentStyle: React.CSSProperties = {
   flexDirection: 'row'
 }
 
-const labelStyle = {
-  maxWidth: '20%'
-}
-
-const inputStyle = {
-  maxWidth: '80%'
-}
-
-const divStyle = {
-  maxWidth: '80%'
-}
-
 const ArrayInputGroup = ({
   prefix,
   label,
@@ -102,38 +93,29 @@ const ArrayInputGroup = ({
   if (values && values.length) count = values.length
 
   return (
-    <div style={groupContainerStyle}>
+    <InputGroup name="label" label={label}>
       <div style={arrayInputGroupContentStyle}>
-        <label style={{ ...labelStyle, color: '#9FA4B5' }}>{label}:</label>
-        <div style={divStyle}>
-          <label> Size: </label>
-          <input
-            style={inputStyle}
-            value={'' + count}
-            onChange={(e) => {
-              onChangeSize(e.target.value, values, onChange)
-            }}
+        <InputGroup name="size" label={t('editor:properties.media.lbl-size')}>
+          <NumericStepperInput
+            value={count}
+            onChange={(val) => onChangeSize(val, values, onChange)}
+            mediumStep={1}
+            displayPrecision={0}
           />
-        </div>
+        </InputGroup>
         {values &&
-          values.map(function (value, index) {
-            return (
-              <div key={index} style={{ ...arrayInputGroupContentStyle, margin: '4px 0px' }}>
-                <label>
-                  {' '}
-                  {prefix} {index + 1}:{' '}
-                </label>
-                <FileBrowserInput
-                  value={value}
-                  onChange={(value) => onChangeText(value, index, values, onChange)}
-                  acceptFileTypes={acceptFileTypes}
-                  acceptDropItems={acceptDropItems}
-                />
-              </div>
-            )
-          })}
+          values.map((value, index) => (
+            <InputGroup name={`${prefix} ${index + 1}`} label={`${prefix} ${index + 1}`} key={value + '' + index}>
+              <FileBrowserInput
+                value={value}
+                onChange={(value) => onChangeText(value, index, values, onChange)}
+                acceptFileTypes={acceptFileTypes}
+                acceptDropItems={acceptDropItems}
+              />
+            </InputGroup>
+          ))}
       </div>
-    </div>
+    </InputGroup>
   )
 }
 
