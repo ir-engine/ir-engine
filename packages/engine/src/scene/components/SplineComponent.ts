@@ -26,15 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import {
   ArrowHelper,
   AxesHelper,
-  BoxGeometry,
   BufferAttribute,
   BufferGeometry,
   CatmullRomCurve3,
   Color,
   Line,
   LineBasicMaterial,
-  MeshLambertMaterial,
+  Mesh,
+  MeshBasicMaterial,
   Quaternion,
+  SphereGeometry,
   Vector3
 } from 'three'
 
@@ -48,8 +49,6 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
-const helperGeometry = new BoxGeometry(0.1, 0.1, 0.1)
-const helperMaterial = new MeshLambertMaterial({ color: 'white' })
 const lineGeometry = new BufferGeometry()
 lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
 
@@ -95,17 +94,34 @@ export const SplineComponent = defineComponent({
       }
 
       const line = new Line(lineGeometry.clone(), new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 }))
-      line.castShadow = true
       line.layers.set(ObjectLayers.NodeHelper)
       line.name = `${entity}-line`
       addObjectToGroup(entity, line)
       setObjectLayers(line, ObjectLayers.NodeHelper)
 
+      const geometry = new SphereGeometry(0.05, 4, 2)
+
+      if (elements.length > 0) {
+        const first = elements[0].value
+        const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 }))
+        setObjectLayers(sphere, ObjectLayers.NodeHelper)
+        sphere.position.copy(first.position)
+        sphere.updateMatrixWorld(true)
+        line.add(sphere)
+      }
+
+      if (elements.length > 1) {
+        const last = elements[elements.length - 1].value
+        const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'red', opacity: 0.2 }))
+        setObjectLayers(sphere, ObjectLayers.NodeHelper)
+        sphere.position.copy(last.position)
+        sphere.updateMatrixWorld(true)
+        line.add(sphere)
+      }
+
       let id = 0
       for (const elem of elements.value) {
         const gizmo = new AxesHelper()
-        gizmo.castShadow = true
-        gizmo.receiveShadow = true
         gizmo.name = `${entity}-gizmos-${++id}`
         gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
         setObjectLayers(gizmo, ObjectLayers.NodeHelper)
@@ -138,7 +154,7 @@ export const SplineComponent = defineComponent({
     }, [
       elements.length,
       // force a unique dep change upon any position or quaternion change
-      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.quaternion)}`).join('')
+      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.quaternion)})`).join('')
     ])
 
     return null

@@ -57,7 +57,7 @@ export const BoundingBoxComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
+    const debugEnabled = useHookstate(getMutableState(RendererState).physicsDebug)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {

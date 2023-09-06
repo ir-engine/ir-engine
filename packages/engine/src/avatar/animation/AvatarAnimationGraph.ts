@@ -127,6 +127,7 @@ export const playAvatarAnimationFromMixamo = (
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
   const rigComponent = getComponent(entity, AvatarRigComponent)
+  if (!rigComponent || !rigComponent.vrm) return
   //if animation is already present on animation component, use it instead of retargeting again
   let retargetedAnimation = animationComponent.animations.find(
     (clip) => clip.name == (clipName ?? animationsScene.animations[0].name)

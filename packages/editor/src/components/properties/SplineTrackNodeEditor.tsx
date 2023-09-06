@@ -99,17 +99,7 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
           value={velocity.value}
           onChange={setVelocity}
           onCommit={onRelease}
-          prefix={
-            <Vector3Scrubber
-              tag="div"
-              value={velocity.value}
-              onChange={setVelocity}
-              onPointerUp={onRelease}
-              axis="velocity"
-            >
-              Velocity
-            </Vector3Scrubber>
-          }
+          prefix={<Vector3Scrubber tag="div" value={velocity.value} onChange={setVelocity} onPointerUp={onRelease} />}
         />
       </InputGroup>
       <InputGroup name="Enable Rotation" label={t('editor:properties.splinetrack.lbl-enableRotation')}>
