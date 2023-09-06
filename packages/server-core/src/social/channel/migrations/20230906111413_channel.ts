@@ -41,7 +41,7 @@ export async function up(knex: Knex): Promise<void> {
 
     await trx.schema.createTable(channelPath, (table) => {
       //@ts-ignore
-      table.uuid('id').collate('utf8mb4_bin').primary().notNullable()
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('name', 255).nullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
