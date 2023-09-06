@@ -39,13 +39,6 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: instanceFriendsPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
   app.use(instanceFriendsPath, new InstanceFriendsService(app), {
     // A list of all methods this service exposes externally
     methods: instanceFriendsMethods,
