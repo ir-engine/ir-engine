@@ -64,7 +64,7 @@ import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import UpdateAvatar from './UpdateAvatar'
+import UpdateAvatar from './solveMotionCapturePose'
 
 export const sendResults = (results: NormalizedLandmarkList) => {
   return encode({

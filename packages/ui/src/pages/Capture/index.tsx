@@ -44,7 +44,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { normalizeLandmarks } from '@etherealengine/engine/src/mocap/NormalizeLandmarks'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
@@ -206,12 +205,10 @@ const CaptureDashboard = () => {
 
         if (!poseWorldLandmarks || !poseLandmarks) return
 
-        const normalizedLandmarks = normalizeLandmarks(poseWorldLandmarks, poseLandmarks)
-
         if (debugSettings?.throttleSend) {
-          throttledSend(normalizedLandmarks)
+          throttledSend(poseWorldLandmarks)
         } else {
-          sendResults(normalizedLandmarks)
+          sendResults(poseWorldLandmarks)
         }
 
         processingFrame.set(false)
