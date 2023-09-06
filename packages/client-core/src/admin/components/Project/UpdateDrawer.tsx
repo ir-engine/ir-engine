@@ -47,7 +47,6 @@ import { useFind, useGet, useMutation } from '@etherealengine/engine/src/common/
 import { builderInfoPath } from '@etherealengine/engine/src/schemas/projects/builder-info.schema'
 import { projectBuildPath } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -70,7 +69,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const processing = useHookstate(false)
   const helmSetting = useFind(helmSettingPath).data.at(0)
 
-  const adminProjects = (useFind(projectsPath).data as any).data as ProjectInterface[]
+  const adminProjects = useFind('project').data
   const engineCommit = useGet(builderInfoPath, undefined).data?.engineCommit
   const projectBuildPatch = useMutation(projectBuildPath).patch
 

@@ -34,9 +34,41 @@ import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/p
 import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+type ProjectUpdateStateType = {
+  branchProcessing: boolean
+  destinationProcessing: boolean
+  sourceURL: string
+  destinationURL: string
+  destinationValid: boolean
+  destinationError: string
+  sourceValid: boolean
+  commitsProcessing: boolean
+  sourceURLError: string
+  branchError: string
+  commitError: string
+  showBranchSelector: boolean
+  showCommitSelector: boolean
+  branchData: ProjectBranchType[]
+  commitData: ProjectCommitType[]
+  selectedBranch: string
+  sourceVsDestinationProcessing: boolean
+  sourceVsDestinationError: string
+  sourceProjectMatchesDestination: boolean
+  destinationProjectName: string
+  destinationRepoEmpty: boolean
+  sourceProjectName: string
+  sourceVsDestinationChecked: boolean
+  selectedSHA: string
+  projectName: string
+  submitDisabled: true
+  triggerSetDestination: string
+  updateType: ProjectUpdateType
+  updateSchedule: typeof DefaultUpdateSchedule
+}
+
 export const ProjectUpdateState = defineState({
   name: 'ProjectUpdateState',
-  initial: () => ({})
+  initial: () => ({}) as any as Record<string, ProjectUpdateStateType>
 })
 
 const updateProjectField = ({

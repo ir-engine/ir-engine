@@ -764,7 +764,7 @@ export class Project extends Service {
         .select()
         .options({ nestTables: true })
 
-      const allowedProjects = await projectPermissions.map((permission) => permission.project)
+      const allowedProjects = projectPermissions.map((permission) => permission.project)
       const repoAccess =
         githubIdentityProvider.data.length > 0
           ? ((await this.app.service(githubRepoAccessPath).find({
