@@ -91,8 +91,6 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
 /**
  *component used as dock container.
- *
- * @type {type}
  */
 export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
@@ -108,7 +106,6 @@ export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
 
 /**
  * EditorContainer class used for creating container for Editor
- *
  */
 const EditorContainer = () => {
   const editorState = useHookstate(getMutableState(EditorState))
@@ -277,7 +274,7 @@ const EditorContainer = () => {
       if (sceneName.value || editorState.sceneModified.value) {
         const blob = await takeScreenshot(512, 320)
         const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
-        const result: { name: string } = (await new Promise((resolve) => {
+        const result: { name: string } | void = await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewSceneDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
@@ -286,7 +283,7 @@ const EditorContainer = () => {
               onCancel={resolve}
             />
           )
-        })) as any
+        })
         if (result && projectName.value) {
           await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
           await saveScene(projectName.value, result.name, file, abortController.signal)
@@ -681,6 +678,12 @@ const EditorContainer = () => {
               onClose={() => setDialogComponent(null)}
               classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
             >
+              {/* <SaveNewSceneDialog
+              thumbnailUrl={'https://picsum.photos/200/300'}
+              initialName={Engine.instance.scene.name}
+              onConfirm={()=>null}
+              onCancel={()=>null}
+            /> */}
               {DialogComponent}
             </Dialog>
           </DndWrapper>
