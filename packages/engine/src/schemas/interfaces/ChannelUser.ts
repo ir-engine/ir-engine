@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceID } from '../networking/instance.schema'
+import { ChannelID } from '../social/channel.schema'
 import { UserType } from '../user/user.schema'
 
 interface ChannelInterface {

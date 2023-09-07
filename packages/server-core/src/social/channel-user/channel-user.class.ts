@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { ChannelUser as ChannelUserInterface } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'

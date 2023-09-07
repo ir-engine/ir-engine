@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { ChannelID } from '../dbmodels/Channel'
 
 export interface Instance {
   id: InstanceID
