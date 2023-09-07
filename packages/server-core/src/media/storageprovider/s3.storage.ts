@@ -118,23 +118,26 @@ export class S3Provider implements StorageProviderInterface {
     maxAttempts: 5
   })
 
-  minioClient = new Client({
-    endPoint: new URL(
-      config.server.storageProviderExternalEndpoint
-        ? config.server.storageProviderExternalEndpoint
-        : config.aws.s3.endpoint
-    ).hostname,
-    port: parseInt(
-      new URL(
-        config.server.storageProviderExternalEndpoint
-          ? config.server.storageProviderExternalEndpoint
-          : config.aws.s3.endpoint
-      ).port
-    ),
-    useSSL: true,
-    accessKey: config.aws.s3.accessKeyId,
-    secretKey: config.aws.s3.secretAccessKey
-  })
+  minioClient =
+    config.aws.s3.s3DevMode === 'local'
+      ? new Client({
+          endPoint: new URL(
+            config.server.storageProviderExternalEndpoint
+              ? config.server.storageProviderExternalEndpoint
+              : config.aws.s3.endpoint
+          ).hostname,
+          port: parseInt(
+            new URL(
+              config.server.storageProviderExternalEndpoint
+                ? config.server.storageProviderExternalEndpoint
+                : config.aws.s3.endpoint
+            ).port
+          ),
+          useSSL: true,
+          accessKey: config.aws.s3.accessKeyId,
+          secretKey: config.aws.s3.secretAccessKey
+        })
+      : undefined
 
   /**
    * Domain address of S3 cache.
@@ -314,7 +317,7 @@ export class S3Provider implements StorageProviderInterface {
         reject(err)
       }
     } else if (config.aws.s3.s3DevMode === 'local') {
-      const response = await this.minioClient.putObject(this.bucket, key, data.Body)
+      const response = await this.minioClient?.putObject(this.bucket, key, data.Body)
       return response
     } else {
       const command = new PutObjectCommand(args)
