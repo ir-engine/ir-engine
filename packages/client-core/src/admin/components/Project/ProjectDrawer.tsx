@@ -27,17 +27,14 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import {
-  DefaultUpdateSchedule,
-  ProjectInterface,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 
+import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -46,7 +43,7 @@ import ProjectFields from './ProjectFields'
 
 interface Props {
   open: boolean
-  inputProject?: ProjectInterface | null
+  inputProject?: ProjectType | null
   existingProject?: boolean
   onClose: () => void
   changeDestination?: boolean
@@ -65,7 +62,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           thumbnail: '',
           repositoryPath: '',
           needsRebuild: false,
-          updateType: 'none' as ProjectUpdateType,
+          updateType: 'none' as ProjectType['updateType'],
           updateSchedule: DefaultUpdateSchedule,
           commitSHA: '',
           commitDate: new Date()
@@ -105,13 +102,18 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
   }
 
   const handleClose = () => {
-    ProjectUpdateService.clearProjectUpdate(project)
+    ProjectUpdateService.clearProjectUpdate(project.name)
     onClose()
   }
 
   useEffect(() => {
     if (open && inputProject && projectUpdateStatus?.triggerSetDestination?.length === 0) {
-      ProjectUpdateService.setTriggerSetDestination(project, inputProject.repositoryPath)
+      ProjectUpdateService.setTriggerSetDestination(
+        project.name,
+        inputProject.repositoryPath,
+        inputProject.updateType,
+        inputProject.updateSchedule
+      )
     }
   }, [open, projectUpdateStatus?.triggerSetDestination])
 

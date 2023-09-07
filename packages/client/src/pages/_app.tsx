@@ -103,7 +103,7 @@ const AppPage = ({ route }: { route: string }) => {
           .service(projectsPath)
           .find()
           .then((projects) => {
-            loadWebappInjection(projects.projectsList).then((result) => {
+            loadWebappInjection(projects).then((result) => {
               setProjectComponents(result)
             })
           })

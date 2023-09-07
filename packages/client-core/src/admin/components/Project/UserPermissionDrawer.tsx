@@ -28,7 +28,6 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -43,6 +42,7 @@ import Switch from '@etherealengine/ui/src/primitives/mui/Switch'
 
 import { useFind, useMutation, useRealtime } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ProjectPermissionType } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -50,7 +50,7 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  project: ProjectInterface
+  project: ProjectType
   onClose: () => void
 }
 
@@ -60,7 +60,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const [error, setError] = useState('')
   const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
-    project?.project_permissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
+    project?.projectPermissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
     selfUser.scopes?.value?.find((scope) => scope.type === 'admin:admin')
       ? 'owner'
       : 'user'
@@ -140,9 +140,9 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
           </>
         )}
 
-        {project && project.project_permissions && (
+        {project && project.projectPermissions && (
           <List dense={true}>
-            {project.project_permissions.map((permission) => (
+            {project.projectPermissions.map((permission) => (
               <ListItem key={permission.id}>
                 <ListItemText
                   id={permission.id}
@@ -162,7 +162,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
                   disabled={
                     selfUserPermission !== 'owner' ||
                     selfUser.id.value === permission.userId ||
-                    project.project_permissions!.length === 1
+                    project.projectPermissions!.length === 1
                   }
                 />
                 {selfUserPermission === 'owner' && selfUser.id.value !== permission.userId && (

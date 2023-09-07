@@ -157,25 +157,16 @@ function mediapipe_workaround() {
     name: 'mediapipe_workaround',
     load(id) {
       const MEDIAPIPE_EXPORT_NAMES = {
-        pose: [
-          'NormalizedLandmark',
-          'NormalizedLandmarkList',
-          'POSE_CONNECTIONS',
+        'pose.js': [
           'POSE_LANDMARKS',
+          'POSE_CONNECTIONS',
           'POSE_LANDMARKS_LEFT',
           'POSE_LANDMARKS_RIGHT',
-          'Options',
-          'Pose'
+          'POSE_LANDMARKS_NEUTRAL',
+          'Pose',
+          'VERSION'
         ],
-        'tasks-vision': [
-          'Classifications',
-          'DrawingUtils',
-          'FaceLandmarker',
-          'FilesetResolver',
-          'HandLandmarker',
-          'NormalizedLandmark',
-          'PoseLandmarker'
-        ],
+        'hands.js': ['VERSION', 'HAND_CONNECTIONS', 'Hands'],
         'camera_utils.js': ['Camera'],
         'drawing_utils.js': ['drawConnectors', 'drawLandmarks', 'lerp'],
         'control_utils.js': [

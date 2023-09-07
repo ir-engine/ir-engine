@@ -85,7 +85,7 @@ export const EditorPage = () => {
 
     editorSystems()
     projects.then((proj) => {
-      loadEngineInjection(proj.projectsList).then(() => {
+      loadEngineInjection(proj).then(() => {
         setEngineReady(true)
         dispatchAction(EngineActions.initializeEngine({ initialised: true }))
       })

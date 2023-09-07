@@ -23,22 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
  * Gets a list of projects installed
- * @returns {ProjectInterface[]}
+ * @returns {ProjectType[]}
  */
-export const getProjects = async (): Promise<ProjectInterface[]> => {
+export const getProjects = async (): Promise<ProjectType[]> => {
   try {
-    const data = await Engine.instance.api.service('project').find({
+    const data = await Engine.instance.api.service(projectPath).find({
       query: { allowed: true }
     })
     return data

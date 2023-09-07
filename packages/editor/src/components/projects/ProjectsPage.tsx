@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -66,6 +65,7 @@ import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { getProjects } from '../../functions/projectFunctions'
 import { EditorAction } from '../../services/EditorServices'
@@ -169,10 +169,10 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
 const ProjectsPage = () => {
   const { t } = useTranslation()
 
-  const installedProjects = useHookstate<ProjectInterface[]>([]) // constant projects initialized with an empty array.
-  const officialProjects = useHookstate<ProjectInterface[]>([])
-  const communityProjects = useHookstate<ProjectInterface[]>([])
-  const activeProject = useHookstate<ProjectInterface | null>(null)
+  const installedProjects = useHookstate<ProjectType[]>([]) // constant projects initialized with an empty array.
+  const officialProjects = useHookstate<ProjectType[]>([])
+  const communityProjects = useHookstate<ProjectType[]>([])
+  const activeProject = useHookstate<ProjectType | null>(null)
   const loading = useHookstate(false)
   const error = useHookstate<Error | null>(null)
   const query = useHookstate('')
@@ -207,7 +207,7 @@ const ProjectsPage = () => {
       const data = await getProjects()
       installedProjects.set(data.sort(sortAlphabetical) ?? [])
       if (activeProject.value)
-        activeProject.set(data.find((item) => item.id === activeProject.value?.id) as ProjectInterface | null)
+        activeProject.set(data.find((item) => item.id === activeProject.value?.id) as ProjectType | null)
     } catch (error) {
       logger.error(error)
       error.set(error)
@@ -225,7 +225,7 @@ const ProjectsPage = () => {
       ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
       console.log(OfficialProjectData, installedProjects, data)
-      officialProjects.set((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
+      officialProjects.set((data.sort(sortAlphabetical) as ProjectType[]) ?? [])
     } catch (error) {
       logger.error(error)
       error.set(error)
@@ -339,7 +339,7 @@ const ProjectsPage = () => {
     uploadingProject.set(false)
   }
 
-  const isInstalled = (project: ProjectInterface | null) => {
+  const isInstalled = (project: ProjectType | null) => {
     if (!project) return false
 
     for (const installedProject of installedProjects.value) {
@@ -349,7 +349,7 @@ const ProjectsPage = () => {
     return false
   }
 
-  const hasRepo = (project: ProjectInterface | null) => {
+  const hasRepo = (project: ProjectType | null) => {
     if (!project) return false
 
     return project.repositoryPath && project.repositoryPath.length > 0
@@ -370,7 +370,7 @@ const ProjectsPage = () => {
   const closeFilterMenu = () => filterAnchorEl.set(null)
   const toggleFilter = (type: string) => filter.set({ ...filter.value, [type]: !filter.value[type] })
 
-  const openProjectContextMenu = (event: MouseEvent, project: ProjectInterface) => {
+  const openProjectContextMenu = (event: MouseEvent, project: ProjectType) => {
     event.preventDefault()
     event.stopPropagation()
 
@@ -380,12 +380,12 @@ const ProjectsPage = () => {
 
   const closeProjectContextMenu = () => projectAnchorEl.set(null)
 
-  const renderProjectList = (projects: ProjectInterface[], areInstalledProjects?: boolean) => {
+  const renderProjectList = (projects: ProjectType[], areInstalledProjects?: boolean) => {
     if (!projects || projects.length <= 0) return <></>
 
     return (
       <ul className={styles.listContainer}>
-        {projects.map((project: ProjectInterface, index) => (
+        {projects.map((project: ProjectType, index) => (
           <li className={styles.itemContainer} key={index}>
             <a
               onClick={(e) => {
@@ -634,12 +634,12 @@ const ProjectsPage = () => {
         </Menu>
       )}
       <CreateProjectDialog open={isCreateDialogOpen.value} onSuccess={onCreateProject} onClose={closeCreateDialog} />
-      {activeProject.value && activeProject.value.project_permissions && (
+      {activeProject.value && activeProject.value.projectPermissions && (
         <EditPermissionsDialog
           open={editPermissionsDialogOpen.value}
           onClose={closeEditPermissionsDialog}
           project={activeProject.value}
-          projectPermissions={activeProject.value.project_permissions}
+          projectPermissions={activeProject.value.projectPermissions}
           addPermission={onCreatePermission}
           patchPermission={onPatchPermission}
           removePermission={onRemovePermission}
