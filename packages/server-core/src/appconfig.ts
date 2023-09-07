@@ -306,13 +306,18 @@ const aws = {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
-    staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
+    staticResourceBucket: testEnabled
+      ? process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
+      : process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!
   },
   cloudfront: {
-    domain: process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER ? server.clientHost : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
+    domain:
+      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
+        ? server.clientHost
+        : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
   },
