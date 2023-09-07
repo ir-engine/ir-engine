@@ -103,7 +103,7 @@ export const setupIPs = async () => {
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
   const serverState = getState(ServerState)
 
-  const instances = (await app.service(instancePath).find({
+  const instances = (await app.service(instancePath)._find({
     query: {
       ended: false
     },

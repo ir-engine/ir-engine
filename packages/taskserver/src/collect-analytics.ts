@@ -76,6 +76,13 @@ export default (app): void => {
       isInternal: true
     })
 
+    for (const instance of activeInstances.data) {
+      if (instance.location) {
+        if (activeLocations.indexOf(instance.location.id) < 0) activeLocations.push(instance.location.id)
+        if (activeScenes.indexOf(instance.location.sceneId) < 0) activeScenes.push(instance.location.sceneId)
+      }
+    }
+
     await Promise.all([
       app.service(analyticsPath).create({
         type: 'activeChannels',

@@ -565,7 +565,7 @@ export class InstanceProvision implements ServiceMethods<any> {
         if (instanceId != null) {
           instance = await this.app.service('instance').get(instanceId)
         } else if (roomCode != null) {
-          const instances = (await this.app.service(instancePath).find({
+          const instances = (await this.app.service(instancePath)._find({
             query: {
               roomCode,
               ended: false

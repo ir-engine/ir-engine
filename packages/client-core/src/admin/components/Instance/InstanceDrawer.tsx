@@ -77,7 +77,7 @@ const useUsersInInstance = (instanceId: InstanceID) => {
 const useKickUser = () => {
   const createUserKick = useMutation(userKickPath).create
 
-  return (kickData: { userId: UserID; instanceId: InstanceType['id']; duration: string }) => {
+  return (kickData: { userId: UserID; instanceId: InstanceID; duration: string }) => {
     const duration = new Date()
     if (kickData.duration === 'INFINITY') {
       duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years

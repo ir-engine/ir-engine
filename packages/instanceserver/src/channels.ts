@@ -109,7 +109,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceData) =>
   const { locationId, channelId } = newInstance
 
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
-  const instanceResult = (await app.service(instancePath).create(newInstance)) as InstanceType
+  const instanceResult = await app.service(instancePath).create(newInstance)
   if (!channelId) {
     await app.service('channel').create({
       instanceId: instanceResult.id

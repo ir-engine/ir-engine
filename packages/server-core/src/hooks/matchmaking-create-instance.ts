@@ -81,7 +81,7 @@ export default (): Hook => {
           assignedAt: toDateTimeSql(new Date()),
           roomCode: ''
         } as InstanceData
-        const newInstanceResult = (await app.service(instancePath).create(newInstance)) as InstanceType
+        const newInstanceResult = await app.service(instancePath).create(newInstance)
         instanceId = newInstanceResult.id
       } else {
         instanceId = existingInstance.data[0].id

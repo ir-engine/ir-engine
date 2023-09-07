@@ -243,7 +243,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       allChannels = allChannels.map((item) => item.channel)
 
       for (const channel of allChannels) {
-        channel.channel_users = (await this.app.service('channel-user').find({
+        channel.channel_users = (await this.app.service(channelUserPath).find({
           query: {
             channelId: channel.id
           },

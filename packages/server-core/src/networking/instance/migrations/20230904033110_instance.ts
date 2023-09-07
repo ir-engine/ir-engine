@@ -51,7 +51,7 @@ export async function up(knex: Knex): Promise<void> {
       table.boolean('assigned').defaultTo(false)
       table.dateTime('assignedAt').defaultTo(null)
       //@ts-ignore
-      table.uuid('locationId', 36).collate('utf8mb4_bin').defaultTo(null).index()
+      table.uuid('locationId').collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 

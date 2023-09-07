@@ -69,7 +69,7 @@ export function useWorldInstance() {
 export const LocationInstanceConnectionService = {
   provisionServer: async (
     locationId?: string,
-    instanceId?: string,
+    instanceId?: InstanceID,
     sceneId?: string,
     roomCode?: string,
     createPrivateRoom?: boolean
@@ -79,7 +79,7 @@ export const LocationInstanceConnectionService = {
     if (instanceId != null) {
       const instance = (await API.instance.client.service(instancePath).find({
         query: {
-          id: instanceId as InstanceID,
+          id: instanceId,
           ended: false
         }
       })) as Paginated<InstanceType>
@@ -119,7 +119,7 @@ export const LocationInstanceConnectionService = {
     const token = getState(AuthState).authUser.accessToken
     const instance = (await API.instance.client.service(instancePath).find({
       query: {
-        id: instanceId as InstanceID,
+        id: instanceId,
         ended: false
       }
     })) as Paginated<InstanceType>
