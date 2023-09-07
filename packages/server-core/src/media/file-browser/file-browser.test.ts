@@ -24,18 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import path from 'path/posix'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { projectsRootFolder } from './file-browser.class'
-
-const TEST_PROJECT = 'test-project'
-const PROJECT_PATH = path.join(projectsRootFolder, TEST_PROJECT)
-let STORAGE_PATH = ''
-let STORAGE_ROOT = ''
 
 const getRandomizedName = (name: string, suffix = '', prefix = 'test') =>
   `${prefix}-${name}-${(Math.random() + 1).toString(36).substring(7)}${suffix}`
