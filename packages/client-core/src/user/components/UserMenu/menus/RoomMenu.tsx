@@ -38,19 +38,12 @@ import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctio
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import { Paginated } from '@feathersjs/client'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
 interface Props {
   location?: string
-}
-
-const roomCodeCharacters = '123456789'
-
-const numberize = (str: string) => {
-  const chars = str.split('')
-  const validChars = chars.map((char) => (roomCodeCharacters.includes(char) ? char : ''))
-  return validChars.join('')
 }
 
 const RoomMenu = ({ location }: Props): JSX.Element => {
@@ -66,11 +59,6 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
     setError('')
     setRoomCode('')
     setSource(value)
-  }
-
-  const handleRoomCode = async (e) => {
-    const number = numberize(e.target.value)
-    setRoomCode(number)
   }
 
   const handleLocationName = async (e) => {
@@ -90,9 +78,9 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
     }
 
     const { data: roomData } = (await Engine.instance.api
-      .service('instance')
+      .service(instancePath)
       .find({ query: { roomCode, ended: false, locationId: { $ne: null } } })) as Paginated<Instance>
-    if (!roomData[0]) {
+    if (!roomData.at(0)) {
       setError(t('user:roomMenu.invalidRoomCode'))
       return
     }

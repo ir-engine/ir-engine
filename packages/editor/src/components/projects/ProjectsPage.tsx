@@ -64,6 +64,8 @@ import {
 
 import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { getProjects } from '../../functions/projectFunctions'
 import { EditorAction } from '../../services/EditorServices'
@@ -194,10 +196,10 @@ const ProjectsPage = () => {
 
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
-  const projectPermissionMutation = useMutation('project-permission')
+  const projectPermissionMutation = useMutation(projectPermissionPath)
   const githubRepoAccessRefreshQuery = useFind(githubRepoAccessRefreshPath)
   const projectMutation = useMutation('project')
-  const patchProjectGithubPushMutation = useMutation('project-github-push').patch
+  const patchProjectGithubPushMutation = useMutation(projectGithubPushPath).patch
 
   const fetchInstalledProjects = async () => {
     loading.set(true)
