@@ -27,17 +27,23 @@ import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { projectsRootFolder } from './file-browser/file-browser.class'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { copyRecursiveSync, getIncrementalName } from './FileUtil'
+import { projectsRootFolder } from './file-browser/file-browser.class'
 import LocalStorage from './storageprovider/local.storage'
 
 const TEST_DIR = 'FileUtil-test-project'
-const store = new LocalStorage()
-const PROJECT_PATH = path.join(projectsRootFolder, TEST_DIR)
-const STORAGE_PATH = path.join(store.PATH_PREFIX, TEST_DIR)
 
 describe('FileUtil functions', () => {
+  let PROJECT_PATH: string
+  let STORAGE_PATH: string
+  let store: LocalStorage
   before(() => {
+    createEngine()
+    store = new LocalStorage()
+    PROJECT_PATH = path.join(projectsRootFolder, TEST_DIR)
+    STORAGE_PATH = path.join(store.PATH_PREFIX, TEST_DIR)
     if (fs.existsSync(PROJECT_PATH)) fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
 
     fs.mkdirSync(PROJECT_PATH)
@@ -156,5 +162,6 @@ describe('FileUtil functions', () => {
   after(() => {
     fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
     fs.rmSync(STORAGE_PATH, { force: true, recursive: true })
+    destroyEngine()
   })
 })
