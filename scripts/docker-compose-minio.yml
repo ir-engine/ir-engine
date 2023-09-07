@@ -1,4 +1,3 @@
-
 version: '2.3'
 services:
   minio:
@@ -15,7 +14,7 @@ services:
       MINIO_ROOT_PASSWORD: password
       BITNAMI_DEBUG: 'true'
       MINIO_SCHEME: https
-      MINIO_DEFAULT_BUCKETS: etherealengine-static-resources:public,etherealengine-microk8s-static-resources:public,etherealengine-minikube-static-resources:public
+      MINIO_DEFAULT_BUCKETS: etherealengine-static-resources:public,etherealengine-static-resources-test:public,etherealengine-microk8s-static-resources:public,etherealengine-minikube-static-resources:public
 
 volumes:
   minio_data:

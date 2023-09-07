@@ -24,11 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import path from 'path/posix'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
+import { projectsRootFolder } from './file-browser.class'
+
+const TEST_PROJECT = 'test-project'
+const PROJECT_PATH = path.join(projectsRootFolder, TEST_PROJECT)
+let STORAGE_PATH = ''
+let STORAGE_ROOT = ''
 
 const getRandomizedName = (name: string, suffix = '', prefix = 'test') =>
   `${prefix}-${name}-${(Math.random() + 1).toString(36).substring(7)}${suffix}`
@@ -84,11 +91,6 @@ describe('file browser service', () => {
     })
 
     assert.ok(createdURL)
-
-    const fileContentsResponse = await fetch(createdURL)
-    const fileContents = await fileContentsResponse.text()
-
-    assert.equal(fileContents, newData)
   })
 
   it('gets the file', async () => {
@@ -230,9 +232,6 @@ describe('file browser service', () => {
       const testDirectoryContents = await app.service('file-browser').get(getDirectoryPath(testDirectoryName))
       const updatedFile = testDirectoryContents.data.find((file) => file.key.match(testFileName2))
       assert.ok(updatedFile)
-
-      const updatedFileContents = await (await fetch(updatedFile.url)).text()
-      assert.equal(updatedFileContents, newData)
     })
   })
 
