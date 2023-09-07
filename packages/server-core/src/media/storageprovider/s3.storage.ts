@@ -46,6 +46,7 @@ import {
   PutObjectCommand,
   S3Client
 } from '@aws-sdk/client-s3'
+
 import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import appRootPath from 'app-root-path'
@@ -58,6 +59,7 @@ import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { Client } from 'minio'
 
 import config from '../../appconfig'
 import { getCacheDomain } from './getCacheDomain'
@@ -113,8 +115,26 @@ export class S3Provider implements StorageProviderInterface {
       : config.aws.s3.endpoint,
     region: config.aws.s3.region,
     forcePathStyle: true,
-    tls: config.aws.s3.s3DevMode === 'local' ? false : undefined,
+    tls: undefined,
     maxAttempts: 5
+  })
+
+  minioClient = new Client({
+    endPoint: new URL(
+      config.server.storageProviderExternalEndpoint
+        ? config.server.storageProviderExternalEndpoint
+        : config.aws.s3.endpoint
+    ).hostname,
+    port: parseInt(
+      new URL(
+        config.server.storageProviderExternalEndpoint
+          ? config.server.storageProviderExternalEndpoint
+          : config.aws.s3.endpoint
+      ).port
+    ),
+    useSSL: true,
+    accessKey: config.aws.s3.accessKeyId,
+    secretKey: config.aws.s3.secretAccessKey
   })
 
   /**
@@ -294,6 +314,9 @@ export class S3Provider implements StorageProviderInterface {
       } catch (err) {
         reject(err)
       }
+    } else if (config.aws.s3.s3DevMode === 'local') {
+      const response = await this.minioClient.putObject(this.bucket, key, data.Body)
+      return response
     } else {
       const command = new PutObjectCommand(args)
       const response = await this.provider.send(command)
