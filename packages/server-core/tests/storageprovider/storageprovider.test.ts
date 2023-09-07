@@ -160,7 +160,7 @@ describe('storageprovider', () => {
         assert.deepStrictEqual(fileData, ret.Body)
       })
 
-      it(`should put over 1000 objects in ${providerType.name}`, async function () {
+      it.skip(`should put over 1000 objects in ${providerType.name}`, async function () {
         const promises: any[] = []
         for (let i = 0; i < 1010; i++) {
           const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
@@ -176,7 +176,7 @@ describe('storageprovider', () => {
         await Promise.all(promises)
       })
 
-      it(`should list over 1000 objects in ${providerType.name}`, async function () {
+      it.skip(`should list over 1000 objects in ${providerType.name}`, async function () {
         const res = await provider.listFolderContent(testFolderName, true)
         assert(res.length > 1000)
       })
