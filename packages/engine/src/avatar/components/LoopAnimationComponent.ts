@@ -113,7 +113,7 @@ export const LoopAnimationComponent = defineComponent({
      * A model is required for LoopAnimationComponent.
      */
     useEffect(() => {
-      if (!modelComponent?.scene?.value || !modelComponent.asset.value) return
+      if (!modelComponent?.asset.value) return
       const model = getComponent(entity, ModelComponent)
       if (loopAnimationComponent.hasAvatarAnimations.value && !(model.asset as VRM)?.humanoid) {
         const vrm = parseAvatarModelAsset(model.scene)
