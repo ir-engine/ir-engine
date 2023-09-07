@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -49,14 +48,14 @@ import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/f
 import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { NotificationService } from '../../common/services/NotificationService'
+import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { RouterService } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -71,7 +70,7 @@ export const initClient = async () => {
   const projects = Engine.instance.api.service(projectsPath).find()
 
   startClientSystems()
-  await loadEngineInjection((await projects).projectsList)
+  await loadEngineInjection(await projects)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
@@ -82,26 +81,9 @@ export const useLoadEngine = () => {
   }, [])
 }
 
-const fetchMissingAvatar = async (user, avatarSpawnPose) => {
-  const avatar = await AvatarService.getAvatar(user.avatar.id.value)
-  if (avatar && avatar.modelResource?.url)
-    spawnLocalAvatarInWorld({
-      avatarSpawnPose,
-      avatarID: avatar.id,
-      name: user.name.value
-    })
-  else
-    NotificationService.dispatchNotify(
-      'Your avatar is missing its model. Please change your avatar from the user menu.',
-      { variant: 'error' }
-    )
-}
-
 export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const authState = useHookstate(getMutableState(AuthState))
-
-  const spectateParam = useParams<{ spectate: UserID }>().spectate
 
   useEffect(() => {
     if (spectate) {
@@ -109,6 +91,8 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       dispatchAction(EngineActions.spectateUser({}))
       return
     }
+
+    const spectateParam = getSearchParamFromURL('spectate')
 
     if (
       Engine.instance.localClientEntity ||
@@ -128,14 +112,23 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       ? getSpawnPoint(spawnPoint, Engine.instance.userID)
       : getRandomSpawnPoint(Engine.instance.userID)
 
-    if (avatarDetails.modelResource?.url)
+    if (avatarDetails.modelResource?.url) {
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
         avatarID: user.avatar.id.value!,
         name: user.name.value
       })
-    else fetchMissingAvatar(user, avatarSpawnPose)
-  }, [sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
+    } else {
+      /** @TODO use async suspend here */
+      Engine.instance.api
+        .service(avatarPath)
+        .find({})
+        .then((avatars: Paginated<AvatarType>) => {
+          const randomAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
+          AvatarService.updateUserAvatarId(Engine.instance.userID, randomAvatar.id)
+        })
+    }
+  }, [sceneLoaded, authState.user.avatar])
 }
 
 export const usePortalTeleport = () => {

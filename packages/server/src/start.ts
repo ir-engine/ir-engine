@@ -39,6 +39,7 @@ import { StartCorsServer } from '@etherealengine/server-core/src/createCorsServe
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import channels from './channels'
 
 const logger = multiLogger.child({ component: 'server-core:user' })
@@ -55,7 +56,7 @@ export const start = async (): Promise<void> => {
 
   if (!config.kubernetes.enabled && !config.db.forceRefresh && !config.testEnabled) {
     app.isSetup.then(() => {
-      app.service('project')._fetchDevLocalProjects()
+      app.service(projectPath)._fetchDevLocalProjects()
     })
   }
 
@@ -76,7 +77,7 @@ export const start = async (): Promise<void> => {
       // Check for child process with mac OSX
       // exec("docker ps | grep mariadb", (err, stdout, stderr) => {
       //   if(!stdout.includes("mariadb")){
-      //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run etherealengine/scripts/start-db.sh and restart server\x1b[0m');
+      //     throw new Error('\x1b[33mError: DB process is not running or Docker is not running!. If you are in local development, please run etherealengine/scripts/start-containers.sh and restart server\x1b[0m');
       //   }
       // });
     }

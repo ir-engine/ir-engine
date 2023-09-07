@@ -29,6 +29,7 @@ import path from 'path'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -41,7 +42,7 @@ const cleanup = async (app: Application) => {
   const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
   deleteFolderRecursive(projectDir)
   try {
-    await app.service('project').Model.destroy({ where: { name: newProjectName } })
+    await app.service(projectPath)._remove(null, { query: { name: newProjectName } })
   } catch (e) {
     //
   }
@@ -70,19 +71,21 @@ describe('project.test', () => {
   describe("'project' service'", () => {
     describe('create', () => {
       it('should add new project', async function () {
-        await app.service('project').create(
+        await app.service(projectPath).create(
           {
             name: newProjectName
           },
           params
         )
-        const { data } = await app.service('project').get(newProjectName, params)
-        assert.strictEqual(data.name, newProjectName)
+
+        let findParams = { ...params, query: { name: newProjectName } }
+        const { data } = await app.service(projectPath).find(findParams)
+        assert.strictEqual(data[0].name, newProjectName)
       })
 
       it('should not add new project with same name as existing project', function () {
         assert.rejects(async () => {
-          await app.service('project').create(
+          await app.service(projectPath).create(
             {
               name: newProjectName
             },
@@ -94,10 +97,11 @@ describe('project.test', () => {
 
     describe('remove', () => {
       it('should remove project', async function () {
-        const { data } = await app.service('project').get(newProjectName, params)
-        await app.service('project').remove(data.id, params)
-        const project = await app.service('project').get(newProjectName, params)
-        assert.strictEqual(project, null)
+        let findParams = { ...params, query: { name: newProjectName } }
+        const { data } = await app.service(projectPath).find(findParams)
+        await app.service(projectPath).remove(data[0].id, params)
+        const project = await app.service(projectPath).find(findParams)
+        assert.strictEqual(project.data.length, 0)
       })
     })
 
