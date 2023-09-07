@@ -32,6 +32,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -112,7 +113,7 @@ describe('scene.test', () => {
 
   describe("'scene' service", () => {
     before(async () => {
-      await app.service('project').create(
+      await app.service(projectPath).create(
         {
           name: newProjectName
         },
@@ -121,8 +122,8 @@ describe('scene.test', () => {
     })
 
     after(async () => {
-      const { data } = await app.service('project').get(newProjectName, params)
-      await app.service('project').remove(data.id, params)
+      const { data } = await app.service(projectPath).find({ ...params, query: { name: newProjectName } })
+      await app.service(projectPath).remove(data[0].id, params)
     })
 
     describe('get', () => {
