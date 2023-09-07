@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@etherealengine/server-core": "^1.4.0",
-    "@swc/core": "^1.3.83",
+    "@swc/core": "1.3.41",
     "cross-env": "7.0.3",
     "typescript": "5.0.2"
   },
