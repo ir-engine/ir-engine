@@ -127,7 +127,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
               token: invite.token,
               userId: invite.userId
             },
-            params
+            params as any
           )
         } else {
           inviteeIdentityProvider = inviteeIdentityProviderResult.data[0]
@@ -188,7 +188,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
               userId: invite.userId,
               relatedUserId: inviteeIdentityProvider.userId
             },
-            params
+            params as any
           )
         } else {
           await this.app.service(userRelationshipPath).patch(
@@ -196,7 +196,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
             {
               userRelationshipType: 'friend'
             },
-            params
+            params as any
           )
         }
 
@@ -221,7 +221,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
             {
               userRelationshipType: 'friend'
             },
-            params
+            params as any
           )
       } else if (invite.inviteType === 'channel') {
         const channel = await this.app.service('channel').Model.findOne({ where: { id: invite.targetObjectId } })

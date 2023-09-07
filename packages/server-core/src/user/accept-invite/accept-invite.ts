@@ -27,6 +27,7 @@ import { acceptInviteMethods, acceptInvitePath } from '@etherealengine/engine/sr
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
+import { AcceptInviteService } from './accept-invite.class'
 import acceptInviteDocs from './accept-invite.docs'
 import hooks from './accept-invite.hooks'
 
