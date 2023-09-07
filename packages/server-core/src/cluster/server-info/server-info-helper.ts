@@ -259,10 +259,10 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   let channels: ChannelType[] = []
 
   if (channelInstances) {
-    channels = (await app.service(channelPath).find({
+    channels = (await app.service(channelPath)._find({
       query: {
-        instanceId: {
-          $in: channelInstances.map((item) => item.channelId)
+        id: {
+          $in: channelInstances.map((item) => item.channelId!)
         }
       },
       paginate: false
