@@ -1389,7 +1389,14 @@ export const updateProject = async (
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
-    return
+    return (
+      await app.service(projectPath).find({
+        query: {
+          name: 'default-project',
+          $limit: 1
+        }
+      })
+    ).data
   }
 
   const urlParts = data.sourceURL.split('/')
