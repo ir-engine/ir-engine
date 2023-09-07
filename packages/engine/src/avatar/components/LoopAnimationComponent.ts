@@ -113,7 +113,7 @@ export const LoopAnimationComponent = defineComponent({
      * A model is required for LoopAnimationComponent.
      */
     useEffect(() => {
-      if (!modelComponent?.scene?.value) return
+      if (!modelComponent?.scene?.value || !modelComponent.asset.value) return
       const model = getComponent(entity, ModelComponent)
       if (loopAnimationComponent.hasAvatarAnimations.value && !(model.asset as VRM)?.humanoid) {
         const vrm = parseAvatarModelAsset(model.scene)
@@ -132,7 +132,7 @@ export const LoopAnimationComponent = defineComponent({
         })
         getComponent(entity, AnimationComponent).mixer.timeScale = loopAnimationComponent.animationSpeed.value
       }
-    }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
+    }, [modelComponent?.asset, loopAnimationComponent.hasAvatarAnimations])
 
     useEffect(() => {
       if (!animComponent) return
@@ -148,7 +148,7 @@ export const LoopAnimationComponent = defineComponent({
         const animationComponent = getComponent(entity, AnimationComponent)
         animationComponent.animations = animations
       })
-    }, [modelComponent?.scene, modelComponent?.asset, animComponent?.animations, loopAnimationComponent.animationPack])
+    }, [modelComponent?.asset, loopAnimationComponent.animationPack])
 
     useEffect(() => {
       if (
