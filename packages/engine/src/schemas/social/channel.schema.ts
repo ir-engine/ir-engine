@@ -83,24 +83,45 @@ export const channelSchema = Type.Object(
 export type ChannelType = Static<typeof channelSchema>
 
 // Schema for creating new entries
-export const channelDataSchema = Type.Partial(channelSchema, {
-  $id: 'ChannelData'
-})
-export type ChannelData = Static<typeof channelDataSchema>
+export const channelDataProperties = Type.Partial(channelSchema)
 
-// Schema for updating existing entries
-export const channelPatchSchema = Type.Partial(channelSchema, {
-  $id: 'ChannelPatch'
-})
-export type ChannelPatch = Static<typeof channelPatchSchema>
+export const channelDataSchema = Type.Intersect(
+  [
+    channelDataProperties,
+    Type.Object({
+      users: Type.Optional(
+        Type.Array(
+          TypedString<UserID>({
+            format: 'uuid'
+          })
+        )
+      )
+    })
+  ],
+  {
+    $id: 'ChannelData',
+    additionalProperties: false
+  }
+)
+export type ChannelData = Static<typeof channelDataSchema>
 
 // Schema for allowed query properties
 export const channelQueryProperties = Type.Pick(channelSchema, ['id', 'name', 'instanceId', 'updateNeeded'])
 export const channelQuerySchema = Type.Intersect(
   [
-    querySyntax(channelQueryProperties, {}),
+    querySyntax(channelQueryProperties, {
+      search: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        action: Type.Optional(Type.String()),
+        search: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )
@@ -108,5 +129,4 @@ export type ChannelQuery = Static<typeof channelQuerySchema>
 
 export const channelValidator = getValidator(channelSchema, dataValidator)
 export const channelDataValidator = getValidator(channelDataSchema, dataValidator)
-export const channelPatchValidator = getValidator(channelPatchSchema, dataValidator)
 export const channelQueryValidator = getValidator(channelQuerySchema, queryValidator)

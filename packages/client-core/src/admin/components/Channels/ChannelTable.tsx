@@ -27,13 +27,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import TableComponent from '../../common/Table'
 import { ChannelData, ChannelPropsTable, channelColumns } from '../../common/variables/channel'
 import styles from '../../styles/admin.module.scss'
@@ -50,9 +48,9 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('name')
   const openChannelDrawer = useHookstate(false)
-  const channelAdmin = useHookstate<Channel | undefined>(undefined)
+  const channelAdmin = useHookstate<ChannelType | undefined>(undefined)
 
-  const channelsQuery = useFind('channel', {
+  const channelsQuery = useFind(channelPath, {
     query: {
       $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
       $skip: page.value * rowsPerPage.value,
@@ -81,7 +79,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
     openChannelDrawer.set(false)
   }
 
-  const createData = (el: Channel, id: ChannelID, name: string): ChannelData => {
+  const createData = (el: ChannelType, id: ChannelID, name: string): ChannelData => {
     return {
       el,
       id,
@@ -110,7 +108,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
     page.set(0)
   }
 
-  const rows = channelsQuery.data.map((el: Channel) => {
+  const rows = channelsQuery.data.map((el: ChannelType) => {
     return createData(el, el.id!, el.name)
   })
 

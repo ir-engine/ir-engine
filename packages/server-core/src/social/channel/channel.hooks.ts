@@ -25,31 +25,65 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { channelDataValidator, channelPatchValidator } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { channelDataValidator } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   UserRelationshipType,
   userRelationshipPath
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import { NextFunction } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import { ChannelUser } from '../channel-user/channel-user.class'
-import {
-  channelDataResolver,
-  channelExternalResolver,
-  channelPatchResolver,
-  channelResolver
-} from './channel.resolvers'
+import { channelDataResolver, channelExternalResolver, channelResolver } from './channel.resolvers'
 
 /**
  *  Don't remove this comment. It's needed to format import lines nicely.
  *
  */
 
+const applyInstanceIpAddressSort = async (context: HookContext, next: NextFunction) => {
+  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
+
+  const hasInstanceSort =
+    context.params.query && context.params.query.$sort && context.params.query.$sort['instanceIpAddress']
+
+  if (hasInstanceSort) {
+    const { dispatch } = context
+    const data = dispatch.data ? dispatch.data : dispatch
+
+    data.sort((a, b) => {
+      let fa = a['instanceIpAddress'],
+        fb = b['instanceIpAddress']
+
+      if (typeof fa === 'string') {
+        fa = fa.toLowerCase()
+        fb = fb.toLowerCase()
+      }
+
+      if (fa < fb) {
+        return -1
+      }
+      if (fa > fb) {
+        return 1
+      }
+      return 0
+    })
+
+    if (context.params.query.$sort['instanceIpAddress'] === 1) {
+      data.reverse()
+    }
+  }
+}
+
 export default {
   around: {
-    all: [schemaHooks.resolveExternal(channelExternalResolver), schemaHooks.resolveResult(channelResolver)]
+    all: [
+      applyInstanceIpAddressSort,
+      schemaHooks.resolveExternal(channelExternalResolver),
+      schemaHooks.resolveResult(channelResolver)
+    ]
   },
 
   before: {
@@ -107,11 +141,7 @@ export default {
       })
     ],
     update: [disallow('external')],
-    patch: [
-      () => schemaHooks.validateData(channelPatchValidator),
-      schemaHooks.resolveData(channelPatchResolver),
-      disallow('external')
-    ],
+    patch: [disallow('external')],
     remove: [setLoggedInUser('userId')]
   },
 
