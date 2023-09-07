@@ -251,6 +251,7 @@ export class FileBrowserService implements ServiceMethods<any> {
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
     const filePath = path.join(projectsRootFolder, key)
+
     if (fs.lstatSync(filePath).isDirectory()) {
       fs.rmSync(filePath, { force: true, recursive: true })
     } else {

@@ -259,7 +259,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
     startMediaServerSystems()
-    await loadEngineInjection(projects.projectsList)
+    await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
@@ -270,7 +270,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
 
     startWorldServerSystems()
-    await loadEngineInjection(projects.projectsList)
+    await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {

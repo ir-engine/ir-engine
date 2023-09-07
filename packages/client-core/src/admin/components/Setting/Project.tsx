@@ -128,7 +128,7 @@ const Project = () => {
   }
 
   const handleSubmit = () => {
-    patchProjectSetting(selectedProject.value, { settings: JSON.stringify(settings.value) })
+    patchProjectSetting(selectedProject.value, { settings: settings.value })
   }
 
   const projectsMenu: InputMenuItem[] = projects.value.map((el) => {
