@@ -31,6 +31,7 @@ import { HookReturn } from 'sequelize/types/hooks'
 import {
   AvatarInterface,
   BotCommandInterface,
+  ChannelUserInterface,
   IdentityProviderInterface,
   InstanceAttendanceInterface,
   InstanceAuthorizedUserInterface,
@@ -860,6 +861,40 @@ export const createMessageModel = (app: Application) => {
   return message
 }
 
+export const createChannelUserModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const channelUser = sequelizeClient.define<Model<ChannelUserInterface>>(
+    'channel-user',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      isOwner: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(channelUser as any).associate = (models: any): void => {
+    ;(channelUser as any).belongsTo(models.channel, { required: true, allowNull: false })
+    ;(channelUser as any).belongsTo(createUserModel(app), { required: true, allowNull: false })
+  }
+
+  return channelUser
+}
+
 export const createInstanceModel = (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const instance = sequelizeClient.define<Model<InstanceInterface>>(
@@ -908,7 +943,6 @@ export const createInstanceModel = (app: Application) => {
       }
     }
   )
-
   ;(instance as any).associate = (models: any): void => {
     ;(instance as any).belongsTo(createLocationModel(app), { foreignKey: { allowNull: true } })
     ;(instance as any).hasMany(createBotModel(app), { foreignKey: { allowNull: true } })

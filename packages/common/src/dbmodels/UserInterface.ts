@@ -116,6 +116,11 @@ export interface UserSetting {
   themeModes: string
 }
 
+export interface ChannelUserInterface {
+  id: ChannelID
+  isOwner: boolean
+}
+
 export interface UserRelationshipInterface {
   id: string
   userId: string

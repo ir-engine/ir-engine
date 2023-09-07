@@ -23,38 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-
-import { ChannelUser as ChannelUserInterface } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Paginated, Params } from '@feathersjs/feathers'
+import {
+  ChannelUserData,
+  ChannelUserPatch,
+  ChannelUserQuery,
+  ChannelUserType
+} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers'
+import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 
-export type ChannelUserDataType = ChannelUserInterface
-
-export type RemoveParams = Params<{
-  userId: UserID
-  channelId: ChannelID
-}> & {
-  user?: UserType // loggedInUser
-  isInternal?: boolean
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ChannelUserParams extends RootParams<ChannelUserQuery> {}
 
 /**
  * A class for Channel user service
  */
-export class ChannelUser<T = ChannelUserDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+export class ChannelUserService<
+  T = ChannelUserType,
+  ServiceParams extends Params = ChannelUserParams
+> extends KnexAdapter<ChannelUserType, ChannelUserData, ChannelUserParams, ChannelUserPatch> {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
   }
 
-  async remove(id: string | null, params?: RemoveParams): Promise<T> {
+  async create(data: ChannelUserData, params?: ChannelUserParams) {
+    return super._create(data, params)
+  }
+
+  async get(id: Id, params?: ChannelUserParams) {
+    return super._get(id, params)
+  }
+
+  async find(params?: ChannelUserParams) {
+    return super._find(params)
+  }
+
+  async patch(id: NullableId, data: ChannelUserPatch, params?: ChannelUserParams) {
+    return super._patch(id, data, params)
+  }
+
+  async remove(id: NullableId, params?: ChannelUserParams) {
     const loggedInUser = params!.user
     if (!loggedInUser) {
-      return super.remove(id, params) as Promise<T>
+      return super._remove(id, params)
     }
 
     if (id) {
@@ -62,12 +75,13 @@ export class ChannelUser<T = ChannelUserDataType> extends Service<T> {
     }
 
     // remove method that only allows a user removing the channel if the logged in user is the owner of the channel
-    const loggedInChannelUser = (await this.find({
+    const loggedInChannelUser = (await this._find({
       query: {
         userId: loggedInUser.id,
-        channelId: params!.query!.channelId
+        channelId: params!.query!.channelId,
+        $limit: 1
       }
-    })) as Paginated<ChannelUserDataType>
+    })) as Paginated<ChannelUserType>
 
     if (!loggedInChannelUser.data.length || !loggedInChannelUser.data[0].isOwner) {
       throw new Error('Only the owner of a channel can remove users')
@@ -75,17 +89,18 @@ export class ChannelUser<T = ChannelUserDataType> extends Service<T> {
 
     // if no id is provided, remove all who match the userId and channelId
     const { userId, channelId } = params!.query!
-    const channelUser = (await this.Model.findOne({
-      where: {
-        userId,
-        channelId
+    const channelUser = (await this._find({
+      query: {
+        userId: userId,
+        channelId: channelId,
+        $limit: 1
       }
-    })) as ChannelUserDataType
+    })) as Paginated<ChannelUserType>
 
-    if (!channelUser) {
+    if (channelUser.data.length === 0) {
       throw new Error('Channel user not found')
     }
 
-    return super.remove(channelUser.id, params) as Promise<T>
+    return super._remove(channelUser.data[0].id, params)
   }
 }

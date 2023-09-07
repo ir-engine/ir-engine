@@ -30,6 +30,7 @@ import { locationPath } from '@etherealengine/engine/src/schemas/social/location
 
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import {
@@ -252,15 +253,15 @@ export class AcceptInvite implements ServiceMethods<Data> {
           throw new BadRequest('Invalid channel ID')
         }
 
-        const existingChannelUser = (await this.app.service('channel-user').find({
+        const existingChannelUser = (await this.app.service(channelUserPath).find({
           query: {
             userId: inviteeIdentityProvider.userId,
             channelId: invite.targetObjectId
           }
-        })) as any
+        })) as Paginated<ChannelUserType>
 
         if (existingChannelUser.total === 0) {
-          await this.app.service('channel-user').create({
+          await this.app.service(channelUserPath).create({
             userId: inviteeIdentityProvider.userId,
             channelId: invite.targetObjectId
           })
