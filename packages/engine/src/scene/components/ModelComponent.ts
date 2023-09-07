@@ -132,8 +132,8 @@ function ModelReactor() {
   const source = model.src
 
   useEffect(() => {
-    !hasComponent(entity, LoopAnimationComponent) && setComponent(entity, LoopAnimationComponent, {})
-    !hasComponent(entity, ShadowComponent) && setComponent(entity, ShadowComponent)
+    setComponent(entity, LoopAnimationComponent)
+    setComponent(entity, ShadowComponent)
   }, [])
 
   // update src
