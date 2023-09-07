@@ -30,6 +30,7 @@ import {
   ProjectPermissionType,
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../declarations'
 
@@ -53,11 +54,7 @@ export default () => {
             })) as Paginated<ProjectPermissionType>
           ).data[0].projectId
         : context.data.id || context.data.projectId
-    const project = await app.service('project').Model.findOne({
-      where: {
-        id: projectId
-      }
-    })
+    const project = await app.service(projectPath).get(projectId)
     if (!project) throw new BadRequest('Invalid project ID')
     const projectPermission = (await app.service(projectPermissionPath)._find({
       query: {

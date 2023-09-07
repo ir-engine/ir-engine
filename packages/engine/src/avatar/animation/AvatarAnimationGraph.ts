@@ -33,7 +33,7 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -57,6 +57,14 @@ const epsilon = 0.01
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
     const targetEntity = UUIDComponent.entitiesByUUID[newAnimation.entityUUID]
+    if (!hasComponent(targetEntity, AvatarAnimationComponent)) {
+      console.warn(
+        '[updateAnimationGraph]: AvatarAnimationComponent not found on entity',
+        targetEntity,
+        newAnimation.entityUUID
+      )
+      continue
+    }
     const graph = getMutableComponent(targetEntity, AvatarAnimationComponent).animationGraph
     if (newAnimation.needsSkip) graph.fadingOut.set(true)
     graph.layer.set(newAnimation.layer ?? 0)

@@ -34,7 +34,7 @@ import ProjectDestinationCheck from './project-destination-check/project-destina
 import ProjectGithubPush from './project-github-push/project-github-push'
 import ProjectInvalidate from './project-invalidate/project-invalidate'
 import ProjectPermission from './project-permission/project-permission'
-import Project from './project/project.service'
+import Project from './project/project'
 import Projects from './projects/projects'
 import Scene from './scene/scene.service'
 
