@@ -105,7 +105,7 @@
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.1.0",
-    "@swc/core": "^1.3.41",
+    "@swc/core": "^1.3.83",
     "@types/app-root-path": "1.2.4",
     "@types/cli": "0.11.21",
     "@types/mocha": "10.0.1",
@@ -145,6 +145,7 @@
     "cli": "1.0.1",
     "dotenv": "16.0.3",
     "fix-esm": "^1.0.1",
+    "minio": "7.1.3",
     "patch-package": "^6.5.1",
     "three": "0.153.0",
     "ts-node": "10.9.1",
