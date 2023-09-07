@@ -37,7 +37,7 @@ import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
-import { copyDefaultProject, uploadLocalProjectToProvider } from '../project/project.class'
+import { copyDefaultProject, uploadLocalProjectToProvider } from '../project/project-helper'
 
 const defaultProjectName = 'default-project'
 const defaultSceneName = 'default'
