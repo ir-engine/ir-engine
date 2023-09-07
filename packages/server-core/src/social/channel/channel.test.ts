@@ -28,7 +28,7 @@ import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -83,22 +83,22 @@ describe('channel service', () => {
     assert.equal(channelFindAsLoggedInUser.length, 1)
     assert.equal(channelFindAsLoggedInUser[0].id, channel.id)
 
-    const channelUserByID = (await app.service('channel-user').find({
+    const channelUserByID = (await app.service(channelUserPath).find({
       query: {
         channelId: channel.id
       }
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.ok('total' in channelUserByID, 'find result should contain "total"')
     assert.equal(channelUserByID.data.length, 1)
     assert.equal(channelUserByID.data[0].channelId, channel.id)
     assert.equal(channelUserByID.data[0].userId, user.id)
 
-    const channelUserByUser = (await app.service('channel-user').find({
+    const channelUserByUser = (await app.service(channelUserPath).find({
       query: {
         userId: user.id
       }
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.equal(channelUserByUser.data.length, 1)
     assert.equal(channelUserByUser.data[0].channelId, channel.id)

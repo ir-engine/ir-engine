@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import {
   ChannelData,
   ChannelID,
@@ -35,7 +35,7 @@ import {
   channelPath
 } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
@@ -59,16 +59,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
   }
 
   async get(id: ChannelID, params?: ChannelParams) {
-    const channel = await super._get(id, params)
-
-    // TODO: Populating ChannelUser's sender property here manually. Once channel-user service is moved to feathers 5. This should be part of its resolver.
-    if (channel.channelUsers && channel.channelUsers.length > 0) {
-      for (const channelUser of channel.channelUsers) {
-        channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
-      }
-    }
-
-    return channel
+    return await super._get(id, params)
   }
 
   // @ts-ignore
@@ -86,10 +77,10 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       const knexClient: Knex = this.app.get('knexClient')
       const existingChannel: ChannelType = await knexClient(channelPath)
         .select(`${channelPath}.*`)
-        .leftJoin('channel-user', `${channelPath}.id`, '=', `channel-user.channelId`)
+        .leftJoin(channelUserPath, `${channelPath}.id`, '=', `${channelUserPath}.channelId`)
         .whereNull(`${channelPath}.instanceId`)
         .andWhere((builder) => {
-          builder.whereIn(`channel-user.userId`, userIds)
+          builder.whereIn(`${channelUserPath}.userId`, userIds)
         })
         .groupBy(`${channelPath}.id`)
         .havingRaw('count(*) = ?', [userIds.length])
@@ -105,7 +96,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
     /** @todo ensure all users specified are friends of loggedInUser */
 
     if (userId) {
-      await this.app.service('channel-user').create({
+      await this.app.service(channelUserPath).create({
         channelId: channel.id as ChannelID,
         userId,
         isOwner: true
@@ -115,7 +106,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
     if (users) {
       await Promise.all(
         users.map(async (user) =>
-          this.app.service('channel-user').create({
+          this.app.service(channelUserPath).create({
             channelId: channel.id as ChannelID,
             userId: user
           })
@@ -169,7 +160,6 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
 
         channels = channels.map((item) => item.channel)
 
-        // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
         for (const channel of channels) {
           channel.messages = (await this.app.service(messagePath).find({
             query: {
@@ -193,7 +183,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       const knexClient: Knex = this.app.get('knexClient')
 
       let allChannels = await knexClient
-        .from(`${channelPath}`)
+        .from(channelPath)
         .leftJoin('instance', `instance.id`, `${channelPath}.instanceId`)
         .where(`instance.ended`, '=', false)
         .orWhereNull(`${channelPath}.instanceId`)
@@ -201,19 +191,21 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
         .options({ nestTables: true })
 
       /** @todo figure out how to do this as part of the query */
+      for (const channel of allChannels) {
+        channel.dataValues.channel_users = (await this.app.service(channelUserPath).find({
+          query: {
+            channelId: channel.id
+          },
+          paginate: false
+        })) as ChannelUserType[]
+      }
 
       allChannels = allChannels.filter((channel) => {
-        return channel.channel_users.find((channelUser) => channelUser.userId === userId)
+        return channel.dataValues.channel_users.find((channelUser) => channelUser.userId === userId)
       })
 
       for (const channel of allChannels) {
-        // TODO: Populating ChannelUser's sender property here manually. Once channel-user service is moved to feathers 5. This should be part of its resolver.
-        if (channel.dataValues.channel_users && channel.dataValues.channel_users.length > 0) {
-          for (const channelUser of channel.dataValues.channel_users) {
-            channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
-          }
-        }
-        channel.messages = (await this.app.service(messagePath).find({
+        channel.dataValues.messages = (await this.app.service(messagePath).find({
           query: {
             channelId: channel.id,
             $limit: 20,
@@ -242,15 +234,15 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
     if (!loggedInUser) return super._remove(id, params)
 
     //TODO: update this once channel-user gets migrated to feathers 5
-    const channelUser = (await this.app.service('channel-user').find({
+    const channelUser = (await this.app.service(channelUserPath).find({
       query: {
         channelId: id,
         userId: loggedInUser.id,
         isOwner: true
       }
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
-    if (!channelUser.data.length) throw new Error('Must be owner to delete channel')
+    if (channelUser.total < 0) throw new Error('Must be owner to delete channel')
 
     return super._remove(id)
   }

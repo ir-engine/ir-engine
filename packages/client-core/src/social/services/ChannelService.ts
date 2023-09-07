@@ -27,7 +27,7 @@ import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
@@ -128,7 +128,7 @@ export const ChannelService = {
   },
   removeUserFromChannel: async (channelId: ChannelID, userId: UserID) => {
     try {
-      await Engine.instance.api.service('channel-user').remove(null, {
+      await Engine.instance.api.service(channelUserPath).remove(null, {
         query: {
           channelId,
           userId
@@ -187,7 +187,7 @@ export const ChannelService = {
         }
       }
 
-      const channelUserRemovedListener = (params: ChannelUser) => {
+      const channelUserRemovedListener = (params: ChannelUserType) => {
         ChannelService.getChannels()
         const channelState = getMutableState(ChannelState)
         if (params.userId === Engine.instance.userID && params.channelId === channelState.targetChannelId.value) {
@@ -199,13 +199,13 @@ export const ChannelService = {
       Engine.instance.api.service(channelPath).on('created', channelCreatedListener)
       Engine.instance.api.service(channelPath).on('patched', channelPatchedListener)
       Engine.instance.api.service(channelPath).on('removed', channelRemovedListener)
-      Engine.instance.api.service('channel-user').on('removed', channelUserRemovedListener)
+      Engine.instance.api.service(channelUserPath).on('removed', channelUserRemovedListener)
 
       return () => {
         Engine.instance.api.service(channelPath).off('created', channelCreatedListener)
         Engine.instance.api.service(channelPath).off('patched', channelPatchedListener)
         Engine.instance.api.service(channelPath).off('removed', channelRemovedListener)
-        Engine.instance.api.service('channel-user').off('removed', channelUserRemovedListener)
+        Engine.instance.api.service(channelUserPath).off('removed', channelUserRemovedListener)
       }
     }, [])
   }

@@ -40,10 +40,10 @@ import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Net
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
@@ -327,15 +327,15 @@ const handleUserAttendance = async (app: Application, userId: UserID) => {
 
   /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
   if (channel.total > 0) {
-    const existingChannelUser = (await app.service('channel-user').find({
+    const existingChannelUser = (await app.service(channelUserPath).find({
       query: {
         channelId: channel.data[0].id,
         userId: userId
       }
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     if (!existingChannelUser.total) {
-      await app.service('channel-user').create({
+      await app.service(channelUserPath).create({
         channelId: channel.data[0].id,
         userId: userId
       })
@@ -746,7 +746,7 @@ export default (app: Application): void => {
   }
 
   app.service(userKickPath).on('created', kickCreatedListener)
-  app.service('channel-user').on('removed', handleChannelUserRemoved(app))
+  app.service(channelUserPath).on('removed', handleChannelUserRemoved(app))
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

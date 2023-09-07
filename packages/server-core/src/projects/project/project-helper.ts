@@ -1389,7 +1389,14 @@ export const updateProject = async (
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
-    return
+    return (
+      await app.service(projectPath).find({
+        query: {
+          name: 'default-project',
+          $limit: 1
+        }
+      })
+    ).data
   }
 
   const urlParts = data.sourceURL.split('/')
@@ -1548,13 +1555,13 @@ export const getCommitSHADate = async (projectName: string): Promise<{ commitSHA
   const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
   const git = useGit(projectDirectory)
   let commitSHA = ''
-  let commitDate
+  let commitDate = new Date()
   try {
     commitSHA = await git.revparse(['HEAD'])
     const commit = await git.log(['-1'])
     commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
   } catch (err) {
-    //
+    console.error('Error in getCommitSHADate', err)
   }
   return {
     commitSHA,

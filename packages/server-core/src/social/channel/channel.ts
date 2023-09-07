@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import '@feathersjs/transport-commons'
+
 import { ChannelType, channelMethods, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ChannelService } from './channel.class'
@@ -58,13 +62,14 @@ export default (app: Application): void => {
   const onCRUD =
     (app: Application) =>
     async (data: ChannelType): Promise<any> => {
-      const channelUsers = await app.service('channel-user').find({
+      const channelUsers = (await app.service(channelUserPath).find({
         query: {
           channelId: data.id
-        }
-      })
+        },
+        paginate: false
+      })) as ChannelUserType[]
 
-      const userIds = (channelUsers as any).data.map((channelUser) => {
+      const userIds = channelUsers.map((channelUser) => {
         return channelUser.userId
       })
 
