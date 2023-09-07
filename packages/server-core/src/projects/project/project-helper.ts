@@ -1561,7 +1561,7 @@ export const getCommitSHADate = async (projectName: string): Promise<{ commitSHA
     const commit = await git.log(['-1'])
     commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
   } catch (err) {
-    //
+    console.error('Error in getCommitSHADate', err)
   }
   return {
     commitSHA,
