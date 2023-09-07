@@ -29,8 +29,9 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID } from '../networking/instance.schema'
-import { UserID, userSchema } from '../user/user.schema'
+import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
+import { channelUserSchema } from './channel-user.schema'
 import { messageSchema } from './message.schema'
 
 export const channelPath = 'channel'
@@ -38,27 +39,6 @@ export const channelPath = 'channel'
 export const channelMethods = ['get', 'create', 'find', 'remove'] as const
 
 export type ChannelID = OpaqueType<'ChannelID'> & string
-
-// TODO: Remove this schema, once channel-user service is migrated to feathers 5
-export const channelUserSchema = Type.Object(
-  {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    isOwner: Type.Boolean(),
-    channelId: TypedString<ChannelID>({
-      format: 'uuid'
-    }),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
-    user: Type.Optional(Type.Ref(userSchema)),
-    createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
-  },
-  { $id: 'ChannelUser', additionalProperties: false }
-)
-export type ChannelUserType = Static<typeof channelUserSchema>
 
 // Main data model schema
 export const channelSchema = Type.Object(
