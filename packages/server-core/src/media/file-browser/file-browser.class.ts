@@ -37,7 +37,6 @@ import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projec
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
-import { checkScope } from '../../hooks/verify-scope'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -82,11 +81,12 @@ export class FileBrowserService implements ServiceMethods<any> {
 
   /**
    * Returns the metadata for a single file or directory
+   * @param params
    */
-  async get(key: string, params?: Params): Promise<FindResultType> {
+  async find(params?: Params): Promise<FindResultType> {
     if (!params) params = {}
     if (!params.query) params.query = {}
-    const { storageProviderName } = params.query
+    const { storageProviderName, key } = params.query
     if (!key) return { type: 'UNDEFINED' }
     const storageProvider = getStorageProvider(storageProviderName)
     const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
@@ -99,27 +99,24 @@ export class FileBrowserService implements ServiceMethods<any> {
 
   /**
    * Return the metadata for each file in a directory
+   * @param directory
+   * @param params
+   * @returns
    */
-  async find(params?: UserParams): Promise<Paginated<FileContentType>> {
+  async get(directory: string, params?: UserParams): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { $skip, $limit, storageProviderName } = params.query
 
-    let directory = params.query.directory
-
-    delete params.query.directory
     delete params.query.storageProviderName
-
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 100
 
     const storageProvider = getStorageProvider(storageProviderName)
-    const isAdmin = params.user ? await checkScope(params.user, this.app, 'admin', 'admin') : false
-
+    const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
       throw new Forbidden('Not allowed to access that directory')
-
     let result = await storageProvider.listFolderContent(directory)
     const total = result.length
 
@@ -149,7 +146,6 @@ export class FileBrowserService implements ServiceMethods<any> {
         )
       })
     }
-
     return {
       total,
       limit,

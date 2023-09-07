@@ -59,7 +59,7 @@ type ProjectUpdateStateType = {
   projectName: string
   submitDisabled: true
   triggerSetDestination: string
-  updateType: ProjectUpdateType
+  updateType: ProjectType['updateType']
   updateSchedule: typeof DefaultUpdateSchedule
 }
 
