@@ -52,7 +52,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
 
   const channelsQuery = useFind(channelPath, {
     query: {
-      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
+      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
       $skip: page.value * rowsPerPage.value,
       $limit: rowsPerPage.value,
       action: 'admin',
