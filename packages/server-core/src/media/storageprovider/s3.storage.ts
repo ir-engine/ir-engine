@@ -317,7 +317,7 @@ export class S3Provider implements StorageProviderInterface {
         reject(err)
       }
     } else if (config.aws.s3.s3DevMode === 'local') {
-      const response = await this.minioClient?.putObject(this.bucket, key, data.Body)
+      const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body)
       return response
     } else {
       const command = new PutObjectCommand(args)
