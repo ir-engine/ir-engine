@@ -1555,7 +1555,7 @@ export const getCommitSHADate = async (projectName: string): Promise<{ commitSHA
   const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
   const git = useGit(projectDirectory)
   let commitSHA = ''
-  let commitDate
+  let commitDate = new Date()
   try {
     commitSHA = await git.revparse(['HEAD'])
     const commit = await git.log(['-1'])
