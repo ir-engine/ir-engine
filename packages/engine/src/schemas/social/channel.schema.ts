@@ -36,7 +36,7 @@ import { messageSchema } from './message.schema'
 
 export const channelPath = 'channel'
 
-export const channelMethods = ['get', 'create', 'find', 'remove'] as const
+export const channelMethods = ['get', 'create', 'find', 'patch', 'remove'] as const
 
 export type ChannelID = OpaqueType<'ChannelID'> & string
 
