@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import AcceptInvite from '../user/accept-invite/accept-invite.service'
-import Auth from './auth-management/auth-management.service'
 import Avatar from './avatar/avatar'
 import DiscordBotAuth from './discord-bot-auth/discord-bot-auth.service'
 import Email from './email/email.service'
@@ -53,7 +52,6 @@ export default [
   UserRelationshipType,
   UserRelationship,
   AcceptInvite,
-  Auth,
   Avatar,
   Login,
   LoginToken,
