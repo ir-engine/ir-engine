@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
 
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -49,7 +48,6 @@ import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/f
 import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
@@ -61,6 +59,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { RouterService } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { AvatarService } from '../../user/services/AvatarService'
 import { startClientSystems } from '../../world/startClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
@@ -86,14 +85,14 @@ export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const authState = useHookstate(getMutableState(AuthState))
 
-  const spectateParam = useParams<{ spectate: UserID }>().spectate
-
   useEffect(() => {
     if (spectate) {
       if (!sceneLoaded.value || !authState.user.value || !authState.user.avatar.value) return
       dispatchAction(EngineActions.spectateUser({}))
       return
     }
+
+    const spectateParam = getSearchParamFromURL('spectate')
 
     if (
       Engine.instance.localClientEntity ||
@@ -126,15 +125,10 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         .find({})
         .then((avatars: Paginated<AvatarType>) => {
           const randomAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
-          if (Engine.instance.localClientEntity) return
-          spawnLocalAvatarInWorld({
-            avatarSpawnPose,
-            avatarID: randomAvatar.id,
-            name: randomAvatar.name
-          })
+          AvatarService.updateUserAvatarId(Engine.instance.userID, randomAvatar.id)
         })
     }
-  }, [sceneLoaded, spectateParam])
+  }, [sceneLoaded, authState.user.avatar])
 }
 
 export const usePortalTeleport = () => {
