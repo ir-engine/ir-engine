@@ -56,11 +56,11 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { NotificationService } from '../../common/services/NotificationService'
+import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { RouterService } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { AvatarService } from '../../user/services/AvatarService'
 import { startClientSystems } from '../../world/startClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
@@ -80,21 +80,6 @@ export const useLoadEngine = () => {
   useEffect(() => {
     initClient()
   }, [])
-}
-
-const fetchMissingAvatar = async (user, avatarSpawnPose) => {
-  const avatar = await AvatarService.getAvatar(user.avatar.id.value)
-  if (avatar && avatar.modelResource?.url)
-    spawnLocalAvatarInWorld({
-      avatarSpawnPose,
-      avatarID: avatar.id,
-      name: user.name.value
-    })
-  else
-    NotificationService.dispatchNotify(
-      'Your avatar is missing its model. Please change your avatar from the user menu.',
-      { variant: 'error' }
-    )
 }
 
 export const useLocationSpawnAvatar = (spectate = false) => {
@@ -128,14 +113,28 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       ? getSpawnPoint(spawnPoint, Engine.instance.userID)
       : getRandomSpawnPoint(Engine.instance.userID)
 
-    if (avatarDetails.modelResource?.url)
+    if (avatarDetails.modelResource?.url) {
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
         avatarID: user.avatar.id.value!,
         name: user.name.value
       })
-    else fetchMissingAvatar(user, avatarSpawnPose)
-  }, [sceneLoaded, authState.user, authState.user?.avatar, spectateParam])
+    } else {
+      /** @TODO use async suspend here */
+      Engine.instance.api
+        .service(avatarPath)
+        .find({})
+        .then((avatars: Paginated<AvatarType>) => {
+          const randomAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
+          if (Engine.instance.localClientEntity) return
+          spawnLocalAvatarInWorld({
+            avatarSpawnPose,
+            avatarID: randomAvatar.id,
+            name: randomAvatar.name
+          })
+        })
+    }
+  }, [sceneLoaded, spectateParam])
 }
 
 export const usePortalTeleport = () => {
