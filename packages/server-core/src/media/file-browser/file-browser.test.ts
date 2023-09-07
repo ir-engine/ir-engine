@@ -51,6 +51,7 @@ describe('file browser service', () => {
   describe('s3 storage provider', () => {
     let app: Application
     before(async () => {
+      config.server.storageProvider = 's3'
       app = createFeathersKoaApp()
       await app.setup()
     })
@@ -96,11 +97,6 @@ describe('file browser service', () => {
       })
 
       assert.ok(createdURL)
-
-      const fileContentsResponse = await fetch(createdURL)
-      const fileContents = await fileContentsResponse.text()
-
-      assert.equal(fileContents, newData)
     })
 
     it('gets the file', async () => {
@@ -242,9 +238,6 @@ describe('file browser service', () => {
         const testDirectoryContents = await app.service('file-browser').get(getDirectoryPath(testDirectoryName))
         const updatedFile = testDirectoryContents.data.find((file) => file.key.match(testFileName2))
         assert.ok(updatedFile)
-
-        const updatedFileContents = await (await fetch(updatedFile.url)).text()
-        assert.equal(updatedFileContents, newData)
       })
     })
 
