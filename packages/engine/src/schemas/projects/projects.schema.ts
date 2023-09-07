@@ -19,21 +19,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
-import { dataValidator } from '../validators'
-
 export const projectsPath = 'projects'
 
 export const projectsMethods = ['find'] as const
-
-// Main data model schema
-export const projectsSchema = Type.Object(
-  {
-    projectsList: Type.Array(Type.String())
-  },
-  { $id: 'projects', additionalProperties: false }
-)
-export type ProjectsType = Static<typeof projectsSchema>
-
-export const projectsValidator = getValidator(projectsSchema, dataValidator)
