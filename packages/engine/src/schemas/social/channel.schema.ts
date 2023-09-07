@@ -95,6 +95,11 @@ export const channelDataSchema = Type.Intersect(
             format: 'uuid'
           })
         )
+      ),
+      userId: Type.Optional(
+        TypedString<UserID>({
+          format: 'uuid'
+        })
       )
     })
   ],
@@ -105,15 +110,17 @@ export const channelDataSchema = Type.Intersect(
 )
 export type ChannelData = Static<typeof channelDataSchema>
 
+// Schema for updating existing entries
+export const channelPatchSchema = Type.Partial(channelSchema, {
+  $id: 'ChannelPatch'
+})
+export type ChannelPatch = Static<typeof channelPatchSchema>
+
 // Schema for allowed query properties
 export const channelQueryProperties = Type.Pick(channelSchema, ['id', 'name', 'instanceId', 'updateNeeded'])
 export const channelQuerySchema = Type.Intersect(
   [
-    querySyntax(channelQueryProperties, {
-      search: {
-        $like: Type.String()
-      }
-    }),
+    querySyntax(channelQueryProperties),
     // Add additional query properties here
     Type.Object(
       {
@@ -129,4 +136,5 @@ export type ChannelQuery = Static<typeof channelQuerySchema>
 
 export const channelValidator = getValidator(channelSchema, dataValidator)
 export const channelDataValidator = getValidator(channelDataSchema, dataValidator)
+export const channelPatchValidator = getValidator(channelPatchSchema, dataValidator)
 export const channelQueryValidator = getValidator(channelQuerySchema, queryValidator)

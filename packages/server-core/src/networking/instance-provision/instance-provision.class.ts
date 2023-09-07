@@ -33,16 +33,15 @@ import { Op } from 'sequelize'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { getState } from '@etherealengine/hyperflux'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { getState } from '@etherealengine/hyperflux'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -526,7 +525,7 @@ export class InstanceProvision implements ServiceMethods<any> {
 
       if (channelId != null) {
         try {
-          await this.app.service('channel').get(channelId)
+          await this.app.service(channelPath).get(channelId)
         } catch (err) {
           throw new BadRequest('Invalid channel ID')
         }

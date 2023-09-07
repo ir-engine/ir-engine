@@ -59,7 +59,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
       search: search
     }
   })
-  const removeChannel = useMutation('channel').remove
+  const removeChannel = useMutation(channelPath).remove
 
   const handlePageChange = (event: unknown, newPage: number) => {
     page.set(newPage)

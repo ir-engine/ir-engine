@@ -29,6 +29,7 @@ import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/Chann
 import {
   ChannelData,
   ChannelID,
+  ChannelPatch,
   ChannelQuery,
   ChannelType,
   channelPath
@@ -83,7 +84,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       if (userId) userIds.push(userId)
 
       const knexClient: Knex = this.app.get('knexClient')
-      const existingChannel = await knexClient(channelPath)
+      const existingChannel: ChannelType = await knexClient(channelPath)
         .select(`${channelPath}.*`)
         .leftJoin('channel-user', `${channelPath}.id`, '=', `channel-user.channelId`)
         .whereNull(`${channelPath}.instanceId`)
@@ -229,6 +230,10 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       logger.error(err, `Channel find failed: ${err.message}`)
       throw err
     }
+  }
+
+  async patch(id: ChannelID, data: ChannelPatch, params?: ChannelParams) {
+    return await super._patch(id, data, params)
   }
 
   /** only allow logged in user to delete the channel if they are the owner */

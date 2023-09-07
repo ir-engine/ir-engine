@@ -29,6 +29,7 @@ import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/f
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import {
@@ -244,9 +245,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
             params
           )
       } else if (invite.inviteType === 'channel') {
-        const channel = await this.app.service('channel').Model.findOne({ where: { id: invite.targetObjectId } })
+        const channel = (await this.app
+          .service(channelPath)
+          ._find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
 
-        if (channel == null) {
+        if (channel.total === 0) {
           await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid channel ID')
         }

@@ -33,18 +33,16 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
@@ -68,10 +66,10 @@ interface DisplayedUserInterface {
   relationType?: 'friend' | 'requested' | 'blocking' | 'pending' | 'blocked'
 }
 
-const getChannelName = (channel: Channel) => {
+const getChannelName = (channel: ChannelType) => {
   return (
     channel.name ||
-    channel.channel_users
+    channel.channelUsers
       .filter((channelUser) => channelUser.user?.id !== Engine.instance.userID)
       .map((channelUser) => channelUser.user?.name)
       .filter(Boolean)
@@ -89,7 +87,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   const { t } = useTranslation()
   const selectedTab = useHookstate(defaultSelectedTab ? defaultSelectedTab : 'friends')
 
-  const channels = useFind('channel')
+  const channels = useFind(channelPath)
 
   const worldState = useHookstate(getMutableState(WorldState))
   const friendState = useHookstate(getMutableState(FriendState))

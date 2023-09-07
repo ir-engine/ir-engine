@@ -35,35 +35,34 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { dispatchAction, getMutableState, getState, State } from '@etherealengine/hyperflux'
-import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import { Application } from '@etherealengine/server-core/declarations'
-import config from '@etherealengine/server-core/src/appconfig'
-import multiLogger from '@etherealengine/server-core/src/ServerLogger'
-import { ServerState } from '@etherealengine/server-core/src/ServerState'
-import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
-  identityProviderPath,
-  IdentityProviderType
+  IdentityProviderType,
+  identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userKickPath, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserKickType, userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { Application } from '@etherealengine/server-core/declarations'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerState } from '@etherealengine/server-core/src/ServerState'
+import config from '@etherealengine/server-core/src/appconfig'
+import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
+import { SocketWebRTCServerNetwork, getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -114,7 +113,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
-    await app.service('channel').create({
+    await app.service(channelPath).create({
       instanceId: instanceResult.id
     })
   }
@@ -211,13 +210,14 @@ const initializeInstance = async (
   } else {
     const instance = existingInstanceResult.data[0]
     if (locationId) {
-      const existingChannel = await app.service('channel').Model.findOne({
-        where: {
-          instanceId: instance.id
+      const existingChannel = (await app.service(channelPath)._find({
+        query: {
+          instanceId: instance.id,
+          $limit: 1
         }
-      })
-      if (!existingChannel) {
-        await app.service('channel').create({
+      })) as Paginated<ChannelType>
+      if (existingChannel.total === 0) {
+        await app.service(channelPath).create({
           instanceId: instance.id
         })
       }
@@ -318,24 +318,25 @@ const loadEngine = async (app: Application, sceneId: string) => {
 const handleUserAttendance = async (app: Application, userId: UserID) => {
   const instanceServerState = getState(InstanceServerState)
 
-  const channel = await app.service('channel').Model.findOne({
-    where: {
-      instanceId: instanceServerState.instance.id
+  const channel = (await app.service(channelPath)._find({
+    query: {
+      instanceId: instanceServerState.instance.id,
+      $limit: 1
     }
-  })
+  })) as Paginated<ChannelType>
 
   /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
-  if (channel) {
+  if (channel.total > 0) {
     const existingChannelUser = (await app.service('channel-user').find({
       query: {
-        channelId: channel.id,
+        channelId: channel.data[0].id,
         userId: userId
       }
     })) as Paginated<ChannelUser>
 
     if (!existingChannelUser.total) {
       await app.service('channel-user').create({
-        channelId: channel.id,
+        channelId: channel.data[0].id,
         userId: userId
       })
     }
@@ -441,12 +442,13 @@ const shutdownServer = async (app: Application, instanceId: InstanceID) => {
       ended: true
     })
     if (instanceServer.instance.locationId) {
-      const channel = await app.service('channel').Model.findOne({
-        where: {
-          instanceId: instanceServer.instance.id
+      const channel = (await app.service(channelPath)._find({
+        query: {
+          instanceId: instanceServer.instance.id,
+          $limit: 1
         }
-      })
-      await app.service('channel').remove(channel.id)
+      })) as Paginated<ChannelType>
+      await app.service(channelPath).remove(channel.data[0].id)
     }
   } catch (err) {
     logger.error(err)
@@ -528,12 +530,13 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   if (!instanceServerState.isMediaInstance) return
   const instance = instanceServerState.instance
   if (!instance.channelId) return
-  const channel = await app.service('channel').Model.findOne({
-    where: {
-      id: instance.channelId
+  const channel = (await app.service(channelPath)._find({
+    query: {
+      id: instance.channelId,
+      $limit: 1
     }
-  })
-  if (!channel) return
+  })) as Paginated<ChannelType>
+  if (channel.total === 0) return
   const network = getServerNetwork(app)
   const matchingPeer = Object.values(network.peers).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
@@ -605,7 +608,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     })
     try {
       if (instanceServerState.instance.channelId) {
-        await app.service('channel').remove(instanceServerState.instance.channelId)
+        await app.service(channelPath).remove(instanceServerState.instance.channelId)
       }
     } catch (e) {
       //

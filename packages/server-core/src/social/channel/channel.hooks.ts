@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { channelDataValidator } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { channelDataValidator, channelPatchValidator } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   UserRelationshipType,
   userRelationshipPath
@@ -36,7 +36,12 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import { ChannelUser } from '../channel-user/channel-user.class'
-import { channelDataResolver, channelExternalResolver, channelResolver } from './channel.resolvers'
+import {
+  channelDataResolver,
+  channelExternalResolver,
+  channelPatchResolver,
+  channelResolver
+} from './channel.resolvers'
 
 /**
  *  Don't remove this comment. It's needed to format import lines nicely.
@@ -141,7 +146,11 @@ export default {
       })
     ],
     update: [disallow('external')],
-    patch: [disallow('external')],
+    patch: [
+      disallow('external'),
+      () => schemaHooks.validateData(channelPatchValidator),
+      schemaHooks.resolveData(channelPatchResolver)
+    ],
     remove: [setLoggedInUser('userId')]
   },
 

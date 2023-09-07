@@ -38,8 +38,7 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { Resizable } from 're-resizable'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
@@ -57,10 +56,10 @@ import UserSvg from './assets/user.svg'
 
 let height = '75%'
 
-export const getChannelName = (channel: Channel) => {
+export const getChannelName = (channel: ChannelType) => {
   return (
     channel.name ||
-    channel.channel_users
+    channel.channelUsers
       .filter((channelUser) => channelUser.user?.id !== Engine.instance.userID)
       .map((channelUser) => channelUser.user?.name)
       .filter(Boolean)
@@ -198,7 +197,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   const { selectedChannelID } = props
 
   const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId).value
-  const { data: channel } = useGet('channel', selectedChannelID!)
+  const { data: channel } = useGet(channelPath, selectedChannelID!)
 
   const channelName = channel ? getChannelName(channel) : ''
   console.log(selectedChannelID, channel, channelName)

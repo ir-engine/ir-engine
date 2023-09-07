@@ -28,6 +28,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import authenticate from '../../hooks/authenticate'
@@ -84,7 +85,7 @@ export default {
           text: `${user.name} left the channel`,
           isNotification: true
         })
-        const channel = await app.service('channel').get(result.channelId)
+        const channel = await app.service(channelPath).get(result.channelId)
         if (channel.instanceId) return context
         const channelUserCount = await app.service('channel-user').find({
           query: {
@@ -93,7 +94,7 @@ export default {
           }
         })
         if (channelUserCount.total < 1) {
-          await app.service('channel').remove(result.channelId)
+          await app.service(channelPath).remove(result.channelId)
         }
         return context
       }
