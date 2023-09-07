@@ -28,6 +28,7 @@ import ffmpeg from 'ffmpeg-static'
 import Stream, { Readable } from 'stream'
 
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
+import { Consumer } from 'mediasoup/node/lib/Consumer'
 
 const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
 
@@ -87,8 +88,8 @@ a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01
  * @returns
  */
 export const startFFMPEG = async (
-  useAudio: boolean,
-  useVideo: boolean,
+  audioConsumer: Consumer | undefined,
+  videoConsumer: Consumer | undefined,
   onExit: () => void,
   useH264: boolean,
   startPort: number
@@ -127,10 +128,10 @@ export const startFFMPEG = async (
   let cmdCodec = ''
   let cmdFormat = '-f webm -flags +global_header'
 
-  if (useAudio) {
+  if (!!audioConsumer) {
     cmdCodec += ' -map 0:a:0 -c:a copy'
   }
-  if (useVideo) {
+  if (!!videoConsumer) {
     cmdCodec += ' -map 0:v:0 -c:v copy'
 
     if (useH264) {
@@ -198,18 +199,27 @@ export const startFFMPEG = async (
   childProcess.stdout.pipe(stream, { end: true })
 
   await new Promise<void>((resolve, reject) => {
+    /** resume consumers */
+    if (videoConsumer) {
+      videoConsumer.resume()
+      logger.info('Resuming recording video consumer', videoConsumer)
+    }
+    if (audioConsumer) {
+      audioConsumer.resume()
+      logger.info('Resuming recording audio consumer', audioConsumer)
+    }
+
     // FFmpeg writes its logs to stderr
     childProcess.stderr.on('data', (chunk) => {
+      console.log('sterr', chunk.toString())
       chunk
         .toString()
         .split(/\r?\n/g)
         .filter(Boolean) // Filter out empty strings
         .forEach((line) => {
           logger.info(line)
-          if (line.startsWith('ffmpeg version')) {
-            setTimeout(() => {
-              resolve()
-            }, 1000)
+          if (line.startsWith("Input #0, sdp, from 'pipe:0':")) {
+            resolve()
           }
         })
     })

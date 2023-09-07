@@ -35,6 +35,7 @@ import { BehaveGraphSystem } from '@etherealengine/engine/src/behave-graph/syste
 import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/CameraInputSystem'
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
+import { ECSRecordingSystem } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
   AnimationSystemGroup,
@@ -110,11 +111,12 @@ export const startClientSystems = () => {
   /** Post Render */
   startSystems(
     [
+      ECSSerializerSystem,
       ButtonCleanupSystem,
       PortalSystem,
-      ECSSerializerSystem,
       PositionalAudioSystem,
       SceneSystemLoadGroup,
+      ECSRecordingSystem,
       MediasoupTransportStateSystem,
       MediasoupMediaProducerConsumerStateSystem,
       MediasoupDataProducerConsumerStateSystem

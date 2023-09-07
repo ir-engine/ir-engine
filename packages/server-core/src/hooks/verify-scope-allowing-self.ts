@@ -23,30 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NotFound } from '@feathersjs/errors'
-import { Engine } from '../../ecs/classes/Engine'
-import { scopePath } from '../../schemas/scope/scope.schema'
-import { UserType } from '../../schemas/user/user.schema'
+import { HookContext } from '@feathersjs/feathers'
 
-export const checkScope = async (user: UserType, currentType: string, scopeToVerify: string) => {
-  const scopes = await Engine.instance.api.service(scopePath).find({
-    query: {
-      userId: user.id,
-      paginate: false
-    }
-  })
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-  if (!scopes || (Array.isArray(scopes) ? scopes.length === 0 : scopes.total === 0))
-    throw new NotFound('No scope available for the current user.')
+import { NotAuthenticated } from '@feathersjs/errors'
+import { Application } from '../../declarations'
+import verifyScope from './verify-scope'
 
-  const data = Array.isArray(scopes) ? scopes : scopes.data
-
-  const currentScopes = data.reduce<string[]>((result, sc) => {
-    if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
-    return result
-  }, [])
-  if (!currentScopes.includes(scopeToVerify)) {
-    return false
+export default (currentType: string, scopeToVerify: string) => {
+  return async (context: HookContext<Application>) => {
+    const loggedInUser = context.params.user as UserType
+    const queryUserID = context.params.query?.userId as UserID
+    if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
+    // allow self
+    if (queryUserID && queryUserID === loggedInUser.id) return context
+    return verifyScope(currentType, scopeToVerify)(context)
   }
-  return true
 }

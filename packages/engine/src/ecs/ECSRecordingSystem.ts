@@ -65,6 +65,7 @@ import {
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import matches, { Validator } from 'ts-matches'
 import { checkScope } from '../common/functions/checkScope'
+import { isClient } from '../common/functions/getEnvironment'
 import { matchesUserId } from '../common/functions/MatchesUtils'
 
 const logger = multiLogger.child({ component: 'engine:recording' })
@@ -109,7 +110,8 @@ export const startPlayback = (args: { recordingID: RecordingID; targetUser?: Use
   const { recordingID, targetUser } = args
   const action = ECSRecordingActions.startPlayback({
     recordingID,
-    targetUser
+    targetUser,
+    autoplay: false
   })
 
   dispatchAction({
@@ -170,7 +172,8 @@ export class ECSRecordingActions {
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
     recordingID: matches.string as Validator<unknown, RecordingID>,
-    targetUser: matchesUserId.optional()
+    targetUser: matchesUserId.optional(),
+    autoplay: matches.boolean
   })
 
   static playbackChanged = defineAction({
@@ -239,8 +242,8 @@ export const RecordingAPIState = defineState({
   }
 })
 
-export const activeRecordings = new Map<string, ActiveRecording>()
-export const activePlaybacks = new Map<string, ActivePlayback>()
+export const activeRecordings = new Map<RecordingID, ActiveRecording>()
+export const activePlaybacks = new Map<RecordingID, ActivePlayback>()
 
 export const dispatchError = (error: string, targetPeer: PeerID, topic: Topic) => {
   logger.error('Recording Error: ' + error)
@@ -248,6 +251,9 @@ export const dispatchError = (error: string, targetPeer: PeerID, topic: Topic) =
 }
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
+  // todo - client side recording
+  if (isClient) return
+
   const api = Engine.instance.api
 
   const recording = await api.service(recordingPath).get(action.recordingID)
@@ -491,7 +497,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
       .filter(Boolean),
     onChunkStarted: (chunkIndex) => {
-      if (entityChunks[chunkIndex] && Engine.instance.worldNetwork)
+      if (entityChunks[chunkIndex])
         for (let i = 0; i < entityChunks[chunkIndex].entities.length; i++) {
           const uuid = entityChunks[chunkIndex].entities[i]
           // override entity ID such that it is actually unique, by appendig the recording id
@@ -501,27 +507,29 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             .service(userPath)
             .get(uuid)
             .then((user) => {
-              const peerIDs = Object.keys(schema.peers) as PeerID[]
+              if (network && network.topic === NetworkTopics.world) {
+                const peerIDs = Object.keys(schema.peers) as PeerID[]
 
-              // todo, this is a hack
-              for (const peerID of peerIDs) {
-                if (network.peers[peerID]) continue
-                activePlayback.peerIDs!.push(peerID)
-                NetworkPeerFunctions.createPeer(
-                  network,
-                  peerID,
-                  network.peerIndexCount++,
-                  entityID,
-                  network.userIndexCount++,
-                  user.name + ' (Playback)'
-                )
-                updatePeers(network)
-              }
+                // todo, this is a hack
+                for (const peerID of peerIDs) {
+                  if (network.peers[peerID]) continue
+                  activePlayback.peerIDs!.push(peerID)
+                  NetworkPeerFunctions.createPeer(
+                    network,
+                    peerID,
+                    network.peerIndexCount++,
+                    entityID,
+                    network.userIndexCount++,
+                    user.name + ' (Playback)'
+                  )
+                  updatePeers(network)
+                }
 
-              for (const [dataChannel, chunks] of Array.from(dataChannelChunks.entries())) {
-                const chunk = chunks[chunkIndex]
-                setDataChannelChunkToReplay(entityID, dataChannel, chunk)
-                // createOutgoingDataProducer(network, dataChannel)
+                for (const [dataChannel, chunks] of Array.from(dataChannelChunks.entries())) {
+                  const chunk = chunks[chunkIndex]
+                  setDataChannelChunkToReplay(entityID, dataChannel, chunk)
+                  // createOutgoingDataProducer(network, dataChannel)
+                }
               }
 
               if (!UUIDComponent.entitiesByUUID[entityID]) {
@@ -551,8 +559,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     }
   })
 
-  // todo
-  activePlayback.deserializer.active = true
+  activePlayback.deserializer.active = action.autoplay
   activePlayback.entitiesSpawned = entitiesSpawned
 
   activePlayback.peerIDs = []
@@ -560,12 +567,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   activePlaybacks.set(action.recordingID, activePlayback)
 
   /** We only need to dispatch once, so do it on the world server */
-  if (Engine.instance.worldNetwork) {
+  if (!network || network.topic === NetworkTopics.world) {
     dispatchAction(
       ECSRecordingActions.playbackChanged({
         recordingID: action.recordingID,
         playing: true,
-        $topic: network.topic
+        $topic: network ? network.topic : undefined
       })
     )
   }
@@ -601,7 +608,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
   playbackStopped(user.id, recording.id, getState(NetworkState).networks[action.$network])
 }
 
-const playbackStopped = (userId: UserID, recordingID: RecordingID, network: Network) => {
+const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Network) => {
   const activePlayback = activePlaybacks.get(recordingID)!
 
   for (const entityUUID of activePlayback.entitiesSpawned) {
@@ -614,25 +621,27 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network: Netw
 
   removeDataChannelToReplay(userId)
 
-  if (activePlayback.peerIDs) {
-    for (const peerID of activePlayback.peerIDs) {
-      NetworkPeerFunctions.destroyPeer(network, peerID)
+  if (network) {
+    if (activePlayback.peerIDs) {
+      for (const peerID of activePlayback.peerIDs) {
+        NetworkPeerFunctions.destroyPeer(network, peerID)
+      }
+    }
+
+    updatePeers(network)
+
+    /** If syncing multipile instance servers, only need to dispatch once, so do it on the world server */
+    if (network.topic === NetworkTopics.world) {
+      dispatchAction(
+        ECSRecordingActions.playbackChanged({
+          recordingID,
+          playing: false,
+          $topic: network.topic
+        })
+      )
     }
   }
-
-  updatePeers(network)
   activePlaybacks.delete(recordingID)
-
-  /** If syncing multipile instance servers, only need to dispatch once, so do it on the world server */
-  if (Engine.instance.worldNetwork) {
-    dispatchAction(
-      ECSRecordingActions.playbackChanged({
-        recordingID,
-        playing: false,
-        $topic: network.topic
-      })
-    )
-  }
 }
 
 export const dataChannelToReplay = new Map<
@@ -676,6 +685,8 @@ const execute = () => {
   // todo - only set deserializer.active to true once avatar spawns, if clone mode
 
   const network = Engine.instance.worldNetwork // TODO - support buffer playback in media server
+
+  if (!network) return
 
   for (const [userId, userMap] of Array.from(dataChannelToReplay.entries())) {
     if (network.users[userId])

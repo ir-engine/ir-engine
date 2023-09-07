@@ -34,6 +34,8 @@ import { LocationAction } from '@etherealengine/client-core/src/social/services/
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { ECSRecordingSystem } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -53,6 +55,8 @@ const startCaptureSystems = () => {
   startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
   startSystems(
     [
+      ECSSerializerSystem,
+      ECSRecordingSystem,
       MediasoupTransportStateSystem,
       MediasoupMediaProducerConsumerStateSystem,
       MediasoupDataProducerConsumerStateSystem

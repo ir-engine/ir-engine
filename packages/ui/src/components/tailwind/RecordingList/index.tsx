@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
+import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
@@ -45,7 +46,10 @@ const sortByNewest = (a, b) => {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 }
 
-const RecordingsList = ({ startPlayback, stopPlayback }) => {
+const RecordingsList = (props: {
+  startPlayback: (recordingID: RecordingID, twin: boolean) => void
+  stopPlayback: (args: { recordingID: RecordingID }) => void
+}) => {
   const recordingState = useHookstate(getMutableState(RecordingState))
 
   const sortedRecordings = recordingState.recordings.get(NO_PROXY).sort(sortByNewest)
@@ -72,7 +76,9 @@ const RecordingsList = ({ startPlayback, stopPlayback }) => {
               </td>
               <td>
                 <div className="bg-grey">
-                  {formatHHMMSS(new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime())}
+                  {formatHHMMSS(
+                    (new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime()) / 1000
+                  )}
                 </div>
               </td>
               <td>
@@ -82,7 +88,7 @@ const RecordingsList = ({ startPlayback, stopPlayback }) => {
                     <button
                       className="btn btn-ghost"
                       onClick={() => {
-                        stopPlayback({
+                        props.stopPlayback({
                           recordingID: recording.id
                         })
                       }}
@@ -91,10 +97,10 @@ const RecordingsList = ({ startPlayback, stopPlayback }) => {
                     </button>
                   ) : (
                     <>
-                      <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
+                      <button className="btn btn-ghost" onClick={() => props.startPlayback(recording.id, false)}>
                         <PlayIcon className="block min-w-6 min-h-6" />
                       </button>
-                      <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id, true)}>
+                      <button style={{ pointerEvents: 'all' }} onClick={() => props.startPlayback(recording.id, true)}>
                         <PlusCircleIcon className="block min-w-6 min-h-6" />
                       </button>
                     </>

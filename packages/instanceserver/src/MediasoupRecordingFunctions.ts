@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { createHash } from 'crypto'
-import { Router } from 'mediasoup/node/lib/types'
+import { Consumer, PlainTransport, Router } from 'mediasoup/node/lib/types'
 import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -110,11 +110,11 @@ export const createTransport = async (router: Router, port: number, rtcpPort: nu
 
 export type MediaTrackPair = {
   video?: PeerMediaType
-  videoTransport?: any
-  videoConsumer?: any
+  videoTransport?: PlainTransport
+  videoConsumer?: Consumer
   audio?: PeerMediaType
-  audioTransport?: any
-  audioConsumer?: any
+  audioTransport?: PlainTransport
+  audioConsumer?: Consumer
 }
 
 let startingPort = 5000
@@ -172,12 +172,12 @@ export const startMediaRecordingPair = async (
 
   const stopRecording = () => {
     if (tracks.video) {
-      tracks.videoConsumer.close()
-      tracks.videoTransport.close()
+      tracks.videoConsumer!.close()
+      tracks.videoTransport!.close()
     }
     if (tracks.audio) {
-      tracks.audioConsumer.close()
-      tracks.audioTransport.close()
+      tracks.audioConsumer!.close()
+      tracks.audioTransport!.close()
     }
     if (!ffmpegInitialized) return logger.warn('ffmpeg closed before it initialized, probably failed to start')
     console.log('ffmpeg connected:', ffmpegProcess.childProcess.connected)
@@ -190,19 +190,10 @@ export const startMediaRecordingPair = async (
 
   /** start ffmpeg */
   const isH264 = !!tracks.video && !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
-  const ffmpegProcess = await startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264, startPort)
+  const ffmpegProcess = await startFFMPEG(tracks.audioConsumer, tracks.videoConsumer, onExit, isH264, startPort)
 
   ffmpegInitialized = true
 
-  /** resume consumers */
-  if (tracks.video) {
-    tracks.videoConsumer.resume()
-    logger.info('Resuming recording video consumer', tracks.videoConsumer)
-  }
-  if (tracks.audio) {
-    tracks.audioConsumer.resume()
-    logger.info('Resuming recording audio consumer', tracks.audioConsumer)
-  }
   return {
     stopRecording,
     stream: ffmpegProcess.stream,

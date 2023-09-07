@@ -53,6 +53,10 @@ export class ScopeService<T = ScopeType, ServiceParams extends Params = ScopePar
   }
 
   async find(params?: ScopeParams) {
+    if (params?.query?.paginate != null) {
+      if (params.query.paginate === false) params.paginate = params.query.paginate
+      delete params.query.paginate
+    }
     return super._find(params)
   }
 

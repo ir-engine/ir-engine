@@ -30,7 +30,6 @@ import { twMerge } from 'tailwind-merge'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
-import { createDataProducer } from '@etherealengine/client-core/src/networking/DataChannelSystem'
 import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
@@ -38,7 +37,7 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import { ECSRecordingActions, ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
@@ -59,27 +58,13 @@ import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediap
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import Toolbar from '../../components/tailwind/mocap/Toolbar'
 
-import 'vidstack/styles/community-skin/video.css'
-import 'vidstack/styles/defaults.css'
-
-import { defineCustomElements } from 'vidstack/elements'
-
-defineCustomElements()
-
-export const CaptureState = defineState({
-  name: 'CaptureState',
-  initial: {
-    isDetecting: false,
-    detectingStatus: 'inactive' as 'inactive' | 'active' | 'loading'
-  }
-})
-
 /**
  * Start playback of a recording
  * - If we are streaming data, close the data producer
  */
-export const startPlayback = async (recordingID: RecordingID, twin = true) => {
+export const startPlayback = async (recordingID: RecordingID, twin = true, fromServer = false) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  // close the data producer if we are streaming data
   const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
     network.id,
     mocapDataChannelType
@@ -93,13 +78,22 @@ export const startPlayback = async (recordingID: RecordingID, twin = true) => {
       })
     )
   }
-  ECSRecordingFunctions.startPlayback({
-    recordingID,
-    targetUser: twin ? undefined : Engine.instance.userID
-  })
+  // // Server playback
+  // ECSRecordingFunctions.startPlayback({
+  //   recordingID,
+  //   targetUser: twin ? undefined : Engine.instance.userID
+  // })
+
+  // Client Playback
+  dispatchAction(
+    ECSRecordingActions.startPlayback({
+      recordingID,
+      targetUser: Engine.instance.userID,
+      autoplay: false
+    })
+  )
 }
 
-let creatingProducer = false
 const sendResults = (results: NormalizedLandmarkList) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
@@ -108,9 +102,9 @@ const sendResults = (results: NormalizedLandmarkList) => {
     mocapDataChannelType
   ) as DataProducer
   if (!dataProducer) {
-    if (creatingProducer) return
-    creatingProducer = true
-    createDataProducer(network, { label: mocapDataChannelType, ordered: true })
+    // if (creatingProducer) return
+    // creatingProducer = true
+    // createDataProducer(network, { label: mocapDataChannelType, ordered: true })
     return
   }
   if (!dataProducer?.closed && dataProducer?.readyState === 'open') {
@@ -121,11 +115,13 @@ const sendResults = (results: NormalizedLandmarkList) => {
 }
 
 const useResizableCanvas = () => {
-  const videoRef = useRef<HTMLVideoElement>()
-  const canvasRef = useRef<HTMLCanvasElement>()
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
 
   const resizeCanvas = () => {
+    if (!videoRef.current) return
+
     if (canvasRef.current?.width !== videoRef.current?.clientWidth) {
       canvasRef.current!.width = videoRef.current!.clientWidth
     }
@@ -163,6 +159,14 @@ const useVideoStatus = () => {
   if (!videoActive) return 'ready'
   return 'active'
 }
+
+export const CaptureState = defineState({
+  name: 'CaptureState',
+  initial: {
+    isDetecting: false,
+    detectingStatus: 'inactive' as 'inactive' | 'active' | 'loading'
+  }
+})
 
 const RecordingMode = () => {
   const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
@@ -368,69 +372,26 @@ const PlaybackMode = () => {
   const recording = useGet('recording', recordingID.value!)
   console.log({ recording })
 
-  const { videoRef, canvasRef, canvasCtxRef } = useResizableCanvas()
-
-  useEffect(() => {}, [])
+  const { videoRef, canvasRef, resizeCanvas } = useResizableCanvas()
 
   useEffect(() => {
     if (!recording.data || !videoRef.current) return
-    const res = recording.data.resources[0]
-    if (!res) return
-    // videoRef.current.src = res.url
-    // videoRef.current.play()
+    videoRef.current.addEventListener('loadedmetadata', () => {
+      console.log('loadedmetadata')
+      resizeCanvas()
+      videoRef.current!.play()
+    })
   }, [videoRef.current, recording])
 
-  const src = recording.data?.resources?.[0]?.url
+  const src = recording.data?.resources?.find((r) => r.mimeType.includes('video'))?.url
 
   return (
     <>
       <div className="absolute w-full h-full top-0 left-0 flex items-center" style={{ backgroundColor: '#000000' }}>
-        {/* <Video
-          ref={videoRef}
-          className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
-        /> */}
-
-        {/* {src && (
-          <VideoPlayer
-            src={src}
-            liveui={false}
-            crossorigin="anonymous"
-            autoplay={true}
-            // poster="/your-path/poster.jpg"
-            controls
-            fluid={true}
-            playbackRates={[0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]}
-            disablePictureInPicture={true}
-            volume={0.0}
-          />
-        )} */}
         {src && (
-          <media-player
-            // title="Sprite Fight"
-            src={src}
-            // poster="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/thumbnail.webp?time=268&width=980"
-            // thumbnails="https://media-files.vidstack.io/sprite-fight/thumbnails.vtt"
-            aspect-ratio="16/9"
-            crossorigin
-          >
-            <media-outlet>
-              {/* <media-poster alt="Girl walks into sprite gnomes around her friend on a campfire in danger!"></media-poster> */}
-              {/* <track
-              src="https://media-files.vidstack.io/sprite-fight/subs/english.vtt"
-              label="English"
-              srclang="en-US"
-              kind="subtitles"
-              default
-            />
-            <track
-              src="https://media-files.vidstack.io/sprite-fight/chapters.vtt"
-              srclang="en-US"
-              kind="chapters"
-              default
-            /> */}
-            </media-outlet>
-            <media-community-skin></media-community-skin>
-          </media-player>
+          <div className="relative">
+            <video className="w-full h-auto" ref={videoRef} src={src} controls></video>
+          </div>
         )}
       </div>
       <div
