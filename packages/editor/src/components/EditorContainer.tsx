@@ -91,8 +91,6 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
 /**
  *component used as dock container.
- *
- * @type {type}
  */
 export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
@@ -108,7 +106,6 @@ export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
 
 /**
  * EditorContainer class used for creating container for Editor
- *
  */
 const EditorContainer = () => {
   const editorState = useHookstate(getMutableState(EditorState))
@@ -275,9 +272,9 @@ const EditorContainer = () => {
     const abortController = new AbortController()
     try {
       if (sceneName.value || editorState.sceneModified.value) {
-        const blob = await takeScreenshot(512, 320)
-        const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
-        const result: { name: string } = (await new Promise((resolve) => {
+        const blob = await takeScreenshot(512, 320, 'ktx2')
+        const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
+        const result: { name: string } | void = await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewSceneDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
@@ -286,9 +283,8 @@ const EditorContainer = () => {
               onCancel={resolve}
             />
           )
-        })) as any
-        if (result && projectName.value) {
-          await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
+        })
+        if (result?.name && projectName.value) {
           await saveScene(projectName.value, result.name, file, abortController.signal)
           editorState.sceneModified.set(false)
         }
@@ -297,7 +293,7 @@ const EditorContainer = () => {
     } catch (error) {
       logger.error(error)
       setDialogComponent(
-        <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
+        <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
       )
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
@@ -417,8 +413,8 @@ const EditorContainer = () => {
     try {
       if (projectName.value) {
         if (result.generateThumbnails) {
-          const blob = await takeScreenshot(512, 320)
-          const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
+          const blob = await takeScreenshot(512, 320, 'ktx2')
+          const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
           await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
           await saveScene(projectName.value, sceneName.value, file, abortController.signal)
