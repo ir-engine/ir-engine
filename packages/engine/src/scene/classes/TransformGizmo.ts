@@ -42,6 +42,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   TransformAxis,
+  TransformAxisAction,
   TransformAxisType,
   TransformMode,
   TransformModeType
@@ -51,6 +52,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 
 type AxisInfo = {
+  type: TransformAxisAction
   axis: TransformAxisType
   planeNormal: Vector3
   selectionColorTarget: MeshStandardMaterial
@@ -61,6 +63,7 @@ type AxisInfo = {
   rotationStartObject?: Object3D
   rotationEndObject?: Object3D
 }
+
 type MeshWithAxisInfo = Mesh & { axisInfo: AxisInfo }
 
 let gizmoGltf: GLTF = null!
@@ -95,7 +98,7 @@ export default class TransformGizmo extends Object3D {
   scaleUniformHandle: MeshWithAxisInfo
 
   transformMode: TransformModeType
-  activeControls?: Object3D
+  activeControls?: Object3D[]
   selectedAxisObj?: MeshWithAxisInfo
   hoveredAxis: MeshWithAxisInfo
 
@@ -120,6 +123,7 @@ export default class TransformGizmo extends Object3D {
 
     this.translateXAxis = this.translateControls.getObjectByName('TranslateXAxis') as MeshWithAxisInfo
     this.translateXAxis.axisInfo = {
+      type: TransformAxisAction.Translate,
       axis: TransformAxis.X,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.translateXAxis.material as MeshStandardMaterial
@@ -127,6 +131,7 @@ export default class TransformGizmo extends Object3D {
 
     this.translateYAxis = this.translateControls.getObjectByName('TranslateYAxis') as MeshWithAxisInfo
     this.translateYAxis.axisInfo = {
+      type: TransformAxisAction.Translate,
       axis: TransformAxis.Y,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.translateYAxis.material as MeshStandardMaterial
@@ -134,6 +139,7 @@ export default class TransformGizmo extends Object3D {
 
     this.translateZAxis = this.translateControls.getObjectByName('TranslateZAxis') as MeshWithAxisInfo
     this.translateZAxis.axisInfo = {
+      type: TransformAxisAction.Translate,
       axis: TransformAxis.Z,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.translateZAxis.material as MeshStandardMaterial
@@ -141,6 +147,7 @@ export default class TransformGizmo extends Object3D {
 
     this.translateXYPlane = this.translateControls.getObjectByName('TranslateXYPlane') as MeshWithAxisInfo
     this.translateXYPlane.axisInfo = {
+      type: TransformAxisAction.Translate,
       axis: TransformAxis.XY,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.translateXYPlane.material as MeshStandardMaterial
@@ -148,6 +155,7 @@ export default class TransformGizmo extends Object3D {
 
     this.translateYZPlane = this.translateControls.getObjectByName('TranslateYZPlane') as MeshWithAxisInfo
     this.translateYZPlane.axisInfo = {
+      type: TransformAxisAction.Translate,
       axis: TransformAxis.YZ,
       planeNormal: new Vector3(1, 0, 0),
       selectionColorTarget: this.translateYZPlane.material as MeshStandardMaterial
@@ -155,6 +163,7 @@ export default class TransformGizmo extends Object3D {
 
     this.translateXZPlane = this.translateControls.getObjectByName('TranslateXZPlane') as MeshWithAxisInfo
     this.translateXZPlane.axisInfo = {
+      type: TransformAxisAction.Translate,
       axis: TransformAxis.XZ,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.translateXZPlane.material as MeshStandardMaterial
@@ -168,6 +177,7 @@ export default class TransformGizmo extends Object3D {
 
     const localRotateXAxisStart = rotateXAxisStart.clone()
     rotateXAxisDisk.axisInfo = {
+      type: TransformAxisAction.Rotate,
       axis: TransformAxis.X,
       planeNormal: new Vector3(1, 0, 0),
       rotationTarget: rotateXAxisDisk,
@@ -184,6 +194,7 @@ export default class TransformGizmo extends Object3D {
 
     const localRotateYAxisStart = rotateYAxisStart.clone()
     rotateYAxisDisk.axisInfo = {
+      type: TransformAxisAction.Rotate,
       axis: TransformAxis.Y,
       planeNormal: new Vector3(0, 1, 0),
       rotationTarget: rotateYAxisDisk,
@@ -200,6 +211,7 @@ export default class TransformGizmo extends Object3D {
 
     const localRotateZAxisStart = rotateZAxisStart.clone()
     rotateZAxisDisk.axisInfo = {
+      type: TransformAxisAction.Rotate,
       axis: TransformAxis.Z,
       planeNormal: new Vector3(0, 0, 1),
       rotationTarget: rotateZAxisDisk,
@@ -212,6 +224,7 @@ export default class TransformGizmo extends Object3D {
     this.scaleControls = this.model.getObjectByName('ScaleControls')!
     this.scaleXAxis = this.scaleControls.getObjectByName('ScaleXAxis') as MeshWithAxisInfo
     this.scaleXAxis.axisInfo = {
+      type: TransformAxisAction.Scale,
       axis: TransformAxis.X,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.scaleXAxis.material as MeshStandardMaterial
@@ -219,6 +232,7 @@ export default class TransformGizmo extends Object3D {
 
     this.scaleYAxis = this.scaleControls.getObjectByName('ScaleYAxis') as MeshWithAxisInfo
     this.scaleYAxis.axisInfo = {
+      type: TransformAxisAction.Scale,
       axis: TransformAxis.Y,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.scaleYAxis.material as MeshStandardMaterial
@@ -226,6 +240,7 @@ export default class TransformGizmo extends Object3D {
 
     this.scaleZAxis = this.scaleControls.getObjectByName('ScaleZAxis') as MeshWithAxisInfo
     this.scaleZAxis.axisInfo = {
+      type: TransformAxisAction.Scale,
       axis: TransformAxis.Z,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.scaleZAxis.material as MeshStandardMaterial
@@ -233,6 +248,7 @@ export default class TransformGizmo extends Object3D {
 
     this.scaleXYPlane = this.scaleControls.getObjectByName('ScaleXYPlane') as MeshWithAxisInfo
     this.scaleXYPlane.axisInfo = {
+      type: TransformAxisAction.Scale,
       axis: TransformAxis.XY,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.scaleXYPlane.material as MeshStandardMaterial
@@ -240,6 +256,7 @@ export default class TransformGizmo extends Object3D {
 
     this.scaleYZPlane = this.scaleControls.getObjectByName('ScaleYZPlane') as MeshWithAxisInfo
     this.scaleYZPlane.axisInfo = {
+      type: TransformAxisAction.Scale,
       axis: TransformAxis.YZ,
       planeNormal: new Vector3(1, 0, 0),
       selectionColorTarget: this.scaleYZPlane.material as MeshStandardMaterial
@@ -247,6 +264,7 @@ export default class TransformGizmo extends Object3D {
 
     this.scaleXZPlane = this.scaleControls.getObjectByName('ScaleXZPlane') as MeshWithAxisInfo
     this.scaleXZPlane.axisInfo = {
+      type: TransformAxisAction.Scale,
       axis: TransformAxis.XZ,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.scaleXZPlane.material as MeshStandardMaterial
@@ -254,6 +272,7 @@ export default class TransformGizmo extends Object3D {
 
     this.scaleUniformHandle = this.scaleControls.getObjectByName('ScaleUniformHandle') as MeshWithAxisInfo
     this.scaleUniformHandle.axisInfo = {
+      type: TransformAxisAction.Scale,
       axis: TransformAxis.XYZ,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.scaleUniformHandle.material as MeshStandardMaterial
@@ -311,21 +330,21 @@ export default class TransformGizmo extends Object3D {
     switch (transformMode) {
       case TransformMode.Translate:
         this.translateControls.visible = true
-        this.activeControls = this.translateControls
+        this.activeControls = [this.translateControls]
         break
       case TransformMode.Rotate:
         this.rotateControls.visible = true
-        this.activeControls = this.rotateControls
+        this.activeControls = [this.rotateControls]
         break
       case TransformMode.Scale:
         this.scaleControls.visible = true
-        this.activeControls = this.scaleControls
+        this.activeControls = [this.scaleControls]
         break
       case TransformMode.Combined:
-        //this.translateControls.visible = true
+        this.translateControls.visible = true
         this.rotateControls.visible = true
-        //this.scaleControls.visible = true
-        this.activeControls = this.rotateControls
+        this.scaleControls.visible = true
+        this.activeControls = [this.translateControls, this.rotateControls, this.scaleControls]
         break
       default:
         this.selectedAxisObj = undefined
@@ -347,13 +366,13 @@ export default class TransformGizmo extends Object3D {
     target: Vector2,
     camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   ): Intersection<Object3D> | undefined {
-    if (!this.activeControls) return
+    if (this.activeControls?.length == 0) return
 
     this.raycasterResults.length = 0
     this.raycaster.setFromCamera(target, camera)
 
     return this.raycaster
-      .intersectObject(this.activeControls, true, this.raycasterResults)
+      .intersectObjects(this.activeControls!, true, this.raycasterResults)
       .find((result) => (result.object as MeshWithAxisInfo).axisInfo !== undefined)
   }
 

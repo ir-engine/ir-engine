@@ -58,7 +58,11 @@ export const TransformAxisConstraints = {
   XZ: new Vector3(1, 0, 1),
   XYZ: new Vector3(1, 1, 1)
 }
-
+export const TransformAxisAction = {
+  Translate: 'Translate' as const,
+  Rotate: 'Rotate' as const,
+  Scale: 'Scale' as const
+}
 export const SnapMode = {
   Disabled: 'Disabled' as const,
   Grid: 'Grid' as const
