@@ -527,46 +527,45 @@ const execute = () => {
         if (transformMode !== TransformMode.Combined) break
       }
       case TransformMode.Scale: {
-        if (selectedAxisInfo.type === TransformAxisAction.Scale) {
-          dragVector.copy(planeIntersection).applyQuaternion(inverseGizmoQuaternion).multiply(constraint)
+        dragVector.copy(planeIntersection).applyQuaternion(inverseGizmoQuaternion).multiply(constraint)
 
-          if (selectStartAndNoGrabbing) {
-            initDragVector.copy(dragVector)
-            prevScale.set(1, 1, 1)
-          }
-          deltaDragVector.subVectors(dragVector, initDragVector)
-          deltaDragVector.multiply(constraint)
-
-          const scaleFactor =
-            gizmoObj.selectedAxis === TransformAxis.XYZ
-              ? 1 +
-                getComponent(Engine.instance.cameraEntity, CameraComponent)
-                  .getWorldDirection(viewDirection)
-                  .applyQuaternion(gizmoObj.quaternion)
-                  .dot(deltaDragVector)
-              : 1 + constraint.dot(deltaDragVector)
-
-          curScale.set(
-            constraint.x === 0 ? 1 : scaleFactor,
-            constraint.y === 0 ? 1 : scaleFactor,
-            constraint.z === 0 ? 1 : scaleFactor
-          )
-
-          if (shouldSnap) {
-            curScale.divideScalar(editorHelperState.scaleSnap).round().multiplyScalar(editorHelperState.scaleSnap)
-          }
-
-          curScale.set(
-            curScale.x <= 0 ? Number.EPSILON : curScale.x,
-            curScale.y <= 0 ? Number.EPSILON : curScale.y,
-            curScale.z <= 0 ? Number.EPSILON : curScale.z
-          )
-          scaleVector.copy(curScale).divide(prevScale)
-          prevScale.copy(curScale)
-
-          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-          EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
+        if (selectStartAndNoGrabbing) {
+          initDragVector.copy(dragVector)
+          prevScale.set(1, 1, 1)
         }
+        deltaDragVector.subVectors(dragVector, initDragVector)
+        deltaDragVector.multiply(constraint)
+
+        const scaleFactor =
+          gizmoObj.selectedAxis === TransformAxis.XYZ
+            ? 1 +
+              getComponent(Engine.instance.cameraEntity, CameraComponent)
+                .getWorldDirection(viewDirection)
+                .applyQuaternion(gizmoObj.quaternion)
+                .dot(deltaDragVector)
+            : 1 + constraint.dot(deltaDragVector)
+
+        curScale.set(
+          constraint.x === 0 ? 1 : scaleFactor,
+          constraint.y === 0 ? 1 : scaleFactor,
+          constraint.z === 0 ? 1 : scaleFactor
+        )
+
+        if (shouldSnap) {
+          curScale.divideScalar(editorHelperState.scaleSnap).round().multiplyScalar(editorHelperState.scaleSnap)
+        }
+
+        curScale.set(
+          curScale.x <= 0 ? Number.EPSILON : curScale.x,
+          curScale.y <= 0 ? Number.EPSILON : curScale.y,
+          curScale.z <= 0 ? Number.EPSILON : curScale.z
+        )
+        scaleVector.copy(curScale).divide(prevScale)
+        prevScale.copy(curScale)
+
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+        EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
+
         //scale code
         break
       }
