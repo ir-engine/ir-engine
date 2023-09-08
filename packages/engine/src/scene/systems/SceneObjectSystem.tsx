@@ -58,7 +58,7 @@ import { ShadowSystem } from './ShadowSystem'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-export function setupObject(obj: Object3DWithEntity, force = false) {
+export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false) {
   const mesh = obj as any as Mesh<any, any>
   /** @todo do we still need this? */
   //Lambert shader needs an empty normal map to prevent shader errors
@@ -68,11 +68,12 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
       if (!child.userData) child.userData = {}
-      const shouldMakeSimple = (force || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-      if (!force && !isMobileXRHeadset && child.userData.lastMaterial) {
+      const shouldMakeBasic =
+        (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
+      if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
         child.material = child.userData.lastMaterial
         delete child.userData.lastMaterial
-      } else if (shouldMakeSimple && !child.userData.lastMaterial) {
+      } else if (shouldMakeBasic && !child.userData.lastMaterial) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)

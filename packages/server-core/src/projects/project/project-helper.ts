@@ -25,14 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
-import {
-  ProjectInterface,
-  ProjectPackageJsonType,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
-import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import { getState } from '@etherealengine/hyperflux'
-import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
@@ -40,23 +32,52 @@ import { compareVersions } from 'compare-versions'
 import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
-import Sequelize, { Op } from 'sequelize'
 import { promisify } from 'util'
 
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { getState } from '@etherealengine/hyperflux'
+import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
+import fs from 'fs'
+
+import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import {
+  projectPath,
+  ProjectSettingType,
+  ProjectType
+} from '@etherealengine/engine/src/schemas/projects/project.schema'
+import {
+  identityProviderPath,
+  IdentityProviderType
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { Paginated } from '@feathersjs/feathers'
+import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/server-info/server-info-helper'
+import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
+import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
-import { getOctokitForChecking, getUserRepos } from './github-helper'
+import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
+import { getContentType } from '../../util/fileUtils'
+import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
+import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
+import { useGit } from '../../util/gitHelperFunctions'
+import { uploadSceneToStaticResources } from '../scene/scene-helper'
+import { getAuthenticatedRepo, getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
@@ -109,7 +130,7 @@ export const updateBuilder = async (
   }
 
   if (data.updateProjects) {
-    await Promise.all(data.projectsToUpdate.map((project) => app.service('project').update(project, null, params)))
+    await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update(project, null, params)))
   }
 
   const helmSettingsResult = await app.service(helmSettingPath).find()
@@ -303,7 +324,7 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
       $select: ['settings']
     }
   })
-  const settings = {} as { [key: string]: string }
+  const settings: ProjectSettingType[] = []
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
   return settings
 }
@@ -472,13 +493,11 @@ export const checkProjectDestinationMatch = async (
     Buffer.from(sourceBlobResponse.data.content, sourceBlobResponse.data.encoding).toString()
   )
   if (!existingProject) {
-    const projectExists = await app.service('project').find({
+    const projectExists = await app.service(projectPath).find({
       query: {
-        [Op.or]: [
-          Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {
-            [Op.like]: '%' + sourceContent.name.toLowerCase() + '%'
-          })
-        ]
+        name: {
+          $like: '%' + sourceContent.name + '%'
+        }
       }
     })
     if (projectExists.data.length > 0)
@@ -837,7 +856,7 @@ export const getLatestProjectTaggedCommitInBranch = async (
   url: string,
   branchName: string,
   params: ProjectParams
-): Promise<string[] | { error: string; text: string }> => {
+): Promise<string | { error: string; text: string }> => {
   const octokitResponse = await getOctokitForChecking(app, url, params!)
   const { owner, repo, octoKit } = octokitResponse
 
@@ -866,7 +885,7 @@ export const getLatestProjectTaggedCommitInBranch = async (
     per_page: COMMIT_PER_PAGE
   })
 
-  let latestTaggedCommitInBranch
+  let latestTaggedCommitInBranch = ''
   let sortedTags = semver.rsort(tagResponse.data.map((item) => item.name))
   const taggedCommits = [] as string[]
   sortedTags.forEach((tag) => taggedCommits.push(tagResponse.data.find((item) => item.name === tag)!.commit.sha))
@@ -890,7 +909,7 @@ export async function getProjectUpdateJobBody(
     reset?: boolean
     commitSHA?: string
     sourceBranch: string
-    updateType: ProjectUpdateType
+    updateType: ProjectType['updateType']
     updateSchedule: string
   },
   app: Application,
@@ -979,7 +998,7 @@ export async function getProjectUpdateJobBody(
 }
 export async function getProjectPushJobBody(
   app: Application,
-  project: ProjectInterface,
+  project: ProjectType,
   user: UserType,
   reset = false,
   commitSHA?: string,
@@ -1055,7 +1074,7 @@ export async function getProjectPushJobBody(
   }
 }
 
-export const getCronJobBody = (project: ProjectInterface, image: string): object => {
+export const getCronJobBody = (project: ProjectType, image: string): object => {
   return {
     metadata: {
       name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
@@ -1173,11 +1192,14 @@ export async function getDirectoryArchiveJobBody(
 }
 
 export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
-  const project = await app.service('project').Model.findOne({
-    where: {
-      name: projectName
+  const projectData = (await app.service(projectPath)._find({
+    query: {
+      name: projectName,
+      $limit: 1
     }
-  })
+  })) as Paginated<ProjectType>
+
+  const project = projectData.data[0]
 
   const apiPods = await getPodsData(
     `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
@@ -1226,38 +1248,44 @@ export const removeProjectUpdateJob = async (app: Application, projectName: stri
 
 export const checkProjectAutoUpdate = async (app: Application, projectName: string): Promise<void> => {
   let commitSHA
-  const project = await app.service('project').Model.findOne({
-    where: {
-      name: projectName
+  const projectData = (await app.service(projectPath)._find({
+    query: {
+      name: projectName,
+      $limit: 1
     }
-  })
-  const user = await app.service(userPath).get(project.updateUserId)
+  })) as Paginated<ProjectType>
+
+  const project = projectData.data[0]
+
+  const user = await app.service(userPath).get(project.updateUserId!)
   if (project.updateType === 'tag') {
     const latestTaggedCommit = await getLatestProjectTaggedCommitInBranch(
       app,
-      project.sourceRepo,
-      project.sourceBranch,
+      project.sourceRepo!,
+      project.sourceBranch!,
       { user }
     )
-    if (latestTaggedCommit !== project.commitSHA) commitSHA = latestTaggedCommit
+
+    if (typeof latestTaggedCommit === 'string' && latestTaggedCommit !== project.commitSHA!)
+      commitSHA = latestTaggedCommit
   } else if (project.updateType === 'commit') {
-    const commits = await getProjectCommits(app, project.sourceRepo, {
+    const commits = await getProjectCommits(app, project.sourceRepo!, {
       user,
-      query: { branchName: project.branchName }
+      query: { branchName: project.branchName! }
     })
     if (commits && commits[0].commitSHA !== project.commitSHA) commitSHA = commits[0].commitSHA
   }
   if (commitSHA)
-    await app.service('project').update(
+    await app.service(projectPath).update(
       {
-        sourceURL: project.sourceRepo,
+        sourceURL: project.sourceRepo!,
         destinationURL: project.repositoryPath,
         name: projectName,
         reset: true,
         commitSHA,
-        sourceBranch: project.sourceBranch,
+        sourceBranch: project.sourceBranch!,
         updateType: project.updateType,
-        updateSchedule: project.updateSchedule
+        updateSchedule: project.updateSchedule!
       },
       null,
       { user: user }
@@ -1306,4 +1334,301 @@ export const createExecutorJob = async (
       }
     }, 1000)
   })
+}
+
+export const copyDefaultProject = () => {
+  deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
+  copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
+}
+
+export const getGitProjectData = (project) => {
+  const response = {
+    repositoryPath: '',
+    sourceRepo: '',
+    sourceBranch: '',
+    commitSHA: ''
+  }
+
+  //TODO: We can use simpleGit instead of manually accessing files.
+  const projectGitDir = path.resolve(__dirname, `../../../../projects/projects/${project}/.git`)
+
+  const config = getGitConfigData(projectGitDir)
+  if (config?.remote?.origin?.url) {
+    response.repositoryPath = config?.remote?.origin?.url
+    response.sourceRepo = config?.remote?.origin?.url
+  }
+
+  const branch = getGitHeadData(projectGitDir)
+  if (branch) {
+    response.sourceBranch = branch
+  }
+
+  const sha = getGitOrigHeadData(projectGitDir, branch)
+  if (sha) {
+    response.commitSHA = sha
+  }
+
+  return response
+}
+
+export const updateProject = async (
+  app: Application,
+  data: {
+    sourceURL: string
+    destinationURL: string
+    name?: string
+    needsRebuild?: boolean
+    reset?: boolean
+    commitSHA?: string
+    sourceBranch: string
+    updateType: ProjectType['updateType']
+    updateSchedule: string
+  },
+  params?: ProjectParams
+) => {
+  if (data.sourceURL === 'default-project') {
+    copyDefaultProject()
+    await uploadLocalProjectToProvider(app, 'default-project')
+    return (
+      await app.service(projectPath).find({
+        query: {
+          name: 'default-project',
+          $limit: 1
+        }
+      })
+    ).data
+  }
+
+  const urlParts = data.sourceURL.split('/')
+  let projectName = data.name || urlParts.pop()
+  if (!projectName) throw new Error('Git repo must be plain URL')
+  projectName = projectName.toLowerCase()
+  if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+  if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
+
+  const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/`)
+  const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+
+  // if project exists already, remove it and re-clone it
+  if (fs.existsSync(projectDirectory)) {
+    // if (isDev) throw new Error('Cannot create project - already exists')
+    deleteFolderRecursive(projectDirectory)
+  }
+
+  const projectResult = await app.service(projectPath)._find({
+    query: {
+      name: projectName
+    }
+  })
+
+  let project
+  if (projectResult.data.length > 0) project = projectResult.data[0]
+
+  const userId = params!.user?.id || project?.updateUserId
+  if (!userId) throw new BadRequest('No user ID from call or existing project owner')
+
+  const githubIdentityProvider = (await app.service(identityProviderPath)._find({
+    query: {
+      userId: userId,
+      type: 'github',
+      $limit: 1
+    }
+  })) as Paginated<IdentityProviderType>
+
+  if (githubIdentityProvider.data.length === 0) throw new Forbidden('You are not authorized to access this project')
+
+  let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.sourceURL)
+  if (!repoPath) repoPath = data.sourceURL //public repo
+
+  const gitCloner = useGit(projectLocalDirectory)
+  await gitCloner.clone(repoPath, projectDirectory)
+  const git = useGit(projectDirectory)
+  const branchName = `${config.server.releaseName}-deployment`
+  try {
+    const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
+    if (data.commitSHA) await git.checkout(data.commitSHA)
+    if (branchExists.length === 0 || data.reset) {
+      try {
+        await git.deleteLocalBranch(branchName)
+      } catch (err) {
+        //
+      }
+      await git.checkoutLocalBranch(branchName)
+    } else await git.checkout(branchName)
+  } catch (err) {
+    logger.error(err)
+    throw err
+  }
+
+  await uploadLocalProjectToProvider(app, projectName)
+
+  const projectConfig = getProjectConfig(projectName) ?? {}
+
+  // when we have successfully re-installed the project, remove the database entry if it already exists
+  const existingProjectResult = await app.service(projectPath)._find({
+    query: {
+      name: {
+        $like: `%${projectName}%`
+      }
+    }
+  })
+  const existingProject = existingProjectResult.total > 0 ? existingProjectResult.data[0] : null
+  let repositoryPath = data.destinationURL || data.sourceURL
+  const publicSignedExec = PUBLIC_SIGNED_REGEX.exec(repositoryPath)
+  //In testing, intermittently the signed URL was being entered into the database, which made matching impossible.
+  //Stripping the signed portion out if it's about to be inserted.
+  if (publicSignedExec) repositoryPath = `https://github.com/${publicSignedExec[1]}/${publicSignedExec[2]}`
+  const { commitSHA, commitDate } = await getCommitSHADate(projectName)
+
+  const returned = !existingProject
+    ? // Add to DB
+      await app.service(projectPath)._create(
+        {
+          id: v4(),
+          name: projectName,
+          repositoryPath,
+          needsRebuild: data.needsRebuild ? data.needsRebuild : true,
+          sourceRepo: data.sourceURL,
+          sourceBranch: data.sourceBranch,
+          updateType: data.updateType,
+          updateSchedule: data.updateSchedule,
+          updateUserId: userId,
+          commitSHA,
+          commitDate: toDateTimeSql(commitDate),
+          createdAt: await getDateTimeSql(),
+          updatedAt: await getDateTimeSql()
+        },
+        params || {}
+      )
+    : await app.service(projectPath)._patch(existingProject.id, {
+        commitSHA,
+        commitDate: toDateTimeSql(commitDate),
+        sourceRepo: data.sourceURL,
+        sourceBranch: data.sourceBranch,
+        updateType: data.updateType,
+        updateSchedule: data.updateSchedule,
+        updateUserId: userId
+      })
+
+  returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
+
+  if (!existingProject) {
+    await app.service(projectPermissionPath).create({
+      projectId: returned.id,
+      userId
+    })
+  }
+
+  if (returned.name !== projectName)
+    await app.service(projectPath)._patch(existingProject!.id, {
+      name: projectName
+    })
+
+  if (data.reset) {
+    let repoPath = await getAuthenticatedRepo(githubIdentityProvider.data[0].oauthToken!, data.destinationURL)
+    if (!repoPath) repoPath = data.destinationURL //public repo
+    await git.addRemote('destination', repoPath)
+    await git.raw(['lfs', 'fetch', '--all'])
+    await git.push('destination', branchName, ['-f', '--tags'])
+    const { commitSHA, commitDate } = await getCommitSHADate(projectName)
+    await app.service(projectPath)._patch(returned.id, {
+      commitSHA,
+      commitDate: toDateTimeSql(commitDate)
+    })
+  }
+  // run project install script
+  if (projectConfig.onEvent) {
+    await onProjectEvent(app, projectName, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
+  }
+
+  const k8BatchClient = getState(ServerState).k8BatchClient
+
+  if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
+    await createOrUpdateProjectUpdateJob(app, projectName)
+  } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
+    await removeProjectUpdateJob(app, projectName)
+
+  return returned
+}
+
+export const getCommitSHADate = async (projectName: string): Promise<{ commitSHA: string; commitDate: Date }> => {
+  const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+  const git = useGit(projectDirectory)
+  let commitSHA = ''
+  let commitDate = new Date()
+  try {
+    commitSHA = await git.revparse(['HEAD'])
+    const commit = await git.log(['-1'])
+    commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
+  } catch (err) {
+    console.error('Error in getCommitSHADate', err)
+  }
+  return {
+    commitSHA,
+    commitDate
+  }
+}
+
+export const deleteProjectFilesInStorageProvider = async (projectName: string, storageProviderName?: string) => {
+  const storageProvider = getStorageProvider(storageProviderName)
+  try {
+    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+    if (existingFiles.length) {
+      await Promise.all([
+        storageProvider.deleteResources(existingFiles),
+        storageProvider.createInvalidation([`projects/${projectName}*`])
+      ])
+    }
+  } catch (e) {
+    logger.error(e, '[ERROR deleteProjectFilesInStorageProvider]:')
+  }
+}
+
+/**
+ * Updates the local storage provider with the project's current files
+ * @param app Application object
+ * @param projectName
+ * @param storageProviderName
+ * @param remove
+ */
+export const uploadLocalProjectToProvider = async (
+  app: Application,
+  projectName,
+  remove = true,
+  storageProviderName?: string
+) => {
+  const storageProvider = getStorageProvider(storageProviderName)
+  const cacheDomain = getCacheDomain(storageProvider, true)
+
+  // remove exiting storage provider files
+  logger.info(`uploadLocalProjectToProvider for project "${projectName}" started at "${new Date()}".`)
+  if (remove) {
+    await deleteProjectFilesInStorageProvider(projectName)
+  }
+
+  // upload new files to storage provider
+  const projectRootPath = path.resolve(projectsRootFolder, projectName)
+  const files = getFilesRecursive(projectRootPath)
+  const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
+  const results = [] as (string | null)[]
+  for (let file of filtered) {
+    try {
+      const fileResult = await uploadSceneToStaticResources(app, projectName, file)
+      const filePathRelative = processFileName(file.slice(projectRootPath.length))
+      await storageProvider.putObject(
+        {
+          Body: fileResult,
+          ContentType: getContentType(file),
+          Key: `projects/${projectName}${filePathRelative}`
+        },
+        { isDirectory: false }
+      )
+      results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
+    } catch (e) {
+      logger.error(e)
+      results.push(null)
+    }
+  }
+  logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
+  return results.filter((success) => !!success) as string[]
 }

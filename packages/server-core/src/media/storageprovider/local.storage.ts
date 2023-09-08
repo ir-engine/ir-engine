@@ -32,8 +32,10 @@ import { PassThrough } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
-import config from '../../appconfig'
+import { getState } from '@etherealengine/hyperflux'
 import logger from '../../ServerLogger'
+import { ServerMode, ServerState } from '../../ServerState'
+import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
 import { copyRecursiveSync } from '../FileUtil'
 import {
@@ -74,6 +76,13 @@ export class LocalStorage implements StorageProviderInterface {
     // Add '/' to end to simplify many operations
     this.PATH_PREFIX += path.sep
     this._store = fsStore(this.PATH_PREFIX)
+
+    if (getState(ServerState).serverMode === ServerMode.API && !config.testEnabled) {
+      require('child_process').spawn('npm', ['run', 'serve-local-files'], {
+        cwd: process.cwd(),
+        stdio: 'inherit'
+      })
+    }
   }
 
   /**
@@ -358,6 +367,8 @@ export class LocalStorage implements StorageProviderInterface {
   ): Promise<boolean> => {
     const oldFilePath = path.join(this.PATH_PREFIX, oldPath, oldName)
     const newFilePath = path.join(this.PATH_PREFIX, newPath, newName)
+
+    if (!fs.existsSync(path.dirname(newFilePath))) fs.mkdirSync(path.dirname(newFilePath), { recursive: true })
 
     try {
       isCopy ? copyRecursiveSync(oldFilePath, newFilePath) : fs.renameSync(oldFilePath, newFilePath)

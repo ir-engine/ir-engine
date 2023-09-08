@@ -136,7 +136,7 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!animComponent) return
       animComponent.mixer.timeScale.set(loopAnimationComponent.animationSpeed.value)
-    }, [loopAnimationComponent.animationSpeed])
+    }, [animComponent, loopAnimationComponent.animationSpeed])
 
     useEffect(() => {
       if (!modelComponent?.scene?.value || !animComponent || !loopAnimationComponent.animationPack.value) return

@@ -22,15 +22,28 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { HookContext } from '@feathersjs/feathers'
+import {
+  projectDataValidator,
+  projectPatchValidator,
+  projectQueryValidator
+} from '@etherealengine/engine/src/schemas/projects/project.schema'
 import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
+
+import { HookContext } from '@feathersjs/feathers'
+import {
+  projectDataResolver,
+  projectExternalResolver,
+  projectPatchResolver,
+  projectQueryResolver,
+  projectResolver
+} from './project.resolvers'
 
 const createProjectPermission = async (context: HookContext) => {
   if (context.params?.user?.id) {
@@ -48,14 +61,31 @@ const createProjectPermission = async (context: HookContext) => {
 }
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(projectExternalResolver), schemaHooks.resolveResult(projectResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(projectQueryValidator),
+      schemaHooks.resolveQuery(projectQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    update: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)],
-    patch: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)],
-    remove: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)]
+    create: [
+      iff(isProvider('external'), verifyScope('editor', 'write')),
+      () => schemaHooks.validateData(projectDataValidator),
+      schemaHooks.resolveData(projectDataResolver)
+    ],
+    update: [iff(isProvider('external'), verifyScope('editor', 'write')), projectPermissionAuthenticate(false)],
+    patch: [
+      iff(isProvider('external'), verifyScope('editor', 'write')),
+      projectPermissionAuthenticate(false),
+      () => schemaHooks.validateData(projectPatchValidator),
+      schemaHooks.resolveData(projectPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('editor', 'write')), projectPermissionAuthenticate(false)]
   },
 
   after: {

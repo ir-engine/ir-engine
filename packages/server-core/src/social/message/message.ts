@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { MessageType, messageMethods, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { MessageService } from './message.class'
@@ -62,13 +63,13 @@ export default (app: Application): void => {
       if (!data.sender) {
         data.sender = await app.service(userPath).get(data.senderId)
       }
-      const channelUsers = await app.service('channel-user').find({
+      const channelUsers = (await app.service(channelUserPath).find({
         query: {
           channelId: data.channelId
-        }
-      })
-      // TODO: Remove 'as any' once channel-user service is migrated to feathers5
-      const userIds = (channelUsers as any).data.map((channelUser) => {
+        },
+        paginate: false
+      })) as ChannelUserType[]
+      const userIds = channelUsers.map((channelUser) => {
         return channelUser.userId
       })
       return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
