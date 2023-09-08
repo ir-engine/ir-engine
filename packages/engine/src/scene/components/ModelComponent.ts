@@ -215,9 +215,12 @@ function ModelReactor() {
       false,
       true
     )
-    if (skinnedMeshSearch[0]) modelComponent.hasSkinnedMesh.set(true)
+    if (skinnedMeshSearch[0]) {
+      modelComponent.hasSkinnedMesh.set(true)
+      modelComponent.generateBVH.set(false)
+    }
 
-    if (model.generateBVH && !model.hasSkinnedMesh) {
+    if (model.generateBVH) {
       enableObjectLayer(scene, ObjectLayers.Camera, false)
       const bvhDone = [] as Promise<void>[]
       scene.traverse((obj: Mesh) => {
