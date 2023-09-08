@@ -80,7 +80,7 @@ done
 ${terminal_command} \
 	--title 'etherealengine servers' \
 	--tab \
-	--title db --working-directory=$PWD -e 'sudo ./start-db.sh' \
+	--title db --working-directory=$PWD -e 'sudo ./start-containers.sh' \
 	--tab \
 	--title agones --working-directory=$PWD -e './start-agones.sh' \
 	--tab \

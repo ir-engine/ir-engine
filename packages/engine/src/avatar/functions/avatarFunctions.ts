@@ -25,7 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBone, VRMHumanBones } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import {
+  AnimationClip,
+  AnimationMixer,
+  Bone,
+  Box3,
+  Group,
+  Object3D,
+  ShaderMaterial,
+  Skeleton,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -60,12 +71,12 @@ import avatarBoneMatching, {
   recursiveHipsLookup
 } from '../AvatarBoneMatching'
 import { defaultBonesData } from '../DefaultSkeletonBones'
-import { DissolveEffect } from '../DissolveEffect'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
@@ -78,7 +89,7 @@ const tempVec3ForCenter = new Vector3()
 export const locomotionPack = 'locomotion'
 
 export const parseAvatarModelAsset = (model: any) => {
-  const scene = model.scene || model // FBX files does not have 'scene' property
+  const scene = model.scene ?? model // FBX files does not have 'scene' property
   if (!scene) return
 
   const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
@@ -127,12 +138,13 @@ export const loadAvatarForUser = async (
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
-    const avatarMaterials = setupAvatarMaterials(entity, avatar?.model)
+    const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar?.model)
     const effectEntity = createEntity()
     addComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,
       opacityMultiplier: 1,
-      originMaterials: avatarMaterials
+      dissolveMaterials: dissolveMaterials as ShaderMaterial[],
+      originMaterials: avatarMaterials as MaterialMap[]
     })
   }
 
@@ -224,6 +236,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
 export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
+  const dissolveMatList: Array<ShaderMaterial> = []
   setObjectLayers(root, ObjectLayers.Avatar)
 
   root.traverse((object) => {
@@ -234,11 +247,12 @@ export const setupAvatarMaterials = (entity, root) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.createDissolveMaterial(object)
+      object.material = AvatarDissolveComponent.createDissolveMaterial(object)
+      dissolveMatList.push(object.material)
     }
   })
 
-  return materialList
+  return [dissolveMatList, materialList]
 }
 
 export const setupAvatarHeight = (entity: Entity, model: Object3D) => {

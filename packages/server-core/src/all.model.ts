@@ -31,6 +31,7 @@ import { HookReturn } from 'sequelize/types/hooks'
 import {
   AvatarInterface,
   BotCommandInterface,
+  ChannelUserInterface,
   IdentityProviderInterface,
   InstanceAttendanceInterface,
   LocationAdminInterface,
@@ -857,4 +858,38 @@ export const createMessageModel = (app: Application) => {
   }
 
   return message
+}
+
+export const createChannelUserModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const channelUser = sequelizeClient.define<Model<ChannelUserInterface>>(
+    'channel-user',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      isOwner: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(channelUser as any).associate = (models: any): void => {
+    ;(channelUser as any).belongsTo(models.channel, { required: true, allowNull: false })
+    ;(channelUser as any).belongsTo(createUserModel(app), { required: true, allowNull: false })
+  }
+
+  return channelUser
 }

@@ -24,11 +24,37 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import { ProjectsType } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { ChannelUserQuery, ChannelUserType } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const projectsResolver = resolve<ProjectsType, HookContext>({})
+export const channelUserResolver = resolve<ChannelUserType, HookContext>({
+  user: virtual(async (channelUser, context) => {
+    if (channelUser.userId) {
+      const user = await context.app.service(userPath)._get(channelUser.userId)
+      return user
+    }
+  }),
+  createdAt: virtual(async (channel) => fromDateTimeSql(channel.createdAt)),
+  updatedAt: virtual(async (channel) => fromDateTimeSql(channel.updatedAt))
+})
 
-export const projectsExternalResolver = resolve<ProjectsType, HookContext>({})
+export const channelUserExternalResolver = resolve<ChannelUserType, HookContext>({})
+
+export const channelUserDataResolver = resolve<ChannelUserType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const channelUserPatchResolver = resolve<ChannelUserType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const channelUserQueryResolver = resolve<ChannelUserQuery, HookContext>({})

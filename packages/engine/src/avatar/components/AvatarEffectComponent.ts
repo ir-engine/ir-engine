@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material } from 'three'
+import { Material, ShaderMaterial } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
@@ -39,6 +39,7 @@ export const AvatarEffectComponent = defineComponent({
     return {
       sourceEntity: null! as Entity,
       opacityMultiplier: 1,
+      dissolveMaterials: [] as Array<ShaderMaterial>,
       originMaterials: [] as Array<MaterialMap>
     }
   },
@@ -48,6 +49,7 @@ export const AvatarEffectComponent = defineComponent({
 
     if (json.sourceEntity) component.sourceEntity.set(json.sourceEntity)
     if (json.opacityMultiplier) component.opacityMultiplier.set(json.opacityMultiplier)
+    if (json.dissolveMaterials) component.dissolveMaterials.set(json.dissolveMaterials as Array<ShaderMaterial>)
     if (json.originMaterials) component.originMaterials.set(json.originMaterials as Array<MaterialMap>)
   }
 })

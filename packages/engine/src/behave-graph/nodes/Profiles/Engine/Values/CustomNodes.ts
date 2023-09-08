@@ -58,6 +58,7 @@ import { StandardCallbacks, getCallback } from '../../../../../scene/components/
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
+import { endXRSession, requestXRSession } from '../../../../../xr/XRSessionFunctions'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
 import { addMediaComponent } from '../helper/assetHelper'
 
@@ -409,6 +410,44 @@ export const setCameraZoom = makeFlowNodeDefinition({
     const entity = Engine.instance.cameraEntity
     const zoom = read<number>('zoom')
     setComponent(entity, FollowCameraComponent, { zoomLevel: zoom })
+    commit('flow')
+  }
+})
+
+export const startXRSession = makeFlowNodeDefinition({
+  typeName: 'engine/xr/startSession',
+  category: NodeCategory.Action,
+  label: 'Start XR Session',
+  in: {
+    flow: 'flow',
+    XRmode: (_, graphApi) => {
+      const choices = ['inline', 'immersive-ar', 'immersive-vr']
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const XRmode = read<'inline' | 'immersive-ar' | 'immersive-vr'>('XRmode')
+    requestXRSession({ mode: XRmode })
+    commit('flow')
+  }
+})
+
+export const finishXRSession = makeFlowNodeDefinition({
+  typeName: 'engine/xr/endSession',
+  category: NodeCategory.Action,
+  label: 'End XR Session',
+  in: {
+    flow: 'flow'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    endXRSession()
     commit('flow')
   }
 })

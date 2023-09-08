@@ -37,7 +37,7 @@ import { projectBranchesPath } from '@etherealengine/engine/src/schemas/projects
 import {
   projectBuildPath,
   ProjectBuildType,
-  ProjectUpdateInterfaceType
+  ProjectBuildUpdateItemType
 } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import {
   projectBuilderTagsPath,
@@ -50,6 +50,7 @@ import { projectDestinationCheckPath } from '@etherealengine/engine/src/schemas/
 import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projects/project-github-push.schema'
 import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
@@ -61,7 +62,7 @@ export const PROJECT_PAGE_LIMIT = 100
 export const ProjectState = defineState({
   name: 'ProjectState',
   initial: () => ({
-    projects: [] as Array<ProjectInterface>,
+    projects: [] as Array<ProjectType>,
     updateNeeded: true,
     rebuilding: true,
     succeeded: false,
@@ -106,7 +107,7 @@ export const ProjectServiceReceptor = (action) => {
 //Service
 export const ProjectService = {
   fetchProjects: async () => {
-    const projects = await API.instance.client.service('project').find({ paginate: false, query: { allowed: true } })
+    const projects = await API.instance.client.service(projectPath).find({ paginate: false, query: { allowed: true } })
     dispatchAction(ProjectAction.projectsFetched({ projectResult: projects.data }))
     for (let error of projects.errors) {
       NotificationService.dispatchNotify(error.message || JSON.stringify(error), { variant: 'error' })
@@ -115,35 +116,33 @@ export const ProjectService = {
 
   // restricted to admin scope
   createProject: async (name: string) => {
-    const result = await API.instance.client.service('project').create({ name })
+    const result = await API.instance.client.service(projectPath).create({ name })
     logger.info({ result }, 'Create project result')
     dispatchAction(ProjectAction.createdProject({}))
     await ProjectService.fetchProjects()
   },
 
   // restricted to admin scope
-  uploadProject: async (
-    sourceURL: string,
-    destinationURL: string,
-    name: string,
-    reset: boolean,
-    commitSHA: string,
-    sourceBranch: string,
-    updateType: ProjectUpdateType,
-    updateSchedule: string
-  ) => {
-    const result = await API.instance.client
-      .service('project')
-      .update({ sourceURL, destinationURL, name, reset, commitSHA, sourceBranch, updateType, updateSchedule })
+  uploadProject: async (data: ProjectBuildUpdateItemType) => {
+    const result = await API.instance.client.service(projectPath).update({
+      sourceURL: data.sourceURL,
+      destinationURL: data.destinationURL,
+      name: data.name,
+      reset: data.reset,
+      commitSHA: data.commitSHA,
+      sourceBranch: data.sourceBranch,
+      updateType: data.updateType,
+      updateSchedule: data.updateSchedule
+    })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
-    await API.instance.client.service(projectInvalidatePath).patch(null, { projectName: name })
+    await API.instance.client.service(projectInvalidatePath).patch(null, { projectName: data.name })
     await ProjectService.fetchProjects()
   },
 
   // restricted to admin scope
   removeProject: async (id: string) => {
-    const result = await API.instance.client.service('project').remove(id)
+    const result = await API.instance.client.service(projectPath).remove(id)
     logger.info({ result }, 'Remove project result')
     await ProjectService.fetchProjects()
   },
@@ -167,7 +166,7 @@ export const ProjectService = {
 
   setRepositoryPath: async (id: string, url: string) => {
     try {
-      await API.instance.client.service('project').patch(id, {
+      await API.instance.client.service(projectPath).patch(id, {
         repositoryPath: url,
         needsRebuild: true
       })
@@ -228,10 +227,10 @@ export const ProjectService = {
         dispatchAction(ProjectAction.patchedProject({ project: params }))
       }
 
-      API.instance.client.service('project').on('patched', projectPatchedListener)
+      API.instance.client.service(projectPath).on('patched', projectPatchedListener)
 
       return () => {
-        API.instance.client.service('project').off('patched', projectPatchedListener)
+        API.instance.client.service(projectPath).off('patched', projectPatchedListener)
       }
     }, [])
   },
@@ -247,11 +246,13 @@ export const ProjectService = {
 
   fetchProjectCommits: async (url: string, branchName: string) => {
     try {
-      return Engine.instance.api.service(projectCommitsPath).get(url, {
+      const projectCommits = await Engine.instance.api.service(projectCommitsPath).get(url, {
         query: {
           branchName: branchName
         }
       })
+
+      return projectCommits.commits
     } catch (err) {
       logger.error('Error with fetching commits for a project', err)
       throw err
@@ -310,7 +311,7 @@ export const ProjectService = {
     }
   },
 
-  updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectUpdateInterfaceType[]) => {
+  updateEngine: async (tag: string, updateProjects: boolean, projectsToUpdate: ProjectBuildUpdateItemType[]) => {
     try {
       console.log('projectToUpdate', projectsToUpdate)
       await Engine.instance.api.service(projectBuildPath).patch(tag, {
@@ -360,7 +361,7 @@ export const ProjectService = {
 export class ProjectAction {
   static projectsFetched = defineAction({
     type: 'ee.client.Project.PROJECTS_RETRIEVED' as const,
-    projectResult: matches.array as Validator<unknown, ProjectInterface[]>
+    projectResult: matches.array as Validator<unknown, ProjectType[]>
   })
 
   static reloadStatusFetched = defineAction({
@@ -378,7 +379,7 @@ export class ProjectAction {
 
   static patchedProject = defineAction({
     type: 'ee.client.Project.PROJECT_PATCHED' as const,
-    project: matches.object as Validator<unknown, ProjectInterface>
+    project: matches.object as Validator<unknown, ProjectType>
   })
 
   static builderTagsFetched = defineAction({
