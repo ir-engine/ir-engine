@@ -272,8 +272,8 @@ const EditorContainer = () => {
     const abortController = new AbortController()
     try {
       if (sceneName.value || editorState.sceneModified.value) {
-        const blob = await takeScreenshot(512, 320, 'png')
-        const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
+        const blob = await takeScreenshot(512, 320, 'ktx2')
+        const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
         const result: { name: string } | void = await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewSceneDialog
@@ -413,8 +413,8 @@ const EditorContainer = () => {
     try {
       if (projectName.value) {
         if (result.generateThumbnails) {
-          const blob = await takeScreenshot(512, 320)
-          const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
+          const blob = await takeScreenshot(512, 320, 'ktx2')
+          const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
           await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
           await saveScene(projectName.value, sceneName.value, file, abortController.signal)

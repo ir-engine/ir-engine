@@ -195,16 +195,10 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
-
   const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
 
   // Rendering the scene to the new canvas with given size
   await new Promise<void>((resolve, reject) => {
-    // set up effect composer
-    EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    EngineRenderer.instance.effectComposer.setSize(width, height, false)
-    EngineRenderer.instance.renderer.setPixelRatio(1)
-
     const interval = setInterval(() => {
       const viewport = EngineRenderer.instance.renderContext.getParameter(
         EngineRenderer.instance.renderContext.VIEWPORT
@@ -223,6 +217,11 @@ export async function takeScreenshot(
       clearInterval(interval)
       reject()
     }, 10000)
+
+    // set up effect composer
+    EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
+    EngineRenderer.instance.effectComposer.setSize(width, height, false)
+    EngineRenderer.instance.renderer.setPixelRatio(1)
   })
 
   let blob: Blob | null = null
@@ -268,8 +267,8 @@ export async function takeScreenshot(
 
   // restore
   EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
-  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
   EngineRenderer.instance.renderer.setPixelRatio(pixelRatio)
+  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
