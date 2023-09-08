@@ -32,7 +32,7 @@ jobs:
         run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: install project
+      - name: install main repository
         run: npm install --legacy-peer-deps
       - name: clone etherealengine docs
         run: git clone https://github.com/etherealengine/etherealengine-docs.git docs --depth 1
@@ -42,7 +42,7 @@ jobs:
       - name: build docs
         working-directory: docs
         run: |
-          cd .env.local.default .env.local
+          cp .env.local.default .env.local
           npm run build
   gh-release:
     needs:
