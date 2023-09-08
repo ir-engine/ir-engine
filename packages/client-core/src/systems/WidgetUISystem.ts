@@ -51,7 +51,7 @@ import {
   setLocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { isMobileXRHeadset, ReferenceSpace } from '@etherealengine/engine/src/xr/XRState'
+import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
   RegisteredWidgets,
@@ -59,7 +59,14 @@ import {
   WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { defineActionQueue, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
@@ -202,6 +209,13 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const xrState = useHookstate(getMutableState(XRState))
+  useEffect(() => {
+    if (!xrState.sessionActive.value) {
+      const { widgetMenuUI } = getState(WidgetUISystemState)
+      removeComponent(widgetMenuUI.entity, VisibleComponent)
+    }
+  }, [xrState.sessionActive])
   useEffect(() => {
     createWidgetMenus()
     return () => {
