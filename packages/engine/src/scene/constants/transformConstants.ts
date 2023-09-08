@@ -75,6 +75,7 @@ export enum TransformSpace {
   // TODO: Viewport, Cursor?
 }
 
+export type TransformAxisActionType = keyof typeof TransformAxisAction
 export type TransformModeType = keyof typeof TransformMode
 export type TransformPivotType = keyof typeof TransformPivot
 export type TransformAxisType = keyof typeof TransformAxis

@@ -534,7 +534,7 @@ const execute = () => {
           deltaDragVector.subVectors(dragVector, initDragVector)
           deltaDragVector.multiply(constraint)
 
-          let scaleFactor =
+          const scaleFactor =
             gizmoObj.selectedAxis === TransformAxis.XYZ
               ? 1 +
                 getComponent(Engine.instance.cameraEntity, CameraComponent)

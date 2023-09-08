@@ -43,6 +43,7 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   TransformAxis,
   TransformAxisAction,
+  TransformAxisActionType,
   TransformAxisType,
   TransformMode,
   TransformModeType
@@ -52,7 +53,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 
 type AxisInfo = {
-  type: TransformAxisAction
+  type: TransformAxisActionType
   axis: TransformAxisType
   planeNormal: Vector3
   selectionColorTarget: MeshStandardMaterial
