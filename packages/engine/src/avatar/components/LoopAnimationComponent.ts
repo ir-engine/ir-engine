@@ -119,7 +119,6 @@ export const LoopAnimationComponent = defineComponent({
         const vrm = parseAvatarModelAsset(model.scene)
         if (vrm) {
           modelComponent.asset.set(vrm)
-          modelComponent.scene.set(vrm.scene as any)
         }
       } else if (model.asset instanceof VRM) {
         loopAnimationComponent.hasAvatarAnimations.set(true)
@@ -148,7 +147,7 @@ export const LoopAnimationComponent = defineComponent({
         const animationComponent = getComponent(entity, AnimationComponent)
         animationComponent.animations = animations
       })
-    }, [modelComponent?.scene, modelComponent?.asset, animComponent?.animations, loopAnimationComponent.animationPack])
+    }, [modelComponent?.asset, loopAnimationComponent.animationPack])
 
     useEffect(() => {
       if (
