@@ -23,15 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { ServiceInterface } from '@feathersjs/feathers'
+import { RootParams } from '../../api/root-params'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface EmailParams extends RootParams {}
 
 /**
  * A class for Email service
  */
-export class Email extends Service {
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export class EmailService implements ServiceInterface<EmailParams> {}

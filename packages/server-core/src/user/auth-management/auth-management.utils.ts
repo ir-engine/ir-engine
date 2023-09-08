@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
 
 /**
  * A method which get link
@@ -65,7 +66,7 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
     logger.info('sendEmail() to: ' + email)
 
     try {
-      await app.service('email').create(email)
+      await app.service(emailPath).create(email)
     } catch (err) {
       logger.error(err, `Error sending email: ${err.message}`)
     }
