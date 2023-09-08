@@ -31,14 +31,15 @@ import fetch from 'node-fetch'
 import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import {
   AudioFileTypes,
   ImageFileTypes,
+  ModelFileTypes,
   VideoFileTypes,
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -50,6 +51,7 @@ import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { toDateTimeSql } from '../../util/datetime-sql'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { createExecutorJob, getProjectPushJobBody } from './project-helper'
@@ -159,7 +161,7 @@ export const getRepo = async (owner: string, repo: string, token: string): Promi
 
 export const pushProject = async (
   app: Application,
-  project: ProjectInterface,
+  project: ProjectType,
   user: UserType,
   reset = false,
   commitSHA?: string,
@@ -254,7 +256,7 @@ export const pushProject = async (
 
 export const pushProjectToGithub = async (
   app: Application,
-  project: ProjectInterface,
+  project: ProjectType,
   user: UserType,
   reset = false,
   commitSHA?: string,
@@ -285,7 +287,7 @@ const uploadToRepo = async (
   org: string,
   repo: string,
   branch = `master`,
-  project: ProjectInterface,
+  project: ProjectType,
   token: string,
   app: Application
 ) => {
@@ -307,32 +309,37 @@ const uploadToRepo = async (
   const fileBlobs = [] as { url: string; sha: string }[]
   const repoPath = `https://github.com/${org}/${repo}`
   const authenticatedRepo = await getAuthenticatedRepo(token, repoPath)
+  const lfsFiles = [] as string[]
+  const gitattributesIndex = filePaths.indexOf('.gitattributes')
+  if (gitattributesIndex > -1) filePaths = filePaths.splice(gitattributesIndex, 1)
   for (let path of filePaths) {
-    const blob = await createBlobForFile(octo, org, repo, git, branch, authenticatedRepo)(path, project.name)
+    const blob = await createBlobForFile(octo, org, repo, git, branch, lfsFiles, authenticatedRepo)(path, project.name)
     fileBlobs.push(blob)
   }
   //LFS files need to be included in a .gitattributes file at the top of the repo in order to be populated properly.
   //If the file exists because there's at least one file now in LFS, but it's not already in the list of files in
   //the repo, then make the blob for it and add to the tree.
-  console.log('filePaths', filePaths)
-  const hasGitAttributes = fs.existsSync(path.join(projectDirectory, '.gitattributes'))
-  console.log('hasGitAttributes', hasGitAttributes)
+  const gitattributesPath = path.join(projectDirectory, '.gitattributes')
   const gitAttributesFilePath = `projects/${project.name}/.gitattributes`
-  console.log('filePaths indexof gitattributes', filePaths.indexOf(gitAttributesFilePath))
-  if (hasGitAttributes && filePaths.indexOf(gitAttributesFilePath) < 0) {
-    console.log('making gitattributes')
+  let gitattributesContent = ''
+  if (lfsFiles.length > 0) {
+    for (let lfsFile of lfsFiles)
+      gitattributesContent += `${lfsFile.replace(/ /g, '[[:space:]]')} filter=lfs diff=lfs merge=lfs -text\n`
+    await fs.writeFileSync(gitattributesPath, gitattributesContent)
+  }
+  if (lfsFiles.length > 0) {
     const blob = await createBlobForFile(
       octo,
       org,
       repo,
       git,
       branch,
+      lfsFiles,
       authenticatedRepo
     )(gitAttributesFilePath, project.name)
     fileBlobs.push(blob)
     filePaths.push(gitAttributesFilePath)
   }
-  console.log('final filePaths', filePaths)
   // Create a new tree from all of the files, so that a new commit can be made from it
   const newTree = await createNewTree(
     octo,
@@ -346,17 +353,9 @@ const uploadToRepo = async (
   const commitMessage = `Update by ${user.login} at ${new Date(date).toJSON()}`
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
-  await app.service('project').Model.update(
-    {
-      commitSHA: newCommit.sha,
-      commitDate: new Date()
-    },
-    {
-      where: {
-        id: project.id
-      }
-    }
-  )
+
+  await app.service(projectPath)._patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()) })
+
   try {
     //This pushes the commit to the main branch in GitHub
     await setBranchToCommit(octo, org, repo, branch, newCommit.sha)
@@ -442,7 +441,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
 
   const githubIdentityProvider = (await app.service(identityProviderPath).find({
     query: {
-      userId: params!.user.id,
+      userId: params!.user!.id,
       type: 'github',
       $limit: 1
     }
@@ -461,7 +460,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
 }
 
 const createBlobForFile =
-  (octo: Octokit, org: string, repo: string, git: any, branch: string, repoPath?: string) =>
+  (octo: Octokit, org: string, repo: string, git: any, branch: string, lfsFiles = [] as string[], repoPath?: string) =>
   async (filePath: string, projectName: string) => {
     const encoding = isBase64Encoded(filePath) ? 'base64' : 'utf-8'
     const rootPath = path.join(appRootPath.path, 'packages/projects', filePath)
@@ -471,7 +470,7 @@ const createBlobForFile =
     if (buffer.length > GITHUB_LFS_FLOOR) {
       const lfsEndpoint = `${repoPath}/info/lfs`
       const trimPath = filePath.replace(`projects/${projectName}/`, '')
-      await git.raw(['lfs', 'track', trimPath])
+      lfsFiles.push(trimPath)
       const lfsPointer = await git.raw(['lfs', 'pointer', `--file=${rootPath}`])
       const oidRegexExec = OID_REGEX.exec(lfsPointer)
       const oid = oidRegexExec![1]
@@ -516,7 +515,7 @@ const createBlobForFile =
             headers: verifyActions.header
           })
       }
-      content = Buffer.from(lfsPointer).toString(encoding)
+      content = Buffer.from(lfsPointer).toString('utf-8')
     } else {
       content = buffer.toString(encoding)
     }
@@ -603,6 +602,7 @@ const isBase64Encoded = (filePath: string) => {
     ImageFileTypes.indexOf(extension) > -1 ||
     AudioFileTypes.indexOf(extension) > -1 ||
     VolumetricFileTypes.indexOf(extension) > -1 ||
-    VideoFileTypes.indexOf(extension) > -1
+    VideoFileTypes.indexOf(extension) > -1 ||
+    ModelFileTypes.indexOf(extension) > -1
   )
 }

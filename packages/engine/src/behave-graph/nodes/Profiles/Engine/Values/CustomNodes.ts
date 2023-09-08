@@ -23,7 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
+import {
+  NodeCategory,
+  makeAsyncNodeDefinition,
+  makeFlowNodeDefinition,
+  makeFunctionNodeDefinition
+} from '@behave-graph/core'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import {
   AdditiveAnimationBlendMode,
@@ -53,7 +58,9 @@ import { StandardCallbacks, getCallback } from '../../../../../scene/components/
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
+import { endXRSession, requestXRSession } from '../../../../../xr/XRSessionFunctions'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
+import { addMediaComponent } from '../helper/assetHelper'
 
 export const playVideo = makeFlowNodeDefinition({
   typeName: 'engine/media/playVideo',
@@ -341,6 +348,38 @@ export const setAnimationAction = makeFlowNodeDefinition({
   }
 })
 
+const initialState = () => {}
+export const loadAsset = makeAsyncNodeDefinition({
+  typeName: 'engine/asset/loadAsset',
+  category: NodeCategory.Action,
+  label: 'Load asset',
+  in: {
+    flow: 'flow',
+    assetPath: 'string'
+  },
+  out: { flow: 'flow', loadEnd: 'flow', entity: 'entity' },
+  initialState: initialState(),
+  triggered: ({ read, write, commit, finished }) => {
+    const loadAsset = async () => {
+      const assetPath = read<string>('assetPath')
+      const node = await addMediaComponent(assetPath)
+      return node
+    }
+
+    commit('flow', async () => {
+      const entity = await loadAsset()
+      write('entity', entity)
+      commit('loadEnd', () => {
+        finished?.()
+      })
+    })
+    return null
+  },
+  dispose: ({ state, graph: { getDependency } }) => {
+    return initialState()
+  }
+})
+
 export const fadeCamera = makeFlowNodeDefinition({
   typeName: 'engine/camera/cameraFade',
   category: NodeCategory.Action,
@@ -371,6 +410,44 @@ export const setCameraZoom = makeFlowNodeDefinition({
     const entity = Engine.instance.cameraEntity
     const zoom = read<number>('zoom')
     setComponent(entity, FollowCameraComponent, { zoomLevel: zoom })
+    commit('flow')
+  }
+})
+
+export const startXRSession = makeFlowNodeDefinition({
+  typeName: 'engine/xr/startSession',
+  category: NodeCategory.Action,
+  label: 'Start XR Session',
+  in: {
+    flow: 'flow',
+    XRmode: (_, graphApi) => {
+      const choices = ['inline', 'immersive-ar', 'immersive-vr']
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const XRmode = read<'inline' | 'immersive-ar' | 'immersive-vr'>('XRmode')
+    requestXRSession({ mode: XRmode })
+    commit('flow')
+  }
+})
+
+export const finishXRSession = makeFlowNodeDefinition({
+  typeName: 'engine/xr/endSession',
+  category: NodeCategory.Action,
+  label: 'End XR Session',
+  in: {
+    flow: 'flow'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    endXRSession()
     commit('flow')
   }
 })

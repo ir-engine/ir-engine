@@ -33,11 +33,6 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import {
-  DefaultUpdateSchedule,
-  ProjectInterface,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -46,15 +41,18 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { ProjectBranchType } from '@etherealengine/engine/src/schemas/projects/project-branches.schema'
 import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  inputProject?: ProjectInterface | null | undefined
+  inputProject?: ProjectType | null | undefined
   existingProject?: boolean | undefined
   changeDestination?: boolean | undefined
   processing: boolean
@@ -72,13 +70,15 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
           thumbnail: '',
           repositoryPath: '',
           needsRebuild: false,
-          updateType: 'none' as ProjectUpdateType,
+          updateType: 'none' as ProjectType['updateType'],
           commitSHA: '',
-          commitDate: new Date()
+          sourceBranch: '',
+          sourceRepo: '',
+          commitDate: toDateTimeSql(new Date())
         }
 
   useEffect(() => {
-    ProjectUpdateService.initializeProjectUpdate(project)
+    ProjectUpdateService.initializeProjectUpdate(project.name)
   }, [])
 
   const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name])
@@ -92,28 +92,28 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
 
   const handleChangeSource = (e) => {
     const { value } = e.target
-    ProjectUpdateService.setSourceURLError(project, value ? '' : t('admin:components.project.urlRequired'))
-    ProjectUpdateService.setSourceURL(project, value)
+    ProjectUpdateService.setSourceURLError(project.name, value ? '' : t('admin:components.project.urlRequired'))
+    ProjectUpdateService.setSourceURL(project.name, value)
   }
 
   const handleChangeDestination = (e) => {
     const { value } = e.target
-    ProjectUpdateService.setDestinationError(project, value ? '' : t('admin:components.project.urlRequired'))
-    ProjectUpdateService.setDestinationURL(project, value)
+    ProjectUpdateService.setDestinationError(project.name, value ? '' : t('admin:components.project.urlRequired'))
+    ProjectUpdateService.setDestinationURL(project.name, value)
   }
 
   const handleChangeSourceRepo = async (e) => {
     try {
-      ProjectUpdateService.resetSourceState(project, { resetSourceURL: false })
-      ProjectUpdateService.setBranchProcessing(project, true)
+      ProjectUpdateService.resetSourceState(project.name, { resetSourceURL: false })
+      ProjectUpdateService.setBranchProcessing(project.name, true)
       const branchResponse = (await ProjectService.fetchProjectBranches(e.target.value)) as any
-      ProjectUpdateService.setBranchProcessing(project, false)
+      ProjectUpdateService.setBranchProcessing(project.name, false)
       if (branchResponse.error) {
-        ProjectUpdateService.setShowBranchSelector(project, false)
-        ProjectUpdateService.setSourceURLError(project, branchResponse.text)
+        ProjectUpdateService.setShowBranchSelector(project.name, false)
+        ProjectUpdateService.setSourceURLError(project.name, branchResponse.text)
       } else {
-        ProjectUpdateService.setShowBranchSelector(project, true)
-        ProjectUpdateService.setBranchData(project, branchResponse)
+        ProjectUpdateService.setShowBranchSelector(project.name, true)
+        ProjectUpdateService.setBranchData(project.name, branchResponse)
         if (project.sourceBranch) {
           const branchExists = branchResponse.find((item: ProjectBranchType) => item.name === project.sourceBranch)
 
@@ -123,9 +123,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         }
       }
     } catch (err) {
-      ProjectUpdateService.setBranchProcessing(project, false)
-      ProjectUpdateService.setShowBranchSelector(project, false)
-      ProjectUpdateService.setBranchError(project, err.message)
+      ProjectUpdateService.setBranchProcessing(project.name, false)
+      ProjectUpdateService.setShowBranchSelector(project.name, false)
+      ProjectUpdateService.setBranchError(project.name, err.message)
       console.log('Branch fetch error', err)
     }
   }
@@ -138,39 +138,39 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   const handleChangeDestinationRepo = async (e) => {
     if (e.target.value && e.target.value.length > 0) {
       try {
-        ProjectUpdateService.resetDestinationState(project, { resetDestinationURL: false })
-        ProjectUpdateService.setDestinationValid(project, false)
-        ProjectUpdateService.setDestinationProcessing(project, true)
+        ProjectUpdateService.resetDestinationState(project.name, { resetDestinationURL: false })
+        ProjectUpdateService.setDestinationValid(project.name, false)
+        ProjectUpdateService.setDestinationProcessing(project.name, true)
         const destinationResponse = await ProjectService.checkDestinationURLValid({
           url: e.target.value,
           inputProjectURL: inputProject?.repositoryPath
         })
-        ProjectUpdateService.setDestinationProcessing(project, false)
+        ProjectUpdateService.setDestinationProcessing(project.name, false)
         if (destinationResponse.error) {
-          ProjectUpdateService.setDestinationValid(project, false)
-          ProjectUpdateService.setDestinationError(project, destinationResponse.text!)
+          ProjectUpdateService.setDestinationValid(project.name, false)
+          ProjectUpdateService.setDestinationError(project.name, destinationResponse.text!)
         } else {
           if (destinationResponse.destinationValid) {
-            if (existingProject && changeDestination) ProjectUpdateService.setSubmitDisabled(project, false)
-            ProjectUpdateService.setDestinationValid(project, destinationResponse.destinationValid)
+            if (existingProject && changeDestination) ProjectUpdateService.setSubmitDisabled(project.name, false)
+            ProjectUpdateService.setDestinationValid(project.name, destinationResponse.destinationValid)
             if (destinationResponse.projectName)
-              ProjectUpdateService.setDestinationProjectName(project, destinationResponse.projectName)
+              ProjectUpdateService.setDestinationProjectName(project.name, destinationResponse.projectName)
             if (project.sourceRepo) {
               handleChangeSource({ target: { value: project.sourceRepo } })
               handleChangeSourceRepo({ target: { value: project.sourceRepo } })
             }
-            if (destinationResponse.repoEmpty) ProjectUpdateService.setDestinationRepoEmpty(project, true)
+            if (destinationResponse.repoEmpty) ProjectUpdateService.setDestinationRepoEmpty(project.name, true)
             if (projectUpdateStatus.value.selectedSHA.length > 0)
               handleCommitChange({ target: { value: projectUpdateStatus.value.selectedSHA } })
           } else {
-            ProjectUpdateService.setDestinationValid(project, false)
-            ProjectUpdateService.setDestinationError(project, destinationResponse.text!)
+            ProjectUpdateService.setDestinationValid(project.name, false)
+            ProjectUpdateService.setDestinationError(project.name, destinationResponse.text!)
           }
         }
       } catch (err) {
-        ProjectUpdateService.setDestinationProcessing(project, false)
-        ProjectUpdateService.setDestinationValid(project, false)
-        ProjectUpdateService.setDestinationError(project, err.message)
+        ProjectUpdateService.setDestinationProcessing(project.name, false)
+        ProjectUpdateService.setDestinationValid(project.name, false)
+        ProjectUpdateService.setDestinationError(project.name, err.message)
         console.log('Destination error', err)
       }
     }
@@ -178,19 +178,20 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
 
   const handleChangeBranch = async (e) => {
     try {
-      ProjectUpdateService.resetSourceState(project, { resetSourceURL: false, resetBranch: false })
-      ProjectUpdateService.setSelectedBranch(project, e.target.value)
-      ProjectUpdateService.setCommitsProcessing(project, true)
-      const projectResponse = (
-        await ProjectService.fetchProjectCommits(projectUpdateStatus.value.sourceURL, e.target.value)
-      ).commits as any
-      ProjectUpdateService.setCommitsProcessing(project, false)
+      ProjectUpdateService.resetSourceState(project.name, { resetSourceURL: false, resetBranch: false })
+      ProjectUpdateService.setSelectedBranch(project.name, e.target.value)
+      ProjectUpdateService.setCommitsProcessing(project.name, true)
+      const projectResponse = (await ProjectService.fetchProjectCommits(
+        projectUpdateStatus.value.sourceURL,
+        e.target.value
+      )) as any
+      ProjectUpdateService.setCommitsProcessing(project.name, false)
       if (projectResponse.error) {
-        ProjectUpdateService.setShowCommitSelector(project, false)
-        ProjectUpdateService.setBranchError(project, projectResponse.text)
+        ProjectUpdateService.setShowCommitSelector(project.name, false)
+        ProjectUpdateService.setBranchError(project.name, projectResponse.text)
       } else {
-        ProjectUpdateService.setShowCommitSelector(project, true)
-        ProjectUpdateService.setCommitData(project, projectResponse)
+        ProjectUpdateService.setShowCommitSelector(project.name, true)
+        ProjectUpdateService.setCommitData(project.name, projectResponse)
 
         if (project.commitSHA) {
           const commitExists = projectResponse.find((item: ProjectCommitType) => item.commitSHA === project.commitSHA)
@@ -201,9 +202,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         }
       }
     } catch (err) {
-      ProjectUpdateService.setCommitsProcessing(project, false)
-      ProjectUpdateService.setShowCommitSelector(project, false)
-      ProjectUpdateService.setBranchError(project, err.message)
+      ProjectUpdateService.setCommitsProcessing(project.name, false)
+      ProjectUpdateService.setShowCommitSelector(project.name, false)
+      ProjectUpdateService.setBranchError(project.name, err.message)
       console.log('projectResponse error', err)
     }
   }
@@ -218,12 +219,12 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     }
 
     const selectedSHA = value
-    ProjectUpdateService.setSourceVsDestinationChecked(project, false)
-    ProjectUpdateService.setSelectedSHA(project, selectedSHA)
+    ProjectUpdateService.setSourceVsDestinationChecked(project.name, false)
+    ProjectUpdateService.setSelectedSHA(project.name, selectedSHA)
     if (selectedSHA === '') {
-      ProjectUpdateService.setSourceValid(project, false)
-      ProjectUpdateService.setCommitError(project, '')
-      ProjectUpdateService.setSourceProjectName(project, '')
+      ProjectUpdateService.setSourceValid(project.name, false)
+      ProjectUpdateService.setCommitError(project.name, '')
+      ProjectUpdateService.setSourceProjectName(project.name, '')
       return
     }
     const valueRegex = new RegExp(`^${value}`, 'g')
@@ -234,11 +235,11 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         selectedSHA
       })) as any
       if (commitResponse.error) {
-        ProjectUpdateService.setCommitError(project, commitResponse.text)
-        ProjectUpdateService.setSourceProjectName(project, '')
+        ProjectUpdateService.setCommitError(project.name, commitResponse.text)
+        ProjectUpdateService.setSourceProjectName(project.name, '')
         return
       } else {
-        ProjectUpdateService.mergeCommitData(project, commitResponse)
+        ProjectUpdateService.mergeCommitData(project.name, commitResponse)
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(null)
@@ -247,9 +248,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
         matchingCommit = commitData.find((data) => valueRegex.test(data.commitSHA))
       }
     }
-    ProjectUpdateService.setSourceProjectName(project, matchingCommit?.projectName || '')
-    ProjectUpdateService.setCommitError(project, '')
-    ProjectUpdateService.setSourceValid(project, true)
+    ProjectUpdateService.setSourceProjectName(project.name, matchingCommit?.projectName || '')
+    ProjectUpdateService.setCommitError(project.name, '')
+    ProjectUpdateService.setSourceValid(project.name, true)
   }
 
   const branchMenu: InputMenuItem[] = projectUpdateStatus?.value?.branchData.map((el: ProjectBranchType) => {
@@ -287,36 +288,36 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
       projectUpdateStatus?.value?.sourceValid &&
       !projectUpdateStatus?.value?.sourceVsDestinationChecked
     ) {
-      ProjectUpdateService.setSourceVsDestinationProcessing(project, true)
+      ProjectUpdateService.setSourceVsDestinationProcessing(project.name, true)
       ProjectService.checkSourceMatchesDestination({
         sourceURL: projectUpdateStatus.value.sourceURL || '',
         selectedSHA: projectUpdateStatus.value.selectedSHA || '',
         destinationURL: projectUpdateStatus.value.destinationURL || '',
         existingProject: existingProject || false
       }).then((res) => {
-        ProjectUpdateService.setSourceVsDestinationChecked(project, true)
-        ProjectUpdateService.setSourceVsDestinationProcessing(project, false)
+        ProjectUpdateService.setSourceVsDestinationChecked(project.name, true)
+        ProjectUpdateService.setSourceVsDestinationProcessing(project.name, false)
         if (res.error || res.text) {
-          ProjectUpdateService.setProjectName(project, '')
-          ProjectUpdateService.setSubmitDisabled(project, true)
-          ProjectUpdateService.setSourceProjectMatchesDestination(project, false)
-          ProjectUpdateService.setSourceVsDestinationError(project, res.text!)
-          ProjectUpdateService.setSourceValid(project, false)
+          ProjectUpdateService.setProjectName(project.name, '')
+          ProjectUpdateService.setSubmitDisabled(project.name, true)
+          ProjectUpdateService.setSourceProjectMatchesDestination(project.name, false)
+          ProjectUpdateService.setSourceVsDestinationError(project.name, res.text!)
+          ProjectUpdateService.setSourceValid(project.name, false)
         } else {
-          ProjectUpdateService.setProjectName(project, res.projectName!)
-          ProjectUpdateService.setSubmitDisabled(project, !res.sourceProjectMatchesDestination)
-          ProjectUpdateService.setSourceProjectMatchesDestination(project, res.sourceProjectMatchesDestination!)
-          ProjectUpdateService.setSourceVsDestinationError(project, '')
-          ProjectUpdateService.setSourceValid(project, true)
+          ProjectUpdateService.setProjectName(project.name, res.projectName!)
+          ProjectUpdateService.setSubmitDisabled(project.name, !res.sourceProjectMatchesDestination)
+          ProjectUpdateService.setSourceProjectMatchesDestination(project.name, res.sourceProjectMatchesDestination!)
+          ProjectUpdateService.setSourceVsDestinationError(project.name, '')
+          ProjectUpdateService.setSourceValid(project.name, true)
         }
       })
     } else {
       if (!projectUpdateStatus?.value?.sourceVsDestinationChecked && !(existingProject && changeDestination)) {
-        ProjectUpdateService.setSourceVsDestinationProcessing(project, false)
-        ProjectUpdateService.setSourceVsDestinationChecked(project, false)
-        ProjectUpdateService.setProjectName(project, '')
-        ProjectUpdateService.setSubmitDisabled(project, true)
-        ProjectUpdateService.setSourceProjectMatchesDestination(project, false)
+        ProjectUpdateService.setSourceVsDestinationProcessing(project.name, false)
+        ProjectUpdateService.setSourceVsDestinationChecked(project.name, false)
+        ProjectUpdateService.setProjectName(project.name, '')
+        ProjectUpdateService.setSubmitDisabled(project.name, true)
+        ProjectUpdateService.setSourceProjectMatchesDestination(project.name, false)
       }
     }
   }, [
@@ -326,8 +327,11 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   ])
 
   useEffect(() => {
-    if (projectUpdateStatus?.value?.triggerSetDestination?.length > 0) {
-      ProjectUpdateService.setDestinationURL(project, projectUpdateStatus.value.triggerSetDestination)
+    if (
+      projectUpdateStatus?.value?.triggerSetDestination?.length > 0 &&
+      projectUpdateStatus?.value?.destinationURL?.length === 0
+    ) {
+      ProjectUpdateService.setDestinationURL(project.name, projectUpdateStatus.value.triggerSetDestination)
       handleChangeDestinationRepo({
         target: {
           value: projectUpdateStatus.value.triggerSetDestination
@@ -338,17 +342,17 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
 
   const handleAutoUpdateEnabledChange = (e) => {
     const { checked } = e.target
-    ProjectUpdateService.setUpdateType(project, checked ? 'tag' : 'none')
+    ProjectUpdateService.setUpdateType(project.name, checked ? 'tag' : 'none')
   }
 
   const handleAutoUpdateModeChange = (e) => {
     const { value } = e.target
-    ProjectUpdateService.setUpdateType(project, value === 'prod' ? 'tag' : 'commit')
+    ProjectUpdateService.setUpdateType(project.name, value === 'prod' ? 'tag' : 'commit')
   }
 
   const handleAutoUpdateIntervalChange = (e) => {
     const { value } = e.target
-    ProjectUpdateService.setUpdateSchedule(project, value)
+    ProjectUpdateService.setUpdateSchedule(project.name, value)
   }
 
   return (

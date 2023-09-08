@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
+import matches from 'ts-matches'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -68,10 +69,12 @@ export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
 
   onInit(entity) {
-    return {}
+    return { blendWeight: 0 }
   },
 
-  onSet(entity, component, json) {}
+  onSet(entity, component, json) {
+    if (json && matches.number.test(json?.blendWeight)) component.blendWeight.set(json.blendWeight)
+  }
 })
 
 /**

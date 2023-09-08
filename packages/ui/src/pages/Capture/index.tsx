@@ -43,11 +43,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import {
-  MotionCaptureFunctions,
-  MotionCaptureStream,
-  mocapDataChannelType
-} from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
@@ -58,7 +54,7 @@ import RecordingsList from '@etherealengine/ui/src/components/tailwind/Recording
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import { FACEMESH_TESSELATION, HAND_CONNECTIONS, Holistic, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
+import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import Toolbar from '../../components/tailwind/Toolbar'
 
@@ -88,7 +84,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true) => {
 }
 
 let creatingProducer = false
-const sendResults = (results: MotionCaptureStream) => {
+const sendResults = (results: NormalizedLandmarkList) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
   const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
@@ -118,7 +114,7 @@ const CaptureDashboard = () => {
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
 
-  const holisticDetector = useHookstate(null as null | Holistic)
+  const poseDetector = useHookstate(null as null | Pose)
 
   const processingFrame = useHookstate(false)
 
@@ -163,7 +159,6 @@ const CaptureDashboard = () => {
 
   useEffect(() => {
     const factor = displaySettings.flipVideo === true ? '-1' : '1'
-    canvasRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.style.transform = `scaleX(${factor})`
   }, [displaySettings.flipVideo])
 
@@ -176,42 +171,44 @@ const CaptureDashboard = () => {
   useEffect(() => {
     if (!isDetecting?.value) return
 
-    if (!holisticDetector.value) {
-      if (Holistic !== undefined) {
+    if (!poseDetector.value) {
+      if (Pose !== undefined) {
         setDetectingStatus('loading')
-        const holistic = new Holistic({
+        const pose = new Pose({
           locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
           }
         })
-        holistic.setOptions({
-          enableFaceGeometry: trackingSettings?.enableFaceGeometry,
-          selfieMode: trackingSettings?.selfieMode,
+        pose.setOptions({
+          // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
+          selfieMode: displaySettings?.flipVideo,
           modelComplexity: trackingSettings?.modelComplexity,
           smoothLandmarks: trackingSettings?.smoothLandmarks,
           enableSegmentation: trackingSettings?.enableSegmentation,
           smoothSegmentation: trackingSettings?.smoothSegmentation,
-          refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
+          // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
           minDetectionConfidence: trackingSettings?.minDetectionConfidence,
           minTrackingConfidence: trackingSettings?.minTrackingConfidence
         } as Options)
-        holisticDetector.set(holistic)
+        poseDetector.set(pose)
       }
     }
 
     processingFrame.set(false)
 
-    if (holisticDetector.value) {
-      holisticDetector.value.onResults((results: MotionCaptureStream) => {
+    if (poseDetector.value) {
+      poseDetector.value.onResults((results) => {
         if (Object.keys(results).length === 0) return
         if (detectingStatus !== 'active') setDetectingStatus('active')
 
-        const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
+        const { poseLandmarks, poseWorldLandmarks } = results
+
+        if (!poseWorldLandmarks || !poseLandmarks) return
 
         if (debugSettings?.throttleSend) {
-          throttledSend(results)
+          throttledSend(poseWorldLandmarks)
         } else {
-          sendResults(results)
+          sendResults(poseWorldLandmarks)
         }
 
         processingFrame.set(false)
@@ -235,46 +232,46 @@ const CaptureDashboard = () => {
             radius: 2
           })
 
-          // Left Hand Connections
-          drawConnectors(
-            canvasCtxRef.current,
-            leftHandLandmarks !== undefined ? leftHandLandmarks : [],
-            HAND_CONNECTIONS,
-            {
-              color: '#fff',
-              lineWidth: 4
-            }
-          )
+          // // Left Hand Connections
+          // drawConnectors(
+          //   canvasCtxRef.current,
+          //   leftHandLandmarks !== undefined ? leftHandLandmarks : [],
+          //   HAND_CONNECTIONS,
+          //   {
+          //     color: '#fff',
+          //     lineWidth: 4
+          //   }
+          // )
 
-          // Left Hand Landmarks
-          drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-            color: '#fff',
-            radius: 2
-          })
+          // // Left Hand Landmarks
+          // drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
+          //   color: '#fff',
+          //   radius: 2
+          // })
 
-          // Right Hand Connections
-          drawConnectors(
-            canvasCtxRef.current,
-            rightHandLandmarks !== undefined ? rightHandLandmarks : [],
-            HAND_CONNECTIONS,
-            {
-              color: '#fff',
-              lineWidth: 4
-            }
-          )
+          // // Right Hand Connections
+          // drawConnectors(
+          //   canvasCtxRef.current,
+          //   rightHandLandmarks !== undefined ? rightHandLandmarks : [],
+          //   HAND_CONNECTIONS,
+          //   {
+          //     color: '#fff',
+          //     lineWidth: 4
+          //   }
+          // )
 
-          // Right Hand Landmarks
-          drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
-            color: '#fff',
-            radius: 2
-          })
+          // // Right Hand Landmarks
+          // drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
+          //   color: '#fff',
+          //   radius: 2
+          // })
 
-          // Face Connections
-          drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
-            color: '#fff',
-            lineWidth: 1
-          })
-          // Face Landmarks
+          // // Face Connections
+          // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
+          //   color: '#fff',
+          //   lineWidth: 1
+          // })
+          // // Face Landmarks
           // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
           //   color: '#fff',
           //   lineWidth: 1
@@ -286,10 +283,10 @@ const CaptureDashboard = () => {
 
     return () => {
       setDetectingStatus('inactive')
-      if (holisticDetector.value) {
-        holisticDetector.value.close()
+      if (poseDetector.value) {
+        poseDetector.value.close()
       }
-      holisticDetector.set(null)
+      poseDetector.set(null)
     }
   }, [isDetecting])
 
@@ -299,11 +296,9 @@ const CaptureDashboard = () => {
 
     if (processingFrame.value) return
 
-    if (holisticDetector.value) {
+    if (poseDetector.value) {
       processingFrame.set(true)
-      holisticDetector.value?.send({ image: videoRef.current! }).finally(() => {
-        processingFrame.set(false)
-      })
+      poseDetector.value?.send({ image: videoRef.current! })
     }
   })
 

@@ -197,6 +197,14 @@ export const setEntityTransform = makeFlowNodeDefinition({
   }
 })
 
+export const getUUID = makeInNOutFunctionDesc({
+  name: 'engine/entity/getUuid',
+  label: 'Entity uuid',
+  in: ['entity'],
+  out: 'string',
+  exec: (entity: Entity) => getComponent(entity, UUIDComponent)
+})
+
 export const Constant = makeInNOutFunctionDesc({
   name: 'engine/entity',
   label: 'Entity',

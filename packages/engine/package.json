@@ -40,7 +40,7 @@
     "@gltf-transform/extensions": "3.4.2",
     "@gltf-transform/functions": "3.4.2",
     "@hookstate/subscribable": "^4.0.0",
-    "@mediapipe/holistic": "^0.5.1675471629",
+    "@mediapipe/pose": "0.5.1675469404",
     "@pixiv/three-vrm": "^2.0.1",
     "@pixiv/types-vrmc-vrm-1.0": "^2.0.0",
     "@tweenjs/tween.js": "^18.6.4",
