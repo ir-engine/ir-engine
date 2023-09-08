@@ -79,7 +79,7 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
@@ -352,86 +352,11 @@ const execute = () => {
     getComponent(gizmoEntity, TransformGizmoComponent).load()
   }
   for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
-  if (Engine.instance.localClientEntity) return
 
-  const selectionState = getState(SelectionState)
+  if (Engine.instance.localClientEntity) return // we are in live mode
+
   const editorHelperState = getState(EditorHelperState)
 
-  selectedParentEntities = selectionState.selectedParentEntities
-  selectedEntities = selectionState.selectedEntities
-
-  // todo refactor these changes into a reactor
-  transformModeChanged = transformMode !== editorHelperState.transformMode
-  transformMode = editorHelperState.transformMode
-
-  transformPivotChanged = transformPivot !== editorHelperState.transformPivot
-  transformPivot = editorHelperState.transformPivot
-
-  transformSpaceChanged = transformSpace !== editorHelperState.transformSpace
-  transformSpace = editorHelperState.transformSpace
-
-  if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
-    if (hasComponent(gizmoEntity, VisibleComponent)) removeComponent(gizmoEntity, VisibleComponent)
-  } else {
-    const lastSelection = selectedEntities[selectedEntities.length - 1]
-    const isUuid = typeof lastSelection === 'string'
-
-    const lastSelectedTransform = isUuid
-      ? Engine.instance.scene.getObjectByProperty('uuid', lastSelection)
-      : getOptionalComponent(lastSelection as Entity, TransformComponent)
-
-    if (lastSelectedTransform) {
-      const isChanged =
-        selectionCounter !== selectionState.selectionCounter ||
-        transformModeChanged ||
-        selectionState.transformPropertyChanged
-
-      if (isChanged || transformPivotChanged) {
-        if (transformPivot === TransformPivot.Selection) {
-          gizmoObj.position.copy(lastSelectedTransform.position)
-        } else if (transformPivot === TransformPivot.Origin) {
-          gizmoObj.position.set(0, 0, 0)
-        } else {
-          box.makeEmpty()
-
-          for (let i = 0; i < selectedParentEntities.length; i++) {
-            const parentEnt = selectedParentEntities[i]
-            const isUuid = typeof parentEnt === 'string'
-            if (isUuid) {
-              box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
-            } else {
-              box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
-            }
-          }
-          box.getCenter(gizmoObj.position)
-          if (transformPivot === TransformPivot.Bottom) {
-            gizmoObj.position.y = box.min.y
-          }
-        }
-      }
-
-      if (transformMode === TransformMode.Scale && transformSpace === TransformSpace.World) {
-        getMutableState(EditorHelperState).transformSpace.set(TransformSpace.Local)
-        transformSpace = TransformSpace.Local
-      }
-      if ((transformModeChanged || transformSpaceChanged) && transformMode === TransformMode.Scale) {
-        gizmoObj.setLocalScaleHandlesVisible(true)
-      }
-      if (!hasComponent(gizmoEntity, VisibleComponent)) setComponent(gizmoEntity, VisibleComponent)
-
-      if (transformSpace === TransformSpace.Local) {
-        const localTransform = getComponent(lastSelection as Entity, LocalTransformComponent)
-        if (localTransform) gizmoObj.quaternion.copy(localTransform.rotation)
-      } else {
-        if (lastSelectedTransform)
-          gizmoObj.quaternion.copy(
-            'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
-          )
-      }
-
-      inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
-    }
-  }
   const cursorPosition = Engine.instance.pointerState.position
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
@@ -500,141 +425,150 @@ const execute = () => {
     else if (isGrabbing) dragOffset.set(0, 0, 0)
 
     planeIntersection.add(dragOffset)
+    switch (transformMode) {
+      case TransformMode.Combined:
+      case TransformMode.Grab:
+      case TransformMode.Placement:
+      case TransformMode.Translate: {
+        // translate code
+        translationVector
+          .subVectors(planeIntersection, gizmoObj.position)
+          .applyQuaternion(inverseGizmoQuaternion)
+          .multiply(constraint)
+        translationVector.applyQuaternion(gizmoObj.quaternion)
+        gizmoObj.position.add(translationVector)
+        if (shouldSnap) {
+          prevPos.copy(gizmoObj.position)
+          constraintVector.copy(constraint).applyQuaternion(gizmoObj.quaternion)
 
-    if (
-      transformMode === TransformMode.Translate ||
-      transformMode === TransformMode.Grab ||
-      transformMode === TransformMode.Placement
-    ) {
-      translationVector
-        .subVectors(planeIntersection, gizmoObj.position)
-        .applyQuaternion(inverseGizmoQuaternion)
-        .multiply(constraint)
-      translationVector.applyQuaternion(gizmoObj.quaternion)
-      gizmoObj.position.add(translationVector)
-      if (shouldSnap) {
-        prevPos.copy(gizmoObj.position)
-        constraintVector.copy(constraint).applyQuaternion(gizmoObj.quaternion)
+          const snapValue = editorHelperState.translationSnap
+          gizmoObj.position.set(
+            constraintVector.x !== 0 ? Math.round(gizmoObj.position.x / snapValue) * snapValue : gizmoObj.position.x,
+            constraintVector.y !== 0 ? Math.round(gizmoObj.position.y / snapValue) * snapValue : gizmoObj.position.y,
+            constraintVector.z !== 0 ? Math.round(gizmoObj.position.z / snapValue) * snapValue : gizmoObj.position.z
+          )
 
-        const snapValue = editorHelperState.translationSnap
-        gizmoObj.position.set(
-          constraintVector.x !== 0 ? Math.round(gizmoObj.position.x / snapValue) * snapValue : gizmoObj.position.x,
-          constraintVector.y !== 0 ? Math.round(gizmoObj.position.y / snapValue) * snapValue : gizmoObj.position.y,
-          constraintVector.z !== 0 ? Math.round(gizmoObj.position.z / snapValue) * snapValue : gizmoObj.position.z
-        )
-
-        translationVector.set(
-          translationVector.x + gizmoObj.position.x - prevPos.x,
-          translationVector.y + gizmoObj.position.y - prevPos.y,
-          translationVector.z + gizmoObj.position.z - prevPos.z
-        )
-      }
-
-      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-      EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
-
-      // if (isGrabbing && transformMode === TransformMode.Grab) {
-      //   EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
-      // }
-    } else if (transformMode === TransformMode.Rotate) {
-      if (selectStartAndNoGrabbing) {
-        initRotationDrag.subVectors(planeIntersection, dragOffset).sub(gizmoObj.position)
-        prevRotationAngle = 0
-      }
-      curRotationDrag.subVectors(planeIntersection, dragOffset).sub(gizmoObj.position)
-      normalizedInitRotationDrag.copy(initRotationDrag).normalize()
-      normalizedCurRotationDrag.copy(curRotationDrag).normalize()
-      let rotationAngle = curRotationDrag.angleTo(initRotationDrag)
-      rotationAngle *= normalizedInitRotationDrag.cross(normalizedCurRotationDrag).dot(planeNormal) > 0 ? 1 : -1
-
-      if (shouldSnap) {
-        const rotationSnapAngle = MathUtils.DEG2RAD * editorHelperState.rotationSnap
-        rotationAngle = Math.round(rotationAngle / rotationSnapAngle) * rotationSnapAngle
-      }
-
-      const relativeRotationAngle = rotationAngle - prevRotationAngle
-      prevRotationAngle = rotationAngle
-
-      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-      EditorControlFunctions.rotateAround(nodes, planeNormal, relativeRotationAngle, gizmoObj.position)
-
-      const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
-      if (selectStartAndNoGrabbing) {
-        selectedAxisInfo.startMarker!.visible = true
-        selectedAxisInfo.endMarker!.visible = true
-        if (transformSpace !== TransformSpace.World) {
-          selectedAxisInfo.startMarkerLocal!.position.copy(gizmoObj.position)
-          selectedAxisInfo.startMarkerLocal!.quaternion.copy(gizmoObj.quaternion)
-          selectedAxisInfo.startMarkerLocal!.scale.copy(gizmoObj.scale)
-          Engine.instance.scene.add(selectedAxisInfo.startMarkerLocal!)
-        }
-      }
-
-      if (transformSpace === TransformSpace.World) {
-        if (!selectedAxisInfo.rotationTarget) {
-          throw new Error(
-            `Couldn't rotate object due to an unknown error. The selected axis is ${
-              (gizmoObj as any).selectedAxis.name
-            } The selected axis info is: ${JSON.stringify(selectedAxisInfo)}`
+          translationVector.set(
+            translationVector.x + gizmoObj.position.x - prevPos.x,
+            translationVector.y + gizmoObj.position.y - prevPos.y,
+            translationVector.z + gizmoObj.position.z - prevPos.z
           )
         }
-        selectedAxisInfo.rotationTarget.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle)
-      } else {
-        gizmoObj.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle)
-      }
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+        EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
 
-      if (isPrimaryClickUp) {
-        selectedAxisInfo.startMarker!.visible = false
-        selectedAxisInfo.endMarker!.visible = false
-        selectedAxisInfo.rotationTarget!.rotation.set(0, 0, 0)
-        if (transformSpace !== TransformSpace.World) {
-          const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-          if (startMarkerLocal) Engine.instance.scene.remove(startMarkerLocal)
+        // if (isGrabbing && transformMode === TransformMode.Grab) {
+        //   EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
+        // }
+        if (transformMode !== TransformMode.Combined) break
+      }
+      case TransformMode.Rotate: {
+        if (selectStartAndNoGrabbing) {
+          initRotationDrag.subVectors(planeIntersection, dragOffset).sub(gizmoObj.position)
+          prevRotationAngle = 0
         }
+        curRotationDrag.subVectors(planeIntersection, dragOffset).sub(gizmoObj.position)
+        normalizedInitRotationDrag.copy(initRotationDrag).normalize()
+        normalizedCurRotationDrag.copy(curRotationDrag).normalize()
+        let rotationAngle = curRotationDrag.angleTo(initRotationDrag)
+        rotationAngle *= normalizedInitRotationDrag.cross(normalizedCurRotationDrag).dot(planeNormal) > 0 ? 1 : -1
+
+        if (shouldSnap) {
+          const rotationSnapAngle = MathUtils.DEG2RAD * editorHelperState.rotationSnap
+          rotationAngle = Math.round(rotationAngle / rotationSnapAngle) * rotationSnapAngle
+        }
+
+        const relativeRotationAngle = rotationAngle - prevRotationAngle
+        prevRotationAngle = rotationAngle
+
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+        EditorControlFunctions.rotateAround(nodes, planeNormal, relativeRotationAngle, gizmoObj.position)
+
+        const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
+        if (selectStartAndNoGrabbing) {
+          selectedAxisInfo.startMarker!.visible = true
+          selectedAxisInfo.endMarker!.visible = true
+          if (transformSpace !== TransformSpace.World) {
+            selectedAxisInfo.startMarkerLocal!.position.copy(gizmoObj.position)
+            selectedAxisInfo.startMarkerLocal!.quaternion.copy(gizmoObj.quaternion)
+            selectedAxisInfo.startMarkerLocal!.scale.copy(gizmoObj.scale)
+            Engine.instance.scene.add(selectedAxisInfo.startMarkerLocal!)
+          }
+        }
+
+        if (transformSpace === TransformSpace.World) {
+          if (!selectedAxisInfo.rotationTarget) {
+            throw new Error(
+              `Couldn't rotate object due to an unknown error. The selected axis is ${
+                (gizmoObj as any).selectedAxis.name
+              } The selected axis info is: ${JSON.stringify(selectedAxisInfo)}`
+            )
+          }
+          selectedAxisInfo.rotationTarget.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle)
+        } else {
+          gizmoObj.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle)
+        }
+
+        if (isPrimaryClickUp) {
+          selectedAxisInfo.startMarker!.visible = false
+          selectedAxisInfo.endMarker!.visible = false
+          selectedAxisInfo.rotationTarget!.rotation.set(0, 0, 0)
+          if (transformSpace !== TransformSpace.World) {
+            const startMarkerLocal = selectedAxisInfo.startMarkerLocal
+            if (startMarkerLocal) Engine.instance.scene.remove(startMarkerLocal)
+          }
+        }
+        // rotate code
+        if (transformMode !== TransformMode.Combined) break
       }
-    } else if (transformMode === TransformMode.Scale) {
-      dragVector.copy(planeIntersection).applyQuaternion(inverseGizmoQuaternion).multiply(constraint)
+      case TransformMode.Scale: {
+        dragVector.copy(planeIntersection).applyQuaternion(inverseGizmoQuaternion).multiply(constraint)
 
-      if (selectStartAndNoGrabbing) {
-        initDragVector.copy(dragVector)
-        prevScale.set(1, 1, 1)
+        if (selectStartAndNoGrabbing) {
+          initDragVector.copy(dragVector)
+          prevScale.set(1, 1, 1)
+        }
+        deltaDragVector.subVectors(dragVector, initDragVector)
+        deltaDragVector.multiply(constraint)
+
+        let scaleFactor =
+          gizmoObj.selectedAxis === TransformAxis.XYZ
+            ? 1 +
+              getComponent(Engine.instance.cameraEntity, CameraComponent)
+                .getWorldDirection(viewDirection)
+                .applyQuaternion(gizmoObj.quaternion)
+                .dot(deltaDragVector)
+            : 1 + constraint.dot(deltaDragVector)
+
+        curScale.set(
+          constraint.x === 0 ? 1 : scaleFactor,
+          constraint.y === 0 ? 1 : scaleFactor,
+          constraint.z === 0 ? 1 : scaleFactor
+        )
+
+        if (shouldSnap) {
+          curScale.divideScalar(editorHelperState.scaleSnap).round().multiplyScalar(editorHelperState.scaleSnap)
+        }
+
+        curScale.set(
+          curScale.x <= 0 ? Number.EPSILON : curScale.x,
+          curScale.y <= 0 ? Number.EPSILON : curScale.y,
+          curScale.z <= 0 ? Number.EPSILON : curScale.z
+        )
+        scaleVector.copy(curScale).divide(prevScale)
+        prevScale.copy(curScale)
+
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+        EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
+        //scale code
+        break
       }
-      deltaDragVector.subVectors(dragVector, initDragVector)
-      deltaDragVector.multiply(constraint)
-
-      let scaleFactor =
-        gizmoObj.selectedAxis === TransformAxis.XYZ
-          ? 1 +
-            getComponent(Engine.instance.cameraEntity, CameraComponent)
-              .getWorldDirection(viewDirection)
-              .applyQuaternion(gizmoObj.quaternion)
-              .dot(deltaDragVector)
-          : 1 + constraint.dot(deltaDragVector)
-
-      curScale.set(
-        constraint.x === 0 ? 1 : scaleFactor,
-        constraint.y === 0 ? 1 : scaleFactor,
-        constraint.z === 0 ? 1 : scaleFactor
-      )
-
-      if (shouldSnap) {
-        curScale.divideScalar(editorHelperState.scaleSnap).round().multiplyScalar(editorHelperState.scaleSnap)
+      default: {
+        break
       }
-
-      curScale.set(
-        curScale.x <= 0 ? Number.EPSILON : curScale.x,
-        curScale.y <= 0 ? Number.EPSILON : curScale.y,
-        curScale.z <= 0 ? Number.EPSILON : curScale.z
-      )
-      scaleVector.copy(curScale).divide(prevScale)
-      prevScale.copy(curScale)
-
-      const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-      EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
     }
   }
 
-  selectionCounter = selectionState.selectionCounter
   const shift = buttons.ShiftLeft?.pressed
 
   if (isPrimaryClickUp) {
@@ -722,6 +656,8 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
 
 const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
+  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+  const selectionState = useHookstate(getMutableState(SelectionState))
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -733,6 +669,93 @@ const reactor = () => {
       window.removeEventListener('paste', paste)
     }
   }, [])
+
+  useEffect(() => {
+    transformMode = editorHelperState.transformMode.value
+    transformPivot = editorHelperState.transformPivot.value
+    transformSpace = editorHelperState.transformSpace.value
+    selectedParentEntities = selectionState.selectedParentEntities.value
+    selectedEntities = selectionState.selectedEntities.value
+    selectionCounter = selectionState.selectionCounter.value
+
+    //handle gizmo visibility
+    if (
+      (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) &&
+      hasComponent(gizmoEntity, VisibleComponent)
+    ) {
+      removeComponent(gizmoEntity, VisibleComponent)
+      return
+    }
+    setComponent(gizmoEntity, VisibleComponent)
+
+    //get entity transform
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    const isUuid = typeof lastSelection === 'string'
+
+    const lastSelectedTransform = isUuid
+      ? Engine.instance.scene.getObjectByProperty('uuid', lastSelection)
+      : getOptionalComponent(lastSelection as Entity, TransformComponent)
+
+    if (!lastSelectedTransform) return
+
+    switch (transformPivot) {
+      case TransformPivot.Selection: {
+        gizmoObj.position.copy(lastSelectedTransform.position)
+
+        break
+      }
+      case TransformPivot.Origin: {
+        gizmoObj.position.set(0, 0, 0)
+
+        break
+      }
+      default: {
+        box.makeEmpty()
+
+        for (let i = 0; i < selectedParentEntities.length; i++) {
+          const parentEnt = selectedParentEntities[i]
+          const isUuid = typeof parentEnt === 'string'
+          if (isUuid) {
+            box.expandByObject(Engine.instance.scene.getObjectByProperty('uuid', parentEnt)!)
+          } else {
+            box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
+          }
+        }
+        box.getCenter(gizmoObj.position)
+        if (transformPivot !== TransformPivot.Bottom) return
+
+        gizmoObj.position.y = box.min.y
+      }
+    }
+
+    if (transformMode === TransformMode.Scale) {
+      gizmoObj.setLocalScaleHandlesVisible(true)
+      // force local transform for scale
+      if (transformSpace === TransformSpace.World) {
+        getMutableState(EditorHelperState).transformSpace.set(TransformSpace.Local)
+        transformSpace = TransformSpace.Local
+      }
+    }
+
+    if (transformSpace === TransformSpace.Local) {
+      const localTransform = getComponent(lastSelection as Entity, LocalTransformComponent)
+      if (localTransform) gizmoObj.quaternion.copy(localTransform.rotation)
+    } else {
+      if (lastSelectedTransform)
+        gizmoObj.quaternion.copy(
+          'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
+        )
+    }
+
+    inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
+  }, [
+    editorHelperState.transformMode,
+    editorHelperState.transformPivot,
+    editorHelperState.transformSpace,
+    selectionState.selectionCounter,
+    selectionState.selectedParentEntities
+  ])
+  // there is no deterministic ordering for react useeffect better to club them togther
 
   return (
     <>

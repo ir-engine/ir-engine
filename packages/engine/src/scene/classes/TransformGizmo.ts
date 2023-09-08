@@ -321,6 +321,12 @@ export default class TransformGizmo extends Object3D {
         this.scaleControls.visible = true
         this.activeControls = this.scaleControls
         break
+      case TransformMode.Combined:
+        //this.translateControls.visible = true
+        this.rotateControls.visible = true
+        //this.scaleControls.visible = true
+        this.activeControls = this.rotateControls
+        break
       default:
         this.selectedAxisObj = undefined
         this.activeControls = undefined

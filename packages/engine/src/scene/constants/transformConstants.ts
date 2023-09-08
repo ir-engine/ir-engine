@@ -33,6 +33,7 @@ export const TransformPivot = {
 }
 export const TransformMode = {
   Disabled: 'Disabled' as const,
+  Combined: 'Combined' as const,
   Grab: 'Grab' as const,
   Placement: 'Placement' as const,
   Translate: 'Translate' as const,
