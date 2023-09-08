@@ -25,23 +25,41 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { getState } from '@etherealengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { isClient } from '../../common/functions/getEnvironment'
+import { SceneServices } from '../../ecs/classes/Scene'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { XRState } from '../../xr/XRState'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
+
+const linkLogic = (linkComponent, xrState) => {
+  if (!linkComponent.sceneNav) {
+    xrState && xrState.session?.end()
+    typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
+  } else {
+    SceneServices.setCurrentScene(linkComponent.projectName, linkComponent.sceneName)
+  }
+}
 
 export const LinkComponent = defineComponent({
   name: 'LinkComponent',
   jsonID: 'link',
 
   onInit: (entity) => {
-    try {
-      setComponent(entity, InputComponent) // TODO implement schemas for componenets to use in behave graph
-    } catch {
-      null
-    }
     return {
       url: 'https://www.etherealengine.org',
       sceneNav: false,
@@ -70,6 +88,7 @@ export const LinkComponent = defineComponent({
   errors: ['INVALID_URL', 'INVALID_PATH'],
 
   reactor: function () {
+    if (!isClient) return null
     const entity = useEntityContext()
     const link = useComponent(entity, LinkComponent)
     const input = useComponent(entity, InputComponent)
@@ -94,6 +113,34 @@ export const LinkComponent = defineComponent({
       }
       return
     }, [link.url, link.sceneNav])
+
+    useEffect(() => {
+      setComponent(entity, InputComponent)
+    }, [])
+
+    useExecute(
+      () => {
+        const linkComponent = getComponent(entity, LinkComponent)
+        const inputComponent = getComponent(entity, InputComponent)
+        const inputSourceEntity = inputComponent?.inputSources[0]
+
+        if (inputSourceEntity) {
+          const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+          const buttons = inputSource?.buttons
+
+          if (buttons)
+            if (buttons.PrimaryClick?.touched) {
+              if (buttons.PrimaryClick.up) {
+                linkLogic(linkComponent, undefined)
+              }
+            } else if (buttons[XRStandardGamepadButton.Trigger]?.down) {
+              const xrState = getState(XRState)
+              linkLogic(linkComponent, xrState)
+            }
+        }
+      },
+      { with: InputSystemGroup }
+    )
 
     return null
   }

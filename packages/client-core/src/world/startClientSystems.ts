@@ -58,7 +58,6 @@ import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
-import { LinkSystem } from '@etherealengine/engine/src/scene/systems/LinkSystem'
 import { PortalSystem } from '@etherealengine/engine/src/scene/systems/PortalSystem'
 import { ReferenceSpaceTransformSystem } from '@etherealengine/engine/src/transform/systems/ReferenceSpaceTransformSystem'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
@@ -68,12 +67,9 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const startClientSystems = () => {
   /** Input */
-  startSystems(
-    [XRSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem, LinkSystem],
-    {
-      with: InputSystemGroup
-    }
-  )
+  startSystems([XRSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem], {
+    with: InputSystemGroup
+  })
 
   /** Fixed */
   startSystems([IncomingNetworkSystem, EntityNetworkStateSystem, GrabbableSystem, AvatarSimulationSystemGroup], {
