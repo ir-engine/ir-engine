@@ -60,6 +60,7 @@ import primus from './util/primus'
 require('fix-esm').register()
 
 export const configureOpenAPI = () => (app: Application) => {
+  logger.info('configuring OpenAPI..')
   app.configure(
     swagger({
       ui: swagger.swaggerUI({
@@ -154,6 +155,7 @@ export const configureK8s = () => (app: Application) => {
       k8DefaultClient,
       k8AgonesClient
     })
+    logger.info('kubernetes configuration completed.')
   }
   return app
 }
@@ -174,6 +176,7 @@ export const createFeathersKoaApp = (
 
   createEngine()
   getMutableState(EngineState).publicPath.set(config.client.dist)
+  logger.info('Feathers Koa app created.')
   if (!appConfig.db.forceRefresh) {
     initializeNode()
   }
@@ -228,6 +231,8 @@ export const createFeathersKoaApp = (
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)
+
+  logger.info('Feather Koa app configured.')
 
   // Set up our services (see `services/index.js`)
   app.configure(services)

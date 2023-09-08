@@ -58,6 +58,11 @@ export default (app: Application): void => {
       }
     })
 
+    logger.info('Database connected.', {
+      host: appConfig.db.host,
+      port: appConfig.db.port,
+      database: appConfig.db.database
+    })
     const oldTeardown = app.teardown
 
     app.teardown = async function (...args) {

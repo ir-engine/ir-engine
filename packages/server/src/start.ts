@@ -50,13 +50,16 @@ process.on('unhandledRejection', (error, promise) => {
 
 export const start = async (): Promise<void> => {
   const app = createFeathersKoaApp(ServerMode.API)
-
+  logger.info('Creating Feathers Koa App.')
   app.use(favicon(join(config.server.publicDir, 'favicon.ico')))
+  logger.info('configuring feathers channels')
   app.configure(channels)
 
   if (!config.kubernetes.enabled && !config.db.forceRefresh && !config.testEnabled) {
+    logger.info('Checking for project setup.')
     app.isSetup.then(() => {
       app.service(projectPath)._fetchDevLocalProjects()
+      logger.info('Project setup check complete.')
     })
   }
 
@@ -68,6 +71,7 @@ export const start = async (): Promise<void> => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi
       return e[key]?.match(regexp)
     })
+    logger.info({ processList }, 'checking for running process.')
     const dockerProcess = processList.find((c) => c[key]?.match(/docker-compose/))
     const dockerProxy = processList.find((c) => c[key]?.match(/docker-proxy/))
     const processMysql = processList.find((c) => c[key]?.match(/mysql/))

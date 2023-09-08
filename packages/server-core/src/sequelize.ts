@@ -86,6 +86,7 @@ export default (app: Application): void => {
     })
 
     app.teardown = async function (...args) {
+      logger.info('app.teardown started.')
       try {
         await sequelize.close()
         console.log('Sequelize connection closed')
@@ -99,6 +100,7 @@ export default (app: Application): void => {
     }
 
     app.setup = async function (...args) {
+      logger.info(app.setup, 'started.')
       try {
         const knexClient: Knex = app.get('knexClient')
 
@@ -165,7 +167,11 @@ export default (app: Application): void => {
 
         try {
           // connect to sequelize
+          logger.info('sequelize.sync started.')
           const sync = await sequelize.sync()
+          logger.info('sequelize.sync completed.', {
+            message: 'Sequelize sychronization completed successfully.'
+          })
           try {
             // configure seeder and seed
             await seeder(app, forceRefresh || appConfig.testEnabled, prepareDb)

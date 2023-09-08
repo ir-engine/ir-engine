@@ -70,4 +70,5 @@ const isPortTaken = (port, fn) => {
         .close()
     })
     .listen(port)
+  logger.info(`Port taken "${port}".`)
 }

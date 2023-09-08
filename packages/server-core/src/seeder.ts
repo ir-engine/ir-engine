@@ -76,7 +76,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
   }
 
   if (forceRefresh) {
-    logger.info('Refreshing default project')
+    logger.info(forceRefresh, 'Refreshing default project')
     // for local dev clear the storage provider
     if (!config.kubernetes.enabled && !config.testEnabled) {
       const uploadPath = path.resolve(appRootPath.path, 'packages/server/upload/')
