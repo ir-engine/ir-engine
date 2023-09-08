@@ -496,7 +496,7 @@ export const checkProjectDestinationMatch = async (
     const projectExists = await app.service(projectPath).find({
       query: {
         name: {
-          $like: '%' + sourceContent.name + '%'
+          $like: sourceContent.name
         }
       }
     })
@@ -1468,7 +1468,7 @@ export const updateProject = async (
   const existingProjectResult = await app.service(projectPath)._find({
     query: {
       name: {
-        $like: `%${projectName}%`
+        $like: projectName
       }
     }
   })
