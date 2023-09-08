@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, Scene } from 'three'
+import { Mesh, Scene, SkinnedMesh } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -52,6 +52,7 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
+import iterateObject3D from '../util/iterateObject3D'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -83,7 +84,8 @@ export const ModelComponent = defineComponent({
       avoidCameraOcclusion: false,
       // internal
       scene: null as Scene | null,
-      asset: null as VRM | GLTF | null
+      asset: null as VRM | GLTF | null,
+      hasSkinnedMesh: false
     }
   },
 
@@ -206,7 +208,16 @@ function ModelReactor() {
 
     let active = true
 
-    if (model.generateBVH) {
+    const skinnedMeshSearch = iterateObject3D(
+      scene,
+      () => true,
+      (ob: SkinnedMesh) => ob.isSkinnedMesh,
+      false,
+      true
+    )
+    if (skinnedMeshSearch[0]) modelComponent.hasSkinnedMesh.set(true)
+
+    if (model.generateBVH && !model.hasSkinnedMesh) {
       enableObjectLayer(scene, ObjectLayers.Camera, false)
       const bvhDone = [] as Promise<void>[]
       scene.traverse((obj: Mesh) => {
