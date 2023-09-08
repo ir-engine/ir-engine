@@ -34,6 +34,7 @@ import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/co
 import {
   AudioFileTypes,
   ImageFileTypes,
+  ModelFileTypes,
   VideoFileTypes,
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
@@ -514,7 +515,7 @@ const createBlobForFile =
             headers: verifyActions.header
           })
       }
-      content = Buffer.from(lfsPointer).toString(encoding)
+      content = Buffer.from(lfsPointer).toString('utf-8')
     } else {
       content = buffer.toString(encoding)
     }
@@ -601,6 +602,7 @@ const isBase64Encoded = (filePath: string) => {
     ImageFileTypes.indexOf(extension) > -1 ||
     AudioFileTypes.indexOf(extension) > -1 ||
     VolumetricFileTypes.indexOf(extension) > -1 ||
-    VideoFileTypes.indexOf(extension) > -1
+    VideoFileTypes.indexOf(extension) > -1 ||
+    ModelFileTypes.indexOf(extension) > -1
   )
 }
