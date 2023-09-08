@@ -211,6 +211,10 @@ const onKeyY = () => {
   setTransformMode(TransformMode.Scale)
 }
 
+const onKeyU = () => {
+  setTransformMode(TransformMode.Combined)
+}
+
 const onKeyC = () => {
   toggleSnapMode()
 }
@@ -615,6 +619,7 @@ const execute = () => {
   if (buttons.KeyT?.down) onKeyT()
   if (buttons.KeyR?.down) onKeyR()
   if (buttons.KeyY?.down) onKeyY()
+  if (buttons.KeyU?.down) onKeyU()
   if (buttons.KeyC?.down) onKeyC()
   if (buttons.KeyX?.down) onKeyX()
   if (buttons.KeyZ?.down) onKeyZ(!!buttons.ControlLeft?.pressed, !!buttons.ShiftLeft?.pressed)

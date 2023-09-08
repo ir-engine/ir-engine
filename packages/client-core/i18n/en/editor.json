@@ -103,8 +103,8 @@
       "description": "Transform Gizmo",
       "translate": "[T] Translate",
       "rotate": "[R] Rotate",
-      "scale": "[S] Scale",
-      "combined": "Combined Transform"
+      "scale": "[Y] Scale",
+      "combined": "[U] Combined Transform"
     },
     "transformSpace": {
       "description": "Sets your transform control to be oriented to the object(selection) or world",
