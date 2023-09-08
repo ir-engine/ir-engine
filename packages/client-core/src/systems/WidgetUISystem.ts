@@ -212,8 +212,8 @@ const reactor = () => {
   const xrState = useHookstate(getMutableState(XRState))
   useEffect(() => {
     if (!xrState.sessionActive.value) {
-      const { widgetMenuUI } = getState(WidgetUISystemState)
-      removeComponent(widgetMenuUI.entity, VisibleComponent)
+      const widgetState = getState(WidgetAppState)
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false, handedness: widgetState.handedness }))
     }
   }, [xrState.sessionActive])
   useEffect(() => {
