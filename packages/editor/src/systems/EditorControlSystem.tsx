@@ -431,36 +431,39 @@ const execute = () => {
 
     switch (transformMode) {
       case TransformMode.Grab:
+        selectedAxisInfo.type = TransformAxisAction.Translate
       case TransformMode.Placement:
+        selectedAxisInfo.type = TransformAxisAction.Translate
       case TransformMode.Combined:
       case TransformMode.Translate: {
         // translate code
-        translationVector
-          .subVectors(planeIntersection, gizmoObj.position)
-          .applyQuaternion(inverseGizmoQuaternion)
-          .multiply(constraint)
-        translationVector.applyQuaternion(gizmoObj.quaternion)
-        gizmoObj.position.add(translationVector)
-        if (shouldSnap) {
-          prevPos.copy(gizmoObj.position)
-          constraintVector.copy(constraint).applyQuaternion(gizmoObj.quaternion)
+        if (selectedAxisInfo.type === TransformAxisAction.Translate) {
+          translationVector
+            .subVectors(planeIntersection, gizmoObj.position)
+            .applyQuaternion(inverseGizmoQuaternion)
+            .multiply(constraint)
+          translationVector.applyQuaternion(gizmoObj.quaternion)
+          gizmoObj.position.add(translationVector)
+          if (shouldSnap) {
+            prevPos.copy(gizmoObj.position)
+            constraintVector.copy(constraint).applyQuaternion(gizmoObj.quaternion)
 
-          const snapValue = editorHelperState.translationSnap
-          gizmoObj.position.set(
-            constraintVector.x !== 0 ? Math.round(gizmoObj.position.x / snapValue) * snapValue : gizmoObj.position.x,
-            constraintVector.y !== 0 ? Math.round(gizmoObj.position.y / snapValue) * snapValue : gizmoObj.position.y,
-            constraintVector.z !== 0 ? Math.round(gizmoObj.position.z / snapValue) * snapValue : gizmoObj.position.z
-          )
+            const snapValue = editorHelperState.translationSnap
+            gizmoObj.position.set(
+              constraintVector.x !== 0 ? Math.round(gizmoObj.position.x / snapValue) * snapValue : gizmoObj.position.x,
+              constraintVector.y !== 0 ? Math.round(gizmoObj.position.y / snapValue) * snapValue : gizmoObj.position.y,
+              constraintVector.z !== 0 ? Math.round(gizmoObj.position.z / snapValue) * snapValue : gizmoObj.position.z
+            )
 
-          translationVector.set(
-            translationVector.x + gizmoObj.position.x - prevPos.x,
-            translationVector.y + gizmoObj.position.y - prevPos.y,
-            translationVector.z + gizmoObj.position.z - prevPos.z
-          )
+            translationVector.set(
+              translationVector.x + gizmoObj.position.x - prevPos.x,
+              translationVector.y + gizmoObj.position.y - prevPos.y,
+              translationVector.z + gizmoObj.position.z - prevPos.z
+            )
+          }
+          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+          EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
         }
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-        EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
-
         // if (isGrabbing && transformMode === TransformMode.Grab) {
         //   EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
         // }
@@ -527,45 +530,46 @@ const execute = () => {
         if (transformMode !== TransformMode.Combined) break
       }
       case TransformMode.Scale: {
-        dragVector.copy(planeIntersection).applyQuaternion(inverseGizmoQuaternion).multiply(constraint)
+        if (selectedAxisInfo.type === TransformAxisAction.Scale) {
+          dragVector.copy(planeIntersection).applyQuaternion(inverseGizmoQuaternion).multiply(constraint)
 
-        if (selectStartAndNoGrabbing) {
-          initDragVector.copy(dragVector)
-          prevScale.set(1, 1, 1)
+          if (selectStartAndNoGrabbing) {
+            initDragVector.copy(dragVector)
+            prevScale.set(1, 1, 1)
+          }
+          deltaDragVector.subVectors(dragVector, initDragVector)
+          deltaDragVector.multiply(constraint)
+
+          const scaleFactor =
+            gizmoObj.selectedAxis === TransformAxis.XYZ
+              ? 1 +
+                getComponent(Engine.instance.cameraEntity, CameraComponent)
+                  .getWorldDirection(viewDirection)
+                  .applyQuaternion(gizmoObj.quaternion)
+                  .dot(deltaDragVector)
+              : 1 + constraint.dot(deltaDragVector)
+
+          curScale.set(
+            constraint.x === 0 ? 1 : scaleFactor,
+            constraint.y === 0 ? 1 : scaleFactor,
+            constraint.z === 0 ? 1 : scaleFactor
+          )
+
+          if (shouldSnap) {
+            curScale.divideScalar(editorHelperState.scaleSnap).round().multiplyScalar(editorHelperState.scaleSnap)
+          }
+
+          curScale.set(
+            curScale.x <= 0 ? Number.EPSILON : curScale.x,
+            curScale.y <= 0 ? Number.EPSILON : curScale.y,
+            curScale.z <= 0 ? Number.EPSILON : curScale.z
+          )
+          scaleVector.copy(curScale).divide(prevScale)
+          prevScale.copy(curScale)
+
+          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+          EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
         }
-        deltaDragVector.subVectors(dragVector, initDragVector)
-        deltaDragVector.multiply(constraint)
-
-        const scaleFactor =
-          gizmoObj.selectedAxis === TransformAxis.XYZ
-            ? 1 +
-              getComponent(Engine.instance.cameraEntity, CameraComponent)
-                .getWorldDirection(viewDirection)
-                .applyQuaternion(gizmoObj.quaternion)
-                .dot(deltaDragVector)
-            : 1 + constraint.dot(deltaDragVector)
-
-        curScale.set(
-          constraint.x === 0 ? 1 : scaleFactor,
-          constraint.y === 0 ? 1 : scaleFactor,
-          constraint.z === 0 ? 1 : scaleFactor
-        )
-
-        if (shouldSnap) {
-          curScale.divideScalar(editorHelperState.scaleSnap).round().multiplyScalar(editorHelperState.scaleSnap)
-        }
-
-        curScale.set(
-          curScale.x <= 0 ? Number.EPSILON : curScale.x,
-          curScale.y <= 0 ? Number.EPSILON : curScale.y,
-          curScale.z <= 0 ? Number.EPSILON : curScale.z
-        )
-        scaleVector.copy(curScale).divide(prevScale)
-        prevScale.copy(curScale)
-
-        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-        EditorControlFunctions.scaleObject(nodes, [scaleVector], transformSpace)
-
         //scale code
         break
       }
