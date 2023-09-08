@@ -35,7 +35,7 @@ jobs:
           NODE_OPTIONS: --max_old_space_size=8192
         run: |
           npm install --legacy-peer-deps
-          git clone https://github.com/etherealengine/etherealengine-docs.git docs
+          git clone https://github.com/etherealengine/etherealengine-docs.git docs --depth 1
           cd docs
           cp .env.local.default .env.local
           npm install --legacy-peer-deps
