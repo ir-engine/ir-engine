@@ -59,7 +59,6 @@ import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
-import { Client } from 'minio'
 
 import config from '../../appconfig'
 import { getCacheDomain } from './getCacheDomain'
@@ -117,27 +116,6 @@ export class S3Provider implements StorageProviderInterface {
     forcePathStyle: true,
     maxAttempts: 5
   })
-
-  minioClient =
-    config.aws.s3.s3DevMode === 'local'
-      ? new Client({
-          endPoint: new URL(
-            config.server.storageProviderExternalEndpoint
-              ? config.server.storageProviderExternalEndpoint
-              : config.aws.s3.endpoint
-          ).hostname,
-          port: parseInt(
-            new URL(
-              config.server.storageProviderExternalEndpoint
-                ? config.server.storageProviderExternalEndpoint
-                : config.aws.s3.endpoint
-            ).port
-          ),
-          useSSL: true,
-          accessKey: config.aws.s3.accessKeyId,
-          secretKey: config.aws.s3.secretAccessKey
-        })
-      : undefined
 
   /**
    * Domain address of S3 cache.
