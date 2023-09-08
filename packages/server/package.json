@@ -31,7 +31,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\" \"npm run serve-local-files\"",
+    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\"",
     "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
     "dev-api-server": "ts-node --swc src/index.ts",
     "dev-api-server-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",
@@ -46,7 +46,7 @@
     "@etherealengine/server-core": "^1.4.0",
     "@feathersjs/koa": "5.0.5",
     "@feathersjs/transport-commons": "5.0.5",
-    "@swc/core": "^1.3.41",
+    "@swc/core": "1.3.41",
     "app-root-path": "^3.1.0",
     "cli": "1.0.1",
     "cross-env": "7.0.3",

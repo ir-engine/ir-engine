@@ -31,14 +31,15 @@ import fetch from 'node-fetch'
 import path from 'path'
 
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import {
   AudioFileTypes,
   ImageFileTypes,
+  ModelFileTypes,
   VideoFileTypes,
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -50,6 +51,7 @@ import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { toDateTimeSql } from '../../util/datetime-sql'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { createExecutorJob, getProjectPushJobBody } from './project-helper'
@@ -159,7 +161,7 @@ export const getRepo = async (owner: string, repo: string, token: string): Promi
 
 export const pushProject = async (
   app: Application,
-  project: ProjectInterface,
+  project: ProjectType,
   user: UserType,
   reset = false,
   commitSHA?: string,
@@ -254,7 +256,7 @@ export const pushProject = async (
 
 export const pushProjectToGithub = async (
   app: Application,
-  project: ProjectInterface,
+  project: ProjectType,
   user: UserType,
   reset = false,
   commitSHA?: string,
@@ -285,7 +287,7 @@ const uploadToRepo = async (
   org: string,
   repo: string,
   branch = `master`,
-  project: ProjectInterface,
+  project: ProjectType,
   token: string,
   app: Application
 ) => {
@@ -351,17 +353,9 @@ const uploadToRepo = async (
   const commitMessage = `Update by ${user.login} at ${new Date(date).toJSON()}`
   //Create the new commit with all of the file changes
   const newCommit = await createNewCommit(octo, org, repo, commitMessage, newTree.sha, currentCommit.commitSha)
-  await app.service('project').Model.update(
-    {
-      commitSHA: newCommit.sha,
-      commitDate: new Date()
-    },
-    {
-      where: {
-        id: project.id
-      }
-    }
-  )
+
+  await app.service(projectPath)._patch(project.id, { commitSHA: newCommit.sha, commitDate: toDateTimeSql(new Date()) })
+
   try {
     //This pushes the commit to the main branch in GitHub
     await setBranchToCommit(octo, org, repo, branch, newCommit.sha)
@@ -447,7 +441,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
 
   const githubIdentityProvider = (await app.service(identityProviderPath).find({
     query: {
-      userId: params!.user.id,
+      userId: params!.user!.id,
       type: 'github',
       $limit: 1
     }
@@ -521,7 +515,7 @@ const createBlobForFile =
             headers: verifyActions.header
           })
       }
-      content = Buffer.from(lfsPointer).toString(encoding)
+      content = Buffer.from(lfsPointer).toString('utf-8')
     } else {
       content = buffer.toString(encoding)
     }
@@ -608,6 +602,7 @@ const isBase64Encoded = (filePath: string) => {
     ImageFileTypes.indexOf(extension) > -1 ||
     AudioFileTypes.indexOf(extension) > -1 ||
     VolumetricFileTypes.indexOf(extension) > -1 ||
-    VideoFileTypes.indexOf(extension) > -1
+    VideoFileTypes.indexOf(extension) > -1 ||
+    ModelFileTypes.indexOf(extension) > -1
   )
 }

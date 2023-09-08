@@ -123,6 +123,10 @@ export class FileBrowserService implements ServiceMethods<any> {
 
     result = result.slice(skip, skip + limit)
 
+    result = result.map((item) => {
+      item.url = `https://${storageProvider.cacheDomain}/${item.key}`
+      return item
+    })
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
       const projectPermissions = await knexClient
@@ -265,6 +269,7 @@ export class FileBrowserService implements ServiceMethods<any> {
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
     const filePath = path.join(projectsRootFolder, key)
+
     if (fs.lstatSync(filePath).isDirectory()) {
       fs.rmSync(filePath, { force: true, recursive: true })
     } else {

@@ -23,12 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {}
-  // securities: ['create', 'update', 'patch', 'remove'],
-  // operations: {
-  //   find: {
-  //     security: [{ bearer: [] }]
-  //   }
-  // }
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  projectDataSchema,
+  projectPatchSchema,
+  projectQuerySchema,
+  projectSchema
+} from '@etherealengine/engine/src/schemas/projects/project.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: { projectDataSchema, projectPatchSchema, projectQuerySchema, projectSchema },
+  docs: {
+    description: 'Project service description',
+    securities: ['all']
+  }
+})

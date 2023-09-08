@@ -34,14 +34,18 @@ import {
   sceneCorsPathIdentifier,
   sceneRelativePathIdentifier
 } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { createDefaultStorageProvider } from '../../media/storageprovider/storageprovider'
+import { StorageProviderInterface } from '../../media/storageprovider/storageprovider.interface'
 
 describe('Scene Helper Functions', () => {
   describe('should replace cache domain', () => {
-    const storageProvider = createDefaultStorageProvider()
     const mockValue = `abcdef2144536`
     const mockValue2 = `08723ikjbolicujhc0asc`
 
+    let storageProvider: StorageProviderInterface
+    let parsedMockData: any
     const savedMockData = {
       value: `${sceneRelativePathIdentifier}/${mockValue}`,
       property: {
@@ -49,12 +53,20 @@ describe('Scene Helper Functions', () => {
       }
     }
 
-    const parsedMockData = {
-      value: `https://${storageProvider.cacheDomain}/projects/${mockValue}`,
-      property: {
-        nestedValue: `https://${storageProvider.cacheDomain}/projects/${mockValue2}`
+    before(() => {
+      createEngine()
+      storageProvider = createDefaultStorageProvider()
+      parsedMockData = {
+        value: `https://${storageProvider.cacheDomain}/projects/${mockValue}`,
+        property: {
+          nestedValue: `https://${storageProvider.cacheDomain}/projects/${mockValue2}`
+        }
       }
-    }
+    })
+
+    after(() => {
+      destroyEngine()
+    })
 
     it('should parse saved data', async function () {
       const parsedData = parseStorageProviderURLs(_.cloneDeep(savedMockData))
