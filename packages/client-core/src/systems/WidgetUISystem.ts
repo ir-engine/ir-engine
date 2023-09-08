@@ -56,6 +56,7 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import {
   RegisteredWidgets,
   WidgetAppActions,
+  WidgetAppService,
   WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
@@ -212,6 +213,7 @@ const reactor = () => {
   const xrState = useHookstate(getMutableState(XRState))
   useEffect(() => {
     if (!xrState.sessionActive.value) {
+      WidgetAppService.closeWidgets()
       const widgetState = getState(WidgetAppState)
       dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false, handedness: widgetState.handedness }))
     }
