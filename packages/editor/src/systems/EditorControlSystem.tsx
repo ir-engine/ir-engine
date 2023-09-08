@@ -430,38 +430,37 @@ const execute = () => {
     const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
 
     switch (transformMode) {
-      case TransformMode.Combined:
       case TransformMode.Grab:
       case TransformMode.Placement:
+      case TransformMode.Combined:
       case TransformMode.Translate: {
         // translate code
-        if (selectedAxisInfo.type === TransformAxisAction.Translate) {
-          translationVector
-            .subVectors(planeIntersection, gizmoObj.position)
-            .applyQuaternion(inverseGizmoQuaternion)
-            .multiply(constraint)
-          translationVector.applyQuaternion(gizmoObj.quaternion)
-          gizmoObj.position.add(translationVector)
-          if (shouldSnap) {
-            prevPos.copy(gizmoObj.position)
-            constraintVector.copy(constraint).applyQuaternion(gizmoObj.quaternion)
+        translationVector
+          .subVectors(planeIntersection, gizmoObj.position)
+          .applyQuaternion(inverseGizmoQuaternion)
+          .multiply(constraint)
+        translationVector.applyQuaternion(gizmoObj.quaternion)
+        gizmoObj.position.add(translationVector)
+        if (shouldSnap) {
+          prevPos.copy(gizmoObj.position)
+          constraintVector.copy(constraint).applyQuaternion(gizmoObj.quaternion)
 
-            const snapValue = editorHelperState.translationSnap
-            gizmoObj.position.set(
-              constraintVector.x !== 0 ? Math.round(gizmoObj.position.x / snapValue) * snapValue : gizmoObj.position.x,
-              constraintVector.y !== 0 ? Math.round(gizmoObj.position.y / snapValue) * snapValue : gizmoObj.position.y,
-              constraintVector.z !== 0 ? Math.round(gizmoObj.position.z / snapValue) * snapValue : gizmoObj.position.z
-            )
+          const snapValue = editorHelperState.translationSnap
+          gizmoObj.position.set(
+            constraintVector.x !== 0 ? Math.round(gizmoObj.position.x / snapValue) * snapValue : gizmoObj.position.x,
+            constraintVector.y !== 0 ? Math.round(gizmoObj.position.y / snapValue) * snapValue : gizmoObj.position.y,
+            constraintVector.z !== 0 ? Math.round(gizmoObj.position.z / snapValue) * snapValue : gizmoObj.position.z
+          )
 
-            translationVector.set(
-              translationVector.x + gizmoObj.position.x - prevPos.x,
-              translationVector.y + gizmoObj.position.y - prevPos.y,
-              translationVector.z + gizmoObj.position.z - prevPos.z
-            )
-          }
-          const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
-          EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
+          translationVector.set(
+            translationVector.x + gizmoObj.position.x - prevPos.x,
+            translationVector.y + gizmoObj.position.y - prevPos.y,
+            translationVector.z + gizmoObj.position.z - prevPos.z
+          )
         }
+        const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+        EditorControlFunctions.positionObject(nodes, [translationVector], transformSpace, true)
+
         // if (isGrabbing && transformMode === TransformMode.Grab) {
         //   EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
         // }
