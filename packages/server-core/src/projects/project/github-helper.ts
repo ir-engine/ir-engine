@@ -462,7 +462,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
 const createBlobForFile =
   (octo: Octokit, org: string, repo: string, git: any, branch: string, lfsFiles = [] as string[], repoPath?: string) =>
   async (filePath: string, projectName: string) => {
-    const encoding = isBase64Encoded(filePath) ? 'base64' : 'utf-8'
+    let encoding = (isBase64Encoded(filePath) ? 'base64' : 'utf-8') as BufferEncoding
     const rootPath = path.join(appRootPath.path, 'packages/projects', filePath)
     const bytes = fs.readFileSync(rootPath, 'binary')
     const buffer = Buffer.from(bytes, 'binary')
@@ -515,7 +515,8 @@ const createBlobForFile =
             headers: verifyActions.header
           })
       }
-      content = Buffer.from(lfsPointer).toString('utf-8')
+      encoding = 'utf-8'
+      content = Buffer.from(lfsPointer).toString(encoding)
     } else {
       content = buffer.toString(encoding)
     }
