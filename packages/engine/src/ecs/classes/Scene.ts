@@ -28,24 +28,53 @@ import { Color, Texture } from 'three'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { Engine } from './Engine'
-import { UndefinedEntity } from './Entity'
-
 export const SceneState = defineState({
   name: 'SceneState',
+
   initial: () => ({
-    sceneData: null as SceneData | null,
-    sceneEntity: UndefinedEntity,
-    /** @todo support multiple scenes */
-    // sceneEntities: {} as Record<string /* SceneID */, EntityUUID>,
+    scenes: {} as Record<
+      string,
+      {
+        data?: SceneData
+        load: boolean
+        loadProgress: {
+          textures: number
+          geometries: number
+          rigidbodies: number
+        }
+      }
+    >,
+
     background: null as null | Color | Texture
-  })
+  }),
+
+  fetchScene: (projectName: string, sceneName: string) => {
+    const scene = getMutableState(SceneState).scenes[projectName + ':' + sceneName]
+    if (!scene.value) {
+      scene.set({
+        data: undefined,
+        loadProgress: {
+          textures: 0,
+          geometries: 0,
+          rigidbodies: 0
+        },
+        load: false
+      })
+    }
+    return scene
+  },
+
+  loadScene: (projectName: string, sceneName: string) => {
+    SceneState.fetchScene(projectName, sceneName).load.set(true)
+  }
 })
 
 export const SceneServices = {
+  /** @deprecated */
   setCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
-    getMutableState(SceneState).sceneData.set(sceneData.data)
+    SceneState.loadScene(projectName, sceneName)
+    // const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
+    // getMutableState(SceneState).sceneData.set(sceneData.data)
   }
 }
 // export const
