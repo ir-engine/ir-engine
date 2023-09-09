@@ -431,13 +431,15 @@ const execute = () => {
 
     switch (transformMode) {
       case TransformMode.Grab:
-        selectedAxisInfo.type = TransformAxisAction.Translate
       case TransformMode.Placement:
-        selectedAxisInfo.type = TransformAxisAction.Translate
       case TransformMode.Combined:
       case TransformMode.Translate: {
         // translate code
-        if (selectedAxisInfo.type === TransformAxisAction.Translate) {
+        if (
+          transformMode === TransformMode.Grab ||
+          transformMode === TransformMode.Placement ||
+          selectedAxisInfo.type === TransformAxisAction.Translate
+        ) {
           translationVector
             .subVectors(planeIntersection, gizmoObj.position)
             .applyQuaternion(inverseGizmoQuaternion)
