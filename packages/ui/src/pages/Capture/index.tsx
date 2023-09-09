@@ -475,7 +475,7 @@ const PlaybackMode = () => {
 }
 
 const CaptureDashboard = () => {
-  const mode = useHookstate<'playback' | 'capture'>('capture')
+  const mode = useHookstate<'playback' | 'capture'>('playback')
 
   return (
     <div className="w-full container mx-auto max-w-[1024px] overflow-hidden">

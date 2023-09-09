@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PlaybackState } from '@etherealengine/client-core/src/recording/RecordingService'
-import { useFind, usePaginate } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
@@ -52,9 +52,8 @@ const RecordingsList = (props: {
   stopPlayback: (args: { recordingID: RecordingID }) => void
 }) => {
   const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
-  const paginate = usePaginate({ sort: { createdAt: -1 } })
   const recording = useFind(recordingPath, {
-    query: paginate.query
+    query: { $sort: { createdAt: -1 }, $limit: 10 }
   })
 
   const sortedRecordings = recording.data.sort(sortByNewest)
@@ -120,16 +119,21 @@ const RecordingsList = (props: {
       <div className="flex justify-between">
         <button
           className="btn btn-ghost"
+          disabled={recording.skip <= 0}
           onClick={() => {
-            paginate.previous()
+            recording.previous()
           }}
         >
           Prev
         </button>
+        <div className="flex items-center justify-center">
+          {recording.skip / recording.limit + 1} of {Math.ceil(recording.total / recording.limit)}
+        </div>
         <button
           className="btn btn-ghost"
+          disabled={recording.skip + recording.limit >= recording.total}
           onClick={() => {
-            paginate.next()
+            recording.next()
           }}
         >
           Next

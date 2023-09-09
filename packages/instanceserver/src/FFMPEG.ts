@@ -32,12 +32,13 @@ import { Consumer } from 'mediasoup/node/lib/Consumer'
 
 const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
 
-function convertStringToStream(stringToConvert: string) {
+function pipeStringToProcess(stringToConvert: string, childProcess: Process.ChildProcessWithoutNullStreams) {
   const stream = new Readable()
   stream._read = () => {}
   stream.push(stringToConvert)
   stream.push(null)
-  return stream
+  stream.resume()
+  stream.pipe(childProcess.stdin)
 }
 
 const createVP8sdp = (audioPort: number, audioPortRtcp: number, videoPort: number, videoPortRtcp: number) => `v=0
@@ -185,28 +186,33 @@ export const startFFMPEG = async (
     }
   })
 
-  const sdpStream = convertStringToStream(cmdInput)
-  sdpStream.resume()
-  sdpStream.pipe(childProcess.stdin)
+  pipeStringToProcess(cmdInput, childProcess)
 
   const stop = async () => {
-    childProcess.kill('SIGINT') // SIGINT is graceful exit
+    /**
+     * @todo - https://trac.ffmpeg.org/ticket/9009
+     * this seems to corrupt the file, so instead we wait for the
+     * transport to timeout and let ffmpeg handle closing itself
+     */
+    // childProcess.kill('SIGINT') // SIGINT is graceful exit
   }
   childProcess.stdout.pipe(stream, { end: true })
 
-  await new Promise<void>(async (resolve, reject) => {
-    /** resume consumers */
-    if (videoConsumer) {
-      await videoConsumer.resume()
-      logger.info('Resuming recording video consumer', videoConsumer)
-    }
-    if (audioConsumer) {
-      await audioConsumer.resume()
-      logger.info('Resuming recording audio consumer', audioConsumer)
-    }
+  /** resume consumers */
+  if (videoConsumer) {
+    logger.info('Resuming recording video consumer')
+    await videoConsumer.resume()
+    logger.info('Resumed recording video consumer')
+  }
+  if (audioConsumer) {
+    logger.info('Resuming recording audio consumer')
+    await audioConsumer.resume()
+    logger.info('Resumed recording audio consumer')
+  }
 
-    const listener = (chunk) => {
-      console.log('sterr', chunk.toString())
+  await new Promise<void>(async (resolve, reject) => {
+    // FFmpeg writes its logs to stderr
+    childProcess.stderr.on('data', (chunk) => {
       chunk
         .toString()
         .split(/\r?\n/g)
@@ -215,14 +221,10 @@ export const startFFMPEG = async (
           logger.info(line)
           if (line.startsWith('ffmpeg version')) {
             logger.info('Recording started')
-            childProcess.stderr.removeListener('data', listener)
             resolve()
           }
         })
-    }
-
-    // FFmpeg writes its logs to stderr
-    childProcess.stderr.on('data', listener)
+    })
   })
 
   return {

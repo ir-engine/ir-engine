@@ -171,6 +171,7 @@ export const startMediaRecordingPair = async (
   let ffmpegInitialized = false
 
   const stopRecording = async () => {
+    if (!ffmpegProcess.childProcess.killed) ffmpegProcess.stop()
     if (tracks.video) {
       tracks.videoConsumer!.close()
       tracks.videoTransport!.close()
@@ -180,7 +181,6 @@ export const startMediaRecordingPair = async (
       tracks.audioTransport!.close()
     }
     if (!ffmpegInitialized) return logger.warn('ffmpeg closed before it initialized, probably failed to start')
-    if (!ffmpegProcess.childProcess.killed) await ffmpegProcess.stop()
   }
 
   const onExit = () => {
