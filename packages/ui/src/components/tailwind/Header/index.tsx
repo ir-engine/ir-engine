@@ -90,6 +90,8 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
 
 Header.displayName = 'Header'
 
-Header.defaultProps = {}
+Header.defaultProps = {
+  mode: { value: 'capture', set: () => {} } as any as State<'playback' | 'capture'>
+}
 
 export default Header

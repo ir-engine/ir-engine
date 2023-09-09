@@ -31,15 +31,14 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import { defineState, getMutableState, receiveActions } from '@etherealengine/hyperflux'
+import { defineState, receiveActions } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
 import {
   RecordingID,
   recordingPath,
-  RecordingSchemaType,
-  RecordingType
+  RecordingSchemaType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { NotificationService } from '../common/services/NotificationService'
 
@@ -47,41 +46,51 @@ export const RecordingState = defineState({
   name: 'ee.RecordingState',
 
   initial: {
-    started: false,
-    recordingID: null as RecordingID | null,
-    recordings: [] as RecordingType[],
-    playback: null as RecordingID | null,
-    startedAt: null as number | null
+    active: false,
+    startedAt: null as number | null,
+    recordingID: null as RecordingID | null
   },
 
   receptors: [
     [
       ECSRecordingActions.startRecording,
       (state, action: typeof ECSRecordingActions.startRecording.matches._TYPE) => {
-        state.started.set(true)
+        state.active.set(true)
         state.startedAt.set(null)
+        state.recordingID.set(null)
       }
     ],
     [
       ECSRecordingActions.recordingStarted,
       (state, action: typeof ECSRecordingActions.recordingStarted.matches._TYPE) => {
-        state.started.set(true)
-        state.recordingID.set(action.recordingID)
         state.startedAt.set(Date.now())
+        state.recordingID.set(action.recordingID)
       }
     ],
     [
       ECSRecordingActions.stopRecording,
       (state, action: typeof ECSRecordingActions.stopRecording.matches._TYPE) => {
-        state.started.set(false)
-        state.recordingID.set(null)
+        state.active.set(false)
         state.startedAt.set(null)
+        state.recordingID.set(null)
       }
-    ],
+    ]
+  ]
+})
+
+export const PlaybackState = defineState({
+  name: 'ee.PlaybackState',
+
+  initial: {
+    recordingID: null as RecordingID | null,
+    startedAt: null as number | null
+  },
+
+  receptors: [
     [
       ECSRecordingActions.playbackChanged,
       (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
-        state.playback.set(action.playing ? action.recordingID : null)
+        state.recordingID.set(action.playing ? action.recordingID : null)
         state.startedAt.set(action.playing ? Date.now() : null)
       }
     ]
@@ -122,25 +131,6 @@ export const RecordingFunctions = {
       console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
-  },
-  getRecordings: async () => {
-    // const recordings = await Engine.instance?.api?.service('recording')?.find().then(res => res?.data) as RecordingResult[]
-    //)?.data as RecordingResult[]
-
-    return await Engine.instance.api
-      .service(recordingPath)
-      .find()
-      .then(
-        (res) => {
-          const recordingState = getMutableState(RecordingState)
-          recordingState.recordings.set(res.data)
-          return true
-        },
-        function (err) {
-          console.log(err)
-          return false
-        }
-      ) // never supposed to reject
   }
 }
 
@@ -148,5 +138,6 @@ export const RecordingServiceSystem = defineSystem({
   uuid: 'ee.client.RecordingServiceSystem',
   execute: () => {
     receiveActions(RecordingState)
+    receiveActions(PlaybackState)
   }
 })

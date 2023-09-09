@@ -251,9 +251,6 @@ export const dispatchError = (error: string, targetPeer: PeerID, topic: Topic) =
 }
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
-  // todo - client side recording
-  if (isClient) return
-
   const api = Engine.instance.api
 
   const recording = await api.service(recordingPath).get(action.recordingID)
@@ -361,17 +358,17 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
     activeRecording.mediaChannelRecorder = mediaRecorder
     console.log('media recording started')
+
+    dispatchAction(
+      ECSRecordingActions.recordingStarted({
+        recordingID: recording.id,
+        $to: action.$peer,
+        $topic: action.$topic
+      })
+    )
   }
 
   activeRecordings.set(recording.id, activeRecording)
-
-  dispatchAction(
-    ECSRecordingActions.recordingStarted({
-      recordingID: recording.id,
-      $to: action.$peer,
-      $topic: action.$topic
-    })
-  )
 }
 
 export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActions.stopRecording>) => {
@@ -385,13 +382,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   const hasScopes = await checkScope(user, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer, action.$topic)
 
-  api
-    .service(recordingPath)
-    .patch(
-      action.recordingID,
-      { ended: true, updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ') },
-      { isInternal: true }
-    )
+  api.service(recordingPath).patch(action.recordingID, { ended: true }, { isInternal: true })
 
   const recording = await api.service(recordingPath).get(action.recordingID)
 
@@ -430,6 +421,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const api = Engine.instance.api
 
   const recording = await api.service(recordingPath).get(action.recordingID, { isInternal: true })
+  console.log(recording)
 
   let schema = recording.schema
 
@@ -676,8 +668,11 @@ const startPlaybackActionQueue = defineActionQueue(ECSRecordingActions.startPlay
 const stopPlaybackActionQueue = defineActionQueue(ECSRecordingActions.stopPlayback.matches)
 
 const execute = () => {
-  for (const action of startRecordingActionQueue()) onStartRecording(action)
-  for (const action of stopRecordingActionQueue()) onStopRecording(action)
+  // todo - client side recording
+  if (!isClient) {
+    for (const action of startRecordingActionQueue()) onStartRecording(action)
+    for (const action of stopRecordingActionQueue()) onStopRecording(action)
+  }
 
   for (const action of startPlaybackActionQueue()) onStartPlayback(action)
   for (const action of stopPlaybackActionQueue()) onStopPlayback(action)

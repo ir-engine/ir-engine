@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
-import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { PlaybackState } from '@etherealengine/client-core/src/recording/RecordingService'
+import { useFind, usePaginate } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 
@@ -50,11 +51,16 @@ const RecordingsList = (props: {
   startPlayback: (recordingID: RecordingID, twin: boolean) => void
   stopPlayback: (args: { recordingID: RecordingID }) => void
 }) => {
-  const recordingState = useHookstate(getMutableState(RecordingState))
+  const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
+  const paginate = usePaginate({ sort: { createdAt: -1 } })
+  const recording = useFind(recordingPath, {
+    query: paginate.query
+  })
 
-  const sortedRecordings = recordingState.recordings.get(NO_PROXY).sort(sortByNewest)
+  const sortedRecordings = recording.data.sort(sortByNewest)
+
   return (
-    <div className="w-full aspect-video overflow-hidden">
+    <div className="w-full aspect-video">
       <table className="table w-full">
         {/* head */}
         <thead>
@@ -84,7 +90,7 @@ const RecordingsList = (props: {
               <td>
                 <div key={recording.id} className="">
                   {/* a button to play back the recording */}
-                  {recordingState.playback.value === recording.id ? (
+                  {recordingID.value === recording.id ? (
                     <button
                       className="btn btn-ghost"
                       onClick={() => {
@@ -111,6 +117,24 @@ const RecordingsList = (props: {
           ))}
         </tbody>
       </table>
+      <div className="flex justify-between">
+        <button
+          className="btn btn-ghost"
+          onClick={() => {
+            paginate.previous()
+          }}
+        >
+          Prev
+        </button>
+        <button
+          className="btn btn-ghost"
+          onClick={() => {
+            paginate.next()
+          }}
+        >
+          Next
+        </button>
+      </div>
     </div>
   )
 }

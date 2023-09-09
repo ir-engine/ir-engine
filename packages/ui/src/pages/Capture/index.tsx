@@ -30,7 +30,11 @@ import { twMerge } from 'tailwind-merge'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
-import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
+import {
+  PlaybackState,
+  RecordingFunctions,
+  RecordingState
+} from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
@@ -56,8 +60,8 @@ import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
+import ReactSlider from 'react-slider'
 import Toolbar from '../../components/tailwind/mocap/Toolbar'
-
 /**
  * Start playback of a recording
  * - If we are streaming data, close the data producer
@@ -69,7 +73,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true, fromS
     network.id,
     mocapDataChannelType
   ) as DataProducer
-  if (getState(RecordingState).playback && dataProducer) {
+  if (getState(PlaybackState).recordingID && dataProducer) {
     dispatchAction(
       MediaProducerActions.producerClosed({
         producerID: dataProducer.id,
@@ -176,8 +180,8 @@ const CaptureMode = () => {
   const debugSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'debug')[0]
 
   const recordingID = useHookstate(getMutableState(RecordingState).recordingID)
-  const started = useHookstate(getMutableState(RecordingState).started)
-  const playback = useHookstate(getMutableState(RecordingState).playback)
+  const startedAt = useHookstate(getMutableState(RecordingState).startedAt)
+  const active = useHookstate(getMutableState(RecordingState).active)
 
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {
@@ -185,8 +189,7 @@ const CaptureMode = () => {
       ECSRecordingFunctions.stopRecording({
         recordingID: recordingID.value
       })
-      RecordingFunctions.getRecordings()
-    } else if (!started.value) {
+    } else {
       RecordingFunctions.startRecording({
         user: { Avatar: true },
         peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
@@ -357,9 +360,9 @@ const CaptureMode = () => {
   }, [isDetecting])
 
   const getRecordingStatus = () => {
-    if (!recordingID.value) return 'inactive'
-    if (playback.value) return 'active'
-    return 'ready'
+    if (!active.value) return 'ready'
+    if (startedAt.value) return 'active'
+    return 'starting'
   }
   const recordingStatus = getRecordingStatus()
 
@@ -399,7 +402,7 @@ const CaptureMode = () => {
             onToggleRecording={onToggleRecording}
             toggleWebcam={toggleWebcamPaused}
             toggleDetecting={() => isDetecting.set((v) => !v)}
-            isRecording={started.value}
+            isRecording={!!recordingID.value}
             recordingStatus={recordingStatus}
             cycleCamera={MediaStreamService.cycleCamera}
           />
@@ -410,20 +413,12 @@ const CaptureMode = () => {
 }
 
 const PlaybackMode = () => {
-  const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
-  const captureSettings = captureState?.nested('settings')?.value
-  const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
-
-  const recordingID = useHookstate(getMutableState(RecordingState).playback)
+  const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
 
   const recording = useGet('recording', recordingID.value!)
   console.log({ recording })
 
   const { videoRef, canvasRef, resizeCanvas } = useResizableCanvas()
-
-  useEffect(() => {
-    RecordingFunctions.getRecordings()
-  }, [])
 
   useEffect(() => {
     if (!recording.data || !videoRef.current) return
@@ -454,6 +449,16 @@ const PlaybackMode = () => {
             <Canvas ref={canvasRef} />
           </div>
         </div>
+        <ReactSlider
+          className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
+          thumbClassName="example-thumb"
+          trackClassName="example-track"
+          renderThumb={(props, state) => (
+            <div className="w-4 h-4 bg-white rounded-full shadow-md" {...props}>
+              {state.valueNow}
+            </div>
+          )}
+        />
       </div>
       <div className="w-full container mx-auto flex">
         <div className="w-full relative m-2">

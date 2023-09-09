@@ -123,20 +123,17 @@ export const startFFMPEG = async (
   /** Init codec & args */
 
   let cmdInput = undefined as string | undefined
-  // output path is unused
-  // let cmdOutputPath = ''`${__dirname}/recording/output-ffmpeg-vp8.webm`
   let cmdCodec = ''
   let cmdFormat = '-f webm -flags +global_header'
 
-  if (!!audioConsumer) {
+  if (audioConsumer) {
     cmdCodec += ' -map 0:a:0 -c:a copy'
   }
-  if (!!videoConsumer) {
+  if (videoConsumer) {
     cmdCodec += ' -map 0:v:0 -c:v copy'
 
     if (useH264) {
       cmdInput = createH264sdp(startPort, startPort + 1, startPort + 2, startPort + 3)
-      // cmdOutputPath = `${__dirname}/recording/output-ffmpeg-h264.mp4`
 
       // "-strict experimental" is required to allow storing
       // OPUS audio into MP4 container
@@ -180,12 +177,11 @@ export const startFFMPEG = async (
   childProcess.on('exit', (code, signal) => {
     logger.info('Recording process exit, code: %d, signal: %s', code, signal)
 
-    onExit()
-
     if (!signal || signal === 'SIGINT') {
       logger.info('Recording stopped')
     } else {
       logger.warn("Recording process didn't exit cleanly, output file might be corrupt")
+      onExit()
     }
   })
 
@@ -193,24 +189,23 @@ export const startFFMPEG = async (
   sdpStream.resume()
   sdpStream.pipe(childProcess.stdin)
 
-  const stop = () => {
-    childProcess.kill('SIGINT')
+  const stop = async () => {
+    childProcess.kill('SIGINT') // SIGINT is graceful exit
   }
   childProcess.stdout.pipe(stream, { end: true })
 
-  await new Promise<void>((resolve, reject) => {
+  await new Promise<void>(async (resolve, reject) => {
     /** resume consumers */
     if (videoConsumer) {
-      videoConsumer.resume()
+      await videoConsumer.resume()
       logger.info('Resuming recording video consumer', videoConsumer)
     }
     if (audioConsumer) {
-      audioConsumer.resume()
+      await audioConsumer.resume()
       logger.info('Resuming recording audio consumer', audioConsumer)
     }
 
-    // FFmpeg writes its logs to stderr
-    childProcess.stderr.on('data', (chunk) => {
+    const listener = (chunk) => {
       console.log('sterr', chunk.toString())
       chunk
         .toString()
@@ -218,11 +213,16 @@ export const startFFMPEG = async (
         .filter(Boolean) // Filter out empty strings
         .forEach((line) => {
           logger.info(line)
-          if (line.startsWith("Input #0, sdp, from 'pipe:0':")) {
+          if (line.startsWith('ffmpeg version')) {
+            logger.info('Recording started')
+            childProcess.stderr.removeListener('data', listener)
             resolve()
           }
         })
-    })
+    }
+
+    // FFmpeg writes its logs to stderr
+    childProcess.stderr.on('data', listener)
   })
 
   return {

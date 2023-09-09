@@ -29,7 +29,7 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha", "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0", "vidstack/globals"],
+    "types": ["vite/client", "mocha", "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"],
   },
   "exclude": [
     "./node_modules/**",

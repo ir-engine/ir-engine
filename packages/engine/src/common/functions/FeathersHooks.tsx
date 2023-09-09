@@ -297,3 +297,55 @@ export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void
     }
   }, [serviceName])
 }
+
+type DefaultPaginationProps = Partial<{
+  skip: number
+  limit: number
+  search: string
+  sort: Record<string, 1 | -1>
+  filters: Record<string, any>
+}>
+
+type Query = {
+  $skip: number
+  $limit: number
+  $sort: Record<string, 1 | -1>
+}
+
+export function usePaginate(defaultProps = {} as DefaultPaginationProps) {
+  const store = useHookstate({
+    $skip: defaultProps.skip ?? 0,
+    $limit: defaultProps.limit ?? 10,
+    $sort: defaultProps.sort ?? {}
+  })
+
+  const query = {
+    $skip: store.$skip.value,
+    $limit: store.$limit.value,
+    $sort: store.$sort.value
+  } as Query
+
+  const sort = (sort: Record<string, 1 | -1>) => {
+    store.$sort.set(sort)
+  }
+
+  const limit = (limit: number) => {
+    store.$limit.set(limit)
+  }
+
+  const next = () => {
+    store.$skip.set(store.$skip.value + store.$limit.value)
+  }
+
+  const previous = () => {
+    store.$skip.set(store.$skip.value - store.$limit.value)
+  }
+
+  return {
+    query,
+    sort,
+    limit,
+    next,
+    previous
+  }
+}

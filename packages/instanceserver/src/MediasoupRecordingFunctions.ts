@@ -170,7 +170,7 @@ export const startMediaRecordingPair = async (
 
   let ffmpegInitialized = false
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (tracks.video) {
       tracks.videoConsumer!.close()
       tracks.videoTransport!.close()
@@ -180,8 +180,7 @@ export const startMediaRecordingPair = async (
       tracks.audioTransport!.close()
     }
     if (!ffmpegInitialized) return logger.warn('ffmpeg closed before it initialized, probably failed to start')
-    console.log('ffmpeg connected:', ffmpegProcess.childProcess.connected)
-    if (ffmpegProcess.childProcess.connected) ffmpegProcess.stop()
+    if (!ffmpegProcess.childProcess.killed) await ffmpegProcess.stop()
   }
 
   const onExit = () => {
@@ -216,7 +215,7 @@ export const uploadMediaStaticResource = async (props: onUploadPartArgs) => {
 
   const storageProvider = getStorageProvider()
 
-  const upload = await storageProvider.putObject({
+  const uploadPromise = storageProvider.putObject({
     Key: props.key,
     Body: props.body,
     ContentType: props.mimeType
@@ -234,12 +233,16 @@ export const uploadMediaStaticResource = async (props: onUploadPartArgs) => {
     { isInternal: true }
   )
 
-  await api.service(recordingResourcePath).create({
-    staticResourceId: staticResource.id,
-    recordingId: props.recordingID
+  const recordingResource = await api.service(recordingResourcePath).create({
+    recordingId: props.recordingID,
+    staticResourceId: staticResource.id
   })
 
-  return upload
+  await uploadPromise
+
+  await api.service(recordingResourcePath).patch(recordingResource.id, {
+    updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+  })
 }
 
 // todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
