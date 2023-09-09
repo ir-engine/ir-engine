@@ -32,6 +32,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { HyperFlux } from './StoreFunctions'
 
 const logger = multiLogger.child({ component: 'hyperflux:Action' })
@@ -102,7 +103,7 @@ export type ActionOptions = {
    * Optionally specify the network to send this action to.
    * Specifying this will not send the action to other networks, even as a cached action.
    */
-  $network?: string | undefined // TODO make a type for NetworkID
+  $network?: InstanceID | undefined // TODO make a type for NetworkID
 
   /**
    * Specifies how this action should be cached for newly joining clients.

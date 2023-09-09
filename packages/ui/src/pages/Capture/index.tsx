@@ -168,12 +168,33 @@ export const CaptureState = defineState({
   }
 })
 
-const RecordingMode = () => {
+const CaptureMode = () => {
   const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
   const captureSettings = captureState?.nested('settings')?.value
   const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
   const trackingSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
   const debugSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'debug')[0]
+
+  const recordingID = useHookstate(getMutableState(RecordingState).recordingID)
+  const started = useHookstate(getMutableState(RecordingState).started)
+  const playback = useHookstate(getMutableState(RecordingState).playback)
+
+  // todo include a mechanism to confirm that the recording has started/stopped
+  const onToggleRecording = () => {
+    if (recordingID.value) {
+      ECSRecordingFunctions.stopRecording({
+        recordingID: recordingID.value
+      })
+      RecordingFunctions.getRecordings()
+    } else if (!started.value) {
+      RecordingFunctions.startRecording({
+        user: { Avatar: true },
+        peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
+      }).then((recordingID) => {
+        if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
+      })
+    }
+  }
 
   const mediaNetworkState = useMediaNetwork()
 
@@ -335,30 +356,56 @@ const RecordingMode = () => {
     }
   }, [isDetecting])
 
+  const getRecordingStatus = () => {
+    if (!recordingID.value) return 'inactive'
+    if (playback.value) return 'active'
+    return 'ready'
+  }
+  const recordingStatus = getRecordingStatus()
+
   return (
-    <>
-      <div className="absolute w-full h-full top-0 left-0 flex items-center" style={{ backgroundColor: '#000000' }}>
-        <Video
-          ref={videoRef}
-          className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
-        />
+    <div className="w-full container mx-auto pointer-events-auto">
+      <div className="w-full h-auto px-2">
+        <div className="w-full h-auto relative aspect-video overflow-hidden">
+          <div className="absolute w-full h-full top-0 left-0 flex items-center" style={{ backgroundColor: '#000000' }}>
+            <Video
+              ref={videoRef}
+              className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+            />
+          </div>
+          <div
+            className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
+            style={{ objectFit: 'contain', top: '0px' }}
+          >
+            <Canvas ref={canvasRef} />
+          </div>
+          <button
+            onClick={() => {
+              if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
+            }}
+            className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
+          >
+            {videoStatus === 'ready' && <h1>Enable Camera</h1>}
+            {videoStatus === 'loading' && <h1>Loading...</h1>}
+          </button>
+        </div>
       </div>
-      <div
-        className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
-        style={{ objectFit: 'contain', top: '0px' }}
-      >
-        <Canvas ref={canvasRef} />
+      <div className="w-full h-auto relative aspect-video overflow-hidden">
+        <div className="w-full container mx-auto">
+          <Toolbar
+            className="w-full"
+            videoStatus={videoStatus}
+            detectingStatus={detectingStatus.value}
+            onToggleRecording={onToggleRecording}
+            toggleWebcam={toggleWebcamPaused}
+            toggleDetecting={() => isDetecting.set((v) => !v)}
+            isRecording={started.value}
+            recordingStatus={recordingStatus}
+            cycleCamera={MediaStreamService.cycleCamera}
+          />
+        </div>
       </div>
-      <button
-        onClick={() => {
-          if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
-        }}
-        className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
-      >
-        {videoStatus === 'ready' && <h1>Enable Camera</h1>}
-        {videoStatus === 'loading' && <h1>Loading...</h1>}
-      </button>
-    </>
+    </div>
   )
 }
 
@@ -375,6 +422,10 @@ const PlaybackMode = () => {
   const { videoRef, canvasRef, resizeCanvas } = useResizableCanvas()
 
   useEffect(() => {
+    RecordingFunctions.getRecordings()
+  }, [])
+
+  useEffect(() => {
     if (!recording.data || !videoRef.current) return
     videoRef.current.addEventListener('loadedmetadata', () => {
       console.log('loadedmetadata')
@@ -386,100 +437,46 @@ const PlaybackMode = () => {
   const src = recording.data?.resources?.find((r) => r.mimeType.includes('video'))?.url
 
   return (
-    <>
-      <div className="absolute w-full h-full top-0 left-0 flex items-center" style={{ backgroundColor: '#000000' }}>
-        {src && (
-          <div className="relative">
-            <video className="w-full h-auto" ref={videoRef} src={src} controls></video>
+    <div className="w-full container mx-auto pointer-events-auto">
+      <div className="w-full h-auto px-2">
+        <div className="w-full h-auto relative aspect-video overflow-hidden">
+          <div className="absolute w-full h-full top-0 left-0 items-center" style={{ backgroundColor: '#000000' }}>
+            {src && (
+              <div className="relative">
+                <video className="w-full h-auto" ref={videoRef} src={src} controls></video>
+              </div>
+            )}
           </div>
-        )}
+          <div
+            className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto pointer-events-none"
+            style={{ objectFit: 'contain', top: '0px' }}
+          >
+            <Canvas ref={canvasRef} />
+          </div>
+        </div>
       </div>
-      <div
-        className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
-        style={{ objectFit: 'contain', top: '0px' }}
-      >
-        <Canvas ref={canvasRef} />
+      <div className="w-full container mx-auto flex">
+        <div className="w-full relative m-2">
+          <RecordingsList
+            {...{
+              startPlayback,
+              stopPlayback: ECSRecordingFunctions.stopPlayback
+            }}
+          />
+        </div>
       </div>
-    </>
+    </div>
   )
 }
 
 const CaptureDashboard = () => {
   const mode = useHookstate<'playback' | 'capture'>('capture')
-  const recordingID = useHookstate(getMutableState(RecordingState).recordingID)
-  const playback = useHookstate(getMutableState(RecordingState).playback)
-  const started = useHookstate(getMutableState(RecordingState).started)
-  const isDetecting = useHookstate(getMutableState(CaptureState).isDetecting)
-  const detectingStatus = useHookstate(getMutableState(CaptureState).detectingStatus)
-
-  useEffect(() => {
-    RecordingFunctions.getRecordings()
-  }, [])
-
-  // todo include a mechanism to confirm that the recording has started/stopped
-  const onToggleRecording = () => {
-    if (recordingID.value) {
-      ECSRecordingFunctions.stopRecording({
-        recordingID: recordingID.value
-      })
-      RecordingFunctions.getRecordings()
-    } else if (!started.value) {
-      RecordingFunctions.startRecording({
-        user: { Avatar: true },
-        peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
-      }).then((recordingID) => {
-        if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
-      })
-    }
-  }
-
-  const videoStatus = useVideoStatus()
-
-  const getRecordingStatus = () => {
-    if (!recordingID.value) return 'inactive'
-    if (playback.value) return 'active'
-    return 'ready'
-  }
-  const recordingStatus = getRecordingStatus()
 
   return (
     <div className="w-full container mx-auto max-w-[1024px] overflow-hidden">
       <Drawer settings={<div></div>}>
         <Header mode={mode} />
-        <div className="w-full container mx-auto pointer-events-auto">
-          <div className="w-full h-auto px-2">
-            <div className="w-full h-auto relative aspect-video overflow-hidden">
-              {mode.value === 'playback' ? <PlaybackMode /> : <RecordingMode />}
-            </div>
-          </div>
-          {mode.value === 'capture' && (
-            <div className="w-full container mx-auto">
-              <Toolbar
-                className="w-full"
-                videoStatus={videoStatus}
-                detectingStatus={detectingStatus.value}
-                onToggleRecording={onToggleRecording}
-                toggleWebcam={toggleWebcamPaused}
-                toggleDetecting={() => isDetecting.set((v) => !v)}
-                isRecording={started.value}
-                recordingStatus={recordingStatus}
-                cycleCamera={MediaStreamService.cycleCamera}
-              />
-            </div>
-          )}
-          {mode.value === 'playback' && (
-            <div className="w-full container mx-auto flex">
-              <div className="w-full relative m-2">
-                <RecordingsList
-                  {...{
-                    startPlayback,
-                    stopPlayback: ECSRecordingFunctions.stopPlayback
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
         <footer className="footer fixed bottom-0">
           <div style={{ display: 'none' }}>
             <InstanceChatWrapper />

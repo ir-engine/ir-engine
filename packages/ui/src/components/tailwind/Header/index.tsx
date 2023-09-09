@@ -43,9 +43,18 @@ const Header = (props: { mode: State<'playback' | 'capture'> }) => {
         <Button
           icon={null}
           className={'btn pointer-events-auto'}
-          title={props.mode.value === 'capture' ? 'Playback' : 'Capture'}
+          disabled={props.mode.value === 'capture'}
+          title={'Capture'}
           labelPosition="below"
-          onClick={() => props.mode.set(props.mode.value === 'capture' ? 'playback' : 'capture')}
+          onClick={() => props.mode.set('capture')}
+        />
+        <Button
+          icon={null}
+          className={'btn pointer-events-auto'}
+          disabled={props.mode.value === 'playback'}
+          title={'Playback'}
+          labelPosition="below"
+          onClick={() => props.mode.set('playback')}
         />
       </div>
       <div className="navbar-end">

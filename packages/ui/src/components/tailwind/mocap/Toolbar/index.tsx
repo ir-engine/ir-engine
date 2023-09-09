@@ -158,7 +158,7 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
             title="pose"
           />
           <Button
-            {...(detectingStatus !== 'active' ? { disabled: true } : {})}
+            {...(videoStatus !== 'active' ? { disabled: true } : {})}
             className={twMerge(
               'btn',
               isRecording && 'btn-active',

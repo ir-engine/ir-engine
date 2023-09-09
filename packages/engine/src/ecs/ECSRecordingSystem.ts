@@ -566,13 +566,13 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   activePlaybacks.set(action.recordingID, activePlayback)
 
-  /** We only need to dispatch once, so do it on the world server */
-  if (!network || network.topic === NetworkTopics.world) {
+  /** We only need to dispatch once, so do it on the media server which takes longer to start */
+  if (!network || network.topic === NetworkTopics.media) {
     dispatchAction(
       ECSRecordingActions.playbackChanged({
         recordingID: action.recordingID,
         playing: true,
-        $topic: network ? network.topic : undefined
+        $topic: network?.topic
       })
     )
   }
