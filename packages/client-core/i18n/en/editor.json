@@ -395,7 +395,9 @@
         "normalMap": "Normal Map",
         "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps",
         "uastcZstandard": "UASTC Zstandard",
-        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression"
+        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression",
+        "useMeshoptimizer": "Use Meshoptimizer",
+        "maxCodebooks": "Max Codebooks"
       },
       "lods": {
         "label": "Level of Detail",
