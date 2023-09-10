@@ -47,6 +47,7 @@ import {
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
@@ -210,14 +211,18 @@ function ModelReactor() {
 
     const skinnedMeshSearch = iterateObject3D(
       scene,
-      () => true,
-      (ob: SkinnedMesh) => ob.isSkinnedMesh,
-      false,
-      true
+      (skinnedMesh) => skinnedMesh,
+      (ob: SkinnedMesh) => ob.isSkinnedMesh
     )
+
     if (skinnedMeshSearch[0]) {
       modelComponent.hasSkinnedMesh.set(true)
       modelComponent.generateBVH.set(false)
+      for (const skinnedMesh of skinnedMeshSearch) {
+        skinnedMesh.frustumCulled = false
+      }
+      setComponent(entity, FrustumCullCameraComponent)
+      setComponent(entity, DistanceFromCameraComponent)
     }
 
     if (model.generateBVH) {
