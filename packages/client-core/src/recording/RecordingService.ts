@@ -83,7 +83,7 @@ export const PlaybackState = defineState({
 
   initial: {
     recordingID: null as RecordingID | null,
-    startedAt: null as number | null
+    currentTime: null as number | null
   },
 
   receptors: [
@@ -91,7 +91,7 @@ export const PlaybackState = defineState({
       ECSRecordingActions.playbackChanged,
       (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
         state.recordingID.set(action.playing ? action.recordingID : null)
-        state.startedAt.set(action.playing ? Date.now() : null)
+        state.currentTime.set(action.playing ? Date.now() : null)
       }
     ]
   ]

@@ -208,7 +208,7 @@ interface ActivePlayback {
   mediaPlayback?: any // todo
 }
 
-interface DataChannelFrame<T> {
+export interface DataChannelFrame<T> {
   data: T[]
   timecode: number
 }

@@ -25,8 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect, useLayoutEffect, useRef } from 'react'
+import { decode } from 'msgpackr'
+import React, { RefObject, useEffect, useLayoutEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
+
+import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/useResizableVideoCanvas'
+import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
@@ -41,17 +45,27 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { ECSRecordingActions, ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import {
+  DataChannelFrame,
+  ECSRecordingActions,
+  ECSRecordingFunctions
+} from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import {
+  MotionCaptureFunctions,
+  MotionCaptureResults,
+  mocapDataChannelType,
+  receiveResults
+} from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { NO_PROXY, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
@@ -98,7 +112,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true, fromS
   )
 }
 
-const sendResults = (results: NormalizedLandmarkList) => {
+const sendResults = (results: MotionCaptureResults) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
   const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
@@ -115,42 +129,6 @@ const sendResults = (results: NormalizedLandmarkList) => {
     // console.log('sending results', results)
     const data = MotionCaptureFunctions.sendResults(results)
     dataProducer?.send(data)
-  }
-}
-
-const useResizableCanvas = () => {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const canvasCtxRef = useRef<CanvasRenderingContext2D>()
-
-  const resizeCanvas = () => {
-    if (!videoRef.current) return
-
-    if (canvasRef.current?.width !== videoRef.current?.clientWidth) {
-      canvasRef.current!.width = videoRef.current!.clientWidth
-    }
-
-    if (canvasRef.current?.height !== videoRef.current?.clientHeight) {
-      canvasRef.current!.height = videoRef.current!.clientHeight
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('resize', () => {
-      resizeCanvas()
-    })
-    return () => {
-      window.removeEventListener('resize', () => {
-        resizeCanvas()
-      })
-    }
-  }, [])
-
-  return {
-    videoRef,
-    canvasRef,
-    canvasCtxRef,
-    resizeCanvas
   }
 }
 
@@ -210,7 +188,7 @@ const CaptureMode = () => {
 
   const videoStatus = useVideoStatus()
 
-  const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableCanvas()
+  const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
@@ -272,80 +250,18 @@ const CaptureMode = () => {
         if (Object.keys(results).length === 0) return
         detectingStatus.set('active')
 
-        const { poseLandmarks, poseWorldLandmarks } = results
+        const { poseWorldLandmarks, poseLandmarks } = results
 
         if (debugSettings?.throttleSend) {
-          throttledSend(poseWorldLandmarks)
+          throttledSend({ poseWorldLandmarks, poseLandmarks })
         } else {
-          sendResults(poseWorldLandmarks)
+          sendResults({ poseWorldLandmarks, poseLandmarks })
         }
 
         processingFrame.set(false)
 
         if (displaySettings?.show2dSkeleton) {
-          if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
-
-          //draw!!!
-          canvasCtxRef.current.save()
-          canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-          canvasCtxRef.current.globalCompositeOperation = 'source-over'
-
-          // Pose Connections
-          drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
-            color: '#fff',
-            lineWidth: 4
-          })
-          // Pose Landmarks
-          drawLandmarks(canvasCtxRef.current, poseLandmarks, {
-            color: '#fff',
-            radius: 2
-          })
-
-          // // Left Hand Connections
-          // drawConnectors(
-          //   canvasCtxRef.current,
-          //   leftHandLandmarks !== undefined ? leftHandLandmarks : [],
-          //   HAND_CONNECTIONS,
-          //   {
-          //     color: '#fff',
-          //     lineWidth: 4
-          //   }
-          // )
-
-          // // Left Hand Landmarks
-          // drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-          //   color: '#fff',
-          //   radius: 2
-          // })
-
-          // // Right Hand Connections
-          // drawConnectors(
-          //   canvasCtxRef.current,
-          //   rightHandLandmarks !== undefined ? rightHandLandmarks : [],
-          //   HAND_CONNECTIONS,
-          //   {
-          //     color: '#fff',
-          //     lineWidth: 4
-          //   }
-          // )
-
-          // // Right Hand Landmarks
-          // drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
-          //   color: '#fff',
-          //   radius: 2
-          // })
-
-          // // Face Connections
-          // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
-          //   color: '#fff',
-          //   lineWidth: 1
-          // })
-          // Face Landmarks
-          // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
-          //   color: '#fff',
-          //   lineWidth: 1
-          // })
-          canvasCtxRef.current.restore()
+          drawPoseToCanvas(canvasCtxRef, canvasRef!, poseLandmarks)
         }
       })
     }
@@ -370,7 +286,7 @@ const CaptureMode = () => {
     <div className="w-full container mx-auto pointer-events-auto">
       <div className="w-full h-auto px-2">
         <div className="w-full h-auto relative aspect-video overflow-hidden">
-          <div className="absolute w-full h-full top-0 left-0 flex items-center" style={{ backgroundColor: '#000000' }}>
+          <div className="absolute w-full h-full top-0 left-0 flex items-center bg-black">
             <Video
               ref={videoRef}
               className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
@@ -412,54 +328,213 @@ const CaptureMode = () => {
   )
 }
 
-const PlaybackMode = () => {
-  const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
+const drawPoseToCanvas = (
+  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
+  canvasRef: RefObject<HTMLCanvasElement>,
+  poseLandmarks: NormalizedLandmarkList
+) => {
+  if (!canvasCtxRef.current || !canvasRef.current) return
 
-  const recording = useGet('recording', recordingID.value!)
-  console.log({ recording })
+  //draw!!!
+  canvasCtxRef.current.save()
+  canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+  canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
-  const { videoRef, canvasRef, resizeCanvas } = useResizableCanvas()
+  // Pose Connections
+  drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
+    color: '#fff',
+    lineWidth: 4
+  })
+  // Pose Landmarks
+  drawLandmarks(canvasCtxRef.current, poseLandmarks, {
+    color: '#fff',
+    radius: 2
+  })
+
+  // // Left Hand Connections
+  // drawConnectors(
+  //   canvasCtxRef.current,
+  //   leftHandLandmarks !== undefined ? leftHandLandmarks : [],
+  //   HAND_CONNECTIONS,
+  //   {
+  //     color: '#fff',
+  //     lineWidth: 4
+  //   }
+  // )
+
+  // // Left Hand Landmarks
+  // drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
+  //   color: '#fff',
+  //   radius: 2
+  // })
+
+  // // Right Hand Connections
+  // drawConnectors(
+  //   canvasCtxRef.current,
+  //   rightHandLandmarks !== undefined ? rightHandLandmarks : [],
+  //   HAND_CONNECTIONS,
+  //   {
+  //     color: '#fff',
+  //     lineWidth: 4
+  //   }
+  // )
+
+  // // Right Hand Landmarks
+  // drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
+  //   color: '#fff',
+  //   radius: 2
+  // })
+
+  // // Face Connections
+  // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
+  //   color: '#fff',
+  //   lineWidth: 1
+  // })
+  // Face Landmarks
+  // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
+  //   color: '#fff',
+  //   lineWidth: 1
+  // })
+  canvasCtxRef.current.restore()
+}
+
+const VideoPlayback = (props: {
+  startTime: number
+  video: StaticResourceType
+  mocap: StaticResourceType | undefined
+}) => {
+  const { video, mocap, startTime } = props
+  const videoSrc = video.url
+
+  const mocapData = useHookstate(null as null | ReturnType<typeof receiveResults>[])
 
   useEffect(() => {
-    if (!recording.data || !videoRef.current) return
+    if (!mocap) return
+
+    // todo get data from ECSRecordingSystem instead of fetching again here
+    fetch(mocap.url).then((res) => {
+      res.arrayBuffer().then((buffer) => {
+        const rawData = decode(new Uint8Array(buffer)) as DataChannelFrame<ReturnType<typeof receiveResults>>[]
+        const data = rawData.map((frame) => frame.data).flat()
+        mocapData.set(data)
+      })
+    })
+  }, [])
+
+  const currentTimeSeconds = useHookstate(getMutableState(PlaybackState).currentTime)
+
+  const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
+
+  const { handlePositionChange } = useScrubbableVideo(videoRef)
+
+  useEffect(() => {
+    if (!videoRef.current) return
     videoRef.current.addEventListener('loadedmetadata', () => {
-      console.log('loadedmetadata')
       resizeCanvas()
       videoRef.current!.play()
+      canvasCtxRef.current = canvasRef.current!.getContext('2d')!
     })
-  }, [videoRef.current, recording])
+  }, [videoRef.current])
 
-  const src = recording.data?.resources?.find((r) => r.mimeType.includes('video'))?.url
+  useEffect(() => {
+    if (!videoRef.current || typeof currentTimeSeconds.value !== 'number') return
+
+    handlePositionChange(currentTimeSeconds.value)
+
+    if (mocapData.value) {
+      // start time is the time the recording was started
+      const relativeTime = startTime + currentTimeSeconds.value * 1000
+      // get last frame before current time
+      const closest = mocapData.get(NO_PROXY)!.findLast((curr) => curr.timestamp - relativeTime <= 0)
+      if (!closest) return
+      drawPoseToCanvas(canvasCtxRef, canvasRef, closest.results.poseLandmarks)
+    }
+  }, [currentTimeSeconds])
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto">
-      <div className="w-full h-auto px-2">
+    <>
+      <div className="absolute w-full h-full top-0 left-0 items-center bg-black">
+        <div className="relative">
+          <Video ref={videoRef} src={videoSrc} controls={false} className={twMerge('w-full h-auto opacity-100')} />
+        </div>
+      </div>
+      <div className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto pointer-events-none">
+        <Canvas ref={canvasRef} />
+      </div>
+    </>
+  )
+}
+
+const PlaybackMode = () => {
+  const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
+  const currentTime = useHookstate(getMutableState(PlaybackState).currentTime)
+
+  const recording = useGet(recordingPath, recordingID.value!)
+  console.log({ recording })
+
+  const setCurrentTime = (time) => {
+    currentTime.set(time)
+  }
+
+  const ActiveRecording = () => {
+    const data = recording.data!
+    const startTime = new Date(data.createdAt).getTime()
+    const endTime = new Date(data.updatedAt).getTime()
+    const durationSeconds = (endTime - startTime) / 1000
+
+    // get all video resources, paired with motion capture data if it exists
+    const videoPlaybackPairs = data.resources.reduce(
+      (acc, r) => {
+        if (r.mimeType.includes('video')) {
+          acc.push({
+            video: r,
+            mocap: data.resources.find((r) => r.key.includes(mocapDataChannelType))
+          })
+        }
+        return acc
+      },
+      [] as { video: StaticResourceType; mocap: StaticResourceType | undefined }[]
+    )
+
+    return (
+      <>
         <div className="w-full h-auto relative aspect-video overflow-hidden">
-          <div className="absolute w-full h-full top-0 left-0 items-center" style={{ backgroundColor: '#000000' }}>
-            {src && (
-              <div className="relative">
-                <video className="w-full h-auto" ref={videoRef} src={src} controls></video>
-              </div>
-            )}
-          </div>
-          <div
-            className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto pointer-events-none"
-            style={{ objectFit: 'contain', top: '0px' }}
-          >
-            <Canvas ref={canvasRef} />
-          </div>
+          {videoPlaybackPairs.map((r) => (
+            <VideoPlayback startTime={startTime} {...r} key={r.video.id} />
+          ))}
         </div>
         <ReactSlider
           className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
-          thumbClassName="example-thumb"
-          trackClassName="example-track"
-          renderThumb={(props, state) => (
-            <div className="w-4 h-4 bg-white rounded-full shadow-md" {...props}>
-              {state.valueNow}
-            </div>
-          )}
+          min={0}
+          max={durationSeconds}
+          step={1 / 60} // todo store recording framerate in recording
+          onChange={setCurrentTime}
+          renderThumb={(props, state) => {
+            return (
+              <div
+                {...props}
+                className="w-8 h-4 bg-white rounded-full shadow-md text-center font=[lato] font-bold text-sm"
+              >
+                {Math.round(state.valueNow)}
+              </div>
+            )
+          }}
         />
+      </>
+    )
+  }
+
+  const NoRecording = () => {
+    return (
+      <div className="w-full h-auto relative aspect-video overflow-hidden flex items-center justify-center bg-black">
+        <h1 className="text-2xl">No Recording Selected</h1>
       </div>
+    )
+  }
+
+  return (
+    <div className="w-full container mx-auto pointer-events-auto">
+      <div className="w-full h-auto px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
       <div className="w-full container mx-auto flex">
         <div className="w-full relative m-2">
           <RecordingsList

@@ -66,7 +66,12 @@ import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
-export const sendResults = (results: NormalizedLandmarkList) => {
+export type MotionCaptureResults = {
+  poseWorldLandmarks: NormalizedLandmarkList
+  poseLandmarks: NormalizedLandmarkList
+}
+
+export const sendResults = (results: MotionCaptureResults) => {
   return encode({
     timestamp: Date.now(),
     peerID: Engine.instance.peerID,
@@ -78,7 +83,7 @@ export const receiveResults = (buff: ArrayBuffer) => {
   const { timestamp, peerID, results } = decode(new Uint8Array(buff)) as {
     timestamp: number
     peerID: PeerID
-    results: NormalizedLandmarkList
+    results: MotionCaptureResults
   }
   // console.log('received mocap data', peerID, results)
   return { timestamp, peerID, results }
@@ -110,7 +115,7 @@ const handleMocapData = (
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
 
-const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmarkList>>()
+const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureResults>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
@@ -136,7 +141,7 @@ const execute = () => {
 
     if (data && entity) {
       setComponent(entity, MotionCaptureRigComponent)
-      solveMotionCapturePose(data, userID, entity)
+      solveMotionCapturePose(data.poseWorldLandmarks, userID, entity)
     }
   }
 
