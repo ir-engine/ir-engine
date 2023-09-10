@@ -168,7 +168,7 @@ function CSMReactor() {
   const directionalLights = useQuery([VisibleComponent, DirectionalLightComponent])
 
   const csmEnabled = useHookstate(getMutableState(RenderSettingsState))?.csm?.value
-  const shadowsEnabled = useShadowsEnabled()
+  const shadowsEnabled = false
 
   if (!shadowsEnabled || !csmEnabled) return null
 
