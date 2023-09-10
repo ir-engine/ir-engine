@@ -42,7 +42,8 @@ export const useScrubbableVideo = (videoRef: RefObject<HTMLVideoElement>) => {
   const onSeeking = () => {
     scrubState.stalledTimeout.set(
       setTimeout(() => {
-        videoRef.current!.classList.add('stalled')
+        if (!videoRef.current) return
+        videoRef.current.classList.add('stalled')
       }, 2000)
     ) // mark as "stalled" after 2 seconds
   }
