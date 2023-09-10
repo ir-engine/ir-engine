@@ -164,11 +164,11 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   reorder: true,
   resample: true,
   weld: {
-    enabled: true,
+    enabled: false,
     tolerance: 0.001
   },
   meshoptCompression: {
-    enabled: true,
+    enabled: false,
     options: {
       compression: true,
       basisU: true,
@@ -178,7 +178,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
     }
   },
   dracoCompression: {
-    enabled: true,
+    enabled: false,
     options: {
       method: 'sequential',
       encodeSpeed: 0,

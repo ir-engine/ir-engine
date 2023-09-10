@@ -408,7 +408,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     const ext = segments.pop()
     const base = segments.join('.')
     initialSrc = `${base}-meshopt.${ext}`
-    let packArgs = `-i ${args.src} -o ${initialSrc} `
+    let packArgs = `-i ${args.src} -o ${initialSrc} -noq `
     if (!args.parms.meshoptCompression.options.mergeMaterials) {
       packArgs += `-km `
     }
@@ -529,7 +529,10 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         const img = await sharp(oldPath)
         const metadata = await img.metadata()
         let resizedDimension = 2
-        while (resizedDimension * 2 < Math.min(mergedParms.maxTextureSize, Math.max(metadata.width, metadata.height))) {
+        while (
+          resizedDimension * 2 <=
+          Math.min(mergedParms.maxTextureSize, Math.max(metadata.width, metadata.height))
+        ) {
           resizedDimension *= 2
         }
         //resize the image to be no larger than the max texture size
