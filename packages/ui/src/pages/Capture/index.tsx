@@ -33,7 +33,6 @@ import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/u
 import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
 import {
   PlaybackState,
   RecordingFunctions,
@@ -52,7 +51,9 @@ import {
 } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
+import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import {
@@ -145,8 +146,7 @@ const useVideoStatus = () => {
 export const CaptureState = defineState({
   name: 'CaptureState',
   initial: {
-    isDetecting: false,
-    detectingStatus: 'inactive' as 'inactive' | 'active' | 'loading'
+    detectingStatus: 'inactive' as 'inactive' | 'active' | 'loading' | 'ready'
   }
 })
 
@@ -179,8 +179,8 @@ const CaptureMode = () => {
 
   const mediaNetworkState = useMediaNetwork()
 
-  const isDetecting = useHookstate(getMutableState(CaptureState).isDetecting)
   const detectingStatus = useHookstate(getMutableState(CaptureState).detectingStatus)
+  const isDetecting = detectingStatus.value === 'active'
 
   const poseDetector = useHookstate(null as null | Pose)
 
@@ -191,6 +191,30 @@ const CaptureMode = () => {
   const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+
+  useEffect(() => {
+    detectingStatus.set('loading')
+    const pose = new Pose({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+      }
+    })
+    pose.setOptions({
+      // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
+      selfieMode: displaySettings?.flipVideo,
+      modelComplexity: trackingSettings?.modelComplexity,
+      smoothLandmarks: trackingSettings?.smoothLandmarks,
+      enableSegmentation: trackingSettings?.enableSegmentation,
+      smoothSegmentation: trackingSettings?.smoothSegmentation,
+      // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
+      minDetectionConfidence: trackingSettings?.minDetectionConfidence,
+      minTrackingConfidence: trackingSettings?.minTrackingConfidence
+    } as Options)
+    pose.initialize().then(() => {
+      detectingStatus.set('ready')
+    })
+    poseDetector.set(pose)
+  }, [])
 
   useEffect(() => {
     const factor = displaySettings.flipVideo === true ? '-1' : '1'
@@ -205,66 +229,41 @@ const CaptureMode = () => {
 
   const throttledSend = throttle(sendResults, 1)
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
-    if (processingFrame.value) return
+    if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active') return
 
-    if (poseDetector.value) {
-      processingFrame.set(true)
-      poseDetector.value?.send({ image: videoRef.current! }).finally(() => {
-        processingFrame.set(false)
-      })
-    }
+    processingFrame.set(true)
+    poseDetector.value.send({ image: videoRef.current! }).finally(() => {
+      processingFrame.set(false)
+    })
   })
 
   useEffect(() => {
-    if (!isDetecting.value) return
+    if (!isDetecting) return
 
     if (!poseDetector.value) {
-      if (Pose !== undefined) {
-        detectingStatus.set('loading')
-        const pose = new Pose({
-          locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-          }
-        })
-        pose.setOptions({
-          // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
-          selfieMode: displaySettings?.flipVideo,
-          modelComplexity: trackingSettings?.modelComplexity,
-          smoothLandmarks: trackingSettings?.smoothLandmarks,
-          enableSegmentation: trackingSettings?.enableSegmentation,
-          smoothSegmentation: trackingSettings?.smoothSegmentation,
-          // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
-          minDetectionConfidence: trackingSettings?.minDetectionConfidence,
-          minTrackingConfidence: trackingSettings?.minTrackingConfidence
-        } as Options)
-        poseDetector.set(pose)
-      }
+      return
     }
 
     processingFrame.set(false)
 
-    if (poseDetector.value) {
-      poseDetector.value.onResults((results) => {
-        if (Object.keys(results).length === 0) return
-        detectingStatus.set('active')
+    poseDetector.value.onResults((results) => {
+      if (Object.keys(results).length === 0) return
 
-        const { poseWorldLandmarks, poseLandmarks } = results
+      const { poseWorldLandmarks, poseLandmarks } = results
 
-        if (debugSettings?.throttleSend) {
-          throttledSend({ poseWorldLandmarks, poseLandmarks })
-        } else {
-          sendResults({ poseWorldLandmarks, poseLandmarks })
-        }
+      if (debugSettings?.throttleSend) {
+        throttledSend({ poseWorldLandmarks, poseLandmarks })
+      } else {
+        sendResults({ poseWorldLandmarks, poseLandmarks })
+      }
 
-        processingFrame.set(false)
+      processingFrame.set(false)
 
-        if (displaySettings?.show2dSkeleton) {
-          drawPoseToCanvas(canvasCtxRef, canvasRef!, poseLandmarks)
-        }
-      })
-    }
+      if (displaySettings?.show2dSkeleton) {
+        drawPoseToCanvas(canvasCtxRef, canvasRef!, poseLandmarks)
+      }
+    })
 
     return () => {
       // detectingStatus.set('inactive')
@@ -272,8 +271,12 @@ const CaptureMode = () => {
       //   poseDetector.value.close()
       // }
       // poseDetector.set(null)
+
+      if (canvasCtxRef.current && canvasRef.current) {
+        canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+      }
     }
-  }, [isDetecting])
+  }, [poseDetector, isDetecting])
 
   const getRecordingStatus = () => {
     if (!active.value) return 'ready'
@@ -317,7 +320,9 @@ const CaptureMode = () => {
             detectingStatus={detectingStatus.value}
             onToggleRecording={onToggleRecording}
             toggleWebcam={toggleWebcamPaused}
-            toggleDetecting={() => isDetecting.set((v) => !v)}
+            toggleDetecting={() => {
+              detectingStatus.set(detectingStatus.value === 'active' ? 'inactive' : 'active')
+            }}
             isRecording={!!recordingID.value}
             recordingStatus={recordingStatus}
             cycleCamera={MediaStreamService.cycleCamera}
@@ -550,18 +555,22 @@ const PlaybackMode = () => {
 }
 
 const CaptureDashboard = () => {
-  const mode = useHookstate<'playback' | 'capture'>('playback')
+  const worldNetwork = useWorldNetwork()
+
+  // media server connecion
+  useEffect(() => {
+    if (worldNetwork?.connected?.value) {
+      ChannelService.getInstanceChannel()
+    }
+  }, [worldNetwork?.connected?.value])
+
+  const mode = useHookstate<'playback' | 'capture'>('capture')
 
   return (
     <div className="w-full container mx-auto max-w-[1024px] overflow-hidden">
       <Drawer settings={<div></div>}>
         <Header mode={mode} />
         {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
-        <footer className="footer fixed bottom-0">
-          <div style={{ display: 'none' }}>
-            <InstanceChatWrapper />
-          </div>
-        </footer>
       </Drawer>
     </div>
   )
