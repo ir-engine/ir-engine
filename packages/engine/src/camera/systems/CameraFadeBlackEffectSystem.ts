@@ -25,8 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Mesh, PlaneGeometry, ShaderMaterial, Texture, Uniform, Vector2, Vector3 } from 'three'
 
-import { defineActionQueue, defineState, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { useEffect } from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -41,12 +42,16 @@ import { createTransitionState } from '../../xrui/functions/createTransitionStat
 import { CameraActions } from '../CameraState'
 
 const VERTEX_SHADER = `
+precision highp float;
+
 void main() { 
   vec3 newPosition = position * 2.0; 
   gl_Position = vec4(newPosition, 1.0);
 }`
 
 const FRAGMENT_SHADER = `
+precision highp float;
+
 uniform vec2 resolution;
 uniform vec3 color; 
 uniform float intensity; 
@@ -83,10 +88,6 @@ const CameraFadeBlackEffectSystemState = defineState({
         intensity: { value: 0 },
         resolution: { value: new Vector2(window.outerWidth, window.outerHeight) }
       }
-    })
-
-    window.addEventListener('resize', function () {
-      material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight)
     })
 
     const mesh = new Mesh(geometry, material)
@@ -133,7 +134,18 @@ const execute = () => {
   })
 }
 
+const reactor = () => {
+  const outerWidth = useHookstate(window.outerWidth)
+  const outerHeight = useHookstate(window.outerHeight)
+  const { mesh } = useHookstate(getMutableState(CameraFadeBlackEffectSystemState))
+  useEffect(() => {
+    mesh.material.uniforms.resolution.nested('value').set([outerWidth.value, outerHeight.value])
+  }, [outerWidth, outerHeight])
+  return null
+}
+
 export const CameraFadeBlackEffectSystem = defineSystem({
   uuid: 'ee.engine.CameraFadeBlackEffectSystem',
-  execute
+  execute,
+  reactor
 })
