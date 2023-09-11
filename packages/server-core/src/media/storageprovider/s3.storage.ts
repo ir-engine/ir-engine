@@ -63,6 +63,7 @@ import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
+import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { Client } from 'minio'
 
@@ -80,11 +81,6 @@ import {
 } from './storageprovider.interface'
 
 const MAX_ITEMS = 1
-//s3.putObject has an upper limit on file size before it starts erroring out. On paper the limit is around 5 GB, but
-//in practice, errors were seen at around 2 GB. Setting the limit to 1 GB for safety; above this, files will be
-//uploaded via multipart upload instead of a single putObject operation. Part size is set to 100 MB.
-const MULTIPART_CUTOFF_SIZE = 1000 * 1000 * 1000
-const MULTIPART_CHUNK_SIZE = 100 * 1000 * 1000
 const CFFunctionTemplate = `
 function handler(event) {
     var request = event.request;
@@ -330,14 +326,13 @@ export class S3Provider implements StorageProviderInterface {
     } else if (config.aws.s3.s3DevMode === 'local') {
       const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body)
       return response
-    } else {
-      if (data.Body.length > MULTIPART_CUTOFF_SIZE) {
-        const multiPartStartArgs = {
-          ACL: 'public-read',
-          Bucket: this.bucket,
-          Key: key,
-          ContentType: data.ContentType
-        } as StorageMultipartStartInterface
+    } else if (data.Body.length > MULTIPART_CUTOFF_SIZE) {
+      const multiPartStartArgs = {
+        ACL: 'public-read',
+        Bucket: this.bucket,
+        Key: key,
+        ContentType: data.ContentType
+      } as StorageMultipartStartInterface
 
       if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
       const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)
