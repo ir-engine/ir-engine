@@ -24,4 +24,3 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const emailPath = 'email'
-export const emailMethods = [] as const
