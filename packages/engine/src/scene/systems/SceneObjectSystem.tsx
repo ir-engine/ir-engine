@@ -62,7 +62,7 @@ export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMateri
 
 export const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
-    if (typeof val?.dispose === 'function') {
+    if (val.isTexture) {
       console.log('disposed texture', key, val)
       val.dispose()
     }
