@@ -55,6 +55,7 @@ import { enableObjectLayer } from '../functions/setObjectLayers'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
 
@@ -131,7 +132,8 @@ function ModelReactor() {
   const source = model.src
 
   useEffect(() => {
-    !hasComponent(entity, LoopAnimationComponent) && setComponent(entity, LoopAnimationComponent, {})
+    setComponent(entity, LoopAnimationComponent)
+    setComponent(entity, ShadowComponent)
   }, [])
 
   // update src
@@ -179,6 +181,10 @@ function ModelReactor() {
                   totalAmount: onprogress.total
                 }
               })
+            },
+            (err) => {
+              console.error(err)
+              removeComponent(entity, SceneAssetPendingTagComponent)
             }
           )
           break

@@ -323,6 +323,12 @@
     "map": {
       "description": "3D geospatial map of e.g. a city."
     },
+    "shadow":{
+      "name": "Shadows",
+      "description": "Shadow properties for the model",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "Receive Shadow"
+    },
     "model": {
       "title": "Model",
       "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
@@ -337,8 +343,6 @@
       "lbl-isAvatar": "Force Avatar Animations",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isEquippable": "Is Equippable",
-      "lbl-castShadow": "Cast Shadow",
-      "lbl-receiveShadow": "Receive Shadow",
       "lbl-interactable": "Interactable",
       "lbl-generateBVH": "Generate BVH",
       "lbl-avoidCameraOcclusion": "Avoid Camera Occlusion",

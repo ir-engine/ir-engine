@@ -44,11 +44,16 @@ export const ShadowProperties: EditorComponentType = (props) => {
   if (!hasComponent(props.entity, ShadowComponent)) return <></>
   const shadowComponent = useComponent(props.entity, ShadowComponent)
   return (
-    <NodeEditor component={ShadowComponent} description={t('editor:properties.model.description')} {...props}>
-      <InputGroup name="Cast Shadow" label={t('editor:properties.model.lbl-castShadow')}>
+    <NodeEditor
+      name={t('editor:properties.shadow.name')}
+      component={ShadowComponent}
+      description={t('editor:properties.shadow.description')}
+      {...props}
+    >
+      <InputGroup name="Cast Shadow" label={t('editor:properties.shadow.lbl-castShadow')}>
         <BooleanInput value={shadowComponent.cast.value} onChange={updateProperty(ShadowComponent, 'cast')} />
       </InputGroup>
-      <InputGroup name="Receive Shadow" label={t('editor:properties.model.lbl-receiveShadow')}>
+      <InputGroup name="Receive Shadow" label={t('editor:properties.shadow.lbl-receiveShadow')}>
         <BooleanInput value={shadowComponent.receive.value} onChange={updateProperty(ShadowComponent, 'receive')} />
       </InputGroup>
     </NodeEditor>
