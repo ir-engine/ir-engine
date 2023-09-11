@@ -125,8 +125,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           inviteeIdentityProvider = await this.app.service(identityProviderPath).create(
             {
               type: invite.identityProviderType,
-              token: invite.token,
-              userId: invite.userId
+              token: invite.token
             },
             params as any
           )
