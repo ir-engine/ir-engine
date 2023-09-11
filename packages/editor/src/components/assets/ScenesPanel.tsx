@@ -160,7 +160,9 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
 
   const getSceneURL = async (url) => {
     const texture = (await AssetLoader.loadAsync(url)) as CompressedTexture
-    return (await createReadableTexture(texture, { url: true })) as string
+    const outUrl = (await createReadableTexture(texture, { url: true })) as string
+    texture.dispose()
+    return outUrl
   }
 
   return (
