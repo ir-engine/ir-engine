@@ -1,6 +1,6 @@
 ![Ethereal Engine logo](https://user-images.githubusercontent.com/5104160/181167947-2cf42b34-7dd6-4e71-b840-c25b8cf850e6.png)
 
->  Manifest your dreams on the open social spatial web.
+> Manifest your dreams on the open social spatial web.
 
 ## Table of Contents
 
