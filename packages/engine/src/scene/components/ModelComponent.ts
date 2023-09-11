@@ -183,6 +183,10 @@ function ModelReactor() {
                   totalAmount: onprogress.total
                 }
               })
+            },
+            (err) => {
+              console.error(err)
+              removeComponent(entity, SceneAssetPendingTagComponent)
             }
           )
           break
