@@ -60,6 +60,7 @@ export type SerializerArgs = {
 }
 
 export type DeserializerArgs = {
+  id: string // any ID
   chunks: SerializedChunk[]
   schema: SerializationSchema[]
   onChunkStarted: (chunk: number) => void
@@ -195,7 +196,7 @@ const toArrayBuffer = (buf) => {
   return ab
 }
 
-export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
+export const createDeserializer = ({ id, chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
   let chunk = 0
   let frame = 0
 
@@ -223,19 +224,19 @@ export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: De
   }
 
   const end = () => {
-    ActiveDeserializers.delete(deserializer)
+    ActiveDeserializers.delete(id)
   }
 
   const deserializer = { read, end, active: false }
 
-  ActiveDeserializers.add(deserializer)
+  ActiveDeserializers.set(id, deserializer)
 
   return deserializer
 }
 
 export type ECSDeserializer = ReturnType<typeof createDeserializer>
 
-export const ActiveDeserializers = new Set<ECSDeserializer>()
+export const ActiveDeserializers = new Map<string, ECSDeserializer>()
 
 export const ECSSerialization = {
   createSerializer,
@@ -248,7 +249,7 @@ const execute = () => {
     serializer.write()
   }
 
-  for (const deserializer of ActiveDeserializers) {
+  for (const [, deserializer] of ActiveDeserializers) {
     if (!deserializer.active) continue
     deserializer.read()
   }

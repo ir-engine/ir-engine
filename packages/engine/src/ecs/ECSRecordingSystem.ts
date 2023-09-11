@@ -484,6 +484,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const entitiesSpawned = [] as (EntityUUID | UserID)[]
 
   activePlayback.deserializer = ECSSerialization.createDeserializer({
+    id: recording.id,
     chunks: entityChunks,
     schema: schema.user
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)

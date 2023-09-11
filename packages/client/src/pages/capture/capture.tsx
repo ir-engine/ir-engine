@@ -26,79 +26,59 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { API } from '@etherealengine/client-core/src/API'
-import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
+import {
+  useLoadEngineWithScene,
+  useOfflineNetwork,
+  useOnlineNetwork
+} from '@etherealengine/client-core/src/components/World/EngineHooks'
+import {
+  useLoadLocation,
+  useLoadLocationScene,
+  useLoadScene
+} from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { RecordingServiceSystem } from '@etherealengine/client-core/src/recording/RecordingService'
-import { LocationAction } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
-import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { ECSRecordingSystem } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
-import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { MediasoupDataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
-import { MediasoupMediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { MediasoupTransportStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
-import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
+import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
+import { RecordingServiceSystem } from '@etherealengine/engine/src/ecs/RecordingService'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
 const startCaptureSystems = () => {
-  startSystem(MotionCaptureSystem, { with: InputSystemGroup })
-  startSystem(MediaSystem, { before: PresentationSystemGroup })
   startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
-  startSystems(
-    [
-      ECSSerializerSystem,
-      ECSRecordingSystem,
-      MediasoupTransportStateSystem,
-      MediasoupMediaProducerConsumerStateSystem,
-      MediasoupDataProducerConsumerStateSystem
-    ],
-    {
-      after: PresentationSystemGroup
-    }
-  )
-}
-
-export const initializeEngineForRecorder = async () => {
-  if (getState(EngineState).isEngineInitialized) return
-
-  const projects = API.instance.client.service(projectsPath).find()
-
-  startCaptureSystems()
-  await loadEngineInjection(await projects)
-
-  dispatchAction(EngineActions.initializeEngine({ initialised: true }))
-  dispatchAction(EngineActions.sceneLoaded({}))
 }
 
 export const CaptureLocation = () => {
   const params = useParams()
+
+  useLoadLocationScene()
+  useLoadEngineWithScene()
+
+  useDefaultLocationSystems(true)
+
+  const locationName = params?.locationName as string | undefined
+  const offline = !locationName
+
+  if (offline) {
+    useLoadScene({ projectName: 'default-project', sceneName: 'default' })
+  } else {
+    useLoadLocation({ locationName: params.locationName! })
+  }
+
+  if (offline) {
+    useOfflineNetwork()
+  } else {
+    useOnlineNetwork()
+  }
+
   AuthService.useAPIListeners()
   SceneService.useAPIListeners()
 
-  useLoadLocationScene()
-
-  const locationName = params?.locationName as string
-
   useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName }))
-    initializeEngineForRecorder()
-
-    getMutableState(NetworkState).config.set({
-      world: true,
-      media: true,
-      friends: false,
-      instanceID: true,
-      roomID: false
-    })
+    startCaptureSystems()
   }, [])
 
   const engineState = useHookstate(getMutableState(EngineState))

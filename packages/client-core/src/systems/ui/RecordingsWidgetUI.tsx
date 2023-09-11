@@ -28,12 +28,12 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 import { State, useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { PlaybackState, RecordingFunctions, RecordingState } from '../../recording/RecordingService'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { PlaybackState, RecordingFunctions, RecordingState } from '@etherealengine/engine/src/ecs/RecordingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { RecordingType, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'

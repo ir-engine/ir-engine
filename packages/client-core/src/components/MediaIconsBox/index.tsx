@@ -48,11 +48,11 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import { RecordingState } from '@etherealengine/engine/src/ecs/RecordingService'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
-import { RecordingState } from '../../recording/RecordingService'
 import { RecordingTimer, RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
 import { useUserHasAccessHook } from '../../user/userHasAccess'

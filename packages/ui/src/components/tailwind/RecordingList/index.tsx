@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PlaybackState } from '@etherealengine/client-core/src/recording/RecordingService'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { PlaybackState } from '@etherealengine/engine/src/ecs/RecordingService'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'

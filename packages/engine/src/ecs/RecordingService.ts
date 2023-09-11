@@ -31,7 +31,7 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import { defineState, receiveActions } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, receiveActions, useHookstate } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
@@ -40,7 +40,8 @@ import {
   recordingPath,
   RecordingSchemaType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { NotificationService } from '../common/services/NotificationService'
+import { useEffect } from 'react'
+import { ActiveDeserializers } from './ECSSerializerSystem'
 
 export const RecordingState = defineState({
   name: 'ee.RecordingState',
@@ -129,15 +130,28 @@ export const RecordingFunctions = {
       return recording.id
     } catch (err) {
       console.error(err)
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      // NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }
 
+const reactor = () => {
+  const playbackState = useHookstate(getMutableState(PlaybackState))
+
+  useEffect(() => {
+    if (!playbackState.recordingID.value) return
+    const activeDeserializer = ActiveDeserializers.get(playbackState.recordingID.value)
+    /** @todo update ecs deserializer time */
+  }, [playbackState.currentTime])
+
+  return null
+}
+
 export const RecordingServiceSystem = defineSystem({
-  uuid: 'ee.client.RecordingServiceSystem',
+  uuid: 'ee.engine.ecs.RecordingServiceSystem',
   execute: () => {
     receiveActions(RecordingState)
     receiveActions(PlaybackState)
-  }
+  },
+  reactor
 })

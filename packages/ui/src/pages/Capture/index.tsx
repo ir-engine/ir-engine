@@ -26,18 +26,13 @@ Ethereal Engine. All Rights Reserved.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
 import { decode } from 'msgpackr'
-import React, { RefObject, useEffect, useLayoutEffect } from 'react'
+import React, { RefObject, useEffect, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/useResizableVideoCanvas'
 import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import {
-  PlaybackState,
-  RecordingFunctions,
-  RecordingState
-} from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
@@ -49,6 +44,7 @@ import {
   ECSRecordingActions,
   ECSRecordingFunctions
 } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import { PlaybackState, RecordingFunctions, RecordingState } from '@etherealengine/engine/src/ecs/RecordingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -64,6 +60,7 @@ import {
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { NO_PROXY, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -286,7 +283,7 @@ const CaptureMode = () => {
   const recordingStatus = getRecordingStatus()
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto">
+    <div className="w-full container mx-auto pointer-events-auto max-w-[1024px]">
       <div className="w-full h-auto px-2">
         <div className="w-full h-auto relative aspect-video overflow-hidden">
           <div className="absolute w-full h-full top-0 left-0 flex items-center bg-black">
@@ -457,7 +454,7 @@ const VideoPlayback = (props: {
   }, [currentTimeSeconds])
 
   return (
-    <>
+    <div className="absolute w-full h-full max-w-[1024px]">
       <div className="absolute w-full h-full top-0 left-0 items-center bg-black">
         <div className="relative">
           <Video ref={videoRef} src={videoSrc} controls={false} className={twMerge('w-full h-auto opacity-100')} />
@@ -466,7 +463,31 @@ const VideoPlayback = (props: {
       <div className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto pointer-events-none">
         <Canvas ref={canvasRef} />
       </div>
-    </>
+    </div>
+  )
+}
+
+const EngineCanvas = () => {
+  const ref = useRef(null as null | HTMLDivElement)
+
+  useEffect(() => {
+    if (!ref?.current) return
+
+    const canvas = EngineRenderer.instance.renderer.domElement
+    ref.current.appendChild(canvas)
+
+    EngineRenderer.instance.needsResize = true
+
+    return () => {
+      const canvas = document.getElementById('engine-renderer-canvas')!
+      canvas.parentElement?.removeChild(canvas)
+    }
+  }, [ref])
+
+  return (
+    <div className="relative w-auto h-full aspect-video max-w-[1024px]">
+      <div ref={ref} className="w-full h-full" />
+    </div>
   )
 }
 
@@ -504,9 +525,12 @@ const PlaybackMode = () => {
     return (
       <>
         <div className="w-full h-auto relative aspect-video overflow-hidden">
-          {videoPlaybackPairs.map((r) => (
-            <VideoPlayback startTime={startTime} {...r} key={r.video.id} />
-          ))}
+          <div className="flex flex-row w-full h-full">
+            {videoPlaybackPairs.map((r) => (
+              <VideoPlayback startTime={startTime} {...r} key={r.video.id} />
+            ))}
+            <EngineCanvas />
+          </div>
         </div>
         <ReactSlider
           className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
@@ -531,16 +555,16 @@ const PlaybackMode = () => {
 
   const NoRecording = () => {
     return (
-      <div className="w-full h-auto relative aspect-video overflow-hidden flex items-center justify-center bg-black">
+      <div className="max-w-[1024px] w-auto container mx-auto relative aspect-video overflow-hidden flex items-center justify-center bg-black">
         <h1 className="text-2xl">No Recording Selected</h1>
       </div>
     )
   }
 
   return (
-    <div className="w-full container mx-auto pointer-events-auto">
-      <div className="w-full h-auto px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
-      <div className="w-full container mx-auto flex">
+    <div className="w-full container mx-auto pointer-events-auto items-center justify-center content-center">
+      {recording.data ? <ActiveRecording /> : <NoRecording />}
+      <div className="max-w-[1024px] w-auto container mx-auto flex">
         <div className="w-full relative m-2">
           <RecordingsList
             {...{
@@ -564,10 +588,20 @@ const CaptureDashboard = () => {
     }
   }, [worldNetwork?.connected?.value])
 
-  const mode = useHookstate<'playback' | 'capture'>('capture')
+  useEffect(() => {
+    const canvas = document.getElementById('engine-renderer-canvas')!
+    canvas.parentElement?.removeChild(canvas)
+
+    return () => {
+      const body = document.body
+      body.appendChild(canvas)
+    }
+  }, [])
+
+  const mode = useHookstate<'playback' | 'capture'>('playback')
 
   return (
-    <div className="w-full container mx-auto max-w-[1024px] overflow-hidden">
+    <div className="w-full container mx-auto overflow-hidden">
       <Drawer settings={<div></div>}>
         <Header mode={mode} />
         {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
