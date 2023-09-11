@@ -339,62 +339,61 @@ export class S3Provider implements StorageProviderInterface {
           ContentType: data.ContentType
         } as StorageMultipartStartInterface
 
-        if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
-        const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)
-        const startResponse = await this.provider.send(startCommand)
-        const uploadId = startResponse.UploadId
-        let partIndex = 0
-        let partNumber = 1
-        const parts = [] as CompletedPart[]
-        try {
-          do {
-            const part = Uint8Array.prototype.slice.call(data.Body, partIndex, partIndex + MULTIPART_CHUNK_SIZE)
-            const uploadPartArgs = {
-              Body: part,
-              Bucket: this.bucket,
-              Key: key,
-              PartNumber: partNumber,
-              UploadId: uploadId
-            }
-            const uploadPartCommand = new UploadPartCommand(uploadPartArgs)
-            const multipartResponse = await this.provider.send(uploadPartCommand)
-            parts.push({
-              PartNumber: partNumber,
-              ETag: multipartResponse.ETag as string
-            })
-            partIndex += MULTIPART_CHUNK_SIZE
-            partNumber++
-          } while (partIndex < data.Body.length)
-        } catch (err) {
-          console.error('Multipart upload failed', err)
-          const abortUploadArgs = {
+      if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
+      const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)
+      const startResponse = await this.provider.send(startCommand)
+      const uploadId = startResponse.UploadId
+      let partIndex = 0
+      let partNumber = 1
+      const parts = [] as CompletedPart[]
+      try {
+        do {
+          const part = Uint8Array.prototype.slice.call(data.Body, partIndex, partIndex + MULTIPART_CHUNK_SIZE)
+          const uploadPartArgs = {
+            Body: part,
             Bucket: this.bucket,
             Key: key,
+            PartNumber: partNumber,
             UploadId: uploadId
           }
-          const abortCommand = new AbortMultipartUploadCommand(abortUploadArgs)
-          await this.provider.send(abortCommand)
-          throw err
-        }
-        const completeUploadArgs = {
+          const uploadPartCommand = new UploadPartCommand(uploadPartArgs)
+          const multipartResponse = await this.provider.send(uploadPartCommand)
+          parts.push({
+            PartNumber: partNumber,
+            ETag: multipartResponse.ETag as string
+          })
+          partIndex += MULTIPART_CHUNK_SIZE
+          partNumber++
+        } while (partIndex < data.Body.length)
+      } catch (err) {
+        console.error('Multipart upload failed', err)
+        const abortUploadArgs = {
           Bucket: this.bucket,
           Key: key,
-          UploadId: uploadId,
-          MultipartUpload: {
-            Parts: parts
-          }
+          UploadId: uploadId
         }
-        try {
-          const completeCommand = new CompleteMultipartUploadCommand(completeUploadArgs)
-          return this.provider.send(completeCommand)
-        } catch (err) {
-          console.error('Error in complete', err)
-          throw err
-        }
-      } else {
-        const command = new PutObjectCommand(args)
-        return this.provider.send(command)
+        const abortCommand = new AbortMultipartUploadCommand(abortUploadArgs)
+        await this.provider.send(abortCommand)
+        throw err
       }
+      const completeUploadArgs = {
+        Bucket: this.bucket,
+        Key: key,
+        UploadId: uploadId,
+        MultipartUpload: {
+          Parts: parts
+        }
+      }
+      try {
+        const completeCommand = new CompleteMultipartUploadCommand(completeUploadArgs)
+        return this.provider.send(completeCommand)
+      } catch (err) {
+        console.error('Error in complete', err)
+        throw err
+      }
+    } else {
+      const command = new PutObjectCommand(args)
+      return this.provider.send(command)
     }
   }
 
