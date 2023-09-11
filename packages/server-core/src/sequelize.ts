@@ -106,7 +106,10 @@ export default (app: Application): void => {
           // We are running our migration:rollback here, so that tables in db are dropped 1st using knex.
           // TODO: Once sequelize is removed, we should add migrate:rollback as part of `dev-reinit-db` script in package.json
           await checkLock(knexClient, 0, promiseReject)
+
+          logger.info('Starting migration rollback')
           await knexClient.migrate.rollback(config.migrations, true)
+          logger.info('Ended migration rollback')
         }
 
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
@@ -160,7 +163,10 @@ export default (app: Application): void => {
           // on ta tables that are created using sequelize.
           // TODO: Once sequelize is removed, we should add migration as part of `dev-reinit-db` script in package.json
           await checkLock(knexClient, prepareDb ? 25000 : 0, promiseReject)
+
+          logger.info('Starting migration')
           await knexClient.migrate.latest(config.migrations)
+          logger.info('Ended migration')
         }
 
         try {
