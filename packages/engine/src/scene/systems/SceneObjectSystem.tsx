@@ -25,12 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import {
+  Light,
   Material,
   Mesh,
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
-  MeshStandardMaterial
+  MeshStandardMaterial,
+  Object3D,
+  SkinnedMesh,
+  Texture
 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -57,6 +61,16 @@ import { FogSystem } from './FogSystem'
 import { ShadowSystem } from './ShadowSystem'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
+
+export const disposeMaterial = (material: Material) => {
+  for (const [key, val] of Object.entries(material) as [string, Texture][]) {
+    if (val.isTexture) {
+      console.log('disposed texture', key, val)
+      val.dispose()
+    }
+  }
+  material.dispose()
+}
 
 export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false) {
   const mesh = obj as any as Mesh<any, any>
@@ -116,6 +130,24 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
       for (const layer of layers) {
         if (layer.has(obj)) layer.delete(obj)
       }
+
+      obj.traverse((object3D: Object3D) => {
+        const mesh = object3D as Mesh<any, any>
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach(disposeMaterial)
+        } else if (mesh.material) {
+          disposeMaterial(mesh.material)
+        }
+        mesh.geometry?.dispose()
+
+        const skinnedMesh = object3D as SkinnedMesh
+        if (skinnedMesh.isSkinnedMesh) {
+          skinnedMesh.skeleton?.dispose()
+        }
+
+        const light = object3D as Light // anything with dispose function
+        if (typeof light.dispose === 'function') light.dispose()
+      })
     }
   }, [])
 
