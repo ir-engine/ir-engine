@@ -38,10 +38,12 @@ import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/soc
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Knex } from 'knex'
+import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
+import { getDateTimeSql } from '../../util/datetime-sql'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChannelParams extends RootParams<ChannelQuery> {}
@@ -91,7 +93,11 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       }
     }
 
-    const channel = await super._create({})
+    const channel = await super._create({
+      id: v4() as ChannelID,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    })
 
     /** @todo ensure all users specified are friends of loggedInUser */
 
@@ -115,11 +121,9 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
     }
 
     if (data.instanceId) {
-      // @ts-ignore
-      await super.patch(channel.id, { instanceId: data.instanceId, name: 'World ' + data.instanceId })
+      await super._patch(channel.id, { instanceId: data.instanceId, name: 'World ' + data.instanceId })
     } else {
-      // @ts-ignore
-      await super.patch(channel.id, { name: '' })
+      await super._patch(channel.id, { name: '' })
     }
 
     return super._get(channel.id)
@@ -151,7 +155,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       if (query.instanceId) {
         const knexClient: Knex = this.app.get('knexClient')
         let channels = await knexClient
-          .from(`${channelPath}`)
+          .from(channelPath)
           .join('instance', `instance.id`, `${channelPath}.instanceId`)
           .where(`instance.id`, '=', query.instanceId)
           .andWhere('instance.ended', '=', false)
