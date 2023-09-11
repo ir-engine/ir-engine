@@ -25,12 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import {
+  Light,
   Material,
   Mesh,
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  Object3D,
   SkinnedMesh,
   Texture
 } from 'three'
@@ -129,17 +131,22 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
         if (layer.has(obj)) layer.delete(obj)
       }
 
-      obj.traverse((mesh: Mesh) => {
+      obj.traverse((object3D: Object3D) => {
+        const mesh = object3D as Mesh<any, any>
         if (Array.isArray(mesh.material)) {
           mesh.material.forEach(disposeMaterial)
         } else if (mesh.material) {
           disposeMaterial(mesh.material)
         }
         mesh.geometry?.dispose()
-        const skinnedMesh = mesh as SkinnedMesh
+
+        const skinnedMesh = object3D as SkinnedMesh
         if (skinnedMesh.isSkinnedMesh) {
           skinnedMesh.skeleton?.dispose()
         }
+
+        const light = object3D as Light // anything with dispose function
+        if (typeof light.dispose === 'function') light.dispose()
       })
     }
   }, [])
