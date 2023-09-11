@@ -33,6 +33,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -135,12 +136,14 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const outerWidth = useHookstate(window.outerWidth)
-  const outerHeight = useHookstate(window.outerHeight)
   const { mesh } = useHookstate(getMutableState(CameraFadeBlackEffectSystemState))
   useEffect(() => {
-    mesh.material.uniforms.resolution.nested('value').set([outerWidth.value, outerHeight.value])
-  }, [outerWidth, outerHeight])
+    const resizeListener = () => {
+      mesh.material.uniforms.resolution.nested('value').set(new Vector2(window.outerWidth, window.outerHeight))
+    }
+    EngineRenderer.instance.canvas.addEventListener('resize', resizeListener)
+    return () => EngineRenderer.instance.canvas.removeEventListener('resize', resizeListener)
+  }, [])
   return null
 }
 
