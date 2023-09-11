@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { VideoTexture } from 'three'
 
 import { isClient } from '../../../common/functions/getEnvironment'
-import { EngineRenderer } from '../../WebGLRendererSystem'
 
 export default function loadVideoTexture(src, onLoad = (result) => {}) {
   if (!isClient) return
@@ -61,7 +60,11 @@ export default function loadVideoTexture(src, onLoad = (result) => {}) {
   el.addEventListener(
     'loadeddata',
     () => {
+      el.play()
+      onLoad(texture)
+      /*
       const canvas = EngineRenderer.instance.canvas
+      
       function handleInput() {
         canvas.removeEventListener('keypress', this)
         canvas.removeEventListener('click', this)
@@ -74,6 +77,7 @@ export default function loadVideoTexture(src, onLoad = (result) => {}) {
       canvas.addEventListener('keypress', handleInput)
       canvas.addEventListener('click', handleInput)
       canvas.addEventListener('auxclick', handleInput)
+      */
     },
     { once: true }
   )
