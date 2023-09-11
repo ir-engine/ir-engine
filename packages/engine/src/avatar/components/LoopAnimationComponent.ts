@@ -159,7 +159,12 @@ export const LoopAnimationComponent = defineComponent({
         return
 
       playAnimationClip(entity)
-    }, [loopAnimationComponent.activeClipIndex, loopAnimationComponent.animationPackScene, modelComponent?.scene])
+    }, [
+      loopAnimationComponent.activeClipIndex,
+      loopAnimationComponent.animationPackScene,
+      modelComponent?.scene,
+      modelComponent?.asset
+    ])
 
     return null
   }
