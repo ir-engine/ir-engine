@@ -23,33 +23,53 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Texture } from 'three'
+import { Color, MathUtils, Texture } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setComponent } from '../functions/ComponentFunctions'
+import { createEntity } from '../functions/EntityFunctions'
+import { EntityTreeComponent } from '../functions/EntityTree'
+import { Engine } from './Engine'
 
 export const SceneState = defineState({
   name: 'SceneState',
 
-  initial: () => ({
-    scenes: {} as Record<
-      string,
-      {
-        data?: SceneData
-        load: boolean
-        loadProgress: {
-          textures: number
-          geometries: number
-          rigidbodies: number
-        }
-      }
-    >,
+  initial: () => {
+    const sceneEntity = createEntity()
+    setComponent(sceneEntity, NameComponent, 'scenes')
+    setComponent(sceneEntity, VisibleComponent, true)
+    setComponent(sceneEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+    setComponent(sceneEntity, SceneTagComponent, true)
+    setComponent(sceneEntity, TransformComponent)
+    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: null })
 
-    background: null as null | Color | Texture
-  }),
+    return {
+      sceneEntity,
+      scenes: {} as Record<
+        string,
+        {
+          data?: SceneData
+          load: boolean
+          loadProgress: {
+            textures: number
+            geometries: number
+            rigidbodies: number
+          }
+        }
+      >,
+      background: null as null | Color | Texture
+    }
+  },
 
   fetchScene: (projectName: string, sceneName: string) => {
-    const scene = getMutableState(SceneState).scenes[projectName + ':' + sceneName]
+    const scene = getMutableState(SceneState).scenes[projectName + '/' + sceneName]
     if (!scene.value) {
       scene.set({
         data: undefined,
@@ -60,12 +80,22 @@ export const SceneState = defineState({
         },
         load: false
       })
+      Engine.instance.api
+        .service('scene')
+        .get({ projectName, sceneName, metadataOnly: null }, {})
+        .then((sceneData) => {
+          if (scene.value) scene.data.set(sceneData.data)
+        })
     }
     return scene
   },
 
   loadScene: (projectName: string, sceneName: string) => {
     SceneState.fetchScene(projectName, sceneName).load.set(true)
+  },
+
+  unloadScene: (projectName: string, sceneName: string) => {
+    getMutableState(SceneState).scenes[projectName + '/' + sceneName].set(none)
   }
 })
 
@@ -77,9 +107,3 @@ export const SceneServices = {
     // getMutableState(SceneState).sceneData.set(sceneData.data)
   }
 }
-// export const
-
-// export const getActiveSceneEntity = () => {
-//   const state = getState(SceneState)
-//   return UUIDComponent.entitiesByUUID[state.sceneEntities[state.sceneEntity]]
-// }

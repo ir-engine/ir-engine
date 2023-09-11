@@ -45,7 +45,6 @@ import {
   destroyEntityTree,
   findIndexOfEntityNode,
   getEntityNodeArrayFromEntities,
-  initializeSceneEntity,
   iterateEntityNode,
   removeFromEntityTree,
   reparentEntityNode,
@@ -166,7 +165,6 @@ describe('EntityTreeFunctions', () => {
 
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
-      initializeSceneEntity()
       const sceneEntity = getState(SceneState).sceneEntity
       assert(sceneEntity)
       assert(getComponent(sceneEntity, NameComponent), 'scene')

@@ -35,7 +35,7 @@ import { EngineEventReceptor } from './ecs/classes/EngineState'
 import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
 import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
 import { createEntity } from './ecs/functions/EntityFunctions'
-import { EntityTreeComponent, initializeSceneEntity } from './ecs/functions/EntityTree'
+import { EntityTreeComponent } from './ecs/functions/EntityTree'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { addObjectToGroup } from './scene/components/GroupComponent'
 import { NameComponent } from './scene/components/NameComponent'
@@ -82,8 +82,6 @@ export const createEngine = () => {
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   camera.matrixAutoUpdate = false
   camera.matrixWorldAutoUpdate = false
-
-  initializeSceneEntity()
 
   EngineRenderer.instance = new EngineRenderer()
   addActionReceptor(EngineEventReceptor)

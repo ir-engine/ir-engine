@@ -32,6 +32,7 @@ import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine
 import logger from '@etherealengine/common/src/logger'
 import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
+  State,
   addActionReceptor,
   dispatchAction,
   getMutableState,
@@ -41,6 +42,7 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
+import React from 'react'
 import {
   AppLoadingAction,
   AppLoadingServiceReceptor,
@@ -86,11 +88,7 @@ import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
 
-export const createNewEditorNode = (
-  entityNode: Entity,
-  componentName: string,
-  parentEntity = getState(SceneState).sceneEntity as Entity
-): void => {
+export const createNewEditorNode = (entityNode: Entity, componentName: string, parentEntity: Entity): void => {
   const components = [
     { name: ComponentMap.get(componentName)!.jsonID! },
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
@@ -409,8 +407,14 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
+const SceneReactor = (props: { state: State<ReturnType<typeof SceneState.initial>['scenes'][string]> }) => {
+  const state = useHookstate(props.state)
+  return null
+}
+
 const reactor = () => {
-  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const sceneData = useHookstate(getMutableState(SceneState))
+
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
 
@@ -446,7 +450,13 @@ const reactor = () => {
     }
   }, [])
 
-  return null
+  return (
+    <>
+      {Object.entries(sceneData.scenes.value).push((scene) => (
+        <SceneReactor state={scene} />
+      ))}
+    </>
+  )
 }
 
 export const SceneLoadingSystem = defineSystem({

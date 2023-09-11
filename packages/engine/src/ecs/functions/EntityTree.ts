@@ -31,15 +31,11 @@ import { dispatchAction, getMutableState, getState, hookstate, NO_PROXY, none } 
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
 import {
   LocalTransformComponent,
   setLocalTransformComponent,
-  setTransformComponent,
   TransformComponent
 } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
@@ -56,7 +52,7 @@ import {
   removeComponent,
   setComponent
 } from '../functions/ComponentFunctions'
-import { createEntity, entityExists, removeEntity } from '../functions/EntityFunctions'
+import { entityExists, removeEntity } from '../functions/EntityFunctions'
 
 type EntityTreeSetType = {
   parentEntity: Entity | null
@@ -157,24 +153,6 @@ export const EntityTreeComponent = defineComponent({
 })
 
 export type EntityOrObjectUUID = Entity | string
-
-/**
- * Initialize the world with enity tree
- * @param scene World
- */
-export function initializeSceneEntity(): void {
-  const oldSceneEntity = getState(SceneState).sceneEntity
-  if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity, true)
-
-  const sceneEntity = createEntity()
-  getMutableState(SceneState).sceneEntity.set(sceneEntity)
-  setComponent(sceneEntity, NameComponent, 'scene')
-  setComponent(sceneEntity, VisibleComponent, true)
-  setComponent(sceneEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-  setComponent(sceneEntity, SceneTagComponent, true)
-  setTransformComponent(sceneEntity)
-  setComponent(sceneEntity, EntityTreeComponent, { parentEntity: null })
-}
 
 /**
  * Recursively destroys all the children entities of the passed entity

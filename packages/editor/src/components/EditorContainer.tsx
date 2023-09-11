@@ -256,7 +256,7 @@ const EditorContainer = () => {
     editorState.sceneModified.set(false)
     editorState.projectName.set(null)
     editorState.sceneName.set(null)
-    getMutableState(SceneState).sceneData.set(null)
+    getMutableState(SceneState).scenes.set({})
     RouterService.navigate('/studio')
   }
 
