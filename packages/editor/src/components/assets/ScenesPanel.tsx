@@ -39,7 +39,7 @@ import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
-import { EditorAction, EditorState } from '../../services/EditorServices'
+import { EditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { useDialog } from '../hooks/useDialog'
 import { Button } from '../inputs/Button'
@@ -110,7 +110,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
         dispatchAction(EngineActions.sceneUnloaded({}))
         RouterService.navigate(`/studio/${editorState.projectName.value}`)
       }
@@ -150,7 +149,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
     RouterService.navigate(`/studio/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
