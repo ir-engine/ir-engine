@@ -37,6 +37,7 @@ export const CameraSettings = defineState({
 export class CameraActions {
   static fadeToBlack = defineAction({
     type: 'xre.engine.CameraActions.FadeToBlack' as const,
-    in: matches.boolean
+    in: matches.boolean,
+    graphicTexture: matches.string.optional()
   })
 }
