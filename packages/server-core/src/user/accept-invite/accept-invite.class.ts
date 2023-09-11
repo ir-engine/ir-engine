@@ -37,7 +37,8 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { v1 as uuidv1 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
@@ -125,7 +126,8 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           inviteeIdentityProvider = await this.app.service(identityProviderPath).create(
             {
               type: invite.identityProviderType,
-              token: invite.token
+              token: invite.token,
+              userId: uuidv1() as UserID
             },
             params as any
           )
