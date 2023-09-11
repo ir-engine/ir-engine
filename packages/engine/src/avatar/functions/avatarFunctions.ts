@@ -89,7 +89,7 @@ const tempVec3ForCenter = new Vector3()
 export const locomotionPack = 'locomotion'
 
 export const parseAvatarModelAsset = (model: any) => {
-  const scene = model.scene || model // FBX files does not have 'scene' property
+  const scene = model.scene ?? model // FBX files does not have 'scene' property
   if (!scene) return
 
   const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
