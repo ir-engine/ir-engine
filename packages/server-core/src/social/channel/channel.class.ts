@@ -149,6 +149,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       const admin = query.action === 'admin' && (await checkScope(loggedInUser, this.app, 'admin', 'admin'))
 
       if (admin) {
+        delete params.query?.action
         return super._find(params)
       }
 
@@ -196,7 +197,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
 
       /** @todo figure out how to do this as part of the query */
       for (const channel of allChannels) {
-        channel.dataValues.channel_users = (await this.app.service(channelUserPath).find({
+        channel.channelUsers = (await this.app.service(channelUserPath).find({
           query: {
             channelId: channel.id
           },
@@ -205,11 +206,11 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       }
 
       allChannels = allChannels.filter((channel) => {
-        return channel.dataValues.channel_users.find((channelUser) => channelUser.userId === userId)
+        return channel.channelUsers.find((channelUser) => channelUser.userId === userId)
       })
 
       for (const channel of allChannels) {
-        channel.dataValues.messages = (await this.app.service(messagePath).find({
+        channel.messages = (await this.app.service(messagePath).find({
           query: {
             channelId: channel.id,
             $limit: 20,
@@ -237,7 +238,6 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
     const loggedInUser = params!.user
     if (!loggedInUser) return super._remove(id, params)
 
-    //TODO: update this once channel-user gets migrated to feathers 5
     const channelUser = (await this.app.service(channelUserPath).find({
       query: {
         channelId: id,
