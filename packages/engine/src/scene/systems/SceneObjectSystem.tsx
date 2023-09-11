@@ -30,7 +30,9 @@ import {
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
-  MeshStandardMaterial
+  MeshStandardMaterial,
+  SkinnedMesh,
+  Texture
 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -57,6 +59,16 @@ import { FogSystem } from './FogSystem'
 import { ShadowSystem } from './ShadowSystem'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
+
+export const disposeMaterial = (material: Material) => {
+  for (const [key, val] of Object.entries(material) as [string, Texture][]) {
+    if (val.isTexture) {
+      console.log('disposed texture', key, val)
+      val.dispose()
+    }
+  }
+  material.dispose()
+}
 
 export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false) {
   const mesh = obj as any as Mesh<any, any>
@@ -116,6 +128,19 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
       for (const layer of layers) {
         if (layer.has(obj)) layer.delete(obj)
       }
+
+      obj.traverse((mesh: Mesh) => {
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach(disposeMaterial)
+        } else if (mesh.material) {
+          disposeMaterial(mesh.material)
+        }
+        mesh.geometry?.dispose()
+        const skinnedMesh = mesh as SkinnedMesh
+        if (skinnedMesh.isSkinnedMesh) {
+          skinnedMesh.skeleton?.dispose()
+        }
+      })
     }
   }, [])
 
