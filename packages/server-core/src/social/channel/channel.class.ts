@@ -38,12 +38,10 @@ import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/soc
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
 import { Knex } from 'knex'
-import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
-import { getDateTimeSql } from '../../util/datetime-sql'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChannelParams extends RootParams<ChannelQuery> {}
@@ -93,10 +91,15 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       }
     }
 
+    let dataWithoutExtras = data ? JSON.parse(JSON.stringify(data)) : {}
+
+    if (users) delete dataWithoutExtras.users
+    if (userId) delete dataWithoutExtras.userId
+
     const channel = await super._create({
-      id: v4() as ChannelID,
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
+      ...dataWithoutExtras,
+      instanceId: data.instanceId ? data.instanceId : undefined,
+      name: data.instanceId ? 'World ' + data.instanceId : ''
     })
 
     /** @todo ensure all users specified are friends of loggedInUser */
@@ -120,13 +123,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       )
     }
 
-    if (data.instanceId) {
-      await super._patch(channel.id, { instanceId: data.instanceId, name: 'World ' + data.instanceId })
-    } else {
-      await super._patch(channel.id, { name: '' })
-    }
-
-    return super._get(channel.id)
+    return channel
   }
 
   /**
@@ -153,64 +150,42 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
         return super._find(params)
       }
 
+      const knexClient: Knex = this.app.get('knexClient')
+
+      let allChannels: ChannelType[] = []
+
       if (query.instanceId) {
-        const knexClient: Knex = this.app.get('knexClient')
-        let channels = await knexClient
+        allChannels = await knexClient
           .from(channelPath)
           .join('instance', `instance.id`, `${channelPath}.instanceId`)
           .where(`instance.id`, '=', query.instanceId)
           .andWhere('instance.ended', '=', false)
-          .select()
-          .options({ nestTables: true })
+          .select(`${channelPath}.*`)
+      } else {
+        let channels = await knexClient
+          .from(channelPath)
+          .leftJoin('instance', `instance.id`, `${channelPath}.instanceId`)
+          .where(`instance.ended`, '=', false)
+          .orWhereNull(`${channelPath}.instanceId`)
+          .select(`${channelPath}.*`)
 
-        channels = channels.map((item) => item.channel)
-
+        /** @todo figure out how to do this as part of the query */
         for (const channel of channels) {
-          channel.messages = (await this.app.service(messagePath).find({
+          channel.channelUsers = (await this.app.service(channelUserPath).find({
             query: {
-              channelId: channel.id,
-              $limit: 20,
-              $sort: {
-                createdAt: -1
-              }
+              channelId: channel.id
             },
-            user: loggedInUser
-          })) as Paginated<MessageType>
+            paginate: false
+          })) as ChannelUserType[]
         }
 
-        return channels
-
-        // return channels.filter((channel) => {
-        //   return channel.instance.id === query.instanceId // && channel.instance.users.find((user) => user.id === userId)
-        // })
+        allChannels = channels.filter((channel) => {
+          return channel.channelUsers.find((channelUser) => channelUser.userId === userId)
+        })
       }
 
-      const knexClient: Knex = this.app.get('knexClient')
-
-      let allChannels = await knexClient
-        .from(channelPath)
-        .leftJoin('instance', `instance.id`, `${channelPath}.instanceId`)
-        .where(`instance.ended`, '=', false)
-        .orWhereNull(`${channelPath}.instanceId`)
-        .select()
-        .options({ nestTables: true })
-
-      /** @todo figure out how to do this as part of the query */
       for (const channel of allChannels) {
-        channel.channelUsers = (await this.app.service(channelUserPath).find({
-          query: {
-            channelId: channel.id
-          },
-          paginate: false
-        })) as ChannelUserType[]
-      }
-
-      allChannels = allChannels.filter((channel) => {
-        return channel.channelUsers.find((channelUser) => channelUser.userId === userId)
-      })
-
-      for (const channel of allChannels) {
-        channel.messages = (await this.app.service(messagePath).find({
+        const messages = (await this.app.service(messagePath).find({
           query: {
             channelId: channel.id,
             $limit: 20,
@@ -220,6 +195,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
           },
           user: loggedInUser
         })) as Paginated<MessageType>
+        channel.messages = messages.data
       }
 
       return allChannels

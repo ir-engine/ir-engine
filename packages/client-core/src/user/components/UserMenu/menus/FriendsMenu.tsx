@@ -125,7 +125,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     } else {
       const channelWithFriend = privateChannels.find(
         (channel) =>
-          channel.channel_users.length === 2 && channel.channel_users.find((channelUser) => channelUser.userId === id)
+          channel.channelUsers.length === 2 && channel.channelUsers.find((channelUser) => channelUser.userId === id)
       )
       if (channelWithFriend) {
         PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: channelWithFriend.id })

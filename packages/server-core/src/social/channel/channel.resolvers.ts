@@ -27,33 +27,11 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelQuery, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const channelResolver = resolve<ChannelType, HookContext>({
-  // TODO: Update this resolver once channel-user service is migrated to feathers 5
-  channelUsers: virtual(async (channel, context) => {
-    const channelUsers = (await context.app.service(channelUserPath).find({
-      query: {
-        channelId: channel.id
-      },
-      paginate: false
-    })) as ChannelUserType[]
-    return channelUsers
-  }),
-
-  messages: virtual(async (channel, context) => {
-    const messages = (await context.app.service(messagePath).find({
-      query: {
-        channelId: channel.id
-      },
-      paginate: false
-    })) as MessageType[]
-    return messages
-  }),
   createdAt: virtual(async (channel) => fromDateTimeSql(channel.createdAt)),
   updatedAt: virtual(async (channel) => fromDateTimeSql(channel.updatedAt))
 })
