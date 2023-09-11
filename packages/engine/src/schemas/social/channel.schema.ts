@@ -100,12 +100,15 @@ export type ChannelPatch = Static<typeof channelPatchSchema>
 export const channelQueryProperties = Type.Pick(channelSchema, ['id', 'name', 'instanceId', 'updateNeeded'])
 export const channelQuerySchema = Type.Intersect(
   [
-    querySyntax(channelQueryProperties),
+    querySyntax(channelQueryProperties, {
+      name: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
     Type.Object(
       {
-        action: Type.Optional(Type.String()),
-        search: Type.Optional(Type.String())
+        action: Type.Optional(Type.String())
       },
       { additionalProperties: false }
     )

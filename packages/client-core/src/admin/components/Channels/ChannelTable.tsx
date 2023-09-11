@@ -56,7 +56,16 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
       $skip: page.value * rowsPerPage.value,
       $limit: rowsPerPage.value,
       action: 'admin',
-      search: search
+      $or: [
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          name: ''
+        }
+      ]
     }
   })
   const removeChannel = useMutation(channelPath).remove
