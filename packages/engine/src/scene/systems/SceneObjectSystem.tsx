@@ -31,6 +31,7 @@ import {
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  SkinnedMesh,
   Texture
 } from 'three'
 
@@ -135,6 +136,10 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
           disposeMaterial(mesh.material)
         }
         mesh.geometry?.dispose()
+        const skinnedMesh = mesh as SkinnedMesh
+        if (skinnedMesh.isSkinnedMesh) {
+          skinnedMesh.skeleton?.dispose()
+        }
       })
     }
   }, [])
