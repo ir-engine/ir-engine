@@ -23,22 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `accept-invite` service on path `/accept-invite`
-
+import { acceptInviteMethods, acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { AcceptInvite } from './accept-invite.class'
+import config from '../../appconfig'
+import { AcceptInviteService } from './accept-invite.class'
+import acceptInviteDocs from './accept-invite.docs'
 import hooks from './accept-invite.hooks'
-
-/**
- * accept invite service
- */
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'a-i': AcceptInvite
-  }
-}
 
 /**
  * A function which returns url to the client
@@ -79,20 +70,22 @@ async function redirect(ctx, next) {
   }
 }
 
-export default (app: Application) => {
-  const options = {
-    paginate: app.get('paginate')
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [acceptInvitePath]: AcceptInviteService
   }
+}
 
-  /**
-   * Initialize our service with any options it requires
-   */
-  const event = new AcceptInvite(options, app)
-  app.use('a-i', event, { koa: { after: [redirect] } })
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('a-i')
+export default (app: Application): void => {
+  app.use(acceptInvitePath, new AcceptInviteService(app), {
+    // A list of all methods this service exposes externally
+    methods: acceptInviteMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: acceptInviteDocs,
+    koa: { after: [redirect] }
+  })
 
+  const service = app.service(acceptInvitePath)
   service.hooks(hooks)
 }
