@@ -164,6 +164,7 @@ function LoadingReactor() {
             try {
               createReadableTexture(compressedTexture).then((texture: Texture) => {
                 setColors(texture)
+                texture.dispose()
               })
             } catch (e) {
               console.error(e)
