@@ -39,6 +39,7 @@ import {
   WebGLCubeRenderTarget,
   WebGLRenderer
 } from 'three'
+import { disposeObject3D } from '../systems/SceneObjectSystem'
 
 /**
  * @author zz85 / https://github.com/zz85
@@ -384,8 +385,7 @@ export class Sky {
   }
 
   dispose() {
-    this.sky.geometry.dispose()
-    this.sky.material.dispose()
+    this.skyScene.traverse(disposeObject3D)
     this.cubeCamera.renderTarget.dispose()
   }
 }

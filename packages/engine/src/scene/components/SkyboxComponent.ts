@@ -160,11 +160,7 @@ export const SkyboxComponent = defineComponent({
       getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
       const skyboxTex = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
       background.set(getPmremGenerator().fromCubemap(skyboxTex).texture)
-      skyboxTex.dispose()
-
-      return () => {
-        sky.dispose()
-      }
+      sky.dispose()
     }, [skyboxState.backgroundType, skyboxState.skyboxProps])
 
     return null
