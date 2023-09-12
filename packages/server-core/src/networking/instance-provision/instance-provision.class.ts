@@ -108,7 +108,7 @@ export async function getFreeInstanceserver({
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
   })
   const ipAddresses = readyServers.map((server) => `${server.status.address}:${server.status.ports[0].port}`)
-  const assignedInstances: any = await app.service('instance').find({
+  const assignedInstances: any = await app.service(instancePath).find({
     query: {
       ipAddress: {
         $in: ipAddresses
@@ -563,7 +563,7 @@ export class InstanceProvision implements ServiceMethods<any> {
         let instance: InstanceType | null = null
 
         if (instanceId != null) {
-          instance = await this.app.service('instance').get(instanceId)
+          instance = await this.app.service(instancePath).get(instanceId)
         } else if (roomCode != null) {
           const instances = (await this.app.service(instancePath)._find({
             query: {
@@ -648,7 +648,7 @@ export class InstanceProvision implements ServiceMethods<any> {
         //       }
         //     }
         //   })
-        //   const maxInstance = await this.app.service('instance').get(maxInstanceId)
+        //   const maxInstance = await this.app.service(instancePath).get(maxInstanceId)
         //   if (!config.kubernetes.enabled) {
         //     logger.info('Resetting local instance to ' + maxInstanceId)
         //     const localIp = await getLocalServerIp(false)
@@ -670,11 +670,11 @@ export class InstanceProvision implements ServiceMethods<any> {
         const knexClient: Knex = this.app.get('knexClient')
 
         const response = await knexClient
-          .from('instance')
-          .join(locationPath, 'instance.locationId', '=', `${locationPath}.id`)
-          .where('instance.locationId', '=', location.id)
-          .andWhere('instance.ended', '=', false)
-          .andWhere(`${locationPath}.maxUsersPerInstance`, '>', 'instance.currentUsers')
+          .from(instancePath)
+          .join(locationPath, `${instancePath}.locationId`, '=', `${locationPath}.id`)
+          .where(`${instancePath}.locationId`, '=', location.id)
+          .andWhere(`${instancePath}.ended`, '=', false)
+          .andWhere(`${locationPath}.maxUsersPerInstance`, '>', `${instancePath}.currentUsers`)
           .select()
           .options({ nestTables: true }) // https://github.com/knex/knex/issues/61#issuecomment-213949230
 

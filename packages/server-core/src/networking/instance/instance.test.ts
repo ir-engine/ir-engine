@@ -31,7 +31,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
-import { InstanceID, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -89,7 +89,7 @@ describe('instance.test', () => {
   let testInstance: InstanceType
 
   it('should create an instance', async () => {
-    const instance = (await app.service('instance').create({
+    const instance = (await app.service(instancePath).create({
       locationId: testLocation.id,
       roomCode: testInstance.roomCode,
       currentUsers: testInstance.currentUsers
@@ -104,7 +104,7 @@ describe('instance.test', () => {
   })
 
   it('should get that instance', async () => {
-    const instance = await app.service('instance')._get(testInstance.id)
+    const instance = await app.service(instancePath)._get(testInstance.id)
 
     assert.ok(instance)
     assert.ok(instance.roomCode)
@@ -112,7 +112,7 @@ describe('instance.test', () => {
   })
 
   it('should find instances for admin', async () => {
-    const instances = (await app.service('instance').find({
+    const instances = (await app.service(instancePath).find({
       action: 'admin'
     } as any)) as Paginated<InstanceType>
 
@@ -121,7 +121,7 @@ describe('instance.test', () => {
   })
 
   it('should have "total" in find method', async () => {
-    const item = await app.service('instance').find({
+    const item = await app.service(instancePath).find({
       action: 'admin'
     } as any)
 
