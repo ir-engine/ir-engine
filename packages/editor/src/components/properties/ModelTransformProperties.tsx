@@ -59,6 +59,7 @@ import CollapsibleBlock from '../layout/CollapsibleBlock'
 import GLTFTransformProperties from './GLTFTransformProperties'
 import LightmapBakerProperties from './LightmapBakerProperties'
 
+import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
 import './ModelTransformProperties.css'
 
 export default function ModelTransformProperties({
@@ -132,7 +133,7 @@ export default function ModelTransformProperties({
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      const nuPath = await Engine.instance.api.service('model-transform').create({
+      const nuPath = await Engine.instance.api.service(modelTransformPath).create({
         src: modelSrc,
         transformParameters: transformParms.value
       })
@@ -181,7 +182,7 @@ export default function ModelTransformProperties({
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await Engine.instance.api.service('model-transform').create({
+      const transformedPath = await Engine.instance.api.service(modelTransformPath).create({
         src: bakedPath,
         transformParameters: transformParms.value
       })
