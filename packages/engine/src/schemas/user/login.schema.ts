@@ -26,4 +26,4 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
 export const loginPath = 'login'
-export const loginMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const loginMethods = ['get'] as const

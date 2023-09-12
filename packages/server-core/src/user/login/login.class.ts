@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers'
+import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
@@ -48,16 +48,6 @@ export class LoginService implements ServiceInterface {
   }
 
   /**
-   * A function which find login details and display it
-   *
-   * @param params
-   * @returns {@Array} all login details
-   */
-  async find(params?: LoginParams) {
-    return []
-  }
-
-  /**
    * A function which find specific login details
    *
    * @param id of specific login detail
@@ -66,6 +56,12 @@ export class LoginService implements ServiceInterface {
    */
   async get(id: Id, params?: LoginParams) {
     try {
+      if (!id) {
+        logger.info('Invalid login token id, cannot be null or undefined')
+        return {
+          error: 'invalid login token id, cannot be null or undefined'
+        }
+      }
       const result = await this.app.service(loginTokenPath)._find({
         query: {
           token: id.toString()
@@ -107,56 +103,5 @@ export class LoginService implements ServiceInterface {
       logger.error(err, `Error finding login token: ${err}`)
       throw err
     }
-  }
-
-  /**
-   * A function which is used for login
-   *
-   * @param data of new login details
-   * @param params contain user info
-   * @returns created data
-   */
-  async create(data, params?: LoginParams) {
-    if (Array.isArray(data)) {
-      return await Promise.all(data.map((current) => this.create(current, params)))
-    }
-
-    return data
-  }
-
-  /**
-   * A function which is used to update login details
-   *
-   * @param id of login detail
-   * @param data which will be used for updating login
-   * @param params
-   * @returns updated data
-   */
-  async update(id: NullableId, data, params?: LoginParams) {
-    return data
-  }
-
-  /**
-   * A function which is used to update data
-   *
-   * @param id
-   * @param data to be updated
-   * @param params
-   * @returns data
-   */
-  async patch(id: NullableId, data, params?: LoginParams) {
-    return data
-  }
-
-  /**
-   * A function which is used to remove login details
-   *
-   * @param id of login to be removed
-   * @param params
-   * @returns id
-   */
-
-  async remove(id: NullableId, params?: LoginParams) {
-    return { id }
   }
 }
