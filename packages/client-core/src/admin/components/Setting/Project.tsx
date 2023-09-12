@@ -53,7 +53,7 @@ const Project = () => {
   const settings = useHookstate<Array<ProjectSetting> | []>([])
   const selectedProject = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
-  const projectSetting = useFind('project-setting', {
+  let projectSetting = useFind('project-setting', {
     query: {
       $limit: 1,
       id: selectedProject.value,
@@ -79,6 +79,8 @@ const Project = () => {
     if (!projectSetting.length) {
       return
     }
+
+    if (typeof projectSetting === 'string') projectSetting = JSON.parse(projectSetting)
     const tempSettings = JSON.parse(JSON.stringify(settings.value))
     for (const [index, setting] of tempSettings.entries()) {
       const savedSetting = projectSetting.filter((item) => item.key === setting.key)
