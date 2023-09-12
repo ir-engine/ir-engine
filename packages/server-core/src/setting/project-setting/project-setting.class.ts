@@ -25,21 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ProjectSettingType } from '@etherealengine/engine/src/schemas/setting/project-setting.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
+import { Params, ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
-import { ProjectParams } from '../../projects/project/project.class'
 
 /**
  * A class for Server Logs service
  */
-export class ProjectSettingService implements ServiceInterface<ProjectSettingType, ProjectParams> {
+export class ProjectSettingService implements ServiceInterface<ProjectSettingType, Params> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async find(params?: ProjectParams) {
+  async find(params?: Params) {
     const result = await this.app.service(projectPath).find(params)
     return result?.data[0]?.settings ? result.data[0].settings : []
   }

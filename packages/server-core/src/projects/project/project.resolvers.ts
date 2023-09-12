@@ -34,9 +34,9 @@ import {
 import {
   ProjectDatabaseType,
   ProjectQuery,
-  ProjectSettingType,
   ProjectType
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectSettingType } from '@etherealengine/engine/src/schemas/setting/project-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
