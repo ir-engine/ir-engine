@@ -215,7 +215,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   }
 
   async patch(id: NullableId, data: ProjectPatch, params?: ProjectParams) {
-    if (data.repositoryPath) {
+    if (data.repositoryPath && !data.settings) {
       const repoPath = data.repositoryPath
       const user = params!.user!
 

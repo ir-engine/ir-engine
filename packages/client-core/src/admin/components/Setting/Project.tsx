@@ -36,6 +36,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import styles from '../../styles/settings.module.scss'
 
@@ -60,7 +61,7 @@ const Project = () => {
     }
   }).data
 
-  const patchProjectSetting = useMutation('project-setting').patch
+  const patchProjectSetting = useMutation(projectPath).patch
 
   ProjectService.useAPIListeners()
 
