@@ -72,6 +72,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
     if (/ktx2$/.test(props.resourceUrl)) {
       const texture = await AssetLoader.loadAsync(props.resourceUrl)
       thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
+      texture.dispose()
     } else {
       thumbnail.set('')
     }

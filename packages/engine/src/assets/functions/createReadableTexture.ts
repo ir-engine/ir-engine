@@ -186,8 +186,8 @@ export default async function createReadableTexture(
   await new Promise<void>((resolve) => {
     image.onload = () => resolve()
   })
-  let finalTexture: Texture
   if (options?.url) return image.src
+  let finalTexture: Texture
   if (options?.canvas) {
     const canvas = document.createElement('canvas')
     canvas.width = map.image.width

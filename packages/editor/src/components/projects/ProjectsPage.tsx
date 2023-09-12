@@ -31,7 +31,7 @@ import { ProjectService, ProjectState } from '@etherealengine/client-core/src/co
 import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import multiLogger from '@etherealengine/common/src/logger'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -65,7 +65,6 @@ import {
 import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
 import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { getProjects } from '../../functions/projectFunctions'
-import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
@@ -270,9 +269,6 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-
-    dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
-    dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
     RouterService.navigate(`/studio/${project.name}`)
   }
 

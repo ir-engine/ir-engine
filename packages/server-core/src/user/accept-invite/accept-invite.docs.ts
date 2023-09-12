@@ -23,16 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState } from '@etherealengine/hyperflux'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export const EditorState = defineState({
-  name: 'EditorState',
-  initial: () => ({
-    projectName: null as string | null,
-    sceneName: null as string | null,
-    sceneModified: false,
-    showObject3DInHierarchy: false,
-    lockPropertiesPanel: '' as EntityUUID
-  })
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Accept invite service description',
+    securities: ['all']
+  }
 })
