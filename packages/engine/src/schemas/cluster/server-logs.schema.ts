@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import BuildStatus from './build-status/build-status'
-import ServerInfo from './server-info/server-info'
-import ServerLogs from './server-logs/server-logs'
-
-export default [BuildStatus, ServerInfo, ServerLogs]
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+export const serverLogsPath = 'server-logs'
+export const serverLogsMethods = ['find'] as const

@@ -23,24 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { ServerLogs } from './server-logs.class'
-import hooks from './server-logs.hooks'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'server-logs': ServerLogs
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Server logs service description',
+    securities: ['all']
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  const event = new ServerLogs(options, app)
-  app.use('server-logs', event)
-  const service = app.service('server-logs')
-  service.hooks(hooks)
-}
+})
