@@ -23,24 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { InstanceID } from '../networking/instance.schema'
-import { UserType } from '../user/user.schema'
+import { channelUserMethods, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { Application } from '../../../declarations'
+import { ChannelUserService } from './channel-user.class'
+import channelUserDocs from './channel-user.docs'
+import hooks from './channel-user.hooks'
 
-interface ChannelInterface {
-  id: string
-  name: string
-  users: UserType[]
-  userIds: UserID[]
-  instanceId: InstanceID
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [channelUserPath]: ChannelUserService
+  }
 }
 
-export type ChannelUser = {
-  id: string
-  isOwner: boolean
-  userId: UserID
-  user?: UserType
-  channelId: ChannelID
-  channel?: ChannelInterface
+/**
+ * @todo
+ * - destroy channel after last person leaves
+ */
+
+export default (app: Application): void => {
+  const options = {
+    name: channelUserPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(channelUserPath, new ChannelUserService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: channelUserMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: channelUserDocs
+  })
+
+  const service = app.service(channelUserPath)
+  service.hooks(hooks)
 }

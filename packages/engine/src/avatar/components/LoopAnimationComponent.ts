@@ -33,6 +33,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  getMutableComponent,
   hasComponent,
   setComponent,
   useComponent,
@@ -119,7 +120,6 @@ export const LoopAnimationComponent = defineComponent({
         const vrm = parseAvatarModelAsset(model.scene)
         if (vrm) {
           modelComponent.asset.set(vrm)
-          modelComponent.scene.set(vrm.scene as any)
         }
       } else if (model.asset instanceof VRM) {
         loopAnimationComponent.hasAvatarAnimations.set(true)
@@ -148,7 +148,7 @@ export const LoopAnimationComponent = defineComponent({
         const animationComponent = getComponent(entity, AnimationComponent)
         animationComponent.animations = animations
       })
-    }, [modelComponent?.scene, modelComponent?.asset, animComponent?.animations, loopAnimationComponent.animationPack])
+    }, [modelComponent?.asset, loopAnimationComponent.animationPack])
 
     useEffect(() => {
       if (
@@ -159,34 +159,39 @@ export const LoopAnimationComponent = defineComponent({
         return
 
       playAnimationClip(entity)
-    }, [loopAnimationComponent.activeClipIndex, loopAnimationComponent.animationPackScene, modelComponent?.scene])
+    }, [
+      loopAnimationComponent.activeClipIndex,
+      loopAnimationComponent.animationPackScene,
+      modelComponent?.scene,
+      modelComponent?.asset
+    ])
 
     return null
   }
 })
 
 export const playAnimationClip = (entity: Entity) => {
-  const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+  const loopAnimationComponent = getMutableComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
   const modelComponent = getComponent(entity, ModelComponent)
-  if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+  if (loopAnimationComponent.action.value) loopAnimationComponent.action.value.stop()
   if (
-    loopAnimationComponent.activeClipIndex >= 0 &&
-    animationComponent.animations[loopAnimationComponent.activeClipIndex]
+    loopAnimationComponent.activeClipIndex.value >= 0 &&
+    animationComponent.animations[loopAnimationComponent.activeClipIndex.value]
   ) {
     animationComponent.mixer.stopAllAction()
     const clip = AnimationClip.findByName(
       animationComponent.animations,
-      animationComponent.animations[loopAnimationComponent.activeClipIndex].name
+      animationComponent.animations[loopAnimationComponent.activeClipIndex.value].name
     )
 
     animationComponent.mixer.time = 0
-    loopAnimationComponent.action = animationComponent.mixer
-      .clipAction(
-        modelComponent.asset instanceof VRM
-          ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene!, modelComponent.asset)
-          : clip
-      )
-      .play()
+    const action = animationComponent.mixer.clipAction(
+      modelComponent.asset instanceof VRM
+        ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene.value!, modelComponent.asset)
+        : clip
+    )
+    loopAnimationComponent.action.set(action)
+    action.play()
   }
 }

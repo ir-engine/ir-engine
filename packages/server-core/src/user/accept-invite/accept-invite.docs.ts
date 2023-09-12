@@ -23,38 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { ChannelUser } from './channel-user.class'
-import channelUserDocs from './channel-user.docs'
-import hooks from './channel-user.hooks'
-import createModel from './channel-user.model'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'channel-user': ChannelUser
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Accept invite service description',
+    securities: ['all']
   }
-}
-
-/**
- * @todo
- * - destroy channel after last person leaves
- */
-
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new ChannelUser(options, app)
-  event.docs = channelUserDocs
-  app.use('channel-user', event)
-
-  const service = app.service('channel-user')
-
-  service.hooks(hooks)
-}
+})

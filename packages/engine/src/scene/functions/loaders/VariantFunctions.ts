@@ -43,7 +43,7 @@ export function setModelVariant(entity: Entity) {
   if (variantComponent.heuristic.value === 'DEVICE') {
     const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //set model src to mobile variant src
-    const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
+    const deviceVariant = variantComponent.levels.find((level) => level.value.metadata['device'] === targetDevice)
     deviceVariant &&
       modelComponent.src.value !== deviceVariant.src.value &&
       modelComponent.src.set(deviceVariant.src.value)

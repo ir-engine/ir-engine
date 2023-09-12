@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, Scene } from 'three'
+import { Mesh, Scene, SkinnedMesh } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -52,9 +52,11 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
+import iterateObject3D from '../util/iterateObject3D'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { UUIDComponent } from './UUIDComponent'
 import { VariantComponent } from './VariantComponent'
 
@@ -82,7 +84,8 @@ export const ModelComponent = defineComponent({
       avoidCameraOcclusion: false,
       // internal
       scene: null as Scene | null,
-      asset: null as VRM | GLTF | null
+      asset: null as VRM | GLTF | null,
+      hasSkinnedMesh: false
     }
   },
 
@@ -131,7 +134,8 @@ function ModelReactor() {
   const source = model.src
 
   useEffect(() => {
-    !hasComponent(entity, LoopAnimationComponent) && setComponent(entity, LoopAnimationComponent, {})
+    setComponent(entity, LoopAnimationComponent)
+    setComponent(entity, ShadowComponent)
   }, [])
 
   // update src
@@ -179,6 +183,10 @@ function ModelReactor() {
                   totalAmount: onprogress.total
                 }
               })
+            },
+            (err) => {
+              console.error(err)
+              removeComponent(entity, SceneAssetPendingTagComponent)
             }
           )
           break
@@ -203,6 +211,18 @@ function ModelReactor() {
     // setComponent(entity, BoundingBoxComponent)
 
     let active = true
+
+    const skinnedMeshSearch = iterateObject3D(
+      scene,
+      () => true,
+      (ob: SkinnedMesh) => ob.isSkinnedMesh,
+      false,
+      true
+    )
+    if (skinnedMeshSearch[0]) {
+      modelComponent.hasSkinnedMesh.set(true)
+      modelComponent.generateBVH.set(false)
+    }
 
     if (model.generateBVH) {
       enableObjectLayer(scene, ObjectLayers.Camera, false)

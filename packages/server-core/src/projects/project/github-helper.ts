@@ -34,6 +34,7 @@ import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/co
 import {
   AudioFileTypes,
   ImageFileTypes,
+  ModelFileTypes,
   VideoFileTypes,
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
@@ -461,7 +462,7 @@ export const getOctokitForChecking = async (app: Application, url: string, param
 const createBlobForFile =
   (octo: Octokit, org: string, repo: string, git: any, branch: string, lfsFiles = [] as string[], repoPath?: string) =>
   async (filePath: string, projectName: string) => {
-    const encoding = isBase64Encoded(filePath) ? 'base64' : 'utf-8'
+    let encoding = (isBase64Encoded(filePath) ? 'base64' : 'utf-8') as BufferEncoding
     const rootPath = path.join(appRootPath.path, 'packages/projects', filePath)
     const bytes = fs.readFileSync(rootPath, 'binary')
     const buffer = Buffer.from(bytes, 'binary')
@@ -514,6 +515,7 @@ const createBlobForFile =
             headers: verifyActions.header
           })
       }
+      encoding = 'utf-8'
       content = Buffer.from(lfsPointer).toString(encoding)
     } else {
       content = buffer.toString(encoding)
@@ -601,6 +603,7 @@ const isBase64Encoded = (filePath: string) => {
     ImageFileTypes.indexOf(extension) > -1 ||
     AudioFileTypes.indexOf(extension) > -1 ||
     VolumetricFileTypes.indexOf(extension) > -1 ||
-    VideoFileTypes.indexOf(extension) > -1
+    VideoFileTypes.indexOf(extension) > -1 ||
+    ModelFileTypes.indexOf(extension) > -1
   )
 }

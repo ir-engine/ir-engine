@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState } from '@etherealengine/hyperflux'
 
 export const EditorState = defineState({
   name: 'EditorState',
@@ -37,46 +36,3 @@ export const EditorState = defineState({
     lockPropertiesPanel: '' as EntityUUID
   })
 })
-
-export const EditorServiceReceptor = (action) => {
-  const s = getMutableState(EditorState)
-  matches(action)
-    .when(EditorAction.sceneChanged.matches, (action) => {
-      return s.merge({ sceneName: action.sceneName, sceneModified: false })
-    })
-    .when(EditorAction.projectChanged.matches, (action) => {
-      return s.merge({ projectName: action.projectName, sceneName: null, sceneModified: false })
-    })
-    .when(EditorAction.showObject3DInHierarchy.matches, (action) => {
-      return s.merge({ showObject3DInHierarchy: action.showObject3DInHierarchy })
-    })
-    .when(EditorAction.lockPropertiesPanel.matches, (action) =>
-      s.merge({ lockPropertiesPanel: action.lockPropertiesPanel })
-    )
-}
-
-//Service
-export const EditorService = {}
-
-//Action
-export class EditorAction {
-  static projectChanged = defineAction({
-    type: 'ee.editor.Editor.EDITOR_PROJECT_CHANGED' as const,
-    projectName: matches.any as Validator<unknown, string | null>
-  })
-
-  static sceneChanged = defineAction({
-    type: 'ee.editor.Editor.EDITOR_SCENE_CHANGED' as const,
-    sceneName: matches.any as Validator<unknown, string | null>
-  })
-
-  static showObject3DInHierarchy = defineAction({
-    type: 'ee.editor.Editor.SHOW_OBJECT3D_IN_HIERARCHY' as const,
-    showObject3DInHierarchy: matches.boolean
-  })
-
-  static lockPropertiesPanel = defineAction({
-    type: 'ee.editor.Editor.LOCK_PROPERTIES_PANEL' as const,
-    lockPropertiesPanel: matches.string as Validator<unknown, EntityUUID>
-  })
-}

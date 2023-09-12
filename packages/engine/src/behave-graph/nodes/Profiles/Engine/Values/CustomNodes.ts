@@ -386,12 +386,18 @@ export const fadeCamera = makeFlowNodeDefinition({
   label: 'Camera fade',
   in: {
     flow: 'flow',
-    toBlack: 'boolean'
+    toBlack: 'boolean',
+    graphicTexture: 'string'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    dispatchAction(CameraActions.fadeToBlack({ in: read('toBlack') }))
+    dispatchAction(
+      CameraActions.fadeToBlack({
+        in: read('toBlack'),
+        graphicTexture: read('graphicTexture')
+      })
+    )
     commit('flow')
   }
 })

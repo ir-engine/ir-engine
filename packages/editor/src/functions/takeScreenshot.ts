@@ -195,7 +195,6 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
   const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
-
   const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
 
   // Rendering the scene to the new canvas with given size
@@ -204,14 +203,14 @@ export async function takeScreenshot(
       const viewport = EngineRenderer.instance.renderContext.getParameter(
         EngineRenderer.instance.renderContext.VIEWPORT
       )
-      // todo - scrolling in and out sometimes causes weird pixel ratios that can cause this to fail
-      if (viewport[2] === Math.round(width * pixelRatio) && viewport[3] === Math.round(height * pixelRatio)) {
+      if (viewport[2] === Math.round(width) && viewport[3] === Math.round(height)) {
         console.log('Resized viewport')
         clearTimeout(timeout)
         clearInterval(interval)
         resolve()
       }
     }, 10)
+
     const timeout = setTimeout(() => {
       console.warn('Could not resize viewport in time')
       clearTimeout(timeout)
@@ -268,8 +267,8 @@ export async function takeScreenshot(
 
   // restore
   EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
-  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
   EngineRenderer.instance.renderer.setPixelRatio(pixelRatio)
+  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
