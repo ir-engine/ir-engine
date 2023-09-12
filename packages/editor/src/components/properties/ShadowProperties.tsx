@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { hasComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
 
 import BooleanInput from '../inputs/BooleanInput'
@@ -41,7 +41,6 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ShadowProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  if (!hasComponent(props.entity, ShadowComponent)) return <></>
   const shadowComponent = useComponent(props.entity, ShadowComponent)
   return (
     <NodeEditor
