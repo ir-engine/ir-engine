@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { Color, CubeTexture, SRGBColorSpace, Texture } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -81,7 +81,10 @@ export const SkyboxComponent = defineComponent({
 
   onRemove: (entity, component) => {
     // todo, do this in reactors instead of onRemove once we have async suspend
-    getMutableState(SceneState).background.set(null)
+    const backgroundState = getMutableState(SceneState).background
+    const background = backgroundState.get(NO_PROXY) as Texture
+    background?.isTexture && background.dispose()
+    backgroundState.set(null)
   },
 
   reactor: function () {
@@ -91,8 +94,16 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
     const background = useHookstate(getMutableState(SceneState).background)
 
+    const cleanupTexture = () => {
+      const backgroundTexture = background.value as Texture | null
+      if (backgroundTexture?.isTexture) {
+        backgroundTexture.dispose()
+      }
+    }
+
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
+      cleanupTexture()
       background.set(skyboxState.backgroundColor.value)
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
@@ -100,6 +111,7 @@ export const SkyboxComponent = defineComponent({
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
+        cleanupTexture()
         background.set(getPmremGenerator().fromCubemap(texture).texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
@@ -124,6 +136,7 @@ export const SkyboxComponent = defineComponent({
         {},
         (texture: Texture) => {
           texture.colorSpace = SRGBColorSpace
+          cleanupTexture()
           background.set(getPmremGenerator().fromEquirectangular(texture).texture)
           removeError(entity, SkyboxComponent, 'FILE_ERROR')
         },
@@ -156,6 +169,7 @@ export const SkyboxComponent = defineComponent({
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
       getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
+      cleanupTexture()
       background.set(
         getPmremGenerator().fromCubemap(sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)).texture
       )
