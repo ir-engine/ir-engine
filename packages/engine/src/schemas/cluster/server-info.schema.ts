@@ -77,4 +77,6 @@ export const serverInfoSchema = Type.Object(
 )
 export type ServerInfoType = Static<typeof serverInfoSchema>
 
+export const serverContainerInfoValidator = getValidator(serverContainerInfoSchema, dataValidator)
+export const serverPodInfoValidator = getValidator(serverPodInfoSchema, dataValidator)
 export const serverInfoValidator = getValidator(serverInfoSchema, dataValidator)
