@@ -42,6 +42,7 @@ import { defineActionQueue, defineState, getMutableState, getState, useState } f
 
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import {
   ComponentType,
@@ -145,12 +146,13 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 /** Swipe to rotate */
 // TODO; move into interactable after spatial input refactor
+// const deltaState = getState(EngineState).deltaSeconds
 // if (hitTestComponent?.hitTestResult) {
 //   const placementInputSource = xrState.scenePlacementMode.value!
 //   const swipe = placementInputSource.gamepad?.axes ?? []
 //   if (swipe.length) {
 //     const delta = swipe[0] - (lastSwipeValue ?? 0)
-//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (Engine.instance.deltaSeconds * 20)))
+//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (deltaSeconds * 20)))
 //     lastSwipeValue = swipe[0]
 //   } else {
 //     lastSwipeValue = null
@@ -215,7 +217,8 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
 
   if (!localTransform || !xrFrame || !xrSession) return
 
-  const lerpAlpha = smootheLerpAlpha(5, Engine.instance.deltaSeconds)
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
   const targetScale = getTargetWorldSize(localTransform)
   if (targetScale !== xrState.sceneScale)

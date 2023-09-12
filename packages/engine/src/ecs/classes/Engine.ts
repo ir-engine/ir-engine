@@ -111,7 +111,7 @@ export class Engine {
    * The seconds since the last world execution
    * @deprecated use getState(EngineState).deltaSeconds
    */
-  get deltaSeconds() {
+  get deltaSeconds_retired() {
     return getState(EngineState).deltaSeconds
   }
 
@@ -119,7 +119,7 @@ export class Engine {
    * The elapsed seconds since `performance.timeOrigin`
    * @deprecated use `getState(EngineState).elapsedSeconds`
    */
-  get elapsedSeconds() {
+  get elapsedSeconds_retired() {
     return getState(EngineState).elapsedSeconds
   }
 
@@ -127,7 +127,7 @@ export class Engine {
    * The current fixed tick (simulationTime / simulationTimeStep)
    * @deprecated
    */
-  get fixedTick() {
+  get fixedTick_retired() {
     const engineState = getState(EngineState)
     return engineState.simulationTime / engineState.simulationTimestep
   }
@@ -135,7 +135,7 @@ export class Engine {
   /**
    * @deprecated use `getState(EngineState).simulationTimestep / 1000`
    */
-  get fixedDeltaSeconds() {
+  get fixedDeltaSeconds_retired() {
     return getState(EngineState).simulationTimestep / 1000
   }
 
