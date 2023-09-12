@@ -111,7 +111,8 @@ export class Engine {
    * The seconds since the last world execution
    * @deprecated use getState(EngineState).deltaSeconds
    */
-  get deltaSeconds_retired() {
+  get deltaSeconds() {
+    console.log('who called me')
     return getState(EngineState).deltaSeconds
   }
 
@@ -119,7 +120,8 @@ export class Engine {
    * The elapsed seconds since `performance.timeOrigin`
    * @deprecated use `getState(EngineState).elapsedSeconds`
    */
-  get elapsedSeconds_retired() {
+  get elapsedSeconds() {
+    console.log('who called me 2')
     return getState(EngineState).elapsedSeconds
   }
 
@@ -127,7 +129,8 @@ export class Engine {
    * The current fixed tick (simulationTime / simulationTimeStep)
    * @deprecated
    */
-  get fixedTick_retired() {
+  get fixedTick() {
+    console.log('who called me 3')
     const engineState = getState(EngineState)
     return engineState.simulationTime / engineState.simulationTimestep
   }
@@ -135,7 +138,7 @@ export class Engine {
   /**
    * @deprecated use `getState(EngineState).simulationTimestep / 1000`
    */
-  get fixedDeltaSeconds_retired() {
+  get fixedDeltaSeconds() {
     return getState(EngineState).simulationTimestep / 1000
   }
 

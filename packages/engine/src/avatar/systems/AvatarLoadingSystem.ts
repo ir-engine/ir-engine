@@ -41,7 +41,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineQuery,
   getComponent,
@@ -159,7 +159,7 @@ const tweenOutEffect = (entity, effectComponent) => {
 }
 
 const execute = () => {
-  const { deltaSeconds: delta } = Engine.instance
+  const deltaSeconds = getState(EngineState).deltaSeconds
 
   for (const entity of effectQuery.enter()) {
     const effectComponent = getComponent(entity, AvatarEffectComponent)
