@@ -88,7 +88,7 @@ const NEARBY_AVATAR_UPDATE_PERIOD = 5
 let accumulator = 0
 
 const execute = () => {
-  accumulator = getState(EngineState).deltaSeconds
+  accumulator += getState(EngineState).deltaSeconds
   if (accumulator > NEARBY_AVATAR_UPDATE_PERIOD) {
     accumulator = 0
     updateNearbyAvatars()

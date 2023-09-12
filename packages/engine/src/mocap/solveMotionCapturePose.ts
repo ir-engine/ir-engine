@@ -508,10 +508,6 @@ export const solveHand = (
   // for the hands, negative x is forward, palm up is negative y, thumb side is positive z on left hand, negative z on right hand
   rotationMatrix.makeBasis(directionVector, orthogonalVector, thirdVector)
 
-  const ypr = directionVector // new Euler().setFromRotationMatrix(rotationMatrix)
-  if (invertAxis) console.log('euler ' + ypr.x.toFixed(3), ypr.y.toFixed(3), ypr.z.toFixed(3))
-  //console.log("euler " + ref1.x.toFixed(3), ref1.y.toFixed(3), ref1.z.toFixed(3))
-
   const limbExtentQuaternion = new Quaternion().setFromRotationMatrix(rotationMatrix)
 
   // planeHelper2.position.copy(startPoint)
