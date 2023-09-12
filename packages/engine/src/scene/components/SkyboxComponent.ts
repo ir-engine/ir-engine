@@ -101,6 +101,7 @@ export const SkyboxComponent = defineComponent({
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
         background.set(getPmremGenerator().fromCubemap(texture).texture)
+        texture.dispose()
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
       const loadArgs: [
@@ -125,6 +126,7 @@ export const SkyboxComponent = defineComponent({
         (texture: Texture) => {
           texture.colorSpace = SRGBColorSpace
           background.set(getPmremGenerator().fromEquirectangular(texture).texture)
+          texture.dispose()
           removeError(entity, SkyboxComponent, 'FILE_ERROR')
         },
         undefined,
@@ -156,10 +158,20 @@ export const SkyboxComponent = defineComponent({
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
       getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
-      background.set(
-        getPmremGenerator().fromCubemap(sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)).texture
-      )
+      const skyboxTex = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
+      background.set(getPmremGenerator().fromCubemap(skyboxTex).texture)
+      skyboxTex.dispose()
     }, [skyboxState.backgroundType, skyboxState.skyboxProps])
+
+    /** @todo when we have asset loader hooks we can change this */
+    useEffect(() => {
+      if (!background.value) return
+      const backgroundTexture = background.value
+      if (backgroundTexture instanceof Texture)
+        return () => {
+          backgroundTexture.dispose()
+        }
+    }, [background])
 
     return null
   },
