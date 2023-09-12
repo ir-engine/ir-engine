@@ -35,6 +35,7 @@ import {
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -54,7 +55,7 @@ const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'serve
  * @returns invite link
  */
 export function getInviteLink(type: string, id: string, passcode: string): string {
-  return `${config.server.url}/a-i/${id}?t=${passcode}`
+  return `${config.server.url}/${acceptInvitePath}/${id}?t=${passcode}`
 }
 
 async function generateEmail(
