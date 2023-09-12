@@ -45,9 +45,10 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
@@ -209,7 +210,7 @@ function ModelReactor() {
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
-    // setComponent(entity, BoundingBoxComponent)
+    setComponent(entity, BoundingBoxComponent)
 
     let active = true
 
@@ -226,7 +227,6 @@ function ModelReactor() {
         skinnedMesh.frustumCulled = false
       }
       setComponent(entity, FrustumCullCameraComponent)
-      setComponent(entity, DistanceFromCameraComponent)
     }
 
     if (model.generateBVH) {
