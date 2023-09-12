@@ -142,8 +142,8 @@ export const LoopAnimationComponent = defineComponent({
     }, [animComponent, loopAnimationComponent.activeClipIndex])
 
     useEffect(() => {
-      if (loopAnimationComponent._action.value?.isRunning() && loopAnimationComponent.paused.value) {
-        loopAnimationComponent._action.value.paused = true
+      if (loopAnimationComponent._action.value?.isRunning()) {
+        loopAnimationComponent._action.value.paused = loopAnimationComponent.paused.value
       } else if (!loopAnimationComponent._action.value?.isRunning() && !loopAnimationComponent.paused.value) {
         loopAnimationComponent._action.value?.getMixer().stopAllAction()
         loopAnimationComponent._action.value?.reset()
