@@ -98,6 +98,7 @@ export const LoopAnimationComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
+      hasAvatarAnimations: component.hasAvatarAnimations.value,
       activeClipIndex: component.activeClipIndex.value,
       animationPack: component.animationPack.value,
       paused: component.paused.value,
@@ -143,8 +144,9 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (loopAnimationComponent._action.value?.isRunning() && loopAnimationComponent.paused.value) {
         loopAnimationComponent._action.value.paused = true
-      } else if (loopAnimationComponent._action.value?.isRunning() && !loopAnimationComponent.paused.value) {
+      } else if (!loopAnimationComponent._action.value?.isRunning() && !loopAnimationComponent.paused.value) {
         loopAnimationComponent._action.value?.getMixer().stopAllAction()
+        loopAnimationComponent._action.value?.reset()
         loopAnimationComponent._action.value?.play()
       }
     }, [loopAnimationComponent._action, loopAnimationComponent.paused])
