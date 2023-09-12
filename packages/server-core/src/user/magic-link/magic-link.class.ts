@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
@@ -33,84 +33,23 @@ import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/id
 import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
 import { IdentityProviderService } from '../identity-provider/identity-provider.class'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Data {}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ServiceOptions {}
-
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
-export class Magiclink implements ServiceMethods<Data> {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface MagicLinkParams extends RootParams {}
+
+/**
+ * A class for Magic Link service
+ */
+export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
   app: Application
-  options: ServiceOptions
-  docs: any
 
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
+  constructor(app: Application) {
     this.app = app
-  }
-
-  async setup() {}
-
-  /**
-   * A function which find magic link  and display it
-   *
-   * @param params
-   * @returns {@Array} all magic link
-   */
-  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
-    return []
-  }
-
-  /**
-   * A function which find specific magic link by id
-   *
-   * @param id of specific magic link
-   * @param params
-   * @returns {@Object} contains id of magic link and message
-   */
-  async get(id: Id, params?: Params): Promise<Data> {
-    return {
-      id,
-      text: `A new message with ID: ${id}!`
-    }
-  }
-  /**
-   * A function which is used to update magic link
-   *
-   * @param id
-   * @param data which will be used for updating magic link
-   * @param params
-   * @returns updated data
-   */
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  /**
-   * A function which is used to update magic link
-   *
-   * @param id
-   * @param data used to update
-   * @param params
-   * @returns data
-   */
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-  /**
-   * A function which is used to remove magic link
-   *
-   * @param id of magic link used to remove data
-   * @param params
-   * @returns id
-   */
-  async remove(id: NullableId, params?: Params): Promise<Data> {
-    return { id }
   }
 
   /**
@@ -201,7 +140,7 @@ export class Magiclink implements ServiceMethods<Data> {
    * @returns creted data
    */
 
-  async create(data: any, params?: Params): Promise<Data> {
+  async create(data: any, params?: MagicLinkParams) {
     const identityProviderService = this.app.service(identityProviderPath)
 
     // check magiclink type
@@ -227,7 +166,7 @@ export class Magiclink implements ServiceMethods<Data> {
           accountIdentifier: token,
           userId: data.userId
         },
-        params
+        params as any
       )
     } else {
       identityProvider = identityProviders[0]

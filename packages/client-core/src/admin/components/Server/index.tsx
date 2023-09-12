@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { ServerInfoInterface } from '@etherealengine/common/src/interfaces/ServerInfo'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
@@ -43,6 +42,7 @@ import ServerTable from './ServerTable'
 
 import 'react-reflex/styles.css'
 
+import { ServerInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
 import ServerLogs, { ServerLogsInputsType } from './ServerLogs'
 
 const Server = () => {
@@ -94,7 +94,7 @@ const Server = () => {
 }
 
 interface ServerItemProps {
-  data: ServerInfoInterface
+  data: ServerInfoType
   isSelected: boolean
   onCardClick: (key: string) => void
 }
