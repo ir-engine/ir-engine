@@ -43,7 +43,9 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
+
   jsonID: 'skybox',
+
   onInit: (entity) => {
     return {
       backgroundColor: new Color(0x000000),
@@ -62,6 +64,7 @@ export const SkyboxComponent = defineComponent({
       }
     }
   },
+
   onSet: (entity, component, json) => {
     if (typeof json?.backgroundColor === 'number') component.backgroundColor.set(new Color(json.backgroundColor))
     if (typeof json?.equirectangularPath === 'string') component.equirectangularPath.set(json.equirectangularPath)
@@ -69,6 +72,7 @@ export const SkyboxComponent = defineComponent({
     if (typeof json?.backgroundType === 'number') component.backgroundType.set(json.backgroundType)
     if (typeof json?.skyboxProps === 'object') component.skyboxProps.set(json.skyboxProps)
   },
+
   toJSON: (entity, component) => {
     return {
       backgroundColor: component.backgroundColor.value,
@@ -94,16 +98,8 @@ export const SkyboxComponent = defineComponent({
     const skyboxState = useComponent(entity, SkyboxComponent)
     const background = useHookstate(getMutableState(SceneState).background)
 
-    const cleanupTexture = () => {
-      const backgroundTexture = background.value as Texture | null
-      if (backgroundTexture?.isTexture) {
-        backgroundTexture.dispose()
-      }
-    }
-
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
-      cleanupTexture()
       background.set(skyboxState.backgroundColor.value)
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
@@ -111,7 +107,6 @@ export const SkyboxComponent = defineComponent({
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
-        cleanupTexture()
         background.set(getPmremGenerator().fromCubemap(texture).texture)
         texture.dispose()
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
@@ -137,7 +132,6 @@ export const SkyboxComponent = defineComponent({
         {},
         (texture: Texture) => {
           texture.colorSpace = SRGBColorSpace
-          cleanupTexture()
           background.set(getPmremGenerator().fromEquirectangular(texture).texture)
           texture.dispose()
           removeError(entity, SkyboxComponent, 'FILE_ERROR')
@@ -172,7 +166,6 @@ export const SkyboxComponent = defineComponent({
 
       getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
       const skyboxTex = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
-      cleanupTexture()
       background.set(getPmremGenerator().fromCubemap(skyboxTex).texture)
       sky.dispose()
     }, [skyboxState.backgroundType, skyboxState.skyboxProps])

@@ -71,7 +71,6 @@ export const loadCubeMapTexture = (
     [posx, negx, posy, negy, posz, negz],
     (texture) => {
       onLoad(texture)
-      texture.dispose()
     },
     (res) => {
       if (onProgress) onProgress(res)
