@@ -60,4 +60,48 @@ jobs:
           key: dir-${{github.sha}}
       - run: npm run lint
       - run: npm run check-eslint
+        timeout-minutes: 20
+    
+  check-errors:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - run: npm run check-errors
+        timeout-minutes: 20
 
+  build-client:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
+      - run: npm run build-client
+
+  test:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
+      - run: npm run test
