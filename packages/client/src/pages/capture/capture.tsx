@@ -40,7 +40,6 @@ import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networki
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world/useDefaultLocationSystems'
-import { RecordingServiceSystem } from '@etherealengine/engine/src/ecs/RecordingService'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -48,7 +47,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
 const startCaptureSystems = () => {
-  startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
+  startSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
 }
 
 export const CaptureLocation = () => {

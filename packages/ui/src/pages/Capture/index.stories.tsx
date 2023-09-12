@@ -50,7 +50,6 @@ import { AuthService, AuthState } from '@etherealengine/client-core/src/user/ser
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { AudioEffectPlayer, MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { RecordingServiceSystem } from '@etherealengine/engine/src/ecs/RecordingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
@@ -80,7 +79,7 @@ import 'tailwindcss/tailwind.css'
 const startCaptureSystems = () => {
   startSystem(MotionCaptureSystem, { with: InputSystemGroup })
   startSystem(MediaSystem, { before: PresentationSystemGroup })
-  startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
+  startSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
 }
 
 const initializeEngineForRecorder = async () => {

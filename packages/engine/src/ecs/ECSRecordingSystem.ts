@@ -205,6 +205,7 @@ interface ActivePlayback {
   deserializer?: ECSDeserializer
   entitiesSpawned: (EntityUUID | UserID)[]
   peerIDs?: PeerID[]
+  currentTime: number // seconds
   mediaPlayback?: any // todo
 }
 
@@ -242,7 +243,9 @@ export const RecordingAPIState = defineState({
   }
 })
 
+/** @deprecated @todo merge with RecordingService */
 export const activeRecordings = new Map<RecordingID, ActiveRecording>()
+/** @deprecated @todo merge with RecordingService */
 export const activePlaybacks = new Map<RecordingID, ActivePlayback>()
 
 export const dispatchError = (error: string, targetPeer: PeerID, topic: Topic) => {
@@ -338,7 +341,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       }
     })
 
-    activeRecording.serializer.active = true
+    // activeRecording.serializer.active = true
 
     const dataChannelSchema = Object.values(schema.peers)
       .flat()
@@ -444,7 +447,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   if (!recording.resources?.length) return dispatchError('Recording has no resources', action.$peer, action.$topic)
 
   const activePlayback = {
-    userID: action.targetUser
+    userID: action.targetUser,
+    currentTime: 0
   } as ActivePlayback
 
   const entityFiles = recording.resources.filter((resource) => resource.key.includes('entities-'))
@@ -490,69 +494,69 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
       .filter(Boolean),
     onChunkStarted: (chunkIndex) => {
-      if (entityChunks[chunkIndex])
-        for (let i = 0; i < entityChunks[chunkIndex].entities.length; i++) {
-          const uuid = entityChunks[chunkIndex].entities[i]
-          // override entity ID such that it is actually unique, by appendig the recording id
-          const entityID = isClone ? ((uuid + '_' + recording.id) as EntityUUID) : uuid
-          entityChunks[chunkIndex].entities[i] = entityID
-          api
-            .service(userPath)
-            .get(uuid)
-            .then((user) => {
-              if (network && network.topic === NetworkTopics.world) {
-                const peerIDs = Object.keys(schema.peers) as PeerID[]
+      if (!entityChunks[chunkIndex]) return
+      for (let i = 0; i < entityChunks[chunkIndex].entities.length; i++) {
+        const uuid = entityChunks[chunkIndex].entities[i]
+        // override entity ID such that it is actually unique, by appendig the recording id
+        const entityID = isClone ? ((uuid + '_' + recording.id) as EntityUUID) : uuid
+        entityChunks[chunkIndex].entities[i] = entityID
+        api
+          .service(userPath)
+          .get(uuid)
+          .then((user) => {
+            if (network && network.topic === NetworkTopics.world) {
+              const peerIDs = Object.keys(schema.peers) as PeerID[]
 
-                // todo, this is a hack
-                for (const peerID of peerIDs) {
-                  if (network.peers[peerID]) continue
-                  activePlayback.peerIDs!.push(peerID)
-                  NetworkPeerFunctions.createPeer(
-                    network,
-                    peerID,
-                    network.peerIndexCount++,
-                    entityID,
-                    network.userIndexCount++,
-                    user.name + ' (Playback)'
-                  )
-                  updatePeers(network)
-                }
-
-                for (const [dataChannel, chunks] of Array.from(dataChannelChunks.entries())) {
-                  const chunk = chunks[chunkIndex]
-                  setDataChannelChunkToReplay(entityID, dataChannel, chunk)
-                  // createOutgoingDataProducer(network, dataChannel)
-                }
+              // todo, this is a hack
+              for (const peerID of peerIDs) {
+                if (network.peers[peerID]) continue
+                activePlayback.peerIDs!.push(peerID)
+                NetworkPeerFunctions.createPeer(
+                  network,
+                  peerID,
+                  network.peerIndexCount++,
+                  entityID,
+                  network.userIndexCount++,
+                  user.name + ' (Playback)'
+                )
+                updatePeers(network)
               }
 
-              if (!UUIDComponent.entitiesByUUID[entityID]) {
-                dispatchAction(
-                  AvatarNetworkAction.spawn({
-                    $from: entityID,
-                    entityUUID: entityID
-                  })
-                )
-                dispatchAction(
-                  AvatarNetworkAction.setAvatarID({
-                    $from: entityID,
-                    avatarID: user.avatar.id!,
-                    entityUUID: entityID
-                  })
-                )
-                entitiesSpawned.push(entityID)
+              for (const [dataChannel, chunks] of Array.from(dataChannelChunks.entries())) {
+                const chunk = chunks[chunkIndex]
+                setDataChannelChunkToReplay(entityID, dataChannel, chunk)
+                // createOutgoingDataProducer(network, dataChannel)
               }
-            })
-            .catch((e) => {
-              // console.log('not a user', e)
-            })
-        }
+            }
+
+            if (!UUIDComponent.entitiesByUUID[entityID]) {
+              dispatchAction(
+                AvatarNetworkAction.spawn({
+                  $from: entityID,
+                  entityUUID: entityID
+                })
+              )
+              dispatchAction(
+                AvatarNetworkAction.setAvatarID({
+                  $from: entityID,
+                  avatarID: user.avatar.id!,
+                  entityUUID: entityID
+                })
+              )
+              entitiesSpawned.push(entityID)
+            }
+          })
+          .catch((e) => {
+            // console.log('not a user', e)
+          })
+      }
     },
     onEnd: () => {
       playbackStopped(activePlayback.userID, recording.id, network)
     }
   })
 
-  activePlayback.deserializer.active = action.autoplay
+  // activePlayback.deserializer.active = action.autoplay
   activePlayback.entitiesSpawned = entitiesSpawned
 
   activePlayback.peerIDs = []
@@ -677,6 +681,20 @@ const execute = () => {
 
   for (const action of startPlaybackActionQueue()) onStartPlayback(action)
   for (const action of stopPlaybackActionQueue()) onStopPlayback(action)
+
+  for (const [id, recording] of activeRecordings) {
+    const { serializer } = recording
+    if (serializer) {
+      serializer.write()
+    }
+  }
+
+  for (const [id, playback] of activePlaybacks) {
+    const { deserializer } = playback
+    if (deserializer) {
+      deserializer.read(playback.currentTime)
+    }
+  }
 
   // todo - only set deserializer.active to true once avatar spawns, if clone mode
 

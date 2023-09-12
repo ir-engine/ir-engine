@@ -42,7 +42,6 @@ import {
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { Entity, UndefinedEntity } from './classes/Entity'
 import { entityExists } from './functions/EntityFunctions'
-import { defineSystem } from './functions/SystemFunctions'
 
 export type SerializedChunk = {
   startTimecode: number
@@ -148,7 +147,7 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
     commitChunk()
   }
 
-  const serializer = { write, commitChunk, end, active: false }
+  const serializer = { write, commitChunk, end }
 
   ActiveSerializers.add(serializer)
 
@@ -197,12 +196,13 @@ const toArrayBuffer = (buf) => {
 }
 
 export const createDeserializer = ({ id, chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
-  let chunk = 0
-  let frame = 0
+  const timestep = 1 / 60 // TODO this is hardcoded in server timer
 
-  onChunkStarted(chunk)
+  onChunkStarted(0)
 
-  const read = () => {
+  const read = (time: number) => {
+    const chunk = Math.floor(time / (timestep * chunks[0].changes.length))
+    const frame = Math.floor(time / timestep) % chunks[0].changes.length
     const data = chunks[chunk] as SerializedChunk
     const frameData = toArrayBuffer(data.changes[frame])
 
@@ -211,11 +211,8 @@ export const createDeserializer = ({ id, chunks, schema, onChunkStarted, onEnd }
       readEntities(view, frameData.byteLength, data.entities, schema)
     }
 
-    frame++
-
     if (frame >= data.changes.length) {
       onChunkStarted(chunk)
-      chunk++
       if (chunk >= chunks.length) {
         end()
         onEnd()
@@ -227,7 +224,7 @@ export const createDeserializer = ({ id, chunks, schema, onChunkStarted, onEnd }
     ActiveDeserializers.delete(id)
   }
 
-  const deserializer = { read, end, active: false }
+  const deserializer = { read, end }
 
   ActiveDeserializers.set(id, deserializer)
 
@@ -242,19 +239,3 @@ export const ECSSerialization = {
   createSerializer,
   createDeserializer
 }
-
-const execute = () => {
-  for (const serializer of ActiveSerializers) {
-    if (!serializer.active) continue
-    serializer.write()
-  }
-
-  for (const [, deserializer] of ActiveDeserializers) {
-    if (!deserializer.active) continue
-    deserializer.read()
-  }
-}
-export const ECSSerializerSystem = defineSystem({
-  uuid: 'ee.engine.ecs.ECSSerializerSystem',
-  execute
-})

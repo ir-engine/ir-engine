@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarSimulationSystemGroup } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
-import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
   AnimationSystemGroup,
   PresentationSystemGroup,
@@ -82,7 +81,7 @@ export const startWorldServerSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ECSSerializerSystem, SceneSystemLoadGroup, ECSRecordingSystem], {
+  startSystems([SceneSystemLoadGroup, ECSRecordingSystem], {
     after: PresentationSystemGroup
   })
 }

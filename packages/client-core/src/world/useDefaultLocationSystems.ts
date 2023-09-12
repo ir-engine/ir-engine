@@ -29,7 +29,6 @@ import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/function
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 
-import { RecordingServiceSystem } from '@etherealengine/engine/src/ecs/RecordingService'
 import { ClientNetworkingSystem } from '../networking/ClientNetworkingSystem'
 import { AvatarUISystem } from '../systems/AvatarUISystem'
 import { LoadingUISystem } from '../systems/LoadingUISystem'
@@ -42,7 +41,7 @@ export const useDefaultLocationSystems = (online: boolean) => {
   useEffect(() => {
     startSystems([LoadingUISystem, AvatarUISystem, WidgetUISystem], { before: TransformSystem })
 
-    const postPresentationSystems = [UserUISystem, FilteredUsersSystem, WarningUISystem, RecordingServiceSystem]
+    const postPresentationSystems = [UserUISystem, FilteredUsersSystem, WarningUISystem]
 
     if (online) postPresentationSystems.push(ClientNetworkingSystem)
 

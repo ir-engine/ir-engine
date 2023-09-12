@@ -36,7 +36,7 @@ import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/Cam
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
 import { ECSRecordingSystem } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
-import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
+import { RecordingServiceSystem } from '@etherealengine/engine/src/ecs/RecordingService'
 import {
   AnimationSystemGroup,
   InputSystemGroup,
@@ -111,11 +111,11 @@ export const startClientSystems = () => {
   /** Post Render */
   startSystems(
     [
-      ECSSerializerSystem,
       ButtonCleanupSystem,
       PortalSystem,
       PositionalAudioSystem,
       SceneSystemLoadGroup,
+      RecordingServiceSystem,
       ECSRecordingSystem,
       MediasoupTransportStateSystem,
       MediasoupMediaProducerConsumerStateSystem,

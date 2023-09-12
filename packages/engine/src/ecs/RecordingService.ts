@@ -24,14 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import { activePlaybacks, ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import { defineState, getMutableState, receiveActions, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getState, receiveActions } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
@@ -40,9 +40,8 @@ import {
   recordingPath,
   RecordingSchemaType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { useEffect } from 'react'
-import { ActiveDeserializers } from './ECSSerializerSystem'
 
+/** @deprecated @todo merge with ECS Recording System */
 export const RecordingState = defineState({
   name: 'ee.RecordingState',
 
@@ -79,6 +78,7 @@ export const RecordingState = defineState({
   ]
 })
 
+/** @deprecated @todo merge with ECS Recording System */
 export const PlaybackState = defineState({
   name: 'ee.PlaybackState',
 
@@ -94,7 +94,7 @@ export const PlaybackState = defineState({
       (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
         state.playing.set(action.playing)
         state.recordingID.set(action.playing ? action.recordingID : null)
-        state.currentTime.set(action.playing ? Date.now() : null)
+        state.currentTime.set(action.playing ? 0 : null)
       }
     ]
   ]
@@ -137,23 +137,17 @@ export const RecordingFunctions = {
   }
 }
 
-const reactor = () => {
-  const playbackState = useHookstate(getMutableState(PlaybackState))
-
-  useEffect(() => {
-    if (!playbackState.recordingID.value) return
-    const activeDeserializer = ActiveDeserializers.get(playbackState.recordingID.value)
-    /** @todo update ecs deserializer time */
-  }, [playbackState.currentTime])
-
-  return null
-}
-
 export const RecordingServiceSystem = defineSystem({
   uuid: 'ee.engine.ecs.RecordingServiceSystem',
   execute: () => {
     receiveActions(RecordingState)
     receiveActions(PlaybackState)
-  },
-  reactor
+
+    const playbackState = getState(PlaybackState)
+
+    const recordingID = playbackState.recordingID
+    if (!recordingID || !activePlaybacks.has(recordingID)) return
+
+    activePlaybacks.get(recordingID)!.currentTime = playbackState.currentTime!
+  }
 })
