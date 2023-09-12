@@ -48,7 +48,6 @@ import {
   TransformMode,
   TransformModeType
 } from '../../scene/constants/transformConstants'
-import cloneObject3D from '../../scene/functions/cloneObject3D'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 
@@ -106,12 +105,13 @@ export default class TransformGizmo extends Object3D {
   constructor() {
     super()
     this.name = 'TransformGizmo'
+    this.load()
   }
 
   async load() {
     gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH, { ignoreDisposeGeometry: true })
 
-    this.model = cloneObject3D(gizmoGltf.scene)
+    this.model = gizmoGltf.scene
     this.add(this.model)
     this.selectionColor = new Color().setRGB(1, 1, 1)
     this.previousColor = new Color()

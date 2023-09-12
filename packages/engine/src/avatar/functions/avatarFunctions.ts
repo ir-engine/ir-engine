@@ -191,7 +191,6 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  console.log(manager.loadedAnimations.value[locomotionPack])
   if (!manager.loadedAnimations.value[locomotionPack]) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const asset = (await AssetLoader.loadAsync(

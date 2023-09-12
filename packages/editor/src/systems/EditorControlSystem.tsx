@@ -41,7 +41,6 @@ import {
 import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getComponent,
@@ -346,13 +345,7 @@ const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
 const changedTransformMode = defineActionQueue(EditorHelperAction.changedTransformMode.matches)
 
-//wait for scene load to load gizmo
-const sceneLoaded = defineActionQueue(EngineActions.sceneLoaded.matches)
-
 const execute = () => {
-  if (sceneLoaded().length) {
-    getComponent(gizmoEntity, TransformGizmoComponent).load()
-  }
   for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
 
   if (Engine.instance.localClientEntity) return // we are in live mode
