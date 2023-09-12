@@ -55,7 +55,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
   if (material === undefined) return <></>
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
   const materialComponent = materialLibrary.materials[material.uuid]
-  const prototypeComponent = materialLibrary.prototypes[materialComponent.prototype.value]
+  let prototypeComponent = materialLibrary.prototypes[materialComponent.prototype.value].value
   const loadingData = useState(false)
   const prototypes = Object.values(materialLibrary.prototypes.value).map((prototype) => ({
     label: prototype.prototypeId,
@@ -150,7 +150,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
             onChange={(protoId) => {
               const nuMat = changeMaterialPrototype(material, protoId)
               materialComponent.set(materialFromId(nuMat!.uuid))
-              prototypeComponent.set(prototypeFromId(materialComponent.prototype.value))
+              prototypeComponent = prototypeFromId(materialComponent.prototype.value)
             }}
           />
         </InputGroup>
@@ -162,7 +162,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
         values={loadingData.value ? {} : materialComponent.parameters.value}
         onChange={(k) => async (val) => {
           let prop
-          if (prototypeComponent.arguments.value[k].type === 'texture' && typeof val === 'string') {
+          if (prototypeComponent.arguments[k].type === 'texture' && typeof val === 'string') {
             if (val) {
               prop = await AssetLoader.loadAsync(val)
             } else {
@@ -178,7 +178,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
           )
           materialComponent.parameters[k].set(prop)
         }}
-        defaults={loadingData.value ? {} : prototypeComponent.arguments.value}
+        defaults={loadingData.value ? {} : prototypeComponent.arguments}
         thumbnails={thumbnails.value}
       />
       <br />
