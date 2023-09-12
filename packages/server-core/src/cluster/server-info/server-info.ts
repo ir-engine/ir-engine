@@ -23,45 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { serverInfoMethods, serverInfoPath } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import { Application } from '../../../declarations'
+import { ServerInfoService } from './server-info.class'
+import serverInfoDocs from './server-info.docs'
+import hooks from './server-info.hooks'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import { serverInfoExternalResolver, serverInfoResolver } from './server-info.resolvers'
-
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(serverInfoExternalResolver), schemaHooks.resolveResult(serverInfoResolver)]
-  },
-
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [serverInfoPath]: ServerInfoService
   }
-} as any
+}
+
+export default (app: Application): void => {
+  app.use(serverInfoPath, new ServerInfoService(app), {
+    // A list of all methods this service exposes externally
+    methods: serverInfoMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: serverInfoDocs
+  })
+
+  const service = app.service(serverInfoPath)
+  service.hooks(hooks)
+}
