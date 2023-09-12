@@ -23,25 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    sms: {
-      type: 'object',
-      properties: {
-        mobile: {
-          type: 'string'
-        },
-        text: {
-          type: 'string'
-        }
-      }
-    },
-    sms_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/sms' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Sms service description',
+    securities: ['all']
   }
-}
+})

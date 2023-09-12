@@ -23,35 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { Sms } from './sms.class'
-import smsDocs from './sms.docs'
-import hooks from './sms.hooks'
+import type { Static } from '@feathersjs/typebox'
+import { Type } from '@feathersjs/typebox'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    sms: Sms
-  }
-}
+export const smsPath = 'sms'
+export const smsMethods = ['create'] as const
 
-export default (app: Application): void => {
-  const options = {
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Sms(options, app)
-  event.docs = smsDocs
-
-  app.use('sms', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('sms')
-
-  service.hooks(hooks)
-}
+export const smsDataSchema = Type.Object(
+  {
+    mobile: Type.String(),
+    text: Type.String()
+  },
+  { $id: 'SmsData', additionalProperties: false }
+)
+export type SmsData = Static<typeof smsDataSchema>

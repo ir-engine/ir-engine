@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { SmsData, smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
@@ -80,10 +81,10 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
  * @param app
  * @param sms text which is going to be sent
  */
-export const sendSms = async (app: Application, sms: any): Promise<void> => {
+export const sendSms = async (app: Application, sms: SmsData) => {
   logger.info(`sendSMS() to "${sms}."`)
   await app
-    .service('sms')
+    .service(smsPath)
     .create(sms, null!)
     .then(() => logger.info('Sent SMS'))
     .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))
