@@ -44,10 +44,8 @@ jobs:
       - name: cache for next steps
         uses: actions/cache@v3
         with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: modules-${{github.sha}}
+          path: .
+          key: dir-${{github.sha}}
 
   check-lint:
     needs: install-modules
@@ -58,10 +56,8 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: modules-${{github.sha}}
+          path: .
+          key: dir-${{github.sha}}
       - run: npm run lint
       - run: npm run check-eslint
 
