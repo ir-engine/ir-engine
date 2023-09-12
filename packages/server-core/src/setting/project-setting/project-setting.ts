@@ -23,24 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { ProjectSettingType } from '@etherealengine/engine/src/schemas/setting/project-setting.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
+import {
+  projectSettingMethods,
+  projectSettingPath
+} from '@etherealengine/engine/src/schemas/setting/project-setting.schema'
 import { Application } from '../../../declarations'
-import { ProjectParams } from '../../projects/project/project.class'
+import { updateAppConfig } from '../../updateAppConfig'
+import { ProjectSettingService } from './project-setting.class'
+import projectSettingDocs from './project-setting.docs'
+import hooks from './project-setting.hooks'
 
-/**
- * A class for Server Logs service
- */
-export class ProjectSettingService implements ServiceInterface<ProjectSettingType, ProjectParams> {
-  app: Application
-
-  constructor(app: Application) {
-    this.app = app
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [projectSettingPath]: ProjectSettingService
   }
+}
 
-  async find(params?: ProjectParams) {
-    const result = await this.app.service(projectPath).find(params)
-    return result?.data[0]?.settings ? result.data[0].settings : []
-  }
+export default (app: Application): void => {
+  app.use(projectSettingPath, new ProjectSettingService(app), {
+    // A list of all methods this service exposes externally
+    methods: projectSettingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectSettingDocs
+  })
+
+  const service = app.service(projectSettingPath)
+  service.hooks(hooks)
+
+  service.on('patched', () => {
+    updateAppConfig()
+  })
 }

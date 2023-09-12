@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { projectSettingSchema } from '../setting/project-setting.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { projectPermissionSchema } from './project-permission.schema'
 
@@ -34,15 +35,6 @@ export const projectPath = 'project'
 export const projectMethods = ['get', 'find', 'create', 'patch', 'remove', 'update'] as const
 
 export const projectUpdateTypes = ['none', 'commit', 'tag']
-
-export const projectSettingSchema = Type.Object(
-  {
-    key: Type.String(),
-    value: Type.String()
-  },
-  { $id: 'ProjectSetting', additionalProperties: false }
-)
-export type ProjectSettingType = Static<typeof projectSettingSchema>
 
 // Main data model schema
 export const projectSchema = Type.Object(
