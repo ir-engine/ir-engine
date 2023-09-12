@@ -163,16 +163,6 @@ export const SkyboxComponent = defineComponent({
       skyboxTex.dispose()
     }, [skyboxState.backgroundType, skyboxState.skyboxProps])
 
-    /** @todo when we have asset loader hooks we can change this */
-    useEffect(() => {
-      if (!background.value) return
-      const backgroundTexture = background.value
-      if (backgroundTexture instanceof Texture)
-        return () => {
-          backgroundTexture.dispose()
-        }
-    }, [background])
-
     return null
   },
 
