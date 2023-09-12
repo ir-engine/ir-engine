@@ -115,6 +115,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <BooleanInput
           value={modelComponent.generateBVH.value}
           onChange={updateProperty(ModelComponent, 'generateBVH')}
+          disabled={modelComponent.hasSkinnedMesh.value}
         />
       </InputGroup>
       <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
