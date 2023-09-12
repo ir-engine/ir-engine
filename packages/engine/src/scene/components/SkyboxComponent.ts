@@ -161,6 +161,10 @@ export const SkyboxComponent = defineComponent({
       const skyboxTex = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
       background.set(getPmremGenerator().fromCubemap(skyboxTex).texture)
       skyboxTex.dispose()
+
+      return () => {
+        sky.dispose()
+      }
     }, [skyboxState.backgroundType, skyboxState.skyboxProps])
 
     return null

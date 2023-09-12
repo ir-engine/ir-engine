@@ -256,7 +256,7 @@ export class Sky {
 
   skyScene: Scene
   cubeCamera: CubeCamera
-  sky: Mesh
+  sky: Mesh<BoxGeometry, ShaderMaterial>
 
   _inclination: number
   _azimuth: number
@@ -381,5 +381,11 @@ export class Sky {
     this.distance = source.distance
 
     return this
+  }
+
+  dispose() {
+    this.sky.geometry.dispose()
+    this.sky.material.dispose()
+    this.cubeCamera.renderTarget.dispose()
   }
 }
