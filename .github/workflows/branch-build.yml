@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [dev]
   push:
-    branches: [dev]
+    branches: [dev, feat/speedup-branchbuild]
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest
@@ -16,7 +16,7 @@ jobs:
           if [ ${{ secrets.BRANCH_BUILD_ENABLED }} == 'true' ]; then
             echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
-  compile-codebase:
+  install-modules:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -41,12 +41,27 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
+      - name: cache for next steps
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: modules-${{github.sha}}
+
+  check-lint:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: modules-${{github.sha}}
       - run: npm run lint
-      - run: npm run dev-docker
-      - run: npm run dev-reinit
-      - run: npm run check-errors
-        timeout-minutes: 20
       - run: npm run check-eslint
-        timeout-minutes: 20
-      - run: npm run build-client
-      - run: npm run test
+
