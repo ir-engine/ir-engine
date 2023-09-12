@@ -198,7 +198,7 @@ class KTX2Loader extends Loader {
           return cachedTask.promise.then(onLoad).catch(onError)
         }
 
-        this._createTexture([buffer])
+        this._createTexture(buffer)
           .then(function (_texture) {
             texture.copy(_texture)
             texture.needsUpdate = true
@@ -231,20 +231,20 @@ class KTX2Loader extends Loader {
   }
 
   /**
-   * @param {ArrayBuffer[]} buffers
+   * @param {ArrayBuffer} buffer
    * @param {object?} config
    * @return {Promise<CompressedTexture>}
    */
-  _createTexture(buffers, config = {}) {
+  _createTexture(buffer, config = {}) {
     const taskConfig = config
     const texturePending = this.init()
       .then(() => {
-        return this.workerPool.postMessage({ type: 'transcode', buffers, taskConfig: taskConfig }, buffers)
+        return this.workerPool.postMessage({ type: 'transcode', buffer, taskConfig: taskConfig }, [buffer])
       })
       .then((e) => this._createTextureFrom(e.data))
 
     // Cache the task result.
-    _taskCache.set(buffers[0], { promise: texturePending })
+    _taskCache.set(buffer, { promise: texturePending })
 
     return texturePending
   }
@@ -322,7 +322,7 @@ KTX2Loader.BasisWorker = function () {
       case 'transcode':
         transcoderPending.then(() => {
           try {
-            const { width, height, hasAlpha, mipmaps, format, dfdTransferFn, dfdFlags } = transcode(message.buffers[0])
+            const { width, height, hasAlpha, mipmaps, format, dfdTransferFn, dfdFlags } = transcode(message.buffer)
 
             const buffers = []
 

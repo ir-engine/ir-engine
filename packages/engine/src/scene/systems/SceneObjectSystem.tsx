@@ -25,12 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 import {
+  Light,
   Material,
   Mesh,
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  Object3D,
   SkinnedMesh,
   Texture
 } from 'three'
@@ -62,12 +64,38 @@ export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMateri
 
 export const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
-    if (val.isTexture) {
-      console.log('disposed texture', key, val)
+    if (val && typeof val.dispose === 'function') {
       val.dispose()
     }
   }
   material.dispose()
+}
+
+export const disposeObject3D = (obj: Object3D) => {
+  const mesh = obj as Mesh<any, any>
+
+  if (mesh.material) {
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach(disposeMaterial)
+    } else {
+      disposeMaterial(mesh.material)
+    }
+  }
+
+  if (mesh.geometry) {
+    mesh.geometry.dispose()
+    for (const key in mesh.geometry.attributes) {
+      mesh.geometry.deleteAttribute(key)
+    }
+  }
+
+  const skinnedMesh = obj as SkinnedMesh
+  if (skinnedMesh.isSkinnedMesh) {
+    skinnedMesh.skeleton?.dispose()
+  }
+
+  const light = obj as Light // anything with dispose function
+  if (typeof light.dispose === 'function') light.dispose()
 }
 
 export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false) {
@@ -129,18 +157,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
         if (layer.has(obj)) layer.delete(obj)
       }
 
-      obj.traverse((mesh: Mesh) => {
-        if (Array.isArray(mesh.material)) {
-          mesh.material.forEach(disposeMaterial)
-        } else if (mesh.material) {
-          disposeMaterial(mesh.material)
-        }
-        mesh.geometry?.dispose()
-        const skinnedMesh = mesh as SkinnedMesh
-        if (skinnedMesh.isSkinnedMesh) {
-          skinnedMesh.skeleton?.dispose()
-        }
-      })
+      obj.traverse(disposeObject3D)
     }
   }, [])
 

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
 import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -50,7 +51,7 @@ export function getLink(type: string, hash: string, subscriptionId?: string): st
  * @returns invite link
  */
 export function getInviteLink(type: string, id: string, passcode: string): string {
-  return `${config.server.url}/a-i/${id}?t=${passcode}`
+  return `${config.server.url}/${acceptInvitePath}/${id}?t=${passcode}`
 }
 
 /**
