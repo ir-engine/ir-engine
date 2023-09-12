@@ -52,6 +52,8 @@ import { CaptureClientSettingsState } from '@etherealengine/client-core/src/medi
 import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -400,6 +402,18 @@ const drawPoseToCanvas = (
   canvasCtxRef.current.restore()
 }
 
+const VideoPlaybackLogic = (props: {
+  videoRef: RefObject<HTMLVideoElement>
+  canvasRef: RefObject<HTMLCanvasElement>
+  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>
+  mocapData: ReturnType<typeof receiveResults>[] | null
+  startTime: number
+}) => {
+  const { videoRef, canvasRef, canvasCtxRef, startTime, mocapData } = props
+
+  return <></>
+}
+
 const VideoPlayback = (props: {
   startTime: number
   video: StaticResourceType
@@ -423,11 +437,7 @@ const VideoPlayback = (props: {
     })
   }, [])
 
-  const currentTimeSeconds = useHookstate(getMutableState(PlaybackState).currentTime)
-
   const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
-
-  const { handlePositionChange } = useScrubbableVideo(videoRef)
 
   useEffect(() => {
     if (!videoRef.current) return
@@ -438,10 +448,34 @@ const VideoPlayback = (props: {
     })
   }, [videoRef.current])
 
+  const playing = useHookstate(getMutableState(PlaybackState).playing)
+  const currentTimeSeconds = useHookstate(getMutableState(PlaybackState).currentTime)
+
+  /** When playing based on the video, update the current time based on the video's current time */
+  useExecute(
+    () => {
+      if (!videoRef.current || !playing.value) return
+      currentTimeSeconds.set(videoRef.current.currentTime)
+    },
+    { after: PresentationSystemGroup }
+  )
+
+  useEffect(() => {
+    if (!videoRef.current) return
+    if (playing.value) {
+      videoRef.current.play()
+    } else {
+      videoRef.current.pause()
+    }
+  }, [playing])
+
+  const { handlePositionChange } = useScrubbableVideo(videoRef)
+
+  /** When the current time changes, update the video's current time and render motion capture */
   useEffect(() => {
     if (!videoRef.current || typeof currentTimeSeconds.value !== 'number') return
 
-    handlePositionChange(currentTimeSeconds.value)
+    if (!playing.value) handlePositionChange(currentTimeSeconds.value)
 
     if (mocapData.value) {
       // start time is the time the recording was started
@@ -454,7 +488,8 @@ const VideoPlayback = (props: {
   }, [currentTimeSeconds])
 
   return (
-    <div className="absolute w-full h-full max-w-[1024px]">
+    <>
+      {/* <div className="absolute w-full h-full max-w-[1024px]"> */}
       <div className="absolute w-full h-full top-0 left-0 items-center bg-black">
         <div className="relative">
           <Video ref={videoRef} src={videoSrc} controls={false} className={twMerge('w-full h-auto opacity-100')} />
@@ -463,7 +498,8 @@ const VideoPlayback = (props: {
       <div className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto pointer-events-none">
         <Canvas ref={canvasRef} />
       </div>
-    </div>
+      {/* </div> */}
+    </>
   )
 }
 
@@ -491,16 +527,55 @@ const EngineCanvas = () => {
   )
 }
 
+export const PlaybackControls = (props: { durationSeconds: number }) => {
+  const currentTime = useHookstate(getMutableState(PlaybackState).currentTime)
+  const playing = useHookstate(getMutableState(PlaybackState).playing)
+
+  const setCurrentTime = (time) => {
+    playing.set(false)
+    currentTime.set(time)
+  }
+
+  const { durationSeconds } = props
+  return (
+    <div className="w-full h-full flex flex-row">
+      <div className="relative aspect-video overflow-hidden">
+        <button
+          className="w-auto h-4 btn btn-ghost container z-2"
+          onClick={() => {
+            playing.set(!playing.value)
+          }}
+        >
+          {playing.value ? 'Pause' : 'Play'}
+        </button>
+      </div>
+      <ReactSlider
+        className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
+        min={0}
+        value={playing.value ? currentTime.value : undefined}
+        max={durationSeconds}
+        step={1 / 60} // todo store recording framerate in recording
+        onChange={setCurrentTime}
+        renderThumb={(props, state) => {
+          return (
+            <div
+              {...props}
+              className="w-8 h-4 bg-white rounded-full shadow-md text-center font=[lato] font-bold text-sm"
+            >
+              {Math.round(state.valueNow)}
+            </div>
+          )
+        }}
+      />
+    </div>
+  )
+}
+
 const PlaybackMode = () => {
   const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
-  const currentTime = useHookstate(getMutableState(PlaybackState).currentTime)
 
   const recording = useGet(recordingPath, recordingID.value!)
   console.log({ recording })
-
-  const setCurrentTime = (time) => {
-    currentTime.set(time)
-  }
 
   const ActiveRecording = () => {
     const data = recording.data!
@@ -529,26 +604,10 @@ const PlaybackMode = () => {
             {videoPlaybackPairs.map((r) => (
               <VideoPlayback startTime={startTime} {...r} key={r.video.id} />
             ))}
-            <EngineCanvas />
+            {/* <EngineCanvas /> */}
           </div>
         </div>
-        <ReactSlider
-          className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
-          min={0}
-          max={durationSeconds}
-          step={1 / 60} // todo store recording framerate in recording
-          onChange={setCurrentTime}
-          renderThumb={(props, state) => {
-            return (
-              <div
-                {...props}
-                className="w-8 h-4 bg-white rounded-full shadow-md text-center font=[lato] font-bold text-sm"
-              >
-                {Math.round(state.valueNow)}
-              </div>
-            )
-          }}
-        />
+        <PlaybackControls durationSeconds={durationSeconds} />
       </>
     )
   }
@@ -563,8 +622,8 @@ const PlaybackMode = () => {
 
   return (
     <div className="w-full container mx-auto pointer-events-auto items-center justify-center content-center">
-      {recording.data ? <ActiveRecording /> : <NoRecording />}
-      <div className="max-w-[1024px] w-auto container mx-auto flex">
+      <div className="w-full h-auto px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
+      <div className="max-w-[1024px] w-full container mx-auto flex">
         <div className="w-full relative m-2">
           <RecordingsList
             {...{
@@ -588,20 +647,10 @@ const CaptureDashboard = () => {
     }
   }, [worldNetwork?.connected?.value])
 
-  useEffect(() => {
-    const canvas = document.getElementById('engine-renderer-canvas')!
-    canvas.parentElement?.removeChild(canvas)
-
-    return () => {
-      const body = document.body
-      body.appendChild(canvas)
-    }
-  }, [])
-
   const mode = useHookstate<'playback' | 'capture'>('playback')
 
   return (
-    <div className="w-full container mx-auto overflow-hidden">
+    <div className="max-w-[1024px] w-full container mx-auto overflow-hidden">
       <Drawer settings={<div></div>}>
         <Header mode={mode} />
         {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}

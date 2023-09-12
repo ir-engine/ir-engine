@@ -54,6 +54,16 @@ const startCaptureSystems = () => {
 export const CaptureLocation = () => {
   const params = useParams()
 
+  useEffect(() => {
+    const canvas = document.getElementById('engine-renderer-canvas')!
+    canvas.parentElement?.removeChild(canvas)
+
+    return () => {
+      const body = document.body
+      body.appendChild(canvas)
+    }
+  }, [])
+
   useLoadLocationScene()
   useLoadEngineWithScene()
 

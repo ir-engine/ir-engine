@@ -84,6 +84,7 @@ export const PlaybackState = defineState({
 
   initial: {
     recordingID: null as RecordingID | null,
+    playing: false,
     currentTime: null as number | null
   },
 
@@ -91,6 +92,7 @@ export const PlaybackState = defineState({
     [
       ECSRecordingActions.playbackChanged,
       (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
+        state.playing.set(action.playing)
         state.recordingID.set(action.playing ? action.recordingID : null)
         state.currentTime.set(action.playing ? Date.now() : null)
       }
