@@ -90,7 +90,7 @@ export const LoadVolumeComponent = defineComponent({
       }
 
       function doUnload() {
-        Object.values(component.targets.value).map(({ uuid, loaded, entities: oldEJson }) => {
+        Object.values(component.targets.value).map(({ uuid, loaded }) => {
           if (!loaded) return
           const rootEntity = UUIDComponent.entitiesByUUID[uuid]
           const entities = iterateEntityNode(rootEntity, (targetEntity) => {
