@@ -106,9 +106,7 @@ export const ProjectServiceReceptor = (action) => {
 //Service
 export const ProjectService = {
   fetchProjects: async () => {
-    const projects = await API.instance.client
-      .service(projectPath)
-      .find({ paginate: false, query: { $sort: { name: 1 }, allowed: true } })
+    const projects = await API.instance.client.service(projectPath).find({ paginate: false, query: { allowed: true } })
     dispatchAction(ProjectAction.projectsFetched({ projectResult: projects.data }))
     for (let error of projects.errors) {
       NotificationService.dispatchNotify(error.message || JSON.stringify(error), { variant: 'error' })
