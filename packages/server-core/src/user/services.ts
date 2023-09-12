@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import AcceptInvite from '../user/accept-invite/accept-invite.service'
+import AcceptInvite from '../user/accept-invite/accept-invite'
 import Avatar from './avatar/avatar'
 import DiscordBotAuth from './discord-bot-auth/discord-bot-auth.service'
 import Email from './email/email.service'
