@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
@@ -38,45 +38,26 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { v1 as uuidv1 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Data {}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ServiceOptions {}
-
-interface AcceptInviteParams extends Params {
+export interface AcceptInviteParams extends RootParams {
   preventUserRelationshipRemoval?: boolean
 }
 
 /**
- * accept invite class for get, create, update and remove user invite
- *
+ * A class for AcceptInvite service
  */
-export class AcceptInvite implements ServiceMethods<Data> {
+
+export class AcceptInviteService implements ServiceInterface<AcceptInviteParams> {
   app: Application
-  options: ServiceOptions
-  docs: any
 
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
+  constructor(app: Application) {
     this.app = app
-  }
-
-  async setup() {}
-
-  /**
-   * A function which help to find all accept invite and display it
-   *
-   * @param params number of limit and skip for pagination
-   * Number should be passed as query parmas
-   * @returns {@Array} all listed invite
-   */
-  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
-    return []
   }
 
   /**
@@ -87,7 +68,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @returns {@Object} contains single invite
    */
 
-  async get(id: Id, params?: AcceptInviteParams): Promise<Data> {
+  async get(id: Id, params?: AcceptInviteParams) {
     let inviteeIdentityProvider
     const returned = {} as any
     if (!params) params = {}
@@ -147,9 +128,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
             {
               type: invite.identityProviderType,
               token: invite.token,
-              userId: invite.userId
+              userId: uuidv1() as UserID
             },
-            params
+            params as any
           )
         } else {
           inviteeIdentityProvider = inviteeIdentityProviderResult.data[0]
@@ -210,7 +191,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
               userId: invite.userId,
               relatedUserId: inviteeIdentityProvider.userId
             },
-            params
+            params as any
           )
         } else {
           await this.app.service(userRelationshipPath).patch(
@@ -218,7 +199,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             {
               userRelationshipType: 'friend'
             },
-            params
+            params as any
           )
         }
 
@@ -243,7 +224,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             {
               userRelationshipType: 'friend'
             },
-            params
+            params as any
           )
       } else if (invite.inviteType === 'channel') {
         const channel = await this.app.service('channel').Model.findOne({ where: { id: invite.targetObjectId } })
@@ -304,53 +285,5 @@ export class AcceptInvite implements ServiceMethods<Data> {
       logger.error(err)
       throw err
     }
-  }
-
-  /**
-   * A function for creating invite
-   *
-   * @param data which will be used for creating new accept invite
-   * @param params
-   */
-  async create(data: Data, params?: Params): Promise<Data> {
-    if (Array.isArray(data)) {
-      return await Promise.all(data.map((current) => this.create(current, params)))
-    }
-
-    return data
-  }
-
-  /**
-   * A function to update accept invite
-   *
-   * @param id of specific accept invite
-   * @param data for updating accept invite
-   * @param params
-   * @returns Data
-   */
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  /**
-   * A function for updating accept invite
-   *
-   * @param id of specific accept invite
-   * @param data for updaing accept invite
-   * @param params
-   * @returns Data
-   */
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  /**
-   * A function for removing accept invite
-   * @param id of specific accept invite
-   * @param params
-   * @returns id
-   */
-  async remove(id: NullableId, params?: Params): Promise<Data> {
-    return { id }
   }
 }
