@@ -28,7 +28,6 @@ import {
   AnimationAction,
   AnimationActionLoopStyles,
   AnimationBlendMode,
-  AnimationClip,
   AnimationMixer,
   LoopRepeat,
   NormalAnimationBlendMode
@@ -124,15 +123,12 @@ export const LoopAnimationComponent = defineComponent({
     const animComponent = useOptionalComponent(entity, AnimationComponent)
 
     useEffect(() => {
-      if (!animComponent || !modelComponent?.scene?.value) {
+      const clip = animComponent?.animations[loopAnimationComponent.activeClipIndex.value].value
+      if (!animComponent || !modelComponent?.scene?.value || !clip) {
         loopAnimationComponent._action.set(null)
         return
       }
       animComponent.mixer.time.set(0)
-      const clip = AnimationClip.findByName(
-        animComponent.animations.value,
-        animComponent.animations[loopAnimationComponent.activeClipIndex.value].name.value
-      )
       const action = animComponent.mixer.value.clipAction(
         modelComponent.asset instanceof VRM
           ? retargetMixamoAnimation(clip, modelComponent.scene.value, modelComponent.asset)
@@ -148,6 +144,7 @@ export const LoopAnimationComponent = defineComponent({
       if (loopAnimationComponent._action.value?.isRunning() && loopAnimationComponent.paused.value) {
         loopAnimationComponent._action.value.paused = true
       } else if (loopAnimationComponent._action.value?.isRunning() && !loopAnimationComponent.paused.value) {
+        loopAnimationComponent._action.value?.getMixer().stopAllAction()
         loopAnimationComponent._action.value?.play()
       }
     }, [loopAnimationComponent._action, loopAnimationComponent.paused])
