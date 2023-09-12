@@ -108,41 +108,6 @@ export class Engine {
   xrFrame: XRFrame | null = null
 
   /**
-   * The seconds since the last world execution
-   * @deprecated use getState(EngineState).deltaSeconds
-   */
-  get deltaSeconds() {
-    console.log('who called me')
-    return getState(EngineState).deltaSeconds
-  }
-
-  /**
-   * The elapsed seconds since `performance.timeOrigin`
-   * @deprecated use `getState(EngineState).elapsedSeconds`
-   */
-  get elapsedSeconds() {
-    console.log('who called me 2')
-    return getState(EngineState).elapsedSeconds
-  }
-
-  /**
-   * The current fixed tick (simulationTime / simulationTimeStep)
-   * @deprecated
-   */
-  get fixedTick() {
-    console.log('who called me 3')
-    const engineState = getState(EngineState)
-    return engineState.simulationTime / engineState.simulationTimestep
-  }
-
-  /**
-   * @deprecated use `getState(EngineState).simulationTimestep / 1000`
-   */
-  get fixedDeltaSeconds() {
-    return getState(EngineState).simulationTimestep / 1000
-  }
-
-  /**
    * Reference to the three.js scene object.
    */
   scene = new Scene()
