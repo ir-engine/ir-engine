@@ -41,7 +41,7 @@ export interface AssetLibraryParams extends RootParams {
  * A class for AssetLibrary service
  */
 
-export class AssetLibraryService implements ServiceInterface<AssetLibraryParams> {
+export class AssetLibraryService implements ServiceInterface<string, AssetLibraryParams> {
   app: Application
   rootPath: string
 
@@ -60,7 +60,7 @@ export class AssetLibraryService implements ServiceInterface<AssetLibraryParams>
       const fullPath = path.join(this.rootPath, assetRoot)
       fs.mkdirSync(fullPath)
       await extract(`${fullPath}.zip`, { dir: fullPath })
-      return { ...createParams, assetRoot }
+      return assetRoot
     } catch (e) {
       throw new Error('error unzipping archive:', e)
     }
