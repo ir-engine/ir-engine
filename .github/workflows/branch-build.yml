@@ -73,6 +73,8 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
       - run: npm run check-errors
         timeout-minutes: 20
 
@@ -87,6 +89,8 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
       - run: npm run build-client
 
   test:
@@ -100,4 +104,6 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
       - run: npm run test
