@@ -24,16 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AnimationAction, AnimationClip, AnimationMixer, Object3D } from 'three'
+import {
+  AnimationAction,
+  AnimationActionLoopStyles,
+  AnimationBlendMode,
+  AnimationClip,
+  AnimationMixer,
+  LoopRepeat,
+  NormalAnimationBlendMode
+} from 'three'
 
 import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
-import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
-  getMutableComponent,
   hasComponent,
   setComponent,
   useComponent,
@@ -53,12 +59,24 @@ export const LoopAnimationComponent = defineComponent({
   onInit: (entity) => {
     return {
       hasAvatarAnimations: false,
-      animationSpeed: 1,
       activeClipIndex: -1,
       animationPack: '',
+
+      // TODO: support blending multiple animation actions. Refactor into AnimationMixerComponent and AnimationActionComponent
+      paused: false,
+      enabled: true,
+      time: 0,
+      timeScale: 1,
+      blendMode: NormalAnimationBlendMode as AnimationBlendMode,
+      loop: LoopRepeat as AnimationActionLoopStyles,
+      repetitions: Infinity,
+      clampWhenFinished: false,
+      zeroSlopeAtStart: true,
+      zeroSlopeAtEnd: true,
+      weight: 1,
+
       // internal
-      animationPackScene: undefined as Object3D | undefined,
-      action: null as AnimationAction | null
+      _action: null as AnimationAction | null
     }
   },
 
@@ -66,16 +84,32 @@ export const LoopAnimationComponent = defineComponent({
     if (!json) return
     if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
-    if (typeof json.animationSpeed === 'number') component.animationSpeed.set(json.animationSpeed)
     if (typeof json.animationPack === 'string') component.animationPack.set(json.animationPack)
+    if (typeof json.paused === 'number') component.paused.set(json.paused)
+    if (typeof json.time === 'number') component.time.set(json.time)
+    if (typeof json.timeScale === 'number') component.timeScale.set(json.timeScale)
+    if (typeof json.blendMode === 'number') component.blendMode.set(json.blendMode)
+    if (typeof json.loop === 'number') component.loop.set(json.loop)
+    if (typeof json.repetitions === 'number') component.repetitions.set(json.repetitions)
+    if (typeof json.clampWhenFinished === 'boolean') component.clampWhenFinished.set(json.clampWhenFinished)
+    if (typeof json.zeroSlopeAtStart === 'boolean') component.zeroSlopeAtStart.set(json.zeroSlopeAtStart)
+    if (typeof json.zeroSlopeAtEnd === 'boolean') component.zeroSlopeAtEnd.set(json.zeroSlopeAtEnd)
+    if (typeof json.weight === 'number') component.weight.set(json.weight)
   },
 
   toJSON: (entity, component) => {
     return {
       activeClipIndex: component.activeClipIndex.value,
       animationPack: component.animationPack.value,
-      animationSpeed: component.animationSpeed.value,
-      hasAvatarAnimations: component.hasAvatarAnimations.value
+      paused: component.paused.value,
+      time: component.time.value,
+      timeScale: component.timeScale.value,
+      blendMode: component.blendMode.value,
+      loop: component.loop.value,
+      clampWhenFinished: component.clampWhenFinished.value,
+      zeroSlopeAtStart: component.zeroSlopeAtStart.value,
+      zeroSlopeAtEnd: component.zeroSlopeAtEnd.value,
+      weight: component.weight.value
     }
   },
 
@@ -89,25 +123,80 @@ export const LoopAnimationComponent = defineComponent({
 
     const animComponent = useOptionalComponent(entity, AnimationComponent)
 
+    useEffect(() => {
+      if (!animComponent || !modelComponent?.scene?.value) {
+        loopAnimationComponent._action.set(null)
+        return
+      }
+      animComponent.mixer.time.set(0)
+      const clip = AnimationClip.findByName(
+        animComponent.animations.value,
+        animComponent.animations[loopAnimationComponent.activeClipIndex.value].name.value
+      )
+      const action = animComponent.mixer.value.clipAction(
+        modelComponent.asset instanceof VRM
+          ? retargetMixamoAnimation(clip, modelComponent.scene.value, modelComponent.asset)
+          : clip
+      )
+      loopAnimationComponent._action.set(action)
+      return () => {
+        void action.stop()
+      }
+    }, [animComponent, loopAnimationComponent.activeClipIndex])
+
+    useEffect(() => {
+      if (loopAnimationComponent._action.value?.isRunning() && loopAnimationComponent.paused.value) {
+        loopAnimationComponent._action.value.paused = true
+      } else if (loopAnimationComponent._action.value?.isRunning() && !loopAnimationComponent.paused.value) {
+        loopAnimationComponent._action.value?.play()
+      }
+    }, [loopAnimationComponent._action, loopAnimationComponent.paused])
+
+    useEffect(() => {
+      if (!loopAnimationComponent._action.value) return
+      loopAnimationComponent._action.value.enabled = loopAnimationComponent.enabled.value
+    }, [loopAnimationComponent._action, loopAnimationComponent.enabled])
+
+    useEffect(() => {
+      if (!loopAnimationComponent._action.value) return
+      loopAnimationComponent._action.value.time = loopAnimationComponent.time.value
+      loopAnimationComponent._action.value.setLoop(
+        loopAnimationComponent.loop.value,
+        loopAnimationComponent.repetitions.value
+      )
+      loopAnimationComponent._action.value.clampWhenFinished = loopAnimationComponent.clampWhenFinished.value
+      loopAnimationComponent._action.value.zeroSlopeAtStart = loopAnimationComponent.zeroSlopeAtStart.value
+      loopAnimationComponent._action.value.zeroSlopeAtEnd = loopAnimationComponent.zeroSlopeAtEnd.value
+      loopAnimationComponent._action.value.blendMode = loopAnimationComponent.blendMode.value
+    }, [
+      loopAnimationComponent._action,
+      loopAnimationComponent.time,
+      loopAnimationComponent.blendMode,
+      loopAnimationComponent.loop,
+      loopAnimationComponent.clampWhenFinished,
+      loopAnimationComponent.zeroSlopeAtStart,
+      loopAnimationComponent.zeroSlopeAtEnd
+    ])
+
+    useEffect(() => {
+      if (!loopAnimationComponent._action.value) return
+      loopAnimationComponent._action.value.setEffectiveWeight(loopAnimationComponent.weight.value)
+      loopAnimationComponent._action.value.setEffectiveTimeScale(loopAnimationComponent.timeScale.value)
+    }, [loopAnimationComponent._action, loopAnimationComponent.weight, loopAnimationComponent.timeScale])
+
     /**
      * Callback functions
      */
     useEffect(() => {
       if (hasComponent(entity, CallbackComponent)) return
       const play = () => {
-        playAnimationClip(entity)
+        loopAnimationComponent.paused.set(false)
       }
       const pause = () => {
-        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-        if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
-      }
-      const stop = () => {
-        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-        if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+        loopAnimationComponent.paused.set(true)
       }
       setCallback(entity, StandardCallbacks.PLAY, play)
       setCallback(entity, StandardCallbacks.PAUSE, pause)
-      setCallback(entity, StandardCallbacks.STOP, stop)
     }, [])
 
     /**
@@ -130,68 +219,18 @@ export const LoopAnimationComponent = defineComponent({
           mixer: new AnimationMixer(model.scene!),
           animations: []
         })
-        getComponent(entity, AnimationComponent).mixer.timeScale = loopAnimationComponent.animationSpeed.value
       }
     }, [modelComponent?.scene, loopAnimationComponent.hasAvatarAnimations])
-
-    useEffect(() => {
-      if (!animComponent) return
-      animComponent.mixer.timeScale.set(loopAnimationComponent.animationSpeed.value)
-    }, [animComponent, loopAnimationComponent.animationSpeed])
 
     useEffect(() => {
       if (!modelComponent?.scene?.value || !animComponent || !loopAnimationComponent.animationPack.value) return
 
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
         const animations = model.userData ? model.animations : model.scene.animations
-        loopAnimationComponent.animationPackScene.set(model.scene)
-        const animationComponent = getComponent(entity, AnimationComponent)
-        animationComponent.animations = animations
+        animComponent.animations.set(animations)
       })
     }, [modelComponent?.asset, loopAnimationComponent.animationPack])
-
-    useEffect(() => {
-      if (
-        !modelComponent?.scene?.value ||
-        !modelComponent.asset.value ||
-        (modelComponent.asset.value instanceof VRM && !loopAnimationComponent.animationPackScene.value)
-      )
-        return
-
-      playAnimationClip(entity)
-    }, [
-      loopAnimationComponent.activeClipIndex,
-      loopAnimationComponent.animationPackScene,
-      modelComponent?.scene,
-      modelComponent?.asset
-    ])
 
     return null
   }
 })
-
-export const playAnimationClip = (entity: Entity) => {
-  const loopAnimationComponent = getMutableComponent(entity, LoopAnimationComponent)
-  const animationComponent = getComponent(entity, AnimationComponent)
-  const modelComponent = getComponent(entity, ModelComponent)
-  if (loopAnimationComponent.action.value) loopAnimationComponent.action.value.stop()
-  if (
-    loopAnimationComponent.activeClipIndex.value >= 0 &&
-    animationComponent.animations[loopAnimationComponent.activeClipIndex.value]
-  ) {
-    animationComponent.mixer.stopAllAction()
-    const clip = AnimationClip.findByName(
-      animationComponent.animations,
-      animationComponent.animations[loopAnimationComponent.activeClipIndex.value].name
-    )
-
-    animationComponent.mixer.time = 0
-    const action = animationComponent.mixer.clipAction(
-      modelComponent.asset instanceof VRM
-        ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene.value!, modelComponent.asset)
-        : clip
-    )
-    loopAnimationComponent.action.set(action)
-    action.play()
-  }
-}
