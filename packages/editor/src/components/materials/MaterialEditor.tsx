@@ -108,7 +108,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
         thumbnails.set(nuThumbs)
         loadingData.set(false)
       })
-  }, [materialComponent.prototype, materialComponent.material])
+  }, [materialComponent.prototype, materialComponent.material, materialComponent.parameters])
 
   useEffect(() => {
     checkThumbs()
