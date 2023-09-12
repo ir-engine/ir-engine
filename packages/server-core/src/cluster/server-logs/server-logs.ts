@@ -23,45 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { serverLogsMethods, serverLogsPath } from '@etherealengine/engine/src/schemas/cluster/server-logs.schema'
+import { Application } from '../../../declarations'
+import { ServerLogsService } from './server-logs.class'
+import serverLogsDocs from './server-logs.docs'
+import hooks from './server-logs.hooks'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import { serverInfoExternalResolver, serverInfoResolver } from './server-info.resolvers'
-
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(serverInfoExternalResolver), schemaHooks.resolveResult(serverInfoResolver)]
-  },
-
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [serverLogsPath]: ServerLogsService
   }
-} as any
+}
+
+export default (app: Application): void => {
+  app.use(serverLogsPath, new ServerLogsService(app), {
+    // A list of all methods this service exposes externally
+    methods: serverLogsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: serverLogsDocs
+  })
+
+  const service = app.service(serverLogsPath)
+  service.hooks(hooks)
+}
