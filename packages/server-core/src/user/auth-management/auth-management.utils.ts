@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
-import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
+import { EmailData, emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
@@ -61,7 +61,7 @@ export function getInviteLink(type: string, id: string, passcode: string): strin
  * @param email which is going to recieve message
  * Text message links can't have HTML escaped ampersands.
  */
-export async function sendEmail(app: Application, email: any): Promise<void> {
+export async function sendEmail(app: Application, email: EmailData) {
   if (email.to) {
     email.html = email.html.replace(/&amp;/g, '&')
     logger.info('sendEmail() to: ' + email)

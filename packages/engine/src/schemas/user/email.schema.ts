@@ -23,4 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { Static } from '@feathersjs/typebox'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
+
 export const emailPath = 'email'
+
+export const emailDataSchema = Type.Object(
+  {
+    from: Type.String(),
+    to: Type.String(),
+    subject: Type.String(),
+    html: Type.String()
+  },
+  { $id: 'EmailData', additionalProperties: false }
+)
+export type EmailData = Static<typeof emailDataSchema>
+
+export const emailDataValidator = getValidator(emailDataSchema, dataValidator)
