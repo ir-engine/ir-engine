@@ -23,12 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
-
-export default createSwaggerServiceOptions({
-  schemas: {},
-  docs: {
-    description: 'Verification event service description',
-    securities: ['all']
-  }
-})
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+export const verificationEventPath = 'verification-event'
+export const verificationEventMethods = ['find', 'patch'] as const
