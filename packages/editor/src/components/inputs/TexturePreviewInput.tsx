@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { Fragment } from 'react'
-import { ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
+import { ColorSpace, DisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { ImageFileTypes, VideoFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
@@ -89,6 +89,11 @@ export default function TexturePreviewInput({
     : src
   const offset = useHookstate(typeof texture?.offset?.clone === 'function' ? texture.offset.clone() : new Vector2(0, 0))
   const scale = useHookstate(typeof texture?.repeat?.clone === 'function' ? texture.repeat.clone() : new Vector2(1, 1))
+  const colorspace = useHookstate(
+    texture?.colorSpace ? texture?.colorSpace : (new String(LinearSRGBColorSpace) as ColorSpace)
+  )
+
+  console.log('DEBUG texture colorspace is ', inputSrc, texture)
   return (
     <ImageContainer>
       <Stack>
@@ -128,14 +133,17 @@ export default function TexturePreviewInput({
           <>
             <InputGroup name="Encoding" label="Encoding">
               <SelectInput
-                value={texture.colorSpace}
+                value={colorspace.value}
                 options={[
                   { label: 'Linear', value: LinearSRGBColorSpace },
-                  { label: 'sRGB', value: SRGBColorSpace }
+                  { label: 'sRGB', value: SRGBColorSpace },
+                  { label: 'displayP3', value: DisplayP3ColorSpace }
                 ]}
                 onChange={(value: ColorSpace) => {
+                  colorspace.set(value)
                   texture.colorSpace = value
                   texture.needsUpdate = true
+                  console.log('DEBUG changed space', texture.colorSpace)
                 }}
               />
             </InputGroup>
