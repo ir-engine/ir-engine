@@ -48,8 +48,11 @@ import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/sche
 import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { ProjectSettingType } from '@etherealengine/engine/src/schemas/setting/project-setting.schema'
+import {
+  projectPath,
+  ProjectSettingType,
+  ProjectType
+} from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   identityProviderPath,
   IdentityProviderType

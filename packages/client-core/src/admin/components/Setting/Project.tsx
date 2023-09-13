@@ -36,21 +36,16 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectSettingType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import styles from '../../styles/settings.module.scss'
-
-interface ProjectSetting {
-  key: string
-  value: any
-}
 
 const Project = () => {
   const { t } = useTranslation()
   const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
 
-  const settings = useHookstate<Array<ProjectSetting> | []>([])
+  const settings = useHookstate<Array<ProjectSettingType> | []>([])
   const selectedProject = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
   const project = useFind(projectPath, {
@@ -98,7 +93,7 @@ const Project = () => {
     const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
 
     if (projectConfig && projectConfig?.settings) {
-      const tempSetting = [] as ProjectSetting[]
+      const tempSetting = [] as ProjectSettingType[]
 
       for (const setting of projectConfig.settings) {
         tempSetting.push({ key: setting.key, value: '' })

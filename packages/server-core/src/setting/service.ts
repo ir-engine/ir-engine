@@ -31,7 +31,6 @@ import Coil from './coil-setting/coil-setting'
 import Email from './email-setting/email-setting'
 import Helm from './helm-setting/helm-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectSetting from './project-setting/project-setting'
 import RedisSetting from './redis-setting/redis-setting'
 import ServerSetting from './server-setting/server-setting'
 import TaskServer from './task-server-setting/task-server-setting'
@@ -47,6 +46,5 @@ export default [
   Coil,
   RedisSetting,
   TaskServer,
-  ProjectSetting,
   Helm
 ]
