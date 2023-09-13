@@ -261,14 +261,14 @@ export const playAnimation = makeFlowNodeDefinition({
     },
     animationSpeed: 'float',
     animationPack: 'string',
-    activeClipIndex: 'number',
+    activeClipIndex: 'float',
     isAvatar: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const entity = read<Entity>('entity')
-    const action = read<string>('action')
+    const action = read<StandardCallbacks>('action') ?? StandardCallbacks.PLAY
     const animationSpeed = read<number>('animationSpeed')
     const animationPack = read<string>('animationPack')
     const activeClipIndex = read<number>('activeClipIndex')
