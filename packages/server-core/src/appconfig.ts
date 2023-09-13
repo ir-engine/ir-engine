@@ -78,6 +78,7 @@ if (!kubernetesEnabled) {
     path: appRootPath.path,
     silent: true
   })
+  logger.info('dotenv.config called with options: %o', { path: appRootPath, silent: true })
 }
 
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {

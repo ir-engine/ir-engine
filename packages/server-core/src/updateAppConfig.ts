@@ -78,7 +78,7 @@ const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
 
 export const updateAppConfig = async (): Promise<void> => {
   if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
-
+  logger.info('[updateAppConfig]: Skipping configuration update due to forceRefresh or disabled Kubernetes.')
   const knexClient = knex({
     client: 'mysql',
     connection: {
@@ -99,6 +99,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.taskserver,
           ...dbTaskServer
         }
+        logger.info('[updateAppConfig]: TaskServerSetting updated successfully.')
       }
     })
     .catch((e) => {
@@ -125,6 +126,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...(dbAuthenticationConfig as any),
           authStrategies: authStrategies
         }
+        logger.info('[updateAppConfig]: Authentication settings updated successfully.')
       }
     })
     .catch((e) => {
@@ -142,11 +144,13 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.aws,
           ...dbAwsConfig
         }
+        logger.info('[updateAppConfig]: AWS settings updated successfully.')
       }
     })
     .catch((e) => {
       logger.error(e, `[updateAppConfig]: Failed to read ${awsSettingPath}: ${e.message}`)
     })
+  logger.info('[updateAppConfig]: Updating AWS settings.')
   promises.push(awsSettingPromise)
 
   const chargebeeSettingPromise = knexClient
@@ -158,6 +162,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.chargebee,
           ...dbChargebee
         }
+        logger.info('[updateAppConfig]: Chargebee settings updated successfully.')
       }
     })
     .catch((e) => {
@@ -174,6 +179,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.coil,
           ...dbCoil
         }
+        logger.info('[updateAppConfig]: Coil settings updated successfully.')
       }
     })
     .catch((e) => {
@@ -191,6 +197,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.client,
           ...dbClientConfig
         }
+        logger.info('[updateAppConfig]: Client settings updated successfully.')
       }
     })
     .catch((e) => {
@@ -208,6 +215,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.email,
           ...dbEmailConfig
         }
+        logger.info('[updateAppConfig]: Email settings updated successfully.')
       }
     })
     .catch((e) => {
@@ -224,6 +232,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.instanceserver,
           ...dbInstanceServer
         }
+        logger.info('[updateAppConfig]: Instance Server settings updated successfully.')
       }
     })
     .catch((e) => {
@@ -246,6 +255,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.redis,
           ...dbRedisConfig
         }
+        logger.info('[updateAppConfig]: Redis settings updated successfully.')
       }
     })
     .catch((e) => {
@@ -263,6 +273,7 @@ export const updateAppConfig = async (): Promise<void> => {
           ...appConfig.server,
           ...dbServerConfig
         }
+        logger.info('[updateAppConfig]: Server settings updated successfully.')
       }
     })
     .catch((e) => {
@@ -271,4 +282,5 @@ export const updateAppConfig = async (): Promise<void> => {
   promises.push(serverSettingPromise)
 
   await Promise.all(promises)
+  logger.info('[updateAppConfig]: Configuration update completed successfully.')
 }

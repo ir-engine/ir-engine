@@ -70,6 +70,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
               isSeeded = result.total > 0
             }
             if (!isSeeded) await service.create(template)
+            logger.info({ template, configPath: config.path }, 'Creating template')
           }
       }
     }

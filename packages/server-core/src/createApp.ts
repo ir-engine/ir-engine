@@ -97,7 +97,10 @@ export const configurePrimus =
       'capacitor://' + appConfig.server.clientHost,
       'ionic://' + appConfig.server.clientHost
     ]
-    if (!instanceserver) origin.push('https://localhost:3001')
+    if (!instanceserver) origin.push('https://localhost:3001') //
+    logger.info('Configuring Primus with the following option.')
+    logger.info('Instanceserver: %s', instanceserver)
+    logger.info('Origin: %o', origin)
     app.configure(
       primus(
         {
@@ -156,6 +159,7 @@ export const configureK8s = () => (app: Application) => {
       k8AgonesClient
     })
     logger.info('kubernetes configuration completed.')
+    logger.info('K8s API Server URL: %s', kc.getCurrentCluster()?.server)
   }
   return app
 }
@@ -177,6 +181,7 @@ export const createFeathersKoaApp = (
   createEngine()
   getMutableState(EngineState).publicPath.set(config.client.dist)
   logger.info('Feathers Koa app created.')
+  logger.info('Creating Feathers Koa app with server mode: %s', serverMode)
   if (!appConfig.db.forceRefresh) {
     initializeNode()
   }
@@ -206,6 +211,9 @@ export const createFeathersKoaApp = (
       credentials: true
     })
   )
+  logger.info('Feathers Koa app configured with the following option.')
+  logger.info('Paginate: %o', appConfig.server.paginate)
+
   configurationPipe(app)
   // Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
   // Doesn't appear anything else uses it.
