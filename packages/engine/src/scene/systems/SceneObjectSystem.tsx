@@ -48,7 +48,7 @@ import { defineQuery, getComponent, hasComponent, useOptionalComponent } from '.
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
@@ -69,33 +69,6 @@ export const disposeMaterial = (material: Material) => {
     }
   }
   material.dispose()
-}
-
-export const disposeObject3D = (obj: Object3D) => {
-  const mesh = obj as Mesh<any, any>
-
-  if (mesh.material) {
-    if (Array.isArray(mesh.material)) {
-      mesh.material.forEach(disposeMaterial)
-    } else {
-      disposeMaterial(mesh.material)
-    }
-  }
-
-  if (mesh.geometry) {
-    mesh.geometry.dispose()
-    for (const key in mesh.geometry.attributes) {
-      mesh.geometry.deleteAttribute(key)
-    }
-  }
-
-  const skinnedMesh = obj as SkinnedMesh
-  if (skinnedMesh.isSkinnedMesh) {
-    skinnedMesh.skeleton?.dispose()
-  }
-
-  const light = obj as Light // anything with dispose function
-  if (typeof light.dispose === 'function') light.dispose()
 }
 
 export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false) {
@@ -157,7 +130,23 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
         if (layer.has(obj)) layer.delete(obj)
       }
 
-      obj.traverse(disposeObject3D)
+      obj.traverse((object3D: Object3D) => {
+        const mesh = object3D as Mesh<any, any>
+        if (Array.isArray(mesh.material)) {
+          mesh.material.forEach(disposeMaterial)
+        } else if (mesh.material) {
+          disposeMaterial(mesh.material)
+        }
+        mesh.geometry?.dispose()
+
+        const skinnedMesh = object3D as SkinnedMesh
+        if (skinnedMesh.isSkinnedMesh) {
+          skinnedMesh.skeleton?.dispose()
+        }
+
+        const light = object3D as Light // anything with dispose function
+        if (typeof light.dispose === 'function') light.dispose()
+      })
     }
   }, [])
 
@@ -195,12 +184,8 @@ const execute = () => {
     /**
      * do frustum culling here, but only if the object is more than 5 units away
      */
-    const visible =
-      hasComponent(entity, VisibleComponent) &&
-      !(
-        FrustumCullCameraComponent.isCulled[entity] &&
-        DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
-      )
+    const visible = hasComponent(entity, VisibleComponent) && !FrustumCullCameraComponent.isCulled[entity]
+
     for (const obj of group) obj.visible = visible
   }
 

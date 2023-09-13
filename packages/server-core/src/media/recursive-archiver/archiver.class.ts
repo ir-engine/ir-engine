@@ -47,7 +47,6 @@ export interface ArchiveParams extends UserParams {
 
 const archive = async (directory, params?: UserParams): Promise<string> => {
   if (directory.at(0) === '/') directory = directory.slice(1)
-  if (directory.at(-1) === '/') directory = directory.slice(0, -1)
   if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
     return Promise.reject(new Error('Cannot archive non-project directories'))
   }

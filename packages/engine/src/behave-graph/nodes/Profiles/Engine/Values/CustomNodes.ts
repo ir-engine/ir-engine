@@ -250,7 +250,7 @@ export const playAnimation = makeFlowNodeDefinition({
     paused: 'boolean',
     timeScale: 'float',
     animationPack: 'string',
-    activeClipIndex: 'number',
+    activeClipIndex: 'float',
     isAvatar: 'boolean'
   },
   out: { flow: 'flow' },
