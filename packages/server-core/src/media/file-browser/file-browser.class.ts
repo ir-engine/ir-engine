@@ -62,10 +62,6 @@ interface PatchParams {
   storageProviderName?: string
 }
 
-type FindResultType = {
-  type: 'DIRECTORY' | 'FILE' | 'UNDEFINED'
-}
-
 /**
  * A class for Managing files in FileBrowser
  */
@@ -83,18 +79,12 @@ export class FileBrowserService implements ServiceMethods<any> {
    * Returns the metadata for a single file or directory
    * @param params
    */
-  async find(params?: Params): Promise<FindResultType> {
-    if (!params) params = {}
-    if (!params.query) params.query = {}
-    const { storageProviderName, key } = params.query
-    if (!key) return { type: 'UNDEFINED' }
-    const storageProvider = getStorageProvider(storageProviderName)
+  async get(key: string, params?: Params): Promise<boolean> {
+    if (!key) return false
+    const storageProvider = getStorageProvider()
     const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
     const exists = await storageProvider.doesExist(file, directory)
-    const isDirectory = exists && (await storageProvider.isDirectory(file, directory))
-    return {
-      type: exists ? (isDirectory ? 'DIRECTORY' : 'FILE') : 'UNDEFINED'
-    }
+    return exists
   }
 
   /**
@@ -103,16 +93,16 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: UserParams): Promise<Paginated<FileContentType>> {
+  async find(params?: UserParams): Promise<Paginated<FileContentType>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
-    const { $skip, $limit, storageProviderName } = params.query
+    const { $skip, $limit } = params.query
+    let { directory } = params.query
 
-    delete params.query.storageProviderName
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 100
 
-    const storageProvider = getStorageProvider(storageProviderName)
+    const storageProvider = getStorageProvider()
     const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))

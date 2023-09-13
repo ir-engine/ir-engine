@@ -62,9 +62,12 @@ export const FileBrowserService = {
 
     fileBrowserState.retrieving.set(true)
 
-    const files = (await Engine.instance.api
-      .service('file-browser')
-      .get(directory, params)) as Paginated<FileContentType>
+    const files = (await Engine.instance.api.service('file-browser').find({
+      ...params,
+      query: {
+        directory
+      }
+    })) as Paginated<FileContentType>
 
     fileBrowserState.merge({
       files: files.data,
