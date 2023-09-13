@@ -116,7 +116,9 @@ export const ModelComponent = defineComponent({
 
   onRemove: (entity, component) => {
     if (component.scene.value) {
-      clearMaterials(component.value)
+      if (component.src.value) {
+        clearMaterials(component.value)
+      }
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
