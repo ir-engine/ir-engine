@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Params, ServiceMethods } from '@feathersjs/feathers'
 
-import { ProjectSettingType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -47,9 +47,7 @@ export class ProjectSetting implements ServiceMethods<Data> {
     return result?.data[0]?.settings ? result.data[0].settings : []
   }
 
-  async patch(id: Id, data: { settings: ProjectSettingType[] }, params?: Params) {
-    return this.app.service(projectPath)._patch(id, data)
-  }
+  async patch(): Promise<any> {}
 
   async setup(): Promise<any> {}
 
