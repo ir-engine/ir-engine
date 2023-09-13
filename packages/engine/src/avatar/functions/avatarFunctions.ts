@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
+import { VRM } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
 import {
   AnimationClip,
