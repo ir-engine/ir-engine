@@ -31,7 +31,7 @@ import { Color } from 'three'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
-
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Checkbox from '@mui/material/Checkbox'
@@ -394,3 +394,5 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     </PropertyGroup>
   )
 }
+
+PostProcessingSettingsEditor.iconComponent = AutoFixHighIcon

@@ -30,7 +30,7 @@ import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
     find: [],
     get: [],
     create: [],

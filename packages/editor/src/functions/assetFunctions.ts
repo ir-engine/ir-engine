@@ -48,6 +48,7 @@ import { PrefabComponent } from '@etherealengine/engine/src/scene/components/Pre
 import { sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getState } from '@etherealengine/hyperflux'
 
+import { assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
 import { EditorState } from '../services/EditorServices'
 
 export const exportPrefab = async (entity: Entity) => {
@@ -177,8 +178,8 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
 
 export const extractZip = async (path: string): Promise<any> => {
   try {
-    const parms = { path: path }
-    await Engine.instance.api.service('asset-library').create(parms)
+    const params = { path: path }
+    await Engine.instance.api.service(assetLibraryPath).create(params)
   } catch (err) {
     console.error('error extracting zip: ', err)
   }

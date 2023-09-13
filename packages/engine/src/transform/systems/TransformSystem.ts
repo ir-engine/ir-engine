@@ -31,6 +31,7 @@ import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -72,6 +73,7 @@ const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
 const staticBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent])
 const dynamicBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
+const avatarBoundingBoxQuery = defineQuery([AvatarComponent, BoundingBoxComponent])
 
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
@@ -265,6 +267,14 @@ const computeBoundingBox = (entity: Entity) => {
   }
 }
 
+const updateAvatarBoundingBox = (entity: Entity) => {
+  //get avatar model
+  const avatarModel = getComponent(entity, AvatarComponent).model
+  const box = getComponent(entity, BoundingBoxComponent).box
+  box.makeEmpty()
+  if (avatarModel) box.expandByObject(avatarModel)
+}
+
 const updateBoundingBox = (entity: Entity) => {
   const box = getComponent(entity, BoundingBoxComponent).box
   const group = getComponent(entity, GroupComponent)
@@ -391,6 +401,7 @@ const execute = () => {
   for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
 
   for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
+  for (const entity of avatarBoundingBoxQuery()) updateAvatarBoundingBox(entity)
   for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
 
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
@@ -402,13 +413,13 @@ const execute = () => {
   _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
   _frustum.setFromProjectionMatrix(_projScreenMatrix)
 
-  for (const entity of frustumCulledQuery())
-    FrustumCullCameraComponent.isCulled[entity] = _frustum.containsPoint(
-      getComponent(entity, TransformComponent).position
-    )
-      ? 0
-      : 1
-
+  for (const entity of frustumCulledQuery()) {
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)?.box
+    const cull = boundingBox
+      ? _frustum.intersectsBox(boundingBox)
+      : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
+    FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
+  }
   if (localClientEntity) {
     const localClientPosition = getOptionalComponent(localClientEntity, TransformComponent)?.position
     if (localClientPosition) {

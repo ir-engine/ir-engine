@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import AssetLibrary from './assetLibrary/asset-library.service'
+import AssetLibrary from './assetLibrary/asset-library'
 import ImageConvert from './image-convert/image-convert.service'
 import KTX2Encode from './ktx2-encode/ktx2-encode.service'
 import ModelTransform from './model-transform/model-transform'
