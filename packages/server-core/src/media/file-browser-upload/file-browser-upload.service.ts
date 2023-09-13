@@ -32,7 +32,6 @@ import hooks from './file-browser.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'file-browser': FileBrowserService
     'file-browser/upload': {
       create: ReturnType<typeof uploadFile>
     }

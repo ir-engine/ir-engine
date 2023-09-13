@@ -73,8 +73,6 @@ export class FileBrowserService implements ServiceMethods<any> {
     this.app = app
   }
 
-  async setup(app: Application, path: string) {}
-
   /**
    * Returns the metadata for a single file or directory
    * @param params
