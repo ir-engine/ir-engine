@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { t } from 'i18next'
 import React from 'react'
+import styles from './ArrayInputGroup.module.scss'
 import FileBrowserInput from './FileBrowserInput'
 import InputGroup from './InputGroup'
 import NumericStepperInput from './NumericStepperInput'
@@ -67,20 +68,6 @@ const onChangeText = (text: string, index: number, values: string[], onChange?: 
   onChange?.(valuesCopy)
 }
 
-const groupContainerStyle: React.CSSProperties = {
-  backgroundColor: 'transparent',
-  color: '#9fa4b5',
-  whiteSpace: 'pre-wrap',
-  padding: '0 8px 8px'
-}
-
-const arrayInputGroupContentStyle: React.CSSProperties = {
-  margin: '4px 0px',
-  display: 'flex',
-  flexWrap: 'wrap',
-  flexDirection: 'row'
-}
-
 const ArrayInputGroup = ({
   prefix,
   label,
@@ -92,9 +79,11 @@ const ArrayInputGroup = ({
   let count = 0
   if (values && values.length) count = values.length
 
+  console.log('debug1 styles', styles, 'and', styles.sizeLabel)
+
   return (
-    <InputGroup name="label" label={label}>
-      <div style={arrayInputGroupContentStyle}>
+    <InputGroup name="label" label={label} labelClasses={styles.sizeLabel}>
+      <div className={styles.arrayInputGroupContent}>
         <InputGroup name="size" label={t('editor:properties.media.lbl-size')}>
           <NumericStepperInput
             value={count}
