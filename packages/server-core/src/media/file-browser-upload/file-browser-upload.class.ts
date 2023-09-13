@@ -25,11 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FileBrowserUploadParams extends RootParams {}
+export interface FileBrowserUploadParams extends RootParams {
+  files: UploadFile[]
+}
 
 /**
  * A class for File Browser Upload service
@@ -41,7 +44,7 @@ export class FileBrowserUploadService implements ServiceInterface<string[], File
     this.app = app
   }
 
-  async create(data: any, params?: FileBrowserUploadParams) {
+  async create(data: any, params: FileBrowserUploadParams) {
     if (typeof data.args === 'string') data.args = JSON.parse(data.args)
 
     const result = (await Promise.all(

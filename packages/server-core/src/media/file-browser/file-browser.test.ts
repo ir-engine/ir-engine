@@ -53,7 +53,7 @@ describe('file browser service', () => {
   })
 
   it('find service', () => {
-    assert.doesNotThrow(async () => await app.service(fileBrowserPath).get())
+    assert.doesNotThrow(async () => await app.service(fileBrowserPath).get(''))
   })
 
   let testDirectoryName: string
