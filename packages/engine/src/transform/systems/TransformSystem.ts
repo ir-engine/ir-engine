@@ -402,13 +402,13 @@ const execute = () => {
   _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
   _frustum.setFromProjectionMatrix(_projScreenMatrix)
 
-  for (const entity of frustumCulledQuery())
-    FrustumCullCameraComponent.isCulled[entity] = _frustum.containsPoint(
-      getComponent(entity, TransformComponent).position
-    )
-      ? 0
-      : 1
-
+  for (const entity of frustumCulledQuery()) {
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)?.box
+    const cull = boundingBox
+      ? _frustum.intersectsBox(boundingBox)
+      : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
+    FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
+  }
   if (localClientEntity) {
     const localClientPosition = getOptionalComponent(localClientEntity, TransformComponent)?.position
     if (localClientPosition) {
