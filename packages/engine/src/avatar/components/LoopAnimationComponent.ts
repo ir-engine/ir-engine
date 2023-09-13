@@ -81,6 +81,7 @@ export const LoopAnimationComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
+    if (typeof (json as any).animationSpeed === 'number') component.timeScale.set((json as any).animationSpeed) // backwards-compat
     if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
     if (typeof json.animationPack === 'string') component.animationPack.set(json.animationPack)
