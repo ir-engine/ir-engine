@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { useCallback } from 'react'
+import React, { SyntheticEvent, useCallback } from 'react'
 
 import {
   ImageTransformParameters,
@@ -56,6 +56,12 @@ export default function GLTFTransformProperties({
     }
   }, [])
 
+  const onChangeTransformStringParm = useCallback((scope: State<any>) => {
+    return (value: SyntheticEvent) => {
+      scope.set((value.target as HTMLInputElement).value)
+    }
+  }, [])
+
   const onChangeParameter = useCallback(
     (scope: State<any>, key: string) => (val: any) => {
       scope[key].set(val)
@@ -74,12 +80,12 @@ export default function GLTFTransformProperties({
         }}
       >
         <InputGroup name="dst" label={t('editor:properties.model.transform.dst')}>
-          <StringInput value={transformParms.dst.value} onChange={onChangeTransformParm(transformParms.dst)} />
+          <StringInput value={transformParms.dst.value} onChange={onChangeTransformStringParm(transformParms.dst)} />
         </InputGroup>
         <InputGroup name="resource uri" label={t('editor:properties.model.transform.resourceUri')}>
           <StringInput
             value={transformParms.resourceUri.value}
-            onChange={onChangeTransformParm(transformParms.resourceUri)}
+            onChange={onChangeTransformStringParm(transformParms.resourceUri)}
           />
         </InputGroup>
       </div>
@@ -99,6 +105,15 @@ export default function GLTFTransformProperties({
               { label: 'glB', value: 'glb' },
               { label: 'glTF', value: 'gltf' }
             ]}
+          />
+        </InputGroup>
+        <InputGroup name="Split" label={t('editor:properties.model.transform.split')}>
+          <BooleanInput value={transformParms.split.value} onChange={onChangeTransformParm(transformParms.split)} />
+        </InputGroup>
+        <InputGroup name="Combine materials" label={t('editor:properties.model.transform.combineMaterials')}>
+          <BooleanInput
+            value={transformParms.combineMaterials.value}
+            onChange={onChangeTransformParm(transformParms.combineMaterials)}
           />
         </InputGroup>
         <InputGroup name="Instance" label={t('editor:properties.model.transform.instance')}>
@@ -175,6 +190,21 @@ export default function GLTFTransformProperties({
             onChange={onChangeTransformParm(transformParms.resample)}
           />
         </InputGroup>
+        <InputGroup name="Use Meshoptimizer" label={t('editor:properties.model.transform.useMeshoptimizer')}>
+          <BooleanInput
+            value={transformParms.meshoptCompression.enabled.value}
+            onChange={onChangeTransformParm(transformParms.meshoptCompression.enabled)}
+          />
+        </InputGroup>
+        {transformParms.meshoptCompression.enabled.value && (
+          <>
+            <ParameterInput
+              entity={`${transformParms}-meshopt-compression`}
+              values={transformParms.meshoptCompression.options.value}
+              onChange={onChangeParameter.bind({}, transformParms.meshoptCompression.options)}
+            />
+          </>
+        )}
         <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
           <BooleanInput
             value={transformParms.dracoCompression.enabled.value}
@@ -216,6 +246,9 @@ export default function GLTFTransformProperties({
         </InputGroup>
         <InputGroup name="Linear" label={t('editor:properties.model.transform.linear')}>
           <BooleanInput value={transformParms.linear.value} onChange={onChangeTransformParm(transformParms.linear)} />
+        </InputGroup>
+        <InputGroup name="Mipmaps" label={t('editor:properties.model.transform.mipmaps')}>
+          <BooleanInput value={transformParms.mipmap.value} onChange={onChangeTransformParm(transformParms.mipmap)} />
         </InputGroup>
         {transformParms.textureFormat.value === 'ktx2' && (
           <>

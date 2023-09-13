@@ -42,6 +42,7 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
+import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import {
   UserSettingID,
@@ -529,7 +530,7 @@ export const AuthService = {
     }
 
     try {
-      await Engine.instance.api.service('magic-link').create({ type, [paramName]: emailPhone })
+      await Engine.instance.api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
       NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.success-msg'), { variant: 'success' })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -561,7 +562,7 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider = (await Engine.instance.api.service('magic-link').create({
+      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
         email,
         type: 'email',
         userId
@@ -587,7 +588,7 @@ export const AuthService = {
     }
 
     try {
-      const identityProvider = (await Engine.instance.api.service('magic-link').create({
+      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
         mobile: sendPhone,
         type: 'sms',
         userId

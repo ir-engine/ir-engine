@@ -23,12 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { serverInfoMethods, serverInfoPath } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import { Application } from '../../../declarations'
+import { ServerInfoService } from './server-info.class'
+import serverInfoDocs from './server-info.docs'
+import hooks from './server-info.hooks'
 
-export default createSwaggerServiceOptions({
-  schemas: {},
-  docs: {
-    description: 'Magic link service description',
-    securities: ['all']
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [serverInfoPath]: ServerInfoService
   }
-})
+}
+
+export default (app: Application): void => {
+  app.use(serverInfoPath, new ServerInfoService(app), {
+    // A list of all methods this service exposes externally
+    methods: serverInfoMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: serverInfoDocs
+  })
+
+  const service = app.service(serverInfoPath)
+  service.hooks(hooks)
+}
