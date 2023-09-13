@@ -30,7 +30,6 @@ import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { V_010 } from '../../common/constants/MathConstants'
-import { lerp } from '../../common/functions/MathLerpFunctions'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -39,12 +38,11 @@ import { defineQuery, getComponent, getOptionalComponent, setComponent } from '.
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Physics, RaycastArgs } from '../../physics/classes/Physics'
+import { RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { PhysicsState } from '../../physics/state/PhysicsState'
-import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -61,6 +59,7 @@ import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
+import { ikTargets } from '../animation/Util'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
 export const AvatarAnimationState = defineState({
@@ -98,7 +97,6 @@ const filterFrustumCulledEntities = (entity: Entity) =>
 
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
-
 const _vector3 = new Vector3()
 const _right = new Vector3()
 const _forward = new Vector3()
@@ -110,30 +108,6 @@ const hipsForward = new Vector3(0, 0, 1)
 
 const midAxisRestriction = new Euler(0, 0, 0)
 const tipAxisRestriction = new Euler(0, 0, 0)
-
-interface targetTransform {
-  position: Vector3
-  rotation: Quaternion
-  blendWeight: number
-}
-
-//stores raw position and rotation of the IK targets in world space
-//is set from ecs ik target components that correspond with a given avatar
-export const worldSpaceTargets = {
-  rightHand: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  leftHand: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  rightFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  leftFoot: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  head: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  hips: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-
-  rightElbowHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  leftElbowHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  rightKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  leftKneeHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  headHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform,
-  hipsHint: { position: new Vector3(), rotation: new Quaternion(), blendWeight: 1 } as targetTransform
-}
 
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
@@ -163,40 +137,13 @@ const footRaycastArgs = {
   groups: interactionGroups
 } as RaycastArgs
 
-const lastRayInfo = {} as Record<number, RaycastHit>
-const lastLerpPosition = {} as Record<number, number>
-const setFootTarget = (
-  hipsPos: Vector3,
-  footPos: targetTransform,
-  legLength: number,
-  castRay: boolean,
-  index: number
-) => {
-  footRaycastArgs.origin.set(footPos.position.x, hipsPos.y + legLength, footPos.position.z)
-  footRaycastArgs.maxDistance = legLength
-
-  if (castRay) {
-    const castedRay = Physics.castRay(getState(PhysicsState).physicsWorld, footRaycastArgs)
-    if (castedRay[0]) {
-      lastRayInfo[index] = castedRay[0]
-    } else {
-      delete lastRayInfo[index]
-      delete lastLerpPosition[index]
-    }
-  }
-
-  const castedRay = lastRayInfo[index]
-  if (castedRay) {
-    if (!lastLerpPosition[index]) lastLerpPosition[index] = footPos.position.y
-    lastLerpPosition[index] = lerp(
-      lastLerpPosition[index],
-      castedRay.position.y,
-      getState(EngineState).deltaSeconds * 10
-    )
-    footPos.position.setY(lastLerpPosition[index])
-    //footPos.rotation.copy(new Quaternion().setFromUnitVectors(castedRay.normal as Vector3, new Vector3(0, 1, 0)))
-  }
+interface targetTransform {
+  position: Vector3
+  rotation: Quaternion
+  blendWeight: number
 }
+
+const ikDataByName = {} as Record<string, targetTransform>
 
 const footRaycastInterval = 0.25
 let footRaycastTimer = 0
@@ -289,25 +236,15 @@ const execute = () => {
       rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
     }
 
-    //clear some data
-    for (const [key, value] of Object.entries(worldSpaceTargets)) {
-      value.blendWeight = 0
-      value.position.set(0, 0, 0)
-      value.rotation.identity()
-    }
-
     if (rigComponent.ikOverride != '') {
       hipsForward.set(0, 0, 1)
 
       //calculate world positions
 
-      const transform = getComponent(entity, TransformComponent)
-
       applyInputSourcePoseToIKTargets()
       setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
 
       for (const ikEntity of ikEntities) {
-        if (ikEntities.length <= 1) continue
         const networkObject = getComponent(ikEntity, NetworkObjectComponent)
         const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
         if (ownerEntity !== entity) continue
@@ -319,10 +256,15 @@ const execute = () => {
         const ikTransform = getComponent(ikEntity, TransformComponent)
         const ikComponent = getComponent(ikEntity, AvatarIKTargetComponent)
 
+        ikDataByName[ikTargetName] = {
+          position: ikTransform.position,
+          rotation: ikTransform.rotation,
+          blendWeight: ikComponent.blendWeight
+        }
+
         //special case for the head if we're in xr mode
         //todo: automatically infer whether or not we need to set hips position from the head position
         if (rigComponent.ikOverride == 'xr' && ikTargetName == 'head') {
-          worldSpaceTargets.head.blendWeight = ikComponent.blendWeight
           rig.hips.node.position.copy(
             _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
@@ -342,27 +284,15 @@ const execute = () => {
           )
           continue
         }
-        //otherwise just set the target position, rotation and blend weight
-        worldSpaceTargets[ikTargetName].position.copy(ikTransform.position)
-        worldSpaceTargets[ikTargetName].rotation.copy(ikTransform.rotation)
-        worldSpaceTargets[ikTargetName].blendWeight = ikComponent.blendWeight
       }
 
-      if (avatarDebug) {
-        let i = 0
-        for (const [key] of Object.entries(worldSpaceTargets)) {
-          //if xr is active, set select targets to xr tracking data
-          const visualizerTransform = getComponent(visualizers[i], TransformComponent)
-          visualizerTransform.position.copy(worldSpaceTargets[key].position)
-          i++
-        }
-      }
+      const transform = getComponent(entity, TransformComponent)
 
       const leftLegLength =
-        leftLegVector.subVectors(rig.hips.node.position, worldSpaceTargets.leftFoot.position).length() +
+        leftLegVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.leftFoot].position).length() +
         rigComponent.footHeight
       const rightLegLength =
-        rightLegVector.subVectors(rig.hips.node.position, worldSpaceTargets.rightFoot.position).length() +
+        rightLegVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.rightFoot].position).length() +
         rigComponent.footHeight
 
       const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
@@ -378,41 +308,41 @@ const execute = () => {
         .setFromUnitVectors(V_010, _hipVector)
         .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
 
-      if (worldSpaceTargets.rightHand.blendWeight > 0) {
+      if (ikDataByName[ikTargets.rightHand].blendWeight > 0) {
         solveTwoBoneIK(
           rig.rightUpperArm.node,
           rig.rightLowerArm.node,
           rig.rightHand.node,
-          worldSpaceTargets.rightHand.position,
-          worldSpaceTargets.rightHand.rotation,
+          ikDataByName[ikTargets.rightHand].position,
+          ikDataByName[ikTargets.rightHand].rotation,
           null,
-          worldSpaceTargets.rightElbowHint.blendWeight > 0
-            ? worldSpaceTargets.rightElbowHint.position
+          ikDataByName[ikTargets.rightElbowHint].blendWeight > 0
+            ? ikDataByName[ikTargets.rightElbowHint].position
             : _vector3.copy(transform.position).sub(right),
           tipAxisRestriction,
           midAxisRestriction,
           null,
-          worldSpaceTargets.rightHand.blendWeight,
-          worldSpaceTargets.rightHand.blendWeight
+          ikDataByName[ikTargets.rightHand].blendWeight,
+          ikDataByName[ikTargets.rightHand].blendWeight
         )
       }
 
-      if (worldSpaceTargets.leftHand.blendWeight > 0) {
+      if (ikDataByName[ikTargets.leftHand].blendWeight > 0) {
         solveTwoBoneIK(
           rig.leftUpperArm.node,
           rig.leftLowerArm.node,
           rig.leftHand.node,
-          worldSpaceTargets.leftHand.position,
-          worldSpaceTargets.leftHand.rotation,
+          ikDataByName[ikTargets.leftHand].position,
+          ikDataByName[ikTargets.leftHand].rotation,
           null,
-          worldSpaceTargets.leftElbowHint.blendWeight > 0
-            ? worldSpaceTargets.leftElbowHint.position
+          ikDataByName[ikTargets.leftElbowHint].blendWeight > 0
+            ? ikDataByName[ikTargets.leftElbowHint].position
             : _vector3.copy(transform.position).add(right),
           tipAxisRestriction,
           midAxisRestriction,
           null,
-          worldSpaceTargets.leftHand.blendWeight,
-          worldSpaceTargets.leftHand.blendWeight
+          ikDataByName[ikTargets.leftHand].blendWeight,
+          ikDataByName[ikTargets.leftHand].blendWeight
         )
       }
 
@@ -420,55 +350,41 @@ const execute = () => {
         footRaycastTimer = 0
       }
 
-      if (worldSpaceTargets.rightFoot.blendWeight > 0) {
-        setFootTarget(
-          transform.position,
-          worldSpaceTargets.rightFoot,
-          rightLegLength,
-          footRaycastTimer >= footRaycastInterval,
-          0
-        )
+      if (ikDataByName[ikTargets.rightFoot].blendWeight > 0) {
         solveTwoBoneIK(
           rig.rightUpperLeg.node,
           rig.rightLowerLeg.node,
           rig.rightFoot.node,
-          worldSpaceTargets.rightFoot.position,
-          worldSpaceTargets.rightFoot.rotation,
+          ikDataByName[ikTargets.rightFoot].position,
+          ikDataByName[ikTargets.rightFoot].rotation,
           null,
-          worldSpaceTargets.rightKneeHint.blendWeight > 0
-            ? worldSpaceTargets.rightKneeHint.position
+          ikDataByName[ikTargets.rightKneeHint].blendWeight > 0
+            ? ikDataByName[ikTargets.rightKneeHint].position
             : _vector3.copy(transform.position).add(forward),
           null,
           midAxisRestriction,
           null,
-          worldSpaceTargets.rightFoot.blendWeight,
-          worldSpaceTargets.rightFoot.blendWeight
+          ikDataByName[ikTargets.rightFoot].blendWeight,
+          ikDataByName[ikTargets.rightFoot].blendWeight
         )
       }
 
-      if (worldSpaceTargets.leftFoot.blendWeight > 0) {
-        setFootTarget(
-          transform.position,
-          worldSpaceTargets.leftFoot,
-          leftLegLength,
-          footRaycastTimer >= footRaycastInterval,
-          1
-        )
+      if (ikDataByName[ikTargets.leftFoot].blendWeight > 0) {
         solveTwoBoneIK(
           rig.leftUpperLeg.node,
           rig.leftLowerLeg.node,
           rig.leftFoot.node,
-          worldSpaceTargets.leftFoot.position,
-          worldSpaceTargets.leftFoot.rotation,
+          ikDataByName[ikTargets.leftFoot].position,
+          ikDataByName[ikTargets.leftFoot].rotation,
           null,
-          worldSpaceTargets.leftKneeHint.blendWeight > 0
-            ? worldSpaceTargets.leftKneeHint.position
+          ikDataByName[ikTargets.leftKneeHint].blendWeight > 0
+            ? ikDataByName[ikTargets.leftKneeHint].position
             : _vector3.copy(transform.position).add(forward),
           null,
           midAxisRestriction,
           null,
-          worldSpaceTargets.leftFoot.blendWeight,
-          worldSpaceTargets.leftFoot.blendWeight
+          ikDataByName[ikTargets.leftFoot].blendWeight,
+          ikDataByName[ikTargets.leftFoot].blendWeight
         )
       }
     }
@@ -480,7 +396,7 @@ const execute = () => {
   for (const entity of Engine.instance.priorityAvatarEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     if (rigComponent?.helper) {
-      rigComponent.rig.hips.node.updateWorldMatrix(true, true)
+      //rigComponent.rig.hips.node.updateWorldMatrix(true, true)
       rigComponent.helper?.updateMatrixWorld(true)
     }
   }
