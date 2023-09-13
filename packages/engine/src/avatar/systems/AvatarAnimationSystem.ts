@@ -232,14 +232,14 @@ const execute = () => {
      * First reset targets
      */
 
+    rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
     for (let i = 0; i < VRMHumanBoneList.length; i++) {
-      const bone = VRMHumanBoneList[i]
-      const targetBone = rigComponent.rig[bone]
-      if (!targetBone) continue
-      targetBone.node.quaternion.copy(rigComponent.localRig[bone]!.node.quaternion)
+      if (rigComponent.localRig[VRMHumanBoneList[i]]) {
+        rigComponent.rig[VRMHumanBoneList[i]]?.node.quaternion.copy(
+          rigComponent.localRig[VRMHumanBoneList[i]]!.node.quaternion
+        )
+      }
     }
-
-    rig.hips.node.position.copy(rigComponent.localRig.hips!.node.position)
 
     if (rigComponent.ikOverride != '') {
       hipsForward.set(0, 0, 1)
