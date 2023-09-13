@@ -23,12 +23,5 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
-
-export default createSwaggerServiceOptions({
-  schemas: {},
-  docs: {
-    description: 'Magic link service description',
-    securities: ['all']
-  }
-})
+export const magicLinkPath = 'magic-link'
+export const magicLinkMethods = ['create'] as const

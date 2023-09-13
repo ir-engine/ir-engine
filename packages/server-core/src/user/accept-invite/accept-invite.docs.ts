@@ -23,19 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { AssetLibrary } from './asset-library.class'
-import hooks from './asset-library.hooks'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'asset-library': AssetLibrary
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Accept invite service description',
+    securities: ['all']
   }
-}
-
-export default (app: Application) => {
-  const libClass = new AssetLibrary(app)
-  app.use('asset-library', libClass)
-  const service = app.service('asset-library')
-  service.hooks(hooks)
-}
+})

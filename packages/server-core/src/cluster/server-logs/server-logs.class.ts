@@ -24,22 +24,27 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors/lib'
-import { Params, ServiceMethods } from '@feathersjs/feathers'
+import { ServiceInterface } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { RootParams } from '../../api/root-params'
 import { getServerLogs } from './server-logs-helper'
 
-export class ServerLogs implements ServiceMethods<any> {
-  app: Application
-  options: any
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ServerLogsParams extends RootParams {}
 
-  constructor(options: any, app: Application) {
-    this.options = options
+/**
+ * A class for Server Logs service
+ */
+export class ServerLogsService implements ServiceInterface<string, ServerLogsParams> {
+  app: Application
+
+  constructor(app: Application) {
     this.app = app
   }
 
-  async find(params?: Params): Promise<string> {
+  async find(params?: ServerLogsParams) {
     if (!params?.query?.podName) {
       logger.info('podName is required in request to find server logs')
       throw new BadRequest('podName is required in request to find server logs')
@@ -50,10 +55,4 @@ export class ServerLogs implements ServiceMethods<any> {
 
     return getServerLogs(params?.query?.podName, params?.query?.containerName, this.app)
   }
-
-  async get(): Promise<any> {}
-  async create(): Promise<any> {}
-  async update(): Promise<any> {}
-  async remove(): Promise<any> {}
-  async patch(): Promise<any> {}
 }
