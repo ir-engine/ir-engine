@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { smsDataSchema } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
-  schemas: {},
+  schemas: { smsDataSchema },
   docs: {
     description: 'Sms service description',
     securities: ['all']
