@@ -28,8 +28,7 @@ import { addComponent, defineComponent, getComponent, hasComponent } from '../..
 
 export const enum StandardCallbacks {
   PLAY = 'xre.play',
-  PAUSE = 'xre.pause',
-  STOP = 'xre.stop'
+  PAUSE = 'xre.pause'
 }
 
 export const CallbackComponent = defineComponent({

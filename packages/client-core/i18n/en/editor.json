@@ -302,7 +302,7 @@
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
-      "lbl-playbackSpeed": "Playback Speed"
+      "lbl-timeScale": "Time Scale"
     },
     "variant": {
       "name": "Variant",
@@ -376,6 +376,8 @@
         "ktx2Quality": "Compression Quality",
         "weldVertices": "Weld Vertices",
         "weldThreshold": "Weld Threshold",
+        "split": "Split Multi-Material Meshes",
+        "combineMaterials": "Combine Duplicate Materials",
         "removeDuplicates": "Remove Duplicates",
         "pruneUnused": "Prune Unused",
         "reorder": "Reorder",
@@ -393,7 +395,9 @@
         "normalMap": "Normal Map",
         "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps",
         "uastcZstandard": "UASTC Zstandard",
-        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression"
+        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression",
+        "useMeshoptimizer": "Use Meshoptimizer",
+        "maxCodebooks": "Max Codebooks"
       },
       "lods": {
         "label": "Level of Detail",

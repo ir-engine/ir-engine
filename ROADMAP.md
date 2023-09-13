@@ -2,32 +2,34 @@
 
 ## 2023
 
-Q1
-- [x] Migrate to @etherealengine
-- [x] Add @etherealjs into the core repository
-- [x] Drop shadows
-- [x] Autopilot
-- [ ] UI Component Isolation with Storybook
-- [ ] CMS Overhaul
-- [ ] ECS Serialization
-- [ ] Revive Maps Project
+### Q3
 
-Q2 
-
+- [x] Motion Capture & Full body IK
+- [x] Behave Graph Integration
+- [x] Spatialized Input System
+- [ ] Playback and Recording system
 - [ ] Migrate from Sequelize to Typebox & JSON Schema
-- [ ] Automated WebXR Tests with Puppeteer
-- [ ] Computer vision based full body IK
+- [ ] '/chat' 2D interface to media sessions
+- [ ] Finish migration to tailwind
+- [ ] Migrate Scene Hierarchy from threejs to ECS
+
+### Q4
+
+- [ ] Local Development uses Kubernetes
 - [ ] '/me' Profile, Avatar & Inventory Route
 - [ ] '/home' Immersive Social Lobby
-- [ ] '/chat' 2D interface to media sessions
-- [ ] Postprocessing in WebXR
+- [ ] AR Map Integration
 - [ ] Desktop AR Mode
+- [ ] WebGPU ECS Renderer
+- [ ] Postprocessing in WebXR
+- [ ] UI Component Isolation with Storybook
 
 ## Future
+
+- [ ] Automated WebXR Tests with Puppeteer
 - [ ] Immersive Multiuser Editor
 - [ ] Object Persistence
 - [ ] Entity & Asset Servers
-- [ ] Mobile App for Interoperable DID Social Account
 - [ ] P2P Connection
 - [ ] P2P networking mode
 - [ ] Spatial Scene Segmentation
