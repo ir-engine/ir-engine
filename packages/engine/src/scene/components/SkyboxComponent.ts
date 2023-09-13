@@ -79,6 +79,11 @@ export const SkyboxComponent = defineComponent({
     }
   },
 
+  onRemove: (entity, component) => {
+    // todo, do this in reactors instead of onRemove once we have async suspend
+    getMutableState(SceneState).background.set(null)
+  },
+
   reactor: function () {
     const entity = useEntityContext()
     if (!isClient) return null

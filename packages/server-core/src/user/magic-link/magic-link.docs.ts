@@ -23,18 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'magic-link': {
-      type: 'object',
-      properties: {}
-    },
-    'magic-link_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/magic-link' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Magic link service description',
+    securities: ['all']
   }
-}
+})

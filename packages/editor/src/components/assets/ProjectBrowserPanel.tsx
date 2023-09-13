@@ -29,7 +29,7 @@ import React from 'react'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { EditorState } from '../../services/EditorServices'
 import { DockContainer } from '../EditorContainer'
 
@@ -39,7 +39,7 @@ import { DockContainer } from '../EditorContainer'
  */
 export default function ProjectBrowserPanel() {
   const assetsPreviewPanelRef = React.useRef()
-  const projectName = getMutableState(EditorState).projectName.value
+  const projectName = useHookstate(getMutableState(EditorState).projectName).value
   const onLayoutChangedCallback = () => {
     ;(assetsPreviewPanelRef as any).current?.onLayoutChanged?.()
   }

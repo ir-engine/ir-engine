@@ -261,14 +261,14 @@ export const playAnimation = makeFlowNodeDefinition({
     },
     animationSpeed: 'float',
     animationPack: 'string',
-    activeClipIndex: 'number',
+    activeClipIndex: 'float',
     isAvatar: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const entity = read<Entity>('entity')
-    const action = read<string>('action')
+    const action = read<StandardCallbacks>('action') ?? StandardCallbacks.PLAY
     const animationSpeed = read<number>('animationSpeed')
     const animationPack = read<string>('animationPack')
     const activeClipIndex = read<number>('activeClipIndex')
@@ -386,12 +386,18 @@ export const fadeCamera = makeFlowNodeDefinition({
   label: 'Camera fade',
   in: {
     flow: 'flow',
-    toBlack: 'boolean'
+    toBlack: 'boolean',
+    graphicTexture: 'string'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    dispatchAction(CameraActions.fadeToBlack({ in: read('toBlack') }))
+    dispatchAction(
+      CameraActions.fadeToBlack({
+        in: read('toBlack'),
+        graphicTexture: read('graphicTexture')
+      })
+    )
     commit('flow')
   }
 })

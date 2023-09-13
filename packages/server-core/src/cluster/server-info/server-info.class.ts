@@ -23,32 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params, ServiceMethods } from '@feathersjs/feathers'
+import { ServiceInterface } from '@feathersjs/feathers'
 
-import { ServerInfoInterface, ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
-
+import { ServerInfoType, ServerPodInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import { getServerInfo, removePod } from './server-info-helper'
 
-export class ServerInfo implements ServiceMethods<any> {
-  app: Application
-  options: any
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ServerInfoParams extends RootParams {}
 
-  constructor(options: any, app: Application) {
-    this.options = options
+/**
+ * A class for Server Info service
+ */
+export class ServerInfoService implements ServiceInterface<ServerInfoType, ServerPodInfoType | undefined> {
+  app: Application
+
+  constructor(app: Application) {
     this.app = app
   }
 
-  async find(params?: Params): Promise<ServerInfoInterface[]> {
+  async find(params?: ServerInfoParams) {
     return getServerInfo(this.app)
   }
 
-  async remove(podName: string, params?: Params): Promise<ServerPodInfo | undefined> {
+  async remove(podName: string, params?: ServerInfoParams) {
     return await removePod(this.app, podName)
   }
-
-  async get(): Promise<any> {}
-  async create(): Promise<any> {}
-  async update(): Promise<any> {}
-  async patch(): Promise<any> {}
 }

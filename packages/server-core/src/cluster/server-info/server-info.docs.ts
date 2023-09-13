@@ -23,34 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { Magiclink } from './magic-link.class'
-import magicLinkDocs from './magic-link.docs'
-import hooks from './magic-link.hooks'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'magic-link': Magiclink
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Server info service description',
+    securities: ['all']
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Magiclink(options, app)
-  event.docs = magicLinkDocs
-  app.use('magic-link', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('magic-link')
-
-  service.hooks(hooks)
-}
+})

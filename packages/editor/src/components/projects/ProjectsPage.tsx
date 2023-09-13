@@ -66,7 +66,6 @@ import {
 import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
 import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { getProjects } from '../../functions/projectFunctions'
-import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
@@ -271,9 +270,6 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-
-    dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
-    dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
     RouterService.navigate(`/studio/${project.name}`)
   }
 
