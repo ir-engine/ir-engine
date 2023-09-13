@@ -49,6 +49,7 @@ import { sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConv
 import { getState } from '@etherealengine/hyperflux'
 
 import { assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
+import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { EditorState } from '../services/EditorServices'
 
@@ -93,7 +94,7 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
   for (const file of files) {
     const path = `projects/${projectName}${isAsset ? '/assets' : ''}`
     promises.push(
-      uploadToFeathersService('file-browser/upload', [file], { fileName: file.name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: file.name, path, contentType: '' }, onProgress)
     )
   }
 
@@ -149,7 +150,7 @@ export const processEntry = async (
     const name = processFileName(file.name)
 
     promises.push(
-      uploadToFeathersService('file-browser/upload', [file], { fileName: name, path, contentType: '' }, onProgress)
+      uploadToFeathersService(fileBrowserUploadPath, [file], { fileName: name, path, contentType: '' }, onProgress)
     )
   }
 }

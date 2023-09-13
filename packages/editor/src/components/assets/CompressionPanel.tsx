@@ -39,6 +39,7 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
+import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -111,7 +112,7 @@ export default function CompressionPanel({
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
 
-    await uploadToFeathersService('file-browser/upload', [file], {
+    await uploadToFeathersService(fileBrowserUploadPath, [file], {
       fileName: newFileName,
       path,
       contentType: file.type

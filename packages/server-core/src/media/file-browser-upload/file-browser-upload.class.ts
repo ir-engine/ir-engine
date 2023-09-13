@@ -23,27 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { fileBrowserMethods, fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
+
 import { Application } from '../../../declarations'
-import { FileBrowserService } from './file-browser.class'
-import fileBrowserDocs from './file-browser.docs'
-import hooks from './file-browser.hooks'
+import { RootParams } from '../../api/root-params'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [fileBrowserPath]: FileBrowserService
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FileBrowserUploadParams extends RootParams {}
+
+/**
+ * A class for File Browser Upload service
+ */
+export class FileBrowserUploadService implements ServiceInterface<string[], FileBrowserUploadParams> {
+  app: Application
+
+  constructor(app: Application) {
+    this.app = app
   }
-}
 
-export default (app: Application): void => {
-  app.use(fileBrowserPath, new FileBrowserService(app), {
-    // A list of all methods this service exposes externally
-    methods: fileBrowserMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: fileBrowserDocs
-  })
+  async create(data: any, params?: FileBrowserUploadParams) {
+    if (typeof data.args === 'string') data.args = JSON.parse(data.args)
 
-  const service = app.service(fileBrowserPath)
-  service.hooks(hooks)
+    const result = (await Promise.all(
+      params.files.map((file) =>
+        this.app.service('file-browser').patch(null, {
+          fileName: data.fileName,
+          path: data.path,
+          body: file.buffer as Buffer,
+          contentType: file.mimetype
+        })
+      )
+    )) as string[]
+
+    // Clear params otherwise all the files and auth details send back to client as  response
+    for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
+
+    return result
+  }
 }
