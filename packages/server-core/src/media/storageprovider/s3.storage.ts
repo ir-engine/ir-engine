@@ -324,7 +324,9 @@ export class S3Provider implements StorageProviderInterface {
         reject(err)
       }
     } else if (config.aws.s3.s3DevMode === 'local') {
-      const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body)
+      const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
+        'Content-Type': args.ContentType
+      })
       return response
     } else if (data.Body.length > MULTIPART_CUTOFF_SIZE) {
       const multiPartStartArgs = {

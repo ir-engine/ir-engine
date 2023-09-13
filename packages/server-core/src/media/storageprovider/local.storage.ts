@@ -259,7 +259,7 @@ export class LocalStorage implements StorageProviderInterface {
    */
   getSignedUrl = (key: string, _expiresAfter: number, _conditions): any => {
     return {
-      fields: { Key: key },
+      fields: { key },
       url: `https://${this.cacheDomain}`,
       local: true,
       cacheDomain: this.cacheDomain
