@@ -39,13 +39,13 @@ import {
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   DataChannelFrame,
   ECSRecordingActions,
-  ECSRecordingFunctions
-} from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
-import { PlaybackState, RecordingFunctions, RecordingState } from '@etherealengine/engine/src/ecs/RecordingService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+  PlaybackState,
+  RecordingState
+} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
@@ -61,7 +61,6 @@ import {
   receiveResults
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
-import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
@@ -83,21 +82,21 @@ import Toolbar from '../../components/tailwind/mocap/Toolbar'
 export const startPlayback = async (recordingID: RecordingID, twin = true, fromServer = false) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   // close the data producer if we are streaming data
-  const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
-    network.id,
-    mocapDataChannelType
-  ) as DataProducer
-  if (getState(PlaybackState).recordingID && dataProducer) {
-    dispatchAction(
-      MediaProducerActions.producerClosed({
-        producerID: dataProducer.id,
-        $network: network.id,
-        $topic: network.topic
-      })
-    )
-  }
+  // const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
+  //   network.id,
+  //   mocapDataChannelType
+  // ) as DataProducer
+  // if (getState(PlaybackState).recordingID && dataProducer) {
+  //   dispatchAction(
+  //     MediaProducerActions.producerClosed({
+  //       producerID: dataProducer.id,
+  //       $network: network.id,
+  //       $topic: network.topic
+  //     })
+  //   )
+  // }
   // // Server playback
-  // ECSRecordingFunctions.startPlayback({
+  // PlaybackState.startPlayback({
   //   recordingID,
   //   targetUser: twin ? undefined : Engine.instance.userID
   // })
@@ -108,6 +107,16 @@ export const startPlayback = async (recordingID: RecordingID, twin = true, fromS
       recordingID,
       targetUser: Engine.instance.userID,
       autoplay: false
+    })
+  )
+}
+
+export const stopPlayback = () => {
+  const recordingID = getState(PlaybackState).recordingID
+  if (!recordingID) return
+  dispatchAction(
+    ECSRecordingActions.stopPlayback({
+      recordingID
     })
   )
 }
@@ -163,15 +172,13 @@ const CaptureMode = () => {
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {
     if (recordingID.value) {
-      ECSRecordingFunctions.stopRecording({
+      RecordingState.stopRecording({
         recordingID: recordingID.value
       })
     } else {
-      RecordingFunctions.startRecording({
+      RecordingState.requestRecording({
         user: { Avatar: true },
         peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
-      }).then((recordingID) => {
-        if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
       })
     }
   }
@@ -402,18 +409,6 @@ const drawPoseToCanvas = (
   canvasCtxRef.current.restore()
 }
 
-const VideoPlaybackLogic = (props: {
-  videoRef: RefObject<HTMLVideoElement>
-  canvasRef: RefObject<HTMLCanvasElement>
-  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>
-  mocapData: ReturnType<typeof receiveResults>[] | null
-  startTime: number
-}) => {
-  const { videoRef, canvasRef, canvasCtxRef, startTime, mocapData } = props
-
-  return <></>
-}
-
 const VideoPlayback = (props: {
   startTime: number
   video: StaticResourceType
@@ -625,12 +620,7 @@ const PlaybackMode = () => {
       <div className="w-full h-auto px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
       <div className="max-w-[1024px] w-full container mx-auto flex">
         <div className="w-full relative m-2">
-          <RecordingsList
-            {...{
-              startPlayback,
-              stopPlayback: ECSRecordingFunctions.stopPlayback
-            }}
-          />
+          <RecordingsList {...{ startPlayback, stopPlayback }} />
         </div>
       </div>
     </div>

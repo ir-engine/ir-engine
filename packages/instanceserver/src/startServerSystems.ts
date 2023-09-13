@@ -39,7 +39,7 @@ import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 
-import { ECSRecordingSystem } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import { ECSRecordingSystem } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
 
 export const startMediaServerSystems = () => {

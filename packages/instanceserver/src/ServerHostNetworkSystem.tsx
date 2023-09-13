@@ -28,7 +28,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { useEffect } from 'react'
 
-import { RecordingAPIState } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
+import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'

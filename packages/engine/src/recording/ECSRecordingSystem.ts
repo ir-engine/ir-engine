@@ -31,18 +31,27 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  NetworkState,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
+import {
+  ECSDeserializer,
+  ECSSerialization,
+  ECSSerializer
+} from '@etherealengine/engine/src/recording/ECSSerializerSystem'
 import {
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
   getState,
+  receiveActions,
   Topic
 } from '@etherealengine/hyperflux'
 
@@ -67,91 +76,10 @@ import matches, { Validator } from 'ts-matches'
 import { checkScope } from '../common/functions/checkScope'
 import { isClient } from '../common/functions/getEnvironment'
 import { matchesUserId } from '../common/functions/MatchesUtils'
+import { mocapDataChannelType } from '../mocap/MotionCaptureSystem'
+import { PhysicsSerialization } from '../physics/PhysicsSerialization'
 
 const logger = multiLogger.child({ component: 'engine:recording' })
-
-export const startRecording = (args: { recordingID: RecordingID }) => {
-  const { recordingID } = args
-  const action = ECSRecordingActions.startRecording({
-    recordingID
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostPeerID
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostPeerID
-  })
-}
-
-export const stopRecording = (args: { recordingID: RecordingID }) => {
-  const recording = ECSRecordingActions.stopRecording({
-    recordingID: args.recordingID
-  })
-  dispatchAction({
-    ...recording,
-    $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostPeerID
-  })
-  // todo - check that video actually needs to be stopped
-  dispatchAction({
-    ...recording,
-    $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostPeerID
-  })
-}
-
-export const startPlayback = (args: { recordingID: RecordingID; targetUser?: UserID }) => {
-  const { recordingID, targetUser } = args
-  const action = ECSRecordingActions.startPlayback({
-    recordingID,
-    targetUser,
-    autoplay: false
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostPeerID
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostPeerID
-  })
-}
-
-export const stopPlayback = (args: { recordingID: RecordingID }) => {
-  const { recordingID } = args
-  const action = ECSRecordingActions.stopPlayback({
-    recordingID
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.world,
-    $to: Engine.instance.worldNetwork.hostPeerID
-  })
-
-  dispatchAction({
-    ...action,
-    $topic: NetworkTopics.media,
-    $to: Engine.instance.mediaNetwork.hostPeerID
-  })
-}
-
-export const ECSRecordingFunctions = {
-  startRecording,
-  stopRecording,
-  startPlayback,
-  stopPlayback
-}
 
 export class ECSRecordingActions {
   static startRecording = defineAction({
@@ -193,6 +121,175 @@ export class ECSRecordingActions {
   })
 }
 
+export type RecordingConfigSchema = {
+  user: {
+    Avatar: boolean
+  }
+  peers: Record<PeerID, { Audio: boolean; Video: boolean; Mocap: boolean }>
+}
+
+export const RecordingState = defineState({
+  name: 'ee.RecordingState',
+
+  initial: {
+    active: false,
+    startedAt: null as number | null,
+    recordingID: null as RecordingID | null
+  },
+
+  receptors: [
+    [
+      ECSRecordingActions.startRecording,
+      (state, action: typeof ECSRecordingActions.startRecording.matches._TYPE) => {
+        state.active.set(true)
+        state.startedAt.set(null)
+        state.recordingID.set(null)
+      }
+    ],
+    [
+      ECSRecordingActions.recordingStarted,
+      (state, action: typeof ECSRecordingActions.recordingStarted.matches._TYPE) => {
+        state.startedAt.set(Date.now())
+        state.recordingID.set(action.recordingID)
+      }
+    ],
+    [
+      ECSRecordingActions.stopRecording,
+      (state, action: typeof ECSRecordingActions.stopRecording.matches._TYPE) => {
+        state.active.set(false)
+        state.startedAt.set(null)
+        state.recordingID.set(null)
+      }
+    ]
+  ],
+
+  requestRecording: async (peerSchema: RecordingConfigSchema) => {
+    try {
+      const userSchema = [] as string[]
+      if (peerSchema.user.Avatar) userSchema.push(PhysicsSerialization.ID)
+
+      const schema = {
+        user: userSchema,
+        peers: {}
+      } as RecordingSchemaType
+
+      if (peerSchema.user.Avatar) schema
+
+      Object.entries(peerSchema.peers).forEach(([peerID, value]) => {
+        const peerSchema = [] as string[]
+        if (value.Mocap) peerSchema.push(mocapDataChannelType)
+        if (value.Video) peerSchema.push(webcamVideoDataChannelType)
+        if (value.Audio) peerSchema.push(webcamAudioDataChannelType)
+        if (peerSchema.length) schema.peers[peerID] = peerSchema
+      })
+
+      const recording = await Engine.instance.api.service(recordingPath).create({ schema: schema })
+
+      if (recording.id) RecordingState.startRecording({ recordingID: recording.id })
+    } catch (err) {
+      console.error(err)
+      // NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
+
+  startRecording(args: { recordingID: RecordingID }) {
+    const { recordingID } = args
+    const action = ECSRecordingActions.startRecording({
+      recordingID
+    })
+
+    dispatchAction({
+      ...action,
+      $topic: NetworkTopics.world,
+      $to: Engine.instance.worldNetwork.hostPeerID
+    })
+
+    dispatchAction({
+      ...action,
+      $topic: NetworkTopics.media,
+      $to: Engine.instance.mediaNetwork.hostPeerID
+    })
+  },
+
+  stopRecording(args: { recordingID: RecordingID }) {
+    const recording = ECSRecordingActions.stopRecording({
+      recordingID: args.recordingID
+    })
+    dispatchAction({
+      ...recording,
+      $topic: NetworkTopics.world,
+      $to: Engine.instance.worldNetwork.hostPeerID
+    })
+    // todo - check that video actually needs to be stopped
+    dispatchAction({
+      ...recording,
+      $topic: NetworkTopics.media,
+      $to: Engine.instance.mediaNetwork.hostPeerID
+    })
+  }
+})
+
+export const PlaybackState = defineState({
+  name: 'ee.PlaybackState',
+
+  initial: {
+    recordingID: null as RecordingID | null,
+    playing: false,
+    currentTime: null as number | null
+  },
+
+  receptors: [
+    [
+      ECSRecordingActions.playbackChanged,
+      (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
+        state.playing.set(action.playing)
+        state.recordingID.set(action.playing ? action.recordingID : null)
+        state.currentTime.set(action.playing ? 0 : null)
+      }
+    ]
+  ],
+
+  startPlaybackOnServer(args: { recordingID: RecordingID; targetUser?: UserID }) {
+    const { recordingID, targetUser } = args
+    const action = ECSRecordingActions.startPlayback({
+      recordingID,
+      targetUser,
+      autoplay: false
+    })
+
+    dispatchAction({
+      ...action,
+      $topic: NetworkTopics.world,
+      $to: Engine.instance.worldNetwork.hostPeerID
+    })
+
+    dispatchAction({
+      ...action,
+      $topic: NetworkTopics.media,
+      $to: Engine.instance.mediaNetwork.hostPeerID
+    })
+  },
+
+  stopPlaybackOnServer(args: { recordingID: RecordingID }) {
+    const { recordingID } = args
+    const action = ECSRecordingActions.stopPlayback({
+      recordingID
+    })
+
+    dispatchAction({
+      ...action,
+      $topic: NetworkTopics.world,
+      $to: Engine.instance.worldNetwork.hostPeerID
+    })
+
+    dispatchAction({
+      ...action,
+      $topic: NetworkTopics.media,
+      $to: Engine.instance.mediaNetwork.hostPeerID
+    })
+  }
+})
+
 interface ActiveRecording {
   userID: UserID
   serializer?: ECSSerializer
@@ -205,7 +302,6 @@ interface ActivePlayback {
   deserializer?: ECSDeserializer
   entitiesSpawned: (EntityUUID | UserID)[]
   peerIDs?: PeerID[]
-  currentTime: number // seconds
   mediaPlayback?: any // todo
 }
 
@@ -447,8 +543,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   if (!recording.resources?.length) return dispatchError('Recording has no resources', action.$peer, action.$topic)
 
   const activePlayback = {
-    userID: action.targetUser,
-    currentTime: 0
+    userID: action.targetUser
   } as ActivePlayback
 
   const entityFiles = recording.resources.filter((resource) => resource.key.includes('entities-'))
@@ -637,7 +732,15 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Net
         })
       )
     }
+  } else {
+    dispatchAction(
+      ECSRecordingActions.playbackChanged({
+        recordingID,
+        playing: false
+      })
+    )
   }
+
   activePlaybacks.delete(recordingID)
 }
 
@@ -673,6 +776,11 @@ const startPlaybackActionQueue = defineActionQueue(ECSRecordingActions.startPlay
 const stopPlaybackActionQueue = defineActionQueue(ECSRecordingActions.stopPlayback.matches)
 
 const execute = () => {
+  receiveActions(RecordingState)
+  receiveActions(PlaybackState)
+
+  const playbackState = getState(PlaybackState)
+
   // todo - client side recording
   if (!isClient) {
     for (const action of startRecordingActionQueue()) onStartRecording(action)
@@ -692,7 +800,7 @@ const execute = () => {
   for (const [id, playback] of activePlaybacks) {
     const { deserializer } = playback
     if (deserializer) {
-      deserializer.read(playback.currentTime)
+      deserializer.read(playbackState.currentTime!)
     }
   }
 

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecordingSystem'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { State, useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
@@ -33,8 +32,8 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { PlaybackState, RecordingFunctions, RecordingState } from '@etherealengine/engine/src/ecs/RecordingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { PlaybackState, RecordingState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { RecordingType, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
@@ -184,13 +183,11 @@ export const RecordingPeerList = () => {
 
   const onToggleRecording = () => {
     if (recordingState.recordingID.value) {
-      ECSRecordingFunctions.stopRecording({
+      RecordingState.stopRecording({
         recordingID: recordingState.recordingID.value
       })
     } else {
-      RecordingFunctions.startRecording(getState(RecordingSchemaState)).then((recordingID) => {
-        if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
-      })
+      RecordingState.requestRecording(getState(RecordingSchemaState))
     }
   }
 
@@ -292,7 +289,7 @@ const RecordingPlayback = () => {
     const playback = playbackState.recordingID.value
     return () => {
       getMutableState(RecordingUIState).mode.set('recordings')
-      ECSRecordingFunctions.stopPlayback({
+      PlaybackState.stopPlayback({
         recordingID: playback
       })
     }
