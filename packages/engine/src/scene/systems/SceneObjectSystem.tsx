@@ -71,6 +71,33 @@ export const disposeMaterial = (material: Material) => {
   material.dispose()
 }
 
+export const disposeObject3D = (obj: Object3D) => {
+  const mesh = obj as Mesh<any, any>
+
+  if (mesh.material) {
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach(disposeMaterial)
+    } else {
+      disposeMaterial(mesh.material)
+    }
+  }
+
+  if (mesh.geometry) {
+    mesh.geometry.dispose()
+    for (const key in mesh.geometry.attributes) {
+      mesh.geometry.deleteAttribute(key)
+    }
+  }
+
+  const skinnedMesh = obj as SkinnedMesh
+  if (skinnedMesh.isSkinnedMesh) {
+    skinnedMesh.skeleton?.dispose()
+  }
+
+  const light = obj as Light // anything with dispose function
+  if (typeof light.dispose === 'function') light.dispose()
+}
+
 export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false) {
   const mesh = obj as any as Mesh<any, any>
   /** @todo do we still need this? */
@@ -130,23 +157,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
         if (layer.has(obj)) layer.delete(obj)
       }
 
-      obj.traverse((object3D: Object3D) => {
-        const mesh = object3D as Mesh<any, any>
-        if (Array.isArray(mesh.material)) {
-          mesh.material.forEach(disposeMaterial)
-        } else if (mesh.material) {
-          disposeMaterial(mesh.material)
-        }
-        mesh.geometry?.dispose()
-
-        const skinnedMesh = object3D as SkinnedMesh
-        if (skinnedMesh.isSkinnedMesh) {
-          skinnedMesh.skeleton?.dispose()
-        }
-
-        const light = object3D as Light // anything with dispose function
-        if (typeof light.dispose === 'function') light.dispose()
-      })
+      obj.traverse(disposeObject3D)
     }
   }, [])
 
