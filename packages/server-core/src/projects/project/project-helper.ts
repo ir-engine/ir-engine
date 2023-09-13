@@ -49,10 +49,7 @@ import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/p
 import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import {
-  projectSettingPath,
-  ProjectSettingType
-} from '@etherealengine/engine/src/schemas/setting/project-setting.schema'
+import { ProjectSettingType } from '@etherealengine/engine/src/schemas/setting/project-setting.schema'
 import {
   identityProviderPath,
   IdentityProviderType
@@ -317,13 +314,14 @@ export const getEnginePackageJson = (): ProjectPackageJsonType => {
 //DO NOT REMOVE!
 //Even though an IDE may say that it's not used in the codebase, projects may use this.
 export const getProjectEnv = async (app: Application, projectName: string) => {
-  const projectSetting = await app.service(projectSettingPath).find({
+  const project = await app.service(projectPath).find({
     query: {
       $limit: 1,
-      name: projectName,
-      $select: ['settings']
+      name: projectName
     }
   })
+  let projectSetting = project[0]?.settings ? project[0].settings : []
+
   const settings: ProjectSettingType[] = []
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
   return settings
