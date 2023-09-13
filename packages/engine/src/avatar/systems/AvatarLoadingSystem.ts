@@ -159,7 +159,7 @@ const tweenOutEffect = (entity, effectComponent) => {
 }
 
 const execute = () => {
-  const deltaSeconds = getState(EngineState).deltaSeconds
+  const delta = getState(EngineState).deltaSeconds
 
   for (const entity of effectQuery.enter()) {
     const effectComponent = getComponent(entity, AvatarEffectComponent)
