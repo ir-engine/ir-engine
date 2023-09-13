@@ -23,6 +23,56 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const fileBrowserPath = 'file-browser'
+import type { Static } from '@feathersjs/typebox'
+import { getValidator, Type } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
-export const fileBrowserMethods = ['create'] as const
+export const fileBrowserPath = 'file-browser'
+export const fileBrowserMethods = ['create', 'find', 'get', 'patch', 'remove', 'update'] as const
+
+export const fileBrowserContentSchema = Type.Object(
+  {
+    key: Type.String(),
+    type: Type.String(),
+    name: Type.String(),
+    url: Type.String(),
+    size: Type.Optional(Type.String())
+  },
+  {
+    $id: 'FileBrowserContent'
+  }
+)
+export type FileBrowserContentType = Static<typeof fileBrowserContentSchema>
+
+export const fileBrowserUpdateSchema = Type.Object(
+  {
+    oldName: Type.String(),
+    newName: Type.String(),
+    oldPath: Type.String(),
+    newPath: Type.String(),
+    isCopy: Type.Optional(Type.Boolean()),
+    storageProviderName: Type.Optional(Type.String())
+  },
+  {
+    $id: 'FileBrowserUpdate'
+  }
+)
+export type FileBrowserUpdate = Static<typeof fileBrowserUpdateSchema>
+
+export const fileBrowserPatchSchema = Type.Object(
+  {
+    path: Type.String(),
+    fileName: Type.String(),
+    body: Type.Any(),
+    contentType: Type.String(),
+    storageProviderName: Type.Optional(Type.String())
+  },
+  {
+    $id: 'FileBrowserPatch'
+  }
+)
+export type FileBrowserPatch = Static<typeof fileBrowserPatchSchema>
+
+export const fileBrowserContentValidator = getValidator(fileBrowserContentSchema, dataValidator)
+export const fileBrowserUpdateValidator = getValidator(fileBrowserUpdateSchema, dataValidator)
+export const fileBrowserPatchValidator = getValidator(fileBrowserPatchSchema, dataValidator)

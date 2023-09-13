@@ -24,19 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Forbidden } from '@feathersjs/errors'
-import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
+import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import {
+  FileBrowserContentType,
+  FileBrowserPatch,
+  FileBrowserUpdate
+} from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -45,28 +49,21 @@ import { StorageObjectInterface } from '../storageprovider/storageprovider.inter
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
-type UpdateParamsType = {
-  oldName: string
-  newName: string
-  oldPath: string
-  newPath: string
-  isCopy?: boolean
-  storageProviderName?: string
-}
-
-interface PatchParams {
-  path: string
-  fileName: string
-  body: Buffer
-  contentType: string
-  storageProviderName?: string
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FileBrowserParams extends RootParams {}
 
 /**
- * A class for Managing files in FileBrowser
+ * A class for File Browser service
  */
-
-export class FileBrowserService implements ServiceMethods<any> {
+export class FileBrowserService
+  implements
+    ServiceInterface<
+      boolean | string | Paginated<FileBrowserContentType>,
+      string | FileBrowserUpdate | FileBrowserPatch,
+      FileBrowserParams,
+      FileBrowserPatch
+    >
+{
   app: Application
 
   constructor(app: Application) {
@@ -77,7 +74,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * Returns the metadata for a single file or directory
    * @param params
    */
-  async get(key: string, params?: Params): Promise<boolean> {
+  async get(key: string, params?: FileBrowserParams) {
     if (!key) return false
     const storageProvider = getStorageProvider()
     const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
@@ -91,7 +88,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async find(params?: UserParams): Promise<Paginated<FileContentType>> {
+  async find(params?: FileBrowserParams) {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { $skip, $limit } = params.query
@@ -148,7 +145,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async create(directory, params?: Params) {
+  async create(directory: string, params?: FileBrowserParams) {
     const storageProvider = getStorageProvider(params?.query?.storageProviderName)
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
 
@@ -171,7 +168,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async update(id: NullableId, data: UpdateParamsType, params?: Params) {
+  async update(id: NullableId, data: FileBrowserUpdate, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
@@ -200,7 +197,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param data
    * @param params
    */
-  async patch(id: NullableId, data: PatchParams, params?: Params) {
+  async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
@@ -235,7 +232,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async remove(key: string, params?: Params) {
+  async remove(key: string, params?: FileBrowserParams) {
     const storageProviderName = params?.query?.storageProviderName
     if (storageProviderName) delete params.query?.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
