@@ -302,7 +302,7 @@
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
-      "lbl-playbackSpeed": "Playback Speed"
+      "lbl-timeScale": "Time Scale"
     },
     "variant": {
       "name": "Variant",
