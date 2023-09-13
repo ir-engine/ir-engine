@@ -402,7 +402,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       <div
         ref={fileDropRef}
         onContextMenu={handleContextMenu}
-        id="file-browser-panel"
         className={styles.panelContainer}
         style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
       >
@@ -485,10 +484,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           variant="body2"
         />
       )}
-
-      <DndWrapper id="file-browser-panel">
-        <DropArea />
-      </DndWrapper>
+      <div id="file-browser-panel">
+        <DndWrapper id="file-browser-panel">
+          <DropArea />
+        </DndWrapper>
+      </div>
 
       <ContextMenu open={open} anchorEl={anchorEl.value} anchorPosition={anchorPosition.value} onClose={handleClose}>
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>

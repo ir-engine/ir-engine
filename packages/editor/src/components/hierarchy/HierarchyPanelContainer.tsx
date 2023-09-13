@@ -48,7 +48,7 @@ import {
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
@@ -62,7 +62,7 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
-import { EditorAction, EditorState } from '../../services/EditorServices'
+import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import Search from '../Search/Search'
 import { AppContext } from '../Search/context'
@@ -524,9 +524,7 @@ export default function HierarchyPanel({
               classes={{ checked: styles.checkboxChecked }}
               value={editorState.showObject3DInHierarchy.value}
               sx={{ marginLeft: '5px' }}
-              onChange={(e, value) =>
-                dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
-              }
+              onChange={(e, value) => getMutableState(EditorState).showObject3DInHierarchy.set(value)}
             />
           </div>
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />

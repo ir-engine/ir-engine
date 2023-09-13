@@ -23,19 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
 import { useHookstate } from '@etherealengine/hyperflux'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import {
+  ServerInfoType,
+  ServerPodInfoType,
+  serverInfoPath
+} from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
 import { useEffect } from 'react'
 
 export const useServerInfoFind = () => {
-  const serverInfoQuery = useFind('server-info')
+  const serverInfoQuery = useFind(serverInfoPath)
   const serverInfo = useHookstate([] as typeof serverInfoQuery.data)
 
   useEffect(() => {
-    const allPods: ServerPodInfo[] = []
-    for (const item of serverInfoQuery.data) {
+    const allPods: ServerPodInfoType[] = []
+    for (const item of serverInfoQuery.data as ServerInfoType[]) {
       allPods.push(...item.pods)
     }
 

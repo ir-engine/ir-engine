@@ -59,6 +59,7 @@ import { AssetType } from '../enum/AssetType'
 import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
+import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
@@ -354,6 +355,9 @@ const assetLoadCallback =
       texture.wrapS = RepeatWrapping
       texture.wrapT = RepeatWrapping
     }
+
+    const gltf = asset as GLTF
+    if (gltf.parser) delete asset.parser
 
     onLoad(asset)
   }

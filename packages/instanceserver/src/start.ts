@@ -111,7 +111,7 @@ export const start = async (): Promise<Application> => {
       // exec('docker ps | grep mariadb', (err, stdout, stderr) => {
       //   if (!stdout.includes('mariadb')) {
       //     throw new Error(
-      //       '\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run etherealengine/scripts/start-db.sh and restart server\x1b[0m'
+      //       '\x1b[33mError: DB process is not running or Docker is not running!. If you are in local development, please run etherealengine/scripts/start-containers.sh and restart server\x1b[0m'
       //     )
       //   }
       // })

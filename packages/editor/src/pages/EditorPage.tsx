@@ -44,7 +44,7 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import EditorContainer from '../components/EditorContainer'
 import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
-import { EditorAction, EditorState } from '../services/EditorServices'
+import { EditorState } from '../services/EditorServices'
 import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorCameraSystem } from '../systems/EditorCameraSystem'
 import { EditorControlSystem } from '../systems/EditorControlSystem'
@@ -84,7 +84,7 @@ export const EditorPage = () => {
 
     editorSystems()
     projects.then((proj) => {
-      loadEngineInjection(proj.projectsList).then(() => {
+      loadEngineInjection(proj).then(() => {
         setEngineReady(true)
         dispatchAction(EngineActions.initializeEngine({ initialised: true }))
       })
@@ -107,8 +107,7 @@ export const EditorPage = () => {
 
   useEffect(() => {
     const { projectName, sceneName } = params
-    dispatchAction(EditorAction.projectChanged({ projectName: projectName ?? null }))
-    dispatchAction(EditorAction.sceneChanged({ sceneName: sceneName ?? null }))
+    getMutableState(EditorState).merge({ projectName: projectName ?? null, sceneName: sceneName ?? null })
   }, [params])
 
   useEffect(() => {

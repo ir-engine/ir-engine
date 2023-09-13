@@ -54,7 +54,7 @@ export const initializeEngineForChat = async () => {
   const projects = Engine.instance.api.service(projectsPath).find()
 
   startChatSystems()
-  await loadEngineInjection((await projects).projectsList)
+  await loadEngineInjection(await projects)
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
   dispatchAction(EngineActions.sceneLoaded({}))

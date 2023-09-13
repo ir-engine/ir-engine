@@ -38,6 +38,7 @@ import { defineAction, defineState, dispatchAction, getMutableState, getState } 
 
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { InviteData, InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -311,7 +312,7 @@ export const InviteService = {
   },
   acceptInvite: async (invite: InviteType) => {
     try {
-      await Engine.instance.api.service('a-i').get(invite.id, {
+      await Engine.instance.api.service(acceptInvitePath).get(invite.id, {
         query: {
           passcode: invite.passcode
         }

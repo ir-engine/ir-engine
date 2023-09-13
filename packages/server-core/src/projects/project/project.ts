@@ -28,37 +28,40 @@ import _ from 'lodash'
 import logger from '@etherealengine/common/src/logger'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { ProjectType, projectMethods, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { Project } from './project.class'
+import { ProjectService } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
-import createModel from './project.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    project: Project
+    [projectPath]: ProjectService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: projectPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const projectClass = new Project(options, app)
-  projectClass.docs = projectDocs
+  app.use(projectPath, new ProjectService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: projectMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectDocs
+  })
 
-  app.use('project', projectClass)
-
-  const service = app.service('project')
-
+  const service = app.service(projectPath)
   service.hooks(hooks)
 
-  service.publish('patched', async (data: UserType) => {
+  service.publish('patched', async (data: ProjectType) => {
     try {
       let targetIds: string[] = []
       const projectOwners = await app.service(projectPermissionPath)._find({

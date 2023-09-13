@@ -42,6 +42,9 @@ import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCo
 import Frustum from './Frustum'
 import Shader from './Shader'
 
+const originalLightsFragmentBegin = ShaderChunk.lights_fragment_begin
+const originalLightsParsBegin = ShaderChunk.lights_pars_begin
+
 const _cameraToLightMatrix = new Matrix4()
 const _lightSpaceFrustum = new Frustum()
 const _center = new Vector3()
@@ -336,6 +339,11 @@ export class CSM {
     ShaderChunk.lights_pars_begin = Shader.lights_pars_begin()
   }
 
+  removeInclude(): void {
+    ShaderChunk.lights_fragment_begin = originalLightsFragmentBegin
+    ShaderChunk.lights_pars_begin = originalLightsParsBegin
+  }
+
   setupMaterial(mesh: Mesh): void {
     const material = mesh.material as Material
     if (!material.userData) material.userData = {}
@@ -438,5 +446,6 @@ export class CSM {
     })
     this.shaders.clear()
     this.remove()
+    this.removeInclude()
   }
 }

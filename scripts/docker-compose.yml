@@ -37,34 +37,7 @@ services:
     command: redis-server
     ports:
       - '6379:6379'
-  # minio:
-  #   image: quay.io/minio/minio
-  #   container_name: etherealengine_minio_s3
-  #   ports:
-  #     - "9000:9000"
-  #     - "9090:9090"
-  #   volumes:
-  #     - minio_storage:/data
-  #   environment:
-  #     MINIO_ROOT_USER: server
-  #     MINIO_ROOT_PASSWORD: password
-  #   command: server /data --console-address ":9090"
-  # miniobuckets:
-  #   image: minio/mc
-  #   container_name: etherealengine_minio_init
-  #   depends_on:
-  #     - minio
-  #   entrypoint: >
-  #     /bin/sh -c "
-  #     /usr/bin/mc alias set myminio http://minio:9000 server password;
-  #     /usr/bin/mc mb myminio/etherealengine-static-resources;
-  #     /usr/bin/mc anonymous set public myminio/etherealengine-static-resources;
-  #     /usr/bin/mc mb myminio/etherealengine-microk8s-static-resources;
-  #     /usr/bin/mc anonymous set public myminio/etherealengine-microk8s-static-resources;
-  #     /usr/bin/mc mb myminio/etherealengine-minikube-static-resources;
-  #     /usr/bin/mc anonymous set public myminio/etherealengine-minikube-static-resources;
-  #     exit 0;
-  #     "
+
 #   elasticsearch:
 #     image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
 #     container_name: elasticsearch
@@ -95,7 +68,7 @@ services:
 #       - 5601:5601
 #     depends_on:
 #       - elasticsearch
+
 # volumes:
-#   minio_storage: {}
 #   elasticsearch-data:
 #     driver: local

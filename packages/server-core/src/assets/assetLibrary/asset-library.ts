@@ -23,30 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface ServerInfoInterface {
-  id: string
-  label: string
-  pods: ServerPodInfo[]
+import { assetLibraryMethods, assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
+import { Application } from '../../../declarations'
+import { AssetLibraryService } from './asset-library.class'
+import assetLibraryDocs from './asset-library.docs'
+import hooks from './asset-library.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [assetLibraryPath]: AssetLibraryService
+  }
 }
 
-export interface ServerPodInfo {
-  name: string
-  status: string
-  age: string | Date
-  containers: ServerContainerInfo[]
-  type?: string
-  locationSlug?: string
-  instanceId?: string
-  currentUsers?: number
-}
+export default (app: Application): void => {
+  app.use(assetLibraryPath, new AssetLibraryService(app), {
+    // A list of all methods this service exposes externally
+    methods: assetLibraryMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: assetLibraryDocs
+  })
 
-export type ServerContainerStatus = 'Running' | 'Terminated' | 'Waiting' | 'Undefined'
-
-export interface ServerContainerInfo {
-  name: string
-  restarts: number
-  status: ServerContainerStatus
-  ready: boolean
-  started: boolean
-  image: string
+  const service = app.service(assetLibraryPath)
+  service.hooks(hooks)
 }

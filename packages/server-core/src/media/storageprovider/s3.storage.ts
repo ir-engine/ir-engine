@@ -37,15 +37,21 @@ import {
   UpdateFunctionCommand
 } from '@aws-sdk/client-cloudfront'
 import {
+  AbortMultipartUploadCommand,
+  CompleteMultipartUploadCommand,
+  CompletedPart,
   CopyObjectCommand,
+  CreateMultipartUploadCommand,
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
   ObjectIdentifier,
   PutObjectCommand,
-  S3Client
+  S3Client,
+  UploadPartCommand
 } from '@aws-sdk/client-s3'
+
 import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import appRootPath from 'app-root-path'
@@ -57,7 +63,9 @@ import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
+import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { Client } from 'minio'
 
 import config from '../../appconfig'
 import { getCacheDomain } from './getCacheDomain'
@@ -66,6 +74,7 @@ import {
   PutObjectParams,
   SignedURLResponse,
   StorageListObjectInterface,
+  StorageMultipartStartInterface,
   StorageObjectInterface,
   StorageObjectPutInterface,
   StorageProviderInterface
@@ -113,9 +122,29 @@ export class S3Provider implements StorageProviderInterface {
       : config.aws.s3.endpoint,
     region: config.aws.s3.region,
     forcePathStyle: true,
-    tls: config.aws.s3.s3DevMode === 'local' ? false : undefined,
     maxAttempts: 5
   })
+
+  minioClient =
+    config.aws.s3.s3DevMode === 'local'
+      ? new Client({
+          endPoint: new URL(
+            config.server.storageProviderExternalEndpoint
+              ? config.server.storageProviderExternalEndpoint
+              : config.aws.s3.endpoint
+          ).hostname,
+          port: parseInt(
+            new URL(
+              config.server.storageProviderExternalEndpoint
+                ? config.server.storageProviderExternalEndpoint
+                : config.aws.s3.endpoint
+            ).port
+          ),
+          useSSL: true,
+          accessKey: config.aws.s3.accessKeyId,
+          secretKey: config.aws.s3.secretAccessKey
+        })
+      : undefined
 
   /**
    * Domain address of S3 cache.
@@ -294,10 +323,74 @@ export class S3Provider implements StorageProviderInterface {
       } catch (err) {
         reject(err)
       }
+    } else if (config.aws.s3.s3DevMode === 'local') {
+      const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
+        'Content-Type': args.ContentType
+      })
+      return response
+    } else if (data.Body.length > MULTIPART_CUTOFF_SIZE) {
+      const multiPartStartArgs = {
+        ACL: 'public-read',
+        Bucket: this.bucket,
+        Key: key,
+        ContentType: data.ContentType
+      } as StorageMultipartStartInterface
+
+      if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
+      const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)
+      const startResponse = await this.provider.send(startCommand)
+      const uploadId = startResponse.UploadId
+      let partIndex = 0
+      let partNumber = 1
+      const parts = [] as CompletedPart[]
+      try {
+        do {
+          const part = Uint8Array.prototype.slice.call(data.Body, partIndex, partIndex + MULTIPART_CHUNK_SIZE)
+          const uploadPartArgs = {
+            Body: part,
+            Bucket: this.bucket,
+            Key: key,
+            PartNumber: partNumber,
+            UploadId: uploadId
+          }
+          const uploadPartCommand = new UploadPartCommand(uploadPartArgs)
+          const multipartResponse = await this.provider.send(uploadPartCommand)
+          parts.push({
+            PartNumber: partNumber,
+            ETag: multipartResponse.ETag as string
+          })
+          partIndex += MULTIPART_CHUNK_SIZE
+          partNumber++
+        } while (partIndex < data.Body.length)
+      } catch (err) {
+        console.error('Multipart upload failed', err)
+        const abortUploadArgs = {
+          Bucket: this.bucket,
+          Key: key,
+          UploadId: uploadId
+        }
+        const abortCommand = new AbortMultipartUploadCommand(abortUploadArgs)
+        await this.provider.send(abortCommand)
+        throw err
+      }
+      const completeUploadArgs = {
+        Bucket: this.bucket,
+        Key: key,
+        UploadId: uploadId,
+        MultipartUpload: {
+          Parts: parts
+        }
+      }
+      try {
+        const completeCommand = new CompleteMultipartUploadCommand(completeUploadArgs)
+        return this.provider.send(completeCommand)
+      } catch (err) {
+        console.error('Error in complete', err)
+        throw err
+      }
     } else {
       const command = new PutObjectCommand(args)
-      const response = await this.provider.send(command)
-      return response
+      return this.provider.send(command)
     }
   }
 

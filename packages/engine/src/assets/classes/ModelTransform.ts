@@ -28,7 +28,7 @@ import { DracoOptions, JoinOptions, PaletteOptions } from '@gltf-transform/funct
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
 export type GLTFPackOptions = {
-  meshopt?: boolean
+  compression?: boolean
   basisU?: boolean
   instancing?: boolean
   mergeNodes?: boolean
@@ -80,6 +80,7 @@ export type ImageTransformParameters = ResourceParameters<{
 export type ExtractedImageTransformParameters = {
   flipY: boolean
   linear: boolean
+  mipmap: boolean
   maxTextureSize: number
   textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
   textureCompressionType: 'etc1' | 'uastc'
@@ -102,6 +103,8 @@ export type ResourceTransforms = {
 export type ModelTransformParameters = ExtractedImageTransformParameters & {
   dst: string
   resourceUri: string
+  split: boolean
+  combineMaterials: boolean
   instance: boolean
   dedup: boolean
   flatten: boolean
@@ -121,6 +124,10 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
     enabled: boolean
     tolerance: number
   }
+  meshoptCompression: {
+    enabled: boolean
+    options: GLTFPackOptions
+  }
   dracoCompression: {
     enabled: boolean
     options: DracoOptions
@@ -134,6 +141,8 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   dst: '',
   resourceUri: '',
   modelFormat: 'gltf',
+  split: true,
+  combineMaterials: true,
   instance: true,
   dedup: true,
   flatten: true,
@@ -155,11 +164,21 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   reorder: true,
   resample: true,
   weld: {
-    enabled: true,
+    enabled: false,
     tolerance: 0.001
   },
+  meshoptCompression: {
+    enabled: false,
+    options: {
+      compression: true,
+      basisU: true,
+      instancing: false,
+      mergeNodes: true,
+      mergeMaterials: true
+    }
+  },
   dracoCompression: {
-    enabled: true,
+    enabled: false,
     options: {
       method: 'sequential',
       encodeSpeed: 0,
@@ -179,6 +198,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   maxCodebooks: true,
   flipY: false,
   linear: true,
+  mipmap: true,
   textureCompressionQuality: 128,
   maxTextureSize: 1024,
   resources: {

@@ -59,6 +59,13 @@ export interface StorageObjectInterface {
   Metadata?: object
 }
 
+export interface StorageMultipartStartInterface {
+  Bucket: string
+  Key: string
+  ContentType: string
+  ContentEncoding?: string
+}
+
 export interface StorageObjectPutInterface extends Omit<StorageObjectInterface, 'Body'> {
   Body: Buffer | PassThrough
 }

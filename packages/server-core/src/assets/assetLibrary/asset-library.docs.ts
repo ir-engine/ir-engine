@@ -23,24 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { InstanceID } from '../networking/instance.schema'
-import { UserType } from '../user/user.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-interface ChannelInterface {
-  id: string
-  name: string
-  users: UserType[]
-  userIds: UserID[]
-  instanceId: InstanceID
-}
-
-export type ChannelUser = {
-  id: string
-  isOwner: boolean
-  userId: UserID
-  user?: UserType
-  channelId: ChannelID
-  channel?: ChannelInterface
-}
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Asset library service description',
+    securities: ['all']
+  }
+})
