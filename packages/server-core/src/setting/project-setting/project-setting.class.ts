@@ -40,6 +40,6 @@ export class ProjectSettingService implements ServiceInterface<ProjectSettingTyp
 
   async find(params?: Params) {
     const result = await this.app.service(projectPath).find(params)
-    return result?.data[0]?.settings ? result.data[0].settings : []
+    return result[0]?.settings ? result[0].settings : []
   }
 }

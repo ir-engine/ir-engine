@@ -77,7 +77,7 @@ cli.main(async () => {
     })
     const k8BatchClient = getState(ServerState).k8BatchClient
     if (k8BatchClient)
-      for (const project of autoUpdateProjects.data) {
+      for (const project of autoUpdateProjects) {
         try {
           await k8BatchClient.patchNamespacedCronJob(
             `${process.env.RELEASE_NAME}-${project.name}-auto-update`,

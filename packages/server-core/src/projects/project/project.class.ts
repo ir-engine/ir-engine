@@ -316,7 +316,6 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
   async find(params?: ProjectParams) {
     let projectPushIds: string[] = []
     let populateProjectPermissions = false
-    const errors = [] as any
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
@@ -420,10 +419,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       }
     }
 
-    return {
-      data,
-      errors
-    }
+    return data
   }
 
   async _callOnLoad() {

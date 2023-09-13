@@ -497,10 +497,12 @@ export const checkProjectDestinationMatch = async (
       query: {
         name: {
           $like: sourceContent.name
-        }
+        },
+        $limit: 1
       }
     })
-    if (projectExists.data.length > 0)
+
+    if (projectExists.length > 0)
       return {
         sourceProjectMatchesDestination: false,
         error: 'projectExists',
@@ -1389,14 +1391,12 @@ export const updateProject = async (
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
-    return (
-      await app.service(projectPath).find({
-        query: {
-          name: 'default-project',
-          $limit: 1
-        }
-      })
-    ).data
+    return await app.service(projectPath).find({
+      query: {
+        name: 'default-project',
+        $limit: 1
+      }
+    })
   }
 
   const urlParts = data.sourceURL.split('/')

@@ -101,7 +101,7 @@ export const getScenesForProject = (app: Application) => {
     const { projectName, metadataOnly, internal } = args
     try {
       const project = await app.service(projectPath).find({ ...params, query: { name: projectName } })
-      if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
+      if (project.length === 0) throw new Error(`No project named ${projectName} exists`)
 
       const newSceneJsonPath = `projects/${projectName}/`
 
@@ -130,7 +130,7 @@ export const getAllScenes = (app: Application) => {
   return async function (params: SceneParams): Promise<{ data: SceneData[] }> {
     const projects = await app.service(projectPath).find(params)
     const scenes = await Promise.all(
-      projects.data.map(
+      projects.map(
         (project) =>
           new Promise<SceneData[]>(async (resolve) => {
             const projectScenes = (

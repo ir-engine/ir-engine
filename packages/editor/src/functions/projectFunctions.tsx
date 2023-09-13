@@ -38,10 +38,11 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  */
 export const getProjects = async (): Promise<ProjectType[]> => {
   try {
-    const { data } = await API.instance.client.service(projectPath).find({
-      query: { allowed: true }
-    })
-    return data
+    const projects = (await API.instance.client.service(projectPath).find({
+      query: { allowed: true },
+      paginate: false
+    })) as ProjectType[]
+    return projects
   } catch (error) {
     throw new Error(error)
   }

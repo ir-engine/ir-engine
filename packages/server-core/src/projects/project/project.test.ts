@@ -79,8 +79,8 @@ describe('project.test', () => {
         )
 
         let findParams = { ...params, query: { name: newProjectName } }
-        const { data } = await app.service(projectPath).find(findParams)
-        assert.strictEqual(data[0].name, newProjectName)
+        const project = await app.service(projectPath).find(findParams)
+        assert.strictEqual(project[0].name, newProjectName)
       })
 
       it('should not add new project with same name as existing project', function () {
@@ -98,10 +98,10 @@ describe('project.test', () => {
     describe('remove', () => {
       it('should remove project', async function () {
         let findParams = { ...params, query: { name: newProjectName } }
-        const { data } = await app.service(projectPath).find(findParams)
-        await app.service(projectPath).remove(data[0].id, params)
+        const projectData = await app.service(projectPath).find(findParams)
+        await app.service(projectPath).remove(projectData[0].id, params)
         const project = await app.service(projectPath).find(findParams)
-        assert.strictEqual(project.data.length, 0)
+        assert.strictEqual(project.length, 0)
       })
     })
 

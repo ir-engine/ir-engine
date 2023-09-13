@@ -122,8 +122,8 @@ describe('scene.test', () => {
     })
 
     after(async () => {
-      const { data } = await app.service(projectPath).find({ ...params, query: { name: newProjectName } })
-      await app.service(projectPath).remove(data[0].id, params)
+      const project = await app.service(projectPath).find({ ...params, query: { name: newProjectName } })
+      await app.service(projectPath).remove(project[0].id, params)
     })
 
     describe('get', () => {
