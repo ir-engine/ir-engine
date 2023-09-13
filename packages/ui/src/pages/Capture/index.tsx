@@ -483,18 +483,19 @@ const VideoPlayback = (props: {
   }, [currentTimeSeconds])
 
   return (
-    <>
-      {/* <div className="absolute w-full h-full max-w-[1024px]"> */}
-      <div className="absolute w-full h-full top-0 left-0 items-center bg-black">
-        <div className="relative">
-          <Video ref={videoRef} src={videoSrc} controls={false} className={twMerge('w-full h-auto opacity-100')} />
-        </div>
+    <div className="aspect-[4/3] w-auto h-full">
+      <div className="aspect-[4/3] top-0 left-0 items-center bg-black">
+        <Video
+          ref={videoRef}
+          src={videoSrc}
+          controls={false}
+          className={twMerge('aspect-[4/3] w-full h-auto opacity-100')}
+        />
       </div>
-      <div className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto pointer-events-none">
+      <div className="aspect-[4/3] absolute top-0 left-0 z-1 w-auto h-auto pointer-events-none">
         <Canvas ref={canvasRef} />
       </div>
-      {/* </div> */}
-    </>
+    </div>
   )
 }
 
@@ -507,16 +508,18 @@ const EngineCanvas = () => {
     const canvas = EngineRenderer.instance.renderer.domElement
     ref.current.appendChild(canvas)
 
+    const parent = canvas.parentElement!
+
     EngineRenderer.instance.needsResize = true
 
-    return () => {
-      const canvas = document.getElementById('engine-renderer-canvas')!
-      canvas.parentElement?.removeChild(canvas)
-    }
+    // return () => {
+    //   const canvas = document.getElementById('engine-renderer-canvas')!
+    //   parent.removeChild(canvas)
+    // }
   }, [ref])
 
   return (
-    <div className="relative w-auto h-full aspect-video max-w-[1024px]">
+    <div className="relative w-auto h-full aspect-[2/3]">
       <div ref={ref} className="w-full h-full" />
     </div>
   )
@@ -594,12 +597,12 @@ const PlaybackMode = () => {
 
     return (
       <>
-        <div className="w-full h-auto relative aspect-video overflow-hidden">
-          <div className="flex flex-row w-full h-full">
+        <div className="w-full h-auto relative aspect-video overflow-hidden flex-column items-center justify-center">
+          <div className="flex flex-row w-full h-full max-w-full items-center justify-center">
             {videoPlaybackPairs.map((r) => (
               <VideoPlayback startTime={startTime} {...r} key={r.video.id} />
             ))}
-            {/* <EngineCanvas /> */}
+            <EngineCanvas />
           </div>
         </div>
         <PlaybackControls durationSeconds={durationSeconds} />
