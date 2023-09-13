@@ -23,24 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'instance-provision': {
-      type: 'object',
-      properties: {}
-    },
-    'instance-provision_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/instance-provision' }
-    }
+import { instanceProvisionSchema } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    instanceProvisionSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Instance provision service description',
+    securities: ['all']
   }
-}
+})

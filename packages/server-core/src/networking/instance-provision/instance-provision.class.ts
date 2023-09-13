@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import https from 'https'
 import { Knex } from 'knex'
 import _ from 'lodash'
@@ -32,7 +32,6 @@ import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 
@@ -41,9 +40,11 @@ import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { InstanceProvisionType } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -73,7 +74,7 @@ export async function getFreeInstanceserver({
   roomCode?: string
   userId?: UserID
   createPrivateRoom?: boolean
-}): Promise<InstanceServerProvisionResult> {
+}): Promise<InstanceProvisionType> {
   await app.service('instance').Model.destroy({
     where: {
       assigned: true,
@@ -166,7 +167,7 @@ export async function checkForDuplicatedAssignments({
   createPrivateRoom?: boolean
   userId?: UserID
   podName?: string
-}): Promise<InstanceServerProvisionResult> {
+}): Promise<InstanceProvisionType> {
   /** since in local dev we can only have one instance server of each type at a time, we must force all old instances of this type to be ended */
   if (!config.kubernetes.enabled) {
     const query = { ended: false } as any
@@ -252,7 +253,7 @@ export async function checkForDuplicatedAssignments({
   //and remove the others, lest two different instanceservers be handling the same 'instance' of a location
   //or the same 'channel'.
   if (duplicateLocationAssignment.total > 1) {
-    let earlierInstance: InstanceServerProvisionResult
+    let earlierInstance: InstanceProvisionType
     let isFirstAssignment = true
     //Iterate through all of the assignments for this location/channel. If this one is later than any other one,
     //then this one needs to find a different IS
@@ -310,7 +311,7 @@ export async function checkForDuplicatedAssignments({
       }, config.server.instanceserverUnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
     }),
     new Promise<boolean>((resolve) => {
-      let options = {} as any
+      const options = {} as any
       let protocol = 'http://'
       if (!config.kubernetes.enabled) {
         protocol = 'https://'
@@ -366,19 +367,18 @@ export async function checkForDuplicatedAssignments({
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InstanceProvisionParams extends RootParams {}
+
 /**
- * @class for InstanceProvision service
+ * A class for Instance Provision service
  */
-export class InstanceProvision implements ServiceMethods<any> {
+export class InstanceProvisionService implements ServiceInterface<InstanceProvisionType, InstanceProvisionParams> {
   app: Application
-  options: any
-  docs: any
-  constructor(options = {}, app: Application) {
-    this.options = options
+
+  constructor(app: Application) {
     this.app = app
   }
-
-  async setup() {}
 
   /**
    * A method which gets and instance of Instanceserver
@@ -402,7 +402,7 @@ export class InstanceProvision implements ServiceMethods<any> {
     channelId?: ChannelID
     roomCode?: undefined | string
     userId?: UserID
-  }): Promise<InstanceServerProvisionResult> {
+  }): Promise<InstanceProvisionType> {
     await this.app.service('instance').Model.destroy({
       where: {
         assigned: true,
@@ -504,7 +504,7 @@ export class InstanceProvision implements ServiceMethods<any> {
    * @returns {@function} getFreeInstanceserver and getISInService
    */
 
-  async find(params?: Params): Promise<InstanceServerProvisionResult> {
+  async find(params?: InstanceProvisionParams) {
     try {
       let userId
       const locationId = params?.query?.locationId
@@ -725,21 +725,6 @@ export class InstanceProvision implements ServiceMethods<any> {
   }
 
   /**
-   * A method which get specific instance
-   *
-   * @param id of instance
-   * @param params
-   * @returns id and text
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async get(id: Id, params?: Params): Promise<any> {
-    return {
-      id,
-      text: `A new message with ID: ${id}!`
-    }
-  }
-
-  /**
    * A method which is used to create instance
    *
    * @param data which is used to create instance
@@ -753,40 +738,5 @@ export class InstanceProvision implements ServiceMethods<any> {
     }
 
     return data
-  }
-  /**
-   * A method used to update instance
-   *
-   * @param id
-   * @param data which is used to update instance
-   * @param params
-   * @returns data of updated instance
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async update(id: NullableId, data: any, params?: Params): Promise<any> {
-    return data
-  }
-
-  /**
-   *
-   * @param id
-   * @param data
-   * @param params
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async patch(id: NullableId, data: any, params?: Params): Promise<any> {
-    return data
-  }
-
-  /**
-   * A method used to remove specific instance
-   *
-   * @param id of instance
-   * @param params
-   * @returns id
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async remove(id: NullableId, params?: Params): Promise<any> {
-    return { id }
   }
 }

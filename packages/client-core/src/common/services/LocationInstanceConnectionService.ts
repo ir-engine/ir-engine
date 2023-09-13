@@ -33,6 +33,7 @@ import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtil
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineAction, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
+import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { API } from '../../API'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -88,7 +89,7 @@ export const LocationInstanceConnectionService = {
         instanceId = null!
       }
     }
-    const provisionResult = await API.instance.client.service('instance-provision').find({
+    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
       query: {
         locationId,
         instanceId,
@@ -134,7 +135,7 @@ export const LocationInstanceConnectionService = {
       }
       return
     }
-    const provisionResult = await API.instance.client.service('instance-provision').find({
+    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
       query: {
         locationId,
         instanceId,
@@ -175,7 +176,7 @@ export const LocationInstanceConnectionService = {
       }
       return
     }
-    const provisionResult = await API.instance.client.service('instance-provision').find({
+    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
       query: {
         locationId,
         roomCode,
@@ -223,10 +224,10 @@ export const LocationInstanceConnectionService = {
           })
       }
 
-      API.instance.client.service('instance-provision').on('created', instanceProvisionCreatedListener)
+      API.instance.client.service(instanceProvisionPath).on('created', instanceProvisionCreatedListener)
 
       return () => {
-        API.instance.client.service('instance-provision').off('created', instanceProvisionCreatedListener)
+        API.instance.client.service(instanceProvisionPath).off('created', instanceProvisionCreatedListener)
       }
     }, [])
   }
