@@ -29,6 +29,7 @@ import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'thr
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { V_010 } from '../../common/constants/MathConstants'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -38,11 +39,9 @@ import { defineQuery, getComponent, getOptionalComponent, setComponent } from '.
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -60,6 +59,7 @@ import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSource
 import { updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 
 export const AvatarAnimationState = defineState({
@@ -81,6 +81,7 @@ export const AvatarAnimationState = defineState({
 })
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
+const avatarComponentQuery = defineQuery([AvatarComponent])
 
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
 
@@ -129,13 +130,6 @@ const setVisualizers = () => {
   }
 }
 const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Default)
-const footRaycastArgs = {
-  type: SceneQueryType.Closest,
-  origin: new Vector3(),
-  direction: new Vector3(0, -1, 0),
-  maxDistance: 0,
-  groups: interactionGroups
-} as RaycastArgs
 
 interface targetTransform {
   position: Vector3
@@ -164,23 +158,29 @@ const execute = () => {
     avatarSortAccumulator = 0
   }
 
-  for (const entity of avatarAnimationQuery.enter()) {
+  for (const entity of avatarComponentQuery.enter()) {
     sortedTransformEntities.push(entity)
     needsSorting = true
   }
 
-  for (const entity of avatarAnimationQuery.exit()) {
+  for (const entity of avatarComponentQuery.exit()) {
     const idx = sortedTransformEntities.indexOf(entity)
     idx > -1 && sortedTransformEntities.splice(idx, 1)
     needsSorting = true
     priorityQueue.removeEntity(entity)
   }
 
-  if (needsSorting) {
+  if (needsSorting && sortedTransformEntities.length > 1) {
     insertionSort(sortedTransformEntities, compareDistanceToCamera)
   }
 
-  const filteredSortedTransformEntities = sortedTransformEntities.filter(filterFrustumCulledEntities)
+  console.log(needsSorting)
+
+  const filteredSortedTransformEntities: Array<Entity> = []
+  for (let i = 0; i < sortedTransformEntities.length; i++) {
+    if (filterFrustumCulledEntities(sortedTransformEntities[i]))
+      filteredSortedTransformEntities.push(sortedTransformEntities[i])
+  }
 
   for (let i = 0; i < filteredSortedTransformEntities.length; i++) {
     const entity = filteredSortedTransformEntities[i]
@@ -194,7 +194,11 @@ const execute = () => {
    * 2 - Apply avatar animations
    */
 
-  const avatarAnimationEntities = avatarAnimationQuery().filter(filterPriorityEntities)
+  const avatarAnimationQueryArr = avatarAnimationQuery()
+  const avatarAnimationEntities: Entity[] = []
+  for (let i = 0; i < avatarAnimationQueryArr.length; i++) {
+    if (filterPriorityEntities(avatarAnimationQueryArr[i])) avatarAnimationEntities.push(avatarAnimationQueryArr[i])
+  }
   const ikEntities = ikTargetQuery()
 
   footRaycastTimer += deltaSeconds
@@ -230,11 +234,14 @@ const execute = () => {
      * First reset targets
      */
 
-    for (const [key, ikBone] of Object.entries(rigComponent.rig)) {
-      ikBone.node.quaternion.copy(rigComponent.localRig[key].node.quaternion)
-      //todo: lerp this
-      rig.hips.node.position.copy(rigComponent.localRig.hips.node.position)
+    for (let i = 0; i < VRMHumanBoneList.length; i++) {
+      const bone = VRMHumanBoneList[i]
+      const targetBone = rigComponent.rig[bone]
+      if (!targetBone) continue
+      targetBone.node.quaternion.copy(rigComponent.localRig[bone]!.node.quaternion)
     }
+
+    rig.hips.node.position.copy(rigComponent.localRig.hips!.node.position)
 
     if (rigComponent.ikOverride != '') {
       hipsForward.set(0, 0, 1)
@@ -300,13 +307,12 @@ const execute = () => {
 
       //calculate hips to head
       rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-      //_hipVector.subVectors(
-      //  rigComponent.ikTargetsMap.headTarget.position,
-      //  rigComponent.ikTargetsMap.hipsTarget.position
-      //)
-      rig.hips.node.quaternion
-        .setFromUnitVectors(V_010, _hipVector)
-        .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
+      _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
+
+      if (rigComponent.ikOverride == 'mocap')
+        rig.hips.node.quaternion
+          .setFromUnitVectors(V_010, _hipVector)
+          .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
 
       if (ikDataByName[ikTargets.rightHand]) {
         solveTwoBoneIK(
@@ -393,11 +399,13 @@ const execute = () => {
   }
 
   /** Run debug */
-  for (const entity of Engine.instance.priorityAvatarEntities) {
-    const rigComponent = getComponent(entity, AvatarRigComponent)
-    if (rigComponent?.helper) {
-      //rigComponent.rig.hips.node.updateWorldMatrix(true, true)
-      rigComponent.helper?.updateMatrixWorld(true)
+  if (avatarDebug) {
+    for (const entity of Engine.instance.priorityAvatarEntities) {
+      const rigComponent = getComponent(entity, AvatarRigComponent)
+      if (rigComponent?.helper) {
+        rigComponent.rig.hips.node.updateWorldMatrix(true, true)
+        rigComponent.helper?.updateMatrixWorld(true)
+      }
     }
   }
 }
