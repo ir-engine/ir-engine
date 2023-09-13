@@ -252,7 +252,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       }
 
       allChannels = allChannels.filter((channel) => {
-        return channel.dataValues.channel_users.find((channelUser) => channelUser.userId === userId)
+        return channel.channel_users.find((channelUser) => channelUser.userId === userId)
       })
 
       for (const channel of allChannels) {
