@@ -57,7 +57,6 @@ export const useShadowsEnabled = () => {
 export const updateShadowMap = () => {
   const enabled = getShadowsEnabled()
 
-  EngineRenderer.instance.renderer.shadowMap.enabled = enabled
   if (!enabled) return
 
   const type = getState(RenderSettingsState).shadowMapType

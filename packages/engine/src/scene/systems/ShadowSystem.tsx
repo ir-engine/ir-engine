@@ -66,10 +66,11 @@ import { createEntity, removeEntity, useEntityContext } from '../../ecs/function
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { RendererState } from '../../renderer/RendererState'
-import { RenderSettingsState } from '../../renderer/WebGLRendererSystem'
+import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
+import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
@@ -236,7 +237,7 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
     if (sphere.radius > maxRadius) return
 
     const radius = Math.max(sphere.radius * 2, minRadius)
-    const center = groupComponent.value[0].worldToLocal(sphere.center)
+    const center = groupComponent.value[0].position
     const shadowEntity = createEntity()
     const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
     addObjectToGroup(shadowEntity, shadowObject)
@@ -268,7 +269,6 @@ const execute = () => {
 
       raycaster.firstHitOnly = true
       raycasterPosition.copy(dropShadow.center)
-      getComponent(entity, GroupComponent)[0].localToWorld(raycasterPosition)
       raycaster.set(raycasterPosition, shadowDirection)
 
       const intersected = raycaster.intersectObjects(sceneObjects)[0]
@@ -302,6 +302,15 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const rendererState = getMutableState(RendererState)
+  const useShadows = useHookstate(rendererState.useShadows)
+  const renderMode = useHookstate(rendererState.renderMode)
+  const isEditor = useHookstate(getMutableState(EngineState).isEditor)
+  const sessionState = useHookstate(getMutableState(XRState).sessionActive)
+  useEffect(() => {
+    EngineRenderer.instance.renderer.shadowMap.enabled = getShadowsEnabled()
+    EngineRenderer.instance.renderer.shadowMap.autoUpdate = getShadowsEnabled()
+  }, [sessionState, useShadows, renderMode, isEditor])
   useEffect(() => {
     Engine.instance.scene.add(csmGroup)
 

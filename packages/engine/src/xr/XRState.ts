@@ -161,4 +161,5 @@ export const isMobileXRHeadset =
       navigator.userAgent.includes('VR') ||
       navigator.userAgent.includes('AR') ||
       navigator.userAgent.includes('Reality') ||
-      navigator.userAgent.includes('Wolvic')
+      navigator.userAgent.includes('Wolvic') ||
+      navigator.userAgent.includes('Mobile')
