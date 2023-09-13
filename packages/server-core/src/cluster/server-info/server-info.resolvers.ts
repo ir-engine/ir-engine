@@ -23,38 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { ChannelUser } from './channel-user.class'
-import channelUserDocs from './channel-user.docs'
-import hooks from './channel-user.hooks'
-import createModel from './channel-user.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'channel-user': ChannelUser
-  }
-}
+import { ServerInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-/**
- * @todo
- * - destroy channel after last person leaves
- */
+export const serverInfoResolver = resolve<ServerInfoType, HookContext>({})
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new ChannelUser(options, app)
-  event.docs = channelUserDocs
-  app.use('channel-user', event)
-
-  const service = app.service('channel-user')
-
-  service.hooks(hooks)
-}
+export const serverInfoExternalResolver = resolve<ServerInfoType, HookContext>({})

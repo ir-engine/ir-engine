@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { IPackageJson } from 'package-json-type'
 
-import { ProjectsType } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
+export const DefaultUpdateSchedule = '0 * * * *'
 
-export const projectsResolver = resolve<ProjectsType, HookContext>({})
-
-export const projectsExternalResolver = resolve<ProjectsType, HookContext>({})
+export interface ProjectPackageJsonType extends IPackageJson {
+  etherealEngine: {
+    version: string
+  }
+}

@@ -27,6 +27,7 @@ import '@feathersjs/transport-commons'
 
 import { Channel as Channelinterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { Channel } from './channel.class'
@@ -43,13 +44,14 @@ declare module '@etherealengine/common/declarations' {
 export const onCRUD =
   (app: Application) =>
   async (data: Channelinterface): Promise<any> => {
-    const channelUsers = await app.service('channel-user').find({
+    const channelUsers = (await app.service(channelUserPath).find({
       query: {
         channelId: data.id
-      }
-    })
+      },
+      paginate: false
+    })) as ChannelUserType[]
 
-    const userIds = (channelUsers as any).data.map((channelUser) => {
+    const userIds = channelUsers.map((channelUser) => {
       return channelUser.userId
     })
 

@@ -27,7 +27,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -35,6 +34,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { PROJECT_PAGE_LIMIT, ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -70,7 +70,7 @@ const ProjectTable = ({ className }: Props) => {
   const { t } = useTranslation()
   const [processing, setProcessing] = useState(false)
   const [confirm, setConfirm] = useState({ ...defaultConfirm })
-  const [project, _setProject] = useState<ProjectInterface | undefined>()
+  const [project, _setProject] = useState<ProjectType | undefined>()
   const [showProjectFiles, setShowProjectFiles] = useState(false)
   const [openProjectDrawer, setOpenProjectDrawer] = useState(false)
   const [openUserPermissionDrawer, setOpenUserPermissionDrawer] = useState(false)
@@ -86,7 +86,7 @@ const ProjectTable = ({ className }: Props) => {
 
   const projectRef = useRef(project)
 
-  const setProject = (project: ProjectInterface | undefined) => {
+  const setProject = (project: ProjectType | undefined) => {
     projectRef.current = project
     _setProject(project)
   }
@@ -227,7 +227,7 @@ const ProjectTable = ({ className }: Props) => {
 
   const isAdmin = user.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
-  const createData = (el: ProjectInterface, name: string) => {
+  const createData = (el: ProjectType, name: string) => {
     const commitSHA = el.commitSHA
     return {
       el,

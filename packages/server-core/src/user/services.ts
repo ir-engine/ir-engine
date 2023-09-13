@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import AcceptInvite from '../user/accept-invite/accept-invite.service'
+import AcceptInvite from './accept-invite/accept-invite'
 import Auth from './auth-management/auth-management.service'
 import Avatar from './avatar/avatar'
 import DiscordBotAuth from './discord-bot-auth/discord-bot-auth.service'
@@ -35,7 +35,7 @@ import GithubRepoAccess from './github-repo-access/github-repo-access'
 import IdentityProvider from './identity-provider/identity-provider'
 import LoginToken from './login-token/login-token'
 import Login from './login/login.service'
-import MagicLink from './magic-link/magic-link.service'
+import MagicLink from './magic-link/magic-link'
 import SMS from './sms/sms.service'
 import UserApiKey from './user-api-key/user-api-key'
 import UserKick from './user-kick/user-kick'

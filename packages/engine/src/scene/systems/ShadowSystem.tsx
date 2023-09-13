@@ -64,6 +64,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { RendererState } from '../../renderer/RendererState'
 import { RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
@@ -202,6 +203,7 @@ const dropShadowComponentQuery = defineQuery([DropShadowComponent, GroupComponen
 let sceneObjects = [] as Object3D<any>[]
 
 const minRadius = 0.15
+const maxRadius = 5
 const sphere = new Sphere()
 const box3 = new Box3()
 
@@ -210,6 +212,7 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
   const useShadows = useShadowsEnabled()
   const shadowMaterial = useHookstate(shadowState)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
+  const boundingBoxComponent = useOptionalComponent(entity, BoundingBoxComponent)
   const shadow = useComponent(entity, ShadowComponent)
 
   useEffect(() => {
@@ -229,6 +232,8 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
       box3.setFromObject(obj)
     }
     box3.getBoundingSphere(sphere)
+
+    if (sphere.radius > maxRadius) return
 
     const radius = Math.max(sphere.radius * 2, minRadius)
     const center = groupComponent.value[0].worldToLocal(sphere.center)

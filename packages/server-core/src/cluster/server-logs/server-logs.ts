@@ -23,43 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { ChannelUserInterface } from '@etherealengine/common/src/dbmodels/ChannelUser'
-
+import { serverLogsMethods, serverLogsPath } from '@etherealengine/engine/src/schemas/cluster/server-logs.schema'
 import { Application } from '../../../declarations'
-import { createUserModel } from '../../all.model'
+import { ServerLogsService } from './server-logs.class'
+import serverLogsDocs from './server-logs.docs'
+import hooks from './server-logs.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const channelUser = sequelizeClient.define<Model<ChannelUserInterface>>(
-    'channel_user',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      isOwner: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-
-  ;(channelUser as any).associate = (models: any): void => {
-    ;(channelUser as any).belongsTo(models.channel, { required: true, allowNull: false })
-    ;(channelUser as any).belongsTo(createUserModel(app), { required: true, allowNull: false })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [serverLogsPath]: ServerLogsService
   }
+}
 
-  return channelUser
+export default (app: Application): void => {
+  app.use(serverLogsPath, new ServerLogsService(app), {
+    // A list of all methods this service exposes externally
+    methods: serverLogsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: serverLogsDocs
+  })
+
+  const service = app.service(serverLogsPath)
+  service.hooks(hooks)
 }

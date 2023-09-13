@@ -23,24 +23,55 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import {
+  ChannelUserType,
+  channelUserDataValidator,
+  channelUserPatchValidator,
+  channelUserPath,
+  channelUserQueryValidator
+} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import { HookContext } from '@feathersjs/feathers'
+import {
+  channelUserDataResolver,
+  channelUserExternalResolver,
+  channelUserPatchResolver,
+  channelUserQueryResolver,
+  channelUserResolver
+} from './channel-user.resolvers'
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(channelUserExternalResolver), schemaHooks.resolveResult(channelUserResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(channelUserQueryValidator),
+      schemaHooks.resolveQuery(channelUserQueryResolver)
+    ],
     find: [],
     get: [disallow('external')],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(channelUserDataValidator),
+      schemaHooks.resolveData(channelUserDataResolver)
+    ],
     update: [disallow('external')],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(channelUserPatchValidator),
+      schemaHooks.resolveData(channelUserPatchResolver)
+    ],
     remove: [setLoggedInUser('userId')]
   },
 
@@ -86,13 +117,13 @@ export default {
         })
         const channel = await app.service('channel').get(result.channelId)
         if (channel.instanceId) return context
-        const channelUserCount = await app.service('channel-user').find({
+        const channelUserCount = (await app.service(channelUserPath).find({
           query: {
-            channelId: result.channelId,
-            $limit: 0
-          }
-        })
-        if (channelUserCount.total < 1) {
+            channelId: result.channelId
+          },
+          paginate: false
+        })) as ChannelUserType[]
+        if (channelUserCount.length === 0) {
           await app.service('channel').remove(result.channelId)
         }
         return context

@@ -56,13 +56,15 @@ export const GroupComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
+    // console.log(component.value)
     for (const obj of component.value) {
       obj.removeFromParent()
       // obj.traverse((mesh: Mesh) => {
+      //   console.log('removed mesh', mesh)
       //   if (Array.isArray(mesh.material)) {
-      //     mesh.material.forEach((material: Material) => material.dispose())
-      //   } else {
-      //     mesh.material?.dispose()
+      //     mesh.material.forEach(disposeMaterial)
+      //   } else if (mesh.material) {
+      //     disposeMaterial(mesh.material)
       //   }
       //   mesh.geometry?.dispose()
       // })

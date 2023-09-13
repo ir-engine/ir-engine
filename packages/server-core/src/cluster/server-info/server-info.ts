@@ -23,36 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { serverInfoMethods, serverInfoPath } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import { Application } from '../../../declarations'
+import { ServerInfoService } from './server-info.class'
+import serverInfoDocs from './server-info.docs'
+import hooks from './server-info.hooks'
 
-const leftContentStyles = {
-  display: 'flex',
-  width: '360px',
-  borderTopLeftRadius: 'inherit',
-  alignItems: 'center',
-  padding: '30px'
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [serverInfoPath]: ServerInfoService
+  }
 }
 
-const imgStyles = {
-  borderRadius: '6px'
-}
+export default (app: Application): void => {
+  app.use(serverInfoPath, new ServerInfoService(app), {
+    // A list of all methods this service exposes externally
+    methods: serverInfoMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: serverInfoDocs
+  })
 
-const rightContentStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  flex: '1',
-  padding: '30px 30px'
+  const service = app.service(serverInfoPath)
+  service.hooks(hooks)
 }
-
-const PreviewDialog = ({ imageSrc, children, ...props }) => {
-  return (
-    <div style={{ display: 'flex', ...props.style }}>
-      <div style={leftContentStyles}>
-        <img src={imageSrc} alt="" crossOrigin="anonymous" style={imgStyles} />
-      </div>
-      <div style={rightContentStyles as React.CSSProperties}>{children}</div>
-    </div>
-  )
-}
-
-export default PreviewDialog

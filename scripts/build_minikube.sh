@@ -67,7 +67,7 @@ fi
 
 if [ -z "$VITE_FILE_SERVER" ]
 then
-  VITE_FILE_SERVER=https://localhost:8642
+  VITE_FILE_SERVER=https://localhost:9000/etherealengine-minikube-static-resources
 else
   VITE_FILE_SERVER=$VITE_FILE_SERVER
 fi

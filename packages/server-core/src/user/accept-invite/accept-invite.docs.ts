@@ -23,17 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface ProjectInterface {
-  id: string
-  name: string
-  repositoryPath: string
-  settings: string
-  needsRebuild: boolean
-  sourceRepo: string
-  sourceBranch: string
-  updateType: string
-  updateSchedule: string
-  updateUserId: string
-  commitSHA: string
-  commitDate: string
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Accept invite service description',
+    securities: ['all']
+  }
+})

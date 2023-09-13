@@ -23,37 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IPackageJson } from 'package-json-type'
-
-import { ProjectPermissionType } from './../../../engine/src/schemas/projects/project-permission.schema'
-
-export type ProjectUpdateType = 'none' | 'commit' | 'tag'
-
-export const DefaultUpdateSchedule = '0 * * * *'
-
-export interface ProjectInterface {
-  id: string
-  name: string
-  thumbnail?: string
-  repositoryPath: string
-  version?: string
-  engineVersion?: string
-  description?: string
-  settings?: string
-  needsRebuild: boolean
-  sourceRepo?: string
-  sourceBranch?: string
-  updateType: ProjectUpdateType
-  updateSchedule?: string
-  updateUserId?: string
-  hasWriteAccess?: boolean
-  project_permissions?: ProjectPermissionType[]
-  commitSHA?: string
-  commitDate?: Date
-}
-
-export interface ProjectPackageJsonType extends IPackageJson {
-  etherealEngine: {
-    version: string
-  }
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+export const assetLibraryPath = 'asset-library'
+export const assetLibraryMethods = ['create'] as const

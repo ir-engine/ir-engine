@@ -36,6 +36,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import styles from '../../styles/settings.module.scss'
 
@@ -52,7 +53,7 @@ const Project = () => {
   const settings = useHookstate<Array<ProjectSetting> | []>([])
   const selectedProject = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
-  const projectSetting = useFind('project-setting', {
+  let projectSetting = useFind('project-setting', {
     query: {
       $limit: 1,
       id: selectedProject.value,
@@ -60,7 +61,7 @@ const Project = () => {
     }
   }).data
 
-  const patchProjectSetting = useMutation('project-setting').patch
+  const patchProjectSetting = useMutation(projectPath).patch
 
   ProjectService.useAPIListeners()
 
@@ -78,6 +79,8 @@ const Project = () => {
     if (!projectSetting.length) {
       return
     }
+
+    if (typeof projectSetting === 'string') projectSetting = JSON.parse(projectSetting)
     const tempSettings = JSON.parse(JSON.stringify(settings.value))
     for (const [index, setting] of tempSettings.entries()) {
       const savedSetting = projectSetting.filter((item) => item.key === setting.key)
@@ -128,7 +131,7 @@ const Project = () => {
   }
 
   const handleSubmit = () => {
-    patchProjectSetting(selectedProject.value, { settings: JSON.stringify(settings.value) })
+    patchProjectSetting(selectedProject.value, { settings: settings.value })
   }
 
   const projectsMenu: InputMenuItem[] = projects.value.map((el) => {
