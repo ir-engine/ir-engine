@@ -174,8 +174,6 @@ const execute = () => {
     insertionSort(sortedTransformEntities, compareDistanceToCamera)
   }
 
-  console.log(needsSorting)
-
   const filteredSortedTransformEntities: Array<Entity> = []
   for (let i = 0; i < sortedTransformEntities.length; i++) {
     if (filterFrustumCulledEntities(sortedTransformEntities[i]))
