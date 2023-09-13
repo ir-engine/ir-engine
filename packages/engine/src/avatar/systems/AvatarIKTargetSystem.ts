@@ -78,6 +78,7 @@ const execute = () => {
     if (ikTargetRightHand) removeEntity(ikTargetRightHand)
     if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
     if (ikTargetRightFoot) removeEntity(ikTargetRightFoot)
+    if (!action.active) setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: '' })
   }
 
   for (const action of ikTargetSpawnQueue()) {
