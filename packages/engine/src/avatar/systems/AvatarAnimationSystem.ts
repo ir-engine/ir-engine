@@ -308,7 +308,7 @@ const execute = () => {
         .setFromUnitVectors(V_010, _hipVector)
         .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
 
-      if (ikDataByName[ikTargets.rightHand].blendWeight > 0) {
+      if (ikDataByName[ikTargets.rightHand]) {
         solveTwoBoneIK(
           rig.rightUpperArm.node,
           rig.rightLowerArm.node,
@@ -316,7 +316,7 @@ const execute = () => {
           ikDataByName[ikTargets.rightHand].position,
           ikDataByName[ikTargets.rightHand].rotation,
           null,
-          ikDataByName[ikTargets.rightElbowHint].blendWeight > 0
+          ikDataByName[ikTargets.rightElbowHint]
             ? ikDataByName[ikTargets.rightElbowHint].position
             : _vector3.copy(transform.position).sub(right),
           tipAxisRestriction,
@@ -327,7 +327,7 @@ const execute = () => {
         )
       }
 
-      if (ikDataByName[ikTargets.leftHand].blendWeight > 0) {
+      if (ikDataByName[ikTargets.leftHand]) {
         solveTwoBoneIK(
           rig.leftUpperArm.node,
           rig.leftLowerArm.node,
@@ -335,7 +335,7 @@ const execute = () => {
           ikDataByName[ikTargets.leftHand].position,
           ikDataByName[ikTargets.leftHand].rotation,
           null,
-          ikDataByName[ikTargets.leftElbowHint].blendWeight > 0
+          ikDataByName[ikTargets.leftElbowHint]
             ? ikDataByName[ikTargets.leftElbowHint].position
             : _vector3.copy(transform.position).add(right),
           tipAxisRestriction,
@@ -350,7 +350,7 @@ const execute = () => {
         footRaycastTimer = 0
       }
 
-      if (ikDataByName[ikTargets.rightFoot].blendWeight > 0) {
+      if (ikDataByName[ikTargets.rightFoot]) {
         solveTwoBoneIK(
           rig.rightUpperLeg.node,
           rig.rightLowerLeg.node,
@@ -358,7 +358,7 @@ const execute = () => {
           ikDataByName[ikTargets.rightFoot].position,
           ikDataByName[ikTargets.rightFoot].rotation,
           null,
-          ikDataByName[ikTargets.rightKneeHint].blendWeight > 0
+          ikDataByName[ikTargets.rightKneeHint]
             ? ikDataByName[ikTargets.rightKneeHint].position
             : _vector3.copy(transform.position).add(forward),
           null,
@@ -369,7 +369,7 @@ const execute = () => {
         )
       }
 
-      if (ikDataByName[ikTargets.leftFoot].blendWeight > 0) {
+      if (ikDataByName[ikTargets.leftFoot]) {
         solveTwoBoneIK(
           rig.leftUpperLeg.node,
           rig.leftLowerLeg.node,
@@ -377,7 +377,7 @@ const execute = () => {
           ikDataByName[ikTargets.leftFoot].position,
           ikDataByName[ikTargets.leftFoot].rotation,
           null,
-          ikDataByName[ikTargets.leftKneeHint].blendWeight > 0
+          ikDataByName[ikTargets.leftKneeHint]
             ? ikDataByName[ikTargets.leftKneeHint].position
             : _vector3.copy(transform.position).add(forward),
           null,
