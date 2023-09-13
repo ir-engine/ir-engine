@@ -23,30 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface ServerInfoInterface {
-  id: string
-  label: string
-  pods: ServerPodInfo[]
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-export interface ServerPodInfo {
-  name: string
-  status: string
-  age: string | Date
-  containers: ServerContainerInfo[]
-  type?: string
-  locationSlug?: string
-  instanceId?: string
-  currentUsers?: number
-}
+import { ServerInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export type ServerContainerStatus = 'Running' | 'Terminated' | 'Waiting' | 'Undefined'
+export const serverInfoResolver = resolve<ServerInfoType, HookContext>({})
 
-export interface ServerContainerInfo {
-  name: string
-  restarts: number
-  status: ServerContainerStatus
-  ready: boolean
-  started: boolean
-  image: string
-}
+export const serverInfoExternalResolver = resolve<ServerInfoType, HookContext>({})
