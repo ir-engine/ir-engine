@@ -23,19 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { ModelTransform } from './model-transform.class'
-import hooks from './model-transform.hooks'
+export const fileBrowserUploadPath = 'file-browser-upload'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'model-transform': ModelTransform
-  }
-}
-
-export default (app: Application) => {
-  const libClass = new ModelTransform(app)
-  app.use('model-transform', libClass)
-  const service = app.service('model-transform')
-  service.hooks(hooks)
-}
+export const fileBrowserUploadMethods = ['create'] as const
