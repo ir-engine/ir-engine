@@ -32,7 +32,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const podsPath = 'pods'
 
-export const podsMethods = ['find', 'remove'] as const
+export const podsMethods = ['find', 'get', 'remove'] as const
 
 export const serverContainerInfoSchema = Type.Object(
   {

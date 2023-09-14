@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { inviteQueryValidator } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { podsQueryValidator } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { inviteQueryResolver } from '../../social/invite/invite.resolvers'
-import { podsExternalResolver, podsResolver } from './pods.resolvers'
+import { podsExternalResolver, podsQueryResolver, podsResolver } from './pods.resolvers'
 
 export default {
   around: {
@@ -41,8 +40,8 @@ export default {
     all: [
       authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateQuery(inviteQueryValidator),
-      schemaHooks.resolveQuery(inviteQueryResolver)
+      () => schemaHooks.validateQuery(podsQueryValidator),
+      schemaHooks.resolveQuery(podsQueryResolver)
     ],
     find: [],
     get: [],
