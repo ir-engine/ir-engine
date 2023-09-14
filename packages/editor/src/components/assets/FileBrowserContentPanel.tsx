@@ -244,7 +244,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     } else {
       await Promise.all(
         data.files.map(async (file) => {
-          if (!file.type) {
+          if (!file.type && !/\.glb$/.test(file.name)) {
             // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
@@ -485,7 +485,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           variant="body2"
         />
       )}
-      <div id="file-browser-panel">
+      <div id="file-browser-panel" style={{ overflowY: 'auto' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>

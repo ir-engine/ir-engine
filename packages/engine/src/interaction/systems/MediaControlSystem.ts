@@ -52,7 +52,8 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
   if (!intersectObjects.length) {
     transition.setState('OUT')
   }
-  transition.update(Engine.instance.deltaSeconds, (opacity) => {
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  transition.update(deltaSeconds, (opacity) => {
     buttonLayer?.scale.setScalar(0.9 + 0.1 * opacity * opacity)
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial

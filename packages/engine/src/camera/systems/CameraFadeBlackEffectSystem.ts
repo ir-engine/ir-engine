@@ -30,6 +30,7 @@ import { defineActionQueue, defineState, getMutableState, getState, useHookstate
 import { useEffect } from 'react'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -128,7 +129,8 @@ const execute = () => {
       mesh.material.needsUpdate = true
     }
   }
-  transition.update(Engine.instance.deltaSeconds, (alpha) => {
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  transition.update(deltaSeconds, (alpha) => {
     mesh.material.uniforms.intensity.value = alpha
     setVisibleComponent(entity, alpha > 0)
   })

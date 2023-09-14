@@ -328,7 +328,7 @@ export class S3Provider implements StorageProviderInterface {
         'Content-Type': args.ContentType
       })
       return response
-    } else if (data.Body.length > MULTIPART_CUTOFF_SIZE) {
+    } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
       const multiPartStartArgs = {
         ACL: 'public-read',
         Bucket: this.bucket,
