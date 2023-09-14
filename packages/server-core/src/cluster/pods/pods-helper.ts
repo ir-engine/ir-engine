@@ -31,18 +31,19 @@ import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/s
 import { getState } from '@etherealengine/hyperflux'
 
 import {
+  PodsType,
   ServerContainerInfoType,
-  ServerInfoType,
   ServerPodInfoType
-} from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+} from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { BadRequest } from '@feathersjs/errors/lib'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import config from '../../appconfig'
 
 export const getServerInfo = async (app: Application) => {
-  const serverInfo: ServerInfoType[] = []
+  const serverInfo: PodsType[] = []
 
   const k8DefaultClient = getState(ServerState).k8DefaultClient
 
@@ -298,4 +299,42 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
       }
     }
   }
+}
+
+export const getServerLogs = async (podName: string, containerName: string, app: Application): Promise<string> => {
+  let serverLogs = ''
+
+  try {
+    logger.info('Attempting to check k8s server logs')
+
+    if (!podName.startsWith(`${config.server.releaseName}-`)) {
+      logger.error('You can only request server logs for current deployment.')
+      new BadRequest('You can only request server logs for current deployment.')
+    }
+
+    const k8DefaultClient = getState(ServerState).k8DefaultClient
+    if (k8DefaultClient) {
+      const podLogs = await k8DefaultClient.readNamespacedPodLog(
+        podName,
+        'default',
+        containerName,
+        undefined,
+        false,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined
+      )
+
+      serverLogs = podLogs.body
+    }
+  } catch (e) {
+    logger.error(e)
+    return e
+  }
+
+  return serverLogs
 }

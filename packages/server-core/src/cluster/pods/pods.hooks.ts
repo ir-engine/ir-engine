@@ -23,14 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
+import { inviteQueryValidator } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import { inviteQueryResolver } from '../../social/invite/invite.resolvers'
+import { podsExternalResolver, podsResolver } from './pods.resolvers'
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(podsExternalResolver), schemaHooks.resolveResult(podsResolver)]
+  },
+
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    all: [
+      authenticate(),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(inviteQueryValidator),
+      schemaHooks.resolveQuery(inviteQueryResolver)
+    ],
     find: [],
     get: [],
     create: [],

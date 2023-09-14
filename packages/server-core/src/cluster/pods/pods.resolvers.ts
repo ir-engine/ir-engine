@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-export default createSwaggerServiceOptions({
-  schemas: {},
-  docs: {
-    description: 'Server info service description',
-    securities: ['all']
-  }
-})
+import { PodsQuery, PodsType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const podsResolver = resolve<PodsType, HookContext>({})
+export const podsExternalResolver = resolve<PodsType, HookContext>({})
+export const podsQueryResolver = resolve<PodsQuery, HookContext>({})

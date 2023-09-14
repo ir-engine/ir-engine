@@ -42,7 +42,7 @@ import ServerTable from './ServerTable'
 
 import 'react-reflex/styles.css'
 
-import { ServerInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import { PodsType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import ServerLogs, { ServerLogsInputsType } from './ServerLogs'
 
 const Server = () => {
@@ -94,7 +94,7 @@ const Server = () => {
 }
 
 interface ServerItemProps {
-  data: ServerInfoType
+  data: PodsType
   isSelected: boolean
   onCardClick: (key: string) => void
 }

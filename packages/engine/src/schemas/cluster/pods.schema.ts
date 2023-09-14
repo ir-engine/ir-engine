@@ -28,11 +28,11 @@ import type { Static } from '@feathersjs/typebox'
 import { StringEnum, Type, getValidator } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID } from '../networking/instance.schema'
-import { dataValidator } from '../validators'
+import { dataValidator, queryValidator } from '../validators'
 
-export const serverInfoPath = 'server-info'
+export const podsPath = 'pods'
 
-export const serverInfoMethods = ['find', 'remove'] as const
+export const podsMethods = ['find', 'remove'] as const
 
 export const serverContainerInfoSchema = Type.Object(
   {
@@ -67,16 +67,26 @@ export const serverPodInfoSchema = Type.Object(
 export type ServerPodInfoType = Static<typeof serverPodInfoSchema>
 
 // Main data model schema
-export const serverInfoSchema = Type.Object(
+export const podsSchema = Type.Object(
   {
     id: Type.String(),
     label: Type.String(),
     pods: Type.Array(Type.Ref(serverPodInfoSchema))
   },
-  { $id: 'ServerInfo', additionalProperties: false }
+  { $id: 'Pods', additionalProperties: false }
 )
-export type ServerInfoType = Static<typeof serverInfoSchema>
+export type PodsType = Static<typeof podsSchema>
+
+export const podsQuerySchema = Type.Object(
+  {
+    containerName: Type.String()
+  },
+  { additionalProperties: false }
+)
+
+export type PodsQuery = Static<typeof podsQuerySchema>
 
 export const serverContainerInfoValidator = getValidator(serverContainerInfoSchema, dataValidator)
 export const serverPodInfoValidator = getValidator(serverPodInfoSchema, dataValidator)
-export const serverInfoValidator = getValidator(serverInfoSchema, dataValidator)
+export const podsValidator = getValidator(podsSchema, dataValidator)
+export const podsQueryValidator = getValidator(podsQuerySchema, queryValidator)

@@ -23,31 +23,44 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PodsType, ServerPodInfoType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { BadRequest } from '@feathersjs/errors/lib'
 import { ServiceInterface } from '@feathersjs/feathers'
-
-import { ServerInfoType, ServerPodInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
-import { getServerInfo, removePod } from './server-info-helper'
+import { getServerInfo, getServerLogs, removePod } from './pods-helper'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ServerInfoParams extends RootParams {}
+export interface PodsParams extends RootParams {}
 
 /**
- * A class for Server Info service
+ * A class for Pods service
  */
-export class ServerInfoService implements ServiceInterface<ServerInfoType, ServerPodInfoType | undefined> {
+export class PodsService implements ServiceInterface<PodsType | string, ServerPodInfoType | undefined, PodsParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async find(params?: ServerInfoParams) {
+  async find(params?: PodsParams) {
     return getServerInfo(this.app)
   }
 
-  async remove(podName: string, params?: ServerInfoParams) {
+  async get(id: string, params?: PodsParams) {
+    if (!id) {
+      logger.info('podName is required in request to find server logs')
+      throw new BadRequest('podName is required in request to find server logs')
+    } else if (!params?.query?.containerName) {
+      logger.info('containerName is required in request to find server logs')
+      throw new BadRequest('containerName is required in request to find server logs')
+    }
+
+    return getServerLogs(id, params?.query?.containerName, this.app)
+  }
+
+  async remove(podName: string, params?: PodsParams) {
     return await removePod(this.app, podName)
   }
 }
