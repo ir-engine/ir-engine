@@ -38,12 +38,14 @@ Ethereal Engine. All Rights Reserved.
 import { ServiceTypes } from '@etherealengine/common/declarations'
 import config from '@etherealengine/common/src/config'
 import { FeathersApplication } from '@feathersjs/feathers'
+import fetch from 'cross-fetch'
+import { LRUCache } from 'lru-cache'
 import { logsApiPath } from '../../schemas/cluster/logs-api.schema'
 
-// const logRequestCache = new LruCache({
-//   max: 1000,
-//   ttl: 1000 * 5 // 5 seconds cache expiry
-// })
+const logRequestCache = new LRUCache({
+  max: 1000,
+  ttl: 1000 * 5 // 5 seconds cache expiry
+})
 
 class LogConfig {
   static api: FeathersApplication<ServiceTypes> | undefined = undefined
@@ -102,6 +104,7 @@ const multiLogger = {
     } else {
       // For non-local builds, this send() is used
       const send = (level) => {
+        const url = new URL('/api/log', config.client.serverUrl)
         const consoleMethods = {
           debug: console.debug.bind(console, `[${opts.component}]`),
           info: console.log.bind(console, `[${opts.component}]`),
@@ -121,6 +124,19 @@ const multiLogger = {
             // Send an async rate-limited request to backend logs-api service for aggregation
             // Also suppress logger.info() levels (the equivalent to console.log())
 
+            if (config.client.serverHost && level !== 'info') {
+              logRequestCache.set(logParams.msg, () =>
+                fetch(url, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    level,
+                    component: opts.component,
+                    ...logParams
+                  })
+                })
+              )
+            }
             if (config.client.serverHost && LogConfig.api) {
               await LogConfig.api.service(logsApiPath).create({
                 level,
