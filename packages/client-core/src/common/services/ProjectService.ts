@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'

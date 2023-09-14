@@ -30,9 +30,8 @@ import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Proj
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   ArrowRightRounded,

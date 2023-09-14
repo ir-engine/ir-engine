@@ -27,7 +27,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
