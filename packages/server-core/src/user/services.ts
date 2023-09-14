@@ -34,7 +34,7 @@ import GithubRepoAccessWebhook from './github-repo-access-webhook/github-repo-ac
 import GithubRepoAccess from './github-repo-access/github-repo-access'
 import IdentityProvider from './identity-provider/identity-provider'
 import LoginToken from './login-token/login-token'
-import Login from './login/login.service'
+import Login from './login/login'
 import MagicLink from './magic-link/magic-link'
 import SMS from './sms/sms.service'
 import UserApiKey from './user-api-key/user-api-key'

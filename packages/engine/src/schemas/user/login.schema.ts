@@ -23,12 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-export default createSwaggerServiceOptions({
-  schemas: {},
-  docs: {
-    description: 'Login service description',
-    securities: ['all']
-  }
-})
+export const loginPath = 'login'
+export const loginMethods = ['get'] as const
