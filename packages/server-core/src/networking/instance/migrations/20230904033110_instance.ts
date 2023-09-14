@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import type { Knex } from 'knex'
 
 /**
@@ -36,20 +36,26 @@ export async function up(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(scopePath)
+  const tableExists = await trx.schema.hasTable(instancePath)
 
   if (tableExists === false) {
-    await trx.schema.createTable(scopePath, (table) => {
+    await trx.schema.createTable(instancePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
+      table.string('roomCode', 255).notNullable()
+      table.string('ipAddress', 255).defaultTo(null)
+      table.string('channelId', 255).defaultTo(null)
+      table.string('podName', 255).defaultTo(null)
+      table.integer('currentUsers', 11).defaultTo(0)
+      table.boolean('ended').defaultTo(false)
+      table.boolean('assigned').defaultTo(false)
+      table.dateTime('assignedAt').defaultTo(null)
       //@ts-ignore
-      table.string('userId', 36).collate('utf8mb4_bin').defaultTo(null).index()
-      table.string('type', 255).defaultTo(null).index()
+      table.uuid('locationId').collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
-      table.foreign('type').references('type').inTable('scope-type').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('locationId').references('id').inTable('location').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
 
@@ -65,10 +71,10 @@ export async function down(knex: Knex): Promise<void> {
   const trx = await knex.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await trx.schema.hasTable(scopePath)
+  const tableExists = await trx.schema.hasTable(instancePath)
 
   if (tableExists === true) {
-    await trx.schema.dropTable(scopePath)
+    await trx.schema.dropTable(instancePath)
   }
 
   await trx.raw('SET FOREIGN_KEY_CHECKS=1')

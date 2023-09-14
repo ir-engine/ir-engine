@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -67,7 +67,7 @@ export default (app): void => {
       .select()
       .options({ nestTables: true })
 
-    const activeInstances = await app.service('instance').find({
+    const activeInstances = await app.service(instancePath).find({
       query: {
         ended: {
           $ne: 1
@@ -76,20 +76,7 @@ export default (app): void => {
       isInternal: true
     })
 
-    // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
-    const locations = (await app.service(locationPath).find({
-      query: {
-        id: {
-          $in: activeInstances.data.map((instance) => instance.locationId)
-        }
-      },
-      paginate: false
-    })) as LocationType[]
-
     for (const instance of activeInstances.data) {
-      const location = locations.find((location) => location.id === instance.locationId)
-      instance.location = location
-
       if (instance.location) {
         if (activeLocations.indexOf(instance.location.id) < 0) activeLocations.push(instance.location.id)
         if (activeScenes.indexOf(instance.location.sceneId) < 0) activeScenes.push(instance.location.sceneId)
