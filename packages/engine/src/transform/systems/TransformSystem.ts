@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Box3, Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
@@ -269,7 +269,28 @@ const updateBoundingBox = (entity: Entity) => {
   const box = getComponent(entity, BoundingBoxComponent).box
   const group = getComponent(entity, GroupComponent)
   box.makeEmpty()
-  for (const obj of group) box.expandByObject(obj)
+  for (const obj of group) expandBoxByObject(obj, box, 0)
+}
+
+const expandBoxByObject = (object, box: Box3, layer: number) => {
+  const geometry = object.geometry
+
+  if (geometry !== undefined) {
+    if (geometry.boundingBox === null) {
+      geometry.computeBoundingBox()
+    }
+
+    box.copy(geometry.boundingBox)
+    if (layer > 0) box.applyMatrix4(object.matrixWorld)
+
+    box.union(box)
+  }
+
+  const children = object.children
+
+  for (let i = 0, l = children.length; i < l; i++) {
+    expandBoxByObject(children[i], box, i)
+  }
 }
 
 const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
