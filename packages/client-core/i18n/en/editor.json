@@ -294,15 +294,11 @@
       "lbl-receiveShadow": "Receive Shadow",
       "lbl-generateNavmesh": "Generate Navmesh"
     },
-    "link": {
-      "description": "Link to a room or a website.",
-      "lbl-url": "URL"
-    },
     "loopAnimation": {
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
-      "lbl-playbackSpeed": "Playback Speed"
+      "lbl-timeScale": "Time Scale"
     },
     "variant": {
       "name": "Variant",
@@ -675,6 +671,14 @@
     "spawnPoint": {
       "name": "Spawn Point",
       "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
+    },
+    "linkComp": {
+      "title": "link Component",
+      "lbl-url": "Link URL",
+      "lbl-navigateScene": "Scene navigation",
+      "lbl-projname": "Project Name",
+      "lbl-scenename": "Scene Name",
+      "description": "Adds an interactable that opens links or navigates scene"
     },
     "spotLight": {
       "description": "A light which emits along a direction, illuminating objects within a cone.",

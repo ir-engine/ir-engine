@@ -36,6 +36,7 @@ import {
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { EmailData } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -85,7 +86,7 @@ async function generateEmail(
     hashLink
   })
   const mailSender = config.email.from
-  const email = {
+  const email: EmailData = {
     from: mailSender,
     to: toEmail,
     subject: config.client.title + ' ' + (config.email.subject[inviteType] || 'Invitation'),
