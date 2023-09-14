@@ -84,5 +84,9 @@ export const FileBrowserService = {
   },
   addNewFolder: async (folderName: string) => {
     await Engine.instance.api.service(`file-browser`).create(folderName)
+  },
+  resetSkip: () => {
+    const fileBrowserState = getMutableState(FileBrowserState)
+    fileBrowserState.skip.set(0)
   }
 }
