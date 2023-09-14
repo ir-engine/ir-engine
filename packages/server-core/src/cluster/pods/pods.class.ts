@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PodsType, ServerPodInfoType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { PodsQuery, PodsType, ServerPodInfoType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import { BadRequest } from '@feathersjs/errors/lib'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
@@ -32,7 +32,7 @@ import { RootParams } from '../../api/root-params'
 import { getServerInfo, getServerLogs, removePod } from './pods-helper'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface PodsParams extends RootParams {}
+export interface PodsParams extends RootParams<PodsQuery> {}
 
 /**
  * A class for Pods service
