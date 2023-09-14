@@ -67,6 +67,7 @@ export const projectResolver = resolve<ProjectType, HookContext>({
         query: {
           projectId: project.id
         },
+        user: context.params?.user,
         paginate: false
       })) as ProjectPermissionType[]
 
