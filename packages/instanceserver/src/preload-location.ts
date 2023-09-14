@@ -84,7 +84,7 @@ export default async function (locationName, app: Application) {
     locationId: location.id
   } as any
   app.isMediaInstance = false
-  const instanceResult = await app.service('instance').create(newInstance)
+  const instanceResult = await app.service(instancePath).create(newInstance)
   app.instance = instanceResult
 
   console.log('Pre-loaded location', location.id)
