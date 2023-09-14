@@ -128,7 +128,8 @@
       "instance": "Instance",
       "createOne": "Create One",
       "createChannel": "Create Channel",
-      "confirmChannelDelete": "Do you want to delete channel?"
+      "confirmChannelDelete": "Do you want to delete channel?",
+      "name": "Channel Name"
     },
     "project": {
       "addProject": "Add Project",

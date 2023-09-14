@@ -59,7 +59,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
       $or: [
         {
           name: {
-            $like: `%${search}%`
+            $like: search
           }
         },
         {
