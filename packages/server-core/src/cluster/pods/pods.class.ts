@@ -49,15 +49,16 @@ export class PodsService implements ServiceInterface<PodsType | string, ServerPo
   }
 
   async get(id: string, params?: PodsParams) {
-    if (!id) {
+    const [podName, containerName] = id.split('/')
+    if (!podName) {
       logger.info('podName is required in request to find server logs')
       throw new BadRequest('podName is required in request to find server logs')
-    } else if (!params?.query?.containerName) {
+    } else if (!containerName) {
       logger.info('containerName is required in request to find server logs')
       throw new BadRequest('containerName is required in request to find server logs')
     }
 
-    return getServerLogs(id, params?.query?.containerName, this.app)
+    return await getServerLogs(podName, containerName, this.app)
   }
 
   async remove(podName: string, params?: PodsParams) {

@@ -57,9 +57,7 @@ const ServerLogs = ({
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
 
   const serverInfo = useServerInfoFind().data
-  const serverLogsQuery = useGet(podsPath, podName.value, {
-    query: { containerName: containerName.value }
-  })
+  const serverLogsQuery = useGet(podsPath, `${podName.value}/${containerName.value}`)
   const serverLogs = serverLogsQuery.data as string
 
   const scrollLogsToBottom = () => {
