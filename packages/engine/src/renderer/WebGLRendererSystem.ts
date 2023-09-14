@@ -295,7 +295,8 @@ export const PostProcessingSettingsState = defineState({
 })
 
 const execute = () => {
-  EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  EngineRenderer.instance.execute(deltaSeconds)
 }
 
 globalThis.EngineRenderer = EngineRenderer

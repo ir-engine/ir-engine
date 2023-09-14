@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { Fragment } from 'react'
-import { ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
+import React, { Fragment, useEffect } from 'react'
+import { ColorSpace, DisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { ImageFileTypes, VideoFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
@@ -78,8 +78,10 @@ export default function TexturePreviewInput({
   const { preview } = rest
   const validSrcValue =
     typeof value === 'string' && [AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(value))
-  const texture = value as Texture
-  const src = value as string
+
+  const srcState = useHookstate(value)
+  const texture = srcState.value as Texture
+  const src = srcState.value as string
   const showPreview = preview !== undefined || validSrcValue
   const previewSrc = validSrcValue ? value : preview
   const inputSrc = validSrcValue
@@ -89,6 +91,19 @@ export default function TexturePreviewInput({
     : src
   const offset = useHookstate(typeof texture?.offset?.clone === 'function' ? texture.offset.clone() : new Vector2(0, 0))
   const scale = useHookstate(typeof texture?.repeat?.clone === 'function' ? texture.repeat.clone() : new Vector2(1, 1))
+  const colorspace = useHookstate(
+    texture?.colorSpace ? texture?.colorSpace : (new String(LinearSRGBColorSpace) as ColorSpace)
+  )
+
+  useEffect(() => {
+    if (texture?.isTexture && !texture.isRenderTargetTexture) {
+      offset.set(texture.offset)
+      scale.set(texture.repeat)
+      colorspace.set(texture.colorSpace)
+    }
+  }, [srcState])
+
+  console.log('DEBUG texture colorspace is ', inputSrc, texture)
   return (
     <ImageContainer>
       <Stack>
@@ -128,14 +143,17 @@ export default function TexturePreviewInput({
           <>
             <InputGroup name="Encoding" label="Encoding">
               <SelectInput
-                value={texture.colorSpace}
+                value={colorspace.value}
                 options={[
                   { label: 'Linear', value: LinearSRGBColorSpace },
-                  { label: 'sRGB', value: SRGBColorSpace }
+                  { label: 'sRGB', value: SRGBColorSpace },
+                  { label: 'displayP3', value: DisplayP3ColorSpace }
                 ]}
                 onChange={(value: ColorSpace) => {
+                  colorspace.set(value)
                   texture.colorSpace = value
                   texture.needsUpdate = true
+                  console.log('DEBUG changed space', texture.colorSpace)
                 }}
               />
             </InputGroup>

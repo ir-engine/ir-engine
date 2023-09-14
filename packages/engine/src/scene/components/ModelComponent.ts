@@ -116,7 +116,9 @@ export const ModelComponent = defineComponent({
 
   onRemove: (entity, component) => {
     if (component.scene.value) {
-      clearMaterials(component.value)
+      if (component.src.value) {
+        clearMaterials(component.value)
+      }
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
@@ -249,6 +251,12 @@ function ModelReactor() {
       active = false
     }
   }, [modelComponent.scene, model.generateBVH])
+
+  useEffect(() => {
+    if (!modelComponent.scene.value) return
+    if (modelComponent.avoidCameraOcclusion.value) removeComponent(entity, FrustumCullCameraComponent)
+    else setComponent(entity, FrustumCullCameraComponent)
+  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
 
   return null
 }

@@ -174,12 +174,11 @@ export const AvatarRigComponent = defineComponent({
         setObjectLayers(helper, ObjectLayers.AvatarHelper)
         Engine.instance.scene.add(helper)
         rigComponent.helper.set(helper)
+      }
 
-        return () => {
-          helper.dispose()
-          helper.removeFromParent()
-          rigComponent.helper.set(none)
-        }
+      if ((!visible?.value || !debugEnabled.value || pending?.value) && rigComponent.helper.value) {
+        rigComponent.helper.value.removeFromParent()
+        rigComponent.helper.set(none)
       }
     }, [visible, debugEnabled, pending])
 
