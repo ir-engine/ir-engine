@@ -71,8 +71,8 @@ export class ScopeService<T = ScopeType, ServiceParams extends Params = ScopePar
       paginate: false
     })) as any as ScopeType[]
 
-    let existingData: ScopeData[] = []
-    let createData: ScopeData[] = []
+    const existingData: ScopeData[] = []
+    const createData: ScopeData[] = []
 
     for (const item of data) {
       const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)

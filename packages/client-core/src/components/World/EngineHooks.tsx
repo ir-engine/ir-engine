@@ -234,8 +234,10 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   usePortalTeleport()
 
   useEffect(() => {
-    if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS)
+    if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS) {
       dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+      window.dispatchEvent(new Event('load'))
+    }
   }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 

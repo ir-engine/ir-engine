@@ -65,6 +65,8 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { unique } from '../../functions/utils'
 import { ContextMenu } from '../layout/ContextMenu'
@@ -233,7 +235,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
     if (isLoading.value) return
 
-    isLoading.set(true)
     const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
 
     if (isFileDataType(data)) {
@@ -241,14 +242,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
+      isLoading.set(true)
       await Promise.all(
         data.files.map(async (file) => {
-          if (!file.type && !/\.glb$/.test(file.name)) {
+          const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
+          if (!assetType) {
             // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
             const name = processFileName(file.name)
-            await uploadToFeathersService('file-browser/upload', [file], {
+            await uploadToFeathersService(fileBrowserUploadPath, [file], {
               fileName: name,
               path,
               contentType: file.type

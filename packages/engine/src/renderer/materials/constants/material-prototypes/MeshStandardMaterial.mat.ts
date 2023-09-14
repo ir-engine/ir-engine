@@ -28,8 +28,10 @@ import { MeshStandardMaterial as Standard } from 'three'
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
 import {
+  AoMapArgs,
   BasicArgs,
   BumpMapArgs,
+  DisplacementMapArgs,
   EmissiveMapArgs,
   EnvMapArgs,
   LightMapArgs,
@@ -44,8 +46,10 @@ export const DefaultArgs = {
   ...EnvMapArgs,
   ...NormalMapArgs,
   ...BumpMapArgs,
+  ...DisplacementMapArgs,
   ...RoughhnessMapArgs,
   ...MetalnessMapArgs,
+  ...AoMapArgs,
   ...LightMapArgs
 }
 
