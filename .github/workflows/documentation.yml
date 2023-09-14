@@ -82,7 +82,7 @@ jobs:
           git reset --hard temp-gh-pages
           git push origin gh-pages --force
           git branch -D temp-gh-pages
-          echo "gh-pages commit history is clean now"
+          echo "gh-pages commit history has been cleared"
           cd docs
           cp .env.local.default .env.local
           npm install --legacy-peer-deps
