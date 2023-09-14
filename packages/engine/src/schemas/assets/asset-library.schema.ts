@@ -23,30 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface ServerInfoInterface {
-  id: string
-  label: string
-  pods: ServerPodInfo[]
-}
-
-export interface ServerPodInfo {
-  name: string
-  status: string
-  age: string | Date
-  containers: ServerContainerInfo[]
-  type?: string
-  locationSlug?: string
-  instanceId?: string
-  currentUsers?: number
-}
-
-export type ServerContainerStatus = 'Running' | 'Terminated' | 'Waiting' | 'Undefined'
-
-export interface ServerContainerInfo {
-  name: string
-  restarts: number
-  status: ServerContainerStatus
-  ready: boolean
-  started: boolean
-  image: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+export const assetLibraryPath = 'asset-library'
+export const assetLibraryMethods = ['create'] as const

@@ -1,3 +1,4 @@
+import { Id } from '@feathersjs/feathers'
 /*
 CPAL-1.0 License
 
@@ -24,19 +25,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import https from 'https'
 import { Knex } from 'knex'
 import _ from 'lodash'
 import fetch from 'node-fetch'
-import { Op } from 'sequelize'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
@@ -46,6 +46,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
+import { toDateTimeSql } from '../../util/datetime-sql'
 import getLocalServerIp from '../../util/get-local-server-ip'
 
 const releaseRegex = /^([a-zA-Z0-9]+)-/
@@ -73,11 +74,11 @@ export async function getFreeInstanceserver({
   userId?: UserID
   createPrivateRoom?: boolean
 }): Promise<InstanceServerProvisionResult> {
-  await app.service('instance').Model.destroy({
-    where: {
+  await app.service(instancePath)._remove(null, {
+    query: {
       assigned: true,
       assignedAt: {
-        [Op.lt]: new Date(new Date().getTime() - 30000)
+        $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
       }
     }
   })
@@ -106,7 +107,7 @@ export async function getFreeInstanceserver({
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
   })
   const ipAddresses = readyServers.map((server) => `${server.status.address}:${server.status.ports[0].port}`)
-  const assignedInstances: any = await app.service('instance').find({
+  const assignedInstances: any = await app.service(instancePath).find({
     query: {
       ipAddress: {
         $in: ipAddresses
@@ -171,20 +172,22 @@ export async function checkForDuplicatedAssignments({
     const query = { ended: false } as any
     if (locationId) query.locationId = locationId
     if (channelId) query.channelId = channelId
-    await app.service('instance').patch(null, { ended: true }, { query })
+    await app.service(instancePath)._patch(null, { ended: true }, { query })
   }
 
   //Create an assigned instance at this IP
-  const assignResult: any = await app.service('instance').create({
+  const assignResult: any = (await app.service(instancePath).create({
     ipAddress: ipAddress,
     locationId: locationId,
     podName: podName,
     channelId: channelId,
     assigned: true,
-    assignedAt: new Date()
-  })
+    assignedAt: toDateTimeSql(new Date()),
+    roomCode: '',
+    currentUsers: 0
+  })) as InstanceType
   //Check to see if there are any other non-ended instances assigned to this IP
-  const duplicateIPAssignment: any = await app.service('instance').find({
+  const duplicateIPAssignment: any = await app.service(instancePath).find({
     query: {
       ipAddress: ipAddress,
       assigned: true,
@@ -199,7 +202,7 @@ export async function checkForDuplicatedAssignments({
 
   if (locationId) duplicateLocationQuery.locationId = locationId
   if (channelId) duplicateLocationQuery.channelId = channelId
-  const duplicateLocationAssignment: any = await app.service('instance').find({
+  const duplicateLocationAssignment: any = await app.service(instancePath).find({
     query: duplicateLocationQuery
   })
 
@@ -229,7 +232,7 @@ export async function checkForDuplicatedAssignments({
     }
     if (!isFirstAssignment) {
       //If this is not the first assignment to this IP, remove the assigned instance row
-      await app.service('instance').remove(assignResult.id)
+      await app.service(instancePath)._remove(assignResult.id)
       //If this is the 10th or more attempt to get a free instanceserver, then there probably aren't any free ones,
       //
       if (iteration < 10) {
@@ -291,7 +294,7 @@ export async function checkForDuplicatedAssignments({
     }
     if (!isFirstAssignment) {
       //If this is not the first assignment to this IP, remove the assigned instance row
-      await app.service('instance').remove(assignResult.id)
+      await app.service(instancePath)._remove(assignResult.id)
       return earlierInstance!
     }
   }
@@ -309,7 +312,7 @@ export async function checkForDuplicatedAssignments({
       }, config.server.instanceserverUnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
     }),
     new Promise<boolean>((resolve) => {
-      let options = {} as any
+      const options = {} as any
       let protocol = 'http://'
       if (!config.kubernetes.enabled) {
         protocol = 'https://'
@@ -329,7 +332,7 @@ export async function checkForDuplicatedAssignments({
     })
   ])
   if (!responsivenessCheck) {
-    await app.service('instance').remove(assignResult.id)
+    await app.service(instancePath)._remove(assignResult.id)
     const k8DefaultClient = getState(ServerState).k8DefaultClient
     if (config.kubernetes.enabled)
       try {
@@ -396,23 +399,22 @@ export class InstanceProvision implements ServiceMethods<any> {
     roomCode,
     userId
   }: {
-    availableLocationInstances: Instance[]
+    availableLocationInstances: InstanceType[]
     locationId?: string
     channelId?: ChannelID
     roomCode?: undefined | string
     userId?: UserID
   }): Promise<InstanceServerProvisionResult> {
-    await this.app.service('instance').Model.destroy({
-      where: {
+    await this.app.service(instancePath)._remove(null, {
+      query: {
         assigned: true,
         assignedAt: {
-          [Op.lt]: new Date(new Date().getTime() - 30000)
+          $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
         }
       }
     })
-    const instanceModel = this.app.service('instance').Model
     const instanceUserSort = _.orderBy(availableLocationInstances, ['currentUsers'], ['desc'])
-    const nonPressuredInstances = instanceUserSort.filter((instance: typeof instanceModel) => {
+    const nonPressuredInstances = instanceUserSort.filter((instance) => {
       return instance.currentUsers < pressureThresholdPercent * instance.location.maxUsersPerInstance
     })
     const instances = nonPressuredInstances.length > 0 ? nonPressuredInstances : instanceUserSort
@@ -439,7 +441,7 @@ export class InstanceProvision implements ServiceMethods<any> {
       else return getFreeInstanceserver({ app: this.app, iteration: 0, locationId, channelId, roomCode, userId })
     }
     logger.info('IS existed, using it %o', instance)
-    const ipAddressSplit = instance.ipAddress.split(':')
+    const ipAddressSplit = instance.ipAddress!.split(':')
     return {
       id: instance.id,
       ipAddress: ipAddressSplit[0],
@@ -461,7 +463,7 @@ export class InstanceProvision implements ServiceMethods<any> {
    * @returns {@Boolean}
    */
 
-  async isCleanup(instance: Instance): Promise<boolean> {
+  async isCleanup(instance: InstanceType): Promise<boolean> {
     const k8AgonesClient = getState(ServerState).k8AgonesClient
     const instanceservers = await k8AgonesClient.listNamespacedCustomObject(
       'agones.dev',
@@ -472,7 +474,7 @@ export class InstanceProvision implements ServiceMethods<any> {
     const isIds = (instanceservers?.body as any)?.items.map((is) =>
       isNameRegex.exec(is.metadata.name) != null ? isNameRegex.exec(is.metadata.name)![1] : null!
     )
-    const [ip, port] = instance.ipAddress.split(':')
+    const [ip, port] = instance.ipAddress!.split(':')
     const match = (instanceservers?.body as any)?.items?.find((is) => {
       const inputPort = is.status.ports?.find((port) => port.name === 'default')
       return is.status.address === ip && inputPort?.port?.toString() === port
@@ -481,15 +483,15 @@ export class InstanceProvision implements ServiceMethods<any> {
       const patchInstance: any = {
         ended: true
       }
-      await this.app.service('instance').patch(instance.id, { ...patchInstance })
+      await this.app.service(instancePath).patch(instance.id, { ...patchInstance })
       return true
     }
 
-    await this.app.service('instance').Model.destroy({
-      where: {
+    await this.app.service(instancePath)._remove(null, {
+      query: {
         assigned: true,
         assignedAt: {
-          [Op.lt]: new Date(new Date().getTime() - 30000)
+          $lt: toDateTimeSql(new Date(new Date().getTime() - 30000))
         }
       }
     })
@@ -529,25 +531,27 @@ export class InstanceProvision implements ServiceMethods<any> {
         } catch (err) {
           throw new BadRequest('Invalid channel ID')
         }
-        const channelInstance = await this.app.service('instance').Model.findOne({
-          where: {
+        const channelInstance = (await this.app.service(instancePath)._find({
+          query: {
             channelId: channelId,
-            ended: false
+            ended: false,
+            $limit: 1
           }
-        })
-        if (channelInstance == null)
+        })) as Paginated<InstanceType>
+        if (channelInstance == null || channelInstance.data.length === 0)
           return getFreeInstanceserver({ app: this.app, iteration: 0, channelId, roomCode, userId })
         else {
           if (config.kubernetes.enabled) {
-            const isCleanup = await this.isCleanup(channelInstance)
+            const isCleanup = await this.isCleanup(channelInstance.data[0])
             if (isCleanup) return getFreeInstanceserver({ app: this.app, iteration: 0, channelId, roomCode, userId })
           }
-          const ipAddressSplit = channelInstance.ipAddress.split(':')
+          const actualInstance = channelInstance.data[0]
+          const ipAddressSplit = actualInstance.ipAddress!.split(':')
           return {
-            id: channelInstance.id,
+            id: actualInstance.id,
             ipAddress: ipAddressSplit[0],
             port: ipAddressSplit[1],
-            roomCode: channelInstance.roomCode
+            roomCode: actualInstance.roomCode
           }
         }
       } else {
@@ -555,17 +559,18 @@ export class InstanceProvision implements ServiceMethods<any> {
         const location = await this.app.service(locationPath).get(locationId)
         if (location == null) throw new BadRequest('Invalid location ID')
 
-        let instance: Instance | null = null
+        let instance: InstanceType | null = null
 
         if (instanceId != null) {
-          instance = await this.app.service('instance').get(instanceId)
+          instance = await this.app.service(instancePath).get(instanceId)
         } else if (roomCode != null) {
-          const instances = await this.app.service('instance').Model.findAll({
-            where: {
+          const instances = (await this.app.service(instancePath)._find({
+            query: {
               roomCode,
               ended: false
-            }
-          })
+            },
+            paginate: false
+          })) as any as InstanceType[]
           instance = instances.length > 0 ? instances[0] : null
         }
 
@@ -593,7 +598,7 @@ export class InstanceProvision implements ServiceMethods<any> {
                   userId
                 })
             }
-            const ipAddressSplit = instance.ipAddress.split(':')
+            const ipAddressSplit = instance.ipAddress!.split(':')
             return {
               id: instance.id,
               ipAddress: ipAddressSplit[0],
@@ -642,7 +647,7 @@ export class InstanceProvision implements ServiceMethods<any> {
         //       }
         //     }
         //   })
-        //   const maxInstance = await this.app.service('instance').get(maxInstanceId)
+        //   const maxInstance = await this.app.service(instancePath).get(maxInstanceId)
         //   if (!config.kubernetes.enabled) {
         //     logger.info('Resetting local instance to ' + maxInstanceId)
         //     const localIp = await getLocalServerIp(false)
@@ -664,11 +669,11 @@ export class InstanceProvision implements ServiceMethods<any> {
         const knexClient: Knex = this.app.get('knexClient')
 
         const response = await knexClient
-          .from('instance')
-          .join(locationPath, 'instance.locationId', '=', `${locationPath}.id`)
-          .where('instance.locationId', '=', location.id)
-          .andWhere('instance.ended', '=', false)
-          .andWhere(`${locationPath}.maxUsersPerInstance`, '>', 'instance.currentUsers')
+          .from(instancePath)
+          .join(locationPath, `${instancePath}.locationId`, '=', `${locationPath}.id`)
+          .where(`${instancePath}.locationId`, '=', location.id)
+          .andWhere(`${instancePath}.ended`, '=', false)
+          .andWhere(`${locationPath}.maxUsersPerInstance`, '>', `${instancePath}.currentUsers`)
           .select()
           .options({ nestTables: true }) // https://github.com/knex/knex/issues/61#issuecomment-213949230
 

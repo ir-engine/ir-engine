@@ -77,7 +77,12 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
+
+import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import { ShadowComponent } from '@etherealengine/engine/src/scene/components/ShadowComponent'
+
 import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEditor'
+import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
@@ -93,6 +98,7 @@ import { PrefabNodeEditor } from '../components/properties/PrefabNodeEditor'
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
+import ShadowProperties from '../components/properties/ShadowProperties'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
 import { SplineNodeEditor } from '../components/properties/SplineNodeEditor'
@@ -119,6 +125,7 @@ EntityNodeEditor.set(PointLightComponent, PointLightNodeEditor)
 EntityNodeEditor.set(SpotLightComponent, SpotLightNodeEditor)
 EntityNodeEditor.set(GroundPlaneComponent, GroundPlaneNodeEditor)
 EntityNodeEditor.set(ModelComponent, ModelNodeEditor)
+EntityNodeEditor.set(ShadowComponent, ShadowProperties)
 EntityNodeEditor.set(LoopAnimationComponent, LoopAnimationNodeEditor)
 EntityNodeEditor.set(ParticleSystemComponent, ParticleSystemNodeEditor)
 EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
@@ -148,3 +155,4 @@ EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
 EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
 EntityNodeEditor.set(SplineTrackComponent, SplineTrackNodeEditor)
 EntityNodeEditor.set(BehaveGraphComponent, BehaveGraphNodeEditor)
+EntityNodeEditor.set(LinkComponent, LinkNodeEditor)

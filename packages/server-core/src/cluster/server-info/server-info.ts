@@ -23,19 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { serverInfoMethods, serverInfoPath } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
 import { Application } from '../../../declarations'
-import { AssetLibrary } from './asset-library.class'
-import hooks from './asset-library.hooks'
+import { ServerInfoService } from './server-info.class'
+import serverInfoDocs from './server-info.docs'
+import hooks from './server-info.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'asset-library': AssetLibrary
+    [serverInfoPath]: ServerInfoService
   }
 }
 
-export default (app: Application) => {
-  const libClass = new AssetLibrary(app)
-  app.use('asset-library', libClass)
-  const service = app.service('asset-library')
+export default (app: Application): void => {
+  app.use(serverInfoPath, new ServerInfoService(app), {
+    // A list of all methods this service exposes externally
+    methods: serverInfoMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: serverInfoDocs
+  })
+
+  const service = app.service(serverInfoPath)
   service.hooks(hooks)
 }

@@ -27,13 +27,13 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import TableComponent from '../../common/Table'
 import { InstanceData, instanceColumns } from '../../common/variables/instance'
 import styles from '../../styles/admin.module.scss'
@@ -56,19 +56,19 @@ const InstanceTable = ({ className, search }: Props) => {
   const instanceName = useHookstate('')
   const fieldOrder = useHookstate<'asc' | 'desc'>('asc')
   const sortField = useHookstate('createdAt')
-  const instanceAdmin = useHookstate<Instance | undefined>(undefined)
+  const instanceAdmin = useHookstate<InstanceType | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)
 
-  const instancesQuery = useFind('instance', {
+  const instancesQuery = useFind(instancePath, {
     query: {
-      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
+      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
       $skip: page.value * rowsPerPage.value,
       $limit: rowsPerPage.value,
       action: 'admin',
       search
     }
   })
-  const removeInstance = useMutation('instance').remove
+  const removeInstance = useMutation(instancePath).remove
 
   const handlePageChange = (event: unknown, newPage: number) => {
     page.set(newPage)
@@ -94,7 +94,7 @@ const InstanceTable = ({ className, search }: Props) => {
   }
 
   const handleOpenInstanceDrawer =
-    (open: boolean, instance: Instance) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (open: boolean, instance: InstanceType) => (event: React.KeyboardEvent | React.MouseEvent) => {
       event.preventDefault()
       if (
         event.type === 'keydown' &&
@@ -115,20 +115,20 @@ const InstanceTable = ({ className, search }: Props) => {
   }, [])
 
   const createData = (
-    el: Instance,
+    el: InstanceType,
     id: string,
     ipAddress: string,
     currentUsers: number,
     channelId: string,
     podName: string,
-    locationId?: LocationType
+    location?: LocationType
   ): InstanceData => {
     return {
       el,
       id,
       ipAddress,
       currentUsers,
-      locationId: locationId?.name || '',
+      locationName: location?.name || '',
       channelId,
       podName,
       action: (
@@ -151,11 +151,11 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = instancesQuery.data.map((el: Instance) =>
+  const rows = instancesQuery.data.map((el: InstanceType) =>
     createData(
       { ...el },
       el.id,
-      el.ipAddress,
+      el.ipAddress || '',
       el.currentUsers,
       el.channelId || '',
       el.podName || '',

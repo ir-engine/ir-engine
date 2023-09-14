@@ -165,3 +165,21 @@ export interface MessageInterface {
   text: string
   isNotification: boolean
 }
+
+export interface InstanceInterface {
+  id: string
+  roomCode: string
+  ipAddress: string
+  channelId?: ChannelID
+  currentUsers: number
+  ended: boolean
+  podName: string
+  assigned: boolean
+  assignedAt: Date
+  locationId?: string
+  location?: LocationInterface
+}
+
+export interface InstanceAuthorizedUserInterface {
+  id: string
+}

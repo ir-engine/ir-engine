@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import {
   ChannelData,
@@ -157,15 +158,15 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       if (query.instanceId) {
         allChannels = await knexClient
           .from(channelPath)
-          .join('instance', `instance.id`, `${channelPath}.instanceId`)
-          .where(`instance.id`, '=', query.instanceId)
-          .andWhere('instance.ended', '=', false)
+          .join(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
+          .where(`${instancePath}.id`, '=', query.instanceId)
+          .andWhere(`${instancePath}.ended`, '=', false)
           .select(`${channelPath}.*`)
       } else {
         let channels = await knexClient
           .from(channelPath)
-          .leftJoin('instance', `instance.id`, `${channelPath}.instanceId`)
-          .where(`instance.ended`, '=', false)
+          .leftJoin(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
+          .where(`${instancePath}.ended`, '=', false)
           .orWhereNull(`${channelPath}.instanceId`)
           .select(`${channelPath}.*`)
 

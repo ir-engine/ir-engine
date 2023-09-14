@@ -23,30 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Mailer from 'feathers-mailer'
-import smtpTransport from 'nodemailer-smtp-transport'
+import type { Static } from '@feathersjs/typebox'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
-import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { Email } from './email.class'
-import emailDocs from './email.docs'
-import hooks from './email.hooks'
+export const emailPath = 'email'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    email: Email
-  }
-}
+export const emailDataSchema = Type.Object(
+  {
+    from: Type.String(),
+    to: Type.String(),
+    subject: Type.String(),
+    html: Type.String()
+  },
+  { $id: 'EmailData', additionalProperties: false }
+)
+export type EmailData = Static<typeof emailDataSchema>
 
-export default (app: Application): void => {
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = Mailer(smtpTransport({ ...config.email.smtp }))
-  event.docs = emailDocs
-  app.use('email', event)
-
-  const service = app.service('email')
-
-  service.hooks(hooks)
-}
+export const emailDataValidator = getValidator(emailDataSchema, dataValidator)

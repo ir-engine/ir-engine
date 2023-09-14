@@ -23,30 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    'verification-event': {
-      type: 'object',
-      properties: {
-        userId: {
-          type: 'string',
-          description: ''
-        },
-        expiresAt: {
-          type: 'date',
-          description: ''
-        }
-      }
-    },
-    'verification-event_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/verification-event' }
-    }
-  },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
-  }
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+export const serverLogsPath = 'server-logs'
+export const serverLogsMethods = ['find'] as const

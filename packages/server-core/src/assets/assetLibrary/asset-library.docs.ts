@@ -23,32 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export interface InstanceInterface {
-  id: string
-  roomCode: string
-  ipAddress: string
-  channelId?: ChannelID
-  currentUsers: number
-  ended: boolean
-  podName: string
-  assigned: boolean
-  assignedAt: Date
-  locationId?: string
-  location?: LocationInterface
-}
-
-interface LocationInterface {
-  id: string
-  name: string
-  sceneId: string
-  slugifiedName: string
-  isLobby: boolean
-  isFeatured: boolean
-  maxUsersPerInstance: number
-}
-
-export interface InstanceAuthorizedUserInterface {
-  id: string
-}
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Asset library service description',
+    securities: ['all']
+  }
+})

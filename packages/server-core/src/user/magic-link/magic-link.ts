@@ -23,24 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { magicLinkMethods, magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
 import { Application } from '../../../declarations'
-import { ServerInfo } from './server-info.class'
-import hooks from './server-info.hooks'
+import { MagicLinkService } from './magic-link.class'
+import magicLinkDocs from './magic-link.docs'
+import hooks from './magic-link.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'server-info': ServerInfo
+    [magicLinkPath]: MagicLinkService
   }
 }
 
 export default (app: Application): void => {
-  const options = {
-    paginate: app.get('paginate'),
-    multi: true
-  }
+  app.use(magicLinkPath, new MagicLinkService(app), {
+    // A list of all methods this service exposes externally
+    methods: magicLinkMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: magicLinkDocs
+  })
 
-  const event = new ServerInfo(options, app)
-  app.use('server-info', event)
-  const service = app.service('server-info')
+  const service = app.service(magicLinkPath)
   service.hooks(hooks)
 }

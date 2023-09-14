@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   MessageData,
@@ -84,7 +85,7 @@ export class MessageService<T = MessageType, ServiceParams extends Params = Mess
 
     if (!channel) {
       if (instanceId) {
-        const targetInstance = await this.app.service('instance').get(instanceId)
+        const targetInstance = await this.app.service(instancePath)._get(instanceId)
         if (targetInstance == null) {
           throw new BadRequest('Invalid target instance ID')
         }

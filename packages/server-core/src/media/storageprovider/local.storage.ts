@@ -28,8 +28,9 @@ import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path/posix'
-import { PassThrough } from 'stream'
+import { PassThrough, Readable } from 'stream'
 
+import { MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 import { getState } from '@etherealengine/hyperflux'
@@ -175,6 +176,25 @@ export class LocalStorage implements StorageProviderInterface {
           reject(e)
         }
       })
+    } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
+      return new Promise<boolean>((resolve, reject) => {
+        try {
+          const writeableStream = fs.createWriteStream(filePath)
+          const readable = Readable.from(data.Body)
+          readable.pipe(writeableStream)
+          writeableStream.on('finish', () => {
+            console.log('finished writing to file', filePath)
+            resolve(true)
+          })
+          readable.on('error', (e) => {
+            logger.error(e)
+            reject(e)
+          })
+        } catch (e) {
+          logger.error(e)
+          reject(e)
+        }
+      })
     } else {
       fs.writeFileSync(filePath, data.Body)
       return true
@@ -239,7 +259,7 @@ export class LocalStorage implements StorageProviderInterface {
    */
   getSignedUrl = (key: string, _expiresAfter: number, _conditions): any => {
     return {
-      fields: { Key: key },
+      fields: { key },
       url: `https://${this.cacheDomain}`,
       local: true,
       cacheDomain: this.cacheDomain

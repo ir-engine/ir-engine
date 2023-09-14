@@ -27,9 +27,11 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { EmailData } from '@etherealengine/engine/src/schemas/user/email.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -69,7 +71,7 @@ async function generateEmail(
   }
 
   if (inviteType === 'instance') {
-    const instance = await app.service('instance').get(targetObjectId!)
+    const instance = await app.service(instancePath).get(targetObjectId!)
     const location = await app.service(locationPath).get(instance.locationId!)
     locationName = location.name
   }
@@ -83,7 +85,7 @@ async function generateEmail(
     hashLink
   })
   const mailSender = config.email.from
-  const email = {
+  const email: EmailData = {
     from: mailSender,
     to: toEmail,
     subject: config.client.title + ' ' + (config.email.subject[inviteType] || 'Invitation'),
@@ -114,7 +116,7 @@ async function generateSMS(
   }
 
   if (inviteType === 'instance') {
-    const instance = await app.service('instance').get(targetObjectId!)
+    const instance = await app.service(instancePath).get(targetObjectId!)
     const location = await app.service(locationPath).get(instance.locationId!)
     locationName = location.name
   }

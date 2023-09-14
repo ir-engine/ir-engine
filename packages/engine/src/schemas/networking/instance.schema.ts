@@ -34,7 +34,7 @@ import { dataValidator, queryValidator } from '../validators'
 
 export const instancePath = 'instance'
 
-export const instanceMethods = ['create', 'find', 'get', 'remove', 'patch'] as const
+export const instanceMethods = ['create', 'find', 'get', 'patch', 'remove'] as const
 
 export type InstanceID = OpaqueType<'InstanceID'> & string
 
@@ -100,9 +100,16 @@ export const instanceQueryProperties = Type.Pick(instanceSchema, [
 ])
 export const instanceQuerySchema = Type.Intersect(
   [
-    querySyntax(instanceQueryProperties),
+    querySyntax(instanceQueryProperties, {
+      ipAddress: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      { action: Type.Optional(Type.String()), search: Type.Optional(Type.String()) },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

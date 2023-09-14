@@ -29,6 +29,7 @@ import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { AuthState } from '../user/services/AuthService'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
@@ -87,7 +88,7 @@ const NEARBY_AVATAR_UPDATE_PERIOD = 5
 let accumulator = 0
 
 const execute = () => {
-  accumulator += Engine.instance.deltaSeconds
+  accumulator += getState(EngineState).deltaSeconds
   if (accumulator > NEARBY_AVATAR_UPDATE_PERIOD) {
     accumulator = 0
     updateNearbyAvatars()

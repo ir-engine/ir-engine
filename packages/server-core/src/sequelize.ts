@@ -37,7 +37,7 @@ const config = require('../knexfile')
 
 const logger = multiLogger.child({ component: 'server-core:sequelize' })
 
-const checkLock = async (knexClient: Knex, delayInMs: number, promiseReject: (reason?: any) => void) => {
+const checkLock = async (knexClient: Knex, delayInMs: number) => {
   const trx = await knexClient.transaction()
   await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
@@ -105,8 +105,11 @@ export default (app: Application): void => {
         if (forceRefresh || appConfig.testEnabled) {
           // We are running our migration:rollback here, so that tables in db are dropped 1st using knex.
           // TODO: Once sequelize is removed, we should add migrate:rollback as part of `dev-reinit-db` script in package.json
-          await checkLock(knexClient, 0, promiseReject)
+          await checkLock(knexClient, 0)
+
+          logger.info('Knex migration rollback started')
           await knexClient.migrate.rollback(config.migrations, true)
+          logger.info('Knex migration rollback ended')
         }
 
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
@@ -159,13 +162,20 @@ export default (app: Application): void => {
           // And then knex migrations can be executed. This is because knex migrations will have foreign key dependency
           // on ta tables that are created using sequelize.
           // TODO: Once sequelize is removed, we should add migration as part of `dev-reinit-db` script in package.json
-          await checkLock(knexClient, prepareDb ? 25000 : 0, promiseReject)
+          await checkLock(knexClient, prepareDb ? 25000 : 0)
+
+          logger.info('Knex migration started')
           await knexClient.migrate.latest(config.migrations)
+          logger.info('Knex migration ended')
+
+          await checkLock(knexClient, prepareDb ? 25000 : 0)
         }
 
         try {
           // connect to sequelize
+          logger.info('Sequelize sync started')
           const sync = await sequelize.sync()
+          logger.info('Sequelize sync ended')
           try {
             // configure seeder and seed
             await seeder(app, forceRefresh || appConfig.testEnabled, prepareDb)
