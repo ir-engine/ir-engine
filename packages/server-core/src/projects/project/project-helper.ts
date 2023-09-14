@@ -323,9 +323,8 @@ export const getProjectEnv = async (app: Application, projectName: string) => {
       name: projectName
     }
   })
-  let projectSetting = project[0]?.settings ? project[0].settings : []
 
-  if (typeof projectSetting === 'string') projectSetting = JSON.parse(projectSetting)
+  let projectSetting = project[0].settings || []
 
   const settings: ProjectSettingType[] = []
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))

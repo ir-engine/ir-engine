@@ -56,7 +56,7 @@ const Project = () => {
     }
   }).data
 
-  let projectSetting = project[0]?.settings ? project[0].settings : []
+  let projectSetting = project[0].settings || []
 
   const patchProjectSetting = useMutation(projectPath).patch
 
@@ -77,7 +77,6 @@ const Project = () => {
       return
     }
 
-    if (typeof projectSetting === 'string') projectSetting = JSON.parse(projectSetting)
     const tempSettings = JSON.parse(JSON.stringify(settings.value))
     for (const [index, setting] of tempSettings.entries()) {
       const savedSetting = projectSetting.filter((item) => item.key === setting.key)

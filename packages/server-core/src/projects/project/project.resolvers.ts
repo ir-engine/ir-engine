@@ -60,30 +60,28 @@ export const projectDbToSchema = (rawData: ProjectDatabaseType): ProjectType => 
   }
 }
 
-export const projectResolver = resolve<ProjectType, HookContext>({
-  projectPermissions: virtual(async (project, context) => {
-    if (context.params?.query?.allowed) {
-      const projectPermissions = (await context.app.service(projectPermissionPath).find({
-        query: {
-          projectId: project.id
-        },
-        user: context.params?.user,
-        paginate: false
-      })) as ProjectPermissionType[]
+export const projectResolver = resolve<ProjectType, HookContext>(
+  {
+    projectPermissions: virtual(async (project, context) => {
+      if (context.params?.query?.allowed) {
+        const projectPermissions = (await context.app.service(projectPermissionPath).find({
+          query: {
+            projectId: project.id
+          },
+          user: context.params?.user,
+          paginate: false
+        })) as ProjectPermissionType[]
 
-      return projectPermissions
-    }
-  }),
+        return projectPermissions
+      }
+    }),
 
-  commitDate: virtual(async (project) => {
-    if (project.commitDate) return fromDateTimeSql(project.commitDate)
-  }),
-  createdAt: virtual(async (project) => fromDateTimeSql(project.createdAt)),
-  updatedAt: virtual(async (project) => fromDateTimeSql(project.updatedAt))
-})
-
-export const projectExternalResolver = resolve<ProjectType, HookContext>(
-  {},
+    commitDate: virtual(async (project) => {
+      if (project.commitDate) return fromDateTimeSql(project.commitDate)
+    }),
+    createdAt: virtual(async (project) => fromDateTimeSql(project.createdAt)),
+    updatedAt: virtual(async (project) => fromDateTimeSql(project.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -91,6 +89,8 @@ export const projectExternalResolver = resolve<ProjectType, HookContext>(
     }
   }
 )
+
+export const projectExternalResolver = resolve<ProjectType, HookContext>({})
 
 export const projectDataResolver = resolve<ProjectDatabaseType, HookContext>(
   {
