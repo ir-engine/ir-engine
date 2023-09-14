@@ -408,7 +408,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     if (paramsWithoutExtras?.query?.allowed) delete paramsWithoutExtras.query.allowed
 
-    const data = ((await super._find(paramsWithoutExtras)) as Paginated<ProjectType>).data
+    const result = (await super._find(paramsWithoutExtras)) as Paginated<ProjectType> | ProjectType[]
+
+    const data: ProjectType[] = result['data'] ? result['data'] : result
     for (const item of data) {
       try {
         const packageJson = getProjectPackageJson(item.name)
@@ -423,7 +425,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       }
     }
 
-    return data
+    return result
   }
 
   async _callOnLoad() {

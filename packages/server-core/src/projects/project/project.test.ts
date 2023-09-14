@@ -29,7 +29,8 @@ import path from 'path'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -79,8 +80,8 @@ describe('project.test', () => {
         )
 
         let findParams = { ...params, query: { name: newProjectName } }
-        const project = await app.service(projectPath).find(findParams)
-        assert.strictEqual(project[0].name, newProjectName)
+        const project = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
+        assert.strictEqual(project.data[0].name, newProjectName)
       })
 
       it('should not add new project with same name as existing project', function () {
@@ -98,10 +99,10 @@ describe('project.test', () => {
     describe('remove', () => {
       it('should remove project', async function () {
         let findParams = { ...params, query: { name: newProjectName } }
-        const projectData = await app.service(projectPath).find(findParams)
-        await app.service(projectPath).remove(projectData[0].id, params)
-        const project = await app.service(projectPath).find(findParams)
-        assert.strictEqual(project.length, 0)
+        const projectData = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
+        await app.service(projectPath).remove(projectData.data[0].id, params)
+        const project = (await app.service(projectPath).find(findParams)) as Paginated<ProjectType>
+        assert.strictEqual(project.data.length, 0)
       })
     })
 
