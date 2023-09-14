@@ -243,7 +243,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     } else {
       await Promise.all(
         data.files.map(async (file) => {
-          if (!file.type) {
+          if (!file.type && !/\.glb$/.test(file.name)) {
             // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
