@@ -48,7 +48,7 @@ const Project = () => {
   const settings = useHookstate<Array<ProjectSettingType> | []>([])
   const selectedProject = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
-  const project = useGet(projectPath, selectedProject.value).data
+  const project = useGet(projectPath, selectedProject.value, { query: { $select: ['settings'] } }).data
 
   let projectSetting = project?.settings || []
 
