@@ -71,6 +71,8 @@ jobs:
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
+          npm install --legacy-peer-deps
+          git clone https://github.com/etherealengine/etherealengine-docs.git docs
           echo "Starting to remove commit history for gh-pages branch"
           git checkout --orphan temp-gh-pages
           git add -A
@@ -80,8 +82,6 @@ jobs:
           git push origin gh-pages --force
           git branch -D temp-gh-pages
           echo "gh-pages commit history is clean now"
-          npm install --legacy-peer-deps
-          git clone https://github.com/etherealengine/etherealengine-docs.git docs
           cd docs
           cp .env.local.default .env.local
           npm install --legacy-peer-deps
