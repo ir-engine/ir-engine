@@ -393,8 +393,14 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     let paramsWithoutExtras = {
       ...params,
+      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+      query: params?.query ? JSON.parse(JSON.stringify(params?.query)) : {}
+    }
+
+    paramsWithoutExtras = {
+      ...paramsWithoutExtras,
       query: {
-        ...params?.query,
+        ...paramsWithoutExtras.query,
         $limit: params?.query?.$limit || 1000,
         $sort: params?.query?.$sort || { name: 1 }
       }
