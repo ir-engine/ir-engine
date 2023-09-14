@@ -23,37 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `verification-event` service on path `/verification-event`
+import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
+import Mailer from 'feathers-mailer'
+import smtpTransport from 'nodemailer-smtp-transport'
 import { Application } from '../../../declarations'
-import { VerificationEvent } from './verification-event.class'
-import verificationEventDocs from './verification-event.docs'
-import hooks from './verification-event.hooks'
-import createModel from './verification-event.model'
+import config from '../../appconfig'
+import hooks from './email.hooks'
 
-// Add this service to the service type index
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'verification-event': VerificationEvent
+    [emailPath]: Mailer
   }
 }
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
-  }
+export default (app: Application): void => {
+  app.use(emailPath, Mailer(smtpTransport({ ...config.email.smtp })))
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new VerificationEvent(options, app)
-  event.docs = verificationEventDocs
-  app.use('verification-event', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('verification-event')
-
+  const service = app.service(emailPath)
   service.hooks(hooks)
 }
