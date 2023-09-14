@@ -33,6 +33,7 @@ import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/u
 import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
 
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useLocationSpawnAvatarWithDespawn } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
@@ -580,6 +581,8 @@ const PlaybackMode = () => {
     const startTime = new Date(data.createdAt).getTime()
     const endTime = new Date(data.updatedAt).getTime()
     const durationSeconds = (endTime - startTime) / 1000
+
+    useLocationSpawnAvatarWithDespawn()
 
     // get all video resources, paired with motion capture data if it exists
     const videoPlaybackPairs = data.resources.reduce(

@@ -36,6 +36,7 @@ import {
   useLoadLocationScene,
   useLoadScene
 } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
+import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
@@ -51,25 +52,17 @@ const startCaptureSystems = () => {
 }
 
 export const CaptureLocation = () => {
+  useRemoveEngineCanvas()
+
   const params = useParams()
-
-  useEffect(() => {
-    const canvas = document.getElementById('engine-renderer-canvas')!
-    canvas.parentElement?.removeChild(canvas)
-
-    return () => {
-      const body = document.body
-      body.appendChild(canvas)
-    }
-  }, [])
-
-  useLoadLocationScene()
-  useLoadEngineWithScene()
-
-  useDefaultLocationSystems(true)
 
   const locationName = params?.locationName as string | undefined
   const offline = !locationName
+
+  useLoadLocationScene()
+  useLoadEngineWithScene({ spectate: true })
+
+  useDefaultLocationSystems(!offline)
 
   if (offline) {
     useLoadScene({ projectName: 'default-project', sceneName: 'default' })
