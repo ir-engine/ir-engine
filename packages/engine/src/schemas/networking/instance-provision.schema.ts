@@ -23,10 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InstanceServerProvisionResult {
-  id: string
-  ipAddress: string
-  port: string
-  roomCode: string
-  podName?: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import type { Static } from '@feathersjs/typebox'
+import { getValidator, Type } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
+
+export const instanceProvisionPath = 'instance-provision'
+
+export const instanceProvisionMethods = ['find', 'create'] as const
+
+// Main data model schema
+export const instanceProvisionSchema = Type.Object(
+  {
+    id: Type.String({
+      format: 'uuid'
+    }),
+    ipAddress: Type.String(),
+    port: Type.String(),
+    roomCode: Type.String(),
+    podName: Type.Optional(Type.String())
+  },
+  { $id: 'InstanceProvision', additionalProperties: false }
+)
+export type InstanceProvisionType = Static<typeof instanceProvisionSchema>
+
+export const instanceProvisionValidator = getValidator(instanceProvisionSchema, dataValidator)
