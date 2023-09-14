@@ -23,13 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { emailDataSchema } from '@etherealengine/engine/src/schemas/user/email.schema'
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-export default createSwaggerServiceOptions({
-  schemas: { emailDataSchema },
-  docs: {
-    description: 'Email service description',
-    securities: ['all']
-  }
-})
+export const loginPath = 'login'
+export const loginMethods = ['get'] as const
