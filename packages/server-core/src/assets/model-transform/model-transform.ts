@@ -23,10 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InstanceServerProvisionResult {
-  id: string
-  ipAddress: string
-  port: string
-  roomCode: string
-  podName?: string
+import {
+  modelTransformMethods,
+  modelTransformPath
+} from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
+import { Application } from '../../../declarations'
+import { ModelTransformService } from './model-transform.class'
+import modelTransformDocs from './model-transform.docs'
+import hooks from './model-transform.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [modelTransformPath]: ModelTransformService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(modelTransformPath, new ModelTransformService(app), {
+    // A list of all methods this service exposes externally
+    methods: modelTransformMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: modelTransformDocs
+  })
+
+  const service = app.service(modelTransformPath)
+  service.hooks(hooks)
 }

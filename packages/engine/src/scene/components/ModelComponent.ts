@@ -252,5 +252,11 @@ function ModelReactor() {
     }
   }, [modelComponent.scene, model.generateBVH])
 
+  useEffect(() => {
+    if (!modelComponent.scene.value) return
+    if (modelComponent.avoidCameraOcclusion.value) removeComponent(entity, FrustumCullCameraComponent)
+    else setComponent(entity, FrustumCullCameraComponent)
+  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
+
   return null
 }

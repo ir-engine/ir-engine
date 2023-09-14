@@ -52,6 +52,7 @@ import {
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 
+import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { getContentType } from '../../util/fileUtils'
 import { EEMaterial } from '../extensions/EE_MaterialTransformer'
 import { EEResourceID } from '../extensions/EE_ResourceIDTransformer'
@@ -578,7 +579,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   if (parms.modelFormat === 'glb') {
     const data = await io.writeBinary(document)
     const [savePath, fileName] = fileUploadPath(args.dst)
-    result = await app.service('file-browser').patch(null, {
+    result = await app.service(fileBrowserPath).patch(null, {
       path: savePath,
       fileName,
       body: data,
@@ -609,7 +610,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     if (!fs.existsSync(resourcePath)) {
-      await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
+      await app.service(fileBrowserPath).create(resourcePath.replace(projectRoot, '') as any)
     }
     json.images?.map((image) => {
       const nuURI = path.join(
@@ -634,7 +635,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     })
     const doUpload = (uri, data) => {
       const [savePath, fileName] = fileUploadPath(uri)
-      return app.service('file-browser').patch(null, {
+      return app.service(fileBrowserPath).patch(null, {
         path: savePath,
         fileName,
         body: data,

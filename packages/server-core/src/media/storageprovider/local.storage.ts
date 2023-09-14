@@ -31,8 +31,8 @@ import path from 'path/posix'
 import { PassThrough, Readable } from 'stream'
 
 import { MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
+import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { getState } from '@etherealengine/hyperflux'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -320,8 +320,8 @@ export class LocalStorage implements StorageProviderInterface {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
   }
 
-  private _processContent = (dirPath: string, pathString: string, isDir = false): FileContentType => {
-    const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileContentType
+  private _processContent = (dirPath: string, pathString: string, isDir = false): FileBrowserContentType => {
+    const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileBrowserContentType
     const signedUrl = this.getSignedUrl(res.key, 3600, null)
 
     if (isDir) {
@@ -354,7 +354,7 @@ export class LocalStorage implements StorageProviderInterface {
    * List all the files/folders in the directory.
    * @param relativeDirPath Name of folder in the storage.
    */
-  listFolderContent = async (relativeDirPath: string): Promise<FileContentType[]> => {
+  listFolderContent = async (relativeDirPath: string): Promise<FileBrowserContentType[]> => {
     const absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
 
     const folder = glob

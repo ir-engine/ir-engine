@@ -23,20 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision'
-import Instance from './instance/instance'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+import {
+  fileBrowserContentSchema,
+  fileBrowserPatchSchema,
+  fileBrowserUpdateSchema
+} from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+export default createSwaggerServiceOptions({
+  schemas: { fileBrowserUpdateSchema, fileBrowserPatchSchema, fileBrowserContentSchema },
+  docs: {
+    description: 'File Browser service description',
+    securities: ['all']
+  }
+})
