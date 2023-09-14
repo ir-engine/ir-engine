@@ -82,6 +82,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 export const shadowDirection = new Vector3(0, -1, 0)
 const shadowRotation = new Quaternion()
 const raycaster = new Raycaster()
+raycaster.firstHitOnly = true
 const raycasterPosition = new Vector3()
 
 const csmGroup = new Group()
@@ -237,7 +238,7 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
     if (sphere.radius > maxRadius) return
 
     const radius = Math.max(sphere.radius * 2, minRadius)
-    const center = groupComponent.value[0].position
+    const center = sphere.center
     const shadowEntity = createEntity()
     const shadowObject = new Mesh(shadowGeometry, shadowMaterial.value.clone())
     addObjectToGroup(shadowEntity, shadowObject)
@@ -265,10 +266,10 @@ const execute = () => {
   if (!useShadows && !getState(EngineState).isEditor) {
     for (const entity of dropShadowComponentQuery()) {
       const dropShadow = getComponent(entity, DropShadowComponent)
+      const group = getComponent(entity, GroupComponent)
       const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)
 
-      raycaster.firstHitOnly = true
-      raycasterPosition.copy(dropShadow.center)
+      raycasterPosition.copy(group[0].position).add(dropShadow.center)
       raycaster.set(raycasterPosition, shadowDirection)
 
       const intersected = raycaster.intersectObjects(sceneObjects)[0]
