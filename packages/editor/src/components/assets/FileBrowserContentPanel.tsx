@@ -65,6 +65,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { unique } from '../../functions/utils'
 import { ContextMenu } from '../layout/ContextMenu'
@@ -243,7 +244,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     } else {
       await Promise.all(
         data.files.map(async (file) => {
-          if (!file.type) {
+          const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
+          if (!assetType) {
             // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
@@ -484,7 +486,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           variant="body2"
         />
       )}
-      <div id="file-browser-panel">
+      <div id="file-browser-panel" style={{ overflowY: 'auto' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>

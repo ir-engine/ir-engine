@@ -207,8 +207,9 @@ const execute = () => {
     if (dist < 20) transition.setState('IN')
 
     let springAlpha = transition.alpha
+    const deltaSeconds = getState(EngineState).deltaSeconds
 
-    transition.update(Engine.instance.deltaSeconds, (alpha) => {
+    transition.update(deltaSeconds, (alpha) => {
       springAlpha = easeOutElastic(alpha)
     })
 

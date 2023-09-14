@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { MeshBasicMaterial } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
@@ -37,12 +38,12 @@ import {
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
@@ -185,8 +186,10 @@ const execute = () => {
   const state = getState(WarningUIState)
   const { transition, ui } = getState(WarningUISystemState)
 
+  const deltaSeconds = getState(EngineState).deltaSeconds
+
   if (state.timeRemaining > 0) {
-    accumulator += Engine.instance.deltaSeconds
+    accumulator += deltaSeconds
     if (state.open && accumulator > 1) {
       const timeRemaining = Math.max(0, state.timeRemaining - 1)
       getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
@@ -214,7 +217,7 @@ const execute = () => {
     })
   }
 
-  transition.update(Engine.instance.deltaSeconds, (opacity) => {
+  transition.update(deltaSeconds, (opacity) => {
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = opacity
