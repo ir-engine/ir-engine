@@ -24,17 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // Initializes the `login` service on path `/login`
+import { loginMethods, loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { Login } from './login.class'
+import config from '../../appconfig'
+import { LoginService } from './login.class'
 import loginDocs from './login.docs'
 import hooks from './login.hooks'
 
-// Add this service to the service type index
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    login: Login
+    [loginPath]: LoginService
   }
 }
 
@@ -52,21 +52,16 @@ async function redirect(ctx, next) {
   return next()
 }
 
-export default (app: Application) => {
-  const options = {
-    paginate: app.get('paginate')
-  }
+export default (app: Application): void => {
+  app.use(loginPath, new LoginService(app), {
+    // A list of all methods this service exposes externally
+    methods: loginMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: loginDocs,
+    koa: { after: [redirect] }
+  })
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Login(options, app)
-  event.docs = loginDocs
-  app.use('login', event, { koa: { after: [redirect] } })
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('login')
-
+  const service = app.service(loginPath)
   service.hooks(hooks)
 }

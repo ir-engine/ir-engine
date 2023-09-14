@@ -34,6 +34,7 @@ import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettings
 import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -180,7 +181,9 @@ const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true,
 const execute = () => {
   if (Engine.instance.xrFrame) return
 
-  const { localClientEntity, deltaSeconds } = Engine.instance
+  const deltaSeconds = getState(EngineState).deltaSeconds
+
+  const { localClientEntity } = Engine.instance
   if (!localClientEntity) return
 
   const cameraSettings = getState(CameraSettings)
