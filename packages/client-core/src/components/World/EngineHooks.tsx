@@ -145,7 +145,6 @@ export const useLocationSpawnAvatar = (spectate = false) => {
  */
 export const useLocationSpawnAvatarWithDespawn = () => {
   useLocationSpawnAvatar()
-
   useEffect(() => {
     return () => {
       despawnSelfAvatar()
@@ -155,13 +154,10 @@ export const useLocationSpawnAvatarWithDespawn = () => {
 
 export const despawnSelfAvatar = () => {
   const clientEntity = Engine.instance.localClientEntity
-  console.log({ clientEntity })
   if (!clientEntity) return
 
   const peersCountForUser =
     getState(NetworkState).networks[getState(NetworkState).hostIds.world!].users[Engine.instance.userID]?.length
-
-  console.log({ peersCountForUser })
 
   // if we are the last peer in the world for this user, destroy the object
   if (!peersCountForUser || peersCountForUser === 1) {

@@ -25,10 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { PlaybackState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
-import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import {
+  RecordingID,
+  RecordingType,
+  recordingPath
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
+import Icon from '../../../primitives/mui/Icon'
+import IconButtonWithTooltip from '../../../primitives/mui/IconButtonWithTooltip'
 
 function formatHHMMSS(time) {
   const sec_num = parseInt(time, 10) // don't forget the second param
@@ -51,12 +57,82 @@ const RecordingsList = (props: {
   startPlayback: (recordingID: RecordingID, twin: boolean) => void
   stopPlayback: (args: { recordingID: RecordingID }) => void
 }) => {
+  const { startPlayback, stopPlayback } = props
+
   const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
   const recording = useFind(recordingPath, {
-    query: { $sort: { createdAt: -1 }, $limit: 10 }
+    query: { $sort: { createdAt: -1 }, $limit: 10, $skip: 0 }
   })
 
   const sortedRecordings = recording.data.sort(sortByNewest)
+
+  const RecordingItem = (props: { recording: RecordingType }) => {
+    const { recording } = props
+    const hasEntityResource = recording.resources.some((resource) => resource.key?.includes('entities'))
+    const hasVideoResource = recording.resources.some((resource) => resource.mimeType?.includes('video'))
+    const hasMocapResource = recording.resources.some((resource) => resource.key?.includes('mocap'))
+    return (
+      <tr key={recording.id}>
+        <td>
+          <div className="bg-grey">{recording.id}</div>
+        </td>
+        <td>
+          {/* icon for each media type */}
+          <div className="bg-grey flex flex-row">
+            {hasEntityResource && (
+              <div className="bg-grey">
+                <IconButtonWithTooltip id="Entity" title={'Entity'} icon={<Icon type={'Accessibility'} />} />
+              </div>
+            )}
+            {hasVideoResource && (
+              <div className="bg-grey">
+                <IconButtonWithTooltip id="Video" title={'Video'} icon={<Icon type={'Videocam'} />} />
+              </div>
+            )}
+            {hasMocapResource && (
+              <div className="bg-grey">
+                <IconButtonWithTooltip id="Mocap" title={'Mocap'} icon={<Icon type={'DirectionsRun'} />} />
+              </div>
+            )}
+          </div>
+        </td>
+        <td>
+          <div className="bg-grey">{new Date(recording.createdAt).toLocaleTimeString()}</div>
+        </td>
+        <td>
+          <div className="bg-grey">
+            {formatHHMMSS((new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime()) / 1000)}
+          </div>
+        </td>
+        <td>
+          <div key={recording.id} className="">
+            {/* a button to play back the recording */}
+            {recordingID.value === recording.id ? (
+              <button
+                className="btn btn-ghost"
+                onClick={() => {
+                  stopPlayback({
+                    recordingID: recording.id
+                  })
+                }}
+              >
+                <StopIcon className="block min-w-6 min-h-6" />
+              </button>
+            ) : (
+              <>
+                <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
+                  <PlayIcon className="block min-w-6 min-h-6" />
+                </button>
+                <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id, true)}>
+                  <PlusCircleIcon className="block min-w-6 min-h-6" />
+                </button>
+              </>
+            )}
+          </div>
+        </td>
+      </tr>
+    )
+  }
 
   return (
     <div className="w-full aspect-video">
@@ -65,6 +141,7 @@ const RecordingsList = (props: {
         <thead>
           <tr>
             <th>Recording</th>
+            <th>Media</th>
             <th>Created At</th>
             <th>Duration</th>
             <th>Actions</th>
@@ -72,47 +149,7 @@ const RecordingsList = (props: {
         </thead>
         <tbody>
           {sortedRecordings.map((recording) => (
-            <tr key={recording.id}>
-              <td>
-                <div className="bg-grey">{recording.id}</div>
-              </td>
-              <td>
-                <div className="bg-grey">{new Date(recording.createdAt).toLocaleTimeString()}</div>
-              </td>
-              <td>
-                <div className="bg-grey">
-                  {formatHHMMSS(
-                    (new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime()) / 1000
-                  )}
-                </div>
-              </td>
-              <td>
-                <div key={recording.id} className="">
-                  {/* a button to play back the recording */}
-                  {recordingID.value === recording.id ? (
-                    <button
-                      className="btn btn-ghost"
-                      onClick={() => {
-                        props.stopPlayback({
-                          recordingID: recording.id
-                        })
-                      }}
-                    >
-                      <StopIcon className="block min-w-6 min-h-6" />
-                    </button>
-                  ) : (
-                    <>
-                      <button className="btn btn-ghost" onClick={() => props.startPlayback(recording.id, false)}>
-                        <PlayIcon className="block min-w-6 min-h-6" />
-                      </button>
-                      <button style={{ pointerEvents: 'all' }} onClick={() => props.startPlayback(recording.id, true)}>
-                        <PlusCircleIcon className="block min-w-6 min-h-6" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              </td>
-            </tr>
+            <RecordingItem key={recording.id} recording={recording} />
           ))}
         </tbody>
       </table>

@@ -43,13 +43,15 @@ import { SerializationSchema } from '@etherealengine/engine/src/networking/seria
 import {
   ECSDeserializer,
   ECSSerialization,
-  ECSSerializer
+  ECSSerializer,
+  SerializedChunk
 } from '@etherealengine/engine/src/recording/ECSSerializerSystem'
 import {
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
+  getMutableState,
   getState,
   receiveActions,
   Topic
@@ -131,6 +133,7 @@ export type RecordingConfigSchema = {
 export const RecordingState = defineState({
   name: 'ee.RecordingState',
 
+  /** @todo - support multiple recording */
   initial: {
     active: false,
     startedAt: null as number | null,
@@ -232,6 +235,7 @@ export const RecordingState = defineState({
 export const PlaybackState = defineState({
   name: 'ee.PlaybackState',
 
+  /** @todo - support multiple playback */
   initial: {
     recordingID: null as RecordingID | null,
     playing: false,
@@ -300,6 +304,8 @@ interface ActiveRecording {
 interface ActivePlayback {
   userID: UserID
   deserializer?: ECSDeserializer
+  entityChunks: SerializedChunk[]
+  dataChannelChunks: Map<DataChannelType, DataChannelFrame<any>[][]>
   entitiesSpawned: (EntityUUID | UserID)[]
   peerIDs?: PeerID[]
   mediaPlayback?: any // todo
@@ -542,10 +548,6 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   if (!recording.resources?.length) return dispatchError('Recording has no resources', action.$peer, action.$topic)
 
-  const activePlayback = {
-    userID: action.targetUser
-  } as ActivePlayback
-
   const entityFiles = recording.resources.filter((resource) => resource.key.includes('entities-'))
 
   const rawFiles = recording.resources.filter(
@@ -558,13 +560,13 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     (resource) => resource.key.substring(resource.key.length - 3, resource.key.length) !== '.ee'
   )
 
-  const entityChunks = await Promise.all(
+  const entityChunks = (await Promise.all(
     entityFiles.map(async (resource) => {
       const data = await fetch(resource.url)
       const buffer = await data.arrayBuffer()
       return decode(new Uint8Array(buffer))
     })
-  )
+  )) as SerializedChunk[]
 
   const dataChannelChunks = new Map<DataChannelType, DataChannelFrame<any>[][]>()
 
@@ -577,6 +579,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
       dataChannelChunks.get(dataChannel)!.push(decode(new Uint8Array(buffer)))
     })
   )
+
+  const activePlayback = {
+    userID: action.targetUser,
+    entityChunks,
+    dataChannelChunks
+  } as ActivePlayback
 
   const network = getState(NetworkState).networks[action.$network]
 
@@ -593,13 +601,14 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
       for (let i = 0; i < entityChunks[chunkIndex].entities.length; i++) {
         const uuid = entityChunks[chunkIndex].entities[i]
         // override entity ID such that it is actually unique, by appendig the recording id
-        const entityID = isClone ? ((uuid + '_' + recording.id) as EntityUUID) : uuid
+        const entityID = ((isClone ? uuid + '_' + recording.id : uuid) ?? Engine.instance.userID) as UserID & EntityUUID
         entityChunks[chunkIndex].entities[i] = entityID
         api
           .service(userPath)
           .get(uuid)
           .then((user) => {
-            if (network && network.topic === NetworkTopics.world) {
+            if (!network || network?.topic === NetworkTopics.world) {
+              const network = Engine.instance.worldNetwork
               const peerIDs = Object.keys(schema.peers) as PeerID[]
 
               // todo, this is a hack
@@ -610,17 +619,11 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                   network,
                   peerID,
                   network.peerIndexCount++,
-                  entityID,
+                  entityID as any as UserID,
                   network.userIndexCount++,
                   user.name + ' (Playback)'
                 )
                 updatePeers(network)
-              }
-
-              for (const [dataChannel, chunks] of Array.from(dataChannelChunks.entries())) {
-                const chunk = chunks[chunkIndex]
-                setDataChannelChunkToReplay(entityID, dataChannel, chunk)
-                // createOutgoingDataProducer(network, dataChannel)
               }
             }
 
@@ -711,8 +714,6 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Net
     )
   }
 
-  removeDataChannelToReplay(userId)
-
   if (network) {
     if (activePlayback.peerIDs) {
       for (const peerID of activePlayback.peerIDs) {
@@ -744,32 +745,6 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Net
   activePlaybacks.delete(recordingID)
 }
 
-export const dataChannelToReplay = new Map<
-  UserID,
-  Map<DataChannelType, { startTime: number; frames: DataChannelFrame<any>[] }>
->()
-
-export const setDataChannelChunkToReplay = (
-  userId: UserID,
-  dataChannel: DataChannelType,
-  frames: DataChannelFrame<any>[]
-) => {
-  if (!dataChannelToReplay.has(userId)) {
-    dataChannelToReplay.set(userId, new Map())
-  }
-
-  const userMap = dataChannelToReplay.get(userId)!
-  userMap.set(dataChannel, { startTime: Date.now(), frames })
-}
-
-export const removeDataChannelToReplay = (userId: UserID) => {
-  if (!dataChannelToReplay.has(userId)) {
-    return
-  }
-
-  dataChannelToReplay.delete(userId)
-}
-
 const startRecordingActionQueue = defineActionQueue(ECSRecordingActions.startRecording.matches)
 const stopRecordingActionQueue = defineActionQueue(ECSRecordingActions.stopRecording.matches)
 const startPlaybackActionQueue = defineActionQueue(ECSRecordingActions.startPlayback.matches)
@@ -779,6 +754,7 @@ const execute = () => {
   receiveActions(RecordingState)
   receiveActions(PlaybackState)
 
+  const recordingState = getState(RecordingState)
   const playbackState = getState(PlaybackState)
 
   // todo - client side recording
@@ -790,39 +766,56 @@ const execute = () => {
   for (const action of startPlaybackActionQueue()) onStartPlayback(action)
   for (const action of stopPlaybackActionQueue()) onStopPlayback(action)
 
-  for (const [id, recording] of activeRecordings) {
-    const { serializer } = recording
-    if (serializer) {
-      serializer.write()
-    }
-  }
-
-  for (const [id, playback] of activePlaybacks) {
-    const { deserializer } = playback
-    if (deserializer) {
-      deserializer.read(playbackState.currentTime!)
-    }
-  }
-
   // todo - only set deserializer.active to true once avatar spawns, if clone mode
 
   const network = Engine.instance.worldNetwork // TODO - support buffer playback in media server
 
   if (!network) return
 
-  for (const [userId, userMap] of Array.from(dataChannelToReplay.entries())) {
-    if (network.users[userId])
-      for (const [dataChannel, chunk] of userMap) {
-        for (const frame of chunk.frames) {
-          if (frame.timecode > Date.now() - chunk.startTime) {
-            network.transport.bufferToAll(dataChannel, encode(frame.data))
-            // for (const peerID of network.users[userId]) {
-            //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
-            // }
-            break
+  if (recordingState.active) {
+    for (const [id, recording] of activeRecordings) {
+      const { serializer } = recording
+      if (serializer) {
+        serializer.write()
+      }
+    }
+  }
+
+  if (playbackState.playing) {
+    /** @todo use playback speed from metadata in recording */
+    const timestep = 1 / 60 // TODO this is hardcoded in server timer
+    getMutableState(PlaybackState).currentTime.set(playbackState.currentTime! + timestep)
+  }
+
+  for (const [id, playback] of activePlaybacks) {
+    const { deserializer } = playback
+    const currentTime = playbackState.currentTime!
+    const chunkLength = playback.entityChunks[0].changes.length
+
+    const chunkIndex = Math.floor(currentTime / chunkLength)
+    const frameIndex = Math.floor(currentTime * 60) % chunkLength
+
+    if (deserializer) {
+      deserializer.read(chunkIndex, frameIndex!)
+    }
+
+    for (const [dataChannel, chunks] of Array.from(playback.dataChannelChunks.entries())) {
+      const chunk = chunks[chunkIndex]
+      if (chunk) {
+        const frame = chunk[frameIndex]
+        if (frame) {
+          const encodedData = encode(frame.data)
+          const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannel]
+          if (dataChannelFunctions) {
+            for (const func of dataChannelFunctions) func(network, dataChannel, network.hostPeerID, encodedData)
           }
+          // network.transport.bufferToAll(dataChannel, encode(frame.data))
+          // for (const peerID of network.users[userId]) {
+          //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
+          // }
         }
       }
+    }
   }
 }
 

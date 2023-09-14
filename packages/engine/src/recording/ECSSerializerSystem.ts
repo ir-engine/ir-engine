@@ -168,7 +168,9 @@ export const readEntity = (v: ViewCursor, entities: EntityUUID[], serializationS
   let b = 0
 
   for (const component of serializationSchema) {
-    if (checkBitflag(changeMask, 1 << b++)) component.read(v, entity)
+    if (checkBitflag(changeMask, 1 << b++)) {
+      component.read(v, entity)
+    }
   }
 }
 
@@ -196,13 +198,9 @@ const toArrayBuffer = (buf) => {
 }
 
 export const createDeserializer = ({ id, chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
-  const timestep = 1 / 60 // TODO this is hardcoded in server timer
-
   onChunkStarted(0)
 
-  const read = (time: number) => {
-    const chunk = Math.floor(time / (timestep * chunks[0].changes.length))
-    const frame = Math.floor(time / timestep) % chunks[0].changes.length
+  const read = (chunk: number, frame: number) => {
     const data = chunks[chunk] as SerializedChunk
     const frameData = toArrayBuffer(data.changes[frame])
 

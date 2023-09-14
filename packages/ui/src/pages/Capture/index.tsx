@@ -53,8 +53,6 @@ import { CaptureClientSettingsState } from '@etherealengine/client-core/src/medi
 import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -448,13 +446,14 @@ const VideoPlayback = (props: {
   const currentTimeSeconds = useHookstate(getMutableState(PlaybackState).currentTime)
 
   /** When playing based on the video, update the current time based on the video's current time */
-  useExecute(
-    () => {
-      if (!videoRef.current || !playing.value) return
-      currentTimeSeconds.set(videoRef.current.currentTime)
-    },
-    { after: PresentationSystemGroup }
-  )
+  // useExecute(
+  //   () => {
+  //     if (!videoRef.current || !playing.value) return
+  //     console.log('updating current time from systen', videoRef.current.currentTime)
+  //     currentTimeSeconds.set(videoRef.current.currentTime)
+  //   },
+  //   { after: PresentationSystemGroup }
+  // )
 
   useEffect(() => {
     if (!videoRef.current) return
@@ -625,7 +624,7 @@ const PlaybackMode = () => {
     <div className="w-full container mx-auto pointer-events-auto items-center justify-center content-center">
       <div className="w-full h-auto px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
       <div className="max-w-[1024px] w-full container mx-auto flex">
-        <div className="w-full relative m-2">
+        <div className="w-full h-auto relative m-2">
           <RecordingsList {...{ startPlayback, stopPlayback }} />
         </div>
       </div>

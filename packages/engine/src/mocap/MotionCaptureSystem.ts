@@ -127,9 +127,11 @@ const execute = () => {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
 
-      const userID = network.peers[peerID]!.userId
-      const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
-      if (entity && entityExists(entity)) removeComponent(entity, MotionCaptureRigComponent)
+      const userID = network.peers[peerID]?.userId
+      if (userID) {
+        const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
+        if (entity && entityExists(entity)) removeComponent(entity, MotionCaptureRigComponent)
+      }
     }
   }
 
