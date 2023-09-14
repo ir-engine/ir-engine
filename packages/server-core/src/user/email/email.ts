@@ -23,15 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-
+import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
+import Mailer from 'feathers-mailer'
+import smtpTransport from 'nodemailer-smtp-transport'
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import hooks from './email.hooks'
 
-/**
- * A class for Email service
- */
-export class Email extends Service {
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [emailPath]: Mailer
   }
+}
+
+export default (app: Application): void => {
+  app.use(emailPath, Mailer(smtpTransport({ ...config.email.smtp })))
+
+  const service = app.service(emailPath)
+  service.hooks(hooks)
 }
