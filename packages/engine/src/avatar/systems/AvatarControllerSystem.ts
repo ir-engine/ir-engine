@@ -28,9 +28,11 @@ import { useEffect } from 'react'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
+import { getState } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../../camera/components/TargetCameraRotationComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineQuery,
   getComponent,
@@ -113,10 +115,11 @@ const execute = () => {
        *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
        *    if detecting input on the other user #7263
        */
+      const deltaSeconds = getState(EngineState).deltaSeconds
       if (
         !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
         Engine.instance.worldNetwork &&
-        controller.gamepadWorldMovement.lengthSq() > 0.1 * Engine.instance.deltaSeconds
+        controller.gamepadWorldMovement.lengthSq() > 0.1 * deltaSeconds
       ) {
         const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
         dispatchAction(
