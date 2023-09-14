@@ -33,10 +33,10 @@ export default {
     all: [authenticate()],
     find: [disallow()],
     get: [disallow()],
-    create: [iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    update: [disallow() /*verifyScope('editor', 'write')*/],
-    patch: [disallow() /*verifyScope('editor', 'write')*/],
-    remove: [disallow() /*verifyScope('editor', 'write')*/]
+    create: [iff(isProvider('external'), verifyScope('editor', 'write'))],
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [disallow()]
   },
 
   after: {

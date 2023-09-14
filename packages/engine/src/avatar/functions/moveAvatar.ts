@@ -417,7 +417,8 @@ export const updateLocalAvatarRotation = () => {
   if (getCameraMode() === 'attached') {
     _updateLocalAvatarRotationAttachedMode()
   } else {
-    const alpha = smootheLerpAlpha(3, Engine.instance.deltaSeconds)
+    const deltaSeconds = getState(EngineState).deltaSeconds
+    const alpha = smootheLerpAlpha(3, deltaSeconds)
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       _slerpBodyTowardsCameraDirection(entity, alpha)
     } else {

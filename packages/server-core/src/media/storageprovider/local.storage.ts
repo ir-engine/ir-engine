@@ -28,10 +28,11 @@ import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path/posix'
-import { PassThrough } from 'stream'
+import { PassThrough, Readable } from 'stream'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 
+import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { getState } from '@etherealengine/hyperflux'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -175,6 +176,25 @@ export class LocalStorage implements StorageProviderInterface {
           reject(e)
         }
       })
+    } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
+      return new Promise<boolean>((resolve, reject) => {
+        try {
+          const writeableStream = fs.createWriteStream(filePath)
+          const readable = Readable.from(data.Body)
+          readable.pipe(writeableStream)
+          writeableStream.on('finish', () => {
+            console.log('finished writing to file', filePath)
+            resolve(true)
+          })
+          readable.on('error', (e) => {
+            logger.error(e)
+            reject(e)
+          })
+        } catch (e) {
+          logger.error(e)
+          reject(e)
+        }
+      })
     } else {
       fs.writeFileSync(filePath, data.Body)
       return true
@@ -239,7 +259,7 @@ export class LocalStorage implements StorageProviderInterface {
    */
   getSignedUrl = (key: string, _expiresAfter: number, _conditions): any => {
     return {
-      fields: { Key: key },
+      fields: { key },
       url: `https://${this.cacheDomain}`,
       local: true,
       cacheDomain: this.cacheDomain
@@ -300,8 +320,8 @@ export class LocalStorage implements StorageProviderInterface {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
   }
 
-  private _processContent = (dirPath: string, pathString: string, isDir = false): FileContentType => {
-    const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileContentType
+  private _processContent = (dirPath: string, pathString: string, isDir = false): FileBrowserContentType => {
+    const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileBrowserContentType
     const signedUrl = this.getSignedUrl(res.key, 3600, null)
 
     if (isDir) {
@@ -334,7 +354,7 @@ export class LocalStorage implements StorageProviderInterface {
    * List all the files/folders in the directory.
    * @param relativeDirPath Name of folder in the storage.
    */
-  listFolderContent = async (relativeDirPath: string): Promise<FileContentType[]> => {
+  listFolderContent = async (relativeDirPath: string): Promise<FileBrowserContentType[]> => {
     const absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
 
     const folder = glob

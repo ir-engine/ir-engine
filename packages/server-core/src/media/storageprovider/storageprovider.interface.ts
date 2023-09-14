@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PassThrough } from 'stream'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 
 /**
  * Put object parameters interface for adding to storage.
@@ -57,6 +57,13 @@ export interface StorageObjectInterface {
   ContentEncoding?: string
 
   Metadata?: object
+}
+
+export interface StorageMultipartStartInterface {
+  Bucket: string
+  Key: string
+  ContentType: string
+  ContentEncoding?: string
 }
 
 export interface StorageObjectPutInterface extends Omit<StorageObjectInterface, 'Body'> {
@@ -239,7 +246,7 @@ export interface StorageProviderInterface {
    * @param folderName Name of folder in the storage.
    * @param recursive If true it will list content from sub folders as well.
    */
-  listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]>
+  listFolderContent(folderName: string, recursive?: boolean): Promise<FileBrowserContentType[]>
 
   /**
    * Get a list of keys under a path.

@@ -23,15 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
+import {
+  fileBrowserPatchValidator,
+  fileBrowserUpdateValidator
+} from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    all: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write'))],
     find: [],
     get: [],
     create: [
@@ -40,12 +45,13 @@ export default {
         return context
       }
     ],
-    update: [],
+    update: [() => schemaHooks.validateData(fileBrowserUpdateValidator)],
     patch: [
       (context) => {
         context[SYNC] = false
         return context
-      }
+      },
+      () => schemaHooks.validateData(fileBrowserPatchValidator)
     ],
     remove: []
   },
