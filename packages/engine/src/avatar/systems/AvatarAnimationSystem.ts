@@ -52,6 +52,7 @@ import {
   compareDistanceToCamera
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -65,7 +66,7 @@ import { setIkFootTarget } from '../functions/avatarFootHeuristics'
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
   initial: () => {
-    const accumulationBudget = 100 //isMobileXRHeadset ? 3 : 6
+    const accumulationBudget = isMobileXRHeadset ? 2 : 6
 
     const priorityQueue = createPriorityQueue({
       accumulationBudget
