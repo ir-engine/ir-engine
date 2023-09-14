@@ -406,7 +406,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       }
     }
 
-    if (paramsWithoutExtras?.query?.allowed !== null) delete paramsWithoutExtras.query.allowed
+    if (paramsWithoutExtras?.query?.allowed) delete paramsWithoutExtras.query.allowed
 
     const data = ((await super._find(paramsWithoutExtras)) as Paginated<ProjectType>).data
     for (const item of data) {
