@@ -110,6 +110,10 @@ export default (app: Application): void => {
           await checkLock(knexClient, 0, promiseReject)
           await knexClient.migrate.rollback(config.migrations, true)
         }
+        logger.info('Knex setup details: %o', {
+          forceRefresh,
+          testEnabled: appConfig.testEnabled
+        })
 
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
 

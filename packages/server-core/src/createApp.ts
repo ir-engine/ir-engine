@@ -159,6 +159,7 @@ export const configureK8s = () => (app: Application) => {
       k8AgonesClient
     })
     logger.info('kubernetes configuration completed.')
+    logger.info('K8s API Server URL: %s', kc.getCurrentCluster()?.server)
   }
   return app
 }
@@ -180,6 +181,7 @@ export const createFeathersKoaApp = (
   createEngine()
   getMutableState(EngineState).publicPath.set(config.client.dist)
   logger.info('Feathers Koa app created.')
+  logger.info('Creating Feathers Koa app with server mode: %s', serverMode)
   if (!appConfig.db.forceRefresh) {
     logger.info('Creating Feathers Koa app with server mode: %s', serverMode)
     initializeNode()
@@ -210,6 +212,9 @@ export const createFeathersKoaApp = (
       credentials: true
     })
   )
+  logger.info('Feathers Koa app configured with the following option.')
+  logger.info('Paginate: %o', appConfig.server.paginate)
+
   configurationPipe(app)
   logger.info('Feathers Koa app configured with the following options:')
   logger.info('Paginate: %o', appConfig.server.paginate) // Log an object

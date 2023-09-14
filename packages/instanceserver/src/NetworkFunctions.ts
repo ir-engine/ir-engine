@@ -68,16 +68,18 @@ export const setupIPs = async () => {
 
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
-
+  logger.info({ setupIPs: 'Entering setupIPs function.' })
   if (config.kubernetes.enabled) {
     await cleanupOldInstanceservers(app)
     instanceServerState.instanceServer.set(await serverState.agonesSDK.getGameServer())
+    logger.info({ setupIPs: 'Cleanup and GameServer retrieval completed for Kubernetes-enabled environment.' })
   }
 
   // Set up our instanceserver according to our current environment
   const announcedIp = config.kubernetes.enabled
     ? instanceServerState.instanceServer.value.status.address
     : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
+  logger.info({ setupIPs: 'Announced IP.' })
 
   // @todo put this in hyperflux state
   localConfig.mediasoup.webRtcTransport.listenIps = [
@@ -98,9 +100,11 @@ export const setupIPs = async () => {
   }
 
   localConfig.mediasoup.recording.ip = announcedIp
+  logger.info({ setupIPs: 'Exiting setupIPs function.' })
 }
 
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
+  logger.info({ cleanupOldInstanceservers: 'Entering cleanupOldInstanceservers function.' })
   const serverState = getState(ServerState)
 
   const instances = await app.service('instance').Model.findAndCountAll({
@@ -116,6 +120,9 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
     'default',
     'gameservers'
   )
+
+  logger.info(`[cleanupOldInstanceservers]: Retrieved ${instances.count} instances.`)
+  logger.info(`[cleanupOldInstanceservers]: Retrieved ${instanceservers?.body!.items.length} instanceservers.`)
 
   await Promise.all(
     instances.rows.map((instance) => {
@@ -134,9 +141,11 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
     })
   )
 
+  logger.info({ cleanupOldInstanceservers: 'Cleanup completed successfully.' })
   const isIds = (instanceservers?.body! as any).items.map((is) =>
     isNameRegex.exec(is.metadata.name) != null ? isNameRegex.exec(is.metadata.name)![1] : null
   )
+  logger.info({ cleanupOldInstanceservers: 'Exiting cleanupOldInstanceservers function.' })
   return
 }
 
@@ -148,6 +157,7 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @returns
  */
 export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserID) => {
+  logger.info({ authorizeUserToJoinServer: 'Entering authorizeUserToJoinServer function.' })
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,

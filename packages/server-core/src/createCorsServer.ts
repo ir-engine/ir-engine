@@ -45,6 +45,15 @@ const createCorsServer = (useSSL, certOptions, port) => {
       removeHeaders: ['cookie', 'cookie2']
     })
     .listen(port, function () {
+      logger.info('CORS server created with the following options:')
+      logger.info('Use SSL: %s', useSSL) // Log a boolean
+      if (useSSL) {
+        logger.info('SSL Options: %o', {
+          key: certOptions.key,
+          cert: certOptions.cert
+        }) // Log an object
+      }
+      logger.info('Port: %d', port)
       logger.info(`Running CORS on port "${port}".`)
     })
 }
@@ -54,6 +63,8 @@ export const StartCorsServer = (useSSL, certOptions) => {
   isPortTaken(port, () => {
     createCorsServer(useSSL, certOptions, port)
   })
+  logger.info('Starting CORS server with the following options.')
+  logger.info('Port: %d', port)
 }
 
 const isPortTaken = (port, fn) => {
@@ -70,5 +81,5 @@ const isPortTaken = (port, fn) => {
         .close()
     })
     .listen(port)
-  logger.info(`Port taken "${port}".`)
+  logger.info(`Port taken "${port}" is taken.`)
 }
