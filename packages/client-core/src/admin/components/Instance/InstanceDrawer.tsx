@@ -27,7 +27,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -37,7 +36,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
@@ -50,7 +49,7 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  selectedInstance?: Instance
+  selectedInstance?: InstanceType
   onClose: () => void
 }
 
@@ -78,7 +77,7 @@ const useUsersInInstance = (instanceId: InstanceID) => {
 const useKickUser = () => {
   const createUserKick = useMutation(userKickPath).create
 
-  return (kickData: { userId: UserID; instanceId: Instance['id']; duration: string }) => {
+  return (kickData: { userId: UserID; instanceId: InstanceID; duration: string }) => {
     const duration = new Date()
     if (kickData.duration === 'INFINITY') {
       duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years
