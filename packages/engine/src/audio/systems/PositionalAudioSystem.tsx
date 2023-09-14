@@ -32,6 +32,7 @@ import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -163,7 +164,7 @@ const execute = () => {
     }
   }
 
-  const endTime = audioContext.currentTime + Engine.instance.deltaSeconds
+  const endTime = audioContext.currentTime + getState(EngineState).deltaSeconds
 
   /**
    * Update panner nodes
