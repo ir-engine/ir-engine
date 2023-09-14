@@ -27,9 +27,9 @@ import { Noise } from 'noisejs'
 import { useEffect } from 'react'
 import { DataTexture, IUniform, LinearFilter, RedFormat, RepeatWrapping, Uniform, UnsignedByteType } from 'three'
 
-import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../../../ecs/classes/Engine'
+import { EngineState } from '../../../../ecs/classes/EngineState'
 import { defineSystem } from '../../../../ecs/functions/SystemFunctions'
 import { MaterialPluginType } from '../../components/MaterialPluginComponent'
 import { SourceType } from '../../components/MaterialSource'
@@ -53,7 +53,8 @@ export const NoiseOffsetPlugin: MaterialPluginType = {
       shader.uniforms['textureSize'] = new Uniform(parameters.textureSize)
       shader.uniforms['noiseTexture'] = new Uniform(parameters.noiseTexture)
       shader.uniforms['frequency'] = new Uniform(parameters.frequency)
-      time = new Uniform(Engine.instance.elapsedSeconds)
+      const elapsedSeconds = getState(EngineState).elapsedSeconds
+      time = new Uniform(elapsedSeconds)
       shader.uniforms['time'] = time
       shader.vertexShader = shader.vertexShader.replace(
         'void main() {',
@@ -122,7 +123,8 @@ transformed += offset;
 
 const execute = () => {
   if (!time) return
-  time.value = Engine.instance.elapsedSeconds
+  const elapsedSeconds = getState(EngineState).elapsedSeconds
+  time.value = elapsedSeconds
 }
 
 const reactor = () => {
