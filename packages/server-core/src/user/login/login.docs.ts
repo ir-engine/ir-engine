@@ -23,25 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    login: {
-      type: 'object',
-      properties: {
-        email: {
-          type: 'string'
-        },
-        password: {
-          type: 'string'
-        }
-      }
-    },
-    login_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/login' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Login service description',
+    securities: ['all']
   }
-}
+})

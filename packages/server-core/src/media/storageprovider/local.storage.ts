@@ -176,7 +176,7 @@ export class LocalStorage implements StorageProviderInterface {
           reject(e)
         }
       })
-    } else if (data.Body.length > MULTIPART_CUTOFF_SIZE) {
+    } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
       return new Promise<boolean>((resolve, reject) => {
         try {
           const writeableStream = fs.createWriteStream(filePath)
@@ -259,7 +259,7 @@ export class LocalStorage implements StorageProviderInterface {
    */
   getSignedUrl = (key: string, _expiresAfter: number, _conditions): any => {
     return {
-      fields: { Key: key },
+      fields: { key },
       url: `https://${this.cacheDomain}`,
       local: true,
       cacheDomain: this.cacheDomain
