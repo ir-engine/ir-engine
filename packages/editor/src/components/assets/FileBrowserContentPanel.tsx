@@ -486,7 +486,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           variant="body2"
         />
       )}
-      <div id="file-browser-panel">
+      <div id="file-browser-panel" style={{ overflowY: 'auto' }}>
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>

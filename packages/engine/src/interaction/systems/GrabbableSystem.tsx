@@ -247,7 +247,8 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       transition.setState('OUT')
     }
   }
-  transition.update(Engine.instance.deltaSeconds, (opacity) => {
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  transition.update(deltaSeconds, (opacity) => {
     if (opacity === 0) {
       removeComponent(xrui.entity, VisibleComponent)
     }

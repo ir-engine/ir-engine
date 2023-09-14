@@ -23,15 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Static } from '@feathersjs/typebox'
+import { Type, getValidator } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
-import { Application } from '../../../declarations'
+export const emailPath = 'email'
 
-/**
- * A class for Email service
- */
-export class Email extends Service {
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export const emailDataSchema = Type.Object(
+  {
+    from: Type.String(),
+    to: Type.String(),
+    subject: Type.String(),
+    html: Type.String()
+  },
+  { $id: 'EmailData', additionalProperties: false }
+)
+export type EmailData = Static<typeof emailDataSchema>
+
+export const emailDataValidator = getValidator(emailDataSchema, dataValidator)
