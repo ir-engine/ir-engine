@@ -352,7 +352,8 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
   if (root?.isRunning) await root?.stop()
   // NOTE: we may need to perform cleanup after a timeout here in case there
   // are other reactors also referencing this state in their cleanup functions
-  if (!hasComponent(entity, component)) component.stateMap[entity]?.set(undefined)
+  // @ts-ignore
+  if (!hasComponent(entity, component)) component.stateMap[entity]?.destroy()
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {
