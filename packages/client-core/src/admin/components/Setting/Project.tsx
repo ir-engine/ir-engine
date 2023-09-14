@@ -35,7 +35,7 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useGet, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ProjectSettingType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import styles from '../../styles/settings.module.scss'
@@ -48,15 +48,9 @@ const Project = () => {
   const settings = useHookstate<Array<ProjectSettingType> | []>([])
   const selectedProject = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
-  const project = useFind(projectPath, {
-    query: {
-      $limit: 1,
-      id: selectedProject.value,
-      $select: ['settings']
-    }
-  }).data
+  const project = useGet(projectPath, selectedProject.value).data
 
-  let projectSetting = project[0].settings || []
+  let projectSetting = project?.settings || []
 
   const patchProjectSetting = useMutation(projectPath).patch
 
