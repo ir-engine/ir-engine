@@ -33,6 +33,7 @@ import {
   createChannelUserModel,
   createIdentityProviderModel,
   createInstanceAttendanceModel,
+  createInstanceModel,
   createLocationAdminModel,
   createLocationBanModel,
   createLocationModel,
@@ -50,7 +51,8 @@ const getMigratedModels = (app: Application) => {
     'instance-attendance': createInstanceAttendanceModel(app),
     'location-admin': createLocationAdminModel(app),
     'identity-provider': createIdentityProviderModel(app),
-    message: createMessageModel(app)
+    message: createMessageModel(app),
+    instance: createInstanceModel(app)
   }
 }
 

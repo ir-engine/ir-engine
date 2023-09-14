@@ -23,47 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default {
-  definitions: {
-    instance: {
-      type: 'object',
-      properties: {
-        ipAddress: {
-          type: 'string'
-        },
-        channelId: {
-          type: 'string'
-        },
-        currentUsers: {
-          type: 'integer'
-        },
-        ended: {
-          type: 'boolean'
-        },
-        locationId: {
-          type: 'string'
-        },
-        userId: {
-          type: 'string'
-        },
-        bot: {
-          type: 'string'
-        }
-      }
-    },
-    instance_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/instance' }
-    }
-  },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+import {
+  instanceDataSchema,
+  instancePatchSchema,
+  instanceQuerySchema,
+  instanceSchema
+} from '@etherealengine/engine/src/schemas/networking/instance.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: { instanceDataSchema, instancePatchSchema, instanceQuerySchema, instanceSchema },
+  docs: {
+    description: 'Instance service description',
+    securities: ['all']
   }
-}
+})
