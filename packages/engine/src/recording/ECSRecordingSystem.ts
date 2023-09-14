@@ -800,9 +800,15 @@ const execute = () => {
     }
 
     for (const [dataChannel, chunks] of Array.from(playback.dataChannelChunks.entries())) {
-      const chunk = chunks[chunkIndex]
+      /** @todo optimize this by caching a coherent timeseries map of timecodes */
+      const currentTimeMS = currentTime * 1000
+      const chunk = chunks.find(
+        (chunk) => chunk[0].timecode <= currentTimeMS && chunk[chunk.length - 1].timecode > currentTimeMS
+      )
       if (chunk) {
-        const frame = chunk[frameIndex]
+        const frame = chunk.find(
+          (frame) => frame.timecode <= currentTimeMS && frame.timecode + 1000 / 60 > currentTimeMS
+        )
         if (frame) {
           const encodedData = encode(frame.data)
           const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannel]
