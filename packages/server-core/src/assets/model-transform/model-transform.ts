@@ -23,12 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import OEmbed from './oembed/oembed.service'
-import Archiver from './recursive-archiver/archiver.service'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import {
+  modelTransformMethods,
+  modelTransformPath
+} from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
+import { Application } from '../../../declarations'
+import { ModelTransformService } from './model-transform.class'
+import modelTransformDocs from './model-transform.docs'
+import hooks from './model-transform.hooks'
 
-export default [StaticResource, StaticResourceFilters, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [modelTransformPath]: ModelTransformService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(modelTransformPath, new ModelTransformService(app), {
+    // A list of all methods this service exposes externally
+    methods: modelTransformMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: modelTransformDocs
+  })
+
+  const service = app.service(modelTransformPath)
+  service.hooks(hooks)
+}
