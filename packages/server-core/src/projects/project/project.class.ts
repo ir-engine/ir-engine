@@ -315,8 +315,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
   async find(params?: ProjectParams) {
     let projectPushIds: string[] = []
-    let populateProjectPermissions = false
-    if (params?.query?.allowed != null) {
+    if (params?.query?.allowed) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
 
@@ -390,12 +389,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       if (!params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
         params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
-      delete params.query.allowed
-
-      populateProjectPermissions = true
     }
 
-    params = {
+    let paramsWithoutExtras = {
       ...params,
       query: {
         ...params?.query,
@@ -404,7 +400,9 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       }
     }
 
-    const data = ((await super._find(params)) as Paginated<ProjectType>).data
+    if (paramsWithoutExtras?.query?.allowed !== null) delete paramsWithoutExtras.query.allowed
+
+    const data = ((await super._find(paramsWithoutExtras)) as Paginated<ProjectType>).data
     for (const item of data) {
       try {
         const packageJson = getProjectPackageJson(item.name)
