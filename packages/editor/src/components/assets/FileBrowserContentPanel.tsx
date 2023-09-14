@@ -235,7 +235,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
     if (isLoading.value) return
 
-    isLoading.set(true)
     const path = dropOn?.isFolder ? dropOn.key : selectedDirectory.value
 
     if (isFileDataType(data)) {
@@ -243,6 +242,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         moveContent(data.fullName, data.fullName, data.path, path, false)
       }
     } else {
+      isLoading.set(true)
       await Promise.all(
         data.files.map(async (file) => {
           const assetType = !file.type ? AssetLoader.getAssetType(file.name) : file.type
