@@ -74,6 +74,7 @@ jobs:
           npm install --legacy-peer-deps
           git clone https://github.com/etherealengine/etherealengine-docs.git docs
           echo "Starting to remove commit history for gh-pages branch"
+          git checkout gh-pages
           git checkout --orphan temp-gh-pages
           git add -A
           git commit -m "Update docs to latest commit only"
