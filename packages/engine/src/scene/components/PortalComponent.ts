@@ -30,7 +30,6 @@ import {
   ConeGeometry,
   CylinderGeometry,
   Euler,
-  Material,
   Mesh,
   MeshBasicMaterial,
   Quaternion,
@@ -42,8 +41,8 @@ import {
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/getEnvironment'
 import { matches } from '../../common/functions/MatchesUtils'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import {
   ComponentType,
@@ -58,6 +57,7 @@ import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { portalTriggerEnter } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
+import { disposeMaterial } from '../systems/SceneObjectSystem'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -191,21 +191,11 @@ export const PortalComponent = defineComponent({
         addObjectToGroup(entity, portalMesh)
         return () => {
           if (Array.isArray(portalMesh.material)) {
-            portalMesh.material.forEach((material: Material) => {
-              for (const key of Object.keys(portalMesh.material)) {
-                const material = portalMesh.material[key]
-                material?.dispose()
-              }
-              material.dispose()
-            })
-          } else {
-            for (const key of Object.keys(portalMesh.material)) {
-              const material = portalMesh.material[key]
-              material?.dispose()
-            }
-            portalMesh.material?.dispose()
+            disposeMaterial(portalMesh.material)
+          } else if (portalMesh.material) {
+            disposeMaterial(portalMesh.material)
           }
-          portalMesh.geometry?.dispose()
+          if (portalMesh.geometry) portalMesh.geometry.dispose()
         }
       }
     }, [portalComponent.previewType])

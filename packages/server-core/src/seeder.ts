@@ -41,16 +41,16 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
     logger.info('Seeding or preparing database')
 
     const knexClient = app.get('knexClient')
-    for (let seedFile of knexSeeds) {
+    for (const seedFile of knexSeeds) {
       seedFile.seed(knexClient)
     }
 
-    for (let config of sequelizeSeeds) {
+    for (const config of sequelizeSeeds) {
       if (config.path) {
         const templates = config.templates
         const service = app.service(config.path as any)
         if (templates)
-          for (let template of templates) {
+          for (const template of templates) {
             let isSeeded
             if (config.path.endsWith('-setting')) {
               const result = await service.find()
@@ -62,7 +62,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
               const uniqueField = Object.values(sequelizeModel.rawAttributes).find((value: any) => value.unique) as any
               if (uniqueField) searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
               else
-                for (let key of Object.keys(template))
+                for (const key of Object.keys(template))
                   if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
               const result = await service.find({
                 query: searchTemplate

@@ -23,37 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `verification-event` service on path `/verification-event`
-import { Application } from '../../../declarations'
-import { VerificationEvent } from './verification-event.class'
-import verificationEventDocs from './verification-event.docs'
-import hooks from './verification-event.hooks'
-import createModel from './verification-event.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-// Add this service to the service type index
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'verification-event': VerificationEvent
-  }
-}
+import { ServerInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
-  }
+export const serverInfoResolver = resolve<ServerInfoType, HookContext>({})
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new VerificationEvent(options, app)
-  event.docs = verificationEventDocs
-  app.use('verification-event', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('verification-event')
-
-  service.hooks(hooks)
-}
+export const serverInfoExternalResolver = resolve<ServerInfoType, HookContext>({})

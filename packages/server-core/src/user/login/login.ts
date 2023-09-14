@@ -23,24 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// Initializes the `login` service on path `/login`
+import { loginMethods, loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import { Application } from '../../../declarations'
-import { ServerInfo } from './server-info.class'
-import hooks from './server-info.hooks'
+import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { LoginService } from './login.class'
+import loginDocs from './login.docs'
+import hooks from './login.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'server-info': ServerInfo
+    [loginPath]: LoginService
   }
 }
 
-export default (app: Application): void => {
-  const options = {
-    paginate: app.get('paginate'),
-    multi: true
+async function redirect(ctx, next) {
+  try {
+    const data = ctx.body
+    if (data.error) {
+      return ctx.redirect(`${config.client.url}/?error=${data.error as string}`)
+    }
+    return ctx.redirect(`${config.client.url}/auth/magiclink?type=login&token=${data.token as string}`)
+  } catch (err) {
+    logger.error(err)
+    throw err
   }
+  return next()
+}
 
-  const event = new ServerInfo(options, app)
-  app.use('server-info', event)
-  const service = app.service('server-info')
+export default (app: Application): void => {
+  app.use(loginPath, new LoginService(app), {
+    // A list of all methods this service exposes externally
+    methods: loginMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: loginDocs,
+    koa: { after: [redirect] }
+  })
+
+  const service = app.service(loginPath)
   service.hooks(hooks)
 }

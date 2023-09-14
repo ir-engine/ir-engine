@@ -23,19 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
+import Mailer from 'feathers-mailer'
+import smtpTransport from 'nodemailer-smtp-transport'
 import { Application } from '../../../declarations'
-import { AssetLibrary } from './asset-library.class'
-import hooks from './asset-library.hooks'
+import config from '../../appconfig'
+import hooks from './email.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'asset-library': AssetLibrary
+    [emailPath]: Mailer
   }
 }
 
-export default (app: Application) => {
-  const libClass = new AssetLibrary(app)
-  app.use('asset-library', libClass)
-  const service = app.service('asset-library')
+export default (app: Application): void => {
+  app.use(emailPath, Mailer(smtpTransport({ ...config.email.smtp })))
+
+  const service = app.service(emailPath)
   service.hooks(hooks)
 }

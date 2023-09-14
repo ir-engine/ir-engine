@@ -236,8 +236,9 @@ export const removeSceneEntitiesFromOldJSON = () => {
   const sceneData = sceneState.sceneData
   const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
     (entity) =>
-      !sceneData?.scene.entities[getComponent(entity, UUIDComponent)] &&
-      !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity')
+      !sceneData ||
+      (!sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
+        !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity'))
   )
   /** @todo this will not  */
   for (const node of oldLoadedEntityNodesToRemove) {
@@ -290,6 +291,11 @@ export const updateSceneFromJSON = async () => {
     getMutableState(EngineState).merge({
       sceneLoading: false,
       sceneLoaded: false
+    })
+    const sceneUuid = getComponent(sceneState.sceneEntity, UUIDComponent)
+    updateSceneEntity(sceneUuid, {
+      name: 'scene',
+      components: []
     })
     return
   }

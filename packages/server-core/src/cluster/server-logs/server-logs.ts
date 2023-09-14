@@ -23,50 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `login` service on path `/login`
+import { serverLogsMethods, serverLogsPath } from '@etherealengine/engine/src/schemas/cluster/server-logs.schema'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import logger from '../../ServerLogger'
-import { Login } from './login.class'
-import loginDocs from './login.docs'
-import hooks from './login.hooks'
+import { ServerLogsService } from './server-logs.class'
+import serverLogsDocs from './server-logs.docs'
+import hooks from './server-logs.hooks'
 
-// Add this service to the service type index
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    login: Login
+    [serverLogsPath]: ServerLogsService
   }
 }
 
-async function redirect(ctx, next) {
-  try {
-    const data = ctx.body
-    if (data.error) {
-      return ctx.redirect(`${config.client.url}/?error=${data.error as string}`)
-    }
-    return ctx.redirect(`${config.client.url}/auth/magiclink?type=login&token=${data.token as string}`)
-  } catch (err) {
-    logger.error(err)
-    throw err
-  }
-  return next()
-}
+export default (app: Application): void => {
+  app.use(serverLogsPath, new ServerLogsService(app), {
+    // A list of all methods this service exposes externally
+    methods: serverLogsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: serverLogsDocs
+  })
 
-export default (app: Application) => {
-  const options = {
-    paginate: app.get('paginate')
-  }
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Login(options, app)
-  event.docs = loginDocs
-  app.use('login', event, { koa: { after: [redirect] } })
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('login')
-
+  const service = app.service(serverLogsPath)
   service.hooks(hooks)
 }

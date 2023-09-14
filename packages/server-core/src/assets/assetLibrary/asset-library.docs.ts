@@ -23,30 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface ServerInfoInterface {
-  id: string
-  label: string
-  pods: ServerPodInfo[]
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export interface ServerPodInfo {
-  name: string
-  status: string
-  age: string | Date
-  containers: ServerContainerInfo[]
-  type?: string
-  locationSlug?: string
-  instanceId?: string
-  currentUsers?: number
-}
-
-export type ServerContainerStatus = 'Running' | 'Terminated' | 'Waiting' | 'Undefined'
-
-export interface ServerContainerInfo {
-  name: string
-  restarts: number
-  status: ServerContainerStatus
-  ready: boolean
-  started: boolean
-  image: string
-}
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Asset library service description',
+    securities: ['all']
+  }
+})

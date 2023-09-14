@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { EmailData, emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
 
 /**
  * A method which get link
@@ -49,7 +51,7 @@ export function getLink(type: string, hash: string, subscriptionId?: string): st
  * @returns invite link
  */
 export function getInviteLink(type: string, id: string, passcode: string): string {
-  return `${config.server.url}/a-i/${id}?t=${passcode}`
+  return `${config.server.url}/${acceptInvitePath}/${id}?t=${passcode}`
 }
 
 /**
@@ -59,13 +61,13 @@ export function getInviteLink(type: string, id: string, passcode: string): strin
  * @param email which is going to recieve message
  * Text message links can't have HTML escaped ampersands.
  */
-export async function sendEmail(app: Application, email: any): Promise<void> {
+export async function sendEmail(app: Application, email: EmailData) {
   if (email.to) {
     email.html = email.html.replace(/&amp;/g, '&')
     logger.info('sendEmail() to: ' + email)
 
     try {
-      await app.service('email').create(email)
+      await app.service(emailPath).create(email)
     } catch (err) {
       logger.error(err, `Error sending email: ${err.message}`)
     }

@@ -23,30 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Mailer from 'feathers-mailer'
-import smtpTransport from 'nodemailer-smtp-transport'
-
+import { serverInfoMethods, serverInfoPath } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { Email } from './email.class'
-import emailDocs from './email.docs'
-import hooks from './email.hooks'
+import { ServerInfoService } from './server-info.class'
+import serverInfoDocs from './server-info.docs'
+import hooks from './server-info.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    email: Email
+    [serverInfoPath]: ServerInfoService
   }
 }
 
 export default (app: Application): void => {
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = Mailer(smtpTransport({ ...config.email.smtp }))
-  event.docs = emailDocs
-  app.use('email', event)
+  app.use(serverInfoPath, new ServerInfoService(app), {
+    // A list of all methods this service exposes externally
+    methods: serverInfoMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: serverInfoDocs
+  })
 
-  const service = app.service('email')
-
+  const service = app.service(serverInfoPath)
   service.hooks(hooks)
 }

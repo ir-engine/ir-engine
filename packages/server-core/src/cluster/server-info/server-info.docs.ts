@@ -23,36 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow } from 'feathers-hooks-common'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default {
-  before: {
-    all: [],
-    find: [disallow('external')],
-    get: [disallow('external')],
-    create: [disallow('external')],
-    update: [disallow('external')],
-    patch: [disallow('external')],
-    remove: [disallow('external')]
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Server info service description',
+    securities: ['all']
   }
-} as any
+})

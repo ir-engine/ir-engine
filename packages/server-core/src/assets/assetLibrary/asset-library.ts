@@ -23,15 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-
+import { assetLibraryMethods, assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
 import { Application } from '../../../declarations'
+import { AssetLibraryService } from './asset-library.class'
+import assetLibraryDocs from './asset-library.docs'
+import hooks from './asset-library.hooks'
 
-/**
- * A class for Email service
- */
-export class Email extends Service {
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [assetLibraryPath]: AssetLibraryService
   }
+}
+
+export default (app: Application): void => {
+  app.use(assetLibraryPath, new AssetLibraryService(app), {
+    // A list of all methods this service exposes externally
+    methods: assetLibraryMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: assetLibraryDocs
+  })
+
+  const service = app.service(assetLibraryPath)
+  service.hooks(hooks)
 }
