@@ -31,7 +31,6 @@ import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/sch
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
-import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { SocketWebRTCClientNetwork, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 
@@ -58,10 +57,12 @@ export const ChannelState = defineState({
 export const ChannelService = {
   getChannels: async () => {
     try {
-      const channelResult = (await Engine.instance.api.service(channelPath).find()) as Paginated<ChannelType>
+      const channelResult = (await Engine.instance.api
+        .service(channelPath)
+        .find({ query: { paginate: false } })) as ChannelType[]
       const channelState = getMutableState(ChannelState)
       channelState.channels.merge({
-        channels: channelResult.data
+        channels: channelResult
       })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -71,12 +72,13 @@ export const ChannelService = {
     try {
       const channelResult = (await Engine.instance.api.service(channelPath).find({
         query: {
-          instanceId: Engine.instance.worldNetwork.id
+          instanceId: Engine.instance.worldNetwork.id,
+          paginate: false
         }
-      })) as Paginated<ChannelType>
-      if (channelResult.data.length === 0) return setTimeout(() => ChannelService.getInstanceChannel(), 2000)
+      })) as ChannelType[]
+      if (channelResult.length === 0) return setTimeout(() => ChannelService.getInstanceChannel(), 2000)
 
-      const channel = channelResult.data[0]
+      const channel = channelResult[0]
 
       const channelState = getMutableState(ChannelState)
       let findIndex

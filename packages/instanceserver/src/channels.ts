@@ -323,7 +323,7 @@ const handleUserAttendance = async (app: Application, userId: UserID) => {
   })) as Paginated<ChannelType>
 
   /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
-  if (channel.total > 0) {
+  if (channel.data.length > 0) {
     const existingChannelUser = (await app.service(channelUserPath).find({
       query: {
         channelId: channel.data[0].id,

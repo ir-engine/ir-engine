@@ -108,7 +108,8 @@ export const channelQuerySchema = Type.Intersect(
     // Add additional query properties here
     Type.Object(
       {
-        action: Type.Optional(Type.String())
+        action: Type.Optional(Type.String()),
+        paginate: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )

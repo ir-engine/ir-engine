@@ -137,6 +137,10 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
   async find(params?: ChannelParams) {
     try {
       if (!params) params = {}
+      if (params.query?.paginate && !params.paginate) {
+        params = { ...params, paginate: false }
+        delete params.query?.paginate
+      }
       const query = params.query!
 
       const loggedInUser = params!.user as UserType
@@ -199,7 +203,10 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
         channel.messages = messages.data
       }
 
-      return allChannels
+      const channelsResult =
+        params.paginate === false ? allChannels : { data: allChannels, total: allChannels.length, limit: 0, skip: 0 }
+
+      return channelsResult
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)
       throw err
@@ -223,7 +230,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       }
     })) as Paginated<ChannelUserType>
 
-    if (channelUser.total < 0) throw new Error('Must be owner to delete channel')
+    if (channelUser.total < 1) throw new Error('Must be owner to delete channel')
 
     return super._remove(id)
   }
