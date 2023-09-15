@@ -92,7 +92,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
       }
     }
 
-    let dataWithoutExtras = data ? JSON.parse(JSON.stringify(data)) : {}
+    const dataWithoutExtras = data ? JSON.parse(JSON.stringify(data)) : {}
 
     if (users) delete dataWithoutExtras.users
     if (userId) delete dataWithoutExtras.userId
@@ -100,7 +100,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
     const channel = await super._create({
       ...dataWithoutExtras,
       instanceId: data.instanceId ? data.instanceId : undefined,
-      name: data.instanceId ? 'World ' + data.instanceId : ''
+      name: data.instanceId ? 'World ' + data.instanceId : data.name || ''
     })
 
     /** @todo ensure all users specified are friends of loggedInUser */
