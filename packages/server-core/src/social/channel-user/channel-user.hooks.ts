@@ -125,7 +125,7 @@ export default {
           paginate: false
         })) as ChannelUserType[]
         if (channelUserCount.length === 0) {
-          await app.service('channel').remove(result.channelId)
+          await app.service(channelPath).remove(result.channelId)
         }
         return context
       }
