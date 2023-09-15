@@ -32,7 +32,7 @@ import {
   userRelationshipPath
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-import { NextFunction, Paginated } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -48,47 +48,9 @@ import {
  *
  */
 
-const applyInstanceIpAddressSort = async (context: HookContext, next: NextFunction) => {
-  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
-
-  const hasInstanceSort =
-    context.params.query && context.params.query.$sort && context.params.query.$sort['instanceIpAddress']
-
-  if (hasInstanceSort) {
-    const { dispatch } = context
-    const data = dispatch.data ? dispatch.data : dispatch
-
-    data.sort((a, b) => {
-      let fa = a['instanceIpAddress'],
-        fb = b['instanceIpAddress']
-
-      if (typeof fa === 'string') {
-        fa = fa.toLowerCase()
-        fb = fb.toLowerCase()
-      }
-
-      if (fa < fb) {
-        return -1
-      }
-      if (fa > fb) {
-        return 1
-      }
-      return 0
-    })
-
-    if (context.params.query.$sort['instanceIpAddress'] === 1) {
-      data.reverse()
-    }
-  }
-}
-
 export default {
   around: {
-    all: [
-      applyInstanceIpAddressSort,
-      schemaHooks.resolveExternal(channelExternalResolver),
-      schemaHooks.resolveResult(channelResolver)
-    ]
+    all: [schemaHooks.resolveExternal(channelExternalResolver), schemaHooks.resolveResult(channelResolver)]
   },
 
   before: {
