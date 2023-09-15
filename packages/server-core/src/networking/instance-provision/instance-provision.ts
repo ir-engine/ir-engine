@@ -23,37 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `instance-provision` service on path `/instance-provision`
+import {
+  instanceProvisionMethods,
+  instanceProvisionPath
+} from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { InstanceProvision } from './instance-provision.class'
+import { InstanceProvisionService } from './instance-provision.class'
 import instanceProvisionDocs from './instance-provision.docs'
 import hooks from './instance-provision.hooks'
 
-// Add this service to the service type index
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'instance-provision': InstanceProvision
+    [instanceProvisionPath]: InstanceProvisionService
   }
 }
 
-export default (app: Application) => {
-  const options = {
-    paginate: app.get('paginate')
-  }
+export default (app: Application): void => {
+  app.use(instanceProvisionPath, new InstanceProvisionService(app), {
+    // A list of all methods this service exposes externally
+    methods: instanceProvisionMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceProvisionDocs
+  })
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new InstanceProvision(options, app)
-  event.docs = instanceProvisionDocs
-  app.use('instance-provision', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service: any = app.service('instance-provision')
-
+  const service = app.service(instanceProvisionPath)
   service.hooks(hooks)
 
   /**
