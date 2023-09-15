@@ -46,8 +46,20 @@ export class LogsApiService implements ServiceInterface<void, any, LogsApiParams
 
   async create(data: any, params?: LogsApiParams) {
     if (config.client.logs.forceClientAggregate === 'true') {
-      const { msg, level, component } = data
-      logger[level]({ component, userId: params?.user?.id }, msg)
+      const userId = params?.user?.id
+
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          this._processLogItem(item, userId)
+        }
+      } else {
+        this._processLogItem(data, userId)
+      }
     }
+  }
+
+  _processLogItem = (logItem, userId?: string) => {
+    const { msg, level, component } = logItem
+    logger[level]({ component, userId }, msg)
   }
 }
