@@ -79,9 +79,9 @@ jobs:
       - name: Push changes to gh-pages branch
         uses: ad-m/github-push-action@master
         with:
-        directory: .
-        branch: gh-pages
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+          directory: .
+          branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Release to GitHub Pages
         timeout-minutes: 200
         env:
