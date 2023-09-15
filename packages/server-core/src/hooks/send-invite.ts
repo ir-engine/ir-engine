@@ -36,6 +36,7 @@ import {
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
 import { EmailData } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { SmsData } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
@@ -45,9 +46,20 @@ import { Application } from '../../declarations'
 import logger from '../ServerLogger'
 import config from '../appconfig'
 import { InviteParams } from '../social/invite/invite.class'
-import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
+
+/**
+ * A method which get an invite link
+ *
+ * @param type
+ * @param id of accept invite
+ * @param passcode
+ * @returns invite link
+ */
+export function getInviteLink(type: string, id: string, passcode: string): string {
+  return `${config.server.url}/${acceptInvitePath}/${id}?t=${passcode}`
+}
 
 async function generateEmail(
   app: Application,
@@ -94,7 +106,8 @@ async function generateEmail(
     html: compiledHTML
   }
 
-  return await sendEmail(app, email)
+  email.html = email.html.replace(/&amp;/g, '&')
+  await app.service('email').create(email)
 }
 
 async function generateSMS(
@@ -137,7 +150,12 @@ async function generateSMS(
     mobile,
     text: compiledHTML
   }
-  return await sendSms(app, sms)
+
+  await app
+    .service('sms')
+    .create(sms, null!)
+    .then(() => logger.info('Sent SMS'))
+    .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))
 }
 
 // This will attach the owner ID in the contact while creating/updating list item
