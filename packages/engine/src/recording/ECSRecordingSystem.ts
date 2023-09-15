@@ -305,15 +305,21 @@ interface ActivePlayback {
   userID: UserID
   deserializer?: ECSDeserializer
   entityChunks: SerializedChunk[]
-  dataChannelChunks: Map<DataChannelType, DataChannelFrame<any>[][]>
+  dataChannelChunks: Map<DataChannelType, DataChannelFrames<any>>
+  startTime: number
+  endTime: number
+  durationSeconds: number
   entitiesSpawned: (EntityUUID | UserID)[]
   peerIDs?: PeerID[]
   mediaPlayback?: any // todo
 }
 
-export interface DataChannelFrame<T> {
-  data: T[]
-  timecode: number
+export interface DataChannelFrames<T> {
+  frames: {
+    data: T
+    timecode: number
+  }[]
+  fromPeerID: PeerID
 }
 
 export type MediaChannelRecorderType = (
@@ -375,7 +381,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const hasScopes = await checkScope(user, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer, action.$topic)
 
-  const dataChannelsRecording = new Map<DataChannelType, DataChannelFrame<any>[]>()
+  const dataChannelsRecording = new Map<DataChannelType, DataChannelFrames<any>>()
 
   const startTime = Date.now()
 
@@ -385,9 +391,9 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     try {
       const data = decode(new Uint8Array(message))
       if (!dataChannelsRecording.has(dataChannel)) {
-        dataChannelsRecording.set(dataChannel, [])
+        dataChannelsRecording.set(dataChannel, { fromPeerID, frames: [] })
       }
-      dataChannelsRecording.get(dataChannel)!.push({ data, timecode: Date.now() - startTime })
+      dataChannelsRecording.get(dataChannel)!.frames.push({ data, timecode: Date.now() - startTime })
     } catch (error) {
       logger.error('Could not decode data channel message', error)
     }
@@ -426,8 +432,9 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
         })
 
         for (const [dataChannel, data] of dataChannelsRecording.entries()) {
-          if (data.length) {
-            const key = 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee'
+          if (data.frames.length) {
+            const key =
+              'recordings/' + recording.id + '/' + data.fromPeerID + '_' + dataChannel + '_' + chunkIndex + '.ee'
             const buffer = encode(data)
             uploadRecordingChunk({
               recordingID: recording.id,
@@ -438,7 +445,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
               logger.info('Uploaded raw chunk', chunkIndex)
             })
           }
-          dataChannelsRecording.set(dataChannel, [])
+          data.frames = []
         }
       }
     })
@@ -568,22 +575,32 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
     })
   )) as SerializedChunk[]
 
-  const dataChannelChunks = new Map<DataChannelType, DataChannelFrame<any>[][]>()
+  const dataChannelChunks = new Map<DataChannelType, DataChannelFrames<any>>()
 
   await Promise.all(
     rawFiles.map(async (resource) => {
-      const dataChannel = resource.key.split('/')[2].split('-')[0] as DataChannelType
-      if (!dataChannelChunks.has(dataChannel)) dataChannelChunks.set(dataChannel, [])
+      const keyPieces = resource.key.split('/')[2].split('_')
+      const fromPeerID = keyPieces[0] as PeerID
+      const dataChannel = keyPieces[1] as DataChannelType
+      if (!dataChannelChunks.has(dataChannel)) dataChannelChunks.set(dataChannel, { fromPeerID, frames: [] })
       const data = await fetch(resource.url)
       const buffer = await data.arrayBuffer()
-      dataChannelChunks.get(dataChannel)!.push(decode(new Uint8Array(buffer)))
+      const decodedData = decode(new Uint8Array(buffer)) as DataChannelFrames<any>
+      dataChannelChunks.get(dataChannel)!.frames.push(...decodedData.frames)
     })
   )
+
+  const startTime = new Date(recording.createdAt).getTime()
+  const endTime = new Date(recording.updatedAt).getTime()
+  const durationSeconds = (endTime - startTime) / 1000
 
   const activePlayback = {
     userID: action.targetUser,
     entityChunks,
-    dataChannelChunks
+    dataChannelChunks,
+    startTime,
+    endTime,
+    durationSeconds
   } as ActivePlayback
 
   const network = getState(NetworkState).networks[action.$network]
@@ -607,7 +624,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
           .service(userPath)
           .get(uuid)
           .then((user) => {
-            if (!network || network?.topic === NetworkTopics.world) {
+            if (network && network.topic === NetworkTopics.world) {
               const network = Engine.instance.worldNetwork
               const peerIDs = Object.keys(schema.peers) as PeerID[]
 
@@ -782,9 +799,14 @@ const execute = () => {
   }
 
   if (playbackState.playing) {
+    const activePlayback = activePlaybacks.get(playbackState.recordingID!)!
     /** @todo use playback speed from metadata in recording */
     const timestep = 1 / 60 // TODO this is hardcoded in server timer
     getMutableState(PlaybackState).currentTime.set(playbackState.currentTime! + timestep)
+
+    if (playbackState.currentTime! >= activePlayback.durationSeconds) {
+      getMutableState(PlaybackState).playing.set(false)
+    }
   }
 
   for (const [id, playback] of activePlaybacks) {
@@ -802,26 +824,26 @@ const execute = () => {
     for (const [dataChannel, chunks] of Array.from(playback.dataChannelChunks.entries())) {
       /** @todo optimize this by caching a coherent timeseries map of timecodes */
       const currentTimeMS = currentTime * 1000
-      const chunk = chunks.find(
-        (chunk) => chunk[0].timecode <= currentTimeMS && chunk[chunk.length - 1].timecode > currentTimeMS
-      )
-      if (chunk) {
-        const frame = chunk.find(
-          (frame) => frame.timecode <= currentTimeMS && frame.timecode + 1000 / 60 > currentTimeMS
-        )
-        if (frame) {
-          const encodedData = encode(frame.data)
+      /** @todo reengineer chunking with seeking */
+      const frame = chunks.frames.find((frame) => frame.timecode > currentTimeMS)
+      if (frame) {
+        const encodedData = encode(frame.data)
+
+        /** PeerID must be the original peerID if server playback, otherwise it is our peerID */
+        const peerID = isClient ? Engine.instance.peerID : chunks.fromPeerID
+        if (isClient) {
           const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannel]
           if (dataChannelFunctions) {
-            for (const func of dataChannelFunctions) func(network, dataChannel, network.hostPeerID, encodedData)
+            for (const func of dataChannelFunctions) func(network, dataChannel, peerID, encodedData)
           }
-          // network.transport.bufferToAll(dataChannel, encode(frame.data))
-          // for (const peerID of network.users[userId]) {
-          //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
-          // }
         }
+        network.transport.bufferToAll(dataChannel, peerID, encodedData)
+        // for (const peerID of network.users[userId]) {
+        //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
+        // }
       }
     }
+    // }
   }
 }
 

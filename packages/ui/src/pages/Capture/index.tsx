@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import { decode } from 'msgpackr'
 import React, { RefObject, useEffect, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -42,10 +41,10 @@ import {
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  DataChannelFrame,
   ECSRecordingActions,
   PlaybackState,
-  RecordingState
+  RecordingState,
+  activePlaybacks
 } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 
 import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -56,14 +55,12 @@ import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHe
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
-  mocapDataChannelType,
-  receiveResults
+  mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { NO_PROXY, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
@@ -71,7 +68,6 @@ import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
-import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import ReactSlider from 'react-slider'
 import Toolbar from '../../components/tailwind/mocap/Toolbar'
 /**
@@ -123,21 +119,9 @@ export const stopPlayback = () => {
 const sendResults = (results: MotionCaptureResults) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
-  const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
-    network.id,
-    mocapDataChannelType
-  ) as DataProducer
-  if (!dataProducer) {
-    // if (creatingProducer) return
-    // creatingProducer = true
-    // createDataProducer(network, { label: mocapDataChannelType, ordered: true })
-    return
-  }
-  if (!dataProducer?.closed && dataProducer?.readyState === 'open') {
-    // console.log('sending results', results)
-    const data = MotionCaptureFunctions.sendResults(results)
-    dataProducer?.send(data)
-  }
+  // console.log('sending results', results)
+  const data = MotionCaptureFunctions.sendResults(results)
+  network.transport.bufferToAll(mocapDataChannelType, Engine.instance.peerID, data)
 }
 
 const useVideoStatus = () => {
@@ -413,28 +397,14 @@ const VideoPlayback = (props: {
   video: StaticResourceType
   mocap: StaticResourceType | undefined
 }) => {
-  const { video, mocap, startTime } = props
+  const { video } = props
   const videoSrc = video.url
-
-  const mocapData = useHookstate(null as null | ReturnType<typeof receiveResults>[])
-
-  useEffect(() => {
-    if (!mocap) return
-
-    // todo get data from ECSRecordingSystem instead of fetching again here
-    fetch(mocap.url).then((res) => {
-      res.arrayBuffer().then((buffer) => {
-        const rawData = decode(new Uint8Array(buffer)) as DataChannelFrame<ReturnType<typeof receiveResults>>[]
-        const data = rawData.map((frame) => frame.data).flat()
-        mocapData.set(data)
-      })
-    })
-  }, [])
 
   const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
 
   useEffect(() => {
     if (!videoRef.current) return
+    videoRef.current.style.transform = `scaleX(-1)`
     videoRef.current.addEventListener('loadedmetadata', () => {
       resizeCanvas()
       videoRef.current!.play()
@@ -444,16 +414,6 @@ const VideoPlayback = (props: {
 
   const playing = useHookstate(getMutableState(PlaybackState).playing)
   const currentTimeSeconds = useHookstate(getMutableState(PlaybackState).currentTime)
-
-  /** When playing based on the video, update the current time based on the video's current time */
-  // useExecute(
-  //   () => {
-  //     if (!videoRef.current || !playing.value) return
-  //     console.log('updating current time from systen', videoRef.current.currentTime)
-  //     currentTimeSeconds.set(videoRef.current.currentTime)
-  //   },
-  //   { after: PresentationSystemGroup }
-  // )
 
   useEffect(() => {
     if (!videoRef.current) return
@@ -472,13 +432,13 @@ const VideoPlayback = (props: {
 
     if (!playing.value) handlePositionChange(currentTimeSeconds.value)
 
-    if (mocapData.value) {
-      // start time is the time the recording was started
-      const relativeTime = startTime + currentTimeSeconds.value * 1000
-      // get last frame before current time
-      const closest = mocapData.get(NO_PROXY)!.findLast((curr) => curr.timestamp - relativeTime <= 0)
-      if (!closest) return
-      drawPoseToCanvas(canvasCtxRef, canvasRef, closest.results.poseLandmarks)
+    const data = activePlaybacks.get(getState(PlaybackState).recordingID!)?.dataChannelChunks?.get(mocapDataChannelType)
+
+    if (data) {
+      const currentTimeMS = currentTimeSeconds.value * 1000
+      const frame = data.frames.find((frame) => frame.timecode > currentTimeMS)
+      if (!frame) return
+      drawPoseToCanvas(canvasCtxRef, canvasRef, frame.data.results.poseLandmarks)
     }
   }, [currentTimeSeconds])
 
@@ -573,7 +533,10 @@ const PlaybackMode = () => {
   const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
 
   const recording = useGet(recordingPath, recordingID.value!)
-  console.log({ recording })
+
+  useEffect(() => {
+    recording.refetch()
+  }, [])
 
   const ActiveRecording = () => {
     const data = recording.data!

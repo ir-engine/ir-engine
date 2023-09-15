@@ -74,19 +74,15 @@ export type MotionCaptureResults = {
 export const sendResults = (results: MotionCaptureResults) => {
   return encode({
     timestamp: Date.now(),
-    peerID: Engine.instance.peerID,
     results
   })
 }
 
 export const receiveResults = (buff: ArrayBuffer) => {
-  const { timestamp, peerID, results } = decode(new Uint8Array(buff)) as {
+  return decode(new Uint8Array(buff)) as {
     timestamp: number
-    peerID: PeerID
     results: MotionCaptureResults
   }
-  // console.log('received mocap data', peerID, results)
-  return { timestamp, peerID, results }
 }
 
 export const MotionCaptureFunctions = {
@@ -103,14 +99,13 @@ const handleMocapData = (
   message: ArrayBufferLike
 ) => {
   if (network.isHosting) {
-    network.transport.bufferToAll(mocapDataChannelType, message)
+    network.transport.bufferToAll(mocapDataChannelType, fromPeerID, message)
   }
-  const { peerID, results } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
-  if (!peerID) return
-  if (!timeSeriesMocapData.has(peerID)) {
-    timeSeriesMocapData.set(peerID, new RingBuffer(10))
+  const { results } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
+  if (!timeSeriesMocapData.has(fromPeerID)) {
+    timeSeriesMocapData.set(fromPeerID, new RingBuffer(10))
   }
-  timeSeriesMocapData.get(peerID)!.add(results)
+  timeSeriesMocapData.get(fromPeerID)!.add(results)
 }
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
