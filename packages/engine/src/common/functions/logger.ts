@@ -38,14 +38,39 @@ Ethereal Engine. All Rights Reserved.
 import { ServiceTypes } from '@etherealengine/common/declarations'
 import config from '@etherealengine/common/src/config'
 import { FeathersApplication } from '@feathersjs/feathers'
-import fetch from 'cross-fetch'
-import { LRUCache } from 'lru-cache'
+import NodeCache from 'node-cache'
+import schedule from 'node-schedule'
 import { logsApiPath } from '../../schemas/cluster/logs-api.schema'
 
-const logRequestCache = new LRUCache({
-  max: 1000,
-  ttl: 1000 * 5 // 5 seconds cache expiry
-})
+// Initialize the cache
+const engineCache = new NodeCache()
+
+// Schedule the data push at a certain time (e.g., every hour)
+schedule.scheduleJob('*/15 * * * * *', pushToEngine)
+
+// Function to cache a string
+function cacheLog(value: string): void {
+  const timestamp = new Date().getTime().toString()
+  engineCache.set(timestamp, value)
+}
+
+// Function to push cached strings to the server
+function pushToEngine(): void {
+  const cachedData = engineCache.keys().map((key) => {
+    const cachedValue = engineCache.get<string>(key)
+    if (cachedValue) {
+      return cachedValue
+    }
+  })
+
+  if (config.client.serverHost && LogConfig.api) {
+    console.log('pushing logs to engine.')
+
+    LogConfig.api.service(logsApiPath).create(cachedData)
+
+    engineCache.flushAll()
+  }
+}
 
 class LogConfig {
   static api: FeathersApplication<ServiceTypes> | undefined = undefined
@@ -123,28 +148,11 @@ const multiLogger = {
             // Send an async rate-limited request to backend logs-api service for aggregation
             // Also suppress logger.info() levels (the equivalent to console.log())
 
-            if (config.client.serverHost && level !== 'info') {
-              logRequestCache.set(logParams.msg, () =>
-                fetch(url, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    level,
-                    component: opts.component,
-                    ...logParams
-                  })
-                })
-              )
-            }
-            if (config.client.serverHost && LogConfig.api) {
-              logRequestCache.set(logParams.msg, async () => {
-                await LogConfig.api.service(logsApiPath).create({
-                  level,
-                  component: opts.component,
-                  ...logParams
-                })
-              })
-            }
+            cacheLog({
+              level,
+              component: opts.component,
+              ...logParams
+            })
           } catch (error) {
             console.error(error)
           }
