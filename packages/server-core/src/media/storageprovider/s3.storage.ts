@@ -104,6 +104,9 @@ function handler(event) {
  * Storage provide class to communicate with AWS S3 API.
  */
 export class S3Provider implements StorageProviderInterface {
+  constructor() {
+    if (!this.minioClient) this.getOriginURLs().then((result) => (this.originURLs = result))
+  }
   /**
    * Name of S3 bucket.
    */
@@ -156,11 +159,15 @@ export class S3Provider implements StorageProviderInterface {
         : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
+  originURLs = [this.cacheDomain]
+
   private bucketAssetURL =
     config.server.storageProvider === 's3'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint}/${this.bucket}`
-        : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
+        : config.aws.s3.s3DevMode === 'local'
+          ? `https://${config.aws.cloudfront.domain}`
+          : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   private blob: typeof S3BlobStore = new S3BlobStore({
@@ -414,6 +421,17 @@ export class S3Provider implements StorageProviderInterface {
     }
     const command = new CreateInvalidationCommand(params)
     return await this.cloudfront.send(command)
+  }
+
+  async getOriginURLs(): Promise<string[]> {
+    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return [this.cacheDomain]
+    const getDistributionParams = {
+      Id: config.aws.cloudfront.distributionId
+    }
+    const getDistributionCommand = new GetDistributionCommand(getDistributionParams)
+    const distribution = await this.cloudfront.send(getDistributionCommand)
+    if (!distribution.Distribution?.DistributionConfig?.Origins?.Items) return [this.cacheDomain]
+    return distribution.Distribution.DistributionConfig.Origins.Items.map((item) => item.DomainName || this.cacheDomain)
   }
 
   async listFunctions(marker: string | null, functions: FunctionSummary[]): Promise<FunctionSummary[]> {
@@ -687,8 +705,7 @@ export class S3Provider implements StorageProviderInterface {
           Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
         }
         const command = new CopyObjectCommand(input)
-        const response = await this.provider.send(command)
-        return response
+        return this.provider.send(command)
       })
     ])
 

@@ -72,6 +72,9 @@ export interface ResourcePatchCreateInterface {
 export const getFileMetadata = async (data: { name?: string; file: UploadFile | string }) => {
   const { name, file } = data
 
+  const storageProvider = getStorageProvider()
+  const originURLs = storageProvider.originURLs
+
   let contentLength = 0
   let extension = ''
   let assetName = name!
@@ -80,7 +83,9 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   if (typeof file === 'string') {
     const url = file
     if (/http(s)?:\/\//.test(url)) {
-      const fileHead = await fetch(url, { method: 'HEAD' })
+      //If the file URL points to the cache domain, fetch it from the origin (S3) domain instead, to avoid cached
+      //information that might not be up-to-date
+      const fileHead = await fetch(url.replace(storageProvider.cacheDomain, originURLs[0]), { method: 'HEAD' })
       if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
       contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
       mimeType = fileHead.headers['content-type'] || fileHead.headers?.get('content-type')
@@ -139,7 +144,7 @@ export type UploadAssetArgs = {
 
 export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
   console.log('uploadAsset', args)
-  const { assetName, hash, mimeType } = await getFileMetadata({
+  const { hash } = await getFileMetadata({
     file: args.file,
     name: args.file.originalname
   })
@@ -221,11 +226,20 @@ export const addAssetAsStaticResource = async (
   console.log('addAssetAsStaticResource', file, args)
   const provider = getStorageProvider()
 
+  const isFromOrigin = isFromOriginURL(args.path)
   const isExternalURL = args.path.startsWith('http')
 
-  // make userId optional and safe for feathers create
-  const primaryKey = isExternalURL ? args.path : processFileName(path.join(args.path, file.originalname))
-  const url = isExternalURL ? args.path : getCachedURL(primaryKey, provider.cacheDomain)
+  let primaryKey, url
+  if (isExternalURL && !isFromOrigin) {
+    primaryKey = args.path
+    url = args.path
+  } else if (isExternalURL && isFromOrigin) {
+    primaryKey = processFileName(args.path).replace(`https://${provider.originURLs[0]}/`, '')
+    url = args.path.replace(provider.originURLs[0], provider.cacheDomain)
+  } else {
+    primaryKey = processFileName(path.join(args.path, file.originalname))
+    url = getCachedURL(primaryKey, provider.cacheDomain)
+  }
 
   const query = {
     $limit: 1,
@@ -294,4 +308,13 @@ export default (app: Application): void => {
   const service = app.service('upload-asset')
 
   service.hooks(hooks)
+}
+
+const isFromOriginURL = (inputURL: string): boolean => {
+  const provider = getStorageProvider()
+  let returned = false
+  provider.originURLs.forEach((url) => {
+    if (new RegExp(url).exec(inputURL)) returned = true
+  })
+  return returned
 }
