@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InstanceServerProvisionResult {
-  id: string
-  ipAddress: string
-  port: string
-  roomCode: string
-  podName?: string
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'File Browser Update service description',
+    securities: ['all']
+  }
+})

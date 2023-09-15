@@ -30,6 +30,7 @@ import path from 'path'
 
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 
+import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 
 declare module '@etherealengine/common/declarations' {
@@ -59,7 +60,7 @@ async function createKtx2(data: KTX2EncodeArguments): Promise<string | string[]>
     console.log(args)
     console.log(execFileSync(BASIS_U, args.split(/\s+/)))
     console.log(execFileSync('mv', [fileName, outPath]))
-    const result = await this.app.service('file-browser').patch(null, {
+    const result = await this.app.service(fileBrowserPath).patch(null, {
       fileName,
       path: outURIDir,
       body: fs.readFileSync(outPath),

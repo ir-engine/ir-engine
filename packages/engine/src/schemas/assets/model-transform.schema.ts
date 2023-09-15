@@ -23,40 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff } from 'feathers-hooks-common'
+export const modelTransformPath = 'model-transform'
 
-import isAction from '@etherealengine/server-core/src/hooks/is-action'
-
-import authenticate from '../../hooks/authenticate'
-
-export default {
-  before: {
-    all: [],
-    find: [disallow()],
-    get: [disallow()],
-    create: [iff(isAction('passwordChange', 'identityChange'), authenticate() as any)],
-    update: [disallow()],
-    patch: [disallow()],
-    remove: [disallow()]
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export const modelTransformMethods = ['create'] as const

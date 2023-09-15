@@ -23,20 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import InstanceActive from './instance-active/instance-active'
-import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
-import InstanceProvision from './instance-provision/instance-provision'
-import Instance from './instance/instance'
-import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'
-import InstanceServerProvision from './instanceserver-provision/instanceserver-provision.service'
+import {
+  modelTransformMethods,
+  modelTransformPath
+} from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
+import { Application } from '../../../declarations'
+import { ModelTransformService } from './model-transform.class'
+import modelTransformDocs from './model-transform.docs'
+import hooks from './model-transform.hooks'
 
-export default [
-  Instance,
-  InstanceServerLoad,
-  InstanceServerProvision,
-  InstanceProvision,
-  InstanceAttendance,
-  InstanceAuthorizedUser,
-  InstanceActive
-]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [modelTransformPath]: ModelTransformService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(modelTransformPath, new ModelTransformService(app), {
+    // A list of all methods this service exposes externally
+    methods: modelTransformMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: modelTransformDocs
+  })
+
+  const service = app.service(modelTransformPath)
+  service.hooks(hooks)
+}
