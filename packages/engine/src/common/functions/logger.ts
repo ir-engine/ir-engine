@@ -104,7 +104,6 @@ const multiLogger = {
     } else {
       // For non-local builds, this send() is used
       const send = (level) => {
-        const url = new URL('/api/log', config.client.serverUrl)
         const consoleMethods = {
           debug: console.debug.bind(console, `[${opts.component}]`),
           info: console.log.bind(console, `[${opts.component}]`),
@@ -138,10 +137,12 @@ const multiLogger = {
               )
             }
             if (config.client.serverHost && LogConfig.api) {
-              await LogConfig.api.service(logsApiPath).create({
-                level,
-                component: opts.component,
-                ...logParams
+              logRequestCache.set(logParams.msg, async () => {
+                await LogConfig.api.service(logsApiPath).create({
+                  level,
+                  component: opts.component,
+                  ...logParams
+                })
               })
             }
           } catch (error) {
