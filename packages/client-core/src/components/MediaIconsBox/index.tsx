@@ -47,7 +47,11 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { PlaybackState, RecordingState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import {
+  ECSRecordingActions,
+  PlaybackState,
+  RecordingState
+} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
@@ -117,7 +121,7 @@ export const MediaIconsBox = () => {
     const activePlayback = playbackState.recordingID.value
     if (activePlayback) {
       getMutableState(RecordingUIState).mode.set('recordings')
-      PlaybackState.stopPlayback({
+      ECSRecordingActions.stopPlayback({
         recordingID: activePlayback
       })
     }

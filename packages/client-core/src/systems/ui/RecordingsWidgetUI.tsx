@@ -33,7 +33,11 @@ import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { PlaybackState, RecordingState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import {
+  ECSRecordingActions,
+  PlaybackState,
+  RecordingState
+} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { RecordingType, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
@@ -289,7 +293,7 @@ const RecordingPlayback = () => {
     const playback = playbackState.recordingID.value
     return () => {
       getMutableState(RecordingUIState).mode.set('recordings')
-      PlaybackState.stopPlayback({
+      ECSRecordingActions.stopPlayback({
         recordingID: playback
       })
     }
