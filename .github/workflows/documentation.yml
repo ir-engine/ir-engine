@@ -80,6 +80,7 @@ jobs:
         run: |
           cd docs
           git config --get remote.origin.url
+          git push origin gh-pages --force
       - name: Release to GitHub Pages
         timeout-minutes: 200
         env:
