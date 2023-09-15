@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import detect from 'detect-port'
+import { exec } from 'child_process'
 import { createWorker } from 'mediasoup'
 import {
   DataConsumer,
@@ -65,6 +65,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { promisify } from 'util'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -79,10 +80,11 @@ const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
 const portsInUse: number[] = []
 
-const getNewOffset = async (ipAddress, startPort, i, offset) => {
-  const inUse = await detect(startPort + i + offset, ipAddress)
-  if (inUse !== startPort + i + offset || portsInUse.indexOf(startPort + i + offset) >= 0)
-    return getNewOffset(ipAddress, startPort, i, offset + 1)
+const execAsync = promisify(exec)
+
+const getNewOffset = async (ipAddress, startPort, i, offset, lsofResult) => {
+  if (lsofResult.indexOf(`:${startPort + i + offset}`) > -1)
+    return getNewOffset(ipAddress, startPort, i, offset + 1, lsofResult)
   else return offset
 }
 
@@ -93,6 +95,7 @@ export async function startWebRTC() {
   const workers = [] as Worker[]
   //This is used in case ports in the range to use are in use by something else
   let offset = 0
+  const lsofResult = await execAsync(`lsof -i -P -n | cat`)
   for (let i = 0; i < cores.length; i++) {
     const newWorker = await createWorker({
       logLevel: 'debug',
@@ -105,10 +108,11 @@ export async function startWebRTC() {
 
     const webRtcServerOptions = JSON.parse(JSON.stringify(localConfig.mediasoup.webRtcServerOptions))
     offset = await getNewOffset(
-      webRtcServerOptions.listenInfos[0].ipAddress,
+      webRtcServerOptions.listenInfos[0].ip,
       webRtcServerOptions.listenInfos[0].port,
       i,
-      offset
+      offset,
+      lsofResult.stdout
     )
     for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i + offset
     portsInUse.push(webRtcServerOptions.listenInfos[0].port)
