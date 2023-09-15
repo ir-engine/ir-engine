@@ -73,6 +73,7 @@ jobs:
           git config --global user.name "gh-actions"
           npm install --legacy-peer-deps
           git clone https://github.com/etherealengine/etherealengine-docs.git docs
+          cd docs
           echo "Starting to remove commit history for gh-pages branch"
           git checkout gh-pages
           git checkout --orphan temp-gh-pages
@@ -83,7 +84,6 @@ jobs:
           git push origin gh-pages --force
           git branch -D temp-gh-pages
           echo "gh-pages commit history has been cleared"
-          cd docs
           cp .env.local.default .env.local
           npm install --legacy-peer-deps
           npm run deploy
