@@ -77,11 +77,9 @@ jobs:
           git branch -D temp-gh-pages
           echo "Comitted changes, ready to be pushed"
       - name: Push changes to gh-pages branch
-        uses: ad-m/github-push-action@master
-        with:
-          directory: .
-          branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd docs
+          git config --get remote.origin.url
       - name: Release to GitHub Pages
         timeout-minutes: 200
         env:
@@ -90,7 +88,8 @@ jobs:
           GIT_USER: git
           DEPLOYMENT_BRANCH: gh-pages
         run: |
+          cd docs
           npm install --legacy-peer-deps
           cp .env.local.default .env.local
           npm install --legacy-peer-deps
-          npm run deploy
+          git config --get remote.origin.url
