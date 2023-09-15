@@ -163,7 +163,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
           .andWhere(`${instancePath}.ended`, '=', false)
           .select(`${channelPath}.*`)
       } else {
-        let channels = await knexClient
+        const channels = await knexClient
           .from(channelPath)
           .leftJoin(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
           .where(`${instancePath}.ended`, '=', false)
