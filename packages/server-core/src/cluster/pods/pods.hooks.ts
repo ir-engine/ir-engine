@@ -23,26 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { podsQueryValidator } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { podsExternalResolver, podsQueryResolver, podsResolver } from './pods.resolvers'
 
 export default {
-  around: {
-    all: [schemaHooks.resolveExternal(podsExternalResolver), schemaHooks.resolveResult(podsResolver)]
-  },
-
   before: {
-    all: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
-      () => schemaHooks.validateQuery(podsQueryValidator),
-      schemaHooks.resolveQuery(podsQueryResolver)
-    ],
+    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
     find: [],
     get: [],
     create: [],

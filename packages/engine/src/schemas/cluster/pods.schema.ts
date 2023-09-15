@@ -28,7 +28,7 @@ import type { Static } from '@feathersjs/typebox'
 import { StringEnum, Type, getValidator } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID } from '../networking/instance.schema'
-import { dataValidator, queryValidator } from '../validators'
+import { dataValidator } from '../validators'
 
 export const podsPath = 'pods'
 
@@ -77,16 +77,6 @@ export const podsSchema = Type.Object(
 )
 export type PodsType = Static<typeof podsSchema>
 
-export const podsQuerySchema = Type.Object(
-  {
-    containerName: Type.String()
-  },
-  { additionalProperties: false }
-)
-
-export type PodsQuery = Static<typeof podsQuerySchema>
-
 export const serverContainerInfoValidator = getValidator(serverContainerInfoSchema, dataValidator)
 export const serverPodInfoValidator = getValidator(serverPodInfoSchema, dataValidator)
 export const podsValidator = getValidator(podsSchema, dataValidator)
-export const podsQueryValidator = getValidator(podsQuerySchema, queryValidator)
