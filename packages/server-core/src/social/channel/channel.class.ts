@@ -137,7 +137,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
   async find(params?: ChannelParams) {
     try {
       if (!params) params = {}
-      if (params.query?.paginate && !params.paginate) {
+      if (params.query?.paginate) {
         params = { ...params, paginate: false }
         delete params.query?.paginate
       }
