@@ -161,12 +161,22 @@
   }
 }
 
-.container {
+%container {
   height: 100%;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.container {
+  @extend %container;
+}
+
+.loadingContainer {
+  @extend %container;
+
+  background: transparent;
 }
 
 .error {
