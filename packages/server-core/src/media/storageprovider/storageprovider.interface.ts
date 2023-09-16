@@ -168,11 +168,15 @@ export interface StorageProviderInterface {
    */
   cacheDomain: string
 
+  originURLs: string[]
+
   /**
    * Invalidate items in the storage provider.
    * @param invalidationItems List of keys.
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
+
+  getOriginURLs(): Promise<string[]>
 
   associateWithFunction(functionARN: string): Promise<any>
 
