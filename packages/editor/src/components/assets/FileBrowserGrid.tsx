@@ -215,14 +215,8 @@ export function FileBrowserItem({
   }
 
   const viewAssetProperties = () => {
-    if (item.isFolder) {
-      setFileProperties({
-        ...item,
-        url: item.url + '/' + item.key
-      })
-    } else {
-      setFileProperties(item)
-    }
+    setFileProperties(item)
+
     setOpenPropertiesModal(true)
 
     handleClose()
@@ -256,7 +250,6 @@ export function FileBrowserItem({
 
   const rename = () => {
     setRenamingAsset(true)
-
     handleClose()
   }
 

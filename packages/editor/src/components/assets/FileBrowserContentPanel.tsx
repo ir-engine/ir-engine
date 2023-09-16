@@ -164,7 +164,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const filesValue = fileState.files.attach(Downgraded).value
   const { skip, total, retrieving } = fileState.value
 
-  const page = skip / FILES_PAGE_LIMIT
+  let page = skip / FILES_PAGE_LIMIT
   const files = fileState.files.value.map((file) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
@@ -221,8 +221,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const createNewFolder = async () => {
     handleClose()
-
     await FileBrowserService.addNewFolder(`${selectedDirectory.value}New_Folder`)
+    page = 0 // more efficient than requesting the files again
     await refreshDirectory()
   }
 
