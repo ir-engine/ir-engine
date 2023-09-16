@@ -60,7 +60,13 @@ import {
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
@@ -595,6 +601,16 @@ const PlaybackMode = () => {
   )
 }
 
+const CapturePageState = defineState({
+  name: 'CapturePageState',
+  initial: {
+    mode: 'playback' as 'playback' | 'capture'
+  },
+  onCreate: () => {
+    syncStateWithLocalStorage(CapturePageState, ['mode'])
+  }
+})
+
 const CaptureDashboard = () => {
   const worldNetwork = useWorldNetwork()
 
@@ -605,7 +621,7 @@ const CaptureDashboard = () => {
     }
   }, [worldNetwork?.connected?.value])
 
-  const mode = useHookstate<'playback' | 'capture'>('playback')
+  const mode = useHookstate(getMutableState(CapturePageState).mode)
 
   return (
     <div className="max-w-[1024px] w-full container mx-auto overflow-hidden">
