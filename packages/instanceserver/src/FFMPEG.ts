@@ -98,6 +98,8 @@ export const startFFMPEG = async (
   // require on demand as not to unnecessary slow down instance server
   if (!ffmpeg) throw new Error('FFmpeg not found')
 
+  logger.info('Using ffmpeg: ' + ffmpeg)
+
   // Ensure correct FFmpeg version is installed
   const ffmpegOut = Process.execSync(ffmpeg + ' -version', {
     encoding: 'utf8'
