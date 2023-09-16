@@ -111,6 +111,7 @@ type FileBrowserItemType = {
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
+  addFolder: () => void
   refreshDirectory: () => Promise<void>
 }
 
@@ -128,6 +129,7 @@ export function FileBrowserItem({
   dropItemsOnPanel,
   moveContent,
   isFilesLoading,
+  addFolder,
   refreshDirectory
 }: FileBrowserItemType) {
   const { t } = useTranslation()
@@ -154,13 +156,13 @@ export function FileBrowserItem({
 
   const onClickItem = (_) => onClick(item)
 
-  const placeObject = () => {
+  const placeObjectAtOrigin = () => {
     addMediaNode(item.url)
 
     handleClose()
   }
 
-  const placeObjectAtOrigin = async () => {
+  const placeObject = async () => {
     const node = await addMediaNode(item.url)
     if (!node) return
     const transformComponent = getComponent(node, TransformComponent)
@@ -297,11 +299,12 @@ export function FileBrowserItem({
         </div>
 
         <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
-          {item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
-          {item.isFolder && (
+          <MenuItem onClick={addFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
+          {!item.isFolder && <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>}
+          {!item.isFolder && (
             <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
           )}
-          {item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
+          {!item.isFolder && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
           <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
           <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
           <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>

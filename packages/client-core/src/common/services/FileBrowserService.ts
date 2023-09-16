@@ -30,7 +30,7 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { FileBrowserContentType, fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 
-export const FILES_PAGE_LIMIT = 100
+export const FILES_PAGE_LIMIT = 10
 
 export const FileBrowserState = defineState({
   name: 'FileBrowserState',
@@ -53,24 +53,18 @@ export const FileBrowserService = {
 
     _lastDir = directory
 
-    const params = {
-      query: {
-        $skip: skip * FILES_PAGE_LIMIT,
-        $limit: FILES_PAGE_LIMIT
-      }
-    }
-
     fileBrowserState.retrieving.set(true)
 
     const files = (await Engine.instance.api.service(fileBrowserPath).find({
-      ...params,
       query: {
+        $skip: skip * FILES_PAGE_LIMIT,
+        $limit: FILES_PAGE_LIMIT,
         directory
       }
     })) as Paginated<FileBrowserContentType>
-
     fileBrowserState.merge({
       files: files.data,
+      skip: files.skip,
       total: files.total,
       retrieving: false,
       fetched: true,

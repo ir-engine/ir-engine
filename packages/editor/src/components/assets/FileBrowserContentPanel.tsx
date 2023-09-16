@@ -50,6 +50,7 @@ import { getMutableState, useHookstate, useState } from '@etherealengine/hyperfl
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
 import DownloadIcon from '@mui/icons-material/Download'
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import VideocamIcon from '@mui/icons-material/Videocam'
@@ -60,7 +61,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import Dialog from '@etherealengine/ui/src/primitives/mui/Dialog'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
-import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
@@ -69,7 +69,6 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { unique } from '../../functions/utils'
-import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from './AssetsPreviewPanel'
 import CompressionPanel from './CompressionPanel'
@@ -88,6 +87,7 @@ export const FileIconType = {
   png: PhotoSizeSelectActualIcon,
   jpeg: PhotoSizeSelectActualIcon,
   jpg: PhotoSizeSelectActualIcon,
+  ktx2: PhotoSizeSelectActualIcon,
   m3u8: VideocamIcon,
   mp4: VideocamIcon,
   mpeg: VolumeUpIcon,
@@ -205,17 +205,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
   }
 
-  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-
-    anchorEl.set(event.currentTarget)
-    anchorPosition.set({
-      left: event.clientX + 2,
-      top: event.clientY - 6
-    })
-  }
-
   const handleClose = () => {
     anchorEl.set(null)
     anchorPosition.set(undefined)
@@ -288,22 +277,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await refreshDirectory()
   }
 
-  const pasteContent = async () => {
-    handleClose()
-
-    if (isLoading.value) return
-    isLoading.set(true)
-
-    await FileBrowserService.moveContent(
-      currentContentRef.current.item.fullName,
-      currentContentRef.current.item.fullName,
-      currentContentRef.current.item.path,
-      selectedDirectory.value,
-      currentContentRef.current.isCopy
-    )
-    await refreshDirectory()
-  }
-
   const handleConfirmDelete = (contentPath: string, type: string) => {
     contentToDeletePath.set(contentPath)
 
@@ -369,7 +342,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
 
     return (
-      <Breadcrumbs maxItems={3} classes={{ separator: styles.separator, li: styles.breadcrumb }} separator="›">
+      <Breadcrumbs
+        style={{}}
+        maxItems={3}
+        classes={{ separator: styles.separator, li: styles.breadcrumb, ol: styles.breadcrumbList }}
+        separator="›"
+      >
         {selectedDirectory.value
           .slice(1, -1)
           .split('/')
@@ -404,7 +382,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     return (
       <div
         ref={fileDropRef}
-        onContextMenu={handleContextMenu}
         className={styles.panelContainer}
         style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
       >
@@ -425,6 +402,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               setOpenConvert={openConvert.set}
               dropItemsOnPanel={dropItemsOnPanel}
               isFilesLoading={isLoading}
+              addFolder={createNewFolder}
               refreshDirectory={refreshDirectory}
             />
           ))}
@@ -452,21 +430,41 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '20px'
+          gap: '10px'
         }}
       >
-        <ToolButton
-          tooltip={t('editor:layout.filebrowser.back')}
-          icon={ArrowBackIcon}
-          onClick={onBackDirectory}
-          id="backDir"
-        />
-        <BreadcrumbItems />
-        <span>
+        <span
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+          }}
+        >
+          <ToolButton
+            tooltip={t('editor:layout.filebrowser.back')}
+            icon={ArrowBackIcon}
+            onClick={onBackDirectory}
+            id="backDir"
+          />
           <ToolButton
             tooltip={t('editor:layout.filebrowser.refresh')}
             icon={AutorenewIcon}
             onClick={refreshDirectory}
+            id="refreshDir"
+          />
+        </span>
+        <BreadcrumbItems />
+        <span
+          style={{
+            display: 'flex',
+            flexDirection: 'row-reverse',
+            flexWrap: 'wrap'
+          }}
+        >
+          <ToolButton
+            tooltip={t('editor:layout.filebrowser.addNewFolder')}
+            icon={CreateNewFolderIcon}
+            onClick={createNewFolder}
             id="refreshDir"
           />
           {showDownloadButton && (
@@ -492,13 +490,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DropArea />
         </DndWrapper>
       </div>
-
-      <ContextMenu open={open} anchorEl={anchorEl.value} anchorPosition={anchorPosition.value} onClose={handleClose}>
-        <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
-        <MenuItem disabled={!currentContentRef.current} onClick={pasteContent}>
-          {t('editor:layout.filebrowser.pasteAsset')}
-        </MenuItem>
-      </ContextMenu>
 
       {openConvert.value && fileProperties.value && (
         <ImageConvertPanel
