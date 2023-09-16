@@ -30,7 +30,7 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { FileBrowserContentType, fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 
-export const FILES_PAGE_LIMIT = 10
+export const FILES_PAGE_LIMIT = 100
 
 export const FileBrowserState = defineState({
   name: 'FileBrowserState',
