@@ -65,6 +65,8 @@ export class LocalStorage implements StorageProviderInterface {
    */
   cacheDomain = config.server.localStorageProvider
 
+  originURLs = [this.cacheDomain]
+
   /**
    * Constructor of LocalStorage class.
    */
@@ -84,6 +86,7 @@ export class LocalStorage implements StorageProviderInterface {
         stdio: 'inherit'
       })
     }
+    this.getOriginURLs().then((result) => (this.originURLs = result))
   }
 
   /**
@@ -207,6 +210,10 @@ export class LocalStorage implements StorageProviderInterface {
    * @param invalidationItems List of keys.
    */
   createInvalidation = async (): Promise<any> => Promise.resolve()
+
+  async getOriginURLs(): Promise<string[]> {
+    return [this.cacheDomain]
+  }
 
   associateWithFunction = async (): Promise<any> => Promise.resolve()
 
@@ -345,7 +352,7 @@ export class LocalStorage implements StorageProviderInterface {
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
       res.size = this._formatBytes(fs.lstatSync(pathString).size)
-      res.url = signedUrl.url + path.sep + signedUrl.fields.Key
+      res.url = signedUrl.url + path.sep + signedUrl.fields.key
     }
 
     return res

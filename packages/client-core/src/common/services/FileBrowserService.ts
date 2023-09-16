@@ -53,24 +53,18 @@ export const FileBrowserService = {
 
     _lastDir = directory
 
-    const params = {
-      query: {
-        $skip: skip * FILES_PAGE_LIMIT,
-        $limit: FILES_PAGE_LIMIT
-      }
-    }
-
     fileBrowserState.retrieving.set(true)
 
     const files = (await Engine.instance.api.service(fileBrowserPath).find({
-      ...params,
       query: {
+        $skip: skip * FILES_PAGE_LIMIT,
+        $limit: FILES_PAGE_LIMIT,
         directory
       }
     })) as Paginated<FileBrowserContentType>
-
     fileBrowserState.merge({
       files: files.data,
+      skip: files.skip,
       total: files.total,
       retrieving: false,
       fetched: true,
@@ -85,5 +79,9 @@ export const FileBrowserService = {
   },
   addNewFolder: async (folderName: string) => {
     await Engine.instance.api.service(fileBrowserPath).create(folderName)
+  },
+  resetSkip: () => {
+    const fileBrowserState = getMutableState(FileBrowserState)
+    fileBrowserState.skip.set(0)
   }
 }
