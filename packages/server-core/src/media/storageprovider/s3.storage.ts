@@ -166,8 +166,8 @@ export class S3Provider implements StorageProviderInterface {
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint}/${this.bucket}`
         : config.aws.s3.s3DevMode === 'local'
-          ? `https://${config.aws.cloudfront.domain}`
-          : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
+        ? `https://${config.aws.cloudfront.domain}`
+        : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   private blob: typeof S3BlobStore = new S3BlobStore({
