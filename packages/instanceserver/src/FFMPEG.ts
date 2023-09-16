@@ -106,24 +106,25 @@ export const startFFMPEG = async (
   })
   logger.info('FFmpeg output: %s', ffmpegOut)
 
-  const ffmpegVerMatch = /ffmpeg version (\d+)\.(\d+)\.(\d+)/.exec(ffmpegOut)
   let ffmpegOk = false
   if (ffmpegOut.startsWith('ffmpeg version git')) {
     // Accept any Git build (it's up to the developer to ensure that a recent
     // enough version of the FFmpeg source code has been built)
     ffmpegOk = true
-  } else if (ffmpegVerMatch) {
+  } else {
+    // ffmpegOut looks like this:
+    // ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers
+    // and this
+    // ffmpeg version 5.0.1-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2022 the FFmpeg developers
+
+    // create an version regex to match it
+    const ffmpegVerMatch = /ffmpeg version (\d+)\./.exec(ffmpegOut)
+    if (!ffmpegVerMatch) throw new Error('FFmpeg version not found')
     const ffmpegVerMajor = parseInt(ffmpegVerMatch[1], 10)
-    if (ffmpegVerMajor >= 4) {
-      ffmpegOk = true
-    }
+    if (ffmpegVerMajor < 4) throw new Error('FFmpeg >= 4.0.0 not found in $PATH; please install it')
   }
 
   const stream = new Stream.PassThrough()
-
-  if (!ffmpegOk) {
-    throw new Error('FFmpeg >= 4.0.0 not found in $PATH; please install it')
-  }
 
   /** Init codec & args */
 
