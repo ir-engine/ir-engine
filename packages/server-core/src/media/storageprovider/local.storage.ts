@@ -165,6 +165,7 @@ export class LocalStorage implements StorageProviderInterface {
           const passthrough = data.Body as PassThrough
           passthrough.pipe(writeableStream)
           passthrough.on('end', () => {
+            logger.info('File uploaded successfully to ' + filePath)
             resolve(true)
           })
           passthrough.on('error', (e) => {

@@ -36,6 +36,7 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   getComponent,
+  hasComponent,
   removeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -230,20 +231,21 @@ const execute = () => {
   const xrui = getComponent(ui.entity, XRUIComponent)
 
   if (transition.state === 'IN' && transition.alpha === 1) {
-    setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
-      const distance = 0.1
-      const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
-      if (!uiContainer) return
-      const uiSize = uiContainer.domSize
-      const screenSize = EngineRenderer.instance.renderer.getSize(SCREEN_SIZE)
-      const aspectRatio = screenSize.x / screenSize.y
-      const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
-      const scale =
-        ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
-        0.25 *
-        scaleMultiplier
-      ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
-    })
+    if (!hasComponent(ui.entity, ComputedTransformComponent))
+      setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
+        const distance = 0.1
+        const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
+        if (!uiContainer) return
+        const uiSize = uiContainer.domSize
+        const screenSize = EngineRenderer.instance.renderer.getSize(SCREEN_SIZE)
+        const aspectRatio = screenSize.x / screenSize.y
+        const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
+        const scale =
+          ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
+          0.25 *
+          scaleMultiplier
+        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+      })
   }
 
   mesh.position.copy(getComponent(Engine.instance.cameraEntity, CameraComponent).position)
