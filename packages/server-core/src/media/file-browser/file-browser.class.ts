@@ -46,6 +46,7 @@ import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
+import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
@@ -216,14 +217,27 @@ export class FileBrowserService
       }
     )
 
+    const hash = createStaticResourceHash(data.body, { assetURL: key })
+    const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
+    const url = getCachedURL(key, cacheDomain)
+
+    await this.app.service(staticResourcePath).create(
+      {
+        hash,
+        key,
+        url,
+        mimeType: data.contentType
+      },
+      { isInternal: true }
+    )
+
     const filePath = path.join(projectsRootFolder, key)
     const parentDirPath = path.dirname(filePath)
 
     if (!fs.existsSync(parentDirPath)) fs.mkdirSync(parentDirPath, { recursive: true })
     fs.writeFileSync(filePath, data.body)
 
-    const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
-    return getCachedURL(key, cacheDomain)
+    return url
   }
 
   /**
