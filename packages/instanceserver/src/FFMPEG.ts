@@ -102,6 +102,8 @@ export const startFFMPEG = async (
   const ffmpegOut = Process.execSync(ffmpeg + ' -version', {
     encoding: 'utf8'
   })
+  logger.info('FFmpeg output: %s', ffmpegOut)
+
   const ffmpegVerMatch = /ffmpeg version (\d+)\.(\d+)\.(\d+)/.exec(ffmpegOut)
   let ffmpegOk = false
   if (ffmpegOut.startsWith('ffmpeg version git')) {
