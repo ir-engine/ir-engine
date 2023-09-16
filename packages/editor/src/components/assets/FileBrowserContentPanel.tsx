@@ -492,7 +492,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           )}
         </span>
       </div>
-
+      <div className={styles.headerContainer}>
+        <span className={styles.searchContainer}>
+          <Button onClick={() => searchBarState.set('')}>x</Button>
+          <StringInput
+            value={searchBarState.value}
+            onChange={(e) => searchBarState.set(e?.target.value ?? '')}
+            placeholder="Search"
+          />
+        </span>
+      </div>
       {retrieving && (
         <LoadingView
           className={styles.filesLoading}
@@ -501,16 +510,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
       <div id="file-browser-panel" style={{ overflowY: 'auto' }}>
-        <div className={styles.headerContainer}>
-          <span className={styles.searchContainer}>
-            <Button onClick={() => searchBarState.set('')}>x</Button>
-            <StringInput
-              value={searchBarState.value}
-              onChange={(e) => searchBarState.set(e?.target.value ?? '')}
-              placeholder="Search"
-            />
-          </span>
-        </div>
         <DndWrapper id="file-browser-panel">
           <DropArea />
         </DndWrapper>
