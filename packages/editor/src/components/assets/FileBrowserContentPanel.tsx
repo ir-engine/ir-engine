@@ -192,6 +192,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await FileBrowserService.fetchFiles(selectedDirectory.value, page)
   }
 
+  const changeDirectoryByPath = (path: string) => {
+    selectedDirectory.set(path)
+    FileBrowserService.resetSkip()
+  }
+
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
       props.onSelectionChanged({
@@ -201,7 +206,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       })
     } else {
       const newPath = `${selectedDirectory.value}${params.name}/`
-      selectedDirectory.set(newPath)
+      changeDirectoryByPath(newPath)
     }
   }
 
@@ -261,7 +266,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     for (let i = 0; i < result.length - 1; i++) {
       newPath += result[i] + '/'
     }
-    selectedDirectory.set(newPath)
+    changeDirectoryByPath(newPath)
   }
 
   const moveContent = async (
@@ -338,7 +343,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           break
         }
       }
-      selectedDirectory.set(newPath)
+      changeDirectoryByPath(newPath)
     }
 
     return (
