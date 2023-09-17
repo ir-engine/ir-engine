@@ -54,7 +54,9 @@ import RecordingsList from '@etherealengine/ui/src/components/tailwind/Recording
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
+
 import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
+import { DrawingUtils, FilesetResolver, HandLandmarker, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { DataProducer } from 'mediasoup-client/lib/DataProducer'
 import Toolbar from '../../components/tailwind/Toolbar'
 
@@ -115,6 +117,8 @@ const CaptureDashboard = () => {
   const [detectingStatus, setDetectingStatus] = useState('inactive')
 
   const poseDetector = useHookstate(null as null | Pose)
+  const handDetector = useHookstate(null as null | HandLandmarker)
+  const handLandmarks = useHookstate(null as null | NormalizedLandmark[][])
 
   const processingFrame = useHookstate(false)
 
@@ -194,6 +198,26 @@ const CaptureDashboard = () => {
       }
     }
 
+    if (!handDetector.value) {
+      if (HandLandmarker !== undefined) {
+        FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm').then(
+          (vision) => {
+            HandLandmarker.createFromOptions(vision, {
+              baseOptions: {
+                modelAssetPath:
+                  'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+                delegate: 'GPU'
+              },
+              runningMode: 'VIDEO',
+              numHands: 2
+            }).then((hand) => {
+              handDetector.set(hand)
+            })
+          }
+        )
+      }
+    }
+
     processingFrame.set(false)
 
     if (poseDetector.value) {
@@ -220,10 +244,22 @@ const CaptureDashboard = () => {
           canvasCtxRef.current.save()
           canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
           canvasCtxRef.current.globalCompositeOperation = 'source-over'
+          const drawingUtils = new DrawingUtils(canvasCtxRef.current)
+
+          if (handLandmarks.value && canvasCtxRef.current) {
+            for (let i = 0; i < handLandmarks.value.length; i++) {
+              //use tasks-vision utils import for draw connectors
+              drawingUtils.drawConnectors(handLandmarks.value[i], HandLandmarker.HAND_CONNECTIONS, {
+                color: '#fff',
+                lineWidth: 2
+              })
+              drawingUtils.drawLandmarks(handLandmarks.value[i], { color: '#fff', lineWidth: 3 })
+            }
+          }
 
           // Pose Connections
           drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
-            color: '#fff',
+            color: !handDetector.value ? '#ff0000' : '#fff',
             lineWidth: 4
           })
           // Pose Landmarks
@@ -243,11 +279,11 @@ const CaptureDashboard = () => {
           //   }
           // )
 
-          // // Left Hand Landmarks
-          // drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-          //   color: '#fff',
-          //   radius: 2
-          // })
+          // Left Hand Landmarks
+          //drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
+          //  color: '#fff',
+          //  radius: 2
+          //})
 
           // // Right Hand Connections
           // drawConnectors(
@@ -299,6 +335,14 @@ const CaptureDashboard = () => {
     if (poseDetector.value) {
       processingFrame.set(true)
       poseDetector.value?.send({ image: videoRef.current! })
+    }
+
+    if (handDetector.value) {
+      processingFrame.set(true)
+      const results = handDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
+      if (results.landmarks) {
+        handLandmarks.set(results.landmarks)
+      }
     }
   })
 
