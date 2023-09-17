@@ -30,7 +30,12 @@ import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
 import { defineSystem } from '../../../ecs/functions/SystemFunctions'
 import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
 import { NoiseOffsetSystem } from '../constants/plugins/NoiseOffsetPlugin'
-import { protoIdToFactory, registerMaterial, replaceMaterial } from '../functions/MaterialLibraryFunctions'
+import {
+  protoIdToFactory,
+  registerMaterial,
+  replaceMaterial,
+  unregisterMaterial
+} from '../functions/MaterialLibraryFunctions'
 import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/MaterialPluginFunctions'
 
 function MaterialReactor({ materialId }: { materialId: string }) {
@@ -79,10 +84,12 @@ function reactor(): ReactElement {
         const factory = protoIdToFactory(component.prototype.value)
         const newMaterial = factory(parms)
         replaceMaterial(material, newMaterial)
-        newMaterial.uuid = material.uuid
         newMaterial.userData = material.userData
         delete newMaterial.userData.args
-        registerMaterial(newMaterial, component.src.value)
+        const comp = component.get(NO_PROXY)
+        const src = JSON.parse(JSON.stringify(component.src.value))
+        registerMaterial(newMaterial, src)
+        unregisterMaterial(material)
       }
     }
   }, [materialLibrary.prototypes])
