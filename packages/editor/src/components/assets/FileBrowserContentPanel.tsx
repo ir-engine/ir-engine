@@ -45,7 +45,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -69,6 +69,8 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { unique } from '../../functions/utils'
+import { Button } from '../inputs/Button'
+import StringInput from '../inputs/StringInput'
 import { ToolButton } from '../toolbar/ToolButton'
 import { AssetSelectionChangePropsType } from './AssetsPreviewPanel'
 import CompressionPanel from './CompressionPanel'
@@ -377,6 +379,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     )
   }
 
+  const searchBarState = useHookstate('')
+
+  const validFiles = useHookstate<typeof files>([])
+
+  useEffect(() => {
+    validFiles.set(files.filter((file) => file.name.toLowerCase().includes(searchBarState.value.toLowerCase())))
+  }, [searchBarState.value, fileState.files])
+
   const DropArea = () => {
     const [{ isFileDropOver }, fileDropRef] = useDrop({
       accept: [...SupportedFileTypes],
@@ -391,7 +401,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
       >
         <div className={styles.contentContainer}>
-          {unique(files, (file) => file.key).map((file, i) => (
+          {unique(validFiles.get(NO_PROXY), (file) => file.key).map((file, i) => (
             <FileBrowserItem
               key={file.key}
               contextMenuId={i.toString()}
@@ -412,7 +422,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             />
           ))}
 
-          {total > 0 && fileState.files.value.length < total && (
+          {total > 0 && validFiles.value.length < total && (
             <TablePagination
               className={styles.pagination}
               component="div"
@@ -482,7 +492,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           )}
         </span>
       </div>
-
+      <div className={styles.headerContainer}>
+        <span className={styles.searchContainer}>
+          <Button onClick={() => searchBarState.set('')}>x</Button>
+          <StringInput
+            value={searchBarState.value}
+            onChange={(e) => searchBarState.set(e?.target.value ?? '')}
+            placeholder="Search"
+          />
+        </span>
+      </div>
       {retrieving && (
         <LoadingView
           className={styles.filesLoading}
