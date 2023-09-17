@@ -25,12 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../../../ecs/functions/SystemFunctions'
+import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
 import { NoiseOffsetSystem } from '../constants/plugins/NoiseOffsetPlugin'
+import { protoIdToFactory, registerMaterial, replaceMaterial } from '../functions/MaterialLibraryFunctions'
 import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/MaterialPluginFunctions'
-import { initializeMaterialLibrary, MaterialLibraryState } from '../MaterialLibrary'
 
 function MaterialReactor({ materialId }: { materialId: string }) {
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -65,6 +66,27 @@ function reactor(): ReactElement {
   }, [])
 
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
+
+  useEffect(() => {
+    const materialIds = materialLibrary.materials.keys
+    for (const materialId of materialIds) {
+      const component = materialLibrary.materials[materialId]
+      //if the material is missing, check if its prototype is present now
+      if (component.status.value === 'MISSING' && !!materialLibrary.prototypes[component.prototype.value]) {
+        //if the prototype is present, create the material
+        const material = component.material.get(NO_PROXY)
+        const parms = material.userData.args
+        const factory = protoIdToFactory(component.prototype.value)
+        const newMaterial = factory(parms)
+        replaceMaterial(material, newMaterial)
+        newMaterial.uuid = material.uuid
+        newMaterial.userData = material.userData
+        delete newMaterial.userData.args
+        registerMaterial(newMaterial, component.src.value)
+      }
+    }
+  }, [materialLibrary.prototypes])
+
   const plugins = materialLibrary.plugins
   return (
     <>
