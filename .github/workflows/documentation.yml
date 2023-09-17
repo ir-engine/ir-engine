@@ -81,6 +81,7 @@ jobs:
         with:
           directory: docs
           branch: gh-pages  # Change this to the target branch in the "docs" repository
+          remote: https://github.com/etherealengine/etherealengine-docs.git
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Release to GitHub Pages
         timeout-minutes: 200
@@ -91,7 +92,4 @@ jobs:
           DEPLOYMENT_BRANCH: gh-pages
         run: |
           cd docs
-          npm install --legacy-peer-deps
-          cp .env.local.default .env.local
-          npm install --legacy-peer-deps
           git config --get remote.origin.url
