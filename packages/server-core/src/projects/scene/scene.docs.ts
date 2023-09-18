@@ -23,24 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    scene: {
-      type: 'object',
-      properties: {}
-    },
-    scene_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/project' }
-    }
-  },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Scene service description',
+    securities: ['all']
   }
-}
+})
