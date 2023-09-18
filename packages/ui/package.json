@@ -49,8 +49,6 @@
     "@pixiv/types-vrmc-vrm-1.0": "^2.0.0",
     "autoprefixer": "^10.4.14",
     "daisyui": "^3.1.9",
-    "i": "^0.3.7",
-    "npm": "^10.1.0",
     "re-resizable": "^6.9.9",
     "react-icons": "^4.10.1",
     "react-slider": "^2.0.6",
