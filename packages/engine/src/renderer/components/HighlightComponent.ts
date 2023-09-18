@@ -30,13 +30,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Tween } from '@tweenjs/tween.js'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
@@ -79,7 +73,8 @@ export const HighlightComponent = defineComponent({
 
 const animateScale = (entity: Entity, obj: Mesh, grow: boolean) => {
   const highlight = { scaler: 0 }
-  const tween = getComponent(entity, TweenComponent)
+  const objscale = obj.scale.clone().add(new Vector3(-0.05, -0.05, -0.05))
+  const targetSacle = obj.scale.clone().add(new Vector3(0.05, 0.05, 0.05))
   setComponent(
     entity,
     TweenComponent,
@@ -91,7 +86,7 @@ const animateScale = (entity: Entity, obj: Mesh, grow: boolean) => {
         300
       )
       .onUpdate(() => {
-        const v = grow ? new Vector3(1.05, 1.05, 1.05) : new Vector3(1, 1, 1)
+        const v = grow ? targetSacle : objscale
         obj.scale.lerp(v, highlight.scaler)
       })
       .start()
