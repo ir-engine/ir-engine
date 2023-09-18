@@ -192,6 +192,13 @@ export default function ModelTransformProperties({
   }, [selectionState.selectedEntities])
 
   useEffect(() => {
+    const fullSrc = modelState.src.value
+    const fileName = fullSrc.split('/').pop()!.split('.').shift()!
+    const dst = `${fileName}-transformed`
+    transformParms.dst.set(dst)
+  }, [modelState.src])
+
+  useEffect(() => {
     transformParms.resources.set(getModelResources(modelState.value))
   }, [modelState.scene])
 
