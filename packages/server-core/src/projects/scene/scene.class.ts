@@ -51,6 +51,7 @@ const NEW_SCENE_NAME = 'New-Scene'
 
 const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SceneParams extends Params<SceneQuery> {}
 
 export class SceneService

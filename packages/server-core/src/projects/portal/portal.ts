@@ -23,23 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { portalMethods, portalPath } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { Application } from '../../../declarations'
+import { PortalService } from './portal.class'
+import portalDocs from './portal.docs'
+import hooks from './portal.hooks'
 
-export const parseScenePortals = (scene: SceneData) => {
-  const portals: PortalType[] = []
-  for (const [entityId, entity] of Object.entries(scene.scene?.entities!)) {
-    for (const component of entity.components)
-      if (component.name === 'portal') {
-        portals.push({
-          sceneName: scene.name,
-          portalEntityId: entityId,
-          portalEntityName: entity.name,
-          previewImageURL: component.props.previewImageURL,
-          spawnPosition: component.props.spawnPosition,
-          spawnRotation: component.props.spawnRotation
-        })
-      }
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [portalPath]: PortalService
   }
-  return portals
+}
+
+export default (app: Application): void => {
+  app.use(portalPath, new PortalService(app), {
+    // A list of all methods this service exposes externally
+    methods: portalMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: portalDocs
+  })
+
+  const service = app.service(portalPath)
+  service.hooks(hooks)
 }

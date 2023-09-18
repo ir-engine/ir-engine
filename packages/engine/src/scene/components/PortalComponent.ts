@@ -54,6 +54,7 @@ import {
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
+import { portalPath } from '../../schemas/projects/portal.schema'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { portalTriggerEnter } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -203,11 +204,11 @@ export const PortalComponent = defineComponent({
     useEffect(() => {
       if (!isClient) return
       Engine.instance.api
-        .service('portal')
+        .service(portalPath)
         .get(portalComponent.linkedPortalId.value)
         .then((data) => {
-          const portalDetails = data.data!
-          if (portalDetails) {
+          const portalDetails = data
+          if (Object.keys(portalDetails).length > 0) {
             portalComponent.remoteSpawnPosition.value.copy(portalDetails.spawnPosition)
             portalComponent.remoteSpawnRotation.value.setFromEuler(
               new Euler(

@@ -41,7 +41,7 @@ import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
-import { getAllPortals, getPortal, getSceneData } from './scene-helper'
+import { getSceneData } from './scene-helper'
 import { SceneService } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
@@ -51,12 +51,6 @@ declare module '@etherealengine/common/declarations' {
     scene: SceneService
     'scene/upload': {
       create: ReturnType<typeof uploadScene>
-    }
-  }
-  interface ServiceTypes {
-    portal: {
-      get: ReturnType<typeof getPortal>
-      find: ReturnType<typeof getAllPortals>
     }
   }
   interface ServiceTypes {
@@ -194,11 +188,6 @@ export default (app: Application) => {
   app.use('scene-data', {
     get: getScenesForProject(app),
     find: getAllScenes(app)
-  })
-
-  app.use('portal', {
-    get: getPortal(app),
-    find: getAllPortals(app)
   })
 
   /**

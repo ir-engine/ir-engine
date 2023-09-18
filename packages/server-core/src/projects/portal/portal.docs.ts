@@ -23,23 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export const parseScenePortals = (scene: SceneData) => {
-  const portals: PortalType[] = []
-  for (const [entityId, entity] of Object.entries(scene.scene?.entities!)) {
-    for (const component of entity.components)
-      if (component.name === 'portal') {
-        portals.push({
-          sceneName: scene.name,
-          portalEntityId: entityId,
-          portalEntityName: entity.name,
-          previewImageURL: component.props.previewImageURL,
-          spawnPosition: component.props.spawnPosition,
-          spawnRotation: component.props.spawnRotation
-        })
-      }
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Portal service description',
+    securities: ['all']
   }
-  return portals
-}
+})

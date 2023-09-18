@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import koa from '@feathersjs/koa'
 import fs from 'fs'
 
-import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
 import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
@@ -40,31 +39,8 @@ import {
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { parseScenePortals } from './scene-parser'
-import { SceneParams } from './scene.service'
 
 const FILE_NAME_REGEX = /(\w+\.\w+)$/
-
-export const getAllPortals = (app: Application) => {
-  return async (params?: SceneParams) => {
-    params!.metadataOnly = false
-    const scenes = (await app.service('scene-data').find(params!)).data
-    return {
-      data: scenes.map((scene) => parseScenePortals(scene)).flat()
-    }
-  }
-}
-
-export const getPortal = (app: any) => {
-  return async (id: string, params?: SceneParams) => {
-    params!.metadataOnly = false
-    const scenes = await (await app.service('scene-data').find(params!)).data
-    const portals = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalDetail[]
-    return {
-      data: portals.find((portal) => portal.portalEntityId === id)
-    }
-  }
-}
 
 export const getEnvMapBake = (app: any) => {
   return async (ctx: koa.FeathersKoaContext) => {

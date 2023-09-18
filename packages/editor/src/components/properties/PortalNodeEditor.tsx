@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
-import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
 import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import {
@@ -42,6 +41,7 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
+import { PortalType, portalPath } from '@etherealengine/engine/src/schemas/projects/portal.schema'
 import { getPreviewBakeTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -100,9 +100,9 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }, [transformComponent.position])
 
   const loadPortals = async () => {
-    const portalsDetail: PortalDetail[] = []
+    const portalsDetail: PortalType[] = []
     try {
-      portalsDetail.push(...(await API.instance.client.service('portal').find()).data)
+      portalsDetail.push(...(await API.instance.client.service(portalPath).find()))
       console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent))
     } catch (error) {
       throw new Error(error)
