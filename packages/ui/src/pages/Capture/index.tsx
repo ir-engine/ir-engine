@@ -25,29 +25,48 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { useResizableVideoCanvas } from '@etherealengine/client-core/src/hooks/useResizableVideoCanvas'
+import { useScrubbableVideo } from '@etherealengine/client-core/src/hooks/useScrubbableVideo'
+
 import { useMediaNetwork } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
-import { createDataProducer } from '@etherealengine/client-core/src/networking/DataChannelSystem'
-import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
+import { useLocationSpawnAvatarWithDespawn } from '@etherealengine/client-core/src/components/World/EngineHooks'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   SocketWebRTCClientNetwork,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import {
+  ECSRecordingActions,
+  PlaybackState,
+  RecordingState,
+  activePlaybacks
+} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 
+import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
+import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
+import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
-import { MotionCaptureFunctions, mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { MediasoupDataProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
-import { MediaProducerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
-import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  MotionCaptureFunctions,
+  MotionCaptureResults,
+  mocapDataChannelType
+} from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import {
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
@@ -57,114 +76,177 @@ import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 
 import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
 import { DrawingUtils, FilesetResolver, HandLandmarker, NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { DataProducer } from 'mediasoup-client/lib/DataProducer'
-import Toolbar from '../../components/tailwind/Toolbar'
 
+import ReactSlider from 'react-slider'
+import Toolbar from '../../components/tailwind/mocap/Toolbar'
 /**
  * Start playback of a recording
  * - If we are streaming data, close the data producer
  */
-export const startPlayback = async (recordingID: RecordingID, twin = true) => {
+export const startPlayback = async (recordingID: RecordingID, twin = true, fromServer = false) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-  const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
-    network.id,
-    mocapDataChannelType
-  ) as DataProducer
-  if (getState(RecordingState).playback && dataProducer) {
-    dispatchAction(
-      MediaProducerActions.producerClosed({
-        producerID: dataProducer.id,
-        $network: network.id,
-        $topic: network.topic
-      })
-    )
-  }
-  ECSRecordingFunctions.startPlayback({
-    recordingID,
-    targetUser: twin ? undefined : Engine.instance.userID
-  })
+  // close the data producer if we are streaming data
+  // const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
+  //   network.id,
+  //   mocapDataChannelType
+  // ) as DataProducer
+  // if (getState(PlaybackState).recordingID && dataProducer) {
+  //   dispatchAction(
+  //     MediaProducerActions.producerClosed({
+  //       producerID: dataProducer.id,
+  //       $network: network.id,
+  //       $topic: network.topic
+  //     })
+  //   )
+  // }
+  // // Server playback
+  // PlaybackState.startPlayback({
+  //   recordingID,
+  //   targetUser: twin ? undefined : Engine.instance.userID
+  // })
+
+  // Client Playback
+  dispatchAction(
+    ECSRecordingActions.startPlayback({
+      recordingID,
+      targetUser: Engine.instance.userID,
+      autoplay: false
+    })
+  )
 }
 
-let creatingProducer = false
-const sendResults = (results: NormalizedLandmarkList) => {
+export const stopPlayback = () => {
+  const recordingID = getState(PlaybackState).recordingID
+  if (!recordingID) return
+  dispatchAction(
+    ECSRecordingActions.stopPlayback({
+      recordingID
+    })
+  )
+}
+
+const sendResults = (results: MotionCaptureResults) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
-  const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
-    network.id,
-    mocapDataChannelType
-  ) as DataProducer
-  if (!dataProducer) {
-    if (creatingProducer) return
-    creatingProducer = true
-    createDataProducer(network, { label: mocapDataChannelType, ordered: true })
-    return
-  }
-  if (!dataProducer?.closed && dataProducer?.readyState === 'open') {
-    // console.log('sending results', results)
-    const data = MotionCaptureFunctions.sendResults(results)
-    dataProducer?.send(data)
-  }
+  // console.log('sending results', results)
+  const data = MotionCaptureFunctions.sendResults(results)
+  network.transport.bufferToAll(mocapDataChannelType, Engine.instance.peerID, data)
 }
 
-const CaptureDashboard = () => {
+const useVideoStatus = () => {
+  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+  const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
+  const videoActive = !!videoStream.value && !videoPaused.value
+  const mediaNetworkState = useMediaNetwork()
+  if (!mediaNetworkState?.connected?.value) return 'loading'
+  if (!videoActive) return 'ready'
+  return 'active'
+}
+
+export const CaptureState = defineState({
+  name: 'CaptureState',
+  initial: {
+    detectingStatus: 'inactive' as 'inactive' | 'active' | 'loading' | 'ready'
+  }
+})
+
+const CaptureMode = () => {
   const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
   const captureSettings = captureState?.nested('settings')?.value
   const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
   const trackingSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
   const debugSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'debug')[0]
 
-  const isDetecting = useHookstate(false)
-  const [detectingStatus, setDetectingStatus] = useState('inactive')
+  const recordingID = useHookstate(getMutableState(RecordingState).recordingID)
+  const startedAt = useHookstate(getMutableState(RecordingState).startedAt)
+  const active = useHookstate(getMutableState(RecordingState).active)
 
-  const poseDetector = useHookstate(null as null | Pose)
-  const handDetector = useHookstate(null as null | HandLandmarker)
-  const handLandmarks = useHookstate(null as null | NormalizedLandmark[][])
-
-  const processingFrame = useHookstate(false)
-
-  const videoRef = useRef<HTMLVideoElement>()
-  const canvasRef = useRef<HTMLCanvasElement>()
-  const canvasCtxRef = useRef<CanvasRenderingContext2D>()
-
-  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
-  const videoPaused = useHookstate(getMutableState(MediaStreamState).videoPaused)
-
-  const mediaNetworkState = useMediaNetwork()
-  const recordingState = useHookstate(getMutableState(RecordingState))
-
-  const videoActive = videoStream.value && !videoPaused.value
-
-  const throttledSend = throttle(sendResults, 1)
-
-  const resizeCanvas = () => {
-    if (canvasRef.current?.width !== videoRef.current?.clientWidth) {
-      canvasRef.current!.width = videoRef.current!.clientWidth
-    }
-
-    if (canvasRef.current?.height !== videoRef.current?.clientHeight) {
-      canvasRef.current!.height = videoRef.current!.clientHeight
+  // todo include a mechanism to confirm that the recording has started/stopped
+  const onToggleRecording = () => {
+    if (recordingID.value) {
+      RecordingState.stopRecording({
+        recordingID: recordingID.value
+      })
+    } else {
+      RecordingState.requestRecording({
+        user: { Avatar: true },
+        peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
+      })
     }
   }
 
+  const mediaNetworkState = useMediaNetwork()
+
+  const detectingStatus = useHookstate(getMutableState(CaptureState).detectingStatus)
+  const isDetecting = detectingStatus.value === 'active'
+
+  const poseDetector = useHookstate(null as null | Pose)
+  const handDetector = useHookstate(null as null | HandLandmarker)
+  const handLandmarksState = useHookstate(null as null | NormalizedLandmark[][])
+  const poseLandmarksState = useHookstate(null as null | NormalizedLandmarkList)
+  const visionDetector = useHookstate(null as null | any)
+
+  const processingFrame = useHookstate(false)
+
+  const videoStatus = useVideoStatus()
+
+  const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
+
+  const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
+
   useEffect(() => {
-    window.addEventListener('resize', () => {
-      resizeCanvas()
+    detectingStatus.set('loading')
+    const pose = new Pose({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+      }
     })
-    return () => {
-      window.removeEventListener('resize', () => {
-        resizeCanvas()
-      })
-    }
+    pose.setOptions({
+      // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
+      //selfieMode: trackingSettings?.flipVideo,
+      modelComplexity: trackingSettings?.modelComplexity,
+      smoothLandmarks: trackingSettings?.smoothLandmarks,
+      enableSegmentation: trackingSettings?.enableSegmentation,
+      smoothSegmentation: trackingSettings?.smoothSegmentation,
+      // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
+      minDetectionConfidence: trackingSettings?.minDetectionConfidence,
+      minTrackingConfidence: trackingSettings?.minTrackingConfidence
+    } as Options)
+
+    poseDetector.set(pose)
   }, [])
 
   useEffect(() => {
-    RecordingFunctions.getRecordings()
+    if (!visionDetector.value)
+      FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.6/wasm').then(
+        (vision) => {
+          visionDetector.set(vision)
+        }
+      )
   }, [])
 
+  useEffect(() => {
+    console.log(visionDetector.value)
+    if (!visionDetector.value || handDetector.value) return
+    HandLandmarker.createFromOptions(visionDetector.value, {
+      baseOptions: {
+        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+        delegate: 'GPU'
+      },
+      runningMode: 'VIDEO',
+      numHands: 2
+    }).then((hand) => {
+      handDetector.set(hand)
+    })
+  }, [visionDetector])
+
+  //Comenting this out until selfie mode is added to hands options
+  /*
   useEffect(() => {
     const factor = displaySettings.flipVideo === true ? '-1' : '1'
     videoRef.current!.style.transform = `scaleX(${factor})`
   }, [displaySettings.flipVideo])
+  */
 
   useLayoutEffect(() => {
     canvasCtxRef.current = canvasRef.current!.getContext('2d')!
@@ -172,275 +254,409 @@ const CaptureDashboard = () => {
     resizeCanvas()
   }, [videoStream])
 
+  const throttledSend = throttle(sendResults, 1)
+
+  useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
+    if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active') return
+
+    processingFrame.set(true)
+    poseDetector.value.send({ image: videoRef.current! }).finally(() => {
+      processingFrame.set(false)
+    })
+
+    if (!handDetector.value) return
+    processingFrame.set(true)
+    const results = handDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
+    if (results.landmarks) {
+      handLandmarksState.set(results.landmarks)
+    }
+    processingFrame.set(false)
+  })
+
   useEffect(() => {
-    if (!isDetecting?.value) return
+    if (
+      !handDetector.value ||
+      !isDetecting ||
+      !displaySettings.show2dSkeleton ||
+      !canvasCtxRef.current ||
+      !canvasRef.current
+    )
+      return
+
+    canvasCtxRef.current.save()
+    canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+    canvasCtxRef.current.globalCompositeOperation = 'source-over'
+
+    if (handLandmarksState.value) drawHandsToCanvas(handLandmarksState.value, canvasCtxRef, canvasRef)
+
+    if (poseLandmarksState.value) drawPoseToCanvas(poseLandmarksState.value, canvasCtxRef, canvasRef)
+
+    canvasCtxRef.current.restore()
+  }, [isDetecting, handLandmarksState, poseLandmarksState])
+
+  useEffect(() => {
+    if (!isDetecting) return
 
     if (!poseDetector.value) {
-      if (Pose !== undefined) {
-        setDetectingStatus('loading')
-        const pose = new Pose({
-          locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-          }
-        })
-        pose.setOptions({
-          // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
-          selfieMode: displaySettings?.flipVideo,
-          modelComplexity: trackingSettings?.modelComplexity,
-          smoothLandmarks: trackingSettings?.smoothLandmarks,
-          enableSegmentation: trackingSettings?.enableSegmentation,
-          smoothSegmentation: trackingSettings?.smoothSegmentation,
-          // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
-          minDetectionConfidence: trackingSettings?.minDetectionConfidence,
-          minTrackingConfidence: trackingSettings?.minTrackingConfidence
-        } as Options)
-        poseDetector.set(pose)
-      }
-    }
-
-    if (!handDetector.value) {
-      if (HandLandmarker !== undefined) {
-        FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm').then(
-          (vision) => {
-            HandLandmarker.createFromOptions(vision, {
-              baseOptions: {
-                modelAssetPath:
-                  'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-                delegate: 'GPU'
-              },
-              runningMode: 'VIDEO',
-              numHands: 2
-            }).then((hand) => {
-              handDetector.set(hand)
-            })
-          }
-        )
-      }
+      return
     }
 
     processingFrame.set(false)
 
-    if (poseDetector.value) {
-      poseDetector.value.onResults((results) => {
-        if (Object.keys(results).length === 0) return
-        if (detectingStatus !== 'active') setDetectingStatus('active')
+    poseDetector.value.onResults((results) => {
+      if (Object.keys(results).length === 0) return
 
-        const { poseLandmarks, poseWorldLandmarks } = results
+      const { poseWorldLandmarks, poseLandmarks } = results
 
-        if (!poseWorldLandmarks || !poseLandmarks) return
+      if (debugSettings?.throttleSend) {
+        throttledSend({ poseWorldLandmarks, poseLandmarks })
+      } else {
+        sendResults({ poseWorldLandmarks, poseLandmarks })
+      }
 
-        if (debugSettings?.throttleSend) {
-          throttledSend(poseWorldLandmarks)
-        } else {
-          sendResults(poseWorldLandmarks)
-        }
+      processingFrame.set(false)
 
-        processingFrame.set(false)
-
-        if (displaySettings?.show2dSkeleton) {
-          if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
-
-          //draw!!!
-          canvasCtxRef.current.save()
-          canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-          canvasCtxRef.current.globalCompositeOperation = 'source-over'
-          const drawingUtils = new DrawingUtils(canvasCtxRef.current)
-
-          if (handLandmarks.value && canvasCtxRef.current) {
-            for (let i = 0; i < handLandmarks.value.length; i++) {
-              //use tasks-vision utils import for draw connectors
-              drawingUtils.drawConnectors(handLandmarks.value[i], HandLandmarker.HAND_CONNECTIONS, {
-                color: '#fff',
-                lineWidth: 2
-              })
-              drawingUtils.drawLandmarks(handLandmarks.value[i], { color: '#fff', lineWidth: 3 })
-            }
-          }
-
-          // Pose Connections
-          drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
-            color: !handDetector.value ? '#ff0000' : '#fff',
-            lineWidth: 4
-          })
-          // Pose Landmarks
-          drawLandmarks(canvasCtxRef.current, poseLandmarks, {
-            color: '#fff',
-            radius: 2
-          })
-
-          // // Left Hand Connections
-          // drawConnectors(
-          //   canvasCtxRef.current,
-          //   leftHandLandmarks !== undefined ? leftHandLandmarks : [],
-          //   HAND_CONNECTIONS,
-          //   {
-          //     color: '#fff',
-          //     lineWidth: 4
-          //   }
-          // )
-
-          // Left Hand Landmarks
-          //drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-          //  color: '#fff',
-          //  radius: 2
-          //})
-
-          // // Right Hand Connections
-          // drawConnectors(
-          //   canvasCtxRef.current,
-          //   rightHandLandmarks !== undefined ? rightHandLandmarks : [],
-          //   HAND_CONNECTIONS,
-          //   {
-          //     color: '#fff',
-          //     lineWidth: 4
-          //   }
-          // )
-
-          // // Right Hand Landmarks
-          // drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
-          //   color: '#fff',
-          //   radius: 2
-          // })
-
-          // // Face Connections
-          // drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
-          //   color: '#fff',
-          //   lineWidth: 1
-          // })
-          // // Face Landmarks
-          // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
-          //   color: '#fff',
-          //   lineWidth: 1
-          // })
-          canvasCtxRef.current.restore()
-        }
-      })
-    }
+      poseLandmarksState.set(poseLandmarks)
+    })
 
     return () => {
-      setDetectingStatus('inactive')
-      if (poseDetector.value) {
-        poseDetector.value.close()
-      }
-      poseDetector.set(null)
-    }
-  }, [isDetecting])
+      // detectingStatus.set('inactive')
+      // if (poseDetector.value) {
+      //   poseDetector.value.close()
+      // }
+      // poseDetector.set(null)
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
-    resizeCanvas()
-
-    if (processingFrame.value) return
-
-    if (poseDetector.value) {
-      processingFrame.set(true)
-      poseDetector.value?.send({ image: videoRef.current! })
-    }
-
-    if (handDetector.value) {
-      processingFrame.set(true)
-      const results = handDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
-      if (results.landmarks) {
-        handLandmarks.set(results.landmarks)
+      if (canvasCtxRef.current && canvasRef.current) {
+        canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
       }
     }
-  })
-
-  // todo include a mechanism to confirm that the recording has started/stopped
-  const onToggleRecording = () => {
-    if (recordingState.recordingID.value) {
-      ECSRecordingFunctions.stopRecording({
-        recordingID: recordingState.recordingID.value
-      })
-      RecordingFunctions.getRecordings()
-    } else if (!recordingState.started.value) {
-      RecordingFunctions.startRecording({
-        user: { Avatar: true },
-        peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
-      }).then((recordingID) => {
-        if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
-      })
-    }
-  }
-
-  const getVideoStatus = () => {
-    if (!mediaNetworkState?.connected?.value) return 'loading'
-    if (!videoActive) return 'ready'
-    return 'active'
-  }
-  const videoStatus = getVideoStatus()
+  }, [poseDetector, isDetecting])
 
   const getRecordingStatus = () => {
-    if (!recordingState.recordingID.value && !isDetecting.value) return 'inactive'
-    if (recordingState.started.value) return 'active'
-    return 'ready'
+    if (!active.value) return 'ready'
+    if (startedAt.value) return 'active'
+    return 'starting'
   }
   const recordingStatus = getRecordingStatus()
 
   return (
-    <div className="w-full container mx-auto">
-      <Drawer settings={<div></div>}>
-        <Header />
-        <div className="w-full container mx-auto pointer-events-auto">
-          <div className="w-full h-auto px-2">
-            <div className="w-full h-auto relative aspect-video overflow-hidden">
-              <div
-                className="absolute w-full h-full top-0 left-0 flex items-center"
-                style={{ backgroundColor: '#000000' }}
-              >
-                <Video
-                  ref={videoRef}
-                  className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
-                />
-              </div>
-              <div
-                className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
-                style={{ objectFit: 'contain', top: '0px' }}
-              >
-                <Canvas ref={canvasRef} />
-              </div>
-              {videoStatus !== 'active' ? (
-                <button
-                  onClick={() => {
-                    if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
-                  }}
-                  className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
-                >
-                  <h1>{mediaNetworkState?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
-                </button>
-              ) : null}
-            </div>
-          </div>
-          <div className="w-full container mx-auto">
-            <Toolbar
-              className="w-full"
-              videoStatus={videoStatus}
-              detectingStatus={detectingStatus}
-              onToggleRecording={onToggleRecording}
-              toggleWebcam={toggleWebcamPaused}
-              toggleDetecting={() => isDetecting.set((v) => !v)}
-              isRecording={recordingState?.started?.value}
-              recordingStatus={recordingStatus}
-              cycleCamera={MediaStreamService.cycleCamera}
+    <div className="w-full container mx-auto pointer-events-auto max-w-[1024px]">
+      <div className="w-full h-auto px-2">
+        <div className="w-full h-auto relative aspect-video overflow-hidden">
+          <div className="absolute w-full h-full top-0 left-0 flex items-center bg-black">
+            <Video
+              ref={videoRef}
+              className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
             />
           </div>
-          <div className="w-full container mx-auto">
-            <div className="w-full relative">
-              <RecordingsList
-                {...{
-                  startPlayback,
-                  stopPlayback: ECSRecordingFunctions.stopPlayback,
-                  recordingState
-                }}
-              />
+          <div
+            className="object-contain absolute top-0 left-0 z-1 min-w-full h-auto"
+            style={{ objectFit: 'contain', top: '0px' }}
+          >
+            <Canvas ref={canvasRef} />
+          </div>
+          <button
+            onClick={() => {
+              if (mediaNetworkState?.connected?.value) toggleWebcamPaused()
+            }}
+            className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0 z-2"
+          >
+            {videoStatus === 'ready' && <h1>Enable Camera</h1>}
+            {videoStatus === 'loading' && <h1>Loading...</h1>}
+          </button>
+        </div>
+      </div>
+      <div className="w-full h-auto relative aspect-video overflow-hidden">
+        <div className="w-full container mx-auto">
+          <Toolbar
+            className="w-full"
+            videoStatus={videoStatus}
+            detectingStatus={detectingStatus.value}
+            onToggleRecording={onToggleRecording}
+            toggleWebcam={toggleWebcamPaused}
+            toggleDetecting={() => {
+              detectingStatus.set(detectingStatus.value === 'active' ? 'inactive' : 'active')
+            }}
+            isRecording={!!recordingID.value}
+            recordingStatus={recordingStatus}
+            cycleCamera={MediaStreamService.cycleCamera}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const drawHandsToCanvas = (
+  handLandmarks: NormalizedLandmark[][],
+  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
+  canvasRef: React.RefObject<HTMLCanvasElement | undefined>
+) => {
+  if (!canvasCtxRef.current || !canvasRef.current) return
+
+  const drawingUtils = new DrawingUtils(canvasCtxRef.current)
+
+  if (handLandmarks && canvasCtxRef.current) {
+    for (let i = 0; i < handLandmarks.length; i++) {
+      //use tasks-vision utils import for draw connectors
+      drawingUtils.drawConnectors(handLandmarks[i], HandLandmarker.HAND_CONNECTIONS, {
+        color: '#fff',
+        lineWidth: 2
+      })
+      drawingUtils.drawLandmarks(handLandmarks[i], { color: '#fff', lineWidth: 3 })
+    }
+  }
+}
+
+const drawPoseToCanvas = (
+  poseLandmarks: NormalizedLandmarkList,
+  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
+  canvasRef: React.RefObject<HTMLCanvasElement | undefined>
+) => {
+  if (!canvasCtxRef.current || !canvasRef.current) return
+
+  // Pose Connections
+  drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
+    color: '#fff',
+    lineWidth: 4
+  })
+  // Pose Landmarks
+  drawLandmarks(canvasCtxRef.current, poseLandmarks, {
+    color: '#fff',
+    radius: 2
+  })
+}
+
+const VideoPlayback = (props: {
+  startTime: number
+  video: StaticResourceType
+  mocap: StaticResourceType | undefined
+}) => {
+  const { video } = props
+  const videoSrc = video.url
+
+  const { videoRef, canvasRef, canvasCtxRef, resizeCanvas } = useResizableVideoCanvas()
+
+  useEffect(() => {
+    if (!videoRef.current) return
+    videoRef.current.style.transform = `scaleX(-1)`
+    videoRef.current.addEventListener('loadedmetadata', () => {
+      resizeCanvas()
+      videoRef.current!.play()
+      canvasCtxRef.current = canvasRef.current!.getContext('2d')!
+    })
+  }, [videoRef.current])
+
+  const playing = useHookstate(getMutableState(PlaybackState).playing)
+  const currentTimeSeconds = useHookstate(getMutableState(PlaybackState).currentTime)
+
+  useEffect(() => {
+    if (!videoRef.current) return
+    if (playing.value) {
+      videoRef.current.play()
+    } else {
+      videoRef.current.pause()
+    }
+  }, [playing])
+
+  const { handlePositionChange } = useScrubbableVideo(videoRef)
+
+  /** When the current time changes, update the video's current time and render motion capture */
+  useEffect(() => {
+    if (!videoRef.current || typeof currentTimeSeconds.value !== 'number') return
+
+    if (!playing.value) handlePositionChange(currentTimeSeconds.value)
+
+    const data = activePlaybacks.get(getState(PlaybackState).recordingID!)?.dataChannelChunks?.get(mocapDataChannelType)
+
+    if (data) {
+      const currentTimeMS = currentTimeSeconds.value * 1000
+      const frame = data.frames.find((frame) => frame.timecode > currentTimeMS)
+      if (!frame) return
+      drawPoseToCanvas(frame.data.results.poseLandmarks, canvasCtxRef, canvasRef)
+    }
+  }, [currentTimeSeconds])
+
+  return (
+    <div className="aspect-[4/3] w-auto h-full">
+      <div className="aspect-[4/3] top-0 left-0 items-center bg-black">
+        <Video
+          ref={videoRef}
+          src={videoSrc}
+          controls={false}
+          className={twMerge('aspect-[4/3] w-full h-auto opacity-100')}
+        />
+      </div>
+      <div className="aspect-[4/3] absolute top-0 left-0 z-1 w-auto h-auto pointer-events-none">
+        <Canvas ref={canvasRef} />
+      </div>
+    </div>
+  )
+}
+
+const EngineCanvas = () => {
+  const ref = useRef(null as null | HTMLDivElement)
+
+  useEffect(() => {
+    if (!ref?.current) return
+
+    const canvas = EngineRenderer.instance.renderer.domElement
+    ref.current.appendChild(canvas)
+
+    const parent = canvas.parentElement!
+
+    EngineRenderer.instance.needsResize = true
+
+    // return () => {
+    //   const canvas = document.getElementById('engine-renderer-canvas')!
+    //   parent.removeChild(canvas)
+    // }
+  }, [ref])
+
+  return (
+    <div className="relative w-auto h-full aspect-[2/3]">
+      <div ref={ref} className="w-full h-full" />
+    </div>
+  )
+}
+
+export const PlaybackControls = (props: { durationSeconds: number }) => {
+  const currentTime = useHookstate(getMutableState(PlaybackState).currentTime)
+  const playing = useHookstate(getMutableState(PlaybackState).playing)
+
+  const setCurrentTime = (time) => {
+    playing.set(false)
+    currentTime.set(time)
+  }
+
+  const { durationSeconds } = props
+  return (
+    <div className="w-full h-full flex flex-row">
+      <div className="relative aspect-video overflow-hidden">
+        <button
+          className="w-auto h-4 btn btn-ghost container z-2"
+          onClick={() => {
+            playing.set(!playing.value)
+          }}
+        >
+          {playing.value ? 'Pause' : 'Play'}
+        </button>
+      </div>
+      <ReactSlider
+        className="w-full h-4 my-2 bg-gray-300 rounded-lg cursor-pointer"
+        min={0}
+        value={playing.value ? currentTime.value : undefined}
+        max={durationSeconds}
+        step={1 / 60} // todo store recording framerate in recording
+        onChange={setCurrentTime}
+        renderThumb={(props, state) => {
+          return (
+            <div
+              {...props}
+              className="w-8 h-4 bg-white rounded-full shadow-md text-center font=[lato] font-bold text-sm"
+            >
+              {Math.round(state.valueNow)}
             </div>
+          )
+        }}
+      />
+    </div>
+  )
+}
+
+const PlaybackMode = () => {
+  const recordingID = useHookstate(getMutableState(PlaybackState).recordingID)
+
+  const recording = useGet(recordingPath, recordingID.value!)
+
+  useEffect(() => {
+    recording.refetch()
+  }, [])
+
+  const ActiveRecording = () => {
+    const data = recording.data!
+    const startTime = new Date(data.createdAt).getTime()
+    const endTime = new Date(data.updatedAt).getTime()
+    const durationSeconds = (endTime - startTime) / 1000
+
+    useLocationSpawnAvatarWithDespawn()
+
+    // get all video resources, paired with motion capture data if it exists
+    const videoPlaybackPairs = data.resources.reduce(
+      (acc, r) => {
+        if (r.mimeType.includes('video')) {
+          acc.push({
+            video: r,
+            mocap: data.resources.find((r) => r.key.includes(mocapDataChannelType))
+          })
+        }
+        return acc
+      },
+      [] as { video: StaticResourceType; mocap: StaticResourceType | undefined }[]
+    )
+
+    return (
+      <>
+        <div className="w-full h-auto relative aspect-video overflow-hidden flex-column items-center justify-center">
+          <div className="flex flex-row w-full h-full max-w-full items-center justify-center">
+            {videoPlaybackPairs.map((r) => (
+              <VideoPlayback startTime={startTime} {...r} key={r.video.id} />
+            ))}
+            <EngineCanvas />
           </div>
         </div>
-        <footer className="footer fixed bottom-0">
-          <div style={{ display: 'none' }}>
-            <InstanceChatWrapper />
-          </div>
-        </footer>
+        <PlaybackControls durationSeconds={durationSeconds} />
+      </>
+    )
+  }
+
+  const NoRecording = () => {
+    return (
+      <div className="max-w-[1024px] w-auto container mx-auto relative aspect-video overflow-hidden flex items-center justify-center bg-black">
+        <h1 className="text-2xl">No Recording Selected</h1>
+      </div>
+    )
+  }
+
+  return (
+    <div className="w-full container mx-auto pointer-events-auto items-center justify-center content-center">
+      <div className="w-full h-auto px-2">{recording.data ? <ActiveRecording /> : <NoRecording />}</div>
+      <div className="max-w-[1024px] w-full container mx-auto flex">
+        <div className="w-full h-auto relative m-2">
+          <RecordingsList {...{ startPlayback, stopPlayback }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const CapturePageState = defineState({
+  name: 'CapturePageState',
+  initial: {
+    mode: 'playback' as 'playback' | 'capture'
+  },
+  onCreate: () => {
+    syncStateWithLocalStorage(CapturePageState, ['mode'])
+  }
+})
+
+const CaptureDashboard = () => {
+  const worldNetwork = useWorldNetwork()
+
+  // media server connecion
+  useEffect(() => {
+    if (worldNetwork?.connected?.value) {
+      ChannelService.getInstanceChannel()
+    }
+  }, [worldNetwork?.connected?.value])
+
+  const mode = useHookstate(getMutableState(CapturePageState).mode)
+
+  return (
+    <div className="max-w-[1024px] w-full container mx-auto overflow-hidden">
+      <Drawer settings={<div></div>}>
+        <Header mode={mode} />
+        {mode.value === 'playback' ? <PlaybackMode /> : <CaptureMode />}
       </Drawer>
     </div>
   )
