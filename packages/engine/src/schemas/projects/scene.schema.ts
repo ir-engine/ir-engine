@@ -21,8 +21,9 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import type { Static } from '@feathersjs/typebox'
-import { Type } from '@feathersjs/typebox'
+import { Type, getValidator } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator } from '../validators'
 
 export const scenePath = 'scene'
 
@@ -86,19 +87,8 @@ export const sceneDataSchema = Type.Object(
 )
 export type SceneDataType = Static<typeof sceneDataSchema>
 
-// Schema for updating existing entries
-// export const scenePatchSchema = Type.Object(
-//   {
-//     updateProjects: Type.Optional(Type.Boolean()),
-//     projectsToUpdate: Type.Optional(Type.Array(Type.Ref(ProjectBuildUpdateItemSchema)))
-//   },
-//   {
-//     $id: 'ProjectBuildPatch'
-//   }
-// )
-
-// export type ProjectBuildPatch = Static<typeof scenePatchSchema>
-
-// export const projectUpdateValidator = getValidator(ProjectBuildUpdateItemSchema, dataValidator)
-// export const sceneValidator = getValidator(sceneSchema, dataValidator)
-// export const scenePatchValidator = getValidator(scenePatchSchema, dataValidator)
+export const componentJsonValidator = getValidator(componentJsonSchema, dataValidator)
+export const entityJsonValidator = getValidator(entityJsonSchema, dataValidator)
+export const sceneJsonValidator = getValidator(sceneJsonSchema, dataValidator)
+export const sceneMetadataValidator = getValidator(sceneMetadataSchema, dataValidator)
+export const sceneDataValidator = getValidator(sceneDataSchema, dataValidator)
