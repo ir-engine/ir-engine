@@ -60,7 +60,7 @@ import primus from './util/primus'
 require('fix-esm').register()
 
 export const configureOpenAPI = () => (app: Application) => {
-  logger.info('configuring OpenAPI..')
+  logger.info('configuring OpenAPI.')
   app.configure(
     swagger({
       ui: swagger.swaggerUI({
@@ -97,10 +97,10 @@ export const configurePrimus =
       'capacitor://' + appConfig.server.clientHost,
       'ionic://' + appConfig.server.clientHost
     ]
-    if (!instanceserver) origin.push('https://localhost:3001') //
-    logger.info('Configuring Primus with the following option.')
+    if (!instanceserver) origin.push('https://localhost:3001')
+    logger.info('Configuring Primus with the following option:')
     logger.info('Instanceserver: %s', instanceserver)
-    logger.info('Origin: %o', origin)
+    logger.info('Origins: %o', origin)
     app.configure(
       primus(
         {
@@ -183,6 +183,7 @@ export const createFeathersKoaApp = (
   logger.info('Feathers Koa app created.')
   logger.info('Creating Feathers Koa app with server mode: %s', serverMode)
   if (!appConfig.db.forceRefresh) {
+    logger.info('Creating Feathers Koa app with server mode: %s', serverMode)
     initializeNode()
   }
 
@@ -215,6 +216,9 @@ export const createFeathersKoaApp = (
   logger.info('Paginate: %o', appConfig.server.paginate)
 
   configurationPipe(app)
+  logger.info('Feathers Koa app configured with the following options:')
+  logger.info('Paginate: %o', appConfig.server.paginate) // Log an object
+  logger.info('Authentication: %o', appConfig.authentication)
   // Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
   // Doesn't appear anything else uses it.
   app.set('env', 'production')
