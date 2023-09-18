@@ -62,9 +62,9 @@ const client = {
       ? `https://${globalThis.process.env['VITE_INSTANCESERVER_HOST']}:${globalThis.process.env['VITE_INSTANCESERVER_PORT']}`
       : `https://${globalThis.process.env['VITE_INSTANCESERVER_HOST']}`,
   fileServer:
-    globalThis.process.env['TEST'] === 'true'
+    (globalThis.process.env['TEST'] === 'true'
       ? globalThis.process.env['VITE_TEST_FILE_SERVER']
-      : globalThis.process.env['VITE_FILE_SERVER'] ?? 'https://localhost:8642',
+      : globalThis.process.env['VITE_FILE_SERVER']) ?? 'https://localhost:8642',
   mediatorServer: globalThis.process.env['VITE_MEDIATOR_SERVER'],
   cors: {
     proxyUrl:
