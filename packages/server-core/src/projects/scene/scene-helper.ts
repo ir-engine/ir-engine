@@ -79,7 +79,7 @@ export const getEnvMapBake = (app: any) => {
 export const getSceneData = async (
   projectName: string,
   sceneName: string,
-  metadataOnly: boolean,
+  metadataOnly?: boolean,
   internal = false,
   storageProviderName?: string
 ) => {

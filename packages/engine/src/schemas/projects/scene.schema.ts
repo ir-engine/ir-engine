@@ -21,13 +21,13 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator } from '@feathersjs/typebox'
+import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
 import { dataValidator } from '../validators'
 
 export const scenePath = 'scene'
 
-export const sceneMethods = ['get', 'create', 'find', 'patch', 'remove'] as const
+export const sceneMethods = ['update', 'create', 'find', 'patch', 'remove'] as const
 
 export const componentJsonSchema = Type.Object(
   {
@@ -81,6 +81,30 @@ export const sceneMetadataSchema = Type.Object(
 )
 export type SceneMetadataType = Static<typeof sceneMetadataSchema>
 
+export const sceneDataSchema = Type.Object(
+  {
+    ...sceneMetadataSchema.properties,
+    scene: Type.Ref(sceneJsonSchema)
+  },
+  { $id: 'SceneData', additionalProperties: false }
+)
+export type SceneDataType = Static<typeof sceneDataSchema>
+
+// Schema for creating new entries
+export const sceneCreateDataSchema = Type.Object(
+  {
+    project: Type.String(),
+    storageProvider: Type.String(),
+    sceneName: Type.Optional(Type.String()),
+    sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
+    thumbnailBuffer: Type.Optional(Type.Union([Type.Any()])),
+    storageProviderName: Type.Optional(Type.String()),
+    projectName: Type.Optional(Type.String())
+  },
+  { $id: 'SceneCreateData', additionalProperties: false }
+)
+export type SceneCreateData = Static<typeof sceneCreateDataSchema>
+
 // Schema for new created entries
 export const sceneMetadataCreateSchema = Type.Partial(sceneMetadataSchema, {
   $id: 'SceneMetadataCreate'
@@ -96,25 +120,13 @@ export const sceneUpdateSchema = Type.Object(
 )
 export type SceneUpdate = Static<typeof sceneUpdateSchema>
 
-export const sceneDataSchema = Type.Object(
-  {
-    ...sceneMetadataSchema.properties,
-    scene: Type.Ref(sceneJsonSchema)
-  },
-  { $id: 'SceneData', additionalProperties: false }
-)
-export type SceneDataType = Static<typeof sceneDataSchema>
-
 // Schema for updating existing entries
 export const scenePatchSchema = Type.Object(
   {
-    sceneName: Type.Optional(Type.String()),
-    sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
-    thumbnailBuffer: Type.Optional(Type.Union([Type.Any()])),
     newSceneName: Type.Optional(Type.String()),
     oldSceneName: Type.Optional(Type.String()),
-    projectName: Type.Optional(Type.String()),
-    storageProviderName: Type.Optional(Type.String())
+    storageProviderName: Type.Optional(Type.String()),
+    projectName: Type.Optional(Type.String())
   },
   {
     $id: 'ScenePatch'
@@ -122,6 +134,24 @@ export const scenePatchSchema = Type.Object(
 )
 
 export type ScenePatch = Static<typeof scenePatchSchema>
+
+// Schema for allowed query properties
+export const sceneQueryProperties = Type.Pick(sceneDataSchema, ['name', 'project'])
+export const sceneQuerySchema = Type.Intersect(
+  [
+    querySyntax(sceneQueryProperties),
+    // Add additional query properties here
+    Type.Object(
+      {
+        storageProviderName: Type.Optional(Type.String()),
+        metadataOnly: Type.Optional(Type.Boolean())
+      },
+      { additionalProperties: false }
+    )
+  ],
+  { additionalProperties: false }
+)
+export type SceneQuery = Static<typeof sceneQuerySchema>
 
 export const componentJsonValidator = getValidator(componentJsonSchema, dataValidator)
 export const entityJsonValidator = getValidator(entityJsonSchema, dataValidator)

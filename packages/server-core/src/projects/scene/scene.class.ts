@@ -35,9 +35,11 @@ import defaultSceneSeed from '@etherealengine/projects/default-project/default.s
 import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
+  SceneCreateData,
   SceneDataType,
   SceneMetadataCreate,
   ScenePatch,
+  SceneQuery,
   SceneUpdate
 } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
@@ -49,8 +51,16 @@ const NEW_SCENE_NAME = 'New-Scene'
 
 const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
 
+export interface SceneParams extends Params<SceneQuery> {}
+
 export class SceneService
-  implements ServiceInterface<SceneDataType | SceneMetadataCreate | SceneUpdate | void, any, Params, ScenePatch>
+  implements
+    ServiceInterface<
+      SceneDataType | SceneMetadataCreate | SceneUpdate | void,
+      SceneCreateData,
+      SceneParams,
+      ScenePatch
+    >
 {
   app: Application
   docs: any
@@ -82,31 +92,33 @@ export class SceneService
     return scenes
   }
 
-  async getScene(data: { project: string; name: string; metadataOnly: boolean }, params?: Params) {
+  async get(id: NullableId, params?: SceneParams) {
+    const projectName = params?.query?.project?.toString()
+    const metadataOnly = params?.query?.metadataOnly
+    const sceneName = params?.query?.name?.toString()
     const project = (await this.app
       .service(projectPath)
-      ._find({ ...params, query: { name: data.project, $limit: 1 } })) as Paginated<ProjectType>
-    if (project.data.length === 0) throw new Error(`No project named ${data.project} exists`)
+      ._find({ ...params, query: { name: projectName!, $limit: 1 } })) as Paginated<ProjectType>
+    if (project.data.length === 0) throw new Error(`No project named ${projectName!} exists`)
 
-    const sceneData = await getSceneData(data.project, data.name, data.metadataOnly, params!.provider == null)
+    const sceneData = await getSceneData(projectName!, sceneName!, metadataOnly, params!.provider == null)
 
     return sceneData as SceneDataType
   }
 
-  async create(data: any, params?: Params) {
-    const { projectName } = data
-    logger.info('[scene.create]: ' + projectName)
-    const storageProviderName = data.storageProviderName
-    delete data.storageProviderName
+  async create(data: SceneCreateData, params?: Params) {
+    const { project } = data
+    logger.info('[scene.create]: ' + project)
+    const storageProviderName = data.storageProvider
 
     const storageProvider = getStorageProvider(storageProviderName)
 
-    const project = (await this.app
+    const projectResult = (await this.app
       .service(projectPath)
-      ._find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
-    if (project.data.length === 0) throw new Error(`No project named ${projectName} exists`)
+      ._find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
+    if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
 
-    const projectRoutePath = `projects/${projectName}/`
+    const projectRoutePath = `projects/${project}/`
 
     let newSceneName = NEW_SCENE_NAME
     let counter = 1
@@ -132,7 +144,7 @@ export class SceneService
     )
     try {
       await storageProvider.createInvalidation(
-        sceneAssetFiles.map((asset) => `projects/${projectName}/${newSceneName}${asset}`)
+        sceneAssetFiles.map((asset) => `projects/${project}/${newSceneName}${asset}`)
       )
     } catch (e) {
       logger.error(e)
@@ -140,7 +152,7 @@ export class SceneService
     }
 
     if (isDev) {
-      const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
+      const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + project) + '/'
       for (const ext of sceneAssetFiles) {
         fs.copyFileSync(
           path.resolve(appRootPath.path, `packages/projects/default-project/default${ext}`),
@@ -149,7 +161,7 @@ export class SceneService
       }
     }
 
-    return { project: projectName, name: newSceneName } as SceneMetadataCreate
+    return { project: project, name: newSceneName } as SceneMetadataCreate
   }
 
   async patch(id: NullableId, data: ScenePatch, params?: Params) {
@@ -201,9 +213,9 @@ export class SceneService
     return
   }
 
-  async update(projectName: string, data: ScenePatch, params?: Params) {
+  async update(id: NullableId, data: SceneCreateData, params?: Params) {
     try {
-      const { sceneName, sceneData, thumbnailBuffer, storageProviderName } = data
+      const { sceneName, sceneData, thumbnailBuffer, storageProviderName, projectName } = data
       logger.info('[scene.update]: ', projectName, data)
 
       const storageProvider = getStorageProvider(storageProviderName)
@@ -211,7 +223,7 @@ export class SceneService
       const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
       if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
-      await downloadAssetsFromScene(this.app, projectName, sceneData!)
+      await downloadAssetsFromScene(this.app, projectName!, sceneData!)
 
       const newSceneJsonPath = `projects/${projectName}/${sceneName}.scene.json`
       await storageProvider.putObject({
@@ -268,13 +280,13 @@ export class SceneService
     }
   }
 
-  async remove(data, params?: Params) {
-    const projectName = data.projectName
-    const sceneName = data.sceneName
-    const storageProviderName = data.storageProviderName
+  async remove(id: NullableId, params?: SceneParams) {
+    const projectName = params?.query?.project
+    const sceneName = params?.query?.name
+    const storageProviderName = params?.query?.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
 
-    const name = cleanString(sceneName)
+    const name = cleanString(sceneName!.toString())
 
     const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
