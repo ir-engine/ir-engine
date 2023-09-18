@@ -210,13 +210,13 @@
       }
 
       .listContainer {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
         justify-content: center;
+        align-items: center;
+        grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
         gap: 15px;
 
         .itemContainer {
-          width: 232px;
           padding: 10px;
           flex-shrink: 0;
           background: var(--dropdownMenuBackground);
@@ -243,7 +243,7 @@
             height: 125px;
             background-size: contain;
             background-repeat: no-repeat;
-            background-position-y: 50%;
+            background-position: center center;
           }
 
           .headerContainer {
