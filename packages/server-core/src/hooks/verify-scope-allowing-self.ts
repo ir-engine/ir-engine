@@ -23,10 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export type FileContentType = {
-  key: string
-  type: string
-  name: string
-  url: string
-  size?: string
+import { HookContext } from '@feathersjs/feathers'
+
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+
+import { NotAuthenticated } from '@feathersjs/errors'
+import { Application } from '../../declarations'
+import verifyScope from './verify-scope'
+
+export default (currentType: string, scopeToVerify: string) => {
+  return async (context: HookContext<Application>) => {
+    const loggedInUser = context.params.user as UserType
+    const queryUserID = context.params.query?.userId as UserID
+    if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
+    // allow self
+    if (queryUserID && queryUserID === loggedInUser.id) return context
+    return verifyScope(currentType, scopeToVerify)(context)
+  }
 }

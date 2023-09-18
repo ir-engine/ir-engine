@@ -61,7 +61,7 @@ export type MediaUploadArguments = {
 
 /**
  * Get the files to upload for a given resource
- * @param data
+ * @param url
  * @param download - if true, will download the file and return it as a buffer, otherwise will return the url
  * @returns
  */
@@ -113,8 +113,7 @@ const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/proj
 export const isAssetFromProject = (url: string, project: string) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
-  const isFromProject = url.includes(storageProviderPath) || url.includes(path.join(absoluteProjectPath, project))
-  return isFromProject
+  return url.includes(storageProviderPath) || url.includes(path.join(absoluteProjectPath, project))
 }
 
 export const getKeyForAsset = (url: string, project: string, isFromProject: boolean) => {
@@ -126,8 +125,7 @@ export const getKeyForAsset = (url: string, project: string, isFromProject: bool
     .split('/')
     .slice(0, -1)
     .join('/')
-  const key = isFromProject ? `projects/${project}${projectPath}` : `static-resources/${project}/`
-  return key
+  return isFromProject ? `projects/${project}${projectPath}` : `static-resources/${project}/`
 }
 
 /**
@@ -166,14 +164,12 @@ export const addAssetFromProject = async (
 
   const file = await downloadResourceAndMetadata(mainURL, forceDownload)
 
-  const staticResource = await addAssetAsStaticResource(app, file, {
+  return addAssetAsStaticResource(app, file, {
     hash: hash,
     // use key for when downloading the asset, otherwise pass the url directly to be inserted into the database
     path: isFromProject || download ? key : mainURL,
     project
   })
-
-  return staticResource
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {
@@ -323,9 +319,7 @@ export const getImageStats = async (
       }
     })
   } else {
-    if (typeof file === 'string') {
-      file = (await (await fetch(file)).arrayBuffer()) as Buffer
-    }
+    if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
     const stream = new Readable()
     stream.push(file)
     stream.push(null)

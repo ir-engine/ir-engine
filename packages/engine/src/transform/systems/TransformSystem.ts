@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Box3, Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -73,7 +72,6 @@ const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
 const staticBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent])
 const dynamicBoundingBoxQuery = defineQuery([GroupComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
-const avatarBoundingBoxQuery = defineQuery([AvatarComponent, BoundingBoxComponent])
 
 const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
@@ -267,19 +265,32 @@ const computeBoundingBox = (entity: Entity) => {
   }
 }
 
-const updateAvatarBoundingBox = (entity: Entity) => {
-  //get avatar model
-  const avatarModel = getComponent(entity, AvatarComponent).model
-  const box = getComponent(entity, BoundingBoxComponent).box
-  box.makeEmpty()
-  if (avatarModel) box.expandByObject(avatarModel)
-}
-
 const updateBoundingBox = (entity: Entity) => {
   const box = getComponent(entity, BoundingBoxComponent).box
   const group = getComponent(entity, GroupComponent)
   box.makeEmpty()
-  for (const obj of group) box.expandByObject(obj)
+  for (const obj of group) expandBoxByObject(obj, box, 0)
+}
+
+const expandBoxByObject = (object, box: Box3, layer: number) => {
+  const geometry = object.geometry
+
+  if (geometry !== undefined) {
+    if (geometry.boundingBox === null) {
+      geometry.computeBoundingBox()
+    }
+
+    box.copy(geometry.boundingBox)
+    if (layer > 0) box.applyMatrix4(object.matrixWorld)
+
+    box.union(box)
+  }
+
+  const children = object.children
+
+  for (let i = 0, l = children.length; i < l; i++) {
+    expandBoxByObject(children[i], box, i)
+  }
 }
 
 const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
@@ -401,7 +412,6 @@ const execute = () => {
   for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
 
   for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
-  for (const entity of avatarBoundingBoxQuery()) updateAvatarBoundingBox(entity)
   for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
 
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position

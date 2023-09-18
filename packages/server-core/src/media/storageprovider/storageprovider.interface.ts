@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PassThrough } from 'stream'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 
 /**
  * Put object parameters interface for adding to storage.
@@ -168,11 +168,15 @@ export interface StorageProviderInterface {
    */
   cacheDomain: string
 
+  originURLs: string[]
+
   /**
    * Invalidate items in the storage provider.
    * @param invalidationItems List of keys.
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
+
+  getOriginURLs(): Promise<string[]>
 
   associateWithFunction(functionARN: string): Promise<any>
 
@@ -246,7 +250,7 @@ export interface StorageProviderInterface {
    * @param folderName Name of folder in the storage.
    * @param recursive If true it will list content from sub folders as well.
    */
-  listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]>
+  listFolderContent(folderName: string, recursive?: boolean): Promise<FileBrowserContentType[]>
 
   /**
    * Get a list of keys under a path.

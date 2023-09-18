@@ -30,10 +30,13 @@ import { MaterialSource } from './MaterialSource'
 
 export type MaterialWithEntity = Material & { entity: Entity }
 
+export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
+
 export type MaterialComponentType = {
   prototype: string
   material: Material
   parameters: { [field: string]: any }
   plugins: string[]
   src: MaterialSource
+  status: MaterialStatus
 }

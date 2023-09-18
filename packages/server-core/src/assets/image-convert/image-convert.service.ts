@@ -30,6 +30,7 @@ import sharp from 'sharp'
 
 import { ImageConvertParms } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 
+import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 
 declare module '@etherealengine/common/declarations' {
@@ -62,7 +63,7 @@ async function convertImage(data: ImageConvertParms): Promise<string | string[]>
       image.flip(false)
     }
     await image.toFile(outPath)
-    const result: string = await app.service('file-browser').patch(null, {
+    const result: string = await app.service(fileBrowserPath).patch(null, {
       fileName,
       path: outURIDir,
       body: fs.readFileSync(outPath),

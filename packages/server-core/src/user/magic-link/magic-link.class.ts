@@ -33,12 +33,25 @@ import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/id
 import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
-import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
 import { IdentityProviderService } from '../identity-provider/identity-provider.class'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
+/**
+ * A method which get link
+ *
+ * @param type
+ * @param hash hashed link
+ * @returns login url
+ */
+export function getLink(type: string, hash: string, subscriptionId?: string): string {
+  return subscriptionId != null && subscriptionId.length > 0
+    ? `${config.server.url}/login/${hash}?subId=${subscriptionId}`
+    : `${config.server.url}/login/${hash}`
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MagicLinkParams extends RootParams {}
 
@@ -104,7 +117,8 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
       html: compiledHTML
     }
 
-    return await sendEmail(this.app, email)
+    email.html = email.html.replace(/&amp;/g, '&')
+    await this.app.service('email').create(email)
   }
 
   /**
@@ -130,7 +144,12 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
       mobile,
       text: compiledHTML
     }
-    return await sendSms(this.app, sms)
+
+    await this.app
+      .service('sms')
+      .create(sms, null!)
+      .then(() => logger.info('Sent SMS'))
+      .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))
   }
   /**
    * A function which is used to create magic link

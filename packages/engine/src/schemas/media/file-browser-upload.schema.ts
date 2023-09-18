@@ -23,10 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+export const fileBrowserUploadPath = 'file-browser-upload'
 
-import ConfirmEmail from '@etherealengine/client-core/src/user/components/Auth/ConfirmEmail'
-
-export const ConfirmEmailPage = () => <ConfirmEmail />
-
-export default ConfirmEmailPage
+export const fileBrowserUploadMethods = ['create'] as const

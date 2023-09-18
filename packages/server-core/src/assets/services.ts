@@ -26,6 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import AssetLibrary from './assetLibrary/asset-library'
 import ImageConvert from './image-convert/image-convert.service'
 import KTX2Encode from './ktx2-encode/ktx2-encode.service'
-import ModelTransform from './model-transform/model-transform.service'
+import ModelTransform from './model-transform/model-transform'
 
 export default [AssetLibrary, ImageConvert, ModelTransform, KTX2Encode]

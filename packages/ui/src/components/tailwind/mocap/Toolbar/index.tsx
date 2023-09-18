@@ -30,9 +30,9 @@ import { twMerge } from 'tailwind-merge'
 
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import CaptureSettings from '../../../components/tailwind/Settings'
-import Button from '../../../primitives/tailwind/Button'
-import Modal from '../../../primitives/tailwind/Modal'
+import CaptureSettings from '../../../../components/tailwind/Settings'
+import Button from '../../../../primitives/tailwind/Button'
+import Modal from '../../../../primitives/tailwind/Modal'
 
 /**
  * Props for Toolbar component
@@ -46,7 +46,7 @@ export interface ToolbarProps {
   videoStatus: string // Status of the video
   detectingStatus: string // Status of detecting
   isRecording: boolean // Flag indicating if recording is active
-  recordingStatus: string | null // Status of the recording
+  recordingStatus: 'ready' | 'starting' | 'active' // Status of the recording
   onToggleRecording: () => void // Function to toggle recording
   cycleCamera: () => void // Function to cycle the camera
 }
@@ -158,7 +158,7 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
             title="pose"
           />
           <Button
-            {...(detectingStatus !== 'active' ? { disabled: true } : {})}
+            {...(videoStatus !== 'active' ? { disabled: true } : {})}
             className={twMerge(
               'btn',
               isRecording && 'btn-active',
@@ -181,7 +181,9 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
             }
             showLabel={true}
             labelPosition="right"
-            title={recordingStatus === 'inactive' ? 'Record' : recordingStatus === 'ready' ? 'Record' : 'Recording'}
+            title={
+              recordingStatus === 'ready' ? 'Record' : recordingStatus === 'starting' ? 'Starting...' : 'Recording'
+            }
           />
         </div>
       </div>

@@ -453,39 +453,6 @@ export const AuthService = {
     }
   },
 
-  async verifyEmail(token: string) {
-    const authState = getMutableState(AuthState)
-    authState.merge({ isProcessing: true, error: '' })
-
-    try {
-      const { accessToken } = Engine.instance.api.service('authManagement').create({
-        action: 'verifySignupLong',
-        value: token
-      })
-      await AuthService.loginUserByJwt(accessToken, '/', '/')
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
-
-  async resendVerificationEmail(email: string) {
-    const authState = getMutableState(AuthState)
-    authState.merge({ isProcessing: true, error: '' })
-
-    try {
-      await Engine.instance.api.service('authManagement').create({
-        action: 'resendVerifySignup',
-        value: { token: email, type: 'password' }
-      })
-    } catch (err) {
-      logger.warn(err, 'Error resending verification email')
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
-
   async createMagicLink(emailPhone: string, authData: AuthStrategiesType, linkType?: 'email' | 'sms') {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })

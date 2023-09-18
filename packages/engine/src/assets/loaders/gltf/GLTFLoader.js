@@ -3359,7 +3359,7 @@ class GLTFParser {
 
 			if ( ! cachedMaterial ) {
 
-				cachedMaterial = material.clone();
+				cachedMaterial = material//.clone();
 
 				if ( useVertexColors ) cachedMaterial.vertexColors = true;
 				if ( useFlatShading ) cachedMaterial.flatShading = true;
