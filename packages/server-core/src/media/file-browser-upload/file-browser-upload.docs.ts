@@ -23,6 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSSerializerSystem } from './ECSSerializerSystem'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export const ECSSerializationSystems = () => [ECSSerializerSystem]
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'File Browser Update service description',
+    securities: ['all']
+  }
+})

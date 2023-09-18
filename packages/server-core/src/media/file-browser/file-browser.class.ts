@@ -24,77 +24,63 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Forbidden } from '@feathersjs/errors'
-import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
+import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import {
+  FileBrowserContentType,
+  FileBrowserPatch,
+  FileBrowserUpdate
+} from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
+import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
-type UpdateParamsType = {
-  oldName: string
-  newName: string
-  oldPath: string
-  newPath: string
-  isCopy?: boolean
-  storageProviderName?: string
-}
-
-interface PatchParams {
-  path: string
-  fileName: string
-  body: Buffer
-  contentType: string
-  storageProviderName?: string
-}
-
-type FindResultType = {
-  type: 'DIRECTORY' | 'FILE' | 'UNDEFINED'
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FileBrowserParams extends RootParams {}
 
 /**
- * A class for Managing files in FileBrowser
+ * A class for File Browser service
  */
-
-export class FileBrowserService implements ServiceMethods<any> {
+export class FileBrowserService
+  implements
+    ServiceInterface<
+      boolean | string | Paginated<FileBrowserContentType>,
+      string | FileBrowserUpdate | FileBrowserPatch,
+      FileBrowserParams,
+      FileBrowserPatch
+    >
+{
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async setup(app: Application, path: string) {}
-
   /**
    * Returns the metadata for a single file or directory
    * @param params
    */
-  async find(params?: Params): Promise<FindResultType> {
-    if (!params) params = {}
-    if (!params.query) params.query = {}
-    const { storageProviderName, key } = params.query
-    if (!key) return { type: 'UNDEFINED' }
-    const storageProvider = getStorageProvider(storageProviderName)
+  async get(key: string, params?: FileBrowserParams) {
+    if (!key) return false
+    const storageProvider = getStorageProvider()
     const [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
     const exists = await storageProvider.doesExist(file, directory)
-    const isDirectory = exists && (await storageProvider.isDirectory(file, directory))
-    return {
-      type: exists ? (isDirectory ? 'DIRECTORY' : 'FILE') : 'UNDEFINED'
-    }
+    return exists
   }
 
   /**
@@ -103,16 +89,16 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: UserParams): Promise<Paginated<FileContentType>> {
+  async find(params?: FileBrowserParams) {
     if (!params) params = {}
     if (!params.query) params.query = {}
-    const { $skip, $limit, storageProviderName } = params.query
+    const { $skip, $limit } = params.query
+    let { directory } = params.query
 
-    delete params.query.storageProviderName
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 100
 
-    const storageProvider = getStorageProvider(storageProviderName)
+    const storageProvider = getStorageProvider()
     const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
@@ -122,10 +108,6 @@ export class FileBrowserService implements ServiceMethods<any> {
 
     result = result.slice(skip, skip + limit)
 
-    result = result.map((item) => {
-      item.url = `https://${storageProvider.cacheDomain}/${item.key}`
-      return item
-    })
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
       const projectPermissions = await knexClient
@@ -146,6 +128,7 @@ export class FileBrowserService implements ServiceMethods<any> {
         )
       })
     }
+
     return {
       total,
       limit,
@@ -160,7 +143,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async create(directory, params?: Params) {
+  async create(directory: string, params?: FileBrowserParams) {
     const storageProvider = getStorageProvider(params?.query?.storageProviderName)
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
 
@@ -170,6 +153,8 @@ export class FileBrowserService implements ServiceMethods<any> {
     const result = await storageProvider.putObject({ Key: path.join(parentPath, key) } as StorageObjectInterface, {
       isDirectory: true
     })
+
+    await storageProvider.createInvalidation([key])
 
     fs.mkdirSync(path.join(projectsRootFolder, parentPath, key))
 
@@ -183,7 +168,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async update(id: NullableId, data: UpdateParamsType, params?: Params) {
+  async update(id: NullableId, data: FileBrowserUpdate, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
@@ -196,6 +181,11 @@ export class FileBrowserService implements ServiceMethods<any> {
 
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
+
+    await Promise.all([
+      storageProvider.createInvalidation([oldNamePath]),
+      storageProvider.createInvalidation([newNamePath])
+    ])
 
     if (data.isCopy) {
       copyRecursiveSync(oldNamePath, newNamePath)
@@ -212,7 +202,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param data
    * @param params
    */
-  async patch(id: NullableId, data: PatchParams, params?: Params) {
+  async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
     const storageProviderName = data.storageProviderName
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
@@ -231,14 +221,28 @@ export class FileBrowserService implements ServiceMethods<any> {
       }
     )
 
+    const hash = createStaticResourceHash(data.body, { assetURL: key })
+    const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
+    const url = getCachedURL(key, cacheDomain)
+
+    await this.app.service(staticResourcePath).create(
+      {
+        hash,
+        key,
+        url,
+        mimeType: data.contentType
+      },
+      { isInternal: true }
+    )
+    await storageProvider.createInvalidation([key])
+
     const filePath = path.join(projectsRootFolder, key)
     const parentDirPath = path.dirname(filePath)
 
     if (!fs.existsSync(parentDirPath)) fs.mkdirSync(parentDirPath, { recursive: true })
     fs.writeFileSync(filePath, data.body)
 
-    const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
-    return getCachedURL(key, cacheDomain)
+    return url
   }
 
   /**
@@ -247,12 +251,13 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async remove(key: string, params?: Params) {
+  async remove(key: string, params?: FileBrowserParams) {
     const storageProviderName = params?.query?.storageProviderName
     if (storageProviderName) delete params.query?.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
+    await storageProvider.createInvalidation([key])
 
     const filePath = path.join(projectsRootFolder, key)
 

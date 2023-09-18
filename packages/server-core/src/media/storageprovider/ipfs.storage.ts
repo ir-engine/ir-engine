@@ -30,8 +30,7 @@ import path from 'path'
 import * as stream from 'stream'
 import { concat as uint8ArrayConcat } from 'uint8arrays/concat'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
-
+import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import config from '../../appconfig'
 import {
   BlobStore,
@@ -45,6 +44,9 @@ import {
  * Storage provide class to communicate with InterPlanetary File System (IPFS) using Mutable File System (MFS).
  */
 export class IPFSStorage implements StorageProviderInterface {
+  constructor() {
+    this.getOriginURLs().then((result) => (this.originURLs = result))
+  }
   private _client: IPFSHTTPClient
   private _blobStore: IPFSBlobStore
   private _pathPrefix = '/'
@@ -53,7 +55,8 @@ export class IPFSStorage implements StorageProviderInterface {
   /**
    * Domain address of cache.
    */
-  cacheDomain: string
+  cacheDomain = ''
+  originURLs = [this.cacheDomain]
 
   /**
    * Check if an object exists in the IPFS storage.
@@ -234,6 +237,10 @@ export class IPFSStorage implements StorageProviderInterface {
     return Promise.resolve()
   }
 
+  async getOriginURLs() {
+    return [this.cacheDomain]
+  }
+
   async associateWithFunction() {
     return Promise.resolve()
   }
@@ -259,10 +266,10 @@ export class IPFSStorage implements StorageProviderInterface {
    * @param folderName Name of folder in the storage.
    * @param recursive If true it will list content from sub folders as well.
    */
-  async listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]> {
+  async listFolderContent(folderName: string, recursive?: boolean): Promise<FileBrowserContentType[]> {
     const filePath = path.join(this._pathPrefix, folderName)
 
-    const results: FileContentType[] = []
+    const results: FileBrowserContentType[] = []
 
     if (recursive) {
       await this._parseMFSDirectoryAsType(filePath, results)
@@ -270,7 +277,7 @@ export class IPFSStorage implements StorageProviderInterface {
       for await (const file of this._client.files.ls(filePath)) {
         const signedUrl = await this.getSignedUrl(file.cid.toString(), 3600, null)
 
-        const res: FileContentType = {
+        const res: FileBrowserContentType = {
           key: file.cid.toString(),
           name: file.name,
           type: file.type,
@@ -385,9 +392,9 @@ export class IPFSStorage implements StorageProviderInterface {
     }
   }
 
-  private async _parseMFSDirectoryAsType(currentPath: string, results: FileContentType[]) {
+  private async _parseMFSDirectoryAsType(currentPath: string, results: FileBrowserContentType[]) {
     for await (const file of this._client.files.ls(currentPath)) {
-      const res: FileContentType = {
+      const res: FileBrowserContentType = {
         key: file.cid.toString(),
         name: path.join(currentPath, file.name),
         type: file.type,

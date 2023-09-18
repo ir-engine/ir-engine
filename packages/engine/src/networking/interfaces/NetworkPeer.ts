@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Spark } from 'primus'
 
-import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
@@ -34,7 +33,6 @@ import { MediaTagType, PeerMediaType } from '../NetworkState'
 export interface NetworkPeer {
   userId: UserID
   userIndex: number
-  networkId?: NetworkId // to easily retrieve the network object correspending to this client
   // The following properties are only present on the server
   spark?: Spark // todo change this to socket and create a socket transport abstraction
   peerIndex: number

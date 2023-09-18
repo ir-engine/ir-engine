@@ -23,10 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InstanceServerProvisionResult {
-  id: string
-  ipAddress: string
-  port: string
-  roomCode: string
-  podName?: string
-}
+export const modelTransformPath = 'model-transform'
+
+export const modelTransformMethods = ['create'] as const

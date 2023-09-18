@@ -25,17 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { FileBrowserContentType, fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 
 export const FILES_PAGE_LIMIT = 100
 
 export const FileBrowserState = defineState({
   name: 'FileBrowserState',
   initial: () => ({
-    files: [] as Array<FileContentType>,
+    files: [] as Array<FileBrowserContentType>,
     skip: 0,
     limit: FILES_PAGE_LIMIT,
     total: 0,
@@ -53,23 +53,18 @@ export const FileBrowserService = {
 
     _lastDir = directory
 
-    const params = {
-      query: {
-        $skip: skip * FILES_PAGE_LIMIT,
-        $limit: FILES_PAGE_LIMIT
-      }
-    }
-
     fileBrowserState.retrieving.set(true)
 
-    const files = (await Engine.instance.api
-      .service('file-browser')
-      .get(directory, params)) as Paginated<FileContentType>
-
+    const files = (await Engine.instance.api.service(fileBrowserPath).find({
+      query: {
+        $skip: skip * FILES_PAGE_LIMIT,
+        $limit: FILES_PAGE_LIMIT,
+        directory
+      }
+    })) as Paginated<FileBrowserContentType>
     fileBrowserState.merge({
       files: files.data,
       skip: files.skip,
-      limit: files.limit,
       total: files.total,
       retrieving: false,
       fetched: true,
@@ -77,13 +72,13 @@ export const FileBrowserService = {
     })
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
-    return Engine.instance.api.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })
+    return Engine.instance.api.service(fileBrowserPath).update(null, { oldName, newName, oldPath, newPath, isCopy })
   },
   deleteContent: async (contentPath: string) => {
-    await Engine.instance.api.service('file-browser').remove(contentPath)
+    await Engine.instance.api.service(fileBrowserPath).remove(contentPath)
   },
   addNewFolder: async (folderName: string) => {
-    await Engine.instance.api.service(`file-browser`).create(folderName)
+    await Engine.instance.api.service(fileBrowserPath).create(folderName)
   },
   resetSkip: () => {
     const fileBrowserState = getMutableState(FileBrowserState)

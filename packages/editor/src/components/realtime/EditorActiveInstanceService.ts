@@ -32,6 +32,7 @@ import {
   InstanceActiveType,
   instanceActivePath
 } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -59,7 +60,7 @@ export const EditorActiveInstanceService = {
   provisionServer: async (locationId: string, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server Editor')
     const token = getState(AuthState).authUser.accessToken
-    const provisionResult = await Engine.instance.api.service('instance-provision').find({
+    const provisionResult = await Engine.instance.api.service(instanceProvisionPath).find({
       query: {
         locationId: locationId,
         instanceId: instanceId,
