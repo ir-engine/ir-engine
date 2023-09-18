@@ -35,6 +35,7 @@ import {
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -75,8 +76,8 @@ export const uploadScene = (app: Application) => async (data: any, params: Uploa
   const { projectName, sceneName, sceneData, storageProviderName } = data
 
   const result = await app
-    .service('scene')
-    .update(projectName, { sceneName, sceneData, storageProviderName, thumbnailBuffer })
+    .service(scenePath)
+    .update(null, { sceneName, sceneData, storageProviderName, thumbnailBuffer, projectName })
 
   // Clear params otherwise all the files and auth details send back to client as response
   for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]

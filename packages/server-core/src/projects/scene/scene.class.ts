@@ -107,18 +107,18 @@ export class SceneService
   }
 
   async create(data: SceneCreateData, params?: Params) {
-    const { project } = data
-    logger.info('[scene.create]: ' + project)
+    const { projectName } = data
+    logger.info('[scene.create]: ' + projectName)
     const storageProviderName = data.storageProvider
 
     const storageProvider = getStorageProvider(storageProviderName)
 
-    const projectResult = (await this.app
+    const project = (await this.app
       .service(projectPath)
-      ._find({ ...params, query: { name: project, $limit: 1 } })) as Paginated<ProjectType>
-    if (projectResult.data.length === 0) throw new Error(`No project named ${project} exists`)
+      ._find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
+    if (project.data.length === 0) throw new Error(`No project named ${projectName} exists`)
 
-    const projectRoutePath = `projects/${project}/`
+    const projectRoutePath = `projects/${projectName}/`
 
     let newSceneName = NEW_SCENE_NAME
     let counter = 1
@@ -144,7 +144,7 @@ export class SceneService
     )
     try {
       await storageProvider.createInvalidation(
-        sceneAssetFiles.map((asset) => `projects/${project}/${newSceneName}${asset}`)
+        sceneAssetFiles.map((asset) => `projects/${projectName}/${newSceneName}${asset}`)
       )
     } catch (e) {
       logger.error(e)
@@ -152,7 +152,7 @@ export class SceneService
     }
 
     if (isDev) {
-      const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + project) + '/'
+      const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
       for (const ext of sceneAssetFiles) {
         fs.copyFileSync(
           path.resolve(appRootPath.path, `packages/projects/default-project/default${ext}`),
@@ -161,7 +161,7 @@ export class SceneService
       }
     }
 
-    return { project: project, name: newSceneName } as SceneMetadataCreate
+    return { projectName: projectName!, sceneName: newSceneName }
   }
 
   async patch(id: NullableId, data: ScenePatch, params?: Params) {
@@ -273,7 +273,7 @@ export class SceneService
       }
 
       // return scene id for update hooks
-      return { id: `${projectName}/${sceneName}` } as SceneUpdate
+      return { id: `${projectName}/${sceneName}` }
     } catch (err) {
       logger.error(err)
       throw err

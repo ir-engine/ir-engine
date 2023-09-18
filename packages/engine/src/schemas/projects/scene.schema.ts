@@ -93,8 +93,7 @@ export type SceneDataType = Static<typeof sceneDataSchema>
 // Schema for creating new entries
 export const sceneCreateDataSchema = Type.Object(
   {
-    project: Type.String(),
-    storageProvider: Type.String(),
+    storageProvider: Type.Optional(Type.String()),
     sceneName: Type.Optional(Type.String()),
     sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
     thumbnailBuffer: Type.Optional(Type.Union([Type.Any()])),
@@ -106,9 +105,15 @@ export const sceneCreateDataSchema = Type.Object(
 export type SceneCreateData = Static<typeof sceneCreateDataSchema>
 
 // Schema for new created entries
-export const sceneMetadataCreateSchema = Type.Partial(sceneMetadataSchema, {
-  $id: 'SceneMetadataCreate'
-})
+export const sceneMetadataCreateSchema = Type.Object(
+  {
+    sceneName: Type.String(),
+    projectName: Type.String()
+  },
+  {
+    $id: 'SceneMetadataCreate'
+  }
+)
 export type SceneMetadataCreate = Static<typeof sceneMetadataCreateSchema>
 
 // Schema for updated entries
