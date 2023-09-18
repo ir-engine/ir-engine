@@ -89,7 +89,11 @@ describe('storageprovider', () => {
 
         let haveObject = false
         for (let i = 0; i < res.length; i++) {
-          if (res[i].name === 'TestFile' && res[i].type === 'txt') {
+          if (
+            res[i].name === 'TestFile' &&
+            res[i].type === 'txt' &&
+            res[i].size === Buffer.byteLength(testFileContent)
+          ) {
             haveObject = true
             break
           }
