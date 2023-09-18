@@ -104,6 +104,7 @@ import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
+import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
 
@@ -188,9 +189,7 @@ export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) 
     onMessage: (fromPeerID: PeerID, message: any) => {
       const actions = message as any as Required<Action>[]
       // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
-      for (const a of actions) {
-        Engine.instance.store.actions.incoming.push(a)
-      }
+      NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {

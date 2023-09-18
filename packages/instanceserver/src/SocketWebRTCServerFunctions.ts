@@ -31,12 +31,13 @@ import { MediaStreamAppData } from '@etherealengine/engine/src/networking/Networ
 import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
-import { Action, Topic, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
 import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { encode } from 'msgpackr'
@@ -82,12 +83,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
       }
 
       const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
-      for (const a of actions) {
-        a.$from = networkPeer.userId
-        a.$network = network.id
-        dispatchAction(a)
-      }
-      // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
+      NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, toPeerID: PeerID, data: any) => {
