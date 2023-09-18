@@ -32,7 +32,7 @@ export const sceneMethods = ['get', 'create', 'find', 'patch', 'remove'] as cons
 export const componentJsonSchema = Type.Object(
   {
     name: Type.String(),
-    props: Type.Any()
+    props: Type.Optional(Type.Any())
   },
   { $id: 'ComponentJson', additionalProperties: false }
 )
@@ -40,9 +40,12 @@ export type ComponentJsonType = Static<typeof componentJsonSchema>
 
 export const entityJsonSchema = Type.Object(
   {
-    name: TypedString<EntityUUID>({
-      format: 'uuid'
-    }),
+    name: Type.Union([
+      Type.String(),
+      TypedString<EntityUUID>({
+        format: 'uuid'
+      })
+    ]),
     type: Type.Optional(Type.String()),
     components: Type.Array(Type.Ref(componentJsonSchema)),
     parent: Type.Optional(
@@ -77,6 +80,21 @@ export const sceneMetadataSchema = Type.Object(
   { $id: 'SceneMetadata', additionalProperties: false }
 )
 export type SceneMetadataType = Static<typeof sceneMetadataSchema>
+
+// Schema for new created entries
+export const sceneMetadataCreateSchema = Type.Partial(sceneMetadataSchema, {
+  $id: 'SceneMetadataCreate'
+})
+export type SceneMetadataCreate = Static<typeof sceneMetadataCreateSchema>
+
+// Schema for updated entries
+export const sceneUpdateSchema = Type.Object(
+  {
+    id: Type.String()
+  },
+  { $id: 'SceneUpdate', additionalProperties: false }
+)
+export type SceneUpdate = Static<typeof sceneUpdateSchema>
 
 export const sceneDataSchema = Type.Object(
   {

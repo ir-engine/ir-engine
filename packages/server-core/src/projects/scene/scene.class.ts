@@ -23,66 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
+import { NullableId, Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
 import { isDev } from '@etherealengine/common/src/config'
-import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
-import {
-  cleanStorageProviderURLs,
-  parseStorageProviderURLs
-} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import {
+  SceneDataType,
+  SceneMetadataCreate,
+  SceneUpdate
+} from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
-import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
-import { downloadAssetsFromScene } from './scene-helper'
+import { downloadAssetsFromScene, getSceneData } from './scene-helper'
 const NEW_SCENE_NAME = 'New-Scene'
 
 const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
-
-export const getSceneData = async (
-  projectName: string,
-  sceneName: string,
-  metadataOnly: boolean,
-  internal = false,
-  storageProviderName?: string
-) => {
-  const storageProvider = getStorageProvider(storageProviderName)
-  const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
-  if (!sceneExists) throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
-
-  let thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
-
-  //if no ktx2 is found, fallback on legacy jpg thumbnail format, if still not found, fallback on ethereal logo
-  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, `projects/${projectName}`))) {
-    thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
-    if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.jpeg`, `projects/${projectName}`))) thumbnailPath = ``
-  }
-
-  const cacheDomain = getCacheDomain(storageProvider, internal)
-  const thumbnailUrl =
-    thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
-
-  const scenePath = `projects/${projectName}/${sceneName}.scene.json`
-
-  const sceneResult = await storageProvider.getCachedObject(scenePath)
-  const sceneData: SceneData = {
-    name: sceneName,
-    project: projectName,
-    thumbnailUrl: thumbnailUrl,
-    scene: metadataOnly ? undefined! : parseStorageProviderURLs(JSON.parse(sceneResult.Body.toString()))
-  }
-
-  return sceneData
-}
 
 interface UpdateParams {
   sceneName: string
@@ -98,7 +62,9 @@ interface RenameParams {
   storageProviderName?: string
 }
 
-export class Scene implements ServiceMethods<any> {
+export class SceneService
+  implements ServiceInterface<SceneDataType | void | SceneMetadataCreate | SceneUpdate, Params>
+{
   app: Application
   docs: any
 
@@ -106,12 +72,10 @@ export class Scene implements ServiceMethods<any> {
     this.app = app
   }
 
-  async setup() {}
-
-  async find(params?: Params): Promise<{ data: SceneData[] }> {
+  async find(params?: Params) {
     const projects = await this.app.service(projectPath).find(params)
 
-    const scenes: SceneData[] = []
+    const scenes: SceneDataType[] = []
     for (const project of projects.data) {
       const { data } = await this.app
         .service('scene-data')
@@ -124,15 +88,15 @@ export class Scene implements ServiceMethods<any> {
       )
     }
 
-    for (let [index, _] of scenes.entries()) {
+    for (const [index, _] of scenes.entries()) {
       scenes[index].thumbnailUrl += `?${Date.now()}`
     }
 
-    return { data: scenes }
+    return scenes
   }
 
   // @ts-ignore
-  async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<{ data: SceneData }> {
+  async get({ projectName, sceneName, metadataOnly }, params?: Params) {
     const project = (await this.app
       .service(projectPath)
       ._find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
@@ -140,12 +104,10 @@ export class Scene implements ServiceMethods<any> {
 
     const sceneData = await getSceneData(projectName, sceneName, metadataOnly, params!.provider == null)
 
-    return {
-      data: sceneData
-    }
+    return sceneData as SceneDataType
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params?: Params) {
     const { projectName } = data
     logger.info('[scene.create]: ' + projectName)
     const storageProviderName = data.storageProviderName
@@ -201,10 +163,10 @@ export class Scene implements ServiceMethods<any> {
       }
     }
 
-    return { projectName, sceneName: newSceneName }
+    return { project: projectName, name: newSceneName } as SceneMetadataCreate
   }
 
-  async patch(id: NullableId, data: RenameParams, params?: Params): Promise<any> {
+  async patch(id: NullableId, data: RenameParams, params?: Params) {
     const { newSceneName, oldSceneName, projectName, storageProviderName } = data
 
     const storageProvider = getStorageProvider(storageProviderName)
@@ -253,7 +215,7 @@ export class Scene implements ServiceMethods<any> {
     return
   }
 
-  async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
+  async update(projectName: string, data: UpdateParams, params?: Params) {
     try {
       const { sceneName, sceneData, thumbnailBuffer, storageProviderName } = data
       logger.info('[scene.update]: ', projectName, data)
@@ -313,17 +275,14 @@ export class Scene implements ServiceMethods<any> {
       }
 
       // return scene id for update hooks
-      return { sceneId: `${projectName}/${sceneName}` }
+      return { id: `${projectName}/${sceneName}` } as SceneUpdate
     } catch (err) {
       logger.error(err)
       throw err
     }
   }
 
-  // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
-
-  // @ts-ignore
-  async remove(data, params?: Params): Promise<any> {
+  async remove(data, params?: Params) {
     const projectName = data.projectName
     const sceneName = data.sceneName
     const storageProviderName = data.storageProviderName
