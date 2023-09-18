@@ -48,12 +48,6 @@ declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     scene: SceneService
   }
-  interface ServiceTypes {
-    'scene-data': {
-      get: ReturnType<typeof getScenesForProject>
-      find: ReturnType<typeof getAllScenes>
-    }
-  }
 }
 
 export interface SceneParams extends Params {
@@ -131,11 +125,6 @@ export default (app: Application) => {
   const event = new Scene(app)
   event.docs = projectDocs
   app.use('scene', event)
-
-  app.use('scene-data', {
-    get: getScenesForProject(app),
-    find: getAllScenes(app)
-  })
 
   /**
    * Get our initialized service so that we can register hooks
