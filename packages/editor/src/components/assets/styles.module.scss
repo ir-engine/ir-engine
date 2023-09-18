@@ -10,6 +10,41 @@
   overflow-y: auto;
 }
 
+.searchContainer {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.searchContainer > button, .searchContainer > input {
+  margin: 0 !important;  /* To remove any default margins */
+}
+
+.searchContainer > input {
+  width: 100% !important;
+  height: 30px !important;
+  padding: 5px !important;
+  border-radius: 4px !important;
+  border: 1px solid var(--borderColor) !important;
+  background: var(--dockBackground) !important;
+  color: var(--textColor) !important;
+}
+
+.searchContainer > button {
+  width: 16px !important;
+  height: 16px !important;
+  padding: 5px !important;
+  border-radius: 4px !important;
+  border: 1px solid var(--borderColor) !important;
+  background: var(--dockBackground) !important;
+  color: var(--textColor) !important;
+}
+
+/* Optional, if you want the button and input to have some spacing between them */
+.searchContainer > button + input {
+  margin-left: 5px !important; 
+}
+
 .fileListItemContainer {
   width: 100%;
   display: flex;
@@ -182,6 +217,10 @@
 .error {
   color: #c53a7d;
   font-weight: bold;
+}
+
+.breadcrumbList{
+  justify-content: center
 }
 
 .separator {

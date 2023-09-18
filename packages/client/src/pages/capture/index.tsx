@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { t } from 'i18next'
 import React, { Suspense } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
@@ -36,7 +36,7 @@ const LocationRoutes = () => {
     <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
       <Routes>
         <Route path=":locationName" element={<Capture />} />
-        <Route path="/" element={<Navigate to="/capture/default" />} />
+        <Route path="/" element={<Capture />} />
       </Routes>
     </Suspense>
   )
