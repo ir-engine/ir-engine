@@ -64,8 +64,6 @@ function pushToEngine(): void {
   })
 
   if (config.client.serverHost && LogConfig.api) {
-    console.log('pushing logs to engine.')
-
     LogConfig.api.service(logsApiPath).create(cachedData)
 
     engineCache.flushAll()
