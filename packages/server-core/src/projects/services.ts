@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import BuilderInfo from './builder-info/builder-info'
+import Portal from './portal/portal'
 import ProjectBranches from './project-branches/project-branches'
 import ProjectBuild from './project-build/project-build'
 import ProjectBuilderTags from './project-builder-tags/project-builder-tags'
@@ -36,10 +37,12 @@ import ProjectInvalidate from './project-invalidate/project-invalidate'
 import ProjectPermission from './project-permission/project-permission'
 import Project from './project/project'
 import Projects from './projects/projects'
+import SceneUpload from './scene-upload/scene-upload'
 import Scene from './scene/scene.service'
 
 export default [
   BuilderInfo,
+  Portal,
   Project,
   Projects,
   ProjectBuild,
@@ -52,5 +55,6 @@ export default [
   ProjectDestinationCheck,
   ProjectCheckUnfetchedCommit,
   ProjectCheckSourceDestinationMatch,
-  Scene
+  Scene,
+  SceneUpload
 ]

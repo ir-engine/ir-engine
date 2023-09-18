@@ -35,12 +35,10 @@ import {
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import { getSceneData } from './scene-helper'
 import { SceneService } from './scene.class'
 import projectDocs from './scene.docs'
@@ -49,9 +47,6 @@ import hooks from './scene.hooks'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     scene: SceneService
-    'scene/upload': {
-      create: ReturnType<typeof uploadScene>
-    }
   }
   interface ServiceTypes {
     'scene-data': {
@@ -59,24 +54,6 @@ declare module '@etherealengine/common/declarations' {
       find: ReturnType<typeof getAllScenes>
     }
   }
-}
-
-export const uploadScene = (app: Application) => async (data: any, params: UploadParams) => {
-  if (typeof data === 'string') data = JSON.parse(data)
-  if (typeof data.sceneData === 'string') data.sceneData = JSON.parse(data.sceneData)
-
-  const thumbnailBuffer = params.files.length > 0 ? (params.files[0].buffer as Buffer) : undefined
-
-  const { projectName, sceneName, sceneData, storageProviderName } = data
-
-  const result = await app
-    .service(scenePath)
-    .update(null, { sceneName, sceneData, storageProviderName, thumbnailBuffer, projectName })
-
-  // Clear params otherwise all the files and auth details send back to client as response
-  for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
-
-  return result
 }
 
 export interface SceneParams extends Params {
@@ -154,36 +131,6 @@ export default (app: Application) => {
   const event = new Scene(app)
   event.docs = projectDocs
   app.use('scene', event)
-  app.use(
-    'scene/upload',
-    {
-      create: uploadScene(app)
-    },
-    {
-      koa: {
-        before: [
-          multipartMiddleware.any(),
-          async (ctx, next) => {
-            console.log('trying to upload scene')
-            const files = ctx.request.files
-            if (ctx?.feathers && ctx.method !== 'GET') {
-              ;(ctx as any).feathers.files = (ctx as any).request.files.media
-                ? (ctx as any).request.files.media
-                : ctx.request.files
-            }
-            if (Object.keys(files as any).length > 1) {
-              ctx.status = 400
-              ctx.body = 'Only one scene is allowed'
-              return
-            }
-            await next()
-            console.log('uploaded scene')
-            return ctx.body
-          }
-        ]
-      }
-    }
-  )
 
   app.use('scene-data', {
     get: getScenesForProject(app),
