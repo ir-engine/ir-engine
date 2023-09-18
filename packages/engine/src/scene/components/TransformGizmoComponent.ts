@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useExecute } from '../../ecs/functions/SystemFunctions'
 import TransformGizmo from '../classes/TransformGizmo'
 
 export const TransformGizmoComponent = defineComponent({
@@ -32,5 +35,16 @@ export const TransformGizmoComponent = defineComponent({
   onInit(entity) {
     const gizmo = new TransformGizmo()
     return gizmo
+  },
+
+  reactor: function (props) {
+    const entity = useEntityContext()
+    const gizmoComponent = useComponent(entity, TransformGizmoComponent)
+    useExecute(
+      // transfer editor control system logic
+      () => {},
+      { with: PresentationSystemGroup }
+    )
+    return null
   }
 })

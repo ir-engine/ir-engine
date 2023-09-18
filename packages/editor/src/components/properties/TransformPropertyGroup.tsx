@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
+import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmoComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import {
   LocalTransformComponent,

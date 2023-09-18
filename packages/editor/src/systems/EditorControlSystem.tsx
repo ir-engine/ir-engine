@@ -62,13 +62,9 @@ import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/Infinit
 import { GroupComponent, addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
+import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmoComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
-  SnapMode,
-  TransformAxis,
-  TransformAxisAction,
-  TransformAxisConstraints,
   TransformMode,
   TransformModeType,
   TransformPivot,
@@ -86,7 +82,6 @@ import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
-import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import isInputSelected from '../functions/isInputSelected'
 import {
   setTransformMode,
@@ -367,6 +362,7 @@ const execute = () => {
 
   const selectStartAndNoGrabbing = isPrimaryClickDown && !isGrabbing
 
+  /*
   if (selectStartAndNoGrabbing) {
     selectStartPosition.copy(cursorPosition)
 
@@ -605,6 +601,7 @@ const execute = () => {
       dragging = false
     }
   }
+  */
 
   if (editorHelperState.isFlyModeEnabled) return
 

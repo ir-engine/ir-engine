@@ -24,25 +24,31 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  BoxGeometry,
+  BufferGeometry,
   Color,
+  CylinderGeometry,
+  Float32BufferAttribute,
   Intersection,
+  Line,
+  LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
+  OctahedronGeometry,
   Raycaster,
+  SphereGeometry,
+  TorusGeometry,
   Vector2,
   Vector3
 } from 'three'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import {
-  TransformAxis,
-  TransformAxisAction,
   TransformAxisActionType,
   TransformAxisType,
   TransformMode,
@@ -69,6 +75,9 @@ type MeshWithAxisInfo = Mesh & { axisInfo: AxisInfo }
 let gizmoGltf: GLTF = null!
 const GLTF_PATH = '/static/editor/TransformGizmo.glb' // STATIC
 export default class TransformGizmo extends Object3D {
+  gizmo: any
+  picker: any
+  helper: any
   model: Object3D
   selectionColor: Color
   previousColor: Color
@@ -82,6 +91,7 @@ export default class TransformGizmo extends Object3D {
   translateXYPlane: MeshWithAxisInfo
   translateYZPlane: MeshWithAxisInfo
   translateXZPlane: MeshWithAxisInfo
+  translateXYZ: MeshWithAxisInfo
 
   rotateControls: Object3D
   rotateXAxis: Object3D
@@ -108,21 +118,311 @@ export default class TransformGizmo extends Object3D {
     this.load()
   }
 
-  async load() {
-    gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH, { ignoreDisposeGeometry: true })
+  async create() {
+    const gizmoMaterial = new MeshBasicMaterial({
+      depthTest: false,
+      depthWrite: false,
+      fog: false,
+      toneMapped: false,
+      transparent: true
+    })
 
-    this.model = gizmoGltf.scene
-    this.add(this.model)
-    this.selectionColor = new Color().setRGB(1, 1, 1)
-    this.previousColor = new Color()
+    const gizmoLineMaterial = new LineBasicMaterial({
+      depthTest: false,
+      depthWrite: false,
+      fog: false,
+      toneMapped: false,
+      transparent: true
+    })
+
+    // Make unique material for each axis/color
+
+    const matInvisible = gizmoMaterial.clone()
+    matInvisible.opacity = 0.15
+
+    const matHelper = gizmoLineMaterial.clone()
+    matHelper.opacity = 0.5
+
+    const matRed = gizmoMaterial.clone()
+    matRed.color.setHex(0xff0000)
+
+    const matGreen = gizmoMaterial.clone()
+    matGreen.color.setHex(0x00ff00)
+
+    const matBlue = gizmoMaterial.clone()
+    matBlue.color.setHex(0x0000ff)
+
+    const matRedTransparent = gizmoMaterial.clone()
+    matRedTransparent.color.setHex(0xff0000)
+    matRedTransparent.opacity = 0.5
+
+    const matGreenTransparent = gizmoMaterial.clone()
+    matGreenTransparent.color.setHex(0x00ff00)
+    matGreenTransparent.opacity = 0.5
+
+    const matBlueTransparent = gizmoMaterial.clone()
+    matBlueTransparent.color.setHex(0x0000ff)
+    matBlueTransparent.opacity = 0.5
+
+    const matWhiteTransparent = gizmoMaterial.clone()
+    matWhiteTransparent.opacity = 0.25
+
+    const matYellowTransparent = gizmoMaterial.clone()
+    matYellowTransparent.color.setHex(0xffff00)
+    matYellowTransparent.opacity = 0.25
+
+    const matYellow = gizmoMaterial.clone()
+    matYellow.color.setHex(0xffff00)
+
+    const matGray = gizmoMaterial.clone()
+    matGray.color.setHex(0x787878)
+
+    // reusable geometry
+    const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12)
+    arrowGeometry.translate(0, 0.05, 0)
+
+    const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08)
+    scaleHandleGeometry.translate(0, 0.04, 0)
+
+    const lineGeometry = new BufferGeometry()
+    lineGeometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3))
+
+    const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3)
+    lineGeometry2.translate(0, 0.25, 0)
+
+    function CircleGeometry(radius, arc) {
+      const geometry = new TorusGeometry(radius, 0.0075, 3, 64, arc * Math.PI * 2)
+      geometry.rotateY(Math.PI / 2)
+      geometry.rotateX(Math.PI / 2)
+      return geometry
+    }
+
+    // Special geometry for transform helper. If scaled with position vector it spans from [0,0,0] to position
+
+    function TranslateHelperGeometry() {
+      const geometry = new BufferGeometry()
+
+      geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 1, 1], 3))
+
+      return geometry
+    }
+
+    // Gizmo definitions - custom hierarchy definitions for setupGizmo() function
+
+    const gizmoTranslate = {
+      X: [
+        [new Mesh(arrowGeometry, matRed), [0.5, 0, 0], [0, 0, -Math.PI / 2]],
+        [new Mesh(arrowGeometry, matRed), [-0.5, 0, 0], [0, 0, Math.PI / 2]],
+        [new Mesh(lineGeometry2, matRed), [0, 0, 0], [0, 0, -Math.PI / 2]]
+      ],
+      Y: [
+        [new Mesh(arrowGeometry, matGreen), [0, 0.5, 0]],
+        [new Mesh(arrowGeometry, matGreen), [0, -0.5, 0], [Math.PI, 0, 0]],
+        [new Mesh(lineGeometry2, matGreen)]
+      ],
+      Z: [
+        [new Mesh(arrowGeometry, matBlue), [0, 0, 0.5], [Math.PI / 2, 0, 0]],
+        [new Mesh(arrowGeometry, matBlue), [0, 0, -0.5], [-Math.PI / 2, 0, 0]],
+        [new Mesh(lineGeometry2, matBlue), null, [Math.PI / 2, 0, 0]]
+      ],
+      XYZ: [[new Mesh(new OctahedronGeometry(0.1, 0), matWhiteTransparent.clone()), [0, 0, 0]]],
+      XY: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matBlueTransparent.clone()), [0.15, 0.15, 0]]],
+      YZ: [
+        [new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matRedTransparent.clone()), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]
+      ],
+      XZ: [
+        [
+          new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matGreenTransparent.clone()),
+          [0.15, 0, 0.15],
+          [-Math.PI / 2, 0, 0]
+        ]
+      ]
+    }
+
+    const pickerTranslate = {
+      X: [
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0.3, 0, 0], [0, 0, -Math.PI / 2]],
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [-0.3, 0, 0], [0, 0, Math.PI / 2]]
+      ],
+      Y: [
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0.3, 0]],
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, -0.3, 0], [0, 0, Math.PI]]
+      ],
+      Z: [
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, 0.3], [Math.PI / 2, 0, 0]],
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, -0.3], [-Math.PI / 2, 0, 0]]
+      ],
+      XYZ: [[new Mesh(new OctahedronGeometry(0.2, 0), matInvisible)]],
+      XY: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0.15, 0]]],
+      YZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]],
+      XZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]]
+    }
+
+    const helperTranslate = {
+      START: [[new Mesh(new OctahedronGeometry(0.01, 2), matHelper), null, null, null, 'helper']],
+      END: [[new Mesh(new OctahedronGeometry(0.01, 2), matHelper), null, null, null, 'helper']],
+      DELTA: [[new Line(TranslateHelperGeometry(), matHelper), null, null, null, 'helper']],
+      X: [[new Line(lineGeometry, matHelper.clone()), [-1e3, 0, 0], null, [1e6, 1, 1], 'helper']],
+      Y: [[new Line(lineGeometry, matHelper.clone()), [0, -1e3, 0], [0, 0, Math.PI / 2], [1e6, 1, 1], 'helper']],
+      Z: [[new Line(lineGeometry, matHelper.clone()), [0, 0, -1e3], [0, -Math.PI / 2, 0], [1e6, 1, 1], 'helper']]
+    }
+
+    const gizmoRotate = {
+      XYZE: [[new Mesh(CircleGeometry(0.5, 1), matGray), null, [0, Math.PI / 2, 0]]],
+      X: [[new Mesh(CircleGeometry(0.5, 0.5), matRed)]],
+      Y: [[new Mesh(CircleGeometry(0.5, 0.5), matGreen), null, [0, 0, -Math.PI / 2]]],
+      Z: [[new Mesh(CircleGeometry(0.5, 0.5), matBlue), null, [0, Math.PI / 2, 0]]],
+      E: [[new Mesh(CircleGeometry(0.75, 1), matYellowTransparent), null, [0, Math.PI / 2, 0]]]
+    }
+
+    const helperRotate = {
+      AXIS: [[new Line(lineGeometry, matHelper.clone()), [-1e3, 0, 0], null, [1e6, 1, 1], 'helper']]
+    }
+
+    const pickerRotate = {
+      XYZE: [[new Mesh(new SphereGeometry(0.25, 10, 8), matInvisible)]],
+      X: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [0, -Math.PI / 2, -Math.PI / 2]]],
+      Y: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [Math.PI / 2, 0, 0]]],
+      Z: [[new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [0, 0, -Math.PI / 2]]],
+      E: [[new Mesh(new TorusGeometry(0.75, 0.1, 2, 24), matInvisible)]]
+    }
+
+    const gizmoScale = {
+      X: [
+        [new Mesh(scaleHandleGeometry, matRed), [0.5, 0, 0], [0, 0, -Math.PI / 2]],
+        [new Mesh(lineGeometry2, matRed), [0, 0, 0], [0, 0, -Math.PI / 2]],
+        [new Mesh(scaleHandleGeometry, matRed), [-0.5, 0, 0], [0, 0, Math.PI / 2]]
+      ],
+      Y: [
+        [new Mesh(scaleHandleGeometry, matGreen), [0, 0.5, 0]],
+        [new Mesh(lineGeometry2, matGreen)],
+        [new Mesh(scaleHandleGeometry, matGreen), [0, -0.5, 0], [0, 0, Math.PI]]
+      ],
+      Z: [
+        [new Mesh(scaleHandleGeometry, matBlue), [0, 0, 0.5], [Math.PI / 2, 0, 0]],
+        [new Mesh(lineGeometry2, matBlue), [0, 0, 0], [Math.PI / 2, 0, 0]],
+        [new Mesh(scaleHandleGeometry, matBlue), [0, 0, -0.5], [-Math.PI / 2, 0, 0]]
+      ],
+      XY: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matBlueTransparent), [0.15, 0.15, 0]]],
+      YZ: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matRedTransparent), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]],
+      XZ: [[new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matGreenTransparent), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]],
+      XYZ: [[new Mesh(new BoxGeometry(0.1, 0.1, 0.1), matWhiteTransparent.clone())]]
+    }
+
+    const pickerScale = {
+      X: [
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0.3, 0, 0], [0, 0, -Math.PI / 2]],
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [-0.3, 0, 0], [0, 0, Math.PI / 2]]
+      ],
+      Y: [
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0.3, 0]],
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, -0.3, 0], [0, 0, Math.PI]]
+      ],
+      Z: [
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, 0.3], [Math.PI / 2, 0, 0]],
+        [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, -0.3], [-Math.PI / 2, 0, 0]]
+      ],
+      XY: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0.15, 0]]],
+      YZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]],
+      XZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0, 0.15], [-Math.PI / 2, 0, 0]]],
+      XYZ: [[new Mesh(new BoxGeometry(0.2, 0.2, 0.2), matInvisible), [0, 0, 0]]]
+    }
+
+    const helperScale = {
+      X: [[new Line(lineGeometry, matHelper.clone()), [-1e3, 0, 0], null, [1e6, 1, 1], 'helper']],
+      Y: [[new Line(lineGeometry, matHelper.clone()), [0, -1e3, 0], [0, 0, Math.PI / 2], [1e6, 1, 1], 'helper']],
+      Z: [[new Line(lineGeometry, matHelper.clone()), [0, 0, -1e3], [0, -Math.PI / 2, 0], [1e6, 1, 1], 'helper']]
+    }
+
+    // Creates an Object3D with gizmos described in custom hierarchy definition.
+
+    function setupGizmo(gizmoMap) {
+      const gizmo = new Object3D()
+
+      for (const name in gizmoMap) {
+        for (let i = gizmoMap[name].length; i--; ) {
+          const object = gizmoMap[name][i][0].clone()
+          const position = gizmoMap[name][i][1]
+          const rotation = gizmoMap[name][i][2]
+          const scale = gizmoMap[name][i][3]
+          const tag = gizmoMap[name][i][4]
+
+          // name and tag properties are essential for picking and updating logic.
+          object.name = name
+          object.tag = tag
+
+          if (position) {
+            object.position.set(position[0], position[1], position[2])
+          }
+
+          if (rotation) {
+            object.rotation.set(rotation[0], rotation[1], rotation[2])
+          }
+
+          if (scale) {
+            object.scale.set(scale[0], scale[1], scale[2])
+          }
+
+          object.updateMatrix()
+
+          const tempGeometry = object.geometry.clone()
+          tempGeometry.applyMatrix4(object.matrix)
+          object.geometry = tempGeometry
+          object.renderOrder = Infinity
+
+          object.position.set(0, 0, 0)
+          object.rotation.set(0, 0, 0)
+          object.scale.set(1, 1, 1)
+
+          gizmo.add(object)
+        }
+      }
+
+      return gizmo
+    }
+
+    this.gizmo = {}
+    this.picker = {}
+    this.helper = {}
+    this.add((this.gizmo[TransformMode.Translate] = setupGizmo(gizmoTranslate)))
+    this.add((this.gizmo[TransformMode.Rotate] = setupGizmo(gizmoRotate)))
+    this.add((this.gizmo[TransformMode.Scale] = setupGizmo(gizmoScale)))
+    this.add((this.picker[TransformMode.Translate] = setupGizmo(pickerTranslate)))
+    this.add((this.picker[TransformMode.Rotate] = setupGizmo(pickerRotate)))
+    this.add((this.picker[TransformMode.Scale] = setupGizmo(pickerScale)))
+    this.add((this.helper[TransformMode.Translate] = setupGizmo(helperTranslate)))
+    this.add((this.helper[TransformMode.Rotate] = setupGizmo(helperRotate)))
+    this.add((this.helper[TransformMode.Scale] = setupGizmo(helperScale)))
+    const geometryScaleValue = 2
+    const geometryScale = new Vector3(1, 1, 1).multiplyScalar(geometryScaleValue)
+    for (const mode in this.gizmo) {
+      this.gizmo[mode].scale.copy(geometryScale)
+      this.helper[mode].scale.copy(geometryScale)
+      this.picker[mode].scale.copy(geometryScale)
+    }
+    // Pickers should be hidden always
+
+    this.picker[TransformMode.Translate].visible = false
+    this.picker[TransformMode.Rotate].visible = false
+    this.picker[TransformMode.Scale].visible = false
+  }
+
+  async load() {
+    //gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH, { ignoreDisposeGeometry: true })
+    this.create()
+    //this.model = gizmoGltf.scene
+    //this.add(this.model)
+    //this.selectionColor = new Color().setRGB(1, 1, 1)
+    //this.previousColor = new Color()
     this.raycasterResults = []
-    this.translateControls = this.model.getObjectByName('TranslateControls')!
+    this.translateControls = this.gizmo[TransformMode.Translate]
     setObjectLayers(this, ObjectLayers.TransformGizmo)
 
     this.raycaster = new Raycaster()
     this.raycaster.layers.set(ObjectLayers.TransformGizmo)
-
-    this.translateXAxis = this.translateControls.getObjectByName('TranslateXAxis') as MeshWithAxisInfo
+    /*
+    this.translateXAxis = this.translateControls.getObjectByName('X') as MeshWithAxisInfo
+    
     this.translateXAxis.axisInfo = {
       type: TransformAxisAction.Translate,
       axis: TransformAxis.X,
@@ -130,7 +430,7 @@ export default class TransformGizmo extends Object3D {
       selectionColorTarget: this.translateXAxis.material as MeshStandardMaterial
     }
 
-    this.translateYAxis = this.translateControls.getObjectByName('TranslateYAxis') as MeshWithAxisInfo
+    this.translateYAxis = this.translateControls.getObjectByName('Y') as MeshWithAxisInfo
     this.translateYAxis.axisInfo = {
       type: TransformAxisAction.Translate,
       axis: TransformAxis.Y,
@@ -138,7 +438,7 @@ export default class TransformGizmo extends Object3D {
       selectionColorTarget: this.translateYAxis.material as MeshStandardMaterial
     }
 
-    this.translateZAxis = this.translateControls.getObjectByName('TranslateZAxis') as MeshWithAxisInfo
+    this.translateZAxis = this.translateControls.getObjectByName('Z') as MeshWithAxisInfo
     this.translateZAxis.axisInfo = {
       type: TransformAxisAction.Translate,
       axis: TransformAxis.Z,
@@ -146,7 +446,7 @@ export default class TransformGizmo extends Object3D {
       selectionColorTarget: this.translateZAxis.material as MeshStandardMaterial
     }
 
-    this.translateXYPlane = this.translateControls.getObjectByName('TranslateXYPlane') as MeshWithAxisInfo
+    this.translateXYPlane = this.translateControls.getObjectByName('XY') as MeshWithAxisInfo
     this.translateXYPlane.axisInfo = {
       type: TransformAxisAction.Translate,
       axis: TransformAxis.XY,
@@ -154,7 +454,7 @@ export default class TransformGizmo extends Object3D {
       selectionColorTarget: this.translateXYPlane.material as MeshStandardMaterial
     }
 
-    this.translateYZPlane = this.translateControls.getObjectByName('TranslateYZPlane') as MeshWithAxisInfo
+    this.translateYZPlane = this.translateControls.getObjectByName('YZ') as MeshWithAxisInfo
     this.translateYZPlane.axisInfo = {
       type: TransformAxisAction.Translate,
       axis: TransformAxis.YZ,
@@ -162,7 +462,7 @@ export default class TransformGizmo extends Object3D {
       selectionColorTarget: this.translateYZPlane.material as MeshStandardMaterial
     }
 
-    this.translateXZPlane = this.translateControls.getObjectByName('TranslateXZPlane') as MeshWithAxisInfo
+    this.translateXZPlane = this.translateControls.getObjectByName('XZ') as MeshWithAxisInfo
     this.translateXZPlane.axisInfo = {
       type: TransformAxisAction.Translate,
       axis: TransformAxis.XZ,
@@ -170,8 +470,17 @@ export default class TransformGizmo extends Object3D {
       selectionColorTarget: this.translateXZPlane.material as MeshStandardMaterial
     }
 
-    this.rotateControls = this.model.getObjectByName('RotateControls')!
-    this.rotateXAxis = this.rotateControls.getObjectByName('RotateXAxis')!
+    this.translateXYZ = this.translateControls.getObjectByName('XYZ') as MeshWithAxisInfo
+    this.translateXYZ.axisInfo = {
+      type: TransformAxisAction.Translate,
+      axis: TransformAxis.XZ,
+      planeNormal: new Vector3(0, 1, 0),
+      selectionColorTarget: this.translateXZPlane.material as MeshStandardMaterial
+    }
+    */
+    this.rotateControls = this.gizmo[TransformMode.Rotate]
+    /*
+    this.rotateXAxis = this.rotateControls.getObjectByName('X')!
     const rotateXAxisDisk = this.rotateXAxis.getObjectByName('RotateXAxisDisk') as MeshWithAxisInfo
     const rotateXAxisStart = this.rotateXAxis.getObjectByName('RotateXAxisStart')!
     const rotateXAxisEnd = this.rotateXAxis.getObjectByName('RotateXAxisEnd')!
@@ -188,7 +497,7 @@ export default class TransformGizmo extends Object3D {
       selectionColorTarget: rotateXAxisDisk.material as MeshStandardMaterial
     }
 
-    this.rotateYAxis = this.rotateControls.getObjectByName('RotateYAxis')!
+    this.rotateYAxis = this.rotateControls.getObjectByName('Y')!
     const rotateYAxisDisk = this.rotateYAxis.getObjectByName('RotateYAxisDisk') as MeshWithAxisInfo
     const rotateYAxisStart = this.rotateYAxis.getObjectByName('RotateYAxisStart')!
     const rotateYAxisEnd = this.rotateYAxis.getObjectByName('RotateYAxisEnd')!
@@ -221,8 +530,9 @@ export default class TransformGizmo extends Object3D {
       endMarker: rotateZAxisEnd,
       selectionColorTarget: rotateZAxisDisk.material as MeshStandardMaterial
     }
-
-    this.scaleControls = this.model.getObjectByName('ScaleControls')!
+    */
+    this.scaleControls = this.gizmo[TransformMode.Scale]
+    /*
     this.scaleXAxis = this.scaleControls.getObjectByName('ScaleXAxis') as MeshWithAxisInfo
     this.scaleXAxis.axisInfo = {
       type: TransformAxisAction.Scale,
@@ -285,27 +595,15 @@ export default class TransformGizmo extends Object3D {
     rotateYAxisEnd.visible = false
     rotateZAxisStart.visible = false
     rotateZAxisEnd.visible = false
-
+    */
     this.translateControls.visible = true
     this.rotateControls.visible = false
     this.scaleControls.visible = false
 
     if (!this.transformMode) this.transformMode = TransformMode.Disabled
 
-    this.model.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
+    this.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
       if (obj.isMesh) {
-        if (Array.isArray(obj.material)) {
-          obj.material.forEach((m) => {
-            m.depthTest = false
-            m.depthWrite = false
-            m.fog = false
-          })
-        } else {
-          obj.material.depthTest = false
-          obj.material.depthWrite = false
-          obj.material.fog = false
-        }
-
         obj.renderOrder = 100
       }
     })
@@ -323,29 +621,34 @@ export default class TransformGizmo extends Object3D {
 
   setTransformMode(transformMode: TransformModeType): void {
     this.transformMode = transformMode
-    if (!gizmoGltf) return
-    this.translateControls.visible = false
-    this.rotateControls.visible = false
-    this.scaleControls.visible = false
+
+    for (const mode in this.gizmo) {
+      this.gizmo[mode].visible = false
+      this.helper[mode].visible = false
+    }
+    this.gizmo[transformMode].visible = true
+    this.helper[transformMode].visible = true
+    console.log('DEBUG mode is ', this.transformMode)
 
     switch (transformMode) {
       case TransformMode.Translate:
-        this.translateControls.visible = true
-        this.activeControls = [this.translateControls]
+        //this.activeControls = [this.translateControls]
+
         break
       case TransformMode.Rotate:
-        this.rotateControls.visible = true
-        this.activeControls = [this.rotateControls]
+        //this.activeControls = [this.rotateControls]
+
         break
       case TransformMode.Scale:
-        this.scaleControls.visible = true
-        this.activeControls = [this.scaleControls]
+        //this.activeControls = [this.scaleControls]
+
         break
       case TransformMode.Combined:
         this.translateControls.visible = true
         this.rotateControls.visible = true
         this.scaleControls.visible = true
-        this.activeControls = [this.translateControls, this.rotateControls, this.scaleControls]
+        //this.activeControls = [this.translateControls, this.rotateControls, this.scaleControls]
+
         break
       default:
         this.selectedAxisObj = undefined
@@ -355,12 +658,12 @@ export default class TransformGizmo extends Object3D {
   }
 
   setLocalScaleHandlesVisible(visible: boolean): void {
-    this.scaleXAxis.visible = visible
+    /*this.scaleXAxis.visible = visible
     this.scaleYAxis.visible = visible
     this.scaleZAxis.visible = visible
     this.scaleXYPlane.visible = visible
     this.scaleYZPlane.visible = visible
-    this.scaleXZPlane.visible = visible
+    this.scaleXZPlane.visible = visible*/
   }
 
   raycastAxis(
