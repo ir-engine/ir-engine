@@ -56,17 +56,19 @@ function cacheLog(value: string): void {
 
 // Function to push cached strings to the server
 function pushToEngine(): void {
-  const cachedData = engineCache.keys().map((key) => {
-    const cachedValue = engineCache.get<string>(key)
-    if (cachedValue) {
-      return cachedValue
-    }
-  })
-
   if (config.client.serverHost && LogConfig.api) {
-    LogConfig.api.service(logsApiPath).create(cachedData)
+    const cachedData = engineCache.keys().map((key) => {
+      const cachedValue = engineCache.get<string>(key)
+      if (cachedValue) {
+        return cachedValue
+      }
+    })
 
-    engineCache.flushAll()
+    if (cachedData.length > 0) {
+      LogConfig.api.service(logsApiPath).create(cachedData)
+
+      engineCache.flushAll()
+    }
   }
 }
 
