@@ -6,11 +6,11 @@ closes #_insert number here_
 
 ## Explanation
 copilot:walkthrough
+copilot:poem
 
 ## QA Steps
 _List any additional steps required to QA the changes of this PR, as well as any supplemental images or videos._
 
-copilot:poem
 
 ## Checklist
 - If this PR is still a WIP, convert to a draft
