@@ -117,15 +117,7 @@ export const consumerData = async (action: typeof MediasoupDataConsumerActions.c
     const [fromPeerIndex, data] = decode(message)
     const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
     const dataBuffer = new Uint8Array(data).buffer
-    try {
-      const dataChannelFunctions = getState(DataChannelRegistryState)[dataConsumer.label as DataChannelType]
-      if (dataChannelFunctions) {
-        for (const func of dataChannelFunctions)
-          func(network, dataConsumer.label as DataChannelType, fromPeerID, dataBuffer)
-      }
-    } catch (e) {
-      console.error(e)
-    }
+    network.transport.onBuffer(dataConsumer.label as DataChannelType, fromPeerID, dataBuffer)
   }) // Handle message received
 
   dataConsumer.on('transportclose', () => {

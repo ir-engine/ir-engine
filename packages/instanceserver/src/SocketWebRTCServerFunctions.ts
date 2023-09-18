@@ -31,12 +31,13 @@ import { MediaStreamAppData } from '@etherealengine/engine/src/networking/Networ
 import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
-import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { Action, Topic, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { encode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
@@ -70,22 +71,43 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
       for (const peer of Object.values(network.peers)) peer.spark?.write(data)
     },
 
+    onMessage: (fromPeerID: PeerID, message: any) => {
+      const networkPeer = network.peers[fromPeerID]
+      if (!networkPeer) return
+
+      networkPeer.lastSeenTs = Date.now()
+      if (!message?.length) {
+        // logger.info('Got heartbeat from ' + peerID + ' at ' + Date.now())
+        return
+      }
+
+      const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
+      for (const a of actions) {
+        a.$from = networkPeer.userId
+        a.$network = network.id
+        dispatchAction(a)
+      }
+      // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
+    },
+
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, toPeerID: PeerID, data: any) => {
       /** @todo - for now just send to everyone */
       network.transport.bufferToAll(dataChannelType, fromPeerID, data)
     },
 
-    /**
-     * We need to specify which data channel type this is
-     * @param dataChannelType
-     * @param data
-     */
-    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, message: any) => {
       const dataProducer = network.transport.outgoingDataProducers[dataChannelType]
       if (!dataProducer) return
       const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
       if (typeof fromPeerIndex === 'undefined') return
-      dataProducer.send(Buffer.from(new Uint8Array(encode([fromPeerIndex, data]))))
+      dataProducer.send(Buffer.from(new Uint8Array(encode([fromPeerIndex, message]))))
+    },
+
+    onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+      const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannelType]
+      if (dataChannelFunctions) {
+        for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
+      }
     },
 
     workers,

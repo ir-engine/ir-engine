@@ -33,12 +33,7 @@ import { instancePath } from '@etherealengine/engine/src/schemas/networking/inst
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
-import {
-  authorizeUserToJoinServer,
-  handleConnectingPeer,
-  handleDisconnect,
-  handleIncomingActions
-} from './NetworkFunctions'
+import { authorizeUserToJoinServer, handleConnectingPeer, handleDisconnect } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:spark' })
@@ -134,7 +129,9 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         handleDisconnect(network, peerID)
       })
 
-      spark.on('data', handleIncomingActions(network, peerID))
+      spark.on('data', (message) => {
+        network.transport.onMessage(peerID, message)
+      })
     } catch (e) {
       console.error(e)
       authTask.status = 'fail'
