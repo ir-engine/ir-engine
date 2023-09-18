@@ -27,8 +27,8 @@ import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
@@ -44,7 +44,7 @@ describe('channel-user service', () => {
   })
 
   it('registered the service', () => {
-    const service = app.service('channel-user')
+    const service = app.service(channelUserPath)
     assert.ok(service, 'Registered the service')
   })
 
@@ -61,19 +61,19 @@ describe('channel-user service', () => {
 
     assert.ok(channel.id)
 
-    const channelUser = (await app.service('channel-user').find({
+    const channelUser = (await app.service(channelUserPath).find({
       query: {
         channelId: channel.id
       },
       user
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.equal(channelUser.data.length, 1)
     assert.equal(channelUser.data[0].channelId, channel.id)
     assert.equal(channelUser.data[0].userId, user.id)
     assert.equal(channelUser.data[0].isOwner, true)
 
-    await app.service('channel-user').remove(null, {
+    await app.service(channelUserPath).remove(null, {
       query: {
         channelId: channel.id,
         userId: user.id
@@ -81,12 +81,12 @@ describe('channel-user service', () => {
       user
     })
 
-    const channelUserAfterRemove = (await app.service('channel-user').find({
+    const channelUserAfterRemove = (await app.service(channelUserPath).find({
       query: {
         channelId: channel.id
       },
       user
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.equal(channelUserAfterRemove.data.length, 0)
   })
@@ -108,13 +108,16 @@ describe('channel-user service', () => {
       scopes: []
     })
 
-    const instance = (await app.service('instance').create(
-      {},
+    const instance = (await app.service(instancePath).create(
+      {
+        roomCode: '',
+        currentUsers: 0
+      },
       {
         // @ts-ignore
         isInternal: true
       }
-    )) as Instance
+    )) as InstanceType
 
     const channel = await app.service('channel').create(
       {
@@ -123,22 +126,23 @@ describe('channel-user service', () => {
       { user }
     )
 
-    const channelUser2 = (await app.service('channel-user').create(
+    const channelUser2 = await app.service(channelUserPath).create(
       {
         channelId: channel.id,
         userId: user2.id
       },
       { user }
-    )) as ChannelUser
+    )
 
     assert.ok(channel.id)
 
-    const channelUser = (await app.service('channel-user').find({
+    const channelUser = (await app.service(channelUserPath).find({
       query: {
-        channelId: channel.id
+        channelId: channel.id,
+        $sort: { isOwner: -1 }
       },
       user
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.equal(channelUser.data.length, 2)
     assert.equal(channelUser.data[0].channelId, channel.id)
@@ -150,7 +154,7 @@ describe('channel-user service', () => {
     assert.equal(channelUser.data[1].isOwner, false)
 
     assert.rejects(() =>
-      app.service('channel-user').remove(null, {
+      app.service(channelUserPath).remove(null, {
         query: {
           channelId: channel.id,
           userId: user.id
@@ -159,12 +163,12 @@ describe('channel-user service', () => {
       })
     )
 
-    const channelUserAfterRemove = (await app.service('channel-user').find({
+    const channelUserAfterRemove = (await app.service(channelUserPath).find({
       query: {
         channelId: channel.id
       },
       user
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.equal(channelUserAfterRemove.data.length, 2)
   })
@@ -183,7 +187,7 @@ describe('channel-user service', () => {
     assert.ok(channel.id)
 
     assert.rejects(() =>
-      app.service('channel-user').create(
+      app.service(channelUserPath).create(
         {
           channelId: channel.id,
           userId: user.id
@@ -195,12 +199,12 @@ describe('channel-user service', () => {
       )
     )
 
-    const channelUserAfterRemove = (await app.service('channel-user').find({
+    const channelUserAfterRemove = (await app.service(channelUserPath).find({
       query: {
         channelId: channel.id
       },
       user
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.equal(channelUserAfterRemove.data.length, 0)
   })

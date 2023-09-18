@@ -307,7 +307,9 @@ const aws = {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
-    staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
+    staticResourceBucket: testEnabled
+      ? process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
+      : process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!

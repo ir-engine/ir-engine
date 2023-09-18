@@ -31,8 +31,11 @@ import { HookReturn } from 'sequelize/types/hooks'
 import {
   AvatarInterface,
   BotCommandInterface,
+  ChannelUserInterface,
   IdentityProviderInterface,
   InstanceAttendanceInterface,
+  InstanceAuthorizedUserInterface,
+  InstanceInterface,
   LocationAdminInterface,
   LocationAuthorizedUserInterface,
   LocationBanInterface,
@@ -51,7 +54,6 @@ import {
 
 import { ProjectPermissionTypeData } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 import { Application } from '../declarations'
-import { createInstanceAuthorizedUserModel } from './networking/instance/instance.model'
 
 /**
  * This model contain users information
@@ -110,7 +112,7 @@ export const createUserModel = (app: Application) => {
     ;(User as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(User as any).hasMany(createBotModel(app), { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
-    ;(User as any).belongsToMany(models.instance, { through: 'instance-authorized-user' })
+    ;(User as any).belongsToMany(createInstanceModel(app), { through: 'instance-authorized-user' })
     ;(User as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
     ;(User as any).hasOne(createUserApiKeyModel(app))
     ;(User as any).belongsTo(createAvatarModel(app))
@@ -259,7 +261,7 @@ export const createLocationModel = (app: Application) => {
   )
 
   ;(location as any).associate = (models: any): void => {
-    ;(location as any).hasMany(models.instance)
+    ;(location as any).hasMany(createInstanceModel(app))
     ;(location as any).hasMany(createLocationAdminModel(app))
     // (location as any).belongsTo(models.scene, { foreignKey: 'sceneId' }); // scene
     ;(location as any).belongsToMany(createUserModel(app), { through: 'location-admin' })
@@ -479,7 +481,7 @@ export const createInstanceAttendanceModel = (app: Application) => {
     }
   )
   ;(instanceAttendance as any).associate = (models: any): void => {
-    ;(instanceAttendance as any).belongsTo(models.instance)
+    ;(instanceAttendance as any).belongsTo(createInstanceModel(app))
     ;(instanceAttendance as any).belongsTo(createUserModel(app))
   }
   return instanceAttendance
@@ -517,7 +519,7 @@ export const createUserKickModel = (app: Application) => {
 
   ;(userKick as any).associate = (models: any): void => {
     ;(userKick as any).belongsTo(createUserModel(app), { as: 'user' })
-    ;(userKick as any).belongsTo(models.instance, { as: 'instance' })
+    ;(userKick as any).belongsTo(createInstanceModel(app), { as: 'instance' })
   }
 
   return userKick
@@ -778,7 +780,7 @@ export const createBotModel = (app: Application) => {
 
   ;(Bot as any).associate = (models: any): void => {
     ;(Bot as any).belongsTo(createLocationModel(app), { foreignKey: 'locationId' })
-    ;(Bot as any).belongsTo(models.instance, { foreignKey: { allowNull: true } })
+    ;(Bot as any).belongsTo(createInstanceModel(app), { foreignKey: { allowNull: true } })
     ;(Bot as any).belongsTo(createUserModel(app), { foreignKey: 'userId' })
     ;(Bot as any).hasMany(createBotCommandModel(app), { foreignKey: 'botId' })
   }
@@ -857,4 +859,130 @@ export const createMessageModel = (app: Application) => {
   }
 
   return message
+}
+
+export const createChannelUserModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const channelUser = sequelizeClient.define<Model<ChannelUserInterface>>(
+    'channel-user',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      isOwner: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(channelUser as any).associate = (models: any): void => {
+    ;(channelUser as any).belongsTo(models.channel, { required: true, allowNull: false })
+    ;(channelUser as any).belongsTo(createUserModel(app), { required: true, allowNull: false })
+  }
+
+  return channelUser
+}
+
+export const createInstanceModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const instance = sequelizeClient.define<Model<InstanceInterface>>(
+    'instance',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      roomCode: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      ipAddress: {
+        type: DataTypes.STRING
+      },
+      channelId: {
+        type: DataTypes.STRING
+      },
+      podName: {
+        type: DataTypes.STRING
+      },
+      currentUsers: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+      },
+      ended: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      assigned: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      assignedAt: {
+        type: DataTypes.DATE
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+  ;(instance as any).associate = (models: any): void => {
+    ;(instance as any).belongsTo(createLocationModel(app), { foreignKey: { allowNull: true } })
+    ;(instance as any).hasMany(createBotModel(app), { foreignKey: { allowNull: true } })
+    ;(instance as any).belongsToMany(createUserModel(app), { through: 'instance-authorized-user' })
+    ;(instance as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
+    ;(instance as any).hasMany(createUserKickModel(app), { onDelete: 'cascade' })
+  }
+  return instance
+}
+
+export const createInstanceAuthorizedUserModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const instanceAuthorizedUser = sequelizeClient.define<Model<InstanceAuthorizedUserInterface>>(
+    'instance-authorized-user',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(instanceAuthorizedUser as any).associate = (models: any): void => {
+    ;(instanceAuthorizedUser as any).belongsTo(createInstanceModel(app), {
+      required: true,
+      foreignKey: { allowNull: true }
+    })
+    ;(instanceAuthorizedUser as any).belongsTo(createUserModel(app), {
+      required: true,
+      foreignKey: { allowNull: true }
+    })
+  }
+  return instanceAuthorizedUser
 }

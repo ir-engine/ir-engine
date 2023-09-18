@@ -194,7 +194,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
         const result = (await super._find({
           query: {
             name: {
-              $like: `${projectName}%`
+              $like: projectName
             }
           }
         })) as Paginated<ProjectType>
@@ -400,7 +400,8 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       ...params,
       query: {
         ...params?.query,
-        $limit: params?.query?.$limit || 1000
+        $limit: params?.query?.$limit || 1000,
+        $sort: params?.query?.$sort || { name: 1 }
       }
     }
 

@@ -52,7 +52,7 @@ export function unregisterMaterialPlugin(component: MaterialPluginType) {
 export function applyMaterialPlugin(material: Material, pluginId: string) {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const pluginComponent = materialLibrary.plugins[pluginId]
-  if (!pluginComponent.plugin.value) {
+  if (!pluginComponent?.plugin?.value) {
     console.warn('Unsupported material plugin ' + pluginId)
     return
   }

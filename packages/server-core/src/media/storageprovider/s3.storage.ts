@@ -37,14 +37,19 @@ import {
   UpdateFunctionCommand
 } from '@aws-sdk/client-cloudfront'
 import {
+  AbortMultipartUploadCommand,
+  CompleteMultipartUploadCommand,
+  CompletedPart,
   CopyObjectCommand,
+  CreateMultipartUploadCommand,
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
   ObjectIdentifier,
   PutObjectCommand,
-  S3Client
+  S3Client,
+  UploadPartCommand
 } from '@aws-sdk/client-s3'
 
 import { Options, Upload } from '@aws-sdk/lib-storage'
@@ -58,9 +63,10 @@ import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 import { PassThrough, Readable } from 'stream'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { MULTIPART_CHUNK_SIZE, MULTIPART_CUTOFF_SIZE } from '@etherealengine/common/src/constants/FileSizeConstants'
 import { Client } from 'minio'
 
+import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import config from '../../appconfig'
 import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'
@@ -68,6 +74,7 @@ import {
   PutObjectParams,
   SignedURLResponse,
   StorageListObjectInterface,
+  StorageMultipartStartInterface,
   StorageObjectInterface,
   StorageObjectPutInterface,
   StorageProviderInterface
@@ -97,6 +104,9 @@ function handler(event) {
  * Storage provide class to communicate with AWS S3 API.
  */
 export class S3Provider implements StorageProviderInterface {
+  constructor() {
+    if (!this.minioClient) this.getOriginURLs().then((result) => (this.originURLs = result))
+  }
   /**
    * Name of S3 bucket.
    */
@@ -149,10 +159,14 @@ export class S3Provider implements StorageProviderInterface {
         : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
+  originURLs = [this.cacheDomain]
+
   private bucketAssetURL =
     config.server.storageProvider === 's3'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint}/${this.bucket}`
+        : config.aws.s3.s3DevMode === 'local'
+        ? `https://${config.aws.cloudfront.domain}`
         : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
@@ -283,7 +297,7 @@ export class S3Provider implements StorageProviderInterface {
   async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> {
     if (!data.Key) return
     // key should not contain '/' at the begining
-    let key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
+    const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
 
     const args = params.isDirectory
       ? {
@@ -317,12 +331,73 @@ export class S3Provider implements StorageProviderInterface {
         reject(err)
       }
     } else if (config.aws.s3.s3DevMode === 'local') {
-      const response = await this.minioClient?.putObject(this.bucket, key, data.Body)
+      const response = await this.minioClient?.putObject(args.Bucket, args.Key, args.Body, {
+        'Content-Type': args.ContentType
+      })
       return response
+    } else if (data.Body?.length > MULTIPART_CUTOFF_SIZE) {
+      const multiPartStartArgs = {
+        ACL: 'public-read',
+        Bucket: this.bucket,
+        Key: key,
+        ContentType: data.ContentType
+      } as StorageMultipartStartInterface
+
+      if (data.ContentEncoding) multiPartStartArgs.ContentEncoding = data.ContentEncoding
+      const startCommand = new CreateMultipartUploadCommand(multiPartStartArgs)
+      const startResponse = await this.provider.send(startCommand)
+      const uploadId = startResponse.UploadId
+      let partIndex = 0
+      let partNumber = 1
+      const parts = [] as CompletedPart[]
+      try {
+        do {
+          const part = Uint8Array.prototype.slice.call(data.Body, partIndex, partIndex + MULTIPART_CHUNK_SIZE)
+          const uploadPartArgs = {
+            Body: part,
+            Bucket: this.bucket,
+            Key: key,
+            PartNumber: partNumber,
+            UploadId: uploadId
+          }
+          const uploadPartCommand = new UploadPartCommand(uploadPartArgs)
+          const multipartResponse = await this.provider.send(uploadPartCommand)
+          parts.push({
+            PartNumber: partNumber,
+            ETag: multipartResponse.ETag as string
+          })
+          partIndex += MULTIPART_CHUNK_SIZE
+          partNumber++
+        } while (partIndex < data.Body.length)
+      } catch (err) {
+        console.error('Multipart upload failed', err)
+        const abortUploadArgs = {
+          Bucket: this.bucket,
+          Key: key,
+          UploadId: uploadId
+        }
+        const abortCommand = new AbortMultipartUploadCommand(abortUploadArgs)
+        await this.provider.send(abortCommand)
+        throw err
+      }
+      const completeUploadArgs = {
+        Bucket: this.bucket,
+        Key: key,
+        UploadId: uploadId,
+        MultipartUpload: {
+          Parts: parts
+        }
+      }
+      try {
+        const completeCommand = new CompleteMultipartUploadCommand(completeUploadArgs)
+        return this.provider.send(completeCommand)
+      } catch (err) {
+        console.error('Error in complete', err)
+        throw err
+      }
     } else {
       const command = new PutObjectCommand(args)
-      const response = await this.provider.send(command)
-      return response
+      return this.provider.send(command)
     }
   }
 
@@ -348,6 +423,17 @@ export class S3Provider implements StorageProviderInterface {
     return await this.cloudfront.send(command)
   }
 
+  async getOriginURLs(): Promise<string[]> {
+    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return [this.cacheDomain]
+    const getDistributionParams = {
+      Id: config.aws.cloudfront.distributionId
+    }
+    const getDistributionCommand = new GetDistributionCommand(getDistributionParams)
+    const distribution = await this.cloudfront.send(getDistributionCommand)
+    if (!distribution.Distribution?.DistributionConfig?.Origins?.Items) return [this.cacheDomain]
+    return distribution.Distribution.DistributionConfig.Origins.Items.map((item) => item.DomainName || this.cacheDomain)
+  }
+
   async listFunctions(marker: string | null, functions: FunctionSummary[]): Promise<FunctionSummary[]> {
     if (config.server.storageProvider !== 's3') return []
     const params: ListFunctionsCommandInput = {
@@ -363,7 +449,7 @@ export class S3Provider implements StorageProviderInterface {
 
   getFunctionCode(routes: string[]) {
     let routeRegex = ''
-    for (let route of routes)
+    for (const route of routes)
       if (route !== '/')
         switch (route) {
           case '/admin':
@@ -553,17 +639,17 @@ export class S3Provider implements StorageProviderInterface {
    * @param folderName Name of folder in the storage.
    * @param recursive If true it will list content from sub folders as well.
    */
-  async listFolderContent(folderName: string, recursive = false): Promise<FileContentType[]> {
+  async listFolderContent(folderName: string, recursive = false): Promise<FileBrowserContentType[]> {
     const folderContent = await this.listObjects(folderName, recursive)
 
-    const promises: Promise<FileContentType>[] = []
+    const promises: Promise<FileBrowserContentType>[] = []
 
     // Folders
     for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
       promises.push(
         new Promise(async (resolve) => {
           const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
-          const cont: FileContentType = {
+          const cont: FileBrowserContentType = {
             key,
             url: `${this.bucketAssetURL}/${key}`,
             name: key.split('/').pop()!,
@@ -582,7 +668,7 @@ export class S3Provider implements StorageProviderInterface {
       if (query) {
         promises.push(
           new Promise(async (resolve) => {
-            const cont: FileContentType = {
+            const cont: FileBrowserContentType = {
               key,
               url: `${this.bucketAssetURL}/${key}`,
               name: query!.groups!.name,
@@ -619,8 +705,7 @@ export class S3Provider implements StorageProviderInterface {
           Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
         }
         const command = new CopyObjectCommand(input)
-        const response = await this.provider.send(command)
-        return response
+        return this.provider.send(command)
       })
     ])
 

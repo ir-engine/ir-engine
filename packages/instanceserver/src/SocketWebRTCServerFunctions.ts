@@ -38,6 +38,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { encode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupServerSystem } from './MediasoupServerSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
@@ -69,9 +70,9 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
       for (const peer of Object.values(network.peers)) peer.spark?.write(data)
     },
 
-    bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
+    bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, toPeerID: PeerID, data: any) => {
       /** @todo - for now just send to everyone */
-      network.transport.bufferToAll(dataChannelType, data)
+      network.transport.bufferToAll(dataChannelType, fromPeerID, data)
     },
 
     /**
@@ -79,10 +80,12 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
      * @param dataChannelType
      * @param data
      */
-    bufferToAll: (dataChannelType: DataChannelType, data: any) => {
+    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
       const dataProducer = network.transport.outgoingDataProducers[dataChannelType]
       if (!dataProducer) return
-      dataProducer.send(Buffer.from(new Uint8Array(data)))
+      const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
+      if (typeof fromPeerIndex === 'undefined') return
+      dataProducer.send(Buffer.from(new Uint8Array(encode([fromPeerIndex, data]))))
     },
 
     workers,

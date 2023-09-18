@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import {
   InstanceActiveQuery,
   InstanceActiveType
 } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
@@ -61,7 +61,7 @@ export class InstanceActiveService implements ServiceInterface<InstanceActiveTyp
 
     if (locations.length === 0) return []
 
-    const instances = (await this.app.service('instance')._find({
+    const instances = (await this.app.service(instancePath)._find({
       query: {
         ended: false,
         locationId: {
@@ -69,7 +69,7 @@ export class InstanceActiveService implements ServiceInterface<InstanceActiveTyp
         }
       },
       paginate: false
-    })) as Instance[]
+    })) as InstanceType[]
 
     // return all active instances for each location
     const instancesData: InstanceActiveType[] = instances

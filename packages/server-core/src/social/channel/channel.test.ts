@@ -29,8 +29,9 @@ import { createFeathersKoaApp } from '../../createApp'
 
 import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
@@ -83,22 +84,22 @@ describe('channel service', () => {
     assert.equal(channelFindAsLoggedInUser.length, 1)
     assert.equal(channelFindAsLoggedInUser[0].id, channel.id)
 
-    const channelUserByID = (await app.service('channel-user').find({
+    const channelUserByID = (await app.service(channelUserPath).find({
       query: {
         channelId: channel.id
       }
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.ok('total' in channelUserByID, 'find result should contain "total"')
     assert.equal(channelUserByID.data.length, 1)
     assert.equal(channelUserByID.data[0].channelId, channel.id)
     assert.equal(channelUserByID.data[0].userId, user.id)
 
-    const channelUserByUser = (await app.service('channel-user').find({
+    const channelUserByUser = (await app.service(channelUserPath).find({
       query: {
         userId: user.id
       }
-    })) as Paginated<ChannelUser>
+    })) as Paginated<ChannelUserType>
 
     assert.equal(channelUserByUser.data.length, 1)
     assert.equal(channelUserByUser.data[0].channelId, channel.id)
@@ -114,13 +115,13 @@ describe('channel service', () => {
       scopes: []
     })
 
-    const instance = (await app.service('instance').create(
-      {},
+    const instance = (await app.service(instancePath).create(
+      { roomCode: '', currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
       }
-    )) as Instance
+    )) as InstanceType
 
     const channel = await app.service('channel').create(
       {
@@ -161,13 +162,13 @@ describe('channel service', () => {
       scopes: []
     })
 
-    const instance = (await app.service('instance').create(
-      {},
+    const instance = (await app.service(instancePath).create(
+      { roomCode: '', currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
       }
-    )) as Instance
+    )) as InstanceType
 
     try {
       await app.service('channel').create(
@@ -191,13 +192,13 @@ describe('channel service', () => {
       scopes: []
     })
 
-    const instance = (await app.service('instance').create(
-      {},
+    const instance = (await app.service(instancePath).create(
+      { roomCode: '', currentUsers: 0 },
       {
         // @ts-ignore
         isInternal: true
       }
-    )) as Instance
+    )) as InstanceType
 
     const channel = await app.service('channel').create(
       {

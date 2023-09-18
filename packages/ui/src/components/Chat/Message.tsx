@@ -93,15 +93,17 @@ export const MessageList = (props: { channelID: ChannelID }) => {
             topLeft: false
           }}
           minWidth={260}
-          maxWidth={694}
+          maxWidth={780}
         >
-          <div className="flex gap-1 my-5">
-            <div className="h-[100%] mr-5 ml-[58px] justify-end">
+          <div className="flex gap-1 my-5 justify-end">
+            <div className="w-max-[780px] min-w-0 h-[100%] mr-5 ml-[58px] justify-end">
               <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
                 {props.message.text}
               </p>
             </div>
-            <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
+            <div className="w-max-[50px] min-w-0 mr-[55px]">
+              <img className="rounded-[38px] w-9 h-9 object-cover" alt="" src={userThumbnail} />
+            </div>
           </div>
         </Resizable>
       </>
@@ -154,15 +156,15 @@ export const MessageList = (props: { channelID: ChannelID }) => {
     }
 
     return (
-      <div className="relative w-full bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
+      <div className="relative w-max-[600px] w-min-[460px] bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
         <button className="">
           <img className="w-[30px] rounded-full font-bold h-[30px] overflow-hidden" alt="" src={AttachFileIcon} />
         </button>
-        <div className="mt-3 rounded-3xl bg-[#d7d7d7] w-[580px] h-[45px] flex flex-wrap">
+        <div className="mt-3 rounded-3xl bg-[#d7d7d7] w-[80%] h-[45px] flex flex-wrap">
           <div className="rounded-full ml-4 my-2 bg-white w-[30px] h-[30px] justify-between">
             <img className="w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserSvg} />
           </div>
-          <div className="w-[525px] h-[30px] ml-1 mt-[2.5px]">
+          <div className="w-max-[525px] h-[30px] ml-1 mt-[2.5px]">
             <input
               type="text"
               className="rounded-3xl focus:outline-none focus:border-[#d7d7d7] border-[#d7d7d7] border-2 text-black bg-[#d7d7d7] p-2 w-full "
@@ -171,7 +173,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
             />
           </div>
         </div>
-        <button className="" onClick={sendMessage}>
+        <button className="mr-3" onClick={sendMessage}>
           <img className="w-[30px] h-[30px]" alt="" src={SendIcon} />
         </button>
       </div>
@@ -229,7 +231,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
       <div className="ml-8">
         <p className="text-2xl min-w-0 max-w-xs font-bold text-[#3F3960]">{channelName}</p>
       </div>
-      <div className="flex gap-6 justify-center">
+      <div className="flex gap-6 justify-end mr-5">
         {connecting && <p className="mt-6 pt-2 flex flex-wrap text-[#3F3960]">Connecting...</p>}
         {mediaConnected && (
           <>
@@ -314,10 +316,10 @@ export const MessageContainer = () => {
           bottomLeft: false,
           topLeft: false
         }}
-        minWidth={760}
+        minWidth={560}
         maxWidth={830}
       >
-        <div className="w-full h-[100vh] bg-white">
+        <div className=" h-[100vh] bg-white">
           <div className="w-full h-[90px] flex flex-wrap flex-col justify-center">
             {selectedChannelID && <MessageHeader selectedChannelID={selectedChannelID!} />}
           </div>

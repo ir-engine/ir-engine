@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone, VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
 import {
   AnimationClip,
@@ -89,7 +89,7 @@ const tempVec3ForCenter = new Vector3()
 export const locomotionPack = 'locomotion'
 
 export const parseAvatarModelAsset = (model: any) => {
-  const scene = model.scene || model // FBX files does not have 'scene' property
+  const scene = model.scene ?? model // FBX files does not have 'scene' property
   if (!scene) return
 
   const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
@@ -191,7 +191,6 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  console.log(manager.loadedAnimations.value[locomotionPack])
   if (!manager.loadedAnimations.value[locomotionPack]) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const asset = (await AssetLoader.loadAsync(
@@ -209,8 +208,6 @@ export const getAnimations = async () => {
 
   return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
 }
-
-let sourceRig: VRMHumanBones
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)

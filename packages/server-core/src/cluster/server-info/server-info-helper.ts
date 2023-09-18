@@ -26,23 +26,23 @@ Ethereal Engine. All Rights Reserved.
 import * as k8s from '@kubernetes/client-node'
 import { Op } from 'sequelize'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import {
-  ServerContainerInfo,
-  ServerInfoInterface,
-  ServerPodInfo
-} from '@etherealengine/common/src/interfaces/ServerInfo'
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 
+import {
+  ServerContainerInfoType,
+  ServerInfoType,
+  ServerPodInfoType
+} from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import config from '../../appconfig'
 
-export const getServerInfo = async (app: Application): Promise<ServerInfoInterface[]> => {
-  const serverInfo: ServerInfoInterface[] = []
+export const getServerInfo = async (app: Application) => {
+  const serverInfo: ServerInfoType[] = []
 
   const k8DefaultClient = getState(ServerState).k8DefaultClient
 
@@ -108,13 +108,13 @@ export const getServerInfo = async (app: Application): Promise<ServerInfoInterfa
     // }
   } catch (e) {
     logger.error(e)
-    return e
+    throw e
   }
 
   return serverInfo
 }
 
-export const removePod = async (app: Application, podName: string): Promise<ServerPodInfo | undefined> => {
+export const removePod = async (app: Application, podName: string) => {
   try {
     logger.info(`Attempting to remove k8s pod ${podName}`)
 
@@ -136,7 +136,7 @@ export const getPodsData = async (
   app: Application,
   nameFilter?: string
 ) => {
-  let pods: ServerPodInfo[] = []
+  let pods: ServerPodInfoType[] = []
 
   try {
     const k8DefaultClient = getState(ServerState).k8DefaultClient
@@ -167,7 +167,7 @@ export const getPodsData = async (
 }
 
 const getGameserversData = async (labelSelector: string, id: string, label: string, app: Application) => {
-  let gameservers: ServerPodInfo[] = []
+  let gameservers: ServerPodInfoType[] = []
 
   try {
     const k8AgonesClient = getState(ServerState).k8AgonesClient
@@ -204,9 +204,9 @@ const getServerPodInfo = (item: k8s.V1Pod) => {
   return {
     name: item.metadata?.name,
     status: item.status?.phase,
-    age: item.status?.startTime,
+    age: item.status?.startTime?.toString(),
     containers: getServerContainerInfo(item.status?.containerStatuses!)
-  } as ServerPodInfo
+  } as ServerPodInfoType
 }
 
 const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {
@@ -224,20 +224,21 @@ const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {
       started: item.started,
       restarts: item.restartCount,
       image: item.image
-    } as ServerContainerInfo
+    } as ServerContainerInfoType
   })
 }
 
-const populateInstanceServerType = async (app: Application, items: ServerPodInfo[]) => {
+const populateInstanceServerType = async (app: Application, items: ServerPodInfoType[]) => {
   if (items.length === 0) {
     return
   }
 
-  const instances = (await app.service('instance').Model.findAll({
-    where: {
+  const instances = (await app.service(instancePath)._find({
+    query: {
       ended: false
-    }
-  })) as Instance[]
+    },
+    paginate: false
+  })) as InstanceType[]
 
   if (instances.length === 0) {
     return
@@ -272,7 +273,7 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
 
   for (const item of items) {
     const instanceExists = instances.find((instance) => instance.podName === item.name)
-    item.instanceId = instanceExists ? instanceExists.id : ''
+    item.instanceId = instanceExists ? instanceExists.id : undefined
     item.currentUsers = instanceExists ? instanceExists.currentUsers : 0
     if (!instanceExists) {
       item.type = 'Unassigned'

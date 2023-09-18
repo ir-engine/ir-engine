@@ -172,13 +172,17 @@ export const createFeathersKoaApp = (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
 ): Application => {
+  createEngine()
+
+  const serverState = getMutableState(ServerState)
+  serverState.serverMode.set(serverMode)
+
   createDefaultStorageProvider()
 
   if (appConfig.ipfs.enabled) {
     createIPFSStorageProvider()
   }
 
-  createEngine()
   getMutableState(EngineState).publicPath.set(config.client.dist)
   logger.info('Feathers Koa app created.')
   logger.info('Creating Feathers Koa app with server mode: %s', serverMode)
@@ -189,9 +193,6 @@ export const createFeathersKoaApp = (
 
   const app = koa(feathers()) as Application
   Engine.instance.api = app
-
-  const serverState = getMutableState(ServerState)
-  serverState.serverMode.set(serverMode)
 
   app.set('nextReadyEmitter', new EventEmitter())
 

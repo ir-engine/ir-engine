@@ -21,6 +21,8 @@ jobs:
   checks:
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: --max_old_space_size=8192
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -30,15 +32,17 @@ jobs:
         run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Test Build
-        env:
-          NODE_OPTIONS: --max_old_space_size=8192
+      - name: install main repository
+        run: npm install --legacy-peer-deps
+      - name: clone etherealengine docs
+        run: git clone https://github.com/etherealengine/etherealengine-docs.git docs
+      - name: install docs npm packages
+        working-directory: docs
+        run: npm install --legacy-peer-deps
+      - name: build docs
+        working-directory: docs
         run: |
-          npm install --legacy-peer-deps
-          git clone https://github.com/etherealengine/etherealengine-docs.git docs
-          cd docs
           cp .env.local.default .env.local
-          npm install --legacy-peer-deps
           npm run build
   gh-release:
     needs:
@@ -69,7 +73,17 @@ jobs:
           git config --global user.name "gh-actions"
           npm install --legacy-peer-deps
           git clone https://github.com/etherealengine/etherealengine-docs.git docs
+          echo "Starting to remove commit history for gh-pages branch"
           cd docs
+          git checkout gh-pages
+          git checkout --orphan temp-gh-pages
+          git add -A
+          git commit -m "Update docs to latest commit only"
+          git checkout gh-pages
+          git reset --hard temp-gh-pages
+          git push origin gh-pages --force
+          git branch -D temp-gh-pages
+          echo "gh-pages commit history has been cleared"
           cp .env.local.default .env.local
           npm install --legacy-peer-deps
           npm run deploy

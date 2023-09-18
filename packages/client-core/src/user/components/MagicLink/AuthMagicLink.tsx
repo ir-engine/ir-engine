@@ -35,7 +35,6 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { AuthService, AuthState } from '../../services/AuthService'
-import { VerifyEmail } from '../Auth/VerifyEmail'
 
 interface Props {
   //auth: any
@@ -81,9 +80,6 @@ const AuthMagicLinkWrapper = (props: any): JSX.Element => {
   const path = search.get('path') as string
   const instanceId = search.get('instanceId') as string
 
-  if (type === 'verify') {
-    return <VerifyEmail {...props} type={type} token={token} />
-  }
   return <AuthMagicLink {...props} token={token} type={type} instanceId={instanceId} path={path} />
 }
 

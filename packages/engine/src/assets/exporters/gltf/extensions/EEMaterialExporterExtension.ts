@@ -36,7 +36,12 @@ export type EEMaterialExtensionType = {
   uuid: string
   name: string
   prototype: string
-  args: { [field: string]: any }
+  args: {
+    [field: string]: {
+      type: string
+      contents: any
+    }
+  }
   plugins: string[]
 }
 
@@ -54,22 +59,23 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     if (!argData) return
     const result: any = {}
     Object.entries(argData).map(([k, v]) => {
-      switch (v.type) {
-        case 'texture':
-          if (material[k]) {
-            if (k === 'envMap') return //for skipping environment maps which cause errors
-            if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
-            const texture = material[k] as Texture
-            const mapDef = { index: this.writer.processTexture(texture) }
-            this.writer.options.flipY && (texture.repeat.y *= -1)
-            this.writer.applyTextureTransform(mapDef, texture)
-            result[k] = mapDef
-          } else result[k] = material[k]
-          break
-        default:
-          result[k] = material[k]
-          break
+      const argEntry = {
+        type: v.type,
+        contents: material[k]
       }
+      if (v.type === 'texture' && material[k]) {
+        if (k === 'envMap') return //for skipping environment maps which cause errors
+        if ((material[k] as CubeTexture).isCubeTexture) return //for skipping environment maps which cause errors
+        const texture = material[k] as Texture
+        const mapDef = {
+          index: this.writer.processTexture(texture),
+          texCoord: k === 'lightMap' ? 1 : 0
+        }
+        this.writer.options.flipY && (texture.repeat.y *= -1)
+        this.writer.applyTextureTransform(mapDef, texture)
+        argEntry.contents = mapDef
+      }
+      result[k] = argEntry
     })
     delete materialDef.pbrMetallicRoughness
     delete materialDef.normalTexture

@@ -294,15 +294,11 @@
       "lbl-receiveShadow": "Receive Shadow",
       "lbl-generateNavmesh": "Generate Navmesh"
     },
-    "link": {
-      "description": "Link to a room or a website.",
-      "lbl-url": "URL"
-    },
     "loopAnimation": {
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
       "lbl-loopAnimation": "Loop Animation",
-      "lbl-playbackSpeed": "Playback Speed"
+      "lbl-timeScale": "Time Scale"
     },
     "variant": {
       "name": "Variant",
@@ -322,6 +318,12 @@
     "map": {
       "description": "3D geospatial map of e.g. a city."
     },
+    "shadow":{
+      "name": "Shadows",
+      "description": "Shadow properties for the model",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "Receive Shadow"
+    },
     "model": {
       "title": "Model",
       "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
@@ -336,8 +338,6 @@
       "lbl-isAvatar": "Force Avatar Animations",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isEquippable": "Is Equippable",
-      "lbl-castShadow": "Cast Shadow",
-      "lbl-receiveShadow": "Receive Shadow",
       "lbl-interactable": "Interactable",
       "lbl-generateBVH": "Generate BVH",
       "lbl-avoidCameraOcclusion": "Avoid Camera Occlusion",
@@ -372,6 +372,8 @@
         "ktx2Quality": "Compression Quality",
         "weldVertices": "Weld Vertices",
         "weldThreshold": "Weld Threshold",
+        "split": "Split Multi-Material Meshes",
+        "combineMaterials": "Combine Duplicate Materials",
         "removeDuplicates": "Remove Duplicates",
         "pruneUnused": "Prune Unused",
         "reorder": "Reorder",
@@ -389,7 +391,9 @@
         "normalMap": "Normal Map",
         "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps",
         "uastcZstandard": "UASTC Zstandard",
-        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression"
+        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression",
+        "useMeshoptimizer": "Use Meshoptimizer",
+        "maxCodebooks": "Max Codebooks"
       },
       "lods": {
         "label": "Level of Detail",
@@ -668,6 +672,14 @@
       "name": "Spawn Point",
       "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
     },
+    "linkComp": {
+      "title": "link Component",
+      "lbl-url": "Link URL",
+      "lbl-navigateScene": "Scene navigation",
+      "lbl-projname": "Project Name",
+      "lbl-scenename": "Scene Name",
+      "description": "Adds an interactable that opens links or navigates scene"
+    },
     "spotLight": {
       "description": "A light which emits along a direction, illuminating objects within a cone.",
       "lbl-color": "Color",
@@ -822,7 +834,9 @@
         "EE_scenePreviewCamera": "A preview camera which generates a scene thumbnail and the starting position.",
         "SkyboxComponent": "Sets the area outside your map (skybox) with a specific sky type.",
         "SplineTrackComponent": "Creates a spline track.",
-        "SplineComponent": "Create and customize curves."
+        "SplineComponent": "Create and customize curves.",
+        "EnvmapComponent": "Add environment map to your scene",
+        "PostProcessingComponent":"Add postprocessing effects to your scene"
       }
     },
     "filebrowser": {
