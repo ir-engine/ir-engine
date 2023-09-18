@@ -318,14 +318,27 @@ export async function createWebRtcTransport(
   const { initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
   const routerList = network.transport.routers
 
+  logger.info('localConfig.mediasoup.webRtcTransport:', localConfig.mediasoup.webRtcTransport)
+  logger.info('routerList:', routerList)
+
   const dumps = await Promise.all(routerList.map(async (item) => await item.dump()))
   const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
   const selectedrouter = routerList.find((item) => item.id === sortedDumps[0].id)!
+
+  logger.info('dumps:', dumps)
+  logger.info('sortedDumps:', sortedDumps)
+  logger.info('selectedrouter:', selectedrouter)
 
   if (!selectedrouter) {
     logger.error('no router selected', routerList, dumps, sortedDumps)
     throw new Error('Failed to find a router to create a transport on')
   }
+
+  logger.info('Creating WebRTC transport with parameters:')
+  logger.info('peerID:', peerID)
+  logger.info('direction:', direction)
+  logger.info('sctpCapabilities:', sctpCapabilities)
+  logger.info('channelId:', channelId)
 
   return selectedrouter.createWebRtcTransport({
     webRtcServer: (selectedrouter.appData.worker as Worker).appData!.webRtcServer as WebRtcServer,
@@ -346,6 +359,11 @@ export async function createInternalDataConsumer(
 ): Promise<DataConsumer | null> {
   try {
     const transport = network.transport.outgoingDataTransport
+
+    logger.info('Network transport:', transport)
+    logger.info('DataProducer:', dataProducer)
+    logger.info('PeerID:', peerID)
+
     const dataConsumer = await transport.consumeData({
       dataProducerId: dataProducer.id,
       appData: { peerID, transportId: transport.id },
@@ -353,6 +371,7 @@ export async function createInternalDataConsumer(
       maxRetransmits: dataProducer.sctpStreamParameters!.maxRetransmits,
       ordered: false
     })
+    logger.info('DataConsumer:', dataConsumer)
     dataConsumer.on('message', (message) => {
       const DataChannelFunctions = getState(DataChannelRegistryState)[dataProducer.label as DataChannelType]
       if (DataChannelFunctions) {

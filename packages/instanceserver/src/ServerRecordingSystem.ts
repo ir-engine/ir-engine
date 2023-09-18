@@ -129,7 +129,8 @@ export const uploadRecordingStaticResource = async (props: {
     staticResourceId: staticResource.id,
     recordingId: props.recordingID
   })
-
+  logger.info('Uploaded recording static resource with key:', props.key)
+  logger.info('Static Resource:', staticResource)
   return upload
 }
 
@@ -137,6 +138,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const app = Engine.instance.api as Application
 
   const recording = await app.service(recordingPath).get(action.recordingID)
+  logger.info('Recording:', recording)
   if (!recording) return dispatchError('Recording not found', action.$peer)
 
   let schema = recording.schema
@@ -146,11 +148,13 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   }
 
   const user = await app.service(userPath).get(recording.userId)
+  logger.info('User:', user)
   if (!user) return dispatchError('Invalid user', action.$peer)
 
   const userID = user.id
 
   const hasScopes = await checkScope(user, app, 'recording', 'write')
+  logger.info('User:', user)
   if (!hasScopes) return dispatchError('User does not have record:write scope', action.$peer)
 
   const storageProvider = getStorageProvider()
@@ -186,6 +190,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     userID,
     dataChannelRecorder
   } as ActiveRecording
+  logger.info('Active Recording:', activeRecording)
 
   if (Engine.instance.worldNetwork) {
     const serializationSchema = schema.user
@@ -250,6 +255,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   }
 
   activeRecordings.set(recording.id, activeRecording)
+  logger.info('Recording Started:', recording.id, activeRecording)
 
   dispatchAction(
     ECSRecordingActions.recordingStarted({
@@ -290,6 +296,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
       ...activeRecording.mediaChannelRecorder.recordings.map((recording) => recording.stopRecording()),
       ...activeRecording.mediaChannelRecorder.activeUploads
     ])
+    logger.info('Media recording stopped and uploads completed for recording', action.recordingID)
     // stop recording data channel
   }
 
@@ -302,8 +309,10 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
     for (const dataChannel of dataChannelSchema) {
       removeDataChannelHandler(dataChannel, activeRecording.dataChannelRecorder)
     }
+    logger.info('Data channel recording handlers removed for recording', action.recordingID)
   }
   activeRecordings.delete(action.recordingID)
+  logger.info('Recording Stopped:', action.recordingID)
 }
 
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
@@ -338,20 +347,24 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const storageProvider = getStorageProvider()
 
   const entityFiles = recording.resources.filter((resource) => resource.key.includes('entities-'))
+  logger.info('Entity files for playback:', entityFiles)
 
   const rawFiles = recording.resources.filter(
     (resource) =>
       !resource.key.includes('entities-') &&
       resource.key.substring(resource.key.length - 3, resource.key.length) === '.ee'
   )
+  logger.info('Raw files for playback:', rawFiles)
 
   const mediaFiles = recording.resources.filter(
     (resource) => resource.key.substring(resource.key.length - 3, resource.key.length) !== '.ee'
   )
+  logger.info('Media files for playback:', mediaFiles)
 
   const entityChunks = (await Promise.all(entityFiles.map((resource) => storageProvider.getObject(resource.key)))).map(
     (data) => decode(data.Body)
   )
+  logger.info('Entity chunks for playback:', entityChunks)
 
   const dataChannelChunks = new Map<DataChannelType, DataChannelFrame<any>[][]>()
 
@@ -367,6 +380,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const network = getServerNetwork(app) as SocketWebRTCServerNetwork
 
   const entitiesSpawned = [] as (EntityUUID | UserID)[]
+  logger.info('Entities spawned during playback:', entitiesSpawned)
 
   activePlayback.deserializer = ECSSerialization.createDeserializer({
     chunks: entityChunks,
@@ -441,6 +455,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   activePlayback.peerIDs = []
 
   activePlaybacks.set(action.recordingID, activePlayback)
+  logger.info('Added playback to activePlaybacks:', action.recordingID)
 
   /** We only need to dispatch once, so do it on the world server */
   if (Engine.instance.worldNetwork) {
@@ -451,6 +466,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
         $topic: network.topic
       })
     )
+    logger.info('Dispatched playbackChanged action for recording:', action.recordingID)
   }
 }
 
@@ -458,7 +474,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
   const app = Engine.instance.api as Application
 
   const recording = await app.service(recordingPath).get(action.recordingID)
-
+  logger.info('Stopped playback for recording:', recording)
   let schema = recording.schema
 
   if (typeof schema === 'string') {
@@ -466,11 +482,12 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
   }
 
   const user = await app.service(userPath).get(recording.userId)
+  logger.info('User for the recording:', user)
 
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) throw new Error('User does not have record:read scope')
-
   const activePlayback = activePlaybacks.get(action.recordingID)
+
   if (!activePlayback) return
 
   if (activePlayback.deserializer) {
@@ -488,7 +505,7 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
   const app = Engine.instance.api as Application
 
   const activePlayback = activePlaybacks.get(recordingID)!
-
+  logger.info('Playback stopped for user:', userId, 'and recording:', recordingID)
   for (const entityUUID of activePlayback.entitiesSpawned) {
     dispatchAction(
       WorldNetworkAction.destroyObject({
@@ -509,6 +526,7 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
 
   updatePeers(network)
   activePlaybacks.delete(recordingID)
+  logger.info('Playback data cleaned up for recording:', recordingID)
 
   /** We only need to dispatch once, so do it on the world server */
   if (Engine.instance.worldNetwork) {
@@ -519,6 +537,7 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
         $topic: getServerNetwork(app).topic
       })
     )
+    logger.info('Dispatched playbackChanged action for recording:', recordingID)
   }
 }
 
@@ -538,6 +557,7 @@ export const setDataChannelChunkToReplay = (
 
   const userMap = dataChannelToReplay.get(userId)!
   userMap.set(dataChannel, { startTime: Date.now(), frames })
+  logger.info(`Added data channel chunk for user ${userId} and channel ${dataChannel}`)
 }
 
 export const removeDataChannelToReplay = (userId: UserID) => {
@@ -546,6 +566,7 @@ export const removeDataChannelToReplay = (userId: UserID) => {
   }
 
   dataChannelToReplay.delete(userId)
+  logger.info(`Removed data channel chunk for user ${userId}`)
 }
 
 const startRecordingActionQueue = defineActionQueue(ECSRecordingActions.startRecording.matches)
@@ -579,6 +600,7 @@ const execute = () => {
         }
       }
   }
+  logger.info('Executed recording system logic')
 }
 
 export const ServerRecordingSystem = defineSystem({

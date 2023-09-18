@@ -94,8 +94,11 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         { accessToken: accessToken },
         {}
       )
+      logger.info('Authentication result:', authResult)
       userId = authResult[identityProviderPath].userId as UserID
       user = await app.service(userPath).get(userId)
+
+      logger.info('User data:', user)
 
       if (!user) {
         authTask.status = 'fail'
@@ -120,7 +123,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
        */
 
       const connectionData = handleConnectingPeer(network, spark, peerID, user, data.inviteCode)
-
+      logger.info('Connection data:', connectionData)
       spark.write({
         ...connectionData,
         status: 'success'

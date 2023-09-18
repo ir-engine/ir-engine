@@ -117,6 +117,7 @@ export const startMediaRecordingPair = async (
   tracks: MediaTrackPair
 ) => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
+  logger.info('startMediaRecordingPair called with parameters:', { peerID, mediaType, tracks })
 
   const promises = [] as Promise<any>[]
 
@@ -137,10 +138,15 @@ export const startMediaRecordingPair = async (
       videoPortRtcp,
       tracks.video.producerId
     )
+    logger.info('Video transport created:', transportPromise)
+
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
       tracks.videoTransport = transport
       tracks.videoConsumer = consumer
+
+      logger.info('Video transport:', transport)
+      logger.info('Video consumer:', consumer)
     })
   }
 
@@ -151,14 +157,21 @@ export const startMediaRecordingPair = async (
       audioPortRtcp,
       tracks.audio.producerId
     )
+    logger.info('Audio transport created:', transportPromise)
+
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
       tracks.audioTransport = transport
       tracks.audioConsumer = consumer
+
+      logger.info('Audio transport:', transport)
+      logger.info('Audio consumer:', consumer)
     })
   }
 
   await Promise.all(promises)
+
+  logger.info('FFmpeg initialization:', ffmpegInitialized)
 
   let ffmpegInitialized = false
 
@@ -182,9 +195,11 @@ export const startMediaRecordingPair = async (
 
   /** start ffmpeg */
   const isH264 = !!tracks.video && !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
+  logger.info('isH264:', isH264)
   const ffmpegProcess = await startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264, startPort)
 
   ffmpegInitialized = true
+  logger.info('ffmpegProcess:', ffmpegProcess)
 
   /** resume consumers */
   if (tracks.video) {

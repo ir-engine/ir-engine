@@ -112,6 +112,8 @@ export const startFFMPEG = async (
       ffmpegOk = true
     }
   }
+  logger.info('FFmpeg version information:', ffmpegOut)
+  logger.info('Is FFmpeg compatible?', ffmpegOk)
 
   const stream = new Stream.PassThrough()
 

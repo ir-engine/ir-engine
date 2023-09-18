@@ -47,12 +47,6 @@ const createCorsServer = (useSSL, certOptions, port) => {
     .listen(port, function () {
       logger.info('CORS server created with the following options:')
       logger.info('Use SSL: %s', useSSL) // Log a boolean
-      if (useSSL) {
-        logger.info('SSL Options: %o', {
-          key: certOptions.key,
-          cert: certOptions.cert
-        }) // Log an object
-      }
       logger.info('Port: %d', port)
       logger.info(`Running CORS on port "${port}".`)
     })

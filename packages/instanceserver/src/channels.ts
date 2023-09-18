@@ -265,6 +265,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
+    logger.info('Media Instance: hostId', hostId)
+    logger.info('Media Server Systems started')
   } else {
     getMutableState(NetworkState).hostIds.world.set(hostId)
 
@@ -279,6 +281,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     const sceneUpdatedListener = async () => {
       const sceneData = (await sceneResultPromise).data
       getMutableState(SceneState).sceneData.set(sceneData)
+      logger.info('Scene data updated:', sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
       await new Promise<void>((resolve) => {
@@ -293,6 +296,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     const userUpdatedListener = async (user) => {
       const worldState = getMutableState(WorldState)
       if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
+      logger.info(`User ${user.id} updated: ${user.name}`)
     }
     app.service('scene').on('updated', sceneUpdatedListener)
     app.service(userPath).on('patched', userUpdatedListener)
@@ -317,7 +321,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
 const handleUserAttendance = async (app: Application, userId: UserID) => {
   const instanceServerState = getState(InstanceServerState)
-
+  logger.info(`Handling user attendance for instance: ${instanceServerState.instance.id}, userId: ${userId}`)
   const channel = await app.service('channel').Model.findOne({
     where: {
       instanceId: instanceServerState.instance.id
@@ -326,6 +330,7 @@ const handleUserAttendance = async (app: Application, userId: UserID) => {
 
   /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
   if (channel) {
+    logger.info('Channel found:', channel)
     const existingChannelUser = (await app.service('channel-user').find({
       query: {
         channelId: channel.id,
@@ -334,6 +339,7 @@ const handleUserAttendance = async (app: Application, userId: UserID) => {
     })) as Paginated<ChannelUser>
 
     if (!existingChannelUser.total) {
+      logger.info('Creating channel user:', { channelId: channel.id, userId })
       await app.service('channel-user').create({
         channelId: channel.id,
         userId: userId
@@ -364,6 +370,7 @@ const handleUserAttendance = async (app: Application, userId: UserID) => {
     const location = await app.service(locationPath).get(instanceServerState.instance.locationId!)
     ;(newInstanceAttendance as any).sceneId = location.sceneId
   }
+  logger.info('New Instance Attendance:', newInstanceAttendance)
   await app.service(instanceAttendancePath).create(newInstanceAttendance as any)
 }
 

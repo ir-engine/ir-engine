@@ -68,18 +68,16 @@ export const setupIPs = async () => {
 
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
-  logger.info({ setupIPs: 'Entering setupIPs function.' })
   if (config.kubernetes.enabled) {
     await cleanupOldInstanceservers(app)
     instanceServerState.instanceServer.set(await serverState.agonesSDK.getGameServer())
-    logger.info({ setupIPs: 'Cleanup and GameServer retrieval completed for Kubernetes-enabled environment.' })
   }
 
   // Set up our instanceserver according to our current environment
   const announcedIp = config.kubernetes.enabled
     ? instanceServerState.instanceServer.value.status.address
     : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
-  logger.info({ setupIPs: 'Announced IP.' })
+  logger.info('Announced IP:', announcedIp)
 
   // @todo put this in hyperflux state
   localConfig.mediasoup.webRtcTransport.listenIps = [
@@ -100,7 +98,7 @@ export const setupIPs = async () => {
   }
 
   localConfig.mediasoup.recording.ip = announcedIp
-  logger.info({ setupIPs: 'Exiting setupIPs function.' })
+  logger.info('Updated configurations:', localConfig)
 }
 
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
@@ -121,8 +119,8 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
     'gameservers'
   )
 
-  logger.info(`[cleanupOldInstanceservers]: Retrieved ${instances.count} instances.`)
-  logger.info(`[cleanupOldInstanceservers]: Retrieved ${instanceservers?.body!.items.length} instanceservers.`)
+  logger.info('Retrieved instances:', instances)
+  logger.info('Retrieved instanceservers:', instanceservers)
 
   await Promise.all(
     instances.rows.map((instance) => {
@@ -141,11 +139,10 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
     })
   )
 
-  logger.info({ cleanupOldInstanceservers: 'Cleanup completed successfully.' })
+  logger.info('cleanupOldInstanceservers  completed.')
   const isIds = (instanceservers?.body! as any).items.map((is) =>
     isNameRegex.exec(is.metadata.name) != null ? isNameRegex.exec(is.metadata.name)![1] : null
   )
-  logger.info({ cleanupOldInstanceservers: 'Exiting cleanupOldInstanceservers function.' })
   return
 }
 
@@ -157,13 +154,14 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @returns
  */
 export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserID) => {
-  logger.info({ authorizeUserToJoinServer: 'Entering authorizeUserToJoinServer function.' })
+  logger.info(`Authorizing user "${userId}" to join server for instance "${instance.id}"...`)
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,
       $limit: 0
     }
   })) as any
+  logger.info('Retrieved authorized users:', authorizedUsers)
   if (authorizedUsers.total > 0) {
     const thisUserAuthorized = (await app.service(instanceAuthorizedUserPath).find({
       query: {
@@ -194,12 +192,13 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
     logger.info(`User "${userId}" has been kicked from this server for this duration`)
     return false
   }
-
+  logger.info(`User "${userId}" successfully authorized to join server for instance "${instance.id}".`)
   return true
 }
 
 export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: PeerID) {
   const client = Object.values(network.peers).find((c) => c.peerID === peerID)
+  logger.info(`Getting userId from peerID "${peerID}":`, client)
   return client?.userId
 }
 
@@ -211,6 +210,7 @@ export const handleConnectingPeer = (
   inviteCode?: string
 ) => {
   const userId = user.id
+  logger.info(`Handling connecting peer "${peerID}" for user "${userId}"...`)
 
   // Create a new client object
   // and add to the dictionary
@@ -267,18 +267,24 @@ const getUserSpawnFromInvite = async (
   inviteCode: string,
   iteration = 0
 ) => {
+  logger.info(`getUserSpawnFromInvite started for user "${user.id}" with inviteCode "${inviteCode}"`)
   if (inviteCode) {
     const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
       query: {
         inviteCode
       }
     })
+    logger.info('inviteCodeLookups:', inviteCodeLookups)
 
     if (inviteCodeLookups.length > 0) {
       const inviterUser = inviteCodeLookups[0]
       const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []
       const userInstanceAttendance = user.instanceAttendance || []
       let bothOnSameInstance = false
+
+      logger.info('inviterUser:', inviterUser)
+      logger.info('userInstanceAttendance:', userInstanceAttendance)
+
       for (const instanceAttendance of inviterUserInstanceAttendance) {
         if (
           !instanceAttendance.isChannel &&
@@ -288,8 +294,10 @@ const getUserSpawnFromInvite = async (
         )
           bothOnSameInstance = true
       }
+      logger.info('bothOnSameInstance:', bothOnSameInstance)
       if (bothOnSameInstance) {
         const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserID)
+        logger.info('selfAvatarEntity:', selfAvatarEntity)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -301,6 +309,7 @@ const getUserSpawnFromInvite = async (
         }
         const inviterUserId = inviterUser.id
         const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserID)
+        logger.info('inviterUserAvatarEntity:', inviterUserAvatarEntity)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -318,6 +327,7 @@ const getUserSpawnFromInvite = async (
         inviterUserObject3d.translateZ(2)
 
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
+        logger.info('validSpawnablePosition:', validSpawnablePosition)
 
         if (validSpawnablePosition) {
           const spawnPose = getState(EntityNetworkState)[user.id as any as EntityUUID]
@@ -352,8 +362,11 @@ export const handleIncomingActions = (network: SocketWebRTCServerNetwork, peerID
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerID: PeerID): Promise<any> {
+  logger.info(`handleDisconnect started for peer ${peerID}`)
   const userId = getUserIdFromPeerID(network, peerID) as UserID
   const disconnectedClient = network.peers[peerID]
+  logger.info('userId:', userId)
+  logger.info('disconnectedClient:', disconnectedClient)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
@@ -384,6 +397,8 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
     const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
     const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
+    logger.info('recvTransport:', recvTransport)
+    logger.info('sendTransport:', sendTransport)
     if (recvTransport) recvTransport.close()
     if (sendTransport) sendTransport.close()
   } else {

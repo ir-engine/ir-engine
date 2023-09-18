@@ -90,6 +90,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostId
     outgoingDataTransport,
     outgoingDataProducers: {} as Record<DataChannelType, DataProducer>
   }
+  logger.info('Network transport object:', transport)
 
   startSystem(MediasoupServerSystem, {
     before: ServerHostNetworkSystem

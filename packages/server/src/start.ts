@@ -71,11 +71,14 @@ export const start = async (): Promise<void> => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi
       return e[key]?.match(regexp)
     })
-    logger.info({ processList }, 'checking for running process.')
+
     const dockerProcess = processList.find((c) => c[key]?.match(/docker-compose/))
     const dockerProxy = processList.find((c) => c[key]?.match(/docker-proxy/))
     const processMysql = processList.find((c) => c[key]?.match(/mysql/))
     const databaseService = (dockerProcess && dockerProxy) || processMysql
+
+    logger.info('Process List:', processList)
+    logger.info('Database service:', databaseService)
 
     if (!databaseService) {
       // Check for child process with mac OSX
