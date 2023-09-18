@@ -192,11 +192,12 @@ const execute = () => {
   const avatarAnimationQueryArr = avatarAnimationQuery()
   const avatarAnimationEntities: Entity[] = []
 
-  avatarAnimationQueryArr.forEach((_entity) => {
+  for (let i = 0; i < avatarAnimationQueryArr.length; i++) {
+    const _entity = avatarAnimationQueryArr[i]
     if (priorityQueue.priorityEntities.has(_entity) || _entity === Engine.instance.localClientEntity) {
       avatarAnimationEntities.push(_entity)
     }
-  })
+  }
 
   const ikEntities = ikTargetQuery()
 
