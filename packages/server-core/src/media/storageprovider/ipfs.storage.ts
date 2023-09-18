@@ -44,6 +44,9 @@ import {
  * Storage provide class to communicate with InterPlanetary File System (IPFS) using Mutable File System (MFS).
  */
 export class IPFSStorage implements StorageProviderInterface {
+  constructor() {
+    this.getOriginURLs().then((result) => (this.originURLs = result))
+  }
   private _client: IPFSHTTPClient
   private _blobStore: IPFSBlobStore
   private _pathPrefix = '/'
@@ -52,7 +55,8 @@ export class IPFSStorage implements StorageProviderInterface {
   /**
    * Domain address of cache.
    */
-  cacheDomain: string
+  cacheDomain = ''
+  originURLs = [this.cacheDomain]
 
   /**
    * Check if an object exists in the IPFS storage.
@@ -231,6 +235,10 @@ export class IPFSStorage implements StorageProviderInterface {
    */
   async createInvalidation() {
     return Promise.resolve()
+  }
+
+  async getOriginURLs() {
+    return [this.cacheDomain]
   }
 
   async associateWithFunction() {

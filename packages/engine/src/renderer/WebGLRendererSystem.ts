@@ -225,17 +225,20 @@ export class EngineRenderer {
 
         if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
-        const width = window.innerWidth
-        const height = window.innerHeight
+        const canvasParent = document.getElementById('engine-renderer-canvas')?.parentElement
+        if (canvasParent) {
+          const width = canvasParent.clientWidth
+          const height = canvasParent.clientHeight
 
-        if (camera.isPerspectiveCamera) {
-          camera.aspect = width / height
-          camera.updateProjectionMatrix()
+          if (camera.isPerspectiveCamera) {
+            camera.aspect = width / height
+            camera.updateProjectionMatrix()
+          }
+
+          state.qualityLevel > 0 && state.csm?.updateFrustums()
+          // Effect composer calls renderer.setSize internally
+          this.effectComposer.setSize(width, height, true)
         }
-
-        state.qualityLevel > 0 && state.csm?.updateFrustums()
-        // Effect composer calls renderer.setSize internally
-        this.effectComposer.setSize(width, height, true)
         this.needsResize = false
       }
 

@@ -37,7 +37,7 @@ type TimerUpdateCallback = (elapsedTime: number) => any
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
-export function Timer(update: TimerUpdateCallback, serverTickRate = 90) {
+export function Timer(update: TimerUpdateCallback, serverTickRate = 60) {
   let debugTick = 0
 
   const newEngineTicks = {

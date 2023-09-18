@@ -23,16 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React from 'react'
+import { useEffect, useRef } from 'react'
 
-import Header from './index'
-import { Default as story } from './index.stories'
+export const useResizableVideoCanvas = () => {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasCtxRef = useRef<CanvasRenderingContext2D>()
 
-describe('Header', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<Header {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+  const resizeCanvas = () => {
+    if (!videoRef.current) return
+
+    if (canvasRef.current?.width !== videoRef.current?.clientWidth) {
+      canvasRef.current!.width = videoRef.current!.clientWidth
+    }
+
+    if (canvasRef.current?.height !== videoRef.current?.clientHeight) {
+      canvasRef.current!.height = videoRef.current!.clientHeight
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', () => {
+      resizeCanvas()
+    })
+    return () => {
+      window.removeEventListener('resize', () => {
+        resizeCanvas()
+      })
+    }
+  }, [])
+
+  return {
+    videoRef,
+    canvasRef,
+    canvasCtxRef,
+    resizeCanvas
+  }
+}

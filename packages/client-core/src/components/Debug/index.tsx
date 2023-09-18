@@ -289,7 +289,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
-          postprocessValue={(v: any) => (v?.value && v?.get(NO_PROXY)) ?? v}
+          postprocessValue={(v: any) => (v?.value && v.get(NO_PROXY)) ?? v}
         />
       </div>
       <ActionsPanel />

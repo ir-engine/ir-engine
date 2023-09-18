@@ -23,16 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React from 'react'
+import { NotFound } from '@feathersjs/errors'
+import { Engine } from '../../ecs/classes/Engine'
+import { scopePath } from '../../schemas/scope/scope.schema'
+import { UserType } from '../../schemas/user/user.schema'
 
-import Header from './index'
-import { Default as story } from './index.stories'
-
-describe('Header', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<Header {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
+export const checkScope = async (user: UserType, currentType: string, scopeToVerify: string) => {
+  const scopes = await Engine.instance.api.service(scopePath).find({
+    query: {
+      userId: user.id,
+      paginate: false
+    }
   })
-})
+
+  if (!scopes || (Array.isArray(scopes) ? scopes.length === 0 : scopes.total === 0))
+    throw new NotFound('No scope available for the current user.')
+
+  const data = Array.isArray(scopes) ? scopes : scopes.data
+
+  const currentScopes = data.reduce<string[]>((result, sc) => {
+    if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
+    return result
+  }, [])
+  if (!currentScopes.includes(scopeToVerify)) {
+    return false
+  }
+  return true
+}

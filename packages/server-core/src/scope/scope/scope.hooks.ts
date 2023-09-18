@@ -33,6 +33,7 @@ import {
 } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
 import {
   scopeDataResolver,
   scopeExternalResolver,
@@ -49,12 +50,11 @@ export default {
   before: {
     all: [
       authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(scopeQueryValidator),
       schemaHooks.resolveQuery(scopeQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScope('user', 'read'))],
-    get: [iff(isProvider('external'), verifyScope('user', 'read'))],
+    find: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
+    get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
       () => schemaHooks.validateData(scopeDataValidator),
