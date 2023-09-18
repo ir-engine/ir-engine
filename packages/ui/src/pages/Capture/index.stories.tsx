@@ -42,7 +42,6 @@ import {
 } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { RecordingServiceSystem } from '@etherealengine/client-core/src/recording/RecordingService'
 import {
   LocationAction,
   LocationServiceReceptor
@@ -80,7 +79,7 @@ import 'tailwindcss/tailwind.css'
 const startCaptureSystems = () => {
   startSystem(MotionCaptureSystem, { with: InputSystemGroup })
   startSystem(MediaSystem, { before: PresentationSystemGroup })
-  startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
+  startSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
 }
 
 const initializeEngineForRecorder = async () => {

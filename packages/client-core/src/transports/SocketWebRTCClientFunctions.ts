@@ -103,6 +103,8 @@ import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
+import { encode } from 'msgpackr'
+
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
 export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
@@ -181,16 +183,20 @@ export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) 
       network.transport.primus?.write(data)
     },
 
-    bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
-      transport.bufferToAll(dataChannelType, data)
+    bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {
+      transport.bufferToAll(dataChannelType, fromPeerID, data)
     },
 
-    bufferToAll: (dataChannelType: DataChannelType, data: any) => {
+    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
       const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, dataChannelType) as
         | DataProducer
         | undefined
       if (!dataProducer) return
-      if (!dataProducer.closed && dataProducer.readyState === 'open') dataProducer.send(data)
+      if (dataProducer.closed || dataProducer.readyState !== 'open') return
+      const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
+      if (typeof fromPeerIndex === 'undefined')
+        return console.warn('fromPeerIndex is undefined', fromPeerID, fromPeerIndex)
+      dataProducer.send(encode([fromPeerIndex, data]))
     },
     mediasoupDevice,
     mediasoupLoaded: false,

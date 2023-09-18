@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated, Params } from '@feathersjs/feathers'
 
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import {
   ChannelData,
@@ -42,7 +44,6 @@ import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
-import { checkScope } from '../../hooks/verify-scope'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChannelParams extends RootParams<ChannelQuery> {}
@@ -148,7 +149,7 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
 
       if (!userId) return []
 
-      const admin = query.action === 'admin' && (await checkScope(loggedInUser, this.app, 'admin', 'admin'))
+      const admin = query.action === 'admin' && (await checkScope(loggedInUser, 'admin', 'admin'))
 
       if (admin) {
         delete params.query?.action

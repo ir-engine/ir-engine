@@ -59,7 +59,7 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
     if (data.byteLength > 0) {
       // side effect - network IO
       // delay until end of frame
-      Promise.resolve().then(() => network.transport.bufferToPeer(ecsDataChannelType, network.hostPeerID, data))
+      Promise.resolve().then(() => network.transport.bufferToPeer(ecsDataChannelType, peerID, network.hostPeerID, data))
     }
   }
 }

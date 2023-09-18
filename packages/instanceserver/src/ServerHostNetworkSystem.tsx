@@ -26,8 +26,18 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { useEffect } from 'react'
+
+import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
@@ -47,7 +57,54 @@ const execute = () => {
   }
 }
 
+export const uploadRecordingStaticResource = async (props: {
+  recordingID: RecordingID
+  key: string
+  body: Buffer
+  mimeType: string
+}) => {
+  const api = Engine.instance.api
+
+  const storageProvider = getStorageProvider()
+  await storageProvider.putObject({
+    Key: props.key,
+    Body: props.body,
+    ContentType: props.mimeType
+  })
+
+  const provider = getStorageProvider()
+  const url = getCachedURL(props.key, provider.cacheDomain)
+  const hash = createStaticResourceHash(props.body, { assetURL: props.key })
+
+  const staticResource = await api.service(staticResourcePath).create(
+    {
+      hash,
+      key: props.key,
+      url,
+      mimeType: props.mimeType
+    },
+    { isInternal: true }
+  )
+
+  await api.service(recordingResourcePath).create({
+    staticResourceId: staticResource.id,
+    recordingId: props.recordingID
+  })
+}
+
+const reactor = () => {
+  useEffect(() => {
+    getMutableState(RecordingAPIState).merge({ uploadRecordingChunk: uploadRecordingStaticResource })
+    return () => {
+      getMutableState(RecordingAPIState).uploadRecordingChunk.set(none)
+    }
+  }, [])
+
+  return null
+}
+
 export const ServerHostNetworkSystem = defineSystem({
   uuid: 'ee.instanceserver.ServerHostNetworkSystem',
-  execute
+  execute,
+  reactor
 })

@@ -24,7 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { createHash } from 'crypto'
-import { Router } from 'mediasoup/node/lib/types'
+import { Consumer, PlainTransport, Router } from 'mediasoup/node/lib/types'
+import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -38,9 +39,16 @@ import { localConfig } from '@etherealengine/server-core/src/config'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { RecordingAPIState } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { RecordingID, RecordingSchemaType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { getMutableState, none } from '@etherealengine/hyperflux'
+import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
+import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
+import { PassThrough } from 'stream'
 import { startFFMPEG } from './FFMPEG'
-import { uploadRecordingStaticResource } from './ServerRecordingSystem'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = serverLogger.child({ module: 'instanceserver:MediaRecording' })
@@ -102,11 +110,11 @@ export const createTransport = async (router: Router, port: number, rtcpPort: nu
 
 export type MediaTrackPair = {
   video?: PeerMediaType
-  videoTransport?: any
-  videoConsumer?: any
+  videoTransport?: PlainTransport
+  videoConsumer?: Consumer
   audio?: PeerMediaType
-  audioTransport?: any
-  audioConsumer?: any
+  audioTransport?: PlainTransport
+  audioConsumer?: Consumer
 }
 
 let startingPort = 5000
@@ -162,18 +170,17 @@ export const startMediaRecordingPair = async (
 
   let ffmpegInitialized = false
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
+    if (!ffmpegProcess.childProcess.killed) ffmpegProcess.stop()
     if (tracks.video) {
-      tracks.videoConsumer.close()
-      tracks.videoTransport.close()
+      tracks.videoConsumer!.close()
+      tracks.videoTransport!.close()
     }
     if (tracks.audio) {
-      tracks.audioConsumer.close()
-      tracks.audioTransport.close()
+      tracks.audioConsumer!.close()
+      tracks.audioTransport!.close()
     }
     if (!ffmpegInitialized) return logger.warn('ffmpeg closed before it initialized, probably failed to start')
-    console.log('ffmpeg connected:', ffmpegProcess.childProcess.connected)
-    if (ffmpegProcess.childProcess.connected) ffmpegProcess.stop()
   }
 
   const onExit = () => {
@@ -182,19 +189,10 @@ export const startMediaRecordingPair = async (
 
   /** start ffmpeg */
   const isH264 = !!tracks.video && !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
-  const ffmpegProcess = await startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264, startPort)
+  const ffmpegProcess = await startFFMPEG(tracks.audioConsumer, tracks.videoConsumer, onExit, isH264, startPort)
 
   ffmpegInitialized = true
 
-  /** resume consumers */
-  if (tracks.video) {
-    tracks.videoConsumer.resume()
-    logger.info('Resuming recording video consumer', tracks.videoConsumer)
-  }
-  if (tracks.audio) {
-    tracks.audioConsumer.resume()
-    logger.info('Resuming recording audio consumer', tracks.audioConsumer)
-  }
   return {
     stopRecording,
     stream: ffmpegProcess.stream,
@@ -204,8 +202,50 @@ export const startMediaRecordingPair = async (
   }
 }
 
-// todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
+type onUploadPartArgs = {
+  recordingID: RecordingID
+  key: string
+  body: PassThrough
+  mimeType: string
+  hash: string
+}
 
+export const uploadMediaStaticResource = async (props: onUploadPartArgs) => {
+  const api = Engine.instance.api
+
+  const storageProvider = getStorageProvider()
+
+  const uploadPromise = storageProvider.putObject({
+    Key: props.key,
+    Body: props.body,
+    ContentType: props.mimeType
+  })
+
+  const url = getCachedURL(props.key, storageProvider.cacheDomain)
+
+  const staticResource = await api.service(staticResourcePath).create(
+    {
+      hash: props.hash,
+      key: props.key,
+      url,
+      mimeType: props.mimeType
+    },
+    { isInternal: true }
+  )
+
+  const recordingResource = await api.service(recordingResourcePath).create({
+    recordingId: props.recordingID,
+    staticResourceId: staticResource.id
+  })
+
+  await uploadPromise
+
+  await api.service(recordingResourcePath).patch(recordingResource.id, {
+    updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+  })
+}
+
+// todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
 export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchemaType['peers']) => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
 
@@ -247,13 +287,14 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     const format = recording.format === 'mp3' ? 'audio/opus' : recording.format === 'vp8' ? 'video/webm' : 'video/mp4'
     const ext = recording.format === 'mp3' ? 'mp3' : recording.format === 'vp8' ? 'webm' : 'mp4'
     const key = `recordings/${recordingID}/${recording.peerID}-${recording.mediaType}.${ext}`
+    const hash = createHash('sha3-256').update(key.split('/').pop()!.split('.')[0]).digest('hex')
 
-    const upload = uploadRecordingStaticResource({
+    const upload = uploadMediaStaticResource({
       recordingID,
       key,
       body: stream,
       mimeType: format,
-      hash: createHash('sha3-256').update(key.split('/').pop()!.split('.')[0]).digest('hex')
+      hash
     }).then(() => {
       logger.info('Uploaded media file' + key)
     })
@@ -266,3 +307,19 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     activeUploads
   }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    getMutableState(RecordingAPIState).merge({ createMediaChannelRecorder: startMediaRecording })
+    return () => {
+      getMutableState(RecordingAPIState).createMediaChannelRecorder.set(none)
+    }
+  }, [])
+
+  return null
+}
+
+export const MediasoupRecordingSystem = defineSystem({
+  uuid: 'MediasoupRecordingSystem',
+  reactor
+})

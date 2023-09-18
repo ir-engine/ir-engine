@@ -23,16 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React from 'react'
+import { useEffect } from 'react'
 
-import Header from './index'
-import { Default as story } from './index.stories'
+export const useRemoveEngineCanvas = () => {
+  useEffect(() => {
+    const canvas = document.getElementById('engine-renderer-canvas')!
+    canvas.parentElement?.removeChild(canvas)
 
-describe('Header', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<Header {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+    return () => {
+      const body = document.body
+      body.appendChild(canvas)
+    }
+  }, [])
+
+  return null
+}

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AvatarSimulationSystemGroup } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
-import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
   AnimationSystemGroup,
   PresentationSystemGroup,
@@ -40,8 +39,8 @@ import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 
+import { ECSRecordingSystem } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { ServerHostNetworkSystem } from './ServerHostNetworkSystem'
-import { ServerRecordingSystem } from './ServerRecordingSystem'
 
 export const startMediaServerSystems = () => {
   /** Fixed */
@@ -50,7 +49,7 @@ export const startMediaServerSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ServerRecordingSystem], {
+  startSystems([ECSRecordingSystem], {
     after: PresentationSystemGroup
   })
 }
@@ -82,7 +81,7 @@ export const startWorldServerSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ECSSerializerSystem, SceneSystemLoadGroup, ServerRecordingSystem], {
+  startSystems([SceneSystemLoadGroup, ECSRecordingSystem], {
     after: PresentationSystemGroup
   })
 }

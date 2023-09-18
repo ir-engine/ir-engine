@@ -30,7 +30,6 @@ import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 
 import { ClientNetworkingSystem } from '../networking/ClientNetworkingSystem'
-import { RecordingServiceSystem } from '../recording/RecordingService'
 import { AvatarUISystem } from '../systems/AvatarUISystem'
 import { LoadingUISystem } from '../systems/LoadingUISystem'
 import { WarningUISystem } from '../systems/WarningUISystem'
@@ -42,7 +41,7 @@ export const useDefaultLocationSystems = (online: boolean) => {
   useEffect(() => {
     startSystems([LoadingUISystem, AvatarUISystem, WidgetUISystem], { before: TransformSystem })
 
-    const postPresentationSystems = [UserUISystem, FilteredUsersSystem, WarningUISystem, RecordingServiceSystem]
+    const postPresentationSystems = [UserUISystem, FilteredUsersSystem, WarningUISystem]
 
     if (online) postPresentationSystems.push(ClientNetworkingSystem)
 
