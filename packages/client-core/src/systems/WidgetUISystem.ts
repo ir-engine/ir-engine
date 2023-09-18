@@ -174,10 +174,8 @@ const execute = () => {
   if (activeInputSourceEntity) {
     const activeInputSource = getComponent(activeInputSourceEntity, InputSourceComponent)?.source
     const referenceSpace = ReferenceSpace.origin!
-    const pose = Engine.instance.xrFrame!.getPose(
-      activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,
-      referenceSpace
-    )
+    const xrFrame = getState(XRState).xrFrame
+    const pose = xrFrame!.getPose(activeInputSource.gripSpace ?? activeInputSource.targetRaySpace, referenceSpace)
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
       transform.scale.copy(V_111)

@@ -105,8 +105,6 @@ export class Engine {
 
   gltfLoader: GLTFLoader = null!
 
-  xrFrame: XRFrame | null = null
-
   /**
    * Reference to the three.js scene object.
    */

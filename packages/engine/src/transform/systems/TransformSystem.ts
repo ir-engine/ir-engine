@@ -49,6 +49,7 @@ import {
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { TransformSerialization } from '../TransformSerialization'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -341,7 +342,7 @@ const execute = () => {
    * Sort transforms if needed
    */
   const engineState = getState(EngineState)
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
 
   let needsSorting = engineState.transformsNeedSorting
 
@@ -443,7 +444,7 @@ const execute = () => {
 
   /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
   /** @todo include in auto performance scaling metrics */
-  // if (Engine.instance.xrFrame) {
+  // if (getState(XRState).xrFrame) {
   //   /**
   //    * Update threejs skeleton manually
   //    *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation

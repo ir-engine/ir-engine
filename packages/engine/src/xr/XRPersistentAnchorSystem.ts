@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { Quaternion, Vector3 } from 'three'
 
-import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { ReferenceSpace } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 
 /**
  * XRPersistentAnchorSystem
@@ -109,7 +110,8 @@ export const XRAnchorFunctions = {
 }
 
 const execute = () => {
-  const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
+  const xrFrame = getState(XRState).xrFrame
+  const frame = xrFrame as XRFramePersistentAnchorType
   if (!frame) return
 
   const xrSpace = ReferenceSpace.origin

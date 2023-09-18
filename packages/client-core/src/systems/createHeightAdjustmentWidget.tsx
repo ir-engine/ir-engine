@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
@@ -44,12 +43,13 @@ export function createHeightAdjustmentWidget() {
     icon: 'Accessibility',
     onOpen: () => {
       dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
-      const xrFrame = Engine.instance.xrFrame
-      if (!xrFrame) return
-      // set user height from viewer pose relative to local floor
-      const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
-      if (viewerPose) {
-        xrState.userEyeLevel.set(viewerPose.transform.position.y)
+      const xrFrame = xrState.xrFrame.value
+      if (xrFrame) {
+        // set user height from viewer pose relative to local floor
+        const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
+        if (viewerPose) {
+          xrState.userEyeLevel.set(viewerPose.transform.position.y)
+        }
       }
     }
   }

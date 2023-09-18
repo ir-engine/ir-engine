@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
 
-import { defineActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
@@ -39,7 +39,7 @@ import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRPlaneComponent } from './XRComponents'
-import { ReferenceSpace, XRAction } from './XRState'
+import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 /** https://github.com/immersive-web/webxr-samples/blob/main/proposals/plane-detection.html */
 
@@ -82,7 +82,8 @@ export const updatePlaneGeometry = (entity: Entity, plane: XRPlane) => {
 }
 
 export const updatePlanePose = (entity: Entity, plane: XRPlane) => {
-  const planePose = Engine.instance.xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
+  const xrFrame = getState(XRState).xrFrame
+  const planePose = xrFrame!.getPose(plane.planeSpace, ReferenceSpace.localFloor!)!
   if (!planePose) return
   LocalTransformComponent.position.x[entity] = planePose.transform.position.x
   LocalTransformComponent.position.y[entity] = planePose.transform.position.y
@@ -156,7 +157,8 @@ const execute = () => {
     }
   }
 
-  const frame = Engine.instance.xrFrame as XRFrame & DetectedPlanesType
+  const xrFrame = getState(XRState).xrFrame
+  const frame = xrFrame as XRFrame & DetectedPlanesType
   if (!frame?.detectedPlanes || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
 
   for (const [plane, entity] of detectedPlanesMap) {

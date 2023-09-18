@@ -54,7 +54,7 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
-import { ReferenceSpace, XRAction, getCameraMode } from '../../xr/XRState'
+import { ReferenceSpace, XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
@@ -216,7 +216,8 @@ const execute = () => {
     for (const inputSourceEntity of nonCapturedInputSources) {
       const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
       if (inputSourceComponent.source.handedness === side) {
-        const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)!
+        const xrFrame = getState(XRState).xrFrame
+        const pose = xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)!
         guidelineTransform.position.copy(pose.transform.position as any as Vector3)
         guidelineTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
         guidelineTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
