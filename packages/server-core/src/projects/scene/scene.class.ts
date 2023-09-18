@@ -37,6 +37,7 @@ import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/pro
 import {
   SceneDataType,
   SceneMetadataCreate,
+  ScenePatch,
   SceneUpdate
 } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
@@ -48,22 +49,8 @@ const NEW_SCENE_NAME = 'New-Scene'
 
 const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
 
-interface UpdateParams {
-  sceneName: string
-  sceneData: SceneJson
-  thumbnailBuffer?: ArrayBuffer | Buffer // ArrayBuffer on client, Buffer on server
-  storageProviderName?: string
-}
-
-interface RenameParams {
-  newSceneName: string
-  oldSceneName: string
-  projectName: string
-  storageProviderName?: string
-}
-
 export class SceneService
-  implements ServiceInterface<SceneDataType | void | SceneMetadataCreate | SceneUpdate, Params>
+  implements ServiceInterface<SceneDataType | SceneMetadataCreate | SceneUpdate | void, any, Params, ScenePatch>
 {
   app: Application
   docs: any
@@ -95,14 +82,13 @@ export class SceneService
     return scenes
   }
 
-  // @ts-ignore
-  async get({ projectName, sceneName, metadataOnly }, params?: Params) {
+  async getScene(data: { project: string; name: string; metadataOnly: boolean }, params?: Params) {
     const project = (await this.app
       .service(projectPath)
-      ._find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
-    if (project.data.length === 0) throw new Error(`No project named ${projectName} exists`)
+      ._find({ ...params, query: { name: data.project, $limit: 1 } })) as Paginated<ProjectType>
+    if (project.data.length === 0) throw new Error(`No project named ${data.project} exists`)
 
-    const sceneData = await getSceneData(projectName, sceneName, metadataOnly, params!.provider == null)
+    const sceneData = await getSceneData(data.project, data.name, data.metadataOnly, params!.provider == null)
 
     return sceneData as SceneDataType
   }
@@ -166,7 +152,7 @@ export class SceneService
     return { project: projectName, name: newSceneName } as SceneMetadataCreate
   }
 
-  async patch(id: NullableId, data: RenameParams, params?: Params) {
+  async patch(id: NullableId, data: ScenePatch, params?: Params) {
     const { newSceneName, oldSceneName, projectName, storageProviderName } = data
 
     const storageProvider = getStorageProvider(storageProviderName)
@@ -215,7 +201,7 @@ export class SceneService
     return
   }
 
-  async update(projectName: string, data: UpdateParams, params?: Params) {
+  async update(projectName: string, data: ScenePatch, params?: Params) {
     try {
       const { sceneName, sceneData, thumbnailBuffer, storageProviderName } = data
       logger.info('[scene.update]: ', projectName, data)
@@ -225,7 +211,7 @@ export class SceneService
       const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
       if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
-      await downloadAssetsFromScene(this.app, projectName, sceneData)
+      await downloadAssetsFromScene(this.app, projectName, sceneData!)
 
       const newSceneJsonPath = `projects/${projectName}/${sceneName}.scene.json`
       await storageProvider.putObject({

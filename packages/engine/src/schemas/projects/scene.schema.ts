@@ -105,6 +105,24 @@ export const sceneDataSchema = Type.Object(
 )
 export type SceneDataType = Static<typeof sceneDataSchema>
 
+// Schema for updating existing entries
+export const scenePatchSchema = Type.Object(
+  {
+    sceneName: Type.Optional(Type.String()),
+    sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
+    thumbnailBuffer: Type.Optional(Type.Union([Type.Any()])),
+    newSceneName: Type.Optional(Type.String()),
+    oldSceneName: Type.Optional(Type.String()),
+    projectName: Type.Optional(Type.String()),
+    storageProviderName: Type.Optional(Type.String())
+  },
+  {
+    $id: 'ScenePatch'
+  }
+)
+
+export type ScenePatch = Static<typeof scenePatchSchema>
+
 export const componentJsonValidator = getValidator(componentJsonSchema, dataValidator)
 export const entityJsonValidator = getValidator(entityJsonSchema, dataValidator)
 export const sceneJsonValidator = getValidator(sceneJsonSchema, dataValidator)

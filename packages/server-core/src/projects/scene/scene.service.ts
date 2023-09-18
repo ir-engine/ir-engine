@@ -40,14 +40,14 @@ import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
-import { getAllPortals, getPortal } from './scene-helper'
-import { Scene, getSceneData } from './scene.class'
+import { getAllPortals, getPortal, getSceneData } from './scene-helper'
+import { SceneService } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    scene: Scene
+    scene: SceneService
     'scene/upload': {
       create: ReturnType<typeof uploadScene>
     }
