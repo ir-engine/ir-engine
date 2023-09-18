@@ -31,24 +31,11 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
 import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import {
-  State,
-  addActionReceptor,
-  dispatchAction,
-  getMutableState,
-  getState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { State, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import React from 'react'
-import {
-  AppLoadingAction,
-  AppLoadingServiceReceptor,
-  AppLoadingState,
-  AppLoadingStates
-} from '../../common/AppLoadingService'
+import { AppLoadingAction, AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -413,11 +400,6 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
-const SceneReactor = (props: { state: State<ReturnType<typeof SceneState.initial>['scenes'][string]> }) => {
-  const state = useHookstate(props.state)
-  return null
-}
-
 const reactor = () => {
   const sceneData = useHookstate(getMutableState(SceneState))
 
@@ -445,25 +427,41 @@ const reactor = () => {
     }
   }, [sceneAssetPendingTagQuery, assetLoadingState])
 
-  useEffect(() => {
-    updateSceneFromJSON()
-  }, [sceneData])
+  // useEffect(() => {
+  //   updateSceneFromJSON
+  // }, [sceneData])
 
-  useEffect(() => {
-    addActionReceptor(AppLoadingServiceReceptor)
-    return () => {
-      removeActionReceptor(AppLoadingServiceReceptor)
-    }
-  }, [])
+  // useEffect(() => {
+  //   addActionReceptor(AppLoadingServiceReceptor)
+  //   return () => {
+  //     removeActionReceptor(AppLoadingServiceReceptor)
+  //   }
+  // }, [])
+
+  const entityMaps = Object.entries(sceneData.scenes).map(([sceneId, scene]) => {
+    return scene.load ? scene.data.ornull?.scene.entities ?? [] : []
+  })
+
+  // @todo: figure out some rules for merging entity layers accross scenes,
+  // rather than simply overriding based on scene order
+  const entityMap = Object.assign({}, ...entityMaps) as { [uuid: string]: State<EntityJson> }
 
   return (
     <>
-      {Object.entries(sceneData.scenes.value).push((scene) => (
-        <SceneReactor state={scene} />
+      {Object.entries(entityMap).map(([uuid, json]) => (
+        <EntityLoadReactor uuid={uuid as EntityUUID} json={json} />
       ))}
     </>
   )
 }
+
+const EntityLoadReactor = React.memo((props: { uuid: EntityUUID; json: State<EntityJson> }) => {
+  const uuid = props.uuid
+  const json = useHookstate(props.json)
+  if (json) {
+  }
+  return null
+})
 
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',

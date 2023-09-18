@@ -38,6 +38,16 @@ import { createEntity } from '../functions/EntityFunctions'
 import { EntityTreeComponent } from '../functions/EntityTree'
 import { Engine } from './Engine'
 
+export interface StagedScene {
+  data?: SceneData
+  load: boolean
+  loadProgress: {
+    textures: number
+    geometries: number
+    rigidbodies: number
+  }
+}
+
 export const SceneState = defineState({
   name: 'SceneState',
 
@@ -52,18 +62,7 @@ export const SceneState = defineState({
 
     return {
       sceneEntity,
-      scenes: {} as Record<
-        string,
-        {
-          data?: SceneData
-          load: boolean
-          loadProgress: {
-            textures: number
-            geometries: number
-            rigidbodies: number
-          }
-        }
-      >,
+      scenes: {} as Record<string, StagedScene>,
       background: null as null | Color | Texture
     }
   },
