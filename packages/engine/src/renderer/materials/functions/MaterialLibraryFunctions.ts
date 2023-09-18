@@ -40,6 +40,11 @@ export function MaterialNotFoundError(message) {
   this.message = message
 }
 
+export function PrototypeNotFoundError(message) {
+  this.name = 'PrototypeNotFound'
+  this.message = message
+}
+
 export function extractDefaults(defaultArgs) {
   return formatMaterialArgs(
     Object.fromEntries(Object.entries(defaultArgs).map(([k, v]: [string, any]) => [k, v.default])),
@@ -88,7 +93,7 @@ export function materialFromId(matId: string): MaterialComponentType {
 export function prototypeFromId(protoId: string): MaterialPrototypeComponentType {
   const materialLibrary = getState(MaterialLibraryState)
   const prototype = materialLibrary.prototypes[protoId]
-  if (!prototype) throw new Error('could not find Material Prototype for ID ' + protoId)
+  if (!prototype) throw new PrototypeNotFoundError('could not find Material Prototype for ID ' + protoId)
   return prototype
 }
 
@@ -173,7 +178,7 @@ export function removeMaterialSource(src: MaterialSource): boolean {
 
 export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
   const materialLibrary = getMutableState(MaterialLibraryState)
-  const prototype = prototypeFromId(material.userData.type ?? material.type)
+  const prototypeId = material.userData.type ?? material.type
   addMaterialSource(src)
   const srcMats = getSourceItems(src)!
   !srcMats.includes(material.uuid) &&
@@ -181,15 +186,32 @@ export function registerMaterial(material: Material, src: MaterialSource, params
       ...materialLibrary.sources[hashMaterialSource(src)].entries.value,
       material.uuid
     ])
-  const parameters =
-    params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
-  materialLibrary.materials[material.uuid].set({
-    material,
-    parameters,
-    plugins: [],
-    prototype: prototype.prototypeId,
-    src
-  })
+  try {
+    const prototype = prototypeFromId(prototypeId)
+    const parameters =
+      params ?? Object.fromEntries(Object.keys(extractDefaults(prototype.arguments)).map((k) => [k, material[k]]))
+    materialLibrary.materials[material.uuid].set({
+      material,
+      parameters,
+      plugins: [],
+      prototype: prototype.prototypeId,
+      src,
+      status: 'LOADED'
+    })
+  } catch (error) {
+    if (error instanceof PrototypeNotFoundError) {
+      console.warn('material prototype ' + prototypeId + ' not found, registering as missing material')
+      materialLibrary.materials[material.uuid].set({
+        material,
+        parameters: params ?? {},
+        plugins: [],
+        prototype: prototypeId,
+        src,
+        status: 'MISSING'
+      })
+    } else throw error
+  }
+
   return materialLibrary.materials[material.uuid]
 }
 
@@ -226,6 +248,23 @@ export function materialsFromSource(src: MaterialSource) {
   return getSourceItems(src)?.map(materialFromId)
 }
 
+export function replaceMaterial(material: Material, nuMat: Material) {
+  Engine.instance.scene.traverse((mesh: Mesh) => {
+    if (!mesh?.isMesh) return
+    if (Array.isArray(mesh.material)) {
+      mesh.material.map((meshMat, i) => {
+        if (material.uuid === meshMat.uuid) {
+          mesh.material[i] = nuMat
+        }
+      })
+    } else {
+      if (mesh.material.uuid === material.uuid) {
+        mesh.material = nuMat
+      }
+    }
+  })
+}
+
 export function changeMaterialPrototype(material: Material, protoId: string) {
   const materialEntry = materialFromId(material.uuid)
   if (materialEntry.prototype === protoId) return
@@ -241,20 +280,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
-  Engine.instance.scene.traverse((mesh: Mesh) => {
-    if (!mesh?.isMesh) return
-    if (Array.isArray(mesh.material)) {
-      mesh.material.map((meshMat, i) => {
-        if (material.uuid === meshMat.uuid) {
-          mesh.material[i] = nuMat
-        }
-      })
-    } else {
-      if (mesh.material.uuid === material.uuid) {
-        mesh.material = nuMat
-      }
-    }
-  })
+  replaceMaterial(material, nuMat)
   nuMat.uuid = material.uuid
   nuMat.name = material.name
   if (material.defines?.['USE_COLOR']) {
