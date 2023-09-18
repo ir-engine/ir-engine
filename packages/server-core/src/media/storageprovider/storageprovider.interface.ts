@@ -89,7 +89,7 @@ export interface StorageListObjectInterface {
   /**
    * Metadata about each object returned.
    */
-  Contents: { Key: string }[]
+  Contents: { Key: string; Size: number }[]
   /**
    * All of the keys (up to 1,000) rolled up into a common prefix count as a single return when calculating the number of returns. A response can contain CommonPrefixes only if you specify a delimiter.  CommonPrefixes contains all (if there are any) keys between Prefix and the next occurrence of the string specified by a delimiter.  CommonPrefixes lists keys that act like subdirectories in the directory specified by Prefix. For example, if the prefix is notes/ and the delimiter is a slash (/) as in notes/summer/july, the common prefix is notes/summer/. All of the keys that roll up into a common prefix count as a single return when calculating the number of returns.
    */
@@ -168,11 +168,15 @@ export interface StorageProviderInterface {
    */
   cacheDomain: string
 
+  originURLs: string[]
+
   /**
    * Invalidate items in the storage provider.
    * @param invalidationItems List of keys.
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
+
+  getOriginURLs(): Promise<string[]>
 
   associateWithFunction(functionARN: string): Promise<any>
 

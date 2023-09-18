@@ -65,6 +65,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { decode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -354,9 +355,14 @@ export async function createInternalDataConsumer(
       ordered: false
     })
     dataConsumer.on('message', (message) => {
+      const [fromPeerIndex, data] = decode(message)
+      // console.log({fromPeerIndex, data})
+      const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
+      // console.log(network.peerIDToPeerIndex, network.peerIndexToPeerID, fromPeerID)
+      if (fromPeerID !== peerID) return //logger.warn('Received message from unexpected peerID: ' + fromPeerID + ' for ' + peerID)
       const DataChannelFunctions = getState(DataChannelRegistryState)[dataProducer.label as DataChannelType]
       if (DataChannelFunctions) {
-        for (const func of DataChannelFunctions) func(network, dataProducer.label as DataChannelType, peerID, message)
+        for (const func of DataChannelFunctions) func(network, dataProducer.label as DataChannelType, fromPeerID, data)
       }
     })
 

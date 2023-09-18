@@ -29,7 +29,7 @@ const Drawer = ({ children, settings }: { children: ReactNode; settings: ReactNo
   return (
     <div className="drawer drawer-end">
       <input id="capture-drawer" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content">{children}</div>
+      <div className="drawer-content overflow-hidden">{children}</div>
       <div className="drawer-side">
         <label htmlFor="capture-drawer" className="drawer-overlay"></label>
         {settings}

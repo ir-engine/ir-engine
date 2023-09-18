@@ -101,10 +101,14 @@ export function camelPad(str) {
     })
     .trim()
 }
-// https://stackoverflow.com/a/18650828
-export function bytesToSize(bytes) {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  if (bytes == 0) return '0 Byte'
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i]
+export function bytesToSize(bytes: number, decimals = 2) {
+  if (bytes === 0) return '0 Bytes'
+
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }

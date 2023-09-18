@@ -104,6 +104,9 @@ function handler(event) {
  * Storage provide class to communicate with AWS S3 API.
  */
 export class S3Provider implements StorageProviderInterface {
+  constructor() {
+    if (!this.minioClient) this.getOriginURLs().then((result) => (this.originURLs = result))
+  }
   /**
    * Name of S3 bucket.
    */
@@ -156,10 +159,14 @@ export class S3Provider implements StorageProviderInterface {
         : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
+  originURLs = [this.cacheDomain]
+
   private bucketAssetURL =
     config.server.storageProvider === 's3'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint}/${this.bucket}`
+        : config.aws.s3.s3DevMode === 'local'
+        ? `https://${config.aws.cloudfront.domain}`
         : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
@@ -416,6 +423,17 @@ export class S3Provider implements StorageProviderInterface {
     return await this.cloudfront.send(command)
   }
 
+  async getOriginURLs(): Promise<string[]> {
+    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return [this.cacheDomain]
+    const getDistributionParams = {
+      Id: config.aws.cloudfront.distributionId
+    }
+    const getDistributionCommand = new GetDistributionCommand(getDistributionParams)
+    const distribution = await this.cloudfront.send(getDistributionCommand)
+    if (!distribution.Distribution?.DistributionConfig?.Origins?.Items) return [this.cacheDomain]
+    return distribution.Distribution.DistributionConfig.Origins.Items.map((item) => item.DomainName || this.cacheDomain)
+  }
+
   async listFunctions(marker: string | null, functions: FunctionSummary[]): Promise<FunctionSummary[]> {
     if (config.server.storageProvider !== 's3') return []
     const params: ListFunctionsCommandInput = {
@@ -654,7 +672,8 @@ export class S3Provider implements StorageProviderInterface {
               key,
               url: `${this.bucketAssetURL}/${key}`,
               name: query!.groups!.name,
-              type: query!.groups!.extension
+              type: query!.groups!.extension,
+              size: folderContent.Contents[i].Size
             }
             resolve(cont)
           })
@@ -687,8 +706,7 @@ export class S3Provider implements StorageProviderInterface {
           Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
         }
         const command = new CopyObjectCommand(input)
-        const response = await this.provider.send(command)
-        return response
+        return this.provider.send(command)
       })
     ])
 
