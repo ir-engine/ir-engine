@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { getState } from '@etherealengine/hyperflux'
@@ -46,7 +45,6 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { XRAction } from '../../xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
@@ -86,13 +84,6 @@ const execute = () => {
       phi: targetCameraRotation.phi,
       theta: targetCameraRotation.theta
     })
-
-    // todo: this should be called when the avatar is spawned
-    dispatchAction(
-      WorldNetworkAction.spawnCamera({
-        entityUUID: ('camera_' + getComponent(avatarEntity, UUIDComponent)) as EntityUUID
-      })
-    )
   }
 
   for (const entity of controllerQuery()) {

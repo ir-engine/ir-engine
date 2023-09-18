@@ -29,7 +29,6 @@ import { Route, Routes } from 'react-router-dom'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
-import $confirm from './confirm'
 import $magiclink from './magiclink'
 import $discord from './oauth/discord'
 import $facebook from './oauth/facebook'
@@ -48,7 +47,6 @@ const AuthRoutes = () => {
         <Route path="oauth/google" element={<$google />} />
         <Route path="oauth/linkedin" element={<$linkedin />} />
         <Route path="oauth/twitter" element={<$twitter />} />
-        <Route path="confirm" element={<$confirm />} />
         <Route path="magiclink" element={<$magiclink />} />
       </Routes>
     </Suspense>

@@ -104,7 +104,7 @@ export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false
 
         child.material = nuMaterial
         child.userData.lastMaterial = prevMaterial
-        prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
+        prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
       }
       // normalTexture.dispose()
     }
