@@ -69,7 +69,7 @@ const handleNetworkdata = (
     incomingMessageQueueUnreliableIDs.add(fromPeerID)
     // forward data to clients in world immediately
     // TODO: need to include the userId (or index), so consumers can validate
-    network.transport.bufferToAll(ecsDataChannelType, message)
+    network.transport.bufferToAll(ecsDataChannelType, fromPeerID, message)
   } else {
     incomingMessageQueueUnreliable.add(message)
     incomingMessageQueueUnreliableIDs.add(fromPeerID)

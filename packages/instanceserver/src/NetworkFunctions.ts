@@ -207,30 +207,14 @@ export const handleConnectingPeer = (
   const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
   const peerIndex = network.peerIndexCount++
 
+  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, user.name)
+
   const networkState = getMutableState(NetworkState).networks[network.id]
-  networkState.peers.merge({
-    [peerID]: {
-      userId,
-      userIndex: userIndex,
-      spark: spark,
-      peerIndex,
-      peerID,
-      media: {},
-      lastSeenTs: Date.now()
-    }
+  networkState.peers[peerID].merge({
+    spark,
+    media: {},
+    lastSeenTs: Date.now()
   })
-
-  if (!network.users[userId]) {
-    networkState.users.merge({ [userId]: [peerID] })
-  } else {
-    network.users[userId]!.push(peerID)
-  }
-
-  const worldState = getMutableState(WorldState)
-  worldState.userNames[userId].set(user.name)
-
-  network.userIDToUserIndex[userId] = userIndex
-  network.userIndexToUserID[userIndex] = userId
 
   updatePeers(network)
 

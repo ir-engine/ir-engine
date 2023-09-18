@@ -36,7 +36,7 @@ export const fileBrowserContentSchema = Type.Object(
     type: Type.String(),
     name: Type.String(),
     url: Type.String(),
-    size: Type.Optional(Type.String())
+    size: Type.Optional(Type.Number())
   },
   {
     $id: 'FileBrowserContent'

@@ -44,6 +44,9 @@ import {
  * Storage provide class to communicate with InterPlanetary File System (IPFS) using Mutable File System (MFS).
  */
 export class IPFSStorage implements StorageProviderInterface {
+  constructor() {
+    this.getOriginURLs().then((result) => (this.originURLs = result))
+  }
   private _client: IPFSHTTPClient
   private _blobStore: IPFSBlobStore
   private _pathPrefix = '/'
@@ -52,7 +55,8 @@ export class IPFSStorage implements StorageProviderInterface {
   /**
    * Domain address of cache.
    */
-  cacheDomain: string
+  cacheDomain = ''
+  originURLs = [this.cacheDomain]
 
   /**
    * Check if an object exists in the IPFS storage.
@@ -163,6 +167,7 @@ export class IPFSStorage implements StorageProviderInterface {
 
     const results: {
       Key: string
+      Size: number
     }[] = []
 
     if (recursive) {
@@ -170,7 +175,7 @@ export class IPFSStorage implements StorageProviderInterface {
     } else {
       for await (const file of this._client.files.ls(filePath)) {
         const fullPath = path.join(filePath, file.name)
-        results.push({ Key: fullPath })
+        results.push({ Key: fullPath, Size: file.size })
       }
     }
 
@@ -233,6 +238,10 @@ export class IPFSStorage implements StorageProviderInterface {
     return Promise.resolve()
   }
 
+  async getOriginURLs() {
+    return [this.cacheDomain]
+  }
+
   async associateWithFunction() {
     return Promise.resolve()
   }
@@ -274,7 +283,7 @@ export class IPFSStorage implements StorageProviderInterface {
           name: file.name,
           type: file.type,
           url: signedUrl.url,
-          size: this._formatBytes(file.size)
+          size: file.size
         }
 
         results.push(res)
@@ -391,7 +400,7 @@ export class IPFSStorage implements StorageProviderInterface {
         name: path.join(currentPath, file.name),
         type: file.type,
         url: file.cid.toString(),
-        size: this._formatBytes(file.size)
+        size: file.size
       }
       results.push(res)
 
@@ -417,18 +426,6 @@ export class IPFSStorage implements StorageProviderInterface {
           ).href
       )
       .catch(() => new URL(`http://${this.cacheDomain}`).href)
-  }
-
-  private _formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes'
-
-    const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
   }
 }
 

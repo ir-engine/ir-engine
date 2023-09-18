@@ -70,11 +70,8 @@ function createPeer(
     if (!network.users[userID]!.includes(peerID)) networkState.users[userID].merge([peerID])
   }
 
-  // TODO: we probably want an explicit config for detecting a non-user peer
-  if (peerID !== 'server') {
-    const worldState = getMutableState(WorldState)
-    worldState.userNames[userID].set(name)
-  }
+  const worldState = getMutableState(WorldState)
+  worldState.userNames[userID].set(name)
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {

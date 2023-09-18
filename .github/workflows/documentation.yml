@@ -35,7 +35,7 @@ jobs:
       - name: install main repository
         run: npm install --legacy-peer-deps
       - name: clone etherealengine docs
-        run: git clone https://github.com/etherealengine/etherealengine-docs.git docs --depth 1
+        run: git clone https://github.com/etherealengine/etherealengine-docs.git docs
       - name: install docs npm packages
         working-directory: docs
         run: npm install --legacy-peer-deps
@@ -72,8 +72,18 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
           npm install --legacy-peer-deps
-          git clone https://github.com/etherealengine/etherealengine-docs.git docs --depth 1
+          git clone https://github.com/etherealengine/etherealengine-docs.git docs
+          echo "Starting to remove commit history for gh-pages branch"
           cd docs
+          git checkout gh-pages
+          git checkout --orphan temp-gh-pages
+          git add -A
+          git commit -m "Update docs to latest commit only"
+          git checkout gh-pages
+          git reset --hard temp-gh-pages
+          git push origin gh-pages --force
+          git branch -D temp-gh-pages
+          echo "gh-pages commit history has been cleared"
           cp .env.local.default .env.local
           npm install --legacy-peer-deps
           npm run deploy
