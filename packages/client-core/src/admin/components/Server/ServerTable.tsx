@@ -38,7 +38,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { ServerPodInfoType, serverInfoPath } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import { ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
 import styles from '../../styles/admin.module.scss'
@@ -62,8 +62,8 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
   const selectedPod = useHookstate<ServerPodInfoType | null>(null)
 
-  const serverInfoQuery = useFind(serverInfoPath)
-  const removeServerInfo = useMutation(serverInfoPath).remove
+  const serverInfoQuery = useFind(podsPath)
+  const removeServerInfo = useMutation(podsPath).remove
 
   useEffect(() => {
     if (autoRefresh.value !== '0') {
