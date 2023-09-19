@@ -23,18 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    email: {
-      type: 'object',
-      properties: {
-        email: {
-          type: 'string'
-        }
-      }
-    }
+import { emailDataSchema } from '@etherealengine/engine/src/schemas/user/email.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: { emailDataSchema },
+  docs: {
+    description: 'Email service description',
+    securities: ['all']
   }
-}
+})

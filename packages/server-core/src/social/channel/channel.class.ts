@@ -29,6 +29,11 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -37,7 +42,6 @@ import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../api/root-params'
-import { checkScope } from '../../hooks/verify-scope'
 
 export type ChannelDataType = ChannelInterface
 
@@ -141,7 +145,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
       if (!userId) return []
 
-      const admin = query.action === 'admin' && (await checkScope(loggedInUser, this.app, 'admin', 'admin'))
+      const admin = query.action === 'admin' && (await checkScope(loggedInUser, 'admin', 'admin'))
 
       if (admin) {
         const { action, $skip, $limit, search, ...query } = params?.query ?? {}
@@ -156,7 +160,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             const item: any[] = []
 
             if (name === 'instance') {
-              //item.push(this.app.service('instance').Model)
               item.push(Sequelize.literal('`instance.ipAddress`'))
             } else {
               item.push(name)
@@ -198,24 +201,16 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       }
 
       if (query.instanceId) {
-        const channels = await this.app.service('channel').Model.findAll({
-          include: [
-            {
-              model: this.app.service('instance').Model,
-              required: true,
-              where: {
-                id: query.instanceId,
-                ended: false
-              },
-              include: [
-                /** @todo - couldn't figure out how to include active users */
-                // {
-                //   model: this.app.service(userPath).Model,
-                // },
-              ]
-            }
-          ]
-        })
+        const knexClient: Knex = this.app.get('knexClient')
+        let channels = await knexClient
+          .from('channel')
+          .join(instancePath, `${instancePath}.id`, 'channel.instanceId')
+          .where(`${instancePath}.id`, '=', query.instanceId)
+          .andWhere(`${instancePath}.ended`, '=', false)
+          .select()
+          .options({ nestTables: true })
+
+        channels = channels.map((item) => item.channel)
 
         for (const channel of channels) {
           channel.messages = (await this.app.service(messagePath).find({
@@ -237,27 +232,21 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         // })
       }
 
-      let allChannels = await this.app.service('channel').Model.findAll({
-        where: {
-          [Op.or]: [
-            {
-              '$instance.ended$': false
-            },
-            {
-              instanceId: null
-            }
-          ]
-        },
-        include: [
-          {
-            model: this.app.service('instance').Model
-          }
-        ]
-      })
+      const knexClient: Knex = this.app.get('knexClient')
+
+      let allChannels = await knexClient
+        .from('channel')
+        .leftJoin(instancePath, `${instancePath}.id`, 'channel.instanceId')
+        .where(`${instancePath}.ended`, '=', false)
+        .orWhereNull('channel.instanceId')
+        .select()
+        .options({ nestTables: true })
 
       /** @todo figure out how to do this as part of the query */
+      allChannels = allChannels.map((item) => item.channel)
+
       for (const channel of allChannels) {
-        channel.dataValues.channel_users = (await this.app.service(channelUserPath).find({
+        channel.channel_users = (await this.app.service(channelUserPath).find({
           query: {
             channelId: channel.id
           },
@@ -266,11 +255,11 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       }
 
       allChannels = allChannels.filter((channel) => {
-        return channel.dataValues.channel_users.find((channelUser) => channelUser.userId === userId)
+        return channel.channel_users.find((channelUser) => channelUser.userId === userId)
       })
 
       for (const channel of allChannels) {
-        channel.dataValues.messages = (await this.app.service(messagePath).find({
+        channel.messages = (await this.app.service(messagePath).find({
           query: {
             channelId: channel.id,
             $limit: 20,

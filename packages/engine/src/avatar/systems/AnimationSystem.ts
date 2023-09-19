@@ -27,7 +27,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { VRM } from '@pixiv/three-vrm'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalMutableComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -52,6 +52,9 @@ const execute = () => {
     const animationComponent = getComponent(entity, AnimationComponent)
     const modifiedDelta = deltaSeconds
     animationComponent.mixer.update(modifiedDelta)
+    const animationActionComponent = getOptionalMutableComponent(entity, LoopAnimationComponent)
+    animationActionComponent?._action.value &&
+      animationActionComponent?.time.set(animationActionComponent._action.value.time)
   }
 
   for (const entity of loopAnimationQuery()) {

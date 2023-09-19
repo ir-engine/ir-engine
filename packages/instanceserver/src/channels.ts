@@ -30,7 +30,6 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -51,7 +50,12 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import {
+  InstanceData,
+  InstanceID,
+  instancePath,
+  InstanceType
+} from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { channelUserPath, ChannelUserType } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import {
@@ -95,24 +99,17 @@ interface InstanceserverStatus {
   players: any
 }
 
-type InstanceMetadata = {
-  currentUsers: number
-  locationId: string
-  channelId: string
-  ipAddress: string
-}
-
 /**
  * Creates a new 'instance' entry based on a locationId or channelId
  * If it is a location instance, creates a 'channel' entry
  * @param app
  * @param newInstance
  */
-const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
+const createNewInstance = async (app: Application, newInstance: InstanceData) => {
   const { locationId, channelId } = newInstance
 
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
-  const instanceResult = (await app.service('instance').create(newInstance)) as Instance
+  const instanceResult = await app.service(instancePath).create(newInstance)
   if (!channelId) {
     await app.service('channel').create({
       instanceId: instanceResult.id
@@ -134,7 +131,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 
 const assignExistingInstance = async (
   app: Application,
-  existingInstance: Instance,
+  existingInstance: InstanceType,
   channelId: ChannelID,
   locationId: string
 ) => {
@@ -143,7 +140,7 @@ const assignExistingInstance = async (
 
   await serverState.agonesSDK.allocate()
   instanceServerState.instance.set(existingInstance)
-  await app.service('instance').patch(existingInstance.id, {
+  await app.service(instancePath).patch(existingInstance.id, {
     currentUsers: existingInstance.currentUsers + 1,
     channelId: channelId,
     locationId: locationId,
@@ -194,9 +191,9 @@ const initializeInstance = async (
    * here we check that this is the case, as it may be altered, for example by another service or an admin
    */
 
-  const existingInstanceResult = (await app.service('instance').find({
+  const existingInstanceResult = (await app.service(instancePath).find({
     query: existingInstanceQuery
-  })) as Paginated<Instance>
+  })) as Paginated<InstanceType>
   logger.info('existingInstanceResult: %o', existingInstanceResult.data)
 
   if (existingInstanceResult.total === 0) {
@@ -206,7 +203,7 @@ const initializeInstance = async (
       channelId: channelId,
       ipAddress: ipAddress,
       podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local'
-    } as InstanceMetadata
+    } as InstanceData
     await createNewInstance(app, newInstance)
   } else {
     const instance = existingInstanceResult.data[0]
@@ -413,10 +410,10 @@ const createOrUpdateInstance = async (
             }
           }, 1000)
         })
-      const instance = await app.service('instance').get(instanceServerState.instance.id)
+      const instance = await app.service(instancePath).get(instanceServerState.instance.id)
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
       await serverState.agonesSDK.allocate()
-      await app.service('instance').patch(instanceServerState.instance.id, {
+      await app.service(instancePath).patch(instanceServerState.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
         assigned: false,
         podName: config.kubernetes.enabled ? instanceServerState.instanceServer?.objectMeta?.name : 'local',
@@ -437,7 +434,7 @@ const shutdownServer = async (app: Application, instanceId: InstanceID) => {
 
   logger.info('Deleting instance ' + instanceId)
   try {
-    await app.service('instance').patch(instanceId, {
+    await app.service(instancePath).patch(instanceId, {
       ended: true
     })
     if (instanceServer.instance.locationId) {
@@ -454,7 +451,7 @@ const shutdownServer = async (app: Application, instanceId: InstanceID) => {
 
   // already shut down
   if (!instanceServer.instance) return
-  ;(instanceServer.instance as Instance).ended = true
+  ;(instanceServer.instance as InstanceType).ended = true
   if (config.kubernetes.enabled) {
     const instanceServerState = getMutableState(InstanceServerState)
     instanceServerState.instance.set(null!)
@@ -488,7 +485,7 @@ const handleUserDisconnect = async (
 
   try {
     const activeUsersCount = getActiveUsersCount(app, user)
-    await app.service('instance').patch(instanceId, {
+    await app.service(instancePath).patch(instanceId, {
       currentUsers: activeUsersCount
     })
   } catch (err) {
@@ -559,7 +556,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId! as ChannelID
   let roomCode = connection.socketQuery.roomCode!
-  let instanceID = connection.socketQuery.instanceID!
+  const instanceID = connection.socketQuery.instanceID!
 
   if (locationId === '') {
     locationId = undefined!
@@ -600,7 +597,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
-    await app.service('instance').patch(instanceServerState.instance.id, {
+    await app.service(instancePath).patch(instanceServerState.instance.id, {
       ended: true
     })
     try {
@@ -686,7 +683,8 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
       )
     }
     try {
-      instance = instanceServerState.instance && instanceId != null ? await app.service('instance').get(instanceId) : {}
+      instance =
+        instanceServerState.instance && instanceId != null ? await app.service(instancePath).get(instanceId) : {}
     } catch (err) {
       logger.warn('Could not get instance, likely because it is a local one that no longer exists.')
     }

@@ -41,6 +41,7 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import {
@@ -410,8 +411,8 @@ export const AuthService = {
 
   async loginUserMagicLink(token, redirectSuccess, redirectError) {
     try {
-      const res = await Engine.instance.api.service('login').get(token)
-      await AuthService.loginUserByJwt(res.token, '/', '/')
+      const res = await Engine.instance.api.service(loginPath).get(token)
+      await AuthService.loginUserByJwt(res.token!, '/', '/')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
@@ -447,39 +448,6 @@ export const AuthService = {
     } catch (err) {
       logger.warn(err, 'Error registering user by email')
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
-
-  async verifyEmail(token: string) {
-    const authState = getMutableState(AuthState)
-    authState.merge({ isProcessing: true, error: '' })
-
-    try {
-      const { accessToken } = Engine.instance.api.service('authManagement').create({
-        action: 'verifySignupLong',
-        value: token
-      })
-      await AuthService.loginUserByJwt(accessToken, '/', '/')
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      authState.merge({ isProcessing: false, error: '' })
-    }
-  },
-
-  async resendVerificationEmail(email: string) {
-    const authState = getMutableState(AuthState)
-    authState.merge({ isProcessing: true, error: '' })
-
-    try {
-      await Engine.instance.api.service('authManagement').create({
-        action: 'resendVerifySignup',
-        value: { token: email, type: 'password' }
-      })
-    } catch (err) {
-      logger.warn(err, 'Error resending verification email')
     } finally {
       authState.merge({ isProcessing: false, error: '' })
     }
