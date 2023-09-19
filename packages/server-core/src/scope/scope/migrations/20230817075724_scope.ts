@@ -51,10 +51,10 @@ export async function up(knex: Knex): Promise<void> {
       table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
       table.foreign('type').references('type').inTable('scope-type').onDelete('SET NULL').onUpdate('CASCADE')
     })
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**

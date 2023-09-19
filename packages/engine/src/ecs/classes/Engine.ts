@@ -108,38 +108,6 @@ export class Engine {
   xrFrame: XRFrame | null = null
 
   /**
-   * The seconds since the last world execution
-   * @deprecated use getState(EngineState).deltaSeconds
-   */
-  get deltaSeconds() {
-    return getState(EngineState).deltaSeconds
-  }
-
-  /**
-   * The elapsed seconds since `performance.timeOrigin`
-   * @deprecated use `getState(EngineState).elapsedSeconds`
-   */
-  get elapsedSeconds() {
-    return getState(EngineState).elapsedSeconds
-  }
-
-  /**
-   * The current fixed tick (simulationTime / simulationTimeStep)
-   * @deprecated
-   */
-  get fixedTick() {
-    const engineState = getState(EngineState)
-    return engineState.simulationTime / engineState.simulationTimestep
-  }
-
-  /**
-   * @deprecated use `getState(EngineState).simulationTimestep / 1000`
-   */
-  get fixedDeltaSeconds() {
-    return getState(EngineState).simulationTimestep / 1000
-  }
-
-  /**
    * Reference to the three.js scene object.
    */
   scene = new Scene()
@@ -164,11 +132,6 @@ export class Engine {
    * The camera entity
    */
   cameraEntity: Entity = UndefinedEntity
-
-  /**
-   *
-   */
-  priorityAvatarEntities: ReadonlySet<Entity> = new Set()
 
   /**
    * The local client entity

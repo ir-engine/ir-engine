@@ -28,7 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { ChannelInterface } from '@etherealengine/common/src/dbmodels/Channel'
 
 import { Application } from '../../../declarations'
-import { createChannelUserModel, createMessageModel } from '../../all.model'
+import { createChannelUserModel, createInstanceModel, createMessageModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -62,7 +62,7 @@ export default (app: Application) => {
       onDelete: 'cascade',
       hooks: true
     })
-    ;(channel as any).belongsTo(models.instance, { foreignKey: 'instanceId' })
+    ;(channel as any).belongsTo(createInstanceModel(app), { foreignKey: 'instanceId' })
   }
 
   return channel

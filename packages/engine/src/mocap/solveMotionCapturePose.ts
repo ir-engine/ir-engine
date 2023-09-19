@@ -149,7 +149,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
 
   lastLandmarks = landmarks
 
-  if (!last) return
+  if (!last || !landmarks?.length) return
 
   const smoothedLandmarks = landmarks.map((landmark, index) => {
     const lastLandmark = lastLandmarks[index]

@@ -66,7 +66,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         { label: 'None', value: -1 },
         ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
       ])
-  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations, loopAnimationComponent.animationPackScene])
+  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations])
 
   const onChangePlayingAnimation = (index) => {
     updateProperties(LoopAnimationComponent, {
@@ -101,10 +101,10 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           )}
         </InputGroup>
       )}
-      <InputGroup name="Playback Speed" label={t('editor:properties.loopAnimation.lbl-playbackSpeed')}>
+      <InputGroup name="Time Scale" label={t('editor:properties.loopAnimation.lbl-timeScale')}>
         <NumericInput
-          value={loopAnimationComponent.animationSpeed.value}
-          onChange={updateProperty(LoopAnimationComponent, 'animationSpeed')}
+          value={loopAnimationComponent.timeScale.value}
+          onChange={updateProperty(LoopAnimationComponent, 'timeScale')}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>

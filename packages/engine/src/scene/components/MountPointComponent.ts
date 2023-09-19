@@ -74,18 +74,18 @@ export const MountPointComponent = defineComponent({
     const mountPoint = useComponent(entity, MountPointComponent)
 
     useEffect(() => {
-      if (!debugEnabled.value || mountPoint.helper.value) return
+      if (debugEnabled.value && !mountPoint.helper.value) {
+        const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
+        helper.name = `mount-point-helper-${entity}`
 
-      const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
-      helper.name = `mount-point-helper-${entity}`
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        addObjectToGroup(entity, helper)
 
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-      addObjectToGroup(entity, helper)
+        mountPoint.helper.set(helper)
+      }
 
-      mountPoint.helper.set(helper)
-
-      return () => {
-        removeObjectFromGroup(entity, mountPoint.helper.value!)
+      if (!debugEnabled.value && mountPoint.helper.value) {
+        removeObjectFromGroup(entity, mountPoint.helper.value)
         mountPoint.helper.set(none)
       }
     }, [debugEnabled])

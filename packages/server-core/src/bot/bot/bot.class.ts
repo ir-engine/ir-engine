@@ -67,7 +67,7 @@ export class BotService<T = BotType, ServiceParams extends Params = BotParams> e
     const result = await super._create(dataWithoutExtras)
     result.botCommands = []
 
-    for (let element of data.botCommands) {
+    for (const element of data.botCommands) {
       const command = await this.app.service(botCommandPath).create({
         ...element,
         botId: result.id
