@@ -45,7 +45,12 @@ export class KHRMaterialsPBRSpecularGlossinessExtension extends ImporterExtensio
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
     const extension: KHRMaterialsPBRSpecularGlossiness = materialDef.extensions[this.name]
+    const assignDiffuse = async () => {
+      if (!extension.diffuseTexture) return
+      return parser.assignTexture(materialParams, 'map', extension.diffuseTexture)
+    }
     const invertSpecular = async () => {
+      if (!extension.specularGlossinessTexture) return
       const dud = {
         texture: null as Texture | null
       }
@@ -59,10 +64,9 @@ export class KHRMaterialsPBRSpecularGlossinessExtension extends ImporterExtensio
       ctx.globalCompositeOperation = 'source-over'
       const invertedTexture = new CanvasTexture(canvas)
       materialParams.roughnessMap = invertedTexture
+      //materialParams.metalnessMap = dud.texture!
       //dud.texture and mapData are disposed by garbage collection after this function returns
     }
-    return Promise.all([parser.assignTexture(materialParams, 'map', extension.diffuseTexture), invertSpecular()]).then(
-      () => Promise.resolve()
-    )
+    return Promise.all([assignDiffuse(), invertSpecular()]).then(() => Promise.resolve())
   }
 }
