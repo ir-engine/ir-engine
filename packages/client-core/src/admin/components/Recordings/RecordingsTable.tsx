@@ -43,31 +43,16 @@ import { recordingColumns } from '../../common/variables/recording'
 import styles from '../../styles/admin.module.scss'
 import RecordingFilesDrawer from './RecordingsDrawer'
 
-const RECORDING_PAGE_LIMIT = 10
-
 const RecordingsTable = () => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(RECORDING_PAGE_LIMIT)
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('createdAt')
   const openConfirm = useHookstate(false)
   const currentRecordingId = useHookstate<RecordingID | undefined>(undefined)
   const recordingResourcesDrawerOpen = useHookstate<boolean>(false)
 
-  const handlePageChange = (_event: unknown, newPage: number) => {
-    page.set(newPage)
-  }
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
-
   const recordingsQuery = useFind(recordingPath, {
     query: {
-      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
-      $skip: page.value * rowsPerPage.value,
-      $limit: rowsPerPage.value,
+      $sort: { createdAt: 1 },
+      $limit: 20,
       action: 'admin'
     }
   })
@@ -119,19 +104,7 @@ const RecordingsTable = () => {
 
   return (
     <Box>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={recordingColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={recordingsQuery.total!}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={recordingsQuery} rows={rows} column={recordingColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.recording.confirmRecordingDelete')} '${currentRecordingId.value}'?`}

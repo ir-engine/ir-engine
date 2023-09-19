@@ -421,6 +421,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
     }
 
     return {
+      total: data.length,
       data,
       errors
     }
