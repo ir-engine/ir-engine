@@ -592,14 +592,6 @@ export default class TransformGizmo extends Object3D {
     this.setTransformMode(this.mode)
   }
 
-  get selectedAxis() {
-    return this.selectedAxisObj?.axisInfo.axis
-  }
-
-  get selectedPlaneNormal() {
-    return this.selectedAxisObj?.axisInfo.planeNormal
-  }
-
   setTransformMode(mode: TransformModeType): void {
     this.mode = mode
 
@@ -638,63 +630,16 @@ export default class TransformGizmo extends Object3D {
     this.scaleXZPlane.visible = visible*/
   }
 
-  raycastAxis(
-    target: Vector2,
-    camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  ): Intersection<Object3D> | undefined {
-    if (this.activeControls?.length == 0) return
-
+  raycastAxis(target: Vector2, camera = getComponent(Engine.instance.cameraEntity, CameraComponent)) {
     this.raycasterResults.length = 0
     this.raycaster.setFromCamera(target, camera)
 
-    return this.raycaster
-      .intersectObjects(this.activeControls!, true, this.raycasterResults)
-      .find((result) => (result.object as MeshWithAxisInfo).axisInfo !== undefined)
-  }
+    const intersect = intersectObjectWithRay(this.gizmo.picker[this.mode], this.raycaster)
 
-  selectAxisWithRaycaster(
-    target: Vector2,
-    camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  ): TransformAxisType | undefined {
-    this.deselectAxis()
-
-    const axisResult = this.raycastAxis(target, camera)
-    if (!axisResult) return
-
-    this.selectedAxisObj = axisResult.object as MeshWithAxisInfo
-    const newAxisInfo = this.selectedAxisObj.axisInfo
-
-    this.previousColor.copy(newAxisInfo.selectionColorTarget.color)
-
-    newAxisInfo.selectionColorTarget.color.copy(this.selectionColor)
-    if (newAxisInfo.rotationStartObject) newAxisInfo.rotationStartObject.visible = true
-    if (newAxisInfo.rotationEndObject) newAxisInfo.rotationEndObject.visible = true
-
-    return newAxisInfo.axis
-  }
-
-  highlightHoveredAxis(target: Vector2, camera = getComponent(Engine.instance.cameraEntity, CameraComponent)): void {
-    if (!this.activeControls) return
-    if (this.hoveredAxis) this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5
-
-    const axisResult = this.raycastAxis(target, camera)
-    if (!axisResult) return
-
-    this.hoveredAxis = axisResult.object as MeshWithAxisInfo
-    this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 1
-  }
-
-  deselectAxis(): void {
-    if (this.selectedAxisObj) {
-      const oldAxisInfo = this.selectedAxisObj.axisInfo
-      oldAxisInfo.selectionColorTarget.color.copy(this.previousColor)
-      if (oldAxisInfo.rotationStartObject) {
-        oldAxisInfo.rotationStartObject.visible = false
-      }
-      if (oldAxisInfo.rotationEndObject) {
-        oldAxisInfo.rotationEndObject.visible = false
-      }
-      this.selectedAxisObj = undefined
+    if (intersect) {
+      this.axis = intersect.object.name
+    } else {
+      this.axis = null
     }
   }
 
@@ -976,10 +921,8 @@ export default class TransformGizmo extends Object3D {
 			handle.visible = handle.visible && ( handle.name.indexOf( 'E' ) === - 1 || ( this.showX && this.showY && this.showZ ) );
       */
       // highlight selected axis
-
       ;(handle.material as any)._color = (handle.material as any)._color || (handle.material as any).color.clone()
       ;(handle.material as any)._opacity = (handle.material as any)._opacity || (handle.material as any).opacity
-
       ;(handle.material as any).color.copy((handle.material as any)._color)
       ;(handle.material as any).opacity = (handle.material as any)._opacity
 
@@ -1005,4 +948,16 @@ export default class TransformGizmo extends Object3D {
     // You can only have one instance of TransformControls so return a dummy object when cloning.
     return new Object3D().copy(this) as this
   }
+}
+
+function intersectObjectWithRay(object, raycaster, includeInvisible = false) {
+  const allIntersections = raycaster.intersectObject(object, true)
+
+  for (let i = 0; i < allIntersections.length; i++) {
+    if (allIntersections[i].object.visible || includeInvisible) {
+      return allIntersections[i]
+    }
+  }
+
+  return false
 }

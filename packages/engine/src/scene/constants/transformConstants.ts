@@ -32,14 +32,11 @@ export const TransformPivot = {
   Origin: 'Origin' as const
 }
 export const TransformMode = {
-  Disabled: 'Disabled' as const,
-  Combined: 'Combined' as const,
-  Grab: 'Grab' as const,
-  Placement: 'Placement' as const,
-  Translate: 'Translate' as const,
-  Rotate: 'Rotate' as const,
-  Scale: 'Scale' as const
+  translate: 'translate' as const,
+  rotate: 'rotate' as const,
+  scale: 'scale' as const
 }
+
 export const TransformAxis = {
   X: 'X' as const,
   Y: 'Y' as const,

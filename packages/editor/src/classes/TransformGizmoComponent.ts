@@ -23,20 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGizmo'
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls'
+
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { useEffect } from 'react'
 
 export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
 
   onInit(entity) {
-    return {
-      gizmo: new TransformGizmo()
-    }
+    console.log('DEBUG add control', entity)
+    return new TransformControls(
+      getComponent(Engine.instance.cameraEntity, CameraComponent),
+      EngineRenderer.instance.renderer.domElement
+    )
   },
-
+  onRemove: (entity, component) => {
+    component.value.detach()
+  },
   reactor: function (props) {
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
@@ -50,7 +63,9 @@ export const TransformGizmoComponent = defineComponent({
     )*/
 
     useEffect(() => {
-      console.log('DEBUG added gizmo')
+      console.log('DEBUG run gizmo effect')
+      const object = Engine.instance.scene.getObjectByProperty('uuid', getComponent(entity, UUIDComponent))
+      gizmoComponent.value.attach(object!)
     }, [])
     return null
   }
