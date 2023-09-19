@@ -89,7 +89,7 @@ const updateReflection = () => {
 const execute = () => {
   const xrLightProbeState = getState(XRLightProbeState)
 
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
   if (!xrFrame) return
 
   if (!xrLightProbeState.probe) return

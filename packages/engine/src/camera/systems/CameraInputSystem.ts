@@ -46,6 +46,7 @@ import {
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { XRState } from '../../xr/XRState'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -179,7 +180,7 @@ let lastMouseMoved = false
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
 
 const execute = () => {
-  if (Engine.instance.xrFrame) return
+  if (getState(XRState).xrFrame) return
 
   const deltaSeconds = getState(EngineState).deltaSeconds
 
