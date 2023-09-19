@@ -53,7 +53,8 @@ export class SceneDataService implements ServiceInterface<SceneDataServiceType, 
             const projectScenes = (
               await getScenesForProject(this.app, {
                 ...params,
-                query: { projectName: project.name, metadataOnly: params?.metadataOnly },
+                projectName: project.name,
+                metadataOnly: params?.metadataOnly,
                 internal: params?.provider == null
               })
             ).data

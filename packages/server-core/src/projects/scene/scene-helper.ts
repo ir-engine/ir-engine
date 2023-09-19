@@ -200,8 +200,8 @@ export const downloadAssetsFromScene = async (app: Application, project: string,
 
 export const getScenesForProject = async (app: Application, params?: SceneDataParams) => {
   const storageProvider = getStorageProvider(params?.query?.storageProviderName)
-  const projectName = params?.query?.project?.toString()
-  const metadataOnly = params?.query?.metadataOnly
+  const projectName = params?.projectName
+  const metadataOnly = params?.metadataOnly
   const internal = params?.internal
   try {
     const project = await app.service(projectPath).find({ ...params, query: { name: projectName } })
