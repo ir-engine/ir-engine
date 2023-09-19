@@ -58,7 +58,7 @@ export const InputGroupContainer = ({ disabled = false, children, ...rest }) => 
 /**
  * Used to provide styles for InputGroupContent div.
  */
-export const InputGroupContent = ({ extraClasses, children }) => (
+export const InputGroupContent = ({ extraClasses = '', children }) => (
   <div className={`input-group-content ${extraClasses}`}>{children}</div>
 )
 
