@@ -23,28 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import TransformGizmo from '../classes/TransformGizmo'
+import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useEntityContext } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import TransformGizmo from '@etherealengine/engine/src/scene/classes/TransformGizmo'
+import { useEffect } from 'react'
 
 export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
 
   onInit(entity) {
-    const gizmo = new TransformGizmo()
-    return gizmo
+    return {
+      gizmo: new TransformGizmo()
+    }
   },
 
   reactor: function (props) {
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
-    useExecute(
+    /*useExecute(
       // transfer editor control system logic
-      () => {},
+      () => {
+
+        
+      },
       { with: PresentationSystemGroup }
-    )
+    )*/
+
+    useEffect(() => {
+      console.log('DEBUG added gizmo')
+    }, [])
     return null
   }
 })

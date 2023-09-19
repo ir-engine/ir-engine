@@ -27,8 +27,8 @@ import { CameraComponent } from '@etherealengine/engine/src/camera/components/Ca
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmoComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 
 const GIZMO_SIZE = 10
 

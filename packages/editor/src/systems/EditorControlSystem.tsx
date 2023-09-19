@@ -62,7 +62,6 @@ import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/Infinit
 import { GroupComponent, addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
-import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmoComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
   TransformMode,
@@ -76,6 +75,7 @@ import {
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
@@ -101,7 +101,7 @@ export const createTransformGizmo = () => {
   setComponent(gizmoEntity, NameComponent, 'Transform Gizmo')
   setComponent(gizmoEntity, TransformGizmoComponent)
   setComponent(gizmoEntity, TransformComponent)
-  addObjectToGroup(gizmoEntity, getComponent(gizmoEntity, TransformGizmoComponent))
+  addObjectToGroup(gizmoEntity, getComponent(gizmoEntity, TransformGizmoComponent).gizmo)
   setTransformMode(TransformMode.Translate)
   return gizmoEntity
 }
@@ -337,7 +337,7 @@ const doZoom = (zoom) => {
 
 const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
-const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
+const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent).gizmo
 const changedTransformMode = defineActionQueue(EditorHelperAction.changedTransformMode.matches)
 
 const execute = () => {
@@ -674,14 +674,17 @@ const reactor = () => {
   }, [])
 
   useEffect(() => {
+    console.log('DEBUG changed entities')
     transformMode = editorHelperState.transformMode.value
     transformPivot = editorHelperState.transformPivot.value
     transformSpace = editorHelperState.transformSpace.value
     selectedParentEntities = selectionState.selectedParentEntities.value
     selectedEntities = selectionState.selectedEntities.value
     selectionCounter = selectionState.selectionCounter.value
-
     //handle gizmo visibility
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    const isUuid = typeof lastSelection === 'string'
+
     if (
       (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) &&
       hasComponent(gizmoEntity, VisibleComponent)
@@ -692,8 +695,6 @@ const reactor = () => {
     setComponent(gizmoEntity, VisibleComponent)
 
     //get entity transform
-    const lastSelection = selectedEntities[selectedEntities.length - 1]
-    const isUuid = typeof lastSelection === 'string'
 
     const lastSelectedTransform = isUuid
       ? Engine.instance.scene.getObjectByProperty('uuid', lastSelection)
@@ -758,6 +759,7 @@ const reactor = () => {
     selectionState.selectionCounter,
     selectionState.selectedParentEntities
   ])
+
   // there is no deterministic ordering for react useeffect better to club them togther
 
   return (

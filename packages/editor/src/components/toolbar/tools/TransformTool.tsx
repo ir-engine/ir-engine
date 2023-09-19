@@ -31,7 +31,6 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import HeightIcon from '@mui/icons-material/Height'
 import OpenWithIcon from '@mui/icons-material/OpenWith'
 import SyncIcon from '@mui/icons-material/Sync'
-import ThreeDRotationIcon from '@mui/icons-material/ThreeDRotation'
 
 import { useTranslation } from 'react-i18next'
 import { setTransformMode } from '../../../functions/transformFunctions'
@@ -70,14 +69,6 @@ const TransformTool = () => {
             onClick={() => setTransformMode(TransformMode.Scale)}
           >
             <HeightIcon fontSize="small" />
-          </button>
-        </InfoTooltip>
-        <InfoTooltip title={t('editor:toolbar.gizmo.combined')} placement="bottom">
-          <button
-            className={styles.toolButton + ' ' + (transformMode === TransformMode.Combined ? styles.selected : '')}
-            onClick={() => setTransformMode(TransformMode.Combined)}
-          >
-            <ThreeDRotationIcon fontSize="small" />
           </button>
         </InfoTooltip>
       </div>

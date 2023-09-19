@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import {
   BoxGeometry,
   BufferGeometry,
-  Color,
   CylinderGeometry,
   Float32BufferAttribute,
   Intersection,
@@ -52,7 +51,8 @@ import {
   TransformAxisActionType,
   TransformAxisType,
   TransformMode,
-  TransformModeType
+  TransformModeType,
+  TransformSpace
 } from '../../scene/constants/transformConstants'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -78,39 +78,20 @@ export default class TransformGizmo extends Object3D {
   gizmo: any
   picker: any
   helper: any
-  model: Object3D
-  selectionColor: Color
-  previousColor: Color
   raycaster: Raycaster
   raycasterResults: Intersection<Object3D>[]
-
   translateControls: Object3D
-  translateXAxis: MeshWithAxisInfo
-  translateYAxis: MeshWithAxisInfo
-  translateZAxis: MeshWithAxisInfo
-  translateXYPlane: MeshWithAxisInfo
-  translateYZPlane: MeshWithAxisInfo
-  translateXZPlane: MeshWithAxisInfo
-  translateXYZ: MeshWithAxisInfo
-
   rotateControls: Object3D
-  rotateXAxis: Object3D
-  rotateYAxis: Object3D
-  rotateZAxis: Object3D
-
   scaleControls: Object3D
-  scaleXAxis: MeshWithAxisInfo
-  scaleYAxis: MeshWithAxisInfo
-  scaleZAxis: MeshWithAxisInfo
-  scaleXYPlane: MeshWithAxisInfo
-  scaleYZPlane: MeshWithAxisInfo
-  scaleXZPlane: MeshWithAxisInfo
-  scaleUniformHandle: MeshWithAxisInfo
-
-  transformMode: TransformModeType
-  activeControls?: Object3D[]
-  selectedAxisObj?: MeshWithAxisInfo
-  hoveredAxis: MeshWithAxisInfo
+  mode: TransformModeType
+  space: TransformSpace
+  worldQuaternion: any
+  axis: any
+  dragging: any
+  showX: boolean
+  showY: boolean
+  showZ: boolean
+  enabled: any
 
   constructor() {
     super()
@@ -600,7 +581,7 @@ export default class TransformGizmo extends Object3D {
     this.rotateControls.visible = false
     this.scaleControls.visible = false
 
-    if (!this.transformMode) this.transformMode = TransformMode.Disabled
+    if (!this.mode) this.mode = TransformMode.Disabled
 
     this.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
       if (obj.isMesh) {
@@ -608,7 +589,7 @@ export default class TransformGizmo extends Object3D {
       }
     })
 
-    this.setTransformMode(this.transformMode)
+    this.setTransformMode(this.mode)
   }
 
   get selectedAxis() {
@@ -619,40 +600,31 @@ export default class TransformGizmo extends Object3D {
     return this.selectedAxisObj?.axisInfo.planeNormal
   }
 
-  setTransformMode(transformMode: TransformModeType): void {
-    this.transformMode = transformMode
+  setTransformMode(mode: TransformModeType): void {
+    this.mode = mode
 
     for (const mode in this.gizmo) {
       this.gizmo[mode].visible = false
       this.helper[mode].visible = false
     }
-    this.gizmo[transformMode].visible = true
-    this.helper[transformMode].visible = true
-    console.log('DEBUG mode is ', this.transformMode)
 
-    switch (transformMode) {
+    switch (mode) {
       case TransformMode.Translate:
-        //this.activeControls = [this.translateControls]
-
-        break
+      //this.activeControls = [this.translateControls]
       case TransformMode.Rotate:
-        //this.activeControls = [this.rotateControls]
-
-        break
+      //this.activeControls = [this.rotateControls]
       case TransformMode.Scale:
         //this.activeControls = [this.scaleControls]
-
+        this.gizmo[mode].visible = true
+        this.helper[mode].visible = true
         break
       case TransformMode.Combined:
         this.translateControls.visible = true
         this.rotateControls.visible = true
         this.scaleControls.visible = true
         //this.activeControls = [this.translateControls, this.rotateControls, this.scaleControls]
-
         break
       default:
-        this.selectedAxisObj = undefined
-        this.activeControls = undefined
         break
     }
   }
@@ -724,6 +696,309 @@ export default class TransformGizmo extends Object3D {
       }
       this.selectedAxisObj = undefined
     }
+  }
+
+  updateMatrixWorld(force) {
+    //const space = ( this.mode === TransformMode.Scale ) ? TransformSpace.Local : this.space; // scale always oriented to local rotation
+
+    //const quaternion = ( space === TransformSpace.Local ) ? this.worldQuaternion : _identityQuaternion;
+
+    // Show only gizmos for current transform mode
+    this.gizmo[TransformMode.Translate].visible = this.mode === TransformMode.Translate
+    this.gizmo[TransformMode.Rotate].visible = this.mode === TransformMode.Rotate
+    this.gizmo[TransformMode.Scale].visible = this.mode === TransformMode.Scale
+
+    this.helper[TransformMode.Translate].visible = this.mode === TransformMode.Translate
+    this.helper[TransformMode.Rotate].visible = this.mode === TransformMode.Rotate
+    this.helper[TransformMode.Scale].visible = this.mode === TransformMode.Scale
+
+    let handles: Mesh[] = []
+    handles = handles.concat(this.picker[this.mode].children)
+    handles = handles.concat(this.gizmo[this.mode].children)
+    handles = handles.concat(this.helper[this.mode].children)
+
+    for (let i = 0; i < handles.length; i++) {
+      const handle = handles[i]
+
+      // hide aligned to camera
+
+      handle.visible = true
+      handle.rotation.set(0, 0, 0)
+      /*
+			handle.position.copy( this.worldPosition ); //  make it copy the position of entity its attached to
+
+			let factor;
+
+			/*if ( this.camera.isOrthographicCamera ) {
+
+				factor = ( this.camera.top - this.camera.bottom ) / this.camera.zoom; // put this in when we have an ortho camera
+
+			} else {
+
+			factor = this.worldPosition.distanceTo( this.cameraPosition ) * Math.min( 1.9 * Math.tan( Math.PI * this.camera.fov / 360 ) / this.camera.zoom, 7 );
+
+			//}
+
+			handle.scale.set( 1, 1, 1 ).multiplyScalar( factor * this.size / 4 );
+
+			// TODO: simplify helpers and consider decoupling from gizmo
+
+			if ( (handle as any).tag === 'helper' ) {
+
+				handle.visible = false;
+
+				if ( handle.name === 'AXIS' ) {
+
+					handle.visible = !! this.axis;
+
+					if ( this.axis === 'X' ) {
+
+						_tempQuaternion.setFromEuler( _tempEuler.set( 0, 0, 0 ) );
+						handle.quaternion.copy( quaternion ).multiply( _tempQuaternion );
+
+						if ( Math.abs( _alignVector.copy( _unitX ).applyQuaternion( quaternion ).dot( this.eye ) ) > 0.9 ) { // dissappear on parallel view angle
+
+							handle.visible = false;
+
+						}
+
+					}
+
+					if ( this.axis === 'Y' ) {
+
+						_tempQuaternion.setFromEuler( _tempEuler.set( 0, 0, Math.PI / 2 ) );
+						handle.quaternion.copy( quaternion ).multiply( _tempQuaternion );
+
+						if ( Math.abs( _alignVector.copy( _unitY ).applyQuaternion( quaternion ).dot( this.eye ) ) > 0.9 ) {
+
+							handle.visible = false;
+
+						}
+
+					}
+
+					if ( this.axis === 'Z' ) {
+
+						_tempQuaternion.setFromEuler( _tempEuler.set( 0, Math.PI / 2, 0 ) );
+						handle.quaternion.copy( quaternion ).multiply( _tempQuaternion );
+
+						if ( Math.abs( _alignVector.copy( _unitZ ).applyQuaternion( quaternion ).dot( this.eye ) ) > 0.9 ) {
+
+							handle.visible = false;
+
+						}
+
+					}
+
+					if ( this.axis === 'XYZE' ) {
+
+						_tempQuaternion.setFromEuler( _tempEuler.set( 0, Math.PI / 2, 0 ) );
+						_alignVector.copy( this.rotationAxis );
+						handle.quaternion.setFromRotationMatrix( _lookAtMatrix.lookAt( _zeroVector, _alignVector, _unitY ) );
+						handle.quaternion.multiply( _tempQuaternion );
+						handle.visible = this.dragging;
+
+					}
+
+					if ( this.axis === 'E' ) {
+
+						handle.visible = false;
+
+					}
+
+
+				} else if ( handle.name === 'START' ) {// for translate
+
+					handle.position.copy( this.worldPositionStart );
+					handle.visible = this.dragging;
+
+				} else if ( handle.name === 'END' ) { // for translate 
+
+					handle.position.copy( this.worldPosition );
+					handle.visible = this.dragging;
+
+				} else if ( handle.name === 'DELTA' ) { //for the line 
+
+					handle.position.copy( this.worldPositionStart );
+					handle.quaternion.copy( this.worldQuaternionStart );
+					_tempVector.set( 1e-10, 1e-10, 1e-10 ).add( this.worldPositionStart ).sub( this.worldPosition ).multiplyScalar( - 1 );
+					_tempVector.applyQuaternion( this.worldQuaternionStart.clone().invert() );
+					handle.scale.copy( _tempVector );
+					handle.visible = this.dragging;
+
+				} else {
+
+					handle.quaternion.copy( quaternion );
+
+					if ( this.dragging ) {
+
+						handle.position.copy( this.worldPositionStart );
+
+					} else {
+
+						handle.position.copy( this.worldPosition );
+
+					}
+
+					if ( this.axis ) {
+
+						handle.visible = this.axis.search( handle.name ) !== - 1;
+
+					}
+
+				}
+
+				// If updating helper, skip rest of the loop
+				continue;
+
+			}
+
+			// Align handles to current local or world rotation
+
+			handle.quaternion.copy( quaternion );
+
+			if ( this.mode === 'translate' || this.mode === 'scale' ) {
+
+				// Hide translate and scale axis facing the camera
+
+				const AXIS_HIDE_THRESHOLD = 0.99;
+				const PLANE_HIDE_THRESHOLD = 0.2;
+
+				if ( handle.name === 'X' ) {
+
+					if ( Math.abs( _alignVector.copy( _unitX ).applyQuaternion( quaternion ).dot( this.eye ) ) > AXIS_HIDE_THRESHOLD ) {
+
+						handle.scale.set( 1e-10, 1e-10, 1e-10 );
+						handle.visible = false;
+
+					}
+
+				}
+
+				if ( handle.name === 'Y' ) {
+
+					if ( Math.abs( _alignVector.copy( _unitY ).applyQuaternion( quaternion ).dot( this.eye ) ) > AXIS_HIDE_THRESHOLD ) {
+
+						handle.scale.set( 1e-10, 1e-10, 1e-10 );
+						handle.visible = false;
+
+					}
+
+				}
+
+				if ( handle.name === 'Z' ) {
+
+					if ( Math.abs( _alignVector.copy( _unitZ ).applyQuaternion( quaternion ).dot( this.eye ) ) > AXIS_HIDE_THRESHOLD ) {
+
+						handle.scale.set( 1e-10, 1e-10, 1e-10 );
+						handle.visible = false;
+
+					}
+
+				}
+
+				if ( handle.name === 'XY' ) {
+
+					if ( Math.abs( _alignVector.copy( _unitZ ).applyQuaternion( quaternion ).dot( this.eye ) ) < PLANE_HIDE_THRESHOLD ) {
+
+						handle.scale.set( 1e-10, 1e-10, 1e-10 );
+						handle.visible = false;
+
+					}
+
+				}
+
+				if ( handle.name === 'YZ' ) {
+
+					if ( Math.abs( _alignVector.copy( _unitX ).applyQuaternion( quaternion ).dot( this.eye ) ) < PLANE_HIDE_THRESHOLD ) {
+
+						handle.scale.set( 1e-10, 1e-10, 1e-10 );
+						handle.visible = false;
+
+					}
+
+				}
+
+				if ( handle.name === 'XZ' ) {
+
+					if ( Math.abs( _alignVector.copy( _unitY ).applyQuaternion( quaternion ).dot( this.eye ) ) < PLANE_HIDE_THRESHOLD ) {
+
+						handle.scale.set( 1e-10, 1e-10, 1e-10 );
+						handle.visible = false;
+
+					}
+
+				}
+
+			} else if ( this.mode === 'rotate' ) {
+
+				// Align handles to current local or world rotation
+
+				_tempQuaternion2.copy( quaternion );
+				_alignVector.copy( this.eye ).applyQuaternion( _tempQuaternion.copy( quaternion ).invert() );
+
+				if ( handle.name.search( 'E' ) !== - 1 ) {
+
+					handle.quaternion.setFromRotationMatrix( _lookAtMatrix.lookAt( this.eye, _zeroVector, _unitY ) );
+
+				}
+
+				if ( handle.name === 'X' ) {
+
+					_tempQuaternion.setFromAxisAngle( _unitX, Math.atan2( - _alignVector.y, _alignVector.z ) );
+					_tempQuaternion.multiplyQuaternions( _tempQuaternion2, _tempQuaternion );
+					handle.quaternion.copy( _tempQuaternion );
+
+				}
+
+				if ( handle.name === 'Y' ) {
+
+					_tempQuaternion.setFromAxisAngle( _unitY, Math.atan2( _alignVector.x, _alignVector.z ) );
+					_tempQuaternion.multiplyQuaternions( _tempQuaternion2, _tempQuaternion );
+					handle.quaternion.copy( _tempQuaternion );
+
+				}
+
+				if ( handle.name === 'Z' ) {
+
+					_tempQuaternion.setFromAxisAngle( _unitZ, Math.atan2( _alignVector.y, _alignVector.x ) );
+					_tempQuaternion.multiplyQuaternions( _tempQuaternion2, _tempQuaternion );
+					handle.quaternion.copy( _tempQuaternion );
+
+				}
+
+			}
+      
+			// Hide disabled axes
+			handle.visible = handle.visible && ( handle.name.indexOf( 'X' ) === - 1 || this.showX );
+			handle.visible = handle.visible && ( handle.name.indexOf( 'Y' ) === - 1 || this.showY );
+			handle.visible = handle.visible && ( handle.name.indexOf( 'Z' ) === - 1 || this.showZ );
+			handle.visible = handle.visible && ( handle.name.indexOf( 'E' ) === - 1 || ( this.showX && this.showY && this.showZ ) );
+      */
+      // highlight selected axis
+
+      ;(handle.material as any)._color = (handle.material as any)._color || (handle.material as any).color.clone()
+      ;(handle.material as any)._opacity = (handle.material as any)._opacity || (handle.material as any).opacity
+
+      ;(handle.material as any).color.copy((handle.material as any)._color)
+      ;(handle.material as any).opacity = (handle.material as any)._opacity
+
+      if (this.axis) {
+        if (handle.name === this.axis) {
+          ;(handle.material as any).color.setHex(0xffff00)
+          ;(handle.material as any).opacity = 1.0
+        } else if (
+          this.axis.split('').some(function (a) {
+            return handle.name === a
+          })
+        ) {
+          ;(handle.material as any).color.setHex(0xffff00)
+          ;(handle.material as any).opacity = 1.0
+        }
+      }
+    }
+
+    super.updateMatrixWorld(force)
   }
 
   clone(): this {
