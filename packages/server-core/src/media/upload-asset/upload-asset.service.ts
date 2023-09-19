@@ -234,8 +234,11 @@ export const addAssetAsStaticResource = async (
     primaryKey = args.path
     url = args.path
   } else if (isExternalURL && isFromOrigin) {
-    primaryKey = processFileName(args.path).replace(`https://${provider.originURLs[0]}/`, '')
-    url = args.path.replace(provider.originURLs[0], provider.cacheDomain)
+    primaryKey = processFileName(args.path)
+    url = args.path
+    for (const originURL of provider.originURLs) {
+      url = url.replace(originURL, provider.cacheDomain)
+    }
   } else {
     primaryKey = processFileName(path.join(args.path, file.originalname))
     url = getCachedURL(primaryKey, provider.cacheDomain)

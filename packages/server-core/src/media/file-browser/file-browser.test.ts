@@ -73,16 +73,19 @@ describe('file browser service', () => {
 
   let testFileFullName: string
   let testFileName: string
+  let testFileSize: number
   it('creates a file', async () => {
     testFileFullName = getRandomizedName('file', '.txt')
     testFileName = testFileFullName.split('.')[0]
 
     const newData = getRandomizedName('new data')
+    const body = Buffer.from(newData, 'utf-8')
+    testFileSize = Buffer.byteLength(body)
 
     const createdURL = await app.service(fileBrowserPath).patch(null, {
       fileName: testFileFullName,
       path: testDirectoryName,
-      body: Buffer.from(newData, 'utf-8'),
+      body,
       contentType: 'any'
     })
 
@@ -96,6 +99,8 @@ describe('file browser service', () => {
     const foundFile = directoryContents.data.find((file) => file.key.match(testFileFullName))
 
     assert.ok(foundFile)
+    assert.equal(foundFile.name, testFileName)
+    assert.equal(foundFile.size, testFileSize)
   })
 
   describe('update service', () => {
