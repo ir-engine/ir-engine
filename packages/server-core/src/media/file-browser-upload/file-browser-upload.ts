@@ -23,35 +23,48 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import Multer from '@koa/multer'
+
+import {
+  fileBrowserUploadMethods,
+  fileBrowserUploadPath
+} from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { Application } from '../../../declarations'
-import { Sms } from './sms.class'
-import smsDocs from './sms.docs'
-import hooks from './sms.hooks'
+import { FileBrowserUploadService } from './file-browser-upload.class'
+import fileBrowserUploadDocs from './file-browser-upload.docs'
+import hooks from './file-browser-upload.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    sms: Sms
+    [fileBrowserUploadPath]: FileBrowserUploadService
   }
 }
 
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
+
 export default (app: Application): void => {
-  const options = {
-    paginate: app.get('paginate'),
-    multi: true
-  }
+  app.use(fileBrowserUploadPath, new FileBrowserUploadService(app), {
+    // A list of all methods this service exposes externally
+    methods: fileBrowserUploadMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: fileBrowserUploadDocs,
+    koa: {
+      before: [
+        multipartMiddleware.any(),
+        async (ctx, next) => {
+          if (ctx?.feathers && ctx.method !== 'GET') {
+            ;(ctx as any).feathers.files = (ctx as any).request.files.media
+              ? (ctx as any).request.files.media
+              : ctx.request.files
+          }
+          await next()
+          return ctx.body
+        }
+      ]
+    }
+  })
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Sms(options, app)
-  event.docs = smsDocs
-
-  app.use('sms', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('sms')
-
+  const service = app.service(fileBrowserUploadPath)
   service.hooks(hooks)
 }

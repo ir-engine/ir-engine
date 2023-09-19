@@ -23,40 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import type { Static } from '@feathersjs/typebox'
+import { getValidator, Type } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Container from '@etherealengine/ui/src/primitives/mui/Container'
-import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+export const smsPath = 'sms'
+export const smsMethods = ['create'] as const
 
-import { AuthService } from '../../services/AuthService'
-import styles from './index.module.scss'
+export const smsDataSchema = Type.Object(
+  {
+    mobile: Type.String(),
+    text: Type.String()
+  },
+  { $id: 'SmsData', additionalProperties: false }
+)
+export type SmsData = Static<typeof smsDataSchema>
 
-interface Props {
-  token: string
-}
-
-export const VerifyEmail = ({ token }: Props): JSX.Element => {
-  const { t } = useTranslation()
-
-  useEffect(() => {
-    AuthService.verifyEmail(token)
-  }, [])
-
-  return (
-    <Container component="main" maxWidth="md">
-      <div className={styles.paper}>
-        <Typography component="h1" variant="h5">
-          {t('user:auth.verifyEmail.header')}
-        </Typography>
-
-        <Box mt={3}>
-          <Typography variant="body2" color="textSecondary" align="center">
-            {t('user:auth.verifyEmail.processing')}
-          </Typography>
-        </Box>
-      </div>
-    </Container>
-  )
-}
+export const smsDataValidator = getValidator(smsDataSchema, dataValidator)

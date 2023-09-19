@@ -23,6 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSSerializerSystem } from './ECSSerializerSystem'
+export const modelTransformPath = 'model-transform'
 
-export const ECSSerializationSystems = () => [ECSSerializerSystem]
+export const modelTransformMethods = ['create'] as const

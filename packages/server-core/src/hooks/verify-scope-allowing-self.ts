@@ -23,40 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff } from 'feathers-hooks-common'
+import { HookContext } from '@feathersjs/feathers'
 
-import isAction from '@etherealengine/server-core/src/hooks/is-action'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import authenticate from '../../hooks/authenticate'
+import { NotAuthenticated } from '@feathersjs/errors'
+import { Application } from '../../declarations'
+import verifyScope from './verify-scope'
 
-export default {
-  before: {
-    all: [],
-    find: [disallow()],
-    get: [disallow()],
-    create: [iff(isAction('passwordChange', 'identityChange'), authenticate() as any)],
-    update: [disallow()],
-    patch: [disallow()],
-    remove: [disallow()]
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+export default (currentType: string, scopeToVerify: string) => {
+  return async (context: HookContext<Application>) => {
+    const loggedInUser = context.params.user as UserType
+    const queryUserID = context.params.query?.userId as UserID
+    if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
+    // allow self
+    if (queryUserID && queryUserID === loggedInUser.id) return context
+    return verifyScope(currentType, scopeToVerify)(context)
   }
-} as any
+}

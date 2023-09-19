@@ -35,7 +35,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectComponent,
@@ -93,6 +93,8 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   addComponent(entity, VisibleComponent, true)
 
+  setComponent(entity, BoundingBoxDynamicTag)
+  setComponent(entity, BoundingBoxComponent)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
 
@@ -117,7 +119,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
   setComponent(entity, ShadowComponent)
-  setComponent(entity, BoundingBoxComponent)
   setComponent(entity, GrabberComponent)
 }
 

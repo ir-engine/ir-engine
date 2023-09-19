@@ -26,7 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 
+import { Entity, UndefinedEntity } from '../ecs/classes/Entity'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { entityExists } from '../ecs/functions/EntityFunctions'
 import { checkBitflag } from '../networking/serialization/DataReader'
 import { SerializationSchema } from '../networking/serialization/Utils'
 import {
@@ -40,9 +42,6 @@ import {
   spaceUint8
 } from '../networking/serialization/ViewCursor'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { Entity, UndefinedEntity } from './classes/Entity'
-import { entityExists } from './functions/EntityFunctions'
-import { defineSystem } from './functions/SystemFunctions'
 
 export type SerializedChunk = {
   startTimecode: number
@@ -60,6 +59,7 @@ export type SerializerArgs = {
 }
 
 export type DeserializerArgs = {
+  id: string // any ID
   chunks: SerializedChunk[]
   schema: SerializationSchema[]
   onChunkStarted: (chunk: number) => void
@@ -147,7 +147,7 @@ const createSerializer = ({ entities, schema, chunkLength, onCommitChunk }: Seri
     commitChunk()
   }
 
-  const serializer = { write, commitChunk, end, active: false }
+  const serializer = { write, commitChunk, end }
 
   ActiveSerializers.add(serializer)
 
@@ -168,7 +168,9 @@ export const readEntity = (v: ViewCursor, entities: EntityUUID[], serializationS
   let b = 0
 
   for (const component of serializationSchema) {
-    if (checkBitflag(changeMask, 1 << b++)) component.read(v, entity)
+    if (checkBitflag(changeMask, 1 << b++)) {
+      component.read(v, entity)
+    }
   }
 }
 
@@ -195,13 +197,10 @@ const toArrayBuffer = (buf) => {
   return ab
 }
 
-export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
-  let chunk = 0
-  let frame = 0
+export const createDeserializer = ({ id, chunks, schema, onChunkStarted, onEnd }: DeserializerArgs) => {
+  onChunkStarted(0)
 
-  onChunkStarted(chunk)
-
-  const read = () => {
+  const read = (chunk: number, frame: number) => {
     const data = chunks[chunk] as SerializedChunk
     const frameData = toArrayBuffer(data.changes[frame])
 
@@ -210,11 +209,8 @@ export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: De
       readEntities(view, frameData.byteLength, data.entities, schema)
     }
 
-    frame++
-
     if (frame >= data.changes.length) {
       onChunkStarted(chunk)
-      chunk++
       if (chunk >= chunks.length) {
         end()
         onEnd()
@@ -223,37 +219,21 @@ export const createDeserializer = ({ chunks, schema, onChunkStarted, onEnd }: De
   }
 
   const end = () => {
-    ActiveDeserializers.delete(deserializer)
+    ActiveDeserializers.delete(id)
   }
 
-  const deserializer = { read, end, active: false }
+  const deserializer = { read, end }
 
-  ActiveDeserializers.add(deserializer)
+  ActiveDeserializers.set(id, deserializer)
 
   return deserializer
 }
 
 export type ECSDeserializer = ReturnType<typeof createDeserializer>
 
-export const ActiveDeserializers = new Set<ECSDeserializer>()
+export const ActiveDeserializers = new Map<string, ECSDeserializer>()
 
 export const ECSSerialization = {
   createSerializer,
   createDeserializer
 }
-
-const execute = () => {
-  for (const serializer of ActiveSerializers) {
-    if (!serializer.active) continue
-    serializer.write()
-  }
-
-  for (const deserializer of ActiveDeserializers) {
-    if (!deserializer.active) continue
-    deserializer.read()
-  }
-}
-export const ECSSerializerSystem = defineSystem({
-  uuid: 'ee.engine.ecs.ECSSerializerSystem',
-  execute
-})

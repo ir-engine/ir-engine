@@ -27,11 +27,12 @@ import { UserCircleIcon } from '@heroicons/react/20/solid'
 import React from 'react'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '../../../primitives/tailwind/Button'
 
 // import ThemeSwitcher from '@etherealengine/ui/src/components/tailwind/ThemeSwitcher'
 
-const Header = () => {
+const Header = (props: { mode: State<'playback' | 'capture'> }) => {
   const authState = useHookstate(getMutableState(AuthState))
   const { user } = authState
   const avatarDetails = user?.avatar?.value
@@ -39,6 +40,22 @@ const Header = () => {
     <nav className="w-full navbar">
       <div className="flex-1">
         <a className="btn btn-ghost normal-case text-xl">Ethereal Capture</a>
+        <Button
+          icon={null}
+          className={'btn pointer-events-auto'}
+          disabled={props.mode.value === 'capture'}
+          title={'Capture'}
+          labelPosition="below"
+          onClick={() => props.mode.set('capture')}
+        />
+        <Button
+          icon={null}
+          className={'btn pointer-events-auto'}
+          disabled={props.mode.value === 'playback'}
+          title={'Playback'}
+          labelPosition="below"
+          onClick={() => props.mode.set('playback')}
+        />
       </div>
       <div className="navbar-end">
         {/* <label htmlFor="capture-drawer" className="btn btn-square btn-ghost drawer-button">
@@ -73,6 +90,8 @@ const Header = () => {
 
 Header.displayName = 'Header'
 
-Header.defaultProps = {}
+Header.defaultProps = {
+  mode: { value: 'capture', set: () => {} } as any as State<'playback' | 'capture'>
+}
 
 export default Header

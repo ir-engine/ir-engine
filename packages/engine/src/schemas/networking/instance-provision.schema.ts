@@ -23,23 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import authManagement from 'feathers-authentication-management'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import type { Static } from '@feathersjs/typebox'
+import { getValidator, Type } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
-import { Application } from '../../../declarations'
-import hooks from './auth-management.hooks'
-import notifier from './auth-management.notifier'
+export const instanceProvisionPath = 'instance-provision'
 
-/**
- * A function which register service for auth management
- */
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    authManagement: InstanceType<ReturnType<typeof authManagement>>
-  }
-}
+export const instanceProvisionMethods = ['find', 'create'] as const
 
-export default (app: Application): void => {
-  app.configure(authManagement(notifier(app)))
-  const service = app.service('authManagement')
-  service.hooks(hooks)
-}
+// Main data model schema
+export const instanceProvisionSchema = Type.Object(
+  {
+    id: Type.String({
+      format: 'uuid'
+    }),
+    ipAddress: Type.String(),
+    port: Type.String(),
+    roomCode: Type.String(),
+    podName: Type.Optional(Type.String())
+  },
+  { $id: 'InstanceProvision', additionalProperties: false }
+)
+export type InstanceProvisionType = Static<typeof instanceProvisionSchema>
+
+export const instanceProvisionValidator = getValidator(instanceProvisionSchema, dataValidator)

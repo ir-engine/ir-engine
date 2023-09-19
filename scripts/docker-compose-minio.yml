@@ -12,6 +12,8 @@ services:
     environment:
       MINIO_ROOT_USER: server
       MINIO_ROOT_PASSWORD: password
+      MINIO_API_REQUESTS_MAX: 2000
+      MINIO_API_REQUESTS_DEADLINE: 3m
       BITNAMI_DEBUG: 'true'
       MINIO_SCHEME: https
       MINIO_DEFAULT_BUCKETS: etherealengine-static-resources:public,etherealengine-static-resources-test:public,etherealengine-microk8s-static-resources:public,etherealengine-minikube-static-resources:public
