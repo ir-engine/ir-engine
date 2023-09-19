@@ -23,28 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServiceInterface } from '@feathersjs/feathers'
-
-import { SmsData } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { smsMethods, smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
-import { sendSmsWithAWS } from './awssns'
+import { SmsService } from './sms.class'
+import smsDocs from './sms.docs'
+import hooks from './sms.hooks'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface SmsParams extends RootParams {}
-
-/**
- * A class for Github Repo Access Webhook service
- */
-export class SmsService implements ServiceInterface<SmsData, SmsData, SmsParams> {
-  app: Application
-
-  constructor(app: Application) {
-    this.app = app
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [smsPath]: SmsService
   }
+}
 
-  async create(data: SmsData, params?: SmsParams) {
-    await sendSmsWithAWS(data.mobile, data.text)
-    return data
-  }
+export default (app: Application): void => {
+  app.use(smsPath, new SmsService(app), {
+    // A list of all methods this service exposes externally
+    methods: smsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: smsDocs
+  })
+
+  const service = app.service(smsPath)
+  service.hooks(hooks)
 }
