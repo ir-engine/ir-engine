@@ -23,53 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type VolumetricPlayer from '@etherealengine/volumetric/dist/Player'
 import { useEffect } from 'react'
-import { Box3, Material, Mesh, Object3D } from 'three'
 
-import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { getState } from '@etherealengine/hyperflux'
-
-import { DissolveEffect } from '@etherealengine/engine/src/avatar/DissolveEffect'
-import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/components/AvatarDissolveComponent'
-import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { AudioState } from '../../audio/AudioState'
-import { isClient } from '../../common/functions/getEnvironment'
-import { Entity } from '../../ecs/classes/Entity'
 import {
-  ComponentType,
   defineComponent,
-  getComponent,
   getMutableComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { addObjectToGroup } from '../components/GroupComponent'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
+import { UVOL1Component } from './UVOLComponents/UVOL1/UVOL1Component'
 
 export const VolumetricComponent = defineComponent({
   name: 'EE_volumetric',
   jsonID: 'volumetric',
 
   onInit: (entity) => {
+    setComponent(entity, MediaElementComponent, {
+      element: document.createElement('video') as HTMLMediaElement
+    })
+    setComponent(entity, UVOL1Component)
+    setComponent(entity, ShadowComponent)
     return {
-      useLoadingEffect: true,
-      loadingEffectTime: 0,
-      loadingEffectActive: true,
-      player: undefined! as VolumetricPlayer,
       paths: [] as string[],
       paused: false,
-      hasTrackStopped: true,
+      ended: false,
+      playing: false,
       volume: 1,
-      height: 1.6,
       playMode: PlayMode.loop as PlayMode,
       track: 0
     }
@@ -77,7 +63,6 @@ export const VolumetricComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      useLoadingEffect: component.useLoadingEffect.value,
       paths: component.paths.value,
       paused: component.paused.value,
       volume: component.volume.value,
@@ -86,18 +71,18 @@ export const VolumetricComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, ShadowComponent)
-
     if (!json) return
-    if (typeof json?.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value) {
-      component.useLoadingEffect.set(json.useLoadingEffect)
-    }
-
     if (typeof json.paths === 'object') {
       component.paths.set(json.paths)
     }
 
-    if (typeof json.paused === 'boolean') component.paused.set(json.paused)
+    if (typeof json.paused === 'boolean') {
+      component.paused.set(json.paused)
+    }
+
+    if (typeof json.volume === 'number') {
+      component.volume.set(json.volume)
+    }
 
     // backwars-compat: convert from number enums to strings
     if (
@@ -133,218 +118,141 @@ export function VolumetricReactor() {
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
   const volumetric = useComponent(entity, VolumetricComponent)
+  const videoElement = getMutableComponent(entity, MediaElementComponent)
+  const uvol1 = useComponent(entity, UVOL1Component)
 
   useEffect(() => {
-    if (isClient) {
-      import('@etherealengine/volumetric/dist/Player')
-        .then((module) => module.default)
-        .then((VolumetricPlayer) => {
-          const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
-          setComponent(entity, MediaElementComponent, {
-            element: document.createElement('video') as HTMLMediaElement
-          })
-          const mediaElement = getMutableComponent(entity, MediaElementComponent)
-          const element = mediaElement.element.value
+    const element = videoElement.element.value
+    ;(element as HTMLVideoElement).playsInline = true
+    element.preload = 'auto'
+    element.crossOrigin = 'anonymous'
 
-          element.autoplay = true
-          ;(element as HTMLVideoElement).playsInline = true
+    if (!AudioNodeGroups.get(element)) {
+      const source = audioContext.createMediaElementSource(element)
 
-          element.preload = 'auto'
-          element.crossOrigin = 'anonymous'
+      if (audioContext.state == 'suspended') {
+        audioContext.resume()
+      }
 
-          volumetric.player.set(
-            new VolumetricPlayer({
-              renderer: EngineRenderer.instance.renderer,
-              onTrackEnd: () => {
-                volumetric.hasTrackStopped.set(true)
-                volumetric.track.set(getNextTrack(volumetric.value))
-              },
-              video: element as HTMLVideoElement,
-              V1Args: {
-                worker: worker
-              },
-              paths: [],
-              playMode: PlayMode.loop
-            })
-          )
-          addObjectToGroup(entity, volumetric.player.value.mesh)
+      const audioNodes = createAudioNodeGroup(element, source, gainNodeMixBuses.soundEffects)
 
-          const handleAutoplay = () => {
-            if (!volumetric.player.value.paused) volumetric.player.value.play()
-          }
-
-          if (isClient) {
-            window.addEventListener('pointerdown', handleAutoplay)
-            window.addEventListener('keypress', handleAutoplay)
-            window.addEventListener('touchstart', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
-          }
-
-          element.addEventListener('playing', () => {
-            if (audioContext.state == 'suspended') {
-              audioContext.resume()
-            }
-
-            window.removeEventListener('pointerdown', handleAutoplay)
-            window.removeEventListener('keypress', handleAutoplay)
-            window.removeEventListener('touchstart', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
-
-            const transform = getComponent(entity, TransformComponent)
-            if (!transform) return
-            if (volumetric.loadingEffectActive.value) {
-              volumetric.height.set(calculateHeight(volumetric.player.value.mesh) * transform.scale.y)
-              if (volumetric.loadingEffectTime.value === 0) setupLoadingEffect(entity, volumetric.player.value!.mesh)
-            }
-          })
-
-          if (!AudioNodeGroups.get(element)) {
-            const source = audioContext.createMediaElementSource(element)
-
-            if (audioContext.state == 'suspended') {
-              audioContext.resume()
-            }
-
-            const audioNodes = createAudioNodeGroup(element, source, gainNodeMixBuses.soundEffects)
-
-            audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
-          }
-        })
+      audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
     }
   }, [])
 
-  useEffect(
-    function updateVolume() {
-      const volume = volumetric.volume.value
-      const element = getOptionalComponent(entity, MediaElementComponent)?.element as HTMLMediaElement
-      if (!element) return
-      const audioNodes = AudioNodeGroups.get(element)
-      if (audioNodes) {
-        audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+  useEffect(() => {
+    const pathCount = volumetric.paths.value.length
+    if (uvol1.playing.value || pathCount === 0) return
+
+    /**
+     * Find the next valid track: If the current track is invalid, try the next one.
+     * Here invalid means, path does not end with '.manifest'.
+     */
+    let currentTrack = volumetric.track.value
+    // eslint-disable-next-line
+    while (true) {
+      const nextTrack = getNextTrack(volumetric.playMode.value, pathCount, currentTrack)
+      const manifestPath = volumetric.paths.value[nextTrack]
+      if (manifestPath && (manifestPath.endsWith('.manifest') || manifestPath.endsWith('.mp4'))) {
+        currentTrack = nextTrack
+        break
+      } else if (nextTrack == volumetric.track.value) {
+        // No valid tracks found, stop playing
+        currentTrack = -1
+        break
+      } else {
+        // 'nextTrack' is not a valid track, try the next one
+        currentTrack = nextTrack
       }
-    },
-    [volumetric.volume, volumetric.player]
-  )
+    }
+
+    if (currentTrack === -1) {
+      console.info('DEBUG: No valid tracks found.')
+      return
+    }
+
+    volumetric.track.set(currentTrack)
+
+    let manifestPath = volumetric.paths.value[currentTrack]
+    if (manifestPath.endsWith('.mp4')) {
+      // UVOL1
+      manifestPath = manifestPath.replace('.mp4', '.manifest')
+    }
+
+    // TODO: UVOL2
+    fetch(manifestPath)
+      .then((response) => response.json())
+      .then((json) => {
+        uvol1.track.set({
+          manifestPath: manifestPath,
+          data: json
+        })
+        uvol1.active.set(true)
+      })
+  }, [volumetric.paths, volumetric.playMode, uvol1.playing, uvol1.ended])
 
   useEffect(() => {
-    if (!volumetric.player.value) return
-    if (volumetric.hasTrackStopped.value) {
-      // Track is changed. Set the track path
-      if (volumetric.paths[volumetric.track.value].value) {
-        volumetric.loadingEffectActive.set(volumetric.useLoadingEffect.value) // set to user's value
-        volumetric.loadingEffectTime.set(0)
-        volumetric.player.value.setTrackPath(volumetric.paths[volumetric.track.value].value)
-        volumetric.hasTrackStopped.set(false)
-      }
-    } else {
-      /** Track isn't changed. Probably new path is added or edited.
-       * No need to set track path.
-       */
+    if (uvol1.active.value) {
+      volumetric.paused.set(uvol1.paused.value)
+      volumetric.ended.set(uvol1.ended.value)
+      volumetric.playing.set(uvol1.playing.value)
     }
-  }, [volumetric.track, volumetric.paths, volumetric.player, volumetric.hasTrackStopped])
+  }, [uvol1.paused, uvol1.ended, uvol1.playing])
 
   useEffect(() => {
-    if (!volumetric.player.value) return
-    if (volumetric.paused.value) {
-      volumetric.player.value.pause()
-    } else {
-      volumetric.player.value.play()
+    if (uvol1.active.value) {
+      uvol1.paused.set(volumetric.paused.value)
     }
-  }, [volumetric.paused, volumetric.player])
+  }, [volumetric.paused])
+
+  useEffect(() => {
+    const volume = volumetric.volume.value
+    const element = videoElement.element.value
+    const audioNodes = AudioNodeGroups.get(element)
+    if (audioNodes) {
+      audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+    }
+  }, [volumetric.volume])
+
+  useEffect(() => {
+    if (uvol1.handleAutoplay.value) {
+      const element = videoElement.element.value
+      const handleAutoplay = () => {
+        console.log('DEBUG: Autoplay trigerred')
+        element.play()
+        audioContext.resume()
+        window.removeEventListener('pointerdown', handleAutoplay)
+        window.removeEventListener('keypress', handleAutoplay)
+        window.removeEventListener('touchstart', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+      }
+
+      window.addEventListener('pointerdown', handleAutoplay)
+      window.addEventListener('keypress', handleAutoplay)
+      window.addEventListener('touchstart', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
+    }
+  }, [uvol1.handleAutoplay])
 
   return null
 }
 
-export function getNextTrack(volumetric: ComponentType<typeof VolumetricComponent>) {
-  const currentTrack = volumetric.track
-  const numTracks = volumetric.paths.length
+export function getNextTrack(playMode: PlayMode, pathCount: number, currentTrack: number) {
   let nextTrack = 0
 
-  if (volumetric.playMode == PlayMode.random) {
-    // todo: smart random, i.e., lower probability of recently played tracks
-    nextTrack = Math.floor(Math.random() * numTracks)
-  } else if (volumetric.playMode == PlayMode.single) {
-    nextTrack = (currentTrack + 1) % numTracks
-  } else if (volumetric.playMode == PlayMode.singleloop) {
+  if (playMode == PlayMode.random) {
+    // TODO: Smart random: Lower probability of recently played tracks
+    nextTrack = Math.floor(Math.random() * pathCount)
+  } else if (playMode == PlayMode.single) {
+    nextTrack = (currentTrack + 1) % pathCount
+  } else if (playMode == PlayMode.singleloop) {
     nextTrack = currentTrack
   } else {
-    //PlayMode.Loop
-    nextTrack = (currentTrack + 1) % numTracks
+    // Default: PlayMode.Loop
+    nextTrack = (currentTrack + 1) % pathCount
   }
 
   return nextTrack
-}
-
-export const endLoadingEffect = (entity, object) => {
-  if (!hasComponent(entity, AvatarEffectComponent)) return
-  const plateComponent = getComponent(entity, AvatarEffectComponent)
-  plateComponent.originMaterials.forEach(({ id, material }) => {
-    object.traverse((obj) => {
-      if (obj.uuid === id) {
-        obj['material'] = material
-      }
-    })
-  })
-
-  let pillar: any = null!
-  let plate: any = null!
-
-  const childrens = object.children
-  for (let i = 0; i < childrens.length; i++) {
-    if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
-    if (childrens[i].name === 'plate_obj') plate = childrens[i]
-  }
-
-  if (pillar !== null) {
-    pillar.traverse(function (child) {
-      if (child['material']) child['material'].dispose()
-    })
-
-    pillar.parent.remove(pillar)
-  }
-
-  if (plate !== null) {
-    plate.traverse(function (child) {
-      if (child['material']) child['material'].dispose()
-    })
-
-    plate.parent.remove(plate)
-  }
-
-  removeComponent(entity, AvatarDissolveComponent)
-  removeComponent(entity, AvatarEffectComponent)
-}
-
-const setupLoadingEffect = (entity: Entity, obj: Object3D) => {
-  const materialList: Array<MaterialMap> = []
-  obj.traverse((object: Mesh<any, Material>) => {
-    if (object.material && object.material.clone) {
-      // Transparency fix
-      const material = object.material.clone()
-      materialList.push({
-        id: object.uuid,
-        material: material
-      })
-      object.material = DissolveEffect.createDissolveMaterial(object as any)
-    }
-  })
-  if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
-  const effectEntity = createEntity()
-  setComponent(effectEntity, AvatarEffectComponent, {
-    sourceEntity: entity,
-    opacityMultiplier: 0,
-    originMaterials: materialList
-  })
-}
-
-const calculateHeight = (obj: Object3D) => {
-  //calculate the uvol model height
-  const bbox = new Box3().setFromObject(obj)
-  let height = 1.5
-  if (bbox.max.y != undefined && bbox.min.y != undefined) {
-    height = bbox.max.y - bbox.min.y
-  }
-  return height
 }
