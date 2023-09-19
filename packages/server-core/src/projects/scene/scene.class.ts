@@ -34,6 +34,7 @@ import defaultSceneSeed from '@etherealengine/projects/default-project/default.s
 
 import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import {
   SceneCreateData,
   SceneDataType,
@@ -76,8 +77,8 @@ export class SceneService
     const scenes: SceneDataType[] = []
     for (const project of projects.data) {
       const { data } = await this.app
-        .service('scene-data')
-        .get({ projectName: project.name, metadataOnly: true, internal: true }, params!)
+        .service(sceneDataPath)
+        .get(null, { ...params, projectName: project.name, metadataOnly: true, internal: true })
       scenes.push(
         ...data.map((d) => {
           d.project = project.name

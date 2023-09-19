@@ -21,6 +21,7 @@ Ethereal Engine. All Rights Reserved.
 import { Application } from '../../../declarations'
 
 import { PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { ServiceInterface } from '@feathersjs/feathers'
 import { parseScenePortals } from '../scene/scene-parser'
 import { SceneParams } from '../scene/scene.class'
@@ -34,7 +35,7 @@ export class PortalService implements ServiceInterface<PortalType, SceneParams> 
 
   async get(id: string, params?: SceneParams) {
     params = { ...params, query: { metadataOnly: false } }
-    const scenes = await (await this.app.service('scene-data').find(params!)).data
+    const scenes = await (await this.app.service(sceneDataPath).find(params!)).data
     const portals = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalType[]
     const portalResult: PortalType = portals.find((portal) => portal.portalEntityId === id) || ({} as PortalType)
     return portalResult
@@ -42,7 +43,7 @@ export class PortalService implements ServiceInterface<PortalType, SceneParams> 
 
   async find(params?: SceneParams) {
     params = { ...params, query: { metadataOnly: false } }
-    const scenes = (await this.app.service('scene-data').find(params!)).data
+    const scenes = (await this.app.service(sceneDataPath).find(params!)).data
     return scenes.map((scene) => parseScenePortals(scene)).flat() as PortalType[]
   }
 }

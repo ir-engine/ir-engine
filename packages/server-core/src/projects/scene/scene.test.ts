@@ -33,6 +33,7 @@ import defaultSceneSeed from '@etherealengine/projects/default-project/default.s
 
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -69,13 +70,9 @@ describe('scene.test', () => {
   describe("'scene-data' service", () => {
     describe('get', () => {
       it('should get default test scene', async function () {
-        const { data } = await app.service('scene-data').get(
-          {
-            projectName: defaultProjectName,
-            metadataOnly: false
-          },
-          params
-        )
+        const { data } = await app
+          .service(sceneDataPath)
+          .get(null, { ...params, projectName: defaultProjectName, metadataOnly: false })
         console.log('scene-data data', data)
         assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
       })
@@ -83,7 +80,7 @@ describe('scene.test', () => {
 
     describe('find', () => {
       it('should get all scenes for a project scenes', async function () {
-        const { data } = await app.service('scene-data').find({
+        const { data } = await app.service(sceneDataPath).find({
           ...params
         })
         assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
@@ -97,7 +94,7 @@ describe('scene.test', () => {
       })
 
       it('should get all scenes for a project scenes with metadata only', async function () {
-        const { data } = await app.service('scene-data').find({
+        const { data } = await app.service(sceneDataPath).find({
           ...params,
           metadataOnly: true
         })

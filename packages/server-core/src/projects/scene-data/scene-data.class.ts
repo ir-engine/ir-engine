@@ -23,12 +23,14 @@ import { Application } from '../../../declarations'
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { SceneDataServiceType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { NullableId, ServiceInterface } from '@feathersjs/feathers'
+import { NullableId, Params, ServiceInterface } from '@feathersjs/feathers'
 import { getScenesForProject } from '../scene/scene-helper'
-import { SceneParams } from '../scene/scene.class'
 
-export interface SceneDataParams extends SceneParams {
+export interface SceneDataParams extends Params {
   internal?: boolean
+  projectName?: string
+  metadataOnly?: boolean
+  storageProviderName?: string
 }
 
 export class SceneDataService implements ServiceInterface<SceneDataServiceType, SceneDataParams> {
@@ -51,7 +53,7 @@ export class SceneDataService implements ServiceInterface<SceneDataServiceType, 
             const projectScenes = (
               await getScenesForProject(this.app, {
                 ...params,
-                query: { projectName: project.name, metadataOnly: params.metadataOnly },
+                query: { projectName: project.name, metadataOnly: params?.metadataOnly },
                 internal: params?.provider == null
               })
             ).data

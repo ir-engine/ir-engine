@@ -27,7 +27,7 @@ import { dataValidator } from '../validators'
 
 export const scenePath = 'scene'
 
-export const sceneMethods = ['update', 'create', 'find', 'patch', 'remove'] as const
+export const sceneMethods = ['get', 'update', 'create', 'find', 'patch', 'remove'] as const
 
 export const componentJsonSchema = Type.Object(
   {
