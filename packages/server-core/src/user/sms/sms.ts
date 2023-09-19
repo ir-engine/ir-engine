@@ -23,20 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material } from 'three'
+import { smsMethods, smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { Application } from '../../../declarations'
+import { SmsService } from './sms.class'
+import smsDocs from './sms.docs'
+import hooks from './sms.hooks'
 
-import { Entity } from '../../../ecs/classes/Entity'
-import { MaterialSource } from './MaterialSource'
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [smsPath]: SmsService
+  }
+}
 
-export type MaterialWithEntity = Material & { entity: Entity }
+export default (app: Application): void => {
+  app.use(smsPath, new SmsService(app), {
+    // A list of all methods this service exposes externally
+    methods: smsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: smsDocs
+  })
 
-export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
-
-export type MaterialComponentType = {
-  prototype: string
-  material: Material
-  parameters: { [field: string]: any }
-  plugins: string[]
-  src: MaterialSource
-  status: MaterialStatus
+  const service = app.service(smsPath)
+  service.hooks(hooks)
 }

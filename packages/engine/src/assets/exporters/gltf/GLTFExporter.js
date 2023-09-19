@@ -1391,7 +1391,7 @@ export class GLTFWriter {
 			sampler: this.processSampler( map )
 		}
 
-		if ( mimeType === 'image/ktx2' ) {
+		if ( mimeType === 'image/ktx2' || map.isCompressedTexture ) {
 			//textureDef.source = this.processImage( map.mipmaps[0], map.format, map.flipY, mimeType )
 		} else {
 			textureDef.source = this.processImage( map.image, map.format, map.flipY, mimeType )

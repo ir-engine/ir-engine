@@ -124,8 +124,8 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         onChange={updateProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}
-        itemType={SupportedFileTypes}
-      ></ArrayInputGroup>
+        acceptDropItems={SupportedFileTypes}
+      />
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput
           key={props.entity}
