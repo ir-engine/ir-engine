@@ -220,6 +220,7 @@ export class EEMaterialExtension extends Extension {
           const processedArgs = new EEMaterialArgs(this.document.getGraph())
           const materialArgsInfo = Object.keys(eeDef.args)
           const materialUuid = materialUuidIndex.toString()
+          materialUuidIndex++
           this.materialInfoMap.set(materialUuid, materialArgsInfo)
           processedArgs.setExtras({ uuid: materialUuid })
           Object.entries(eeDef.args).map(([field, argDef]) => {
@@ -296,14 +297,19 @@ export class EEMaterialExtension extends Extension {
                 if (texture) {
                   const uuid = texture.getExtras().uuid as string
                   const textureInfo = this.textureInfoMap.get(uuid)!
-
                   argEntry.contents = writerContext.createTextureInfoDef(texture, textureInfo)
                 } else {
                   argEntry.contents = null
                 }
-                extensionDef.args![field] = argEntry
+                extensionDef.args![field] = {
+                  type: argEntry.type,
+                  contents: argEntry.contents
+                }
               } else {
-                extensionDef.args![field] = value
+                extensionDef.args![field] = {
+                  type: value.type,
+                  contents: value.contents
+                }
               }
             })
           }
