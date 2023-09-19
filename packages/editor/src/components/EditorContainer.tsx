@@ -43,7 +43,9 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { getComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -112,7 +114,10 @@ const EditorContainer = () => {
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
-  const sceneLoading = useHookstate(getMutableState(EngineState)).sceneLoading
+
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
+  const sceneLoading = sceneName && !sceneLoaded
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -127,7 +132,6 @@ const EditorContainer = () => {
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
 
   const importScene = async (sceneFile: SceneJson) => {
-    setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
       loadProjectScene({
         project: projectName.value!,
@@ -137,13 +141,6 @@ const EditorContainer = () => {
       })
     } catch (error) {
       logger.error(error)
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:loadingError')}
-          message={error.message || t('editor:loadingErrorMsg')}
-          error={error}
-        />
-      )
     }
   }
 
@@ -163,12 +160,6 @@ const EditorContainer = () => {
   }, [editorState.sceneModified])
 
   useEffect(() => {
-    if (sceneLoaded.value) {
-      setDialogComponent(null)
-    }
-  }, [sceneLoading])
-
-  useEffect(() => {
     if (sceneName.value) {
       logger.info(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
@@ -182,53 +173,31 @@ const EditorContainer = () => {
   }
 
   const loadScene = async (sceneName: string) => {
-    setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
       if (!projectName.value) {
-        setDialogComponent(null)
         return
       }
       const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) {
-        setDialogComponent(null)
         return
       }
       loadProjectScene(project)
     } catch (error) {
       logger.error(error)
-
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:loadingError')}
-          message={error.message || t('editor:loadingErrorMsg')}
-          error={error}
-        />
-      )
     }
   }
 
   const onNewScene = async () => {
     if (!projectName.value) return
 
-    setDialogComponent(<ProgressDialog title={t('editor:loading')} />)
-
     try {
       const sceneData = await createNewScene(projectName.value)
       if (!sceneData) return
 
       reRouteToLoadScene(sceneData.sceneName)
-      setDialogComponent(null)
     } catch (error) {
       logger.error(error)
-
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:loadingError')}
-          message={error.message || t('editor:loadingErrorMsg')}
-          error={error}
-        />
-      )
     }
   }
 
@@ -652,7 +621,7 @@ const EditorContainer = () => {
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={sceneLoaded.value ? { background: 'transparent' } : {}}
+        style={sceneName.value ? { background: 'transparent' } : {}}
       >
         <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
           <DndWrapper id="editor-container">
@@ -660,6 +629,13 @@ const EditorContainer = () => {
             <ToolBar menu={toolbarMenu} />
             <ElementList />
             <ControlText />
+            {sceneLoading && (
+              <div style={{ top: '5px' }}>
+                <LoadingCircle
+                  message={`Scene Loading... ${loadingProgress}% - ${sceneAssetPendingTagQuery.length} assets left`}
+                />
+              </div>
+            )}
             <div className={styles.workspaceContainer}>
               <AssetDropZone />
               <AppContext.Provider value={{ searchElement, searchHierarchy }}>
