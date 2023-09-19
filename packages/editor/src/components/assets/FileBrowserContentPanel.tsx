@@ -68,7 +68,7 @@ import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/materi
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { unique } from '../../functions/utils'
+import { bytesToSize, unique } from '../../functions/utils'
 import { Button } from '../inputs/Button'
 import StringInput from '../inputs/StringInput'
 import { ToolButton } from '../toolbar/ToolButton'
@@ -173,6 +173,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
     return {
       ...file,
+      size: file.size ? bytesToSize(file.size) : '0',
       path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
       fullName,
       isFolder,

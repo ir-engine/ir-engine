@@ -37,6 +37,7 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { SmsData } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -144,7 +145,7 @@ async function generateSMS(
     })
     .replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
 
-  const sms = {
+  const sms: SmsData = {
     mobile,
     text: compiledHTML
   }
