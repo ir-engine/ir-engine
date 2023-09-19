@@ -184,10 +184,10 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
   return {
     ...response,
     total,
-    next: paginate.next,
-    previous: paginate.previous,
-    setSort: paginate.sort,
-    setLimit: paginate.limit,
+    setSort: paginate.setSort,
+    setLimit: paginate.setLimit,
+    setPage: paginate.setPage,
+    page: paginate.page,
     skip: paginate.query.$skip,
     limit: paginate.query.$limit,
     sort: paginate.query.$sort,
@@ -315,10 +315,12 @@ export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void
   }, [serviceName])
 }
 
+export type FeathersOrder = -1 | 0 | 1
+
 type PaginationProps = {
   $skip: number
   $limit: number
-  $sort: Record<string, 1 | 0 | -1>
+  $sort: Record<string, FeathersOrder>
 }
 
 export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
@@ -330,27 +332,23 @@ export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
 
   const query = store.get(NO_PROXY)
 
-  const sort = (sort: Record<string, -1 | 0 | 1>) => {
+  const setSort = (sort: Record<string, FeathersOrder>) => {
     store.$sort.set(sort)
   }
 
-  const limit = (limit: number) => {
+  const setLimit = (limit: number) => {
     store.$limit.set(limit)
   }
 
-  const next = () => {
-    store.$skip.set(store.$skip.value + store.$limit.value)
-  }
-
-  const previous = () => {
-    store.$skip.set(store.$skip.value - store.$limit.value)
+  const setPage = (page: number) => {
+    store.$skip.set(page * store.$limit.value)
   }
 
   return {
     query,
-    sort,
-    limit,
-    next,
-    previous
+    page: Math.floor(store.$skip.value / store.$limit.value),
+    setSort,
+    setLimit,
+    setPage
   }
 }
