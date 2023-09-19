@@ -59,7 +59,7 @@ const defaultBuildStatus: BuildStatusType = {
 
 const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
+
   const selectedStatusId = useHookstate(0)
   const logsModalOpen = useHookstate(false)
 
