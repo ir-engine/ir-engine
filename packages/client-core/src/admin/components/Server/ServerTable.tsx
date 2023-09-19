@@ -37,11 +37,10 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ServerPodInfoType, serverInfoPath } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
-import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 import { ServerLogsInputsType } from './ServerLogs'
 
@@ -63,7 +62,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
   const selectedPod = useHookstate<ServerPodInfoType | null>(null)
 
-  const serverInfoQuery = useServerInfoFind()
+  const serverInfoQuery = useFind(serverInfoPath)
   const removeServerInfo = useMutation(serverInfoPath).remove
 
   useEffect(() => {
@@ -243,17 +242,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
 
   return (
     <>
-      <TableComponent
-        allowSort={false}
-        rows={rows}
-        column={serverInfoDataColumns}
-        page={0}
-        count={rows.length}
-        rowsPerPage={rows.length}
-        handlePageChange={() => {}}
-        handleRowsPerPageChange={() => {}}
-      />
-
+      <TableComponent query={serverInfoQuery} rows={rows} column={serverInfoDataColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.value?.name}'?`}

@@ -55,8 +55,6 @@ interface Props {
 
 const INFINITY = 'INFINITY'
 
-const INSTANCE_USERS_PAGE_LIMIT = 10
-
 const useUsersInInstance = (instanceId: InstanceID) => {
   const instanceAttendances = useFind(instanceAttendancePath, {
     query: {
@@ -69,7 +67,11 @@ const useUsersInInstance = (instanceId: InstanceID) => {
     query: {
       id: {
         $in: userIds
-      }
+      },
+      $sort: {
+        createdAt: 1
+      },
+      $limit: 10
     }
   })
 }
@@ -91,10 +93,6 @@ const useKickUser = () => {
 
 const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(INSTANCE_USERS_PAGE_LIMIT)
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('createdAt')
 
   const openKickDialog = useHookstate(false)
   const kickData = useHookstate({
@@ -151,19 +149,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>{selectedInstance?.ipAddress}</DialogTitle>
         <Grid container spacing={5} className={styles.mb15px}>
-          <TableComponent
-            allowSort={false}
-            fieldOrder={fieldOrder.value}
-            setSortField={sortField.set}
-            setFieldOrder={fieldOrder.set}
-            rows={rows}
-            column={instanceUsersColumns}
-            page={page.value}
-            rowsPerPage={rowsPerPage.value}
-            count={instanceUsersQuery.total!}
-            handlePageChange={() => {}}
-            handleRowsPerPageChange={() => {}}
-          />
+          <TableComponent query={instanceUsersQuery} rows={rows} column={instanceUsersColumns} />
         </Grid>
       </Container>
       <ConfirmDialog
