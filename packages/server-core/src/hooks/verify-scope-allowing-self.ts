@@ -23,35 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { Sms } from './sms.class'
-import smsDocs from './sms.docs'
-import hooks from './sms.hooks'
+import { HookContext } from '@feathersjs/feathers'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    sms: Sms
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+
+import { NotAuthenticated } from '@feathersjs/errors'
+import { Application } from '../../declarations'
+import verifyScope from './verify-scope'
+
+export default (currentType: string, scopeToVerify: string) => {
+  return async (context: HookContext<Application>) => {
+    const loggedInUser = context.params.user as UserType
+    const queryUserID = context.params.query?.userId as UserID
+    if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
+    // allow self
+    if (queryUserID && queryUserID === loggedInUser.id) return context
+    return verifyScope(currentType, scopeToVerify)(context)
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Sms(options, app)
-  event.docs = smsDocs
-
-  app.use('sms', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('sms')
-
-  service.hooks(hooks)
 }

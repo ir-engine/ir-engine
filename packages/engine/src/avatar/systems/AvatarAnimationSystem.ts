@@ -71,7 +71,6 @@ export const AvatarAnimationState = defineState({
     const priorityQueue = createPriorityQueue({
       accumulationBudget
     })
-    Engine.instance.priorityAvatarEntities = priorityQueue.priorityEntities
 
     return {
       priorityQueue,
@@ -87,9 +86,6 @@ const avatarComponentQuery = defineQuery([AvatarComponent])
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
-
-const filterPriorityEntities = (entity: Entity) =>
-  Engine.instance.priorityAvatarEntities.has(entity) || entity === Engine.instance.localClientEntity
 
 const filterFrustumCulledEntities = (entity: Entity) =>
   !(
@@ -195,9 +191,14 @@ const execute = () => {
 
   const avatarAnimationQueryArr = avatarAnimationQuery()
   const avatarAnimationEntities: Entity[] = []
+
   for (let i = 0; i < avatarAnimationQueryArr.length; i++) {
-    if (filterPriorityEntities(avatarAnimationQueryArr[i])) avatarAnimationEntities.push(avatarAnimationQueryArr[i])
+    const _entity = avatarAnimationQueryArr[i]
+    if (priorityQueue.priorityEntities.has(_entity) || _entity === Engine.instance.localClientEntity) {
+      avatarAnimationEntities.push(_entity)
+    }
   }
+
   const ikEntities = ikTargetQuery()
 
   footRaycastTimer += deltaSeconds
@@ -399,7 +400,7 @@ const execute = () => {
 
   /** Run debug */
   if (avatarDebug) {
-    for (const entity of Engine.instance.priorityAvatarEntities) {
+    for (const entity of priorityQueue.priorityEntities) {
       const rigComponent = getComponent(entity, AvatarRigComponent)
       if (rigComponent?.helper) {
         rigComponent.rig.hips.node.updateWorldMatrix(true, true)

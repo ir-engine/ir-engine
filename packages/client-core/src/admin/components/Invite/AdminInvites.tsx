@@ -70,7 +70,9 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
   const updateModalOpen = useHookstate(false)
 
   const orderBy = fieldOrder.value === 'desc' ? -1 : 1
-  const $sort = sortField.value ? { [sortField.value === 'type' ? 'inviteType' : sortField.value]: orderBy } : {}
+  const $sort = sortField.value
+    ? { [sortField.value === 'type' ? 'inviteType' : sortField.value]: orderBy }
+    : ({} as any)
   const invitesQuery = useFind(invitePath, {
     query: {
       search,

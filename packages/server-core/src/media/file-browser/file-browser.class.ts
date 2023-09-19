@@ -46,6 +46,7 @@ import { getCacheDomain } from '../storageprovider/getCacheDomain'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { StorageObjectInterface } from '../storageprovider/storageprovider.interface'
+import { createStaticResourceHash } from '../upload-asset/upload-asset.service'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
@@ -107,10 +108,6 @@ export class FileBrowserService
 
     result = result.slice(skip, skip + limit)
 
-    result = result.map((item) => {
-      item.url = `https://${storageProvider.cacheDomain}/${item.key}`
-      return item
-    })
     if (params.provider && !isAdmin) {
       const knexClient: Knex = this.app.get('knexClient')
       const projectPermissions = await knexClient
@@ -131,6 +128,7 @@ export class FileBrowserService
         )
       })
     }
+
     return {
       total,
       limit,
@@ -155,6 +153,8 @@ export class FileBrowserService
     const result = await storageProvider.putObject({ Key: path.join(parentPath, key) } as StorageObjectInterface, {
       isDirectory: true
     })
+
+    await storageProvider.createInvalidation([key])
 
     fs.mkdirSync(path.join(projectsRootFolder, parentPath, key))
 
@@ -181,6 +181,11 @@ export class FileBrowserService
 
     const oldNamePath = path.join(projectsRootFolder, _oldPath, data.oldName)
     const newNamePath = path.join(projectsRootFolder, _newPath, fileName)
+
+    await Promise.all([
+      storageProvider.createInvalidation([oldNamePath]),
+      storageProvider.createInvalidation([newNamePath])
+    ])
 
     if (data.isCopy) {
       copyRecursiveSync(oldNamePath, newNamePath)
@@ -216,14 +221,28 @@ export class FileBrowserService
       }
     )
 
+    const hash = createStaticResourceHash(data.body, { assetURL: key })
+    const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
+    const url = getCachedURL(key, cacheDomain)
+
+    await this.app.service(staticResourcePath).create(
+      {
+        hash,
+        key,
+        url,
+        mimeType: data.contentType
+      },
+      { isInternal: true }
+    )
+    await storageProvider.createInvalidation([key])
+
     const filePath = path.join(projectsRootFolder, key)
     const parentDirPath = path.dirname(filePath)
 
     if (!fs.existsSync(parentDirPath)) fs.mkdirSync(parentDirPath, { recursive: true })
     fs.writeFileSync(filePath, data.body)
 
-    const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
-    return getCachedURL(key, cacheDomain)
+    return url
   }
 
   /**
@@ -238,6 +257,7 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(storageProviderName)
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
+    await storageProvider.createInvalidation([key])
 
     const filePath = path.join(projectsRootFolder, key)
 

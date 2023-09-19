@@ -65,6 +65,8 @@ export class LocalStorage implements StorageProviderInterface {
    */
   cacheDomain = config.server.localStorageProvider
 
+  originURLs = [this.cacheDomain]
+
   /**
    * Constructor of LocalStorage class.
    */
@@ -84,6 +86,7 @@ export class LocalStorage implements StorageProviderInterface {
         stdio: 'inherit'
       })
     }
+    this.getOriginURLs().then((result) => (this.originURLs = result))
   }
 
   /**
@@ -133,7 +136,10 @@ export class LocalStorage implements StorageProviderInterface {
     )
     return {
       Contents: globResult.map((result) => {
-        return { Key: result.replace(path.join(this.PATH_PREFIX), '') }
+        return {
+          Key: result.replace(path.join(this.PATH_PREFIX), ''),
+          Size: fs.lstatSync(path.join(this.PATH_PREFIX)).size
+        }
       })
     }
   }
@@ -165,6 +171,7 @@ export class LocalStorage implements StorageProviderInterface {
           const passthrough = data.Body as PassThrough
           passthrough.pipe(writeableStream)
           passthrough.on('end', () => {
+            logger.info('File uploaded successfully to ' + filePath)
             resolve(true)
           })
           passthrough.on('error', (e) => {
@@ -206,6 +213,10 @@ export class LocalStorage implements StorageProviderInterface {
    * @param invalidationItems List of keys.
    */
   createInvalidation = async (): Promise<any> => Promise.resolve()
+
+  async getOriginURLs(): Promise<string[]> {
+    return [this.cacheDomain]
+  }
 
   associateWithFunction = async (): Promise<any> => Promise.resolve()
 
@@ -308,18 +319,6 @@ export class LocalStorage implements StorageProviderInterface {
     )
   }
 
-  private _formatBytes = (bytes, decimals = 2) => {
-    if (bytes === 0) return '0 Bytes'
-
-    const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
-  }
-
   private _processContent = (dirPath: string, pathString: string, isDir = false): FileBrowserContentType => {
     const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileBrowserContentType
     const signedUrl = this.getSignedUrl(res.key, 3600, null)
@@ -339,12 +338,12 @@ export class LocalStorage implements StorageProviderInterface {
       res.name = res.key.replace(`${dirPath}`, '').split(path.sep)[0]
       res.type = 'folder'
       res.url = this.getSignedUrl(res.key, 3600, null).url
-      res.size = this._formatBytes(totalSize)
+      res.size = totalSize
     } else {
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
-      res.size = this._formatBytes(fs.lstatSync(pathString).size)
-      res.url = signedUrl.url + path.sep + signedUrl.fields.Key
+      res.size = fs.lstatSync(pathString).size
+      res.url = signedUrl.url + path.sep + signedUrl.fields.key
     }
 
     return res
