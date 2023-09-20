@@ -53,6 +53,7 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -273,6 +274,8 @@ const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
 
   const editorHelperState = getState(EditorHelperState)
+  const pointerState = getState(InputState).pointerState
+  const cursorPosition = pointerState.position
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
