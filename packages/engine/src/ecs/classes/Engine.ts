@@ -34,22 +34,16 @@ import '../../patchEngineNode'
 import '../utils/threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
-import { Not } from 'bitecs'
 import { Group, Object3D, Scene } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
+import { getAllEntities } from 'bitecs'
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkState } from '../../networking/NetworkState'
-import {
-  defineQuery,
-  EntityRemovedComponent,
-  Query,
-  QueryComponents,
-  removeQuery
-} from '../functions/ComponentFunctions'
+import { Query, QueryComponents, removeQuery } from '../functions/ComponentFunctions'
 import { removeEntity } from '../functions/EntityFunctions'
 import { disableAllSystems, SystemUUID } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
@@ -138,8 +132,7 @@ export class Engine {
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
-  #entityQuery = defineQuery([Not(EntityRemovedComponent)])
-  entityQuery = () => this.#entityQuery() as Entity[]
+  entityQuery = () => getAllEntities(Engine.instance) as Entity[]
 
   // @todo move to EngineState
   activePortalEntity = UndefinedEntity
