@@ -43,10 +43,9 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorHistoryAction } from '../../services/EditorHistory'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -69,7 +68,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const localTransformComponent = useOptionalComponent(props.entity, LocalTransformComponent)
 
   const onRelease = () => {
-    dispatchAction(EditorHistoryAction.createSnapshot({}))
+    EditorControlFunctions.commitTransformSave(props.entity)
   }
 
   const onChangeDynamicLoad = (value) => {

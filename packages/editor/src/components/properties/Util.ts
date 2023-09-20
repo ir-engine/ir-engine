@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { debounce } from 'lodash'
-
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { Component, SerializedComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -34,10 +32,9 @@ import {
   iterateEntityNode
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorHistoryAction } from '../../services/EditorHistory'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -76,8 +73,6 @@ export const updateProperties = <C extends Component>(
     : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityOrObjectUUID[])
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
-
-  debounce(() => dispatchAction(EditorHistoryAction.createSnapshot({})), 100)
 }
 
 export function traverseScene<T>(
