@@ -23,12 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import type { Static } from '@feathersjs/typebox'
+import { getValidator, Type } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
-export default createSwaggerServiceOptions({
-  schemas: {},
-  docs: {
-    description: 'Server info service description',
-    securities: ['all']
-  }
-})
+export const smsPath = 'sms'
+export const smsMethods = ['create'] as const
+
+export const smsDataSchema = Type.Object(
+  {
+    mobile: Type.String(),
+    text: Type.String()
+  },
+  { $id: 'SmsData', additionalProperties: false }
+)
+export type SmsData = Static<typeof smsDataSchema>
+
+export const smsDataValidator = getValidator(smsDataSchema, dataValidator)

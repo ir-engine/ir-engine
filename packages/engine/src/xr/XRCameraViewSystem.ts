@@ -48,8 +48,8 @@ declare global {
 
 // const execute = () => {
 // const xrRendererState = getState(XRRendererState)
-//   if (Engine.instance.xrFrame && ReferenceSpace.localFloor) {
-//     const viewer = Engine.instance.xrFrame.getViewerPose(ReferenceSpace.localFloor)
+//   if (getState(XRState).xrFrame && ReferenceSpace.localFloor) {
+//     const viewer = getState(XRState).xrFrame.getViewerPose(ReferenceSpace.localFloor)
 //     if (viewer) {
 //       for (const view of viewer.views) {
 //         // console.log('XRCamera supported:', view.camera !== null && xrRendererState.glBinding !== null)

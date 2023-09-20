@@ -109,7 +109,7 @@ export class Scene implements ServiceMethods<any> {
   async setup() {}
 
   async find(params?: Params): Promise<{ data: SceneData[] }> {
-    const projects = await this.app.service(projectPath).find(params)
+    const projects = (await this.app.service(projectPath).find(params)) as Paginated<ProjectType>
 
     const scenes: SceneData[] = []
     for (const project of projects.data) {
@@ -260,8 +260,10 @@ export class Scene implements ServiceMethods<any> {
 
       const storageProvider = getStorageProvider(storageProviderName)
 
-      const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
-      if (!project.data) throw new Error(`No project named ${projectName} exists`)
+      const project = (await this.app
+        .service(projectPath)
+        .find({ ...params, query: { name: projectName }, paginate: false })) as ProjectType[]
+      if (project.length === 0) throw new Error(`No project named ${projectName} exists`)
 
       await downloadAssetsFromScene(this.app, projectName, sceneData)
 
@@ -331,8 +333,10 @@ export class Scene implements ServiceMethods<any> {
 
     const name = cleanString(sceneName)
 
-    const project = await this.app.service(projectPath).find({ ...params, query: { name: projectName } })
-    if (!project.data) throw new Error(`No project named ${projectName} exists`)
+    const project = (await this.app
+      .service(projectPath)
+      .find({ ...params, query: { name: projectName }, paginate: false })) as ProjectType[]
+    if (project.length === 0) throw new Error(`No project named ${projectName} exists`)
 
     for (const ext of sceneAssetFiles) {
       const assetFilePath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/${name}${ext}`)

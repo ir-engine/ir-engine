@@ -27,11 +27,9 @@ import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
-
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
@@ -47,12 +45,12 @@ describe('channel service', () => {
   })
 
   it('registered the service', () => {
-    const service = app.service('channel')
+    const service = app.service(channelPath)
     assert.ok(service, 'Registered the service')
   })
 
   it('creates a channel without userId or instanceId', async () => {
-    const channel = await app.service('channel').create({})
+    const channel = await app.service(channelPath).create({})
     assert.ok(channel.id)
   })
 
@@ -65,7 +63,7 @@ describe('channel service', () => {
       scopes: []
     })
 
-    const channel = await app.service('channel').create(
+    const channel = await app.service(channelPath).create(
       {
         userId: user.id
       },
@@ -74,12 +72,13 @@ describe('channel service', () => {
 
     assert.ok(channel.id)
 
-    const channelFindAsLoggedInUser = (await app.service('channel').find({
+    const channelFindAsLoggedInUser = (await app.service(channelPath).find({
       query: {
-        channelId: channel.id
+        id: channel.id
       },
+      paginate: false,
       user
-    })) as ChannelInterface[]
+    })) as ChannelType[]
 
     assert.equal(channelFindAsLoggedInUser.length, 1)
     assert.equal(channelFindAsLoggedInUser[0].id, channel.id)
@@ -123,7 +122,7 @@ describe('channel service', () => {
       }
     )) as InstanceType
 
-    const channel = await app.service('channel').create(
+    const channel = await app.service(channelPath).create(
       {
         instanceId: instance.id
       },
@@ -132,22 +131,24 @@ describe('channel service', () => {
 
     assert.ok(channel.id)
 
-    const channelFindAsLoggedInUser = (await app.service('channel').find({
+    const channelFindAsLoggedInUser = (await app.service(channelPath).find({
       query: {
-        channelId: channel.id
+        id: channel.id
       },
+      paginate: false,
       user
-    })) as ChannelInterface[]
+    })) as ChannelType[]
 
     assert.equal(channelFindAsLoggedInUser.length, 1)
     assert.equal(channelFindAsLoggedInUser[0].id, channel.id)
 
-    const channelFindAsUser = (await app.service('channel').find({
+    const channelFindAsUser = (await app.service(channelPath).find({
       query: {
         instanceId: instance.id
       },
+      paginate: false,
       user
-    })) as ChannelInterface[]
+    })) as ChannelType[]
 
     assert.equal(channelFindAsUser.length, 1)
     assert.equal(channelFindAsUser[0].id, channel.id)
@@ -171,7 +172,7 @@ describe('channel service', () => {
     )) as InstanceType
 
     try {
-      await app.service('channel').create(
+      await app.service(channelPath).create(
         {
           instanceId: instance.id,
           userId: user.id
@@ -200,7 +201,7 @@ describe('channel service', () => {
       }
     )) as InstanceType
 
-    const channel = await app.service('channel').create(
+    const channel = await app.service(channelPath).create(
       {
         instanceId: instance.id
       },
@@ -209,22 +210,24 @@ describe('channel service', () => {
 
     assert.ok(channel.id)
 
-    const channelFindAsLoggedInUser = (await app.service('channel').find({
+    const channelFindAsLoggedInUser = (await app.service(channelPath).find({
       query: {
-        channelId: channel.id
+        id: channel.id
       },
+      paginate: false,
       user
-    })) as ChannelInterface[]
+    })) as ChannelType[]
 
     assert.equal(channelFindAsLoggedInUser.length, 1)
     assert.equal(channelFindAsLoggedInUser[0].id, channel.id)
 
-    const channelFindAsUser = (await app.service('channel').find({
+    const channelFindAsUser = (await app.service(channelPath).find({
       query: {
         instanceId: instance.id
       },
+      paginate: false,
       user
-    })) as ChannelInterface[]
+    })) as ChannelType[]
 
     assert.equal(channelFindAsUser.length, 1)
     assert.equal(channelFindAsUser[0].id, channel.id)

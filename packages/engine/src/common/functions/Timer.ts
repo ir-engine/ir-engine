@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../ecs/classes/Engine'
+import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { XRState } from '../../xr/XRState'
+import { ServerLoop } from './ServerLoop'
 import { isClient } from './getEnvironment'
 import { nowMilliseconds } from './nowMilliseconds'
-import { ServerLoop } from './ServerLoop'
 
 /**
  * @param elapsedTime The elapsed time in seconds
@@ -68,13 +69,13 @@ export function Timer(update: TimerUpdateCallback, serverTickRate = 60) {
       tpsPrintReport(time)
     }
 
-    Engine.instance.xrFrame = xrFrame
+    getMutableState(XRState).xrFrame.set(xrFrame)
 
     tpsSubMeasureStart('update')
     update(time)
     tpsSubMeasureEnd('update')
 
-    Engine.instance.xrFrame = null
+    getMutableState(XRState).xrFrame.set(null)
   }
 
   const tpsMeasureStartData = new Map<string, { time: number; ticks: number }>()

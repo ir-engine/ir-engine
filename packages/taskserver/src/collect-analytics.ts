@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { channelPath, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -42,12 +43,10 @@ export default (app): void => {
     logger.info('Collecting analytics at %s.', new Date().toString())
     const activeLocations: any[] = []
     const activeScenes: any[] = []
-    const activeChannels = await app.service('channel').find({
-      query: {
-        $limit: 0
-      },
+    const activeChannels = (await app.service(channelPath)._find({
+      paginate: false,
       isInternal: true
-    })
+    })) as ChannelType[]
 
     const knexClient: Knex = app.get('knexClient')
 
@@ -86,7 +85,7 @@ export default (app): void => {
     await Promise.all([
       app.service(analyticsPath).create({
         type: 'activeChannels',
-        count: activeChannels.total
+        count: activeChannels.length
       }),
       app.service(analyticsPath).create({
         type: 'instanceUsers',

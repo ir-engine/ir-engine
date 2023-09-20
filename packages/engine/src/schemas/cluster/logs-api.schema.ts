@@ -23,45 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import { serverInfoExternalResolver, serverInfoResolver } from './server-info.resolvers'
+export const logsApiPath = 'logs-api'
 
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(serverInfoExternalResolver), schemaHooks.resolveResult(serverInfoResolver)]
-  },
-
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export const logsApiMethods = ['create'] as const

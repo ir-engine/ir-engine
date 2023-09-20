@@ -23,25 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { InstanceID } from '../networking/instance.schema'
-import { ChannelUserType } from '../social/channel-user.schema'
-import { MessageType } from '../social/message.schema'
+import { logsApiMethods, logsApiPath } from '@etherealengine/engine/src/schemas/cluster/logs-api.schema'
+import { Application } from '../../../declarations'
+import { LogsApiService } from './logs-api.class'
+import logsApiDocs from './logs-api.docs'
+import hooks from './logs-api.hooks'
 
-export type Channel = {
-  id: ChannelID
-  name: string
-  instanceId: InstanceID | null
-  createdAt: string
-  updatedAt: string
-  updateNeeded: boolean
-  limit: 5
-  skip: 0
-  total: 0
-  channel_users: ChannelUserType[]
-  messages: MessageType[]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [logsApiPath]: LogsApiService
+  }
 }
 
-export interface PatchChannel {
-  name: string
+export default (app: Application): void => {
+  app.use(logsApiPath, new LogsApiService(app), {
+    // A list of all methods this service exposes externally
+    methods: logsApiMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: logsApiDocs
+  })
+
+  const service = app.service(logsApiPath)
+  service.hooks(hooks)
 }

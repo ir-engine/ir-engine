@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import React, { useEffect } from 'react'
 import UserIcon from './assets/user.svg'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { Resizable } from 're-resizable'
 import { ChatState } from './ChatState'
@@ -39,7 +38,7 @@ import { getChannelName } from './Message'
 export const ChannelsList = () => {
   const chatState = useHookstate(getMutableState(ChatState))
 
-  const channelsList = useFind('channel')
+  const channelsList = useFind(channelPath)
   console.log(channelsList)
 
   useEffect(() => {
