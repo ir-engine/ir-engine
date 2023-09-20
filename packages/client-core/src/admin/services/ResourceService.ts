@@ -39,7 +39,7 @@ import { uploadToFeathersService } from '../../util/upload'
 
 const logger = multiLogger.child({ component: 'client-core:ResourcesService' })
 
-export const RESOURCE_PAGE_LIMIT = 100
+export const RESOURCE_PAGE_LIMIT = 25
 
 export const AdminResourceState = defineState({
   name: 'AdminResourceState',

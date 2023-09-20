@@ -23,12 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import type { Static } from '@feathersjs/typebox'
+import { getValidator, Type } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
-import { ServerInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
+export const smsPath = 'sms'
+export const smsMethods = ['create'] as const
 
-export const serverInfoResolver = resolve<ServerInfoType, HookContext>({})
+export const smsDataSchema = Type.Object(
+  {
+    mobile: Type.String(),
+    text: Type.String()
+  },
+  { $id: 'SmsData', additionalProperties: false }
+)
+export type SmsData = Static<typeof smsDataSchema>
 
-export const serverInfoExternalResolver = resolve<ServerInfoType, HookContext>({})
+export const smsDataValidator = getValidator(smsDataSchema, dataValidator)

@@ -38,6 +38,8 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
@@ -63,7 +65,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
   const [DialogComponent, setDialogComponent] = useDialog()
-  const [fetched, setFetch] = useState(false)
+  const [scenesLoading, setScenesLoading] = useState(true)
 
   const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
   const fetchItems = async () => {
@@ -74,10 +76,10 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
         thumbnails.set(data[i].name, ktx2url)
       }
       setScenes(data ?? [])
-      console.log(data)
     } catch (error) {
       logger.error(error, 'Error fetching scenes')
     }
+    setScenesLoading(false)
   }
 
   useEffect(() => {
@@ -173,10 +175,17 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
             {t(`editor:newScene`)}
           </Button>
         </div>
-        <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
-          {scenes.map((scene, i) => {
-            return (
-              <div className={styles.sceneContainer} key={i}>
+        {scenesLoading ? (
+          <div className={styles.loadingContainer}>
+            <div>
+              <LoadingCircle />
+              <Typography className={styles.primaryText}>{t('editor:loadingScenes')}</Typography>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
+            {scenes.map((scene) => (
+              <div className={styles.sceneContainer} key={scene.name}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
                     <img src={thumbnails.get(scene.name)} alt="" crossOrigin="anonymous" />
@@ -210,9 +219,9 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
                   </div>
                 </a>
               </div>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
       <Menu
         id="menu"

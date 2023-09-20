@@ -57,6 +57,7 @@ import { createTransitionState } from '@etherealengine/engine/src/xrui/functions
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -108,7 +109,8 @@ const onPrimaryClick = () => {
   const state = getMutableState(AvatarUIContextMenuState)
   if (state.id.value !== '') {
     const layer = getComponent(state.ui.entity.value, XRUIComponent)
-    const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
+    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+    const hit = layer.hitTest(pointerScreenRaycaster.ray)
     if (!hit) {
       state.id.set('')
       setVisibleComponent(state.ui.entity.value, false)
@@ -127,9 +129,10 @@ const raycastComponentData = {
 
 const onSecondaryClick = () => {
   const { physicsWorld } = getState(PhysicsState)
+  const pointerState = getState(InputState).pointerState
   const hits = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    Engine.instance.pointerState.position,
+    pointerState.position,
     physicsWorld,
     raycastComponentData
   )

@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputState } from '../../input/state/InputState'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -45,7 +45,8 @@ const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaCo
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.rootLayer.querySelector('button')
   const group = getOptionalComponent(entity, GroupComponent)
-  const intersectObjects = group ? Engine.instance.pointerScreenRaycaster.intersectObjects(group, true) : []
+  const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+  const intersectObjects = group ? pointerScreenRaycaster.intersectObjects(group, true) : []
   if (intersectObjects.length) {
     transition.setState('IN')
   }
