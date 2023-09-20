@@ -30,8 +30,9 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
+import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -44,6 +45,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -52,7 +54,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -376,6 +378,7 @@ const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
+const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
 
 const rayRotation = new Quaternion()
@@ -391,6 +394,7 @@ const inputRaycast = {
 
 const inputRay = new Ray()
 const raycaster = new Raycaster()
+const bboxHitTarget = new Vector3()
 
 const execute = () => {
   Engine.instance.pointerScreenRaycaster.setFromCamera(
@@ -452,27 +456,14 @@ const execute = () => {
 
     if (!capturedButtons || !capturedAxes) {
       let assignedInputEntity = UndefinedEntity as Entity
+      let hitDistance = Infinity
 
       inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceTransform.rotation)
       inputRaycast.origin.copy(sourceTransform.position).addScaledVector(inputRaycast.direction, -0.01)
       inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
 
-      // 1st heuristic is XRUI
-      for (const eid of inputXRUIs()) {
-        const xrui = getComponent(eid, XRUIComponent)
-        const layerHit = xrui.hitTest(inputRay)
-        if (
-          !layerHit ||
-          !layerHit.intersection.object.visible ||
-          (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
-        )
-          continue
-        assignedInputEntity = eid
-        break
-      }
-
-      /*      // 2nd heuristic is scene objects when in the editor
+      // only heuristic is scene objects when in the editor
       if (getState(EngineState).isEditor) {
         raycaster.set(inputRaycast.origin, inputRaycast.direction)
         const objects = inputObjects()
@@ -482,19 +473,52 @@ const execute = () => {
           .intersectObjects<Object3DWithEntity>(objects, true)
           .sort((a, b) => a.distance - b.distance)
 
-        if (hits.length) {
+        if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
           assignedInputEntity = parentObject.entity
+          hitDistance = hits[0].distance
         }
-      }
-*/
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      } else {
+        // 1st heuristic is XRUI
+        for (const eid of inputXRUIs()) {
+          const xrui = getComponent(eid, XRUIComponent)
+          const layerHit = xrui.hitTest(inputRay)
+          if (
+            !layerHit ||
+            !layerHit.intersection.object.visible ||
+            (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
+          )
+            continue
+          assignedInputEntity = eid
+          hitDistance = layerHit.intersection.distance
+          break
+        }
 
-      // 3nd heuristic is physics colliders
-      if (physicsWorld && !assignedInputEntity) {
-        const hit = Physics.castRay(physicsWorld, inputRaycast)[0]
-        if (hit) assignedInputEntity = hit.entity
+        const physicsWorld = getState(PhysicsState).physicsWorld
+
+        // 2nd heuristic is physics colliders
+        if (physicsWorld) {
+          const hit = Physics.castRay(physicsWorld, inputRaycast)[0]
+          if (hit && hit.distance < hitDistance) {
+            assignedInputEntity = hit.entity
+            hitDistance = hit.distance
+          }
+        }
+
+        // 3rd heuristic is bboxes
+        for (const entity of inputBoundingBoxes()) {
+          const boundingBox = getComponent(entity, BoundingBoxComponent)
+          const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
+          if (hit) {
+            const distance = inputRay.origin.distanceTo(bboxHitTarget)
+            if (distance < hitDistance) {
+              assignedInputEntity = entity
+              hitDistance = distance
+            }
+            break
+          }
+        }
       }
 
       if (!capturedButtons) source.assignedButtonEntity.set(assignedInputEntity)
