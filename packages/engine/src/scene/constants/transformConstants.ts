@@ -65,15 +65,16 @@ export const SnapMode = {
   Grid: 'Grid' as const
 }
 
-export enum TransformSpace {
-  World,
-  Local
+export const TransformSpace = {
+  world: 'world',
+  local: 'local'
   // LocalSelection // The local space of the last selected object
   // TODO: Viewport, Cursor?
 }
 
 export type TransformAxisActionType = keyof typeof TransformAxisAction
 export type TransformModeType = keyof typeof TransformMode
+export type TransformSpaceType = keyof typeof TransformSpace
 export type TransformPivotType = keyof typeof TransformPivot
 export type TransformAxisType = keyof typeof TransformAxis
 export type SnapModeType = keyof typeof SnapMode

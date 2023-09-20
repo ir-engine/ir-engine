@@ -35,7 +35,8 @@ import {
   TransformModeType,
   TransformPivot,
   TransformPivotType,
-  TransformSpace
+  TransformSpace,
+  TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import {
   defineAction,
@@ -50,9 +51,9 @@ export const EditorHelperState = defineState({
   initial: () => ({
     isPlayModeEnabled: false,
     isFlyModeEnabled: false,
-    transformMode: TransformMode.Translate as TransformModeType,
-    transformModeOnCancel: TransformMode.Translate as TransformModeType,
-    transformSpace: TransformSpace.World as TransformSpace,
+    transformMode: TransformMode.translate as TransformModeType,
+    transformModeOnCancel: TransformMode.translate as TransformModeType,
+    transformSpace: TransformSpace.world as TransformSpaceType,
     transformPivot: TransformPivot.Selection as TransformPivotType,
     snapMode: SnapMode.Grid as SnapModeType,
     translationSnap: 0.5,

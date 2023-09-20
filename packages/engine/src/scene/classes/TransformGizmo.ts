@@ -52,7 +52,7 @@ import {
   TransformAxisType,
   TransformMode,
   TransformModeType,
-  TransformSpace
+  TransformSpaceType
 } from '../../scene/constants/transformConstants'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -84,7 +84,7 @@ export default class TransformGizmo extends Object3D {
   rotateControls: Object3D
   scaleControls: Object3D
   mode: TransformModeType
-  space: TransformSpace
+  space: TransformSpaceType
   worldQuaternion: any
   axis: any
   dragging: any
@@ -365,15 +365,15 @@ export default class TransformGizmo extends Object3D {
     this.gizmo = {}
     this.picker = {}
     this.helper = {}
-    this.add((this.gizmo[TransformMode.Translate] = setupGizmo(gizmoTranslate)))
-    this.add((this.gizmo[TransformMode.Rotate] = setupGizmo(gizmoRotate)))
-    this.add((this.gizmo[TransformMode.Scale] = setupGizmo(gizmoScale)))
-    this.add((this.picker[TransformMode.Translate] = setupGizmo(pickerTranslate)))
-    this.add((this.picker[TransformMode.Rotate] = setupGizmo(pickerRotate)))
-    this.add((this.picker[TransformMode.Scale] = setupGizmo(pickerScale)))
-    this.add((this.helper[TransformMode.Translate] = setupGizmo(helperTranslate)))
-    this.add((this.helper[TransformMode.Rotate] = setupGizmo(helperRotate)))
-    this.add((this.helper[TransformMode.Scale] = setupGizmo(helperScale)))
+    this.add((this.gizmo[TransformMode.translate] = setupGizmo(gizmoTranslate)))
+    this.add((this.gizmo[TransformMode.rotate] = setupGizmo(gizmoRotate)))
+    this.add((this.gizmo[TransformMode.scale] = setupGizmo(gizmoScale)))
+    this.add((this.picker[TransformMode.translate] = setupGizmo(pickerTranslate)))
+    this.add((this.picker[TransformMode.rotate] = setupGizmo(pickerRotate)))
+    this.add((this.picker[TransformMode.scale] = setupGizmo(pickerScale)))
+    this.add((this.helper[TransformMode.translate] = setupGizmo(helperTranslate)))
+    this.add((this.helper[TransformMode.rotate] = setupGizmo(helperRotate)))
+    this.add((this.helper[TransformMode.scale] = setupGizmo(helperScale)))
     const geometryScaleValue = 2
     const geometryScale = new Vector3(1, 1, 1).multiplyScalar(geometryScaleValue)
     for (const mode in this.gizmo) {

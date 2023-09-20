@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformSpace, TransformSpaceType } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -106,7 +106,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   //function to handle changes in scale properties
   const onChangeScale = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
-    EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.Local, true)
+    EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.local as TransformSpaceType, true)
   }
 
   //rendering editor view for Transform properties

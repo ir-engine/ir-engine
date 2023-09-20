@@ -43,12 +43,12 @@ const transformSpaceOptions = [
   {
     label: t('editor:toolbar.transformSpace.lbl-selection'),
     info: t('editor:toolbar.transformSpace.info-selection'),
-    value: TransformSpace.Local
+    value: TransformSpace.local
   },
   {
     label: t('editor:toolbar.transformSpace.lbl-world'),
     info: t('editor:toolbar.transformSpace.info-world'),
-    value: TransformSpace.World
+    value: TransformSpace.world
   }
 ]
 

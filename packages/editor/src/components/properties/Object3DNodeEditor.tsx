@@ -43,7 +43,7 @@ import {
   Object3DWithEntity,
   removeObjectFromGroup
 } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformSpace, TransformSpaceType } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Divider } from '@mui/material'
@@ -249,7 +249,12 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     editState.merge({
                       scale: nuScale.clone()
                     })
-                    EditorControlFunctions.scaleObject([obj3d.uuid], [nuScale], TransformSpace.Local, true)
+                    EditorControlFunctions.scaleObject(
+                      [obj3d.uuid],
+                      [nuScale],
+                      TransformSpace.local as TransformSpaceType,
+                      true
+                    )
                     //obj3d.scale.copy(nuScale)
                   }}
                   onRelease={() => {

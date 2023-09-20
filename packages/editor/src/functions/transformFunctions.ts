@@ -23,26 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { traverseEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   SnapMode,
-  TransformMode,
   TransformModeType,
   TransformPivot,
   TransformPivotType,
-  TransformSpace
+  TransformSpace,
+  TransformSpaceType
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
-import { SelectionState } from '../services/SelectionServices'
 
 export const setTransformMode = (mode: TransformModeType): void => {
-  if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
+  /*if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
     let stop = false
     const selectedEntities = getState(SelectionState).selectedEntities
 
@@ -65,7 +59,7 @@ export const setTransformMode = (mode: TransformModeType): void => {
     dispatchAction(EditorHelperAction.changeTransformModeOnCancel({ mode }))
   }
 
-  // EditorHistory.grabCheckPoint = undefined
+  // EditorHistory.grabCheckPoint = undefined*/
 
   dispatchAction(EditorHelperAction.changedTransformMode({ mode }))
 }
@@ -89,7 +83,7 @@ export const toggleTransformPivot = () => {
   dispatchAction(EditorHelperAction.changedTransformPivotMode({ transformPivot: TransformPivot[pivots[nextIndex]] }))
 }
 
-export const setTransformSpace = (transformSpace: TransformSpace) => {
+export const setTransformSpace = (transformSpace: TransformSpaceType) => {
   dispatchAction(EditorHelperAction.changedTransformSpaceMode({ transformSpace }))
 }
 
@@ -97,9 +91,9 @@ export const toggleTransformSpace = () => {
   dispatchAction(
     EditorHelperAction.changedTransformSpaceMode({
       transformSpace:
-        getState(EditorHelperState).transformSpace === TransformSpace.World
-          ? TransformSpace.Local
-          : TransformSpace.World
+        getState(EditorHelperState).transformSpace === TransformSpace.world
+          ? TransformSpace.local
+          : TransformSpace.world
     })
   )
 }

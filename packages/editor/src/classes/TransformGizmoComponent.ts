@@ -33,10 +33,18 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import {
+  GroupComponent,
+  addObjectToGroup,
+  removeObjectFromGroup
+} from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
+import { EditorHelperState } from '../services/EditorHelperState'
+import { setDragging } from '../systems/EditorControlSystem'
 
 export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
@@ -46,6 +54,9 @@ export const TransformGizmoComponent = defineComponent({
       getComponent(Engine.instance.cameraEntity, CameraComponent),
       EngineRenderer.instance.renderer.domElement
     )
+    control.addEventListener('dragging-changed', function (event) {
+      setDragging(event.value)
+    })
     return control
   },
   onRemove: (entity, component) => {
@@ -55,21 +66,35 @@ export const TransformGizmoComponent = defineComponent({
   reactor: function (props) {
     const entity = useEntityContext()
     const gizmoComponent = useComponent(entity, TransformGizmoComponent)
-    /*useExecute(
+    const editorHelperState = useHookstate(getMutableState(EditorHelperState))
+
+    useExecute(
       // transfer editor control system logic
       () => {
-
-        
+        gizmoComponent.value.updateMatrixWorld()
       },
       { with: PresentationSystemGroup }
-    )*/
+    )
 
     useEffect(() => {
-      console.log('DEBUG run gizmo effect')
+      console.log('DEBUG entity is ', entity)
+      const object = getComponent(entity, GroupComponent)
+      if (!object) return
+      if (!object[0].isObject3D) return
       addObjectToGroup(entity, gizmoComponent.value)
-      const object = Engine.instance.scene.getObjectByProperty('uuid', getComponent(entity, UUIDComponent))
-      gizmoComponent.value.attach(object!)
+      console.log('DEBUG object is', object)
+      gizmoComponent.value.attach(object[0]!)
     }, [])
+
+    useEffect(() => {
+      const mode = editorHelperState.transformMode.value
+      gizmoComponent.value.setMode(mode)
+    }, [editorHelperState.transformMode])
+    useEffect(() => {}, [editorHelperState.transformPivot])
+    useEffect(() => {
+      const space = editorHelperState.transformSpace.value
+      gizmoComponent.value.setSpace(space)
+    }, [editorHelperState.transformSpace])
     return null
   }
 })

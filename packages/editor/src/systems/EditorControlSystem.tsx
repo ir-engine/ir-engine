@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { Intersection, Layers, MathUtils, Object3D, Raycaster, Vector2, Vector3 } from 'three'
+import { Intersection, Layers, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
-import { V_010 } from '@etherealengine/engine/src/common/constants/MathConstants'
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -40,6 +39,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   EntityTreeComponent,
+  getAllEntitiesInTree,
   getEntityNodeArrayFromEntities
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -49,12 +49,13 @@ import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/Infinit
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
+import { SceneState } from '../../../engine/src/ecs/classes/Scene'
 import { EditorCameraState } from '../classes/EditorCameraState'
+import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
@@ -77,21 +78,22 @@ const raycasterResults: Intersection<Object3D>[] = []
 const raycastIgnoreLayers = new Layers()
 
 const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
-
+let lastZoom = 0
+let dragging = false
 const onKeyQ = () => {
-  const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+  /*const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
     nodes,
     V_010,
     editorHelperState.rotationSnap * MathUtils.DEG2RAD,
-    gizmoTransform.position
-  )
+    //gizmoTransform.position
+  )*/
 }
 
 const onKeyE = () => {
-  const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
+  /*const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
   const editorHelperState = getState(EditorHelperState)
   EditorControlFunctions.rotateAround(
@@ -99,7 +101,7 @@ const onKeyE = () => {
     V_010,
     -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
     gizmoTransform.position
-  )
+  )*/
 }
 
 const onKeyG = () => {
@@ -118,6 +120,7 @@ const onEscape = () => {
 
 const onKeyF = () => {
   const editorCameraState = getMutableState(EditorCameraState)
+  const selectedEntities = getMutableState(SelectionState).selectedEntities.value
   editorCameraState.focusedObjects.set(getEntityNodeArrayFromEntities(selectedEntities))
   editorCameraState.refocus.set(true)
 }
@@ -166,6 +169,9 @@ const onDelete = () => {
   EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities))
 }
 
+export const setDragging = (value) => {
+  dragging = value
+}
 function copy(event) {
   if (isInputSelected()) return
   event.preventDefault()
@@ -300,7 +306,7 @@ const execute = () => {
   if (buttons.Minus?.down) onMinus()
   if (buttons.Delete?.down) onDelete()
 
-  const selecting = buttons.PrimaryClick?.pressed
+  const selecting = buttons.PrimaryClick?.pressed && !dragging
   const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
 
@@ -340,6 +346,7 @@ const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const selectionState = useHookstate(getMutableState(SelectionState))
+  const sceneState = useHookstate(getMutableState(SceneState))
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -353,7 +360,22 @@ const reactor = () => {
   }, [])
 
   useEffect(() => {
-    console.log('DEBUG changed entities')
+    const selectedEntities = selectionState.selectedEntities
+    if (!selectedEntities.value) return
+
+    for (const entity of getAllEntitiesInTree(sceneState.sceneEntity.value)) {
+      if (!hasComponent(entity, TransformGizmoComponent)) continue
+      console.log('DEBUG removed gizmo from ', entity)
+      removeComponent(entity as Entity, TransformGizmoComponent)
+    }
+    const lastSelection = selectedEntities[selectedEntities.length - 1].value
+    if (!lastSelection) return
+
+    console.log('DEBUG changed entities', lastSelection)
+    if (typeof lastSelection === 'string') return
+
+    setComponent(lastSelection as Entity, TransformGizmoComponent)
+
     // handle gizmo attachment
   }, [
     editorHelperState.transformMode,

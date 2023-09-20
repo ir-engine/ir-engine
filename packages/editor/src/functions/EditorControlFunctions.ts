@@ -55,7 +55,7 @@ import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materi
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { TransformSpace, TransformSpaceType } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { reparentObject3D } from '@etherealengine/engine/src/scene/functions/ReparentFunction'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import {
@@ -294,7 +294,7 @@ const tempVector = new Vector3()
 const positionObject = (
   nodes: EntityOrObjectUUID[],
   positions: Vector3[],
-  space: TransformSpace = TransformSpace.Local,
+  space: TransformSpaceType = 'local',
   addToPosition?: boolean
 ) => {
   for (let i = 0; i < nodes.length; i++) {
@@ -305,7 +305,7 @@ const positionObject = (
 
     if (isObj3d) {
       const obj3d = obj3dFromUuid(node)
-      if (space === TransformSpace.Local) {
+      if (space === TransformSpace.local) {
         if (addToPosition) obj3d.position.add(pos)
         else obj3d.position.copy(pos)
       } else {
@@ -315,7 +315,7 @@ const positionObject = (
           tempVector.add(pos)
         }
 
-        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
+        const _spaceMatrix = space === TransformSpace.world ? obj3d.parent!.matrixWorld : getSpaceMatrix()
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
         obj3d.position.copy(tempVector)
@@ -326,7 +326,7 @@ const positionObject = (
       const localTransform = getOptionalComponent(node, LocalTransformComponent) ?? transform
       const targetComponent = hasComponent(node, LocalTransformComponent) ? LocalTransformComponent : TransformComponent
 
-      if (space === TransformSpace.Local) {
+      if (space === TransformSpace.local) {
         if (addToPosition) localTransform.position.add(pos)
         else localTransform.position.copy(pos)
       } else {
@@ -340,7 +340,7 @@ const positionObject = (
           tempVector.add(pos)
         }
 
-        const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
+        const _spaceMatrix = space === TransformSpace.world ? parentTransform.matrix : getSpaceMatrix()
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
 
@@ -354,23 +354,19 @@ const positionObject = (
 const T_QUAT_1 = new Quaternion()
 const T_QUAT_2 = new Quaternion()
 
-const rotateObject = (
-  nodes: EntityOrObjectUUID[],
-  rotations: Euler[],
-  space: TransformSpace = TransformSpace.Local
-) => {
+const rotateObject = (nodes: EntityOrObjectUUID[], rotations: Euler[], space: TransformSpaceType = 'local') => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
 
     if (typeof node === 'string') {
       const obj3d = obj3dFromUuid(node)
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
-      if (space === TransformSpace.Local) {
+      if (space === TransformSpace.local) {
         obj3d.quaternion.copy(T_QUAT_1)
         obj3d.updateMatrix()
       } else {
         obj3d.updateMatrixWorld()
-        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
+        const _spaceMatrix = space === TransformSpace.world ? obj3d.parent!.matrixWorld : getSpaceMatrix()
 
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
@@ -383,7 +379,7 @@ const rotateObject = (
 
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
-      if (space === TransformSpace.Local) {
+      if (space === TransformSpace.local) {
         localTransform.rotation.copy(T_QUAT_1)
       } else {
         const entityTreeComponent = getComponent(node, EntityTreeComponent)
@@ -391,7 +387,7 @@ const rotateObject = (
           ? getComponent(entityTreeComponent.parentEntity, TransformComponent)
           : transform
 
-        const _spaceMatrix = space === TransformSpace.World ? parentTransform.matrix : getSpaceMatrix()
+        const _spaceMatrix = space === TransformSpace.world ? parentTransform.matrix : getSpaceMatrix()
 
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
@@ -445,10 +441,10 @@ const rotateAround = (nodes: EntityOrObjectUUID[], axis: Vector3, angle: number,
 const scaleObject = (
   nodes: EntityOrObjectUUID[],
   scales: Vector3[],
-  space: TransformSpace = TransformSpace.Local,
+  space: TransformSpaceType = 'local',
   overrideScale = false
 ) => {
-  if (space === TransformSpace.World) {
+  if (space === TransformSpace.world) {
     logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
     return
   }
