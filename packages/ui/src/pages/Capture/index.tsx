@@ -186,6 +186,9 @@ const CaptureMode = () => {
   const poseLandmarksState = useHookstate(null as null | NormalizedLandmarkList)
   const visionDetector = useHookstate(null as null | any)
 
+  const handLandmarksReady = useHookstate(false)
+  const poseLandmarksReady = useHookstate(false)
+
   const processingFrame = useHookstate(false)
 
   const videoStatus = useVideoStatus()
@@ -302,20 +305,21 @@ const CaptureMode = () => {
     }
 
     processingFrame.set(false)
-
+    //keep track of the status of the pose detector and hand detector
+    //when both are true we can send the results
     poseDetector.value.onResults((results) => {
       if (Object.keys(results).length === 0) return
 
       const { poseWorldLandmarks, poseLandmarks } = results
 
-      if (debugSettings?.throttleSend) {
-        throttledSend({ poseWorldLandmarks, poseLandmarks })
-      } else {
-        sendResults({ poseWorldLandmarks, poseLandmarks })
-      }
+      //if (debugSettings?.throttleSend) {
+      //  throttledSend({ poseWorldLandmarks, poseLandmarks })
+      //} else {
+      //  sendResults({ poseWorldLandmarks, poseLandmarks })
+      //}
 
       processingFrame.set(false)
-
+      poseLandmarksReady.set(true)
       poseLandmarksState.set(poseLandmarks)
     })
 
@@ -331,6 +335,13 @@ const CaptureMode = () => {
       }
     }
   }, [poseDetector, isDetecting])
+
+  useEffect(() => {
+    if (!poseLandmarksReady.value || !handLandmarksReady.value) return
+    poseLandmarksReady.set(false)
+    handLandmarksReady.set(false)
+    //send combined data here
+  }, [poseLandmarksReady, handLandmarksReady])
 
   const getRecordingStatus = () => {
     if (!active.value) return 'ready'
