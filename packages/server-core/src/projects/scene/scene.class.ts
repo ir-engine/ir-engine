@@ -139,7 +139,7 @@ export class Scene implements ServiceMethods<any> {
     if (!params?.query) {
       throw new Error('expected query parameters with projectName, sceneName, metadataOnly')
     }
-    const { projectName, sceneName, metadataOnly } = params?.query
+    const { projectName, sceneName, metadataOnly } = params.query
     const project = (await this.app
       .service(projectPath)
       ._find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
