@@ -63,7 +63,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { getPodsData } from '../../cluster/server-info/server-info-helper'
+import { getPodsData } from '../../cluster/pods/pods-helper'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -197,7 +197,7 @@ export const updateBuilder = async (
 }
 
 export const checkBuilderService = async (app: Application): Promise<{ failed: boolean; succeeded: boolean }> => {
-  let jobStatus = {
+  const jobStatus = {
     failed: false,
     succeeded: false
   }
@@ -886,7 +886,7 @@ export const getLatestProjectTaggedCommitInBranch = async (
   })
 
   let latestTaggedCommitInBranch = ''
-  let sortedTags = semver.rsort(tagResponse.data.map((item) => item.name))
+  const sortedTags = semver.rsort(tagResponse.data.map((item) => item.name))
   const taggedCommits = [] as string[]
   sortedTags.forEach((tag) => taggedCommits.push(tagResponse.data.find((item) => item.name === tag)!.commit.sha))
   const branchCommits = commitResponse.data.map((response) => response.sha)
@@ -1611,7 +1611,7 @@ export const uploadLocalProjectToProvider = async (
   const files = getFilesRecursive(projectRootPath)
   const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
   const results = [] as (string | null)[]
-  for (let file of filtered) {
+  for (const file of filtered) {
     try {
       const fileResult = await uploadSceneToStaticResources(app, projectName, file)
       const filePathRelative = processFileName(file.slice(projectRootPath.length))

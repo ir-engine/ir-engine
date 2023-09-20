@@ -27,11 +27,11 @@ import React, { memo } from 'react'
 
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 
-import { ServerInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+import { PodsType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import styles from '../../styles/admin.module.scss'
 
 interface ServerItemProps {
-  data: ServerInfoType
+  data: PodsType
   isSelected: boolean
   onCardClick: (key: string) => void
 }
