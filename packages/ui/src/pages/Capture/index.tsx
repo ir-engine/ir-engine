@@ -54,8 +54,10 @@ import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHook
 import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHelpers'
 import {
   MotionCaptureFunctions,
-  MotionCaptureResults,
-  mocapDataChannelType
+  combinedCaptureResults,
+  handMotionCaptureResults,
+  mocapDataChannelType,
+  poseMotionCaptureResults
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
@@ -125,7 +127,7 @@ export const stopPlayback = () => {
   )
 }
 
-const sendResults = (results: MotionCaptureResults) => {
+const sendResults = (results: combinedCaptureResults) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
   // console.log('sending results', results)
@@ -182,8 +184,8 @@ const CaptureMode = () => {
 
   const poseDetector = useHookstate(null as null | Pose)
   const handDetector = useHookstate(null as null | HandLandmarker)
-  const handLandmarksState = useHookstate(null as null | NormalizedLandmark[][])
-  const poseLandmarksState = useHookstate(null as null | NormalizedLandmarkList)
+  const handLandmarksState = useHookstate(null as null | handMotionCaptureResults)
+  const poseLandmarksState = useHookstate(null as null | poseMotionCaptureResults)
   const visionDetector = useHookstate(null as null | any)
 
   const handLandmarksReady = useHookstate(false)
@@ -270,9 +272,8 @@ const CaptureMode = () => {
     if (!handDetector.value) return
     processingFrame.set(true)
     const results = handDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
-    if (results.landmarks) {
-      handLandmarksState.set(results.landmarks)
-    }
+    const { landmarks, worldLandmarks } = results
+    handLandmarksState.set({ handWorldLandmarks: worldLandmarks, handLandmarks: landmarks })
     processingFrame.set(false)
   })
 
@@ -290,9 +291,9 @@ const CaptureMode = () => {
     canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
     canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
-    if (handLandmarksState.value) drawHandsToCanvas(handLandmarksState.value, canvasCtxRef, canvasRef)
+    if (handLandmarksState.value) drawHandsToCanvas(handLandmarksState.value.handLandmarks, canvasCtxRef, canvasRef)
 
-    if (poseLandmarksState.value) drawPoseToCanvas(poseLandmarksState.value, canvasCtxRef, canvasRef)
+    if (poseLandmarksState.value) drawPoseToCanvas(poseLandmarksState.value.poseLandmarks, canvasCtxRef, canvasRef)
 
     canvasCtxRef.current.restore()
   }, [isDetecting, handLandmarksState, poseLandmarksState])
@@ -320,7 +321,7 @@ const CaptureMode = () => {
 
       processingFrame.set(false)
       poseLandmarksReady.set(true)
-      poseLandmarksState.set(poseLandmarks)
+      poseLandmarksState.set(results)
     })
 
     return () => {
@@ -337,10 +338,11 @@ const CaptureMode = () => {
   }, [poseDetector, isDetecting])
 
   useEffect(() => {
-    if (!poseLandmarksReady.value || !handLandmarksReady.value) return
+    if (!poseLandmarksState.value || !handLandmarksState.value) return
     poseLandmarksReady.set(false)
     handLandmarksReady.set(false)
     //send combined data here
+    sendResults({ pose: poseLandmarksState.value, hands: handLandmarksState.value })
   }, [poseLandmarksReady, handLandmarksReady])
 
   const getRecordingStatus = () => {
