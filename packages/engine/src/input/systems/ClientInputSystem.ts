@@ -67,6 +67,7 @@ import {
 } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonStateMap, MouseButton, createInitialButtonState } from '../state/ButtonState'
+import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -176,11 +177,12 @@ export const addClientInputListeners = () => {
 
   /** Mouse events */
   const onWheelEvent = (event: WheelEvent) => {
+    const pointerState = getState(InputState).pointerState
     const normalizedValues = normalizeWheel(event)
     const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
     const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
-    Engine.instance.pointerState.scroll.x += x
-    Engine.instance.pointerState.scroll.y += y
+    pointerState.scroll.x += x
+    pointerState.scroll.y += y
   }
   canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
 
@@ -199,15 +201,17 @@ export const addClientInputListeners = () => {
   }
 
   const handleMouseMove = (event: MouseEvent) => {
-    Engine.instance.pointerState.position.set(
+    const pointerState = getState(InputState).pointerState
+    pointerState.position.set(
       (event.clientX / window.innerWidth) * 2 - 1,
       (event.clientY / window.innerHeight) * -2 + 1
     )
   }
 
   const handleTouchMove = (event: TouchEvent) => {
+    const pointerState = getState(InputState).pointerState
     const touch = event.touches[0]
-    Engine.instance.pointerState.position.set(
+    pointerState.position.set(
       (touch.clientX / window.innerWidth) * 2 - 1,
       (touch.clientY / window.innerHeight) * -2 + 1
     )
@@ -393,20 +397,18 @@ const inputRay = new Ray()
 const raycaster = new Raycaster()
 
 const execute = () => {
-  Engine.instance.pointerScreenRaycaster.setFromCamera(
-    Engine.instance.pointerState.position,
+  const pointerState = getState(InputState).pointerState
+  const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+  pointerScreenRaycaster.setFromCamera(
+    pointerState.position,
     getComponent(Engine.instance.cameraEntity, CameraComponent)
   )
 
-  Engine.instance.pointerState.movement.subVectors(
-    Engine.instance.pointerState.position,
-    Engine.instance.pointerState.lastPosition
-  )
-  Engine.instance.pointerState.lastPosition.copy(Engine.instance.pointerState.position)
+  pointerState.movement.subVectors(pointerState.position, pointerState.lastPosition)
+  pointerState.lastPosition.copy(pointerState.position)
+  pointerState.lastScroll.copy(pointerState.scroll)
 
-  Engine.instance.pointerState.lastScroll.copy(Engine.instance.pointerState.scroll)
-
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
   const origin = ReferenceSpace.origin
 
   for (const eid of xrSpaces()) {
@@ -431,7 +433,7 @@ const execute = () => {
     const source = getMutableComponent(sourceEid, InputSourceComponent)
 
     if (!xrFrame && source.source.targetRayMode.value === 'screen') {
-      const ray = Engine.instance.pointerScreenRaycaster.ray
+      const ray = pointerScreenRaycaster.ray
 
       TransformComponent.position.x[sourceEid] = ray.origin.x
       TransformComponent.position.y[sourceEid] = ray.origin.y

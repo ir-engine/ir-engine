@@ -31,6 +31,7 @@ import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHe
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
+  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
@@ -177,8 +178,14 @@ function copy(event) {
   }
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 function paste(event) {
   if (isInputSelected()) return
+
+  const isMiddleClick = inputSourceQuery().find((e) => getComponent(e, InputSourceComponent).buttons.AuxiliaryClick)
+  if (isMiddleClick) return
+
   event.preventDefault()
 
   let data
@@ -291,13 +298,13 @@ const execute = () => {
   if (buttons.Delete?.down) onDelete()
 
   const selecting = buttons.PrimaryClick?.pressed && !dragging
-  const zoom = Engine.instance.pointerState.scroll.y
+  const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
 
   if (selecting) {
     const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.isOrbiting.set(true)
-    const mouseMovement = Engine.instance.pointerState.movement
+    const mouseMovement = pointerState.movement
     if (mouseMovement) {
       editorCameraState.cursorDeltaX.set(mouseMovement.x)
       editorCameraState.cursorDeltaY.set(mouseMovement.y)
@@ -305,7 +312,7 @@ const execute = () => {
   } else if (panning) {
     const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.isPanning.set(true)
-    const mouseMovement = Engine.instance.pointerState.movement
+    const mouseMovement = pointerState.movement
     if (mouseMovement) {
       editorCameraState.cursorDeltaX.set(mouseMovement.x)
       editorCameraState.cursorDeltaY.set(mouseMovement.y)

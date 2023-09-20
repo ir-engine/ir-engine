@@ -24,25 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as k8s from '@kubernetes/client-node'
-import { Op } from 'sequelize'
 
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import {
+  PodsType,
   ServerContainerInfoType,
-  ServerInfoType,
   ServerPodInfoType
-} from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+} from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { BadRequest } from '@feathersjs/errors/lib'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import config from '../../appconfig'
 
 export const getServerInfo = async (app: Application) => {
-  const serverInfo: ServerInfoType[] = []
+  const serverInfo: PodsType[] = []
 
   const k8DefaultClient = getState(ServerState).k8DefaultClient
 
@@ -259,16 +259,17 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   }
 
   const channelInstances = instances.filter((item) => item.channelId)
-  let channels: Channel[] = []
+  let channels: ChannelType[] = []
 
   if (channelInstances) {
-    channels = (await app.service('channel').Model.findAll({
-      where: {
-        instanceId: {
-          [Op.in]: channelInstances.map((item) => item.channelId)
+    channels = (await app.service(channelPath)._find({
+      query: {
+        id: {
+          $in: channelInstances.map((item) => item.channelId!)
         }
-      }
-    })) as Channel[]
+      },
+      paginate: false
+    })) as ChannelType[]
   }
 
   for (const item of items) {
@@ -299,4 +300,42 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
       }
     }
   }
+}
+
+export const getServerLogs = async (podName: string, containerName: string, app: Application): Promise<string> => {
+  let serverLogs = ''
+
+  try {
+    logger.info('Attempting to check k8s server logs')
+
+    if (!podName.startsWith(`${config.server.releaseName}-`)) {
+      logger.error('You can only request server logs for current deployment.')
+      new BadRequest('You can only request server logs for current deployment.')
+    }
+
+    const k8DefaultClient = getState(ServerState).k8DefaultClient
+    if (k8DefaultClient) {
+      const podLogs = await k8DefaultClient.readNamespacedPodLog(
+        podName,
+        'default',
+        containerName,
+        undefined,
+        false,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined
+      )
+
+      serverLogs = podLogs.body
+    }
+  } catch (e) {
+    logger.error(e)
+    return e
+  }
+
+  return serverLogs
 }

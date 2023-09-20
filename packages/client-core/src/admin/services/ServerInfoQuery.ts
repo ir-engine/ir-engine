@@ -26,20 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@etherealengine/hyperflux'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import {
-  ServerInfoType,
-  ServerPodInfoType,
-  serverInfoPath
-} from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
+
+import { PodsType, ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import { useEffect } from 'react'
 
 export const useServerInfoFind = () => {
-  const serverInfoQuery = useFind(serverInfoPath)
+  const serverInfoQuery = useFind(podsPath)
   const serverInfo = useHookstate([] as typeof serverInfoQuery.data)
 
   useEffect(() => {
     const allPods: ServerPodInfoType[] = []
-    for (const item of serverInfoQuery.data as ServerInfoType[]) {
+    for (const item of serverInfoQuery.data as PodsType[]) {
       allPods.push(...item.pods)
     }
 
@@ -53,5 +50,8 @@ export const useServerInfoFind = () => {
     ])
   }, [serverInfoQuery.data])
 
-  return { data: serverInfo.value, refetch: serverInfoQuery.refetch }
+  return {
+    ...serverInfoQuery,
+    data: serverInfo.value
+  }
 }

@@ -46,6 +46,11 @@ import {
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+
+import { XRState } from '../../xr/XRState'
+
+import { InputState } from '../../input/state/InputState'
+
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -179,7 +184,7 @@ let lastMouseMoved = false
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
 
 const execute = () => {
-  if (Engine.instance.xrFrame) return
+  if (getState(XRState).xrFrame) return
 
   const deltaSeconds = getState(EngineState).deltaSeconds
 
@@ -203,7 +208,8 @@ const execute = () => {
   if (keys.KeyF?.down) onKeyF()
   if (keys.KeyC?.down) onKeyC()
 
-  const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
+  const pointerState = getState(InputState).pointerState
+  const mouseMoved = pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
 
   for (const entity of avatarControllerEntities) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
@@ -213,8 +219,7 @@ const execute = () => {
       getOptionalComponent(cameraEntity, FollowCameraComponent)
     if (!target) continue
 
-    if (!lastMouseMoved && mouseMoved)
-      lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
+    if (!lastMouseMoved && mouseMoved) lastLookDelta.set(pointerState.position.x, pointerState.position.y)
 
     if (
       (inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === '') &&
@@ -232,16 +237,16 @@ const execute = () => {
     if (mouseMoved) {
       setTargetCameraRotation(
         cameraEntity,
-        target.phi - (Engine.instance.pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed,
-        target.theta - (Engine.instance.pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed,
+        target.phi - (pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed,
+        target.theta - (pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed,
         0.1
       )
     }
 
-    throttleHandleCameraZoom(cameraEntity, Engine.instance.pointerState.scroll.y)
+    throttleHandleCameraZoom(cameraEntity, pointerState.scroll.y)
   }
 
-  lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
+  lastLookDelta.set(pointerState.position.x, pointerState.position.y)
 
   lastMouseMoved = !!mouseMoved
 }

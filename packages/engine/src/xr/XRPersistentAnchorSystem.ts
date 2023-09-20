@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
-import { Engine } from '../ecs/classes/Engine'
+import { getState } from '@etherealengine/hyperflux'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { ReferenceSpace } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 
 /**
  * XRPersistentAnchorSystem
@@ -109,7 +109,7 @@ export const XRAnchorFunctions = {
 }
 
 const execute = () => {
-  const frame = Engine.instance.xrFrame as XRFramePersistentAnchorType
+  const frame = getState(XRState).xrFrame as XRFramePersistentAnchorType
   if (!frame) return
 
   const xrSpace = ReferenceSpace.origin
