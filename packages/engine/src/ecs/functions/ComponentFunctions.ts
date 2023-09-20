@@ -36,14 +36,7 @@ import { HookableFunction } from '@etherealengine/common/src/utils/createHookabl
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
-import {
-  hookstate,
-  destroy,
-  NO_PROXY,
-  none,
-  State,
-  useHookstate
-} from '@etherealengine/hyperflux/functions/StateFunctions'
+import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
