@@ -30,18 +30,17 @@ import { Knex } from 'knex'
 import _ from 'lodash'
 import fetch from 'node-fetch'
 
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { getState } from '@etherealengine/hyperflux'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { InstanceProvisionType } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
 import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { getState } from '@etherealengine/hyperflux'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
@@ -527,7 +526,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
 
       if (channelId != null) {
         try {
-          await this.app.service('channel').get(channelId)
+          await this.app.service(channelPath).get(channelId)
         } catch (err) {
           throw new BadRequest('Invalid channel ID')
         }

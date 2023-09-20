@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { Validator, matches } from '../common/functions/MatchesUtils'
 import { InstanceID } from '../schemas/networking/instance.schema'
+import { ChannelID } from '../schemas/social/channel.schema'
 import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 

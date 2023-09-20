@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import ChannelUser from './channel-user/channel-user'
-import Channel from './channel/channel.service'
+import Channel from './channel/channel'
 import InviteCodeLookup from './invite-code-lookup/invite-code-lookup'
 import InviteType from './invite-type/invite-type'
 import Invite from './invite/invite'

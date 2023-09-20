@@ -23,19 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-
-import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
-import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { channelDataValidator, channelPatchValidator } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   UserRelationshipType,
   userRelationshipPath
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { Paginated } from '@feathersjs/feathers'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
+import {
+  channelDataResolver,
+  channelExternalResolver,
+  channelPatchResolver,
+  channelResolver
+} from './channel.resolvers'
 
 /**
  *  Don't remove this comment. It's needed to format import lines nicely.
@@ -43,20 +49,13 @@ import authenticate from '../../hooks/authenticate'
  */
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(channelExternalResolver), schemaHooks.resolveResult(channelResolver)]
+  },
+
   before: {
     all: [authenticate()],
-    find: [
-      addAssociations({
-        models: [
-          {
-            model: 'message'
-          },
-          {
-            model: 'instance'
-          }
-        ]
-      })
-    ],
+    find: [],
     get: [
       setLoggedInUser('userId'),
       iff(isProvider('external'), async (context: HookContext) => {
@@ -75,22 +74,11 @@ export default {
         if (channelUser.data.length === 0) throw new Error('Must be member of channel!')
 
         return context
-      }),
-      addAssociations({
-        models: [
-          {
-            model: 'channel-user'
-          },
-          {
-            model: 'message'
-          },
-          {
-            model: 'instance'
-          }
-        ]
       })
     ],
     create: [
+      () => schemaHooks.validateData(channelDataValidator),
+      schemaHooks.resolveData(channelDataResolver),
       setLoggedInUser('userId'),
       // ensure users are friends of the owner
       iff(isProvider('external'), async (context: HookContext) => {
@@ -121,7 +109,11 @@ export default {
       })
     ],
     update: [disallow('external')],
-    patch: [disallow('external')],
+    patch: [
+      disallow('external'),
+      () => schemaHooks.validateData(channelPatchValidator),
+      schemaHooks.resolveData(channelPatchResolver)
+    ],
     remove: [setLoggedInUser('userId')]
   },
 
