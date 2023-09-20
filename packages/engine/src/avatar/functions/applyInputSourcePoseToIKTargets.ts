@@ -223,7 +223,7 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
   /*  const hand = inputSource.hand as any as XRHand
   const rig = getComponent(entity, AvatarRigComponent)
   const referenceSpace = ReferenceSpace.origin!
-  const xrFrame = Engine.instance.xrFrame!
+  const xrFrame = getState(XRState).xrFrame!
   const poses1 = new Float32Array(16 * 25)
 
   xrFrame.fillPoses!(hand.values(), referenceSpace, poses1)
@@ -269,7 +269,7 @@ const rightControllerOffset = new Quaternion()
 export const applyInputSourcePoseToIKTargets = () => {
   const { localClientEntity } = Engine.instance
 
-  const xrFrame = Engine.instance.xrFrame!
+  const xrFrame = getState(XRState).xrFrame!
 
   const inAttachedControlMode = getCameraMode() === 'attached'
 
@@ -328,7 +328,7 @@ export const applyInputSourcePoseToIKTargets = () => {
         } else {
           if (hasComponent(localClientEntity, XRHandComponent)) removeComponent(localClientEntity, XRHandComponent)
           if (inputSourceComponent.source.gripSpace) {
-            const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
+            const pose = getState(XRState).xrFrame!.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
             if (pose) {
               ikTransform.position
                 .copy(pose.transform.position as any as Vector3)
@@ -340,7 +340,7 @@ export const applyInputSourcePoseToIKTargets = () => {
                 .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
             }
           } else {
-            const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)
+            const pose = getState(XRState).xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
               ikTransform.rotation

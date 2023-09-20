@@ -63,7 +63,8 @@ export const XRState = defineState({
       viewerPose: null as XRViewerPose | null | undefined,
       userEyeLevel: 1.8,
       //to be moved to user_settings
-      userHeight: 0
+      userHeight: 0,
+      xrFrame: null as XRFrame | null
     }
   },
 
