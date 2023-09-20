@@ -23,7 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '@feathersjs/koa/lib'
+import {
+  ExtractedImageTransformParameters,
+  extractParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import {
   BufferUtils,
   Document,
@@ -37,6 +41,7 @@ import {
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing, KHRTextureBasisu } from '@gltf-transform/extensions'
 import { dedup, draco, flatten, join, palette, partition, prune, reorder, weld } from '@gltf-transform/functions'
+import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import { execFileSync } from 'child_process'
 import { createHash } from 'crypto'
@@ -46,13 +51,11 @@ import path from 'path'
 import sharp from 'sharp'
 import { MathUtils } from 'three'
 
-import {
-  ExtractedImageTransformParameters,
-  extractParameters,
-  ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
-
+import { objectToArgs } from '@etherealengine/common/src/utils/objectToCommandLineArgs'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import { getPodsData } from '../../cluster/pods/pods-helper'
 import { getContentType } from '../../util/fileUtils'
 import { EEMaterial } from '../extensions/EE_MaterialTransformer'
 import { EEResourceID } from '../extensions/EE_ResourceIDTransformer'
@@ -327,8 +330,8 @@ function hashBuffer(buffer: Uint8Array): string {
   return hash.digest('hex')
 }
 
-export async function transformModel(app: Application, args: ModelTransformArguments) {
-  const parms = args.parms
+export async function transformModel(app: Application, args: ModelTransformParameters) {
+  const parms = args
   const serverDir = path.join(appRootPath.path, 'packages/server')
   const tmpDir = path.join(serverDir, 'tmp')
   const BASIS_U = path.join(appRootPath.path, 'packages/server/public/loader_decoders/basisu')
@@ -404,19 +407,19 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
   let initialSrc = args.src
   /* Meshopt Compression */
-  if (args.parms.meshoptCompression.enabled) {
+  if (args.meshoptCompression.enabled) {
     const segments = args.src.split('.')
     const ext = segments.pop()
     const base = segments.join('.')
     initialSrc = `${base}-meshopt.${ext}`
     let packArgs = `-i ${args.src} -o ${initialSrc} -noq `
-    if (!args.parms.meshoptCompression.options.mergeMaterials) {
+    if (!args.meshoptCompression.options.mergeMaterials) {
       packArgs += `-km `
     }
-    if (!args.parms.meshoptCompression.options.mergeNodes) {
+    if (!args.meshoptCompression.options.mergeNodes) {
       packArgs += `-kn `
     }
-    if (args.parms.meshoptCompression.options.compression) {
+    if (args.meshoptCompression.options.compression) {
       packArgs += `-cc `
     }
     execFileSync(
@@ -434,17 +437,17 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
   /* ID unnamed resources */
   unInstanceSingletons(document)
-  args.parms.split && (await split(document))
-  args.parms.combineMaterials && (await combineMaterials(document))
-  args.parms.instance && (await myInstance(document))
-  args.parms.dedup && (await document.transform(dedup()))
-  args.parms.flatten && (await document.transform(flatten()))
-  args.parms.join.enabled && (await document.transform(join(args.parms.join.options)))
-  if (args.parms.palette.enabled) {
+  args.split && (await split(document))
+  args.combineMaterials && (await combineMaterials(document))
+  args.instance && (await myInstance(document))
+  args.dedup && (await document.transform(dedup()))
+  args.flatten && (await document.transform(flatten()))
+  args.join.enabled && (await document.transform(join(args.join.options)))
+  if (args.palette.enabled) {
     removeUVsOnUntexturedMeshes(document)
-    await document.transform(palette(args.parms.palette.options))
+    await document.transform(palette(args.palette.options))
   }
-  args.parms.prune && (await document.transform(prune()))
+  args.prune && (await document.transform(prune()))
 
   /* Separate Instanced Geometry */
   const instancedNodes = root
@@ -456,11 +459,11 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   })
 
   /* PROCESS MESHES */
-  if (args.parms.weld.enabled) {
-    await document.transform(weld({ tolerance: args.parms.weld.tolerance }))
+  if (args.weld.enabled) {
+    await document.transform(weld({ tolerance: args.weld.tolerance }))
   }
 
-  if (args.parms.reorder) {
+  if (args.reorder) {
     await document.transform(
       reorder({
         encoder: MeshoptEncoder,
@@ -470,8 +473,8 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
 
   /* Draco Compression */
-  if (args.parms.dracoCompression.enabled) {
-    await document.transform(draco(args.parms.dracoCompression.options))
+  if (args.dracoCompression.enabled) {
+    await document.transform(draco(args.dracoCompression.options))
   }
   /* /Draco Compression */
 
@@ -498,7 +501,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         (resource) => resource.enabled && resource.resourceId === resourceId
       )
       const mergedParms = {
-        ...parms,
+        ...args,
         ...(resourceParms ? extractParameters(resourceParms) : {})
       } as ExtractedImageTransformParameters
       const fileName = toPath(texture)
@@ -579,7 +582,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   if (parms.modelFormat === 'glb') {
     const data = Buffer.from(await io.writeBinary(document))
     const [savePath, fileName] = fileUploadPath(args.dst)
-    result = await app.service(fileBrowserPath).patch(null, {
+    result = await app.service('file-browser').patch(null, {
       path: savePath,
       fileName,
       body: data,
@@ -648,4 +651,65 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
   fs.existsSync(tmpDir) && (await execFileSync('rm', ['-R', tmpDir]))
   return result
+}
+
+export async function getModelTransformJobBody(
+  app: Application,
+  createParams: ModelTransformParameters
+): Promise<k8s.V1Job> {
+  const apiPods = await getPodsData(
+    `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
+    'api',
+    'Api',
+    app
+  )
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
+
+  const command = [
+    'npx',
+    'cross-env',
+    'ts-node',
+    '--swc',
+    'packages/server-core/src/assets/model-transform/model-transform.job.ts',
+    ...objectToArgs(createParams)
+  ]
+
+  return {
+    metadata: {
+      name: `${process.env.RELEASE_NAME}-${createParams.src}-${createParams.dst}-transform`,
+      labels: {
+        'etherealengine/modelTransformer': 'true',
+        'etherealengine/transformSource': createParams.src,
+        'etherealengine/transformDestination': createParams.dst,
+        'etherealengine/release': process.env.RELEASE_NAME!
+      }
+    },
+    spec: {
+      template: {
+        metadata: {
+          labels: {
+            'etherealengine/modelTransformer': 'true',
+            'etherealengine/transformSource': createParams.src,
+            'etherealengine/transformDestination': createParams.dst,
+            'etherealengine/release': process.env.RELEASE_NAME!
+          }
+        },
+        spec: {
+          serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
+          containers: [
+            {
+              name: `${process.env.RELEASE_NAME}-${createParams.src}-${createParams.dst}-transform`,
+              image,
+              imagePullPolicy: 'IfNotPresent',
+              command,
+              env: Object.entries(process.env).map(([key, value]) => {
+                return { name: key, value: value }
+              })
+            }
+          ],
+          restartPolicy: 'Never'
+        }
+      }
+    }
+  }
 }

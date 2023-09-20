@@ -133,10 +133,7 @@ export default function ModelTransformProperties({
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      const nuPath = await Engine.instance.api.service(modelTransformPath).create({
-        src: modelSrc,
-        transformParameters: transformParms.value
-      })
+      const nuPath = await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
       transformHistory.set([modelSrc, ...transformHistory.value])
       const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
       await FileBrowserService.fetchFiles(directoryToRefresh)
@@ -182,10 +179,7 @@ export default function ModelTransformProperties({
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await Engine.instance.api.service(modelTransformPath).create({
-        src: bakedPath,
-        transformParameters: transformParms.value
-      })
+      const transformedPath = await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
       console.log('transformed model into ' + transformedPath)
       onChangeModel(transformedPath)
     }
