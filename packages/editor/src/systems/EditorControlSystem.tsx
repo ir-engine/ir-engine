@@ -300,7 +300,7 @@ const execute = () => {
   if (buttons.Minus?.down) onMinus()
   if (buttons.Delete?.down) onDelete()
 
-  const selecting = buttons.PrimaryClick?.pressed && !dragging
+  const selecting = buttons.PrimaryClick?.pressed
   const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
 
