@@ -28,8 +28,8 @@ import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import multiLogger from '@etherealengine/common/src/logger'
 import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'

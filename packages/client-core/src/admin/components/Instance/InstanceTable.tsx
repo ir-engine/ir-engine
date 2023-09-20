@@ -48,41 +48,28 @@ const INSTANCE_PAGE_LIMIT = 100
 
 const InstanceTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(INSTANCE_PAGE_LIMIT)
   const refetch = useHookstate(false)
   const openConfirm = useHookstate(false)
   const instanceId = useHookstate('')
   const instanceName = useHookstate('')
-  const fieldOrder = useHookstate<'asc' | 'desc'>('asc')
-  const sortField = useHookstate('createdAt')
   const instanceAdmin = useHookstate<InstanceType | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)
 
   const instancesQuery = useFind(instancePath, {
     query: {
-      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
-      $skip: page.value * rowsPerPage.value,
-      $limit: rowsPerPage.value,
+      $sort: { createdAt: 1 },
+      $limit: 20,
       action: 'admin',
       search
     }
   })
   const removeInstance = useMutation(instancePath).remove
 
-  const handlePageChange = (event: unknown, newPage: number) => {
-    page.set(newPage)
-  }
-
   const submitRemoveInstance = async () => {
     await removeInstance(instanceId.value)
     openConfirm.set(false)
   }
 
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
   const isMounted = useRef(false)
 
   const fetchTick = () => {
@@ -165,19 +152,7 @@ const InstanceTable = ({ className, search }: Props) => {
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={instanceColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={instancesQuery.total!}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={instancesQuery} rows={rows} column={instanceColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName.value}'?`}

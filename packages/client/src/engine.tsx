@@ -37,6 +37,7 @@ import { initializeBrowser } from '@etherealengine/engine/src/initializeBrowser'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
+import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
 import { initializei18n } from './util'
 
 createEngine()
@@ -48,6 +49,7 @@ getMutableState(EngineState).publicPath.set(
 initializei18n()
 initializeBrowser()
 API.createAPI()
+pipeLogs(Engine.instance.api)
 
 export default function ({ children }) {
   const ref = createRef()

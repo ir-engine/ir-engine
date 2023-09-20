@@ -48,6 +48,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { InputState } from '../../input/state/InputState'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
@@ -149,9 +150,10 @@ const onKeyP = () => {
 }
 
 const isAvatarClicked = () => {
+  const pointerState = getState(InputState).pointerState
   const hits = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    Engine.instance.pointerState.position,
+    pointerState.position,
     getState(PhysicsState).physicsWorld,
     raycastComponentData
   )
@@ -225,7 +227,8 @@ const execute = () => {
     if (inputSourceEntity) {
       const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
       if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
-        const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
+        const pointerState = getState(InputState).pointerState
+        const mouseMoved = pointerState.movement.lengthSq() > 0
         if (mouseMoved) mouseMovedDuringPrimaryClick = true
 
         if (inputSourceComponent.buttons.PrimaryClick.up) {

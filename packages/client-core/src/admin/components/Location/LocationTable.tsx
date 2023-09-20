@@ -46,45 +46,31 @@ interface Props {
   search: string
 }
 
-const LOCATION_PAGE_LIMIT = 100
-
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
 const LocationTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
 
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(LOCATION_PAGE_LIMIT)
   const openConfirm = useHookstate(false)
   const locationId = useHookstate('')
   const locationName = useHookstate('')
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('name')
   const openLocationDrawer = useHookstate(false)
   const locationAdmin = useHookstate<LocationType | undefined>(undefined)
 
   const adminLocations = useFind(locationPath, {
     query: {
-      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
-      $skip: page.value * rowsPerPage.value,
-      $limit: rowsPerPage.value,
+      $sort: { name: 1 },
+      $limit: 20,
       adminnedLocations: true,
       search: search
     }
-  }).data
+  })
 
   const adminLocationMutation = useMutation(locationTypePath)
-
-  const handlePageChange = (event: unknown, newPage: number) => page.set(newPage)
 
   const submitRemoveLocation = async () => {
     adminLocationMutation.remove(locationId.value)
     openConfirm.set(false)
-  }
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
   }
 
   const handleOpenLocationDrawer =
@@ -141,7 +127,7 @@ const LocationTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = adminLocations.map((el) => {
+  const rows = adminLocations.data.map((el) => {
     return createData(
       el,
       el.id,
@@ -177,19 +163,7 @@ const LocationTable = ({ className, search }: Props) => {
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={locationColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={adminLocations.length}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={adminLocations} rows={rows} column={locationColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.location.confirmLocationDelete')} '${locationName.value}'?`}

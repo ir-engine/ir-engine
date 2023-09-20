@@ -23,6 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-export const serverLogsPath = 'server-logs'
-export const serverLogsMethods = ['find'] as const
+import authenticate from '../../hooks/authenticate'
+
+export default {
+  before: {
+    all: [authenticate()],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+} as any
