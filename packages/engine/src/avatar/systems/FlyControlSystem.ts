@@ -34,6 +34,7 @@ import { V_010 } from '../../common/constants/MathConstants'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { InputState } from '../../input/state/InputState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
@@ -64,7 +65,8 @@ const execute = () => {
 
     const inputState = inputSource.buttons
 
-    const mouseMovement = Engine.instance.pointerState.movement
+    const pointerState = getState(InputState).pointerState
+    const mouseMovement = pointerState.movement
 
     camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
 
