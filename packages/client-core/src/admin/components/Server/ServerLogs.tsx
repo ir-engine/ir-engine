@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import multiLogger from '@etherealengine/common/src/logger'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -41,8 +40,6 @@ import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 
 export type ServerLogsInputsType = { podName?: string; containerName?: string }
-
-const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
 
 const ServerLogs = ({
   podName,
@@ -87,7 +84,6 @@ const ServerLogs = ({
   }, [autoRefresh.value])
 
   const handleRefreshServerLogs = () => {
-    logger.info('Refreshing server logs.')
     serverLogsQuery.refetch()
   }
 

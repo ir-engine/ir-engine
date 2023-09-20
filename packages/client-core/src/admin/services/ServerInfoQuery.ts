@@ -50,5 +50,8 @@ export const useServerInfoFind = () => {
     ])
   }, [serverInfoQuery.data])
 
-  return { data: serverInfo.value, refetch: serverInfoQuery.refetch }
+  return {
+    ...serverInfoQuery,
+    data: serverInfo.value
+  }
 }
