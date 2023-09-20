@@ -169,7 +169,7 @@ export async function destroyEngine() {
 
   const entityPromises = [] as Promise<void>[]
 
-  for (const entity of entities) if (entity) entityPromises.push(...removeEntity(entity, true))
+  for (const entity of entities) if (entity) entityPromises.push(...removeEntity(entity))
 
   await Promise.all(entityPromises)
 
