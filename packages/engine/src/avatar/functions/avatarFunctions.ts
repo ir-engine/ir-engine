@@ -116,7 +116,7 @@ export const loadAvatarForUser = async (
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
-    return
+    throw new Error('Avatar model already loading')
 
   if (loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) {
@@ -129,11 +129,11 @@ export const loadAvatarForUser = async (
 
   /** hack a cancellable promise - check if the url we start with is the one we end up with */
   if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
-    return
+    throw new Error('Avatar model changed while loading')
 
   removeComponent(entity, AvatarPendingComponent)
 
-  if (!parent) return
+  if (!parent) throw new Error('Avatar model not found')
   setupAvatarForUser(entity, parent)
 
   if (isClient && loadingEffect) {
@@ -216,7 +216,9 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const rig = model.humanoid?.normalizedHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
-  const targetBones = getAllBones(recursiveHipsLookup(model.scene))
+  const hips = recursiveHipsLookup(model.scene)
+
+  const targetBones = getAllBones(hips)
 
   setComponent(entity, AvatarRigComponent, {
     rig,

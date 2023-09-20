@@ -37,25 +37,19 @@ import { ChannelData, ChannelPropsTable, channelColumns } from '../../common/var
 import styles from '../../styles/admin.module.scss'
 import ChannelDrawer, { ChannelDrawerMode } from './ChannelDrawer'
 
-const CHANNEL_PAGE_LIMIT = 100
-
 const ChannelTable = ({ className, search }: ChannelPropsTable) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(CHANNEL_PAGE_LIMIT)
+
   const openConfirm = useHookstate(false)
   const channelId = useHookstate('' as ChannelID)
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('name')
   const openChannelDrawer = useHookstate(false)
   const channelAdmin = useHookstate<ChannelType | undefined>(undefined)
 
   const channelsQuery = useFind(channelPath, {
     query: {
-      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
-      $skip: page.value * rowsPerPage.value,
-      $limit: rowsPerPage.value,
       action: 'admin',
+      $sort: { name: 1 },
+      $limit: 20,
       $or: [
         {
           name: {
@@ -66,10 +60,6 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
     }
   })
   const removeChannel = useMutation(channelPath).remove
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    page.set(newPage)
-  }
 
   const submitRemoveChannel = async () => {
     await removeChannel(channelId.value).then(() => openConfirm.set(false))
@@ -109,30 +99,13 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
     }
   }
 
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
-
   const rows = channelsQuery.data.map((el: ChannelType) => {
     return createData(el, el.id!, el.name)
   })
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={channelColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={channelsQuery.total!}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={channelsQuery} rows={rows} column={channelColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.channel.confirmChannelDelete')}`}

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'

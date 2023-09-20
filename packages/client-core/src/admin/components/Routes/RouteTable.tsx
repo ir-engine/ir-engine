@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ChangeEvent } from 'react'
+import React from 'react'
 
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -36,31 +36,18 @@ import TableComponent from '../../common/Table'
 import { routeColumns } from '../../common/variables/route'
 import styles from '../../styles/admin.module.scss'
 
-const ROUTE_PAGE_LIMIT = 1000
-
 interface Props {
   className?: string
 }
 
 const RouteTable = ({ className }: Props) => {
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(ROUTE_PAGE_LIMIT)
   const processing = useHookstate(false)
 
   const installedRouteData = useFind('routes-installed').data
   const routesQuery = useFind(routePath, {
-    query: { $skip: rowsPerPage.value * page.value, $limit: rowsPerPage.value }
+    query: { $limit: 20 }
   })
   const routeActivateCreate = useMutation('route-activate').create
-
-  const handleRowsPerPageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    page.set(newPage)
-  }
 
   const isRouteActive = (project: string, route: string) =>
     routesQuery.data.findIndex((a) => {
@@ -94,16 +81,7 @@ const RouteTable = ({ className }: Props) => {
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={true}
-        rows={installedRoutes}
-        column={routeColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={routesQuery.total!}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={routesQuery} allowSort={true} rows={installedRoutes} column={routeColumns} />
       {processing.value && (
         <div className={styles.progressBackground}>
           <CircularProgress className={styles.progress} />

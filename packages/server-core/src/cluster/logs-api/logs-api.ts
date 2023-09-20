@@ -23,42 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { logsApiMethods, logsApiPath } from '@etherealengine/engine/src/schemas/cluster/logs-api.schema'
+import { Application } from '../../../declarations'
+import { LogsApiService } from './logs-api.class'
+import logsApiDocs from './logs-api.docs'
+import hooks from './logs-api.hooks'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
-
-export default {
-  before: {
-    all: [],
-    find: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)], // TODO: project based scopes #5613
-    get: [disallow()],
-    create: [disallow()],
-    update: [disallow()],
-    patch: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('editor', 'write') as any)
-    ],
-    remove: [disallow()]
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [logsApiPath]: LogsApiService
   }
-} as any
+}
+
+export default (app: Application): void => {
+  app.use(logsApiPath, new LogsApiService(app), {
+    // A list of all methods this service exposes externally
+    methods: logsApiMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: logsApiDocs
+  })
+
+  const service = app.service(logsApiPath)
+  service.hooks(hooks)
+}
