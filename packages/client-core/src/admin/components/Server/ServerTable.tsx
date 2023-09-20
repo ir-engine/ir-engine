@@ -30,21 +30,19 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import multiLogger from '@etherealengine/common/src/logger'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
+import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 import { ServerLogsInputsType } from './ServerLogs'
-
-const logger = multiLogger.child({ component: 'client-core:ServerTable' })
 
 TimeAgo.addDefaultLocale(en)
 
@@ -62,7 +60,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
   const selectedPod = useHookstate<ServerPodInfoType | null>(null)
 
-  const serverInfoQuery = useFind(podsPath)
+  const serverInfoQuery = useServerInfoFind()
   const removeServerInfo = useMutation(podsPath).remove
 
   useEffect(() => {
@@ -149,7 +147,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
   }
 
   const handleRefreshServerInfo = () => {
-    logger.info('Refreshing server info.')
+    serverInfoQuery.refetch()
   }
 
   const handleAutoRefreshServerInfoChange = (e) => {
