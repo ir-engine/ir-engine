@@ -27,16 +27,15 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
+import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   InviteDatabaseType,
   InviteQuery,
   InviteType,
   SpawnDetailsType
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
@@ -79,7 +78,7 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>(
     channelName: virtual(async (invite, context) => {
       if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const channel = await context.app.service('channel')._get(invite.targetObjectId as ChannelID)
+          const channel = await context.app.service(channelPath)._get(invite.targetObjectId as ChannelID)
           return channel.name
         } catch (err) {
           return '<A deleted channel>'

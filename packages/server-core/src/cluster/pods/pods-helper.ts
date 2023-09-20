@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as k8s from '@kubernetes/client-node'
-import { Op } from 'sequelize'
 
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
@@ -34,8 +33,8 @@ import {
   ServerContainerInfoType,
   ServerPodInfoType
 } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { BadRequest } from '@feathersjs/errors/lib'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -260,16 +259,17 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   }
 
   const channelInstances = instances.filter((item) => item.channelId)
-  let channels: Channel[] = []
+  let channels: ChannelType[] = []
 
   if (channelInstances) {
-    channels = (await app.service('channel').Model.findAll({
-      where: {
-        instanceId: {
-          [Op.in]: channelInstances.map((item) => item.channelId)
+    channels = (await app.service(channelPath)._find({
+      query: {
+        id: {
+          $in: channelInstances.map((item) => item.channelId!)
         }
-      }
-    })) as Channel[]
+      },
+      paginate: false
+    })) as ChannelType[]
   }
 
   for (const item of items) {
