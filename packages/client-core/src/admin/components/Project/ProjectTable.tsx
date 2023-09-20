@@ -34,9 +34,10 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { PROJECT_PAGE_LIMIT, ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import { userIsAdmin } from '../../../user/userHasAccess'
 import TableComponent from '../../common/Table'
@@ -74,13 +75,20 @@ const ProjectTable = ({ className }: Props) => {
   const [showProjectFiles, setShowProjectFiles] = useState(false)
   const [openProjectDrawer, setOpenProjectDrawer] = useState(false)
   const [openUserPermissionDrawer, setOpenUserPermissionDrawer] = useState(false)
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
   const [changeDestination, setChangeDestination] = useState(false)
 
-  const projectState = useHookstate(getMutableState(ProjectState))
-  const adminProjects = projectState.projects
-  const adminProjectCount = adminProjects.value.length
+  const projects = useFind(projectPath, {
+    query: {
+      allowed: true,
+      $limit: 100,
+      $sort: {
+        name: 1
+      }
+    }
+  })
+
+  const projectsData = projects.data as ProjectType[]
+
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
 
@@ -91,16 +99,14 @@ const ProjectTable = ({ className }: Props) => {
     _setProject(project)
   }
 
-  ProjectService.useAPIListeners()
-
   useEffect(() => {
-    if (project) setProject(adminProjects.get({ noproxy: true }).find((proj) => proj.name === project.name)!)
-  }, [adminProjects])
+    if (project) setProject(projectsData.find((proj) => proj.name === project.name)!)
+  }, [projectsData])
 
   const handleRemoveProject = async () => {
     try {
       if (projectRef.current) {
-        const projectToRemove = adminProjects.get({ noproxy: true }).find((p) => p.name === projectRef.current?.name)!
+        const projectToRemove = projectsData.find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()
@@ -207,15 +213,6 @@ const ProjectTable = ({ className }: Props) => {
     setConfirm({ ...confirm, open: false })
     setConfirm({ ...defaultConfirm })
     setProject(undefined)
-  }
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    setPage(newPage)
-  }
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
   }
 
   const copyShaToClipboard = (sha: string) => {
@@ -364,22 +361,13 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
-  const rows = adminProjects.value?.map((el) => {
+  const rows = projectsData.map((el) => {
     return createData(el, el.name)
   })
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={true}
-        rows={rows}
-        column={projectsColumns}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        count={adminProjectCount}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={projects} rows={rows} column={projectsColumns} />
 
       {openProjectDrawer && project && (
         <ProjectDrawer

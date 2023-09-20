@@ -23,45 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { podsMethods, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { Application } from '../../../declarations'
+import { PodsService } from './pods.class'
+import podsDocs from './pods.docs'
+import hooks from './pods.hooks'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import { serverInfoExternalResolver, serverInfoResolver } from './server-info.resolvers'
-
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(serverInfoExternalResolver), schemaHooks.resolveResult(serverInfoResolver)]
-  },
-
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [podsPath]: PodsService
   }
-} as any
+}
+
+export default (app: Application): void => {
+  app.use(podsPath, new PodsService(app), {
+    // A list of all methods this service exposes externally
+    methods: podsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: podsDocs
+  })
+
+  const service = app.service(podsPath)
+  service.hooks(hooks)
+}

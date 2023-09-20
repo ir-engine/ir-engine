@@ -43,6 +43,7 @@ import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHe
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
+  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -258,8 +259,14 @@ function copy(event) {
   }
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 function paste(event) {
   if (isInputSelected()) return
+
+  const isMiddleClick = inputSourceQuery().find((e) => getComponent(e, InputSourceComponent).buttons.AuxiliaryClick)
+  if (isMiddleClick) return
+
   event.preventDefault()
 
   let data
