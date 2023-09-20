@@ -39,8 +39,8 @@ import Primus from 'primus-client'
 
 import config from '@etherealengine/common/src/config'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {

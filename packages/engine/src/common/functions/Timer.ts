@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { getMutableState } from '@etherealengine/hyperflux'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
+import { ServerLoop } from './ServerLoop'
 import { isClient } from './getEnvironment'
 import { nowMilliseconds } from './nowMilliseconds'
-import { ServerLoop } from './ServerLoop'
 
 /**
  * @param elapsedTime The elapsed time in seconds

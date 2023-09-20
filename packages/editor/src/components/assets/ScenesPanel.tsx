@@ -29,9 +29,9 @@ import { CompressedTexture } from 'three'
 
 import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@etherealengine/common/src/logger'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
