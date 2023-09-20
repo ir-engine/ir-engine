@@ -175,10 +175,9 @@ export const addClientInputListeners = () => {
 
   document.addEventListener('visibilitychange', handleVisibilityChange)
 
-  const pointerState = getState(InputState).pointerState
-
   /** Mouse events */
   const onWheelEvent = (event: WheelEvent) => {
+    const pointerState = getState(InputState).pointerState
     const normalizedValues = normalizeWheel(event)
     const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
     const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
@@ -202,6 +201,7 @@ export const addClientInputListeners = () => {
   }
 
   const handleMouseMove = (event: MouseEvent) => {
+    const pointerState = getState(InputState).pointerState
     pointerState.position.set(
       (event.clientX / window.innerWidth) * 2 - 1,
       (event.clientY / window.innerHeight) * -2 + 1
@@ -209,6 +209,7 @@ export const addClientInputListeners = () => {
   }
 
   const handleTouchMove = (event: TouchEvent) => {
+    const pointerState = getState(InputState).pointerState
     const touch = event.touches[0]
     pointerState.position.set(
       (touch.clientX / window.innerWidth) * 2 - 1,
@@ -395,9 +396,8 @@ const inputRaycast = {
 const inputRay = new Ray()
 const raycaster = new Raycaster()
 
-const pointerState = getState(InputState).pointerState
-
 const execute = () => {
+  const pointerState = getState(InputState).pointerState
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
   pointerScreenRaycaster.setFromCamera(
     pointerState.position,
@@ -433,7 +433,6 @@ const execute = () => {
     const source = getMutableComponent(sourceEid, InputSourceComponent)
 
     if (!xrFrame && source.source.targetRayMode.value === 'screen') {
-      const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
       const ray = pointerScreenRaycaster.ray
 
       TransformComponent.position.x[sourceEid] = ray.origin.x

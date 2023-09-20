@@ -28,7 +28,7 @@ import { Raycaster, Vector2 } from 'three'
 
 export const InputState = defineState({
   name: 'InputState',
-  initial: {
+  initial: () => ({
     inputSources: [] as XRInputSourceArray,
     /** A screenspace raycaster for the pointer */
     pointerScreenRaycaster: new Raycaster(),
@@ -39,5 +39,5 @@ export const InputState = defineState({
       scroll: new Vector2(),
       lastScroll: new Vector2()
     }
-  }
+  })
 })
