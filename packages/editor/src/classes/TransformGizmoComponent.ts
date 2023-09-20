@@ -34,6 +34,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { useEffect } from 'react'
 
@@ -41,14 +42,15 @@ export const TransformGizmoComponent = defineComponent({
   name: 'TransformGizmo',
 
   onInit(entity) {
-    console.log('DEBUG add control', entity)
-    return new TransformControls(
+    const control = new TransformControls(
       getComponent(Engine.instance.cameraEntity, CameraComponent),
       EngineRenderer.instance.renderer.domElement
     )
+    return control
   },
   onRemove: (entity, component) => {
     component.value.detach()
+    removeObjectFromGroup(entity, component.value)
   },
   reactor: function (props) {
     const entity = useEntityContext()
@@ -64,6 +66,7 @@ export const TransformGizmoComponent = defineComponent({
 
     useEffect(() => {
       console.log('DEBUG run gizmo effect')
+      addObjectToGroup(entity, gizmoComponent.value)
       const object = Engine.instance.scene.getObjectByProperty('uuid', getComponent(entity, UUIDComponent))
       gizmoComponent.value.attach(object!)
     }, [])
