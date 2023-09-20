@@ -31,7 +31,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -46,7 +46,7 @@ import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -55,7 +55,6 @@ import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
-import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -86,14 +85,18 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const timed = useHookstate(false)
   const startTime = useHookstate<Dayjs>(dayjs(null))
   const endTime = useHookstate<Dayjs>(dayjs(null))
+  const projectQueryName = useHookstate('')
+  const sceneQueryName = useHookstate('')
 
   const adminInstances = useFind(instancePath).data
   const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
   const adminLocations = useFind(locationPath).data
+  const adminSceneData = useGet('scene', undefined, {
+    query: { projectName: projectQueryName.value, sceneName: sceneQueryName.value, metadataOnly: false }
+  }).data
 
-  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
-  const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
-    ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
+  const spawnPoints = adminSceneData?.scene?.entities
+    ? Object.entries(adminSceneData?.scene.entities).filter(([, value]) =>
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
@@ -149,7 +152,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     const location = adminLocations.find((location) => location.id === e.target.value)
     if (location && location.sceneId) {
       const sceneName = location.sceneId.split('/')
-      AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
+      projectQueryName.set(sceneName[0])
+      sceneQueryName.set(sceneName[1])
     }
   }
 
@@ -160,7 +164,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
       const location = adminLocations.find((location) => location.id === instance.locationId)
       if (location) {
         const sceneName = location.sceneId.split('/')
-        AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
+        projectQueryName.set(sceneName[0])
+        sceneQueryName.set(sceneName[1])
       }
     }
   }

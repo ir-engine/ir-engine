@@ -108,7 +108,7 @@ export class Scene implements ServiceMethods<any> {
 
   async setup() {}
 
-  async find(params?: Params): Promise<{ data: SceneData[] }> {
+  async find(params?: Params): Promise<SceneData[]> {
     const projects = (await this.app.service(projectPath).find(params)) as Paginated<ProjectType>
 
     const scenes: SceneData[] = []
@@ -128,11 +128,18 @@ export class Scene implements ServiceMethods<any> {
       scenes[index].thumbnailUrl += `?${Date.now()}`
     }
 
-    return { data: scenes }
+    return scenes
   }
 
   // @ts-ignore
-  async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<{ data: SceneData }> {
+  async get(
+    _id?: string,
+    params?: Params<{ projectName: string; sceneName: string; metadataOnly: boolean }>
+  ): Promise<SceneData | null> {
+    if (!params?.query) {
+      return null
+    }
+    const { projectName, sceneName, metadataOnly } = params?.query
     const project = (await this.app
       .service(projectPath)
       ._find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
@@ -140,9 +147,7 @@ export class Scene implements ServiceMethods<any> {
 
     const sceneData = await getSceneData(projectName, sceneName, metadataOnly, params!.provider == null)
 
-    return {
-      data: sceneData
-    }
+    return sceneData
   }
 
   async create(data: any, params?: Params): Promise<any> {

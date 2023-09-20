@@ -30,7 +30,7 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { LocationData, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
@@ -40,10 +40,9 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthState } from '../../../user/services/AuthService'
+import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 export enum LocationDrawerMode {
@@ -82,16 +81,15 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
 
-  const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
+  const scenes = useFind('scene').data || []
   const locationTypes = useFind(locationTypePath).data
-  const user = useHookstate(getMutableState(AuthState).user)
 
   const locationMutation = useMutation(locationPath)
 
-  const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
+  const hasWriteAccess = userHasAccess('location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
-  const sceneMenu: InputMenuItem[] = scenes.get(NO_PROXY).map((el) => {
+  const sceneMenu: InputMenuItem[] = scenes.map((el) => {
     return {
       value: `${el.project}/${el.name}`,
       label: `${el.name} (${el.project})`
@@ -104,10 +102,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
       label: el.type
     }
   })
-
-  useEffect(() => {
-    AdminSceneService.fetchAdminScenes()
-  }, [])
 
   useEffect(() => {
     loadSelectedLocation()
