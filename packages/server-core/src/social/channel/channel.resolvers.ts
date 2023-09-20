@@ -23,42 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve, virtual } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
+import { ChannelID, ChannelQuery, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export default {
-  before: {
-    all: [],
-    find: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)], // TODO: project based scopes #5613
-    get: [disallow()],
-    create: [disallow()],
-    update: [disallow()],
-    patch: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('editor', 'write') as any)
-    ],
-    remove: [disallow()]
+export const channelResolver = resolve<ChannelType, HookContext>({
+  createdAt: virtual(async (channel) => fromDateTimeSql(channel.createdAt)),
+  updatedAt: virtual(async (channel) => fromDateTimeSql(channel.updatedAt))
+})
+
+export const channelExternalResolver = resolve<ChannelType, HookContext>({})
+
+export const channelDataResolver = resolve<ChannelType, HookContext>({
+  id: async () => {
+    return v4() as ChannelID
   },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
+export const channelPatchResolver = resolve<ChannelType, HookContext>({
+  updatedAt: getDateTimeSql
+})
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export const channelQueryResolver = resolve<ChannelQuery, HookContext>({})

@@ -87,20 +87,26 @@ export class ProjectPermissionService<
   }
 
   async find(params?: ProjectPermissionParams) {
-    const loggedInUser = params!.user!
-    if (loggedInUser?.scopes?.find((scope) => scope.type === 'admin:admin')) return super._find(params)
-    if (params?.query?.projectId) {
+    if (!params) params = {}
+    if (!params.query) params.query = {}
+
+    const loggedInUser = params.user
+
+    if (!loggedInUser) throw new BadRequest('User missing from request')
+
+    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return super._find(params)
+
+    if (params.query.projectId) {
       const permissionStatus = (await super._find({
         query: {
           projectId: params.query.projectId,
-          userId: loggedInUser?.id,
+          userId: loggedInUser.id,
           $limit: 1
         }
       })) as Paginated<ProjectPermissionType>
       if (permissionStatus.data.length > 0) return super._find(params)
     }
-    if (!params) params = {}
-    if (!params.query) params.query = {}
+
     params.query.userId = loggedInUser.id
     return super._find(params)
   }

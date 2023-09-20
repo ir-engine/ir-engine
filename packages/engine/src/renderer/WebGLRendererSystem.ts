@@ -204,7 +204,7 @@ export class EngineRenderer {
    */
   execute(delta: number): void {
     const xrCamera = EngineRenderer.instance.xrManager.getCamera()
-    const xrFrame = Engine.instance.xrFrame
+    const xrFrame = getState(XRState).xrFrame
 
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 

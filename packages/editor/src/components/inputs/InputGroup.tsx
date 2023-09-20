@@ -35,7 +35,7 @@ import { InfoTooltip } from '../layout/Tooltip'
 
 import './InputGroup.css'
 
-const useStyles = makeStyles<any, any, any>((theme: any) => {
+const useStyles = makeStyles<any, any, any>(() => {
   return createStyles({
     info: {
       color: 'var(--textColor)',
@@ -48,20 +48,19 @@ const useStyles = makeStyles<any, any, any>((theme: any) => {
 
 /**
  * Used to provide styles for InputGroupContainer div.
- *
- * @type {component}
  */
 export const InputGroupContainer = ({ disabled = false, children, ...rest }) => (
   <div className={`input-group-container ${disabled ? 'disabled' : ''}`} {...rest}>
     {children}
   </div>
 )
+
 /**
  * Used to provide styles for InputGroupContent div.
- *
- * @type {component}
  */
-export const InputGroupContent = ({ children }) => <div className="input-group-content">{children}</div>
+export const InputGroupContent = ({ extraClasses = '', children }) => (
+  <div className={`input-group-content ${extraClasses}`}>{children}</div>
+)
 
 export const InputGroupVerticalContainer = ({ disabled = false, children }) => (
   <div className={`input-group-vertical-container ${disabled ? 'disabled' : ''}`}>{children}</div>
@@ -76,8 +75,6 @@ export const InputGroupVerticalContent = ({ children }) => (
 )
 /**
  * Used to provide styles for InputGroupInfoIcon div.
- *
- *  @type {component}
  */
 export const InputGroupInfoIcon = ({ onClick = () => {} }) => (
   <HelpOutlineIcon className="input-group-info-icon" onClick={onClick} />
@@ -89,9 +86,6 @@ interface InputGroupInfoProp {
 
 /**
  * Used to render InfoTooltip component.
- *
- * @param  {string} info
- * @constructor
  */
 export function InputGroupInfo({ info }: InputGroupInfoProp) {
   return (
@@ -103,8 +97,6 @@ export function InputGroupInfo({ info }: InputGroupInfoProp) {
 
 /**
  * Declaring proptypes for InputGroupInfo Component.
- *
- * @type {Object}
  */
 export type InputGroupProps = React.PropsWithChildren<
   {
@@ -112,28 +104,31 @@ export type InputGroupProps = React.PropsWithChildren<
     disabled?: boolean
     label?: string
     value?: any
+    labelClasses?: string
+    contentClasses?: string
   } & Partial<InputGroupInfoProp>
 >
 
 /**
  * InputGroup used to render the view of component.
- *
- * @param       {string} name
- * @param       {any} children
- * @param       {boolean} disabled
- * @param       {string} info
- * @param       {any} rest
- * @param       {string} label
- * @constructor
  */
-export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProps) {
+export function InputGroup({
+  name,
+  children,
+  disabled,
+  info,
+  label,
+  labelClasses,
+  contentClasses,
+  ...rest
+}: InputGroupProps) {
   const styles = useStyles({})
 
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
       <Grid container>
         <Grid item xs={4} display="flex" alignItems="center" justifyContent="end">
-          <label className="label">{label}</label>
+          <label className={`label ${labelClasses}`}>{label}</label>
 
           {info && (
             <InfoTooltip title={info}>
@@ -142,7 +137,7 @@ export function InputGroup({ name, children, disabled, info, label, ...rest }: I
           )}
         </Grid>
         <Grid item xs={8}>
-          <InputGroupContent>{children}</InputGroupContent>
+          <InputGroupContent extraClasses={contentClasses}>{children}</InputGroupContent>
         </Grid>
       </Grid>
     </InputGroupContainer>

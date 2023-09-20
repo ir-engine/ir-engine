@@ -29,21 +29,56 @@ Ethereal Engine. All Rights Reserved.
  *
  * All log events (info, warn, error, etc) are:
  *  1. Printed to the console (likely browser console), and (optionally)
- *  2. Sent to the server-side /api/log endpoint, where the pino logger
+ *  2. Sent to the server-side logs-api service, where the pino logger
  *     instance (see packages/server-core/src/logger.ts) sends them to Elastic etc.
  *     Note: The sending/aggregation to Elastic only happens when APP_ENV !== 'development'.
  *
  */
 
-import fetch from 'cross-fetch'
-import LruCache from 'lru-cache'
+import { ServiceTypes } from '@etherealengine/common/declarations'
+import config from '@etherealengine/common/src/config'
+import { FeathersApplication } from '@feathersjs/feathers'
+import NodeCache from 'node-cache'
+import schedule from 'node-schedule'
+import { logsApiPath } from '../../schemas/cluster/logs-api.schema'
 
-import config from './config'
+// Initialize the cache
+const engineCache = new NodeCache()
 
-const logRequestCache = new LruCache({
-  max: 1000,
-  ttl: 1000 * 5 // 5 seconds cache expiry
-})
+// Schedule the data push at a certain time (e.g., every hour)
+schedule.scheduleJob('*/15 * * * * *', pushToEngine)
+
+// Function to cache a string
+function cacheLog(value: string): void {
+  const timestamp = new Date().getTime().toString()
+  engineCache.set(timestamp, value)
+}
+
+// Function to push cached strings to the server
+function pushToEngine(): void {
+  if (config.client.serverHost && LogConfig.api) {
+    const cachedData = engineCache.keys().map((key) => {
+      const cachedValue = engineCache.get<string>(key)
+      if (cachedValue) {
+        return cachedValue
+      }
+    })
+
+    if (cachedData.length > 0) {
+      LogConfig.api.service(logsApiPath).create(cachedData)
+
+      engineCache.flushAll()
+    }
+  }
+}
+
+class LogConfig {
+  static api: FeathersApplication<ServiceTypes> | undefined = undefined
+}
+
+export const pipeLogs = (api: FeathersApplication<ServiceTypes>) => {
+  LogConfig.api = api
+}
 
 const baseComponent = 'client-core'
 /**
@@ -71,7 +106,7 @@ const multiLogger = {
   /**
    * Usage:
    *
-   * import multiLogger from '@etherealengine/common/src/logger'
+   * import multiLogger from '@etherealengine/engine/src/common/functions/logger'
    * const logger = multiLogger.child({ component: 'client-core:authentication' })
    *
    * logger.info('Logging in...')
@@ -94,37 +129,32 @@ const multiLogger = {
     } else {
       // For non-local builds, this send() is used
       const send = (level) => {
-        const url = new URL('/api/log', config.client.serverUrl)
+        const consoleMethods = {
+          debug: console.debug.bind(console, `[${opts.component}]`),
+          info: console.log.bind(console, `[${opts.component}]`),
+          warn: console.warn.bind(console, `[${opts.component}]`),
+          error: console.error.bind(console, `[${opts.component}]`),
+          fatal: console.error.bind(console, `[${opts.component}]`)
+        }
 
         return async (...args) => {
-          const consoleMethods = {
-            debug: console.debug.bind(console, `[${opts.component}]`),
-            info: console.log.bind(console, `[${opts.component}]`),
-            warn: console.warn.bind(console, `[${opts.component}]`),
-            error: console.error.bind(console, `[${opts.component}]`),
-            fatal: console.error.bind(console, `[${opts.component}]`)
-          }
+          try {
+            // @ts-ignore
+            const logParams = encodeLogParams(...args)
 
-          // @ts-ignore
-          const logParams = encodeLogParams(...args)
+            // In addition to sending to logging endpoint,  output to console
+            consoleMethods[level](...args)
 
-          // In addition to sending to logging endpoint,  output to console
-          consoleMethods[level](...args)
+            // Send an async rate-limited request to backend logs-api service for aggregation
+            // Also suppress logger.info() levels (the equivalent to console.log())
 
-          // Send an async rate-limited request to backend /api/log endpoint for aggregation
-          // Also suppress logger.info() levels (the equivalent to console.log())
-          if (config.client.serverHost && level !== 'info') {
-            logRequestCache.set(logParams.msg, () =>
-              fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  level,
-                  component: opts.component,
-                  ...logParams
-                })
-              })
-            )
+            cacheLog({
+              level,
+              component: opts.component,
+              ...logParams
+            })
+          } catch (error) {
+            console.error(error)
           }
         }
       }

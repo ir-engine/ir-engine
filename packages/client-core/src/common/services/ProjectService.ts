@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
@@ -50,6 +50,7 @@ import { projectGithubPushPath } from '@etherealengine/engine/src/schemas/projec
 import { projectInvalidatePath } from '@etherealengine/engine/src/schemas/projects/project-invalidate.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import { projectPath, ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
@@ -106,10 +107,13 @@ export const ProjectServiceReceptor = (action) => {
 //Service
 export const ProjectService = {
   fetchProjects: async () => {
-    const projects = await API.instance.client.service(projectPath).find({ paginate: false, query: { allowed: true } })
-    dispatchAction(ProjectAction.projectsFetched({ projectResult: projects.data }))
-    for (let error of projects.errors) {
-      NotificationService.dispatchNotify(error.message || JSON.stringify(error), { variant: 'error' })
+    try {
+      const projects = (await API.instance.client
+        .service(projectPath)
+        .find({ query: { allowed: true } })) as Paginated<ProjectType>
+      dispatchAction(ProjectAction.projectsFetched({ projectResult: projects.data }))
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message || JSON.stringify(err), { variant: 'error' })
     }
   },
 

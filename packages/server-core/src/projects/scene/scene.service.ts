@@ -34,7 +34,7 @@ import {
   InstanceAttendanceType,
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -100,8 +100,10 @@ export const getScenesForProject = (app: Application) => {
     const storageProvider = getStorageProvider(args.storageProviderName)
     const { projectName, metadataOnly, internal } = args
     try {
-      const project = await app.service(projectPath).find({ ...params, query: { name: projectName } })
-      if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
+      const project = (await app
+        .service(projectPath)
+        .find({ ...params, query: { name: projectName }, paginate: false })) as ProjectType[]
+      if (project.length === 0) throw new Error(`No project named ${projectName} exists`)
 
       const newSceneJsonPath = `projects/${projectName}/`
 
@@ -128,9 +130,9 @@ export const getScenesForProject = (app: Application) => {
 
 export const getAllScenes = (app: Application) => {
   return async function (params: SceneParams): Promise<{ data: SceneData[] }> {
-    const projects = await app.service(projectPath).find(params)
+    const projects = (await app.service(projectPath).find({ ...params, paginate: false })) as ProjectType[]
     const scenes = await Promise.all(
-      projects.data.map(
+      projects.map(
         (project) =>
           new Promise<SceneData[]>(async (resolve) => {
             const projectScenes = (
