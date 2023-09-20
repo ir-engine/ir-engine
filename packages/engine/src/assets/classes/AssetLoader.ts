@@ -48,7 +48,6 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
@@ -63,6 +62,7 @@ import { GLTF } from '../loaders/gltf/GLTFLoader'
 import { registerMaterials } from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
+import { AssetLoaderState } from '../state/AssetLoaderState'
 import { XRELoader } from './XRELoader'
 
 // import { instanceGLTF } from '../functions/transformGLTF'
@@ -78,7 +78,7 @@ export interface LoadGLTFResultInterface {
 }
 
 export function disposeDracoLoaderWorkers(): void {
-  Engine.instance.gltfLoader.dracoLoader?.dispose()
+  getState(AssetLoaderState).gltfLoader!.dracoLoader?.dispose()
 }
 
 const onUploadDropBuffer = (uuid?: string) =>
@@ -279,7 +279,7 @@ const xreLoader = () => new XRELoader(fileLoader())
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
   load: (src, onLoad) => {
-    const ktxLoader = Engine.instance.gltfLoader.ktx2Loader
+    const ktxLoader = getState(AssetLoaderState).gltfLoader!.ktx2Loader
     if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
     ktxLoader.load(
       src,
@@ -306,7 +306,7 @@ export const getLoader = (assetType: AssetType) => {
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
-      return Engine.instance.gltfLoader || createGLTFLoader()
+      return getState(AssetLoaderState).gltfLoader || createGLTFLoader()
     case AssetType.USDZ:
       return usdzLoader()
     case AssetType.FBX:

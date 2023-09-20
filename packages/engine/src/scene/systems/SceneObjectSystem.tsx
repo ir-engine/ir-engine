@@ -40,6 +40,7 @@ import {
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
+import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -194,7 +195,7 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    Engine.instance.gltfLoader = createGLTFLoader()
+    getMutableState(AssetLoaderState).gltfLoader.set(createGLTFLoader())
   }, [])
   return <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
 }

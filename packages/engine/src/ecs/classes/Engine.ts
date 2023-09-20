@@ -40,7 +40,6 @@ import { Group, Object3D, Scene } from 'three'
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
-import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -102,8 +101,6 @@ export class Engine {
   get mediaNetworkState() {
     return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
-
-  gltfLoader: GLTFLoader = null!
 
   /**
    * Reference to the three.js scene object.
