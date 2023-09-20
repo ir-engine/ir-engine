@@ -51,11 +51,12 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { ReferenceSpace } from '../../xr/XRState'
-import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIState } from '../XRUIState'
+import { XRUIComponent } from '../components/XRUIComponent'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createPointer = (inputSource: XRInputSource): PointerObject => {
@@ -105,7 +106,8 @@ const redirectDOMEvent = (evt) => {
     const assigned = InputSourceComponent.isAssignedButtons(entity)
     if (!assigned) continue
     layer.updateWorldMatrix(true, true)
-    const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
+    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+    const hit = layer.hitTest(pointerScreenRaycaster.ray)
     if (hit && hit.intersection.object.visible) {
       hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
       hit.target.focus()
@@ -176,13 +178,12 @@ const execute = () => {
   const xrFrame = Engine.instance.xrFrame
 
   /** Update the objects to use for intersection tests */
-  if (xrFrame && xruiState.interactionRays[0] === Engine.instance.pointerScreenRaycaster.ray)
-    xruiState.interactionRays = (Array.from(pointers.values()) as (Ray | Object3D)[]).concat(
-      Engine.instance.pointerScreenRaycaster.ray
-    ) // todo, replace pointerScreenRaycaster with input sources
+  const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+  if (xrFrame && xruiState.interactionRays[0] === pointerScreenRaycaster.ray)
+    xruiState.interactionRays = (Array.from(pointers.values()) as (Ray | Object3D)[]).concat(pointerScreenRaycaster.ray) // todo, replace pointerScreenRaycaster with input sources
 
-  if (!xrFrame && xruiState.interactionRays[0] !== Engine.instance.pointerScreenRaycaster.ray)
-    xruiState.interactionRays = [Engine.instance.pointerScreenRaycaster.ray]
+  if (!xrFrame && xruiState.interactionRays[0] !== pointerScreenRaycaster.ray)
+    xruiState.interactionRays = [pointerScreenRaycaster.ray]
 
   const interactableXRUIEntities = visibleInteractableXRUIQuery()
 
@@ -286,7 +287,9 @@ const reactor = () => {
     document.body.addEventListener('contextmenu', redirectDOMEvent)
     document.body.addEventListener('dblclick', redirectDOMEvent)
 
-    getMutableState(XRUIState).interactionRays.set([Engine.instance.pointerScreenRaycaster.ray])
+    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+
+    getMutableState(XRUIState).interactionRays.set([pointerScreenRaycaster.ray])
 
     return () => {
       document.body.removeEventListener('pointerdown', redirectDOMEvent)
