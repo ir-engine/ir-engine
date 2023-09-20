@@ -317,13 +317,15 @@ export const getEnginePackageJson = (): ProjectPackageJsonType => {
 //DO NOT REMOVE!
 //Even though an IDE may say that it's not used in the codebase, projects may use this.
 export const getProjectEnv = async (app: Application, projectName: string) => {
-  const projectSetting = await app.service('project-setting').find({
+  const project = (await app.service(projectPath).find({
     query: {
       $limit: 1,
-      name: projectName,
-      $select: ['settings']
+      name: projectName
     }
-  })
+  })) as Paginated<ProjectType>
+
+  let projectSetting = project.data[0].settings || []
+
   const settings: ProjectSettingType[] = []
   Object.values(projectSetting).map(({ key, value }) => (settings[key] = value))
   return settings
@@ -493,13 +495,15 @@ export const checkProjectDestinationMatch = async (
     Buffer.from(sourceBlobResponse.data.content, sourceBlobResponse.data.encoding).toString()
   )
   if (!existingProject) {
-    const projectExists = await app.service(projectPath).find({
+    const projectExists = (await app.service(projectPath).find({
       query: {
         name: {
           $like: sourceContent.name
-        }
+        },
+        $limit: 1
       }
-    })
+    })) as Paginated<ProjectType>
+
     if (projectExists.data.length > 0)
       return {
         sourceProjectMatchesDestination: false,
@@ -1389,14 +1393,12 @@ export const updateProject = async (
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
-    return (
-      await app.service(projectPath).find({
-        query: {
-          name: 'default-project',
-          $limit: 1
-        }
-      })
-    ).data
+    return (await app.service(projectPath).find({
+      query: {
+        name: 'default-project',
+        $limit: 1
+      }
+    })) as Paginated<ProjectType>
   }
 
   const urlParts = data.sourceURL.split('/')
@@ -1415,11 +1417,11 @@ export const updateProject = async (
     deleteFolderRecursive(projectDirectory)
   }
 
-  const projectResult = await app.service(projectPath)._find({
+  const projectResult = (await app.service(projectPath)._find({
     query: {
       name: projectName
     }
-  })
+  })) as Paginated<ProjectType>
 
   let project
   if (projectResult.data.length > 0) project = projectResult.data[0]
@@ -1465,13 +1467,13 @@ export const updateProject = async (
   const projectConfig = getProjectConfig(projectName) ?? {}
 
   // when we have successfully re-installed the project, remove the database entry if it already exists
-  const existingProjectResult = await app.service(projectPath)._find({
+  const existingProjectResult = (await app.service(projectPath)._find({
     query: {
       name: {
         $like: projectName
       }
     }
-  })
+  })) as Paginated<ProjectType>
   const existingProject = existingProjectResult.total > 0 ? existingProjectResult.data[0] : null
   let repositoryPath = data.destinationURL || data.sourceURL
   const publicSignedExec = PUBLIC_SIGNED_REGEX.exec(repositoryPath)
