@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 import { getState } from '@etherealengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
-import { SceneServices } from '../../ecs/classes/Scene'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
@@ -51,7 +51,7 @@ const linkLogic = (linkComponent, xrState) => {
     xrState && xrState.session?.end()
     typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
   } else {
-    SceneServices.setCurrentScene(linkComponent.projectName, linkComponent.sceneName)
+    SceneState.setCurrentScene(linkComponent.projectName, linkComponent.sceneName)
   }
 }
 

@@ -36,7 +36,7 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { AppLoadingAction } from '@etherealengine/engine/src/common/AppLoadingService'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { RouterService } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 import { loadSceneJsonOffline } from '../../world/utils'
@@ -76,7 +76,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value) {
       const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
-      SceneServices.setCurrentScene(project, scene)
+      SceneState.setCurrentScene(project, scene)
     }
   }, [locationState.currentLocation.location.sceneId])
 }

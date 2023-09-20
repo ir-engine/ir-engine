@@ -39,8 +39,8 @@ export const SceneService = {
         const [projectName, sceneName] = locationState.currentLocation.location.sceneId.value.split('/')
         const sceneData = await Engine.instance.api
           .service('scene')
-          .get({ projectName, sceneName, metadataOnly: null }, {})
-        getMutableState(SceneState).sceneData.set(sceneData.data)
+          .get('', { query: { projectName, sceneName, metadataOnly: false } })
+        getMutableState(SceneState).sceneData.set(sceneData)
       }
       // for testing
       // window.addEventListener('keydown', (ev) => {

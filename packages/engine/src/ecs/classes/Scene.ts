@@ -39,15 +39,15 @@ export const SceneState = defineState({
     /** @todo support multiple scenes */
     // sceneEntities: {} as Record<string /* SceneID */, EntityUUID>,
     background: null as null | Color | Texture
-  })
+  }),
+  setCurrentScene: async (projectName: string, sceneName: string) => {
+    const sceneData = await Engine.instance.api
+      .service('scene')
+      .get('', { query: { projectName, sceneName, metadataOnly: false } })
+    getMutableState(SceneState).sceneData.set(sceneData)
+  }
 })
 
-export const SceneServices = {
-  setCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
-    getMutableState(SceneState).sceneData.set(sceneData.data)
-  }
-}
 // export const
 
 // export const getActiveSceneEntity = () => {

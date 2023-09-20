@@ -29,6 +29,7 @@ import { API } from '@etherealengine/client-core/src/API'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
@@ -56,7 +57,7 @@ export const getScenes = async (projectName: string): Promise<SceneData[]> => {
  */
 export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneData> => {
   try {
-    const { data } = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly })
+    const data = await Engine.instance.api.service('scene').get('', { query: { projectName, sceneName, metadataOnly } })
     return data
   } catch (error) {
     logger.error(error, 'Error in getting project getScene()')

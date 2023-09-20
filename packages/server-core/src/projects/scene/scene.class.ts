@@ -135,9 +135,9 @@ export class Scene implements ServiceMethods<any> {
   async get(
     _id?: string,
     params?: Params<{ projectName: string; sceneName: string; metadataOnly: boolean }>
-  ): Promise<SceneData | null> {
+  ): Promise<SceneData> {
     if (!params?.query) {
-      return null
+      throw new Error('expected query parameters with projectName, sceneName, metadataOnly')
     }
     const { projectName, sceneName, metadataOnly } = params?.query
     const project = (await this.app

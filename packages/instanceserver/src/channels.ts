@@ -267,14 +267,14 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     const [projectName, sceneName] = sceneId.split('/')
 
-    const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
+    const sceneResultPromise = app.service('scene').get('', { query: { projectName, sceneName, metadataOnly: false } })
 
     startWorldServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await sceneResultPromise).data
+      const sceneData = await sceneResultPromise
       getMutableState(SceneState).sceneData.set(sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 

@@ -35,7 +35,6 @@ import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/func
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 import { copyDefaultProject, uploadLocalProjectToProvider } from '../project/project-helper'
 
@@ -130,14 +129,14 @@ describe('scene.test', () => {
 
     describe('get', () => {
       it('should get default scene data', async function () {
-        const { data } = await app.service('scene').get(
-          {
+        const data = await app.service('scene').get('', {
+          ...params,
+          query: {
             projectName: defaultProjectName,
             sceneName: defaultSceneName,
             metadataOnly: false
-          },
-          params
-        )
+          }
+        })
         const entities = Object.values(data.scene!.entities)
         assert(entities.length)
       })
@@ -154,18 +153,17 @@ describe('scene.test', () => {
           params
         )
 
-        const { data } = await app.service('scene').get(
-          {
+        const data = await app.service('scene').get('', {
+          ...params,
+          query: {
             projectName: newProjectName,
             sceneName: newSceneName,
             metadataOnly: false
-          },
-          params
-        )
+          }
+        })
 
         // For some reason, parsedData was reverting to un-replaced URLs.
         // This just
-        const storageProvider = getStorageProvider()
         parsedData = Object.assign({}, parseStorageProviderURLs(_.cloneDeep(defaultSceneSeed)))
 
         assert.strictEqual(data.name, newSceneName)
@@ -181,14 +179,14 @@ describe('scene.test', () => {
           },
           params
         )
-        const { data } = await app.service('scene').get(
-          {
+        const data = await app.service('scene').get('', {
+          ...params,
+          query: {
             projectName: newProjectName,
             sceneName: newSceneName,
             metadataOnly: false
-          },
-          params
-        )
+          }
+        })
         assert.deepStrictEqual(data.name, newSceneName)
         assert.deepStrictEqual(data.scene, parsedData)
       })
@@ -203,14 +201,14 @@ describe('scene.test', () => {
             { newSceneName: newestSceneName, oldSceneName: newSceneName, projectName: newProjectName },
             params
           )
-        const { data } = await app.service('scene').get(
-          {
+        const data = await app.service('scene').get('', {
+          ...params,
+          query: {
             projectName: newProjectName,
             sceneName: newestSceneName,
             metadataOnly: false
-          },
-          params
-        )
+          }
+        })
         assert.strictEqual(data.name, newestSceneName)
       })
     })
@@ -224,15 +222,16 @@ describe('scene.test', () => {
           },
           params
         )
+
         assert.rejects(async () => {
-          await app.service('scene').get(
-            {
+          await app.service('scene').get('', {
+            ...params,
+            query: {
               projectName: newProjectName,
               sceneName: newSceneName,
               metadataOnly: true
-            },
-            params
-          )
+            }
+          })
         })
       })
     })

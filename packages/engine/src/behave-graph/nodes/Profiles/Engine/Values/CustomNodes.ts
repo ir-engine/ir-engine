@@ -47,7 +47,7 @@ import { CameraActions } from '../../../../../camera/CameraState'
 import { FollowCameraComponent } from '../../../../../camera/components/FollowCameraComponent'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { SceneServices } from '../../../../../ecs/classes/Scene'
+import { SceneState } from '../../../../../ecs/classes/Scene'
 import {
   getComponent,
   getMutableComponent,
@@ -459,7 +459,7 @@ export const switchScene = makeFlowNodeDefinition({
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const projectName = read<string>('projectName')
     const sceneName = read<string>('sceneName')
-    SceneServices.setCurrentScene(projectName, sceneName)
+    SceneState.setCurrentScene(projectName, sceneName)
   }
 })
 
