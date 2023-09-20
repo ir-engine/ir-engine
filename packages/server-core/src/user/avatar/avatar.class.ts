@@ -35,11 +35,11 @@ import {
   AvatarType
 } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
-import { checkScope } from '../../hooks/verify-scope'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AvatarParams extends RootParams<AvatarQuery> {}
@@ -70,7 +70,7 @@ export class AvatarService<T = AvatarType, ServiceParams extends Params = Avatar
 
     if (params && params.user && params.user.id && params.query?.admin) {
       // TODO: Do we want to use globalAvatars:read/write instead here?
-      isAdmin = await checkScope(params?.user, this.app, 'admin', 'admin')
+      isAdmin = await checkScope(params?.user, 'admin', 'admin')
       delete params.query.admin
     }
 

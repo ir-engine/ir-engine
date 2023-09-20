@@ -28,8 +28,10 @@ import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import {
@@ -226,9 +228,11 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
             params as any
           )
       } else if (invite.inviteType === 'channel') {
-        const channel = await this.app.service('channel').Model.findOne({ where: { id: invite.targetObjectId } })
+        const channel = (await this.app
+          .service(channelPath)
+          ._find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
 
-        if (channel == null) {
+        if (channel.total === 0) {
           await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid channel ID')
         }
@@ -257,7 +261,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         const instance =
-          invite.inviteType === 'instance' ? await this.app.service('instance').get(invite.targetObjectId) : null
+          invite.inviteType === 'instance' ? await this.app.service(instancePath)._get(invite.targetObjectId) : null
         const locationId = instance ? instance.locationId : invite.targetObjectId
         const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName

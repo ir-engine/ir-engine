@@ -42,6 +42,7 @@ import { defineActionQueue, defineState, getMutableState, getState, useState } f
 
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import {
   ComponentType,
@@ -67,7 +68,7 @@ import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
-  const xrFrame = Engine.instance.xrFrame!
+  const xrFrame = getState(XRState).xrFrame!
   const hitTest = getMutableComponent(entity, XRHitTestComponent)
   const localTransform = getComponent(entity, LocalTransformComponent)
   const hitTestResults = (hitTest.source.value && xrFrame.getHitTestResults(hitTest.source.value!)) ?? []
@@ -83,7 +84,7 @@ export const updateHitTest = (entity: Entity) => {
 }
 
 export const updateAnchor = (entity: Entity) => {
-  const xrFrame = Engine.instance.xrFrame!
+  const xrFrame = getState(XRState).xrFrame!
   const anchor = getComponent(entity, XRAnchorComponent).anchor
   const localTransform = getComponent(entity, LocalTransformComponent)
   const pose = ReferenceSpace.localFloor && xrFrame.getPose(anchor.anchorSpace, ReferenceSpace.localFloor)
@@ -110,7 +111,7 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 /** AR placement for immersive session */
 // export const getHitTestFromController = () => {
 //   const referenceSpace = ReferenceSpace.origin!
-//   const pose = Engine.instance.xrFrame!.getPose(Engine.instance.inputSources[0].targetRaySpace, referenceSpace)!
+//   const pose = getState(XRState).xrFrame!.getPose(Engine.instance.inputSources[0].targetRaySpace, referenceSpace)!
 //   const { position, orientation } = pose.transform
 
 //   pos.copy(position as any as Vector3)
@@ -145,12 +146,13 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 /** Swipe to rotate */
 // TODO; move into interactable after spatial input refactor
+// const deltaState = getState(EngineState).deltaSeconds
 // if (hitTestComponent?.hitTestResult) {
 //   const placementInputSource = xrState.scenePlacementMode.value!
 //   const swipe = placementInputSource.gamepad?.axes ?? []
 //   if (swipe.length) {
 //     const delta = swipe[0] - (lastSwipeValue ?? 0)
-//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (Engine.instance.deltaSeconds * 20)))
+//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (deltaSeconds * 20)))
 //     lastSwipeValue = swipe[0]
 //   } else {
 //     lastSwipeValue = null
@@ -169,7 +171,7 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
   const placing = xrState.scenePlacementMode === 'placing'
   if (!placing) return xrState.sceneScale
 
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
   if (!xrFrame) return 1
 
   const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
@@ -209,13 +211,14 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // assumes local transform is relative to origin
   let localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
 
-  const xrFrame = Engine.instance.xrFrame
   const xrState = getState(XRState)
+  const xrFrame = xrState.xrFrame
   const xrSession = xrState.session
 
   if (!localTransform || !xrFrame || !xrSession) return
 
-  const lerpAlpha = smootheLerpAlpha(5, Engine.instance.deltaSeconds)
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
   const targetScale = getTargetWorldSize(localTransform)
   if (targetScale !== xrState.sceneScale)
@@ -283,7 +286,7 @@ const execute = () => {
     }
   }
 
-  if (!Engine.instance.xrFrame) return
+  if (!getState(XRState).xrFrame) return
 
   for (const entity of xrAnchorQuery()) updateAnchor(entity)
   for (const entity of xrHitTestQuery()) updateHitTest(entity)
@@ -336,7 +339,7 @@ const reactor = () => {
       const hitTestResult = hitTest?.results?.value?.[0]
       if (hitTestResult) {
         if (!hitTestResult.createAnchor) {
-          const xrFrame = Engine.instance.xrFrame
+          const xrFrame = getState(XRState).xrFrame
           const hitPose = ReferenceSpace.localFloor && hitTestResult.getPose(ReferenceSpace.localFloor)
           hitPose &&
             xrFrame?.createAnchor?.(hitPose.transform, ReferenceSpace.localFloor!)?.then((anchor) => {

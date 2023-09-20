@@ -32,7 +32,7 @@ import {
   ProjectPermissionType,
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -53,12 +53,12 @@ export default (writeAccess) => {
     let projectId, projectRepoPath
     const projectName = context.arguments[0]?.projectName || params.query?.projectName
     if (projectName) {
-      const project = await app.service(projectPath).find({
+      const project = (await app.service(projectPath).find({
         query: {
           name: projectName,
           $limit: 1
         }
-      })
+      })) as Paginated<ProjectType>
 
       if (project.data.length > 0) {
         projectRepoPath = project.data[0].repositoryPath

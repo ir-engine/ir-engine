@@ -27,7 +27,6 @@ import _ from 'lodash'
 import { Spark } from 'primus'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
@@ -52,6 +51,7 @@ import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/co
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
@@ -103,13 +103,12 @@ export const setupIPs = async () => {
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
   const serverState = getState(ServerState)
 
-  const instances = await app.service('instance').Model.findAndCountAll({
-    offset: 0,
-    limit: 1000,
-    where: {
+  const instances = (await app.service(instancePath)._find({
+    query: {
       ended: false
-    }
-  })
+    },
+    paginate: false
+  })) as any as InstanceType[]
   const instanceservers = await serverState.k8AgonesClient.listNamespacedCustomObject(
     'agones.dev',
     'v1',
@@ -118,7 +117,7 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
   )
 
   await Promise.all(
-    instances.rows.map((instance) => {
+    instances.map((instance) => {
       if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
       const match = (instanceservers?.body! as any).items.find((is) => {
@@ -127,7 +126,7 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
         return is.status.address === ip && inputPort.port.toString() === port
       })
       return match == null
-        ? app.service('instance').patch(instance.id, {
+        ? app.service(instancePath).patch(instance.id, {
             ended: true
           })
         : Promise.resolve()
@@ -147,7 +146,7 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @param userId
  * @returns
  */
-export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserID) => {
+export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, userId: UserID) => {
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,
@@ -208,30 +207,14 @@ export const handleConnectingPeer = (
   const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
   const peerIndex = network.peerIndexCount++
 
+  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, user.name)
+
   const networkState = getMutableState(NetworkState).networks[network.id]
-  networkState.peers.merge({
-    [peerID]: {
-      userId,
-      userIndex: userIndex,
-      spark: spark,
-      peerIndex,
-      peerID,
-      media: {},
-      lastSeenTs: Date.now()
-    }
+  networkState.peers[peerID].merge({
+    spark,
+    media: {},
+    lastSeenTs: Date.now()
   })
-
-  if (!network.users[userId]) {
-    networkState.users.merge({ [userId]: [peerID] })
-  } else {
-    network.users[userId]!.push(peerID)
-  }
-
-  const worldState = getMutableState(WorldState)
-  worldState.userNames[userId].set(user.name)
-
-  network.userIDToUserIndex[userId] = userIndex
-  network.userIndexToUserID[userIndex] = userId
 
   updatePeers(network)
 

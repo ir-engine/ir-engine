@@ -28,10 +28,13 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
+import { getState } from '@etherealengine/hyperflux'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_010 } from '../../common/constants/MathConstants'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { InputState } from '../../input/state/InputState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
 
@@ -62,7 +65,8 @@ const execute = () => {
 
     const inputState = inputSource.buttons
 
-    const mouseMovement = Engine.instance.pointerState.movement
+    const pointerState = getState(InputState).pointerState
+    const mouseMovement = pointerState.movement
 
     camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
 
@@ -109,11 +113,12 @@ const execute = () => {
     // translate
     direction.set(lateralMovement, 0, forwardMovement)
     const boostSpeed = inputState.ShiftLeft?.pressed ? flyControlComponent.boostSpeed : 1
-    const speed = Engine.instance.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
+    const deltaSeconds = getState(EngineState).deltaSeconds
+    const speed = deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
     if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)
 
-    camera.position.y += upwardMovement * Engine.instance.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
+    camera.position.y += upwardMovement * deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
     const transform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     transform.position.copy(camera.position)

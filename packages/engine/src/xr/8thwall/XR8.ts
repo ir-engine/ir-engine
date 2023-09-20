@@ -352,7 +352,7 @@ const execute = () => {
     engineCamera.scale.set(1, 1, 1)
   }
 
-  Engine.instance.xrFrame = new XRFrameProxy() as any as XRFrame
+  getMutableState(XRState).xrFrame.set(new XRFrameProxy() as any as XRFrame)
 }
 
 const reactor = () => {

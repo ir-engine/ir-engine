@@ -30,40 +30,43 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import {
+  InstanceData,
+  InstanceID,
+  InstanceType,
+  instancePath
+} from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { dispatchAction, getMutableState, getState, State } from '@etherealengine/hyperflux'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { UserKickType, userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
-import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
+import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { channelUserPath, ChannelUserType } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import {
-  identityProviderPath,
-  IdentityProviderType
-} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { userKickPath, UserKickType } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
-import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
+import { SocketWebRTCServerNetwork, getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { getServerNetwork, initializeNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -95,26 +98,19 @@ interface InstanceserverStatus {
   players: any
 }
 
-type InstanceMetadata = {
-  currentUsers: number
-  locationId: string
-  channelId: string
-  ipAddress: string
-}
-
 /**
  * Creates a new 'instance' entry based on a locationId or channelId
  * If it is a location instance, creates a 'channel' entry
  * @param app
  * @param newInstance
  */
-const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
+const createNewInstance = async (app: Application, newInstance: InstanceData) => {
   const { locationId, channelId } = newInstance
 
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
-  const instanceResult = (await app.service('instance').create(newInstance)) as Instance
+  const instanceResult = await app.service(instancePath).create(newInstance)
   if (!channelId) {
-    await app.service('channel').create({
+    await app.service(channelPath).create({
       instanceId: instanceResult.id
     })
   }
@@ -134,7 +130,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 
 const assignExistingInstance = async (
   app: Application,
-  existingInstance: Instance,
+  existingInstance: InstanceType,
   channelId: ChannelID,
   locationId: string
 ) => {
@@ -143,7 +139,7 @@ const assignExistingInstance = async (
 
   await serverState.agonesSDK.allocate()
   instanceServerState.instance.set(existingInstance)
-  await app.service('instance').patch(existingInstance.id, {
+  await app.service(instancePath).patch(existingInstance.id, {
     currentUsers: existingInstance.currentUsers + 1,
     channelId: channelId,
     locationId: locationId,
@@ -194,9 +190,9 @@ const initializeInstance = async (
    * here we check that this is the case, as it may be altered, for example by another service or an admin
    */
 
-  const existingInstanceResult = (await app.service('instance').find({
+  const existingInstanceResult = (await app.service(instancePath).find({
     query: existingInstanceQuery
-  })) as Paginated<Instance>
+  })) as Paginated<InstanceType>
   logger.info('existingInstanceResult: %o', existingInstanceResult.data)
 
   if (existingInstanceResult.total === 0) {
@@ -206,18 +202,19 @@ const initializeInstance = async (
       channelId: channelId,
       ipAddress: ipAddress,
       podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local'
-    } as InstanceMetadata
+    } as InstanceData
     await createNewInstance(app, newInstance)
   } else {
     const instance = existingInstanceResult.data[0]
     if (locationId) {
-      const existingChannel = await app.service('channel').Model.findOne({
-        where: {
-          instanceId: instance.id
+      const existingChannel = (await app.service(channelPath)._find({
+        query: {
+          instanceId: instance.id,
+          $limit: 1
         }
-      })
-      if (!existingChannel) {
-        await app.service('channel').create({
+      })) as Paginated<ChannelType>
+      if (existingChannel.total === 0) {
+        await app.service(channelPath).create({
           instanceId: instance.id
         })
       }
@@ -318,24 +315,25 @@ const loadEngine = async (app: Application, sceneId: string) => {
 const handleUserAttendance = async (app: Application, userId: UserID) => {
   const instanceServerState = getState(InstanceServerState)
 
-  const channel = await app.service('channel').Model.findOne({
-    where: {
-      instanceId: instanceServerState.instance.id
+  const channel = (await app.service(channelPath)._find({
+    query: {
+      instanceId: instanceServerState.instance.id,
+      $limit: 1
     }
-  })
+  })) as Paginated<ChannelType>
 
   /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
-  if (channel) {
+  if (channel.data.length > 0) {
     const existingChannelUser = (await app.service(channelUserPath).find({
       query: {
-        channelId: channel.id,
+        channelId: channel.data[0].id,
         userId: userId
       }
     })) as Paginated<ChannelUserType>
 
     if (!existingChannelUser.total) {
       await app.service(channelUserPath).create({
-        channelId: channel.id as ChannelID,
+        channelId: channel.data[0].id,
         userId: userId
       })
     }
@@ -413,10 +411,10 @@ const createOrUpdateInstance = async (
             }
           }, 1000)
         })
-      const instance = await app.service('instance').get(instanceServerState.instance.id)
+      const instance = await app.service(instancePath).get(instanceServerState.instance.id)
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
       await serverState.agonesSDK.allocate()
-      await app.service('instance').patch(instanceServerState.instance.id, {
+      await app.service(instancePath).patch(instanceServerState.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
         assigned: false,
         podName: config.kubernetes.enabled ? instanceServerState.instanceServer?.objectMeta?.name : 'local',
@@ -437,16 +435,17 @@ const shutdownServer = async (app: Application, instanceId: InstanceID) => {
 
   logger.info('Deleting instance ' + instanceId)
   try {
-    await app.service('instance').patch(instanceId, {
+    await app.service(instancePath).patch(instanceId, {
       ended: true
     })
     if (instanceServer.instance.locationId) {
-      const channel = await app.service('channel').Model.findOne({
-        where: {
-          instanceId: instanceServer.instance.id
+      const channel = (await app.service(channelPath)._find({
+        query: {
+          instanceId: instanceServer.instance.id,
+          $limit: 1
         }
-      })
-      await app.service('channel').remove(channel.id)
+      })) as Paginated<ChannelType>
+      await app.service(channelPath).remove(channel.data[0].id)
     }
   } catch (err) {
     logger.error(err)
@@ -454,7 +453,7 @@ const shutdownServer = async (app: Application, instanceId: InstanceID) => {
 
   // already shut down
   if (!instanceServer.instance) return
-  ;(instanceServer.instance as Instance).ended = true
+  ;(instanceServer.instance as InstanceType).ended = true
   if (config.kubernetes.enabled) {
     const instanceServerState = getMutableState(InstanceServerState)
     instanceServerState.instance.set(null!)
@@ -488,7 +487,7 @@ const handleUserDisconnect = async (
 
   try {
     const activeUsersCount = getActiveUsersCount(app, user)
-    await app.service('instance').patch(instanceId, {
+    await app.service(instancePath).patch(instanceId, {
       currentUsers: activeUsersCount
     })
   } catch (err) {
@@ -528,12 +527,13 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   if (!instanceServerState.isMediaInstance) return
   const instance = instanceServerState.instance
   if (!instance.channelId) return
-  const channel = await app.service('channel').Model.findOne({
-    where: {
-      id: instance.channelId
+  const channel = (await app.service(channelPath)._find({
+    query: {
+      id: instance.channelId,
+      $limit: 1
     }
-  })
-  if (!channel) return
+  })) as Paginated<ChannelType>
+  if (channel.total === 0) return
   const network = getServerNetwork(app)
   const matchingPeer = Object.values(network.peers).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
@@ -559,7 +559,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId! as ChannelID
   let roomCode = connection.socketQuery.roomCode!
-  let instanceID = connection.socketQuery.instanceID!
+  const instanceID = connection.socketQuery.instanceID!
 
   if (locationId === '') {
     locationId = undefined!
@@ -600,12 +600,12 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
-    await app.service('instance').patch(instanceServerState.instance.id, {
+    await app.service(instancePath).patch(instanceServerState.instance.id, {
       ended: true
     })
     try {
       if (instanceServerState.instance.channelId) {
-        await app.service('channel').remove(instanceServerState.instance.channelId)
+        await app.service(channelPath).remove(instanceServerState.instance.channelId)
       }
     } catch (e) {
       //
@@ -686,7 +686,8 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
       )
     }
     try {
-      instance = instanceServerState.instance && instanceId != null ? await app.service('instance').get(instanceId) : {}
+      instance =
+        instanceServerState.instance && instanceId != null ? await app.service(instancePath).get(instanceId) : {}
     } catch (err) {
       logger.warn('Could not get instance, likely because it is a local one that no longer exists.')
     }

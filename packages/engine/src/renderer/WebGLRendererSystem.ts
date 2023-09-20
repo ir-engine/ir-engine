@@ -204,7 +204,7 @@ export class EngineRenderer {
    */
   execute(delta: number): void {
     const xrCamera = EngineRenderer.instance.xrManager.getCamera()
-    const xrFrame = Engine.instance.xrFrame
+    const xrFrame = getState(XRState).xrFrame
 
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
@@ -225,17 +225,20 @@ export class EngineRenderer {
 
         if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
-        const width = window.innerWidth
-        const height = window.innerHeight
+        const canvasParent = document.getElementById('engine-renderer-canvas')?.parentElement
+        if (canvasParent) {
+          const width = canvasParent.clientWidth
+          const height = canvasParent.clientHeight
 
-        if (camera.isPerspectiveCamera) {
-          camera.aspect = width / height
-          camera.updateProjectionMatrix()
+          if (camera.isPerspectiveCamera) {
+            camera.aspect = width / height
+            camera.updateProjectionMatrix()
+          }
+
+          state.qualityLevel > 0 && state.csm?.updateFrustums()
+          // Effect composer calls renderer.setSize internally
+          this.effectComposer.setSize(width, height, true)
         }
-
-        state.qualityLevel > 0 && state.csm?.updateFrustums()
-        // Effect composer calls renderer.setSize internally
-        this.effectComposer.setSize(width, height, true)
         this.needsResize = false
       }
 
@@ -292,7 +295,8 @@ export const PostProcessingSettingsState = defineState({
 })
 
 const execute = () => {
-  EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  EngineRenderer.instance.execute(deltaSeconds)
 }
 
 globalThis.EngineRenderer = EngineRenderer

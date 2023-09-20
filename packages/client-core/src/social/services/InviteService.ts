@@ -42,9 +42,6 @@ import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
-//State
-export const INVITE_PAGE_LIMIT = 100
-
 export const InviteState = defineState({
   name: 'InviteState',
   initial: () => ({

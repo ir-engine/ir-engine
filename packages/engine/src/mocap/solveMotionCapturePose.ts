@@ -139,17 +139,17 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     return
   }
 
+  const last = lastLandmarks
+
+  lastLandmarks = landmarks
+
+  if (!last || !landmarks?.length) return
+
   const avatarDebug = getState(RendererState).avatarDebug
 
   if (avatarDebug) {
     drawDebug(landmarks)
   }
-
-  const last = lastLandmarks
-
-  lastLandmarks = landmarks
-
-  if (!last) return
 
   const smoothedLandmarks = landmarks.map((landmark, index) => {
     const lastLandmark = lastLandmarks[index]

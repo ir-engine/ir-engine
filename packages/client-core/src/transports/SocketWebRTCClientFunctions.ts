@@ -38,9 +38,11 @@ import type { EventEmitter } from 'primus'
 import Primus from 'primus-client'
 
 import config from '@etherealengine/common/src/config'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
@@ -63,18 +65,6 @@ import {
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import {
-  Action,
-  Topic,
-  addActionReceptor,
-  removeActionReceptor
-} from '@etherealengine/hyperflux/functions/ActionFunctions'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
@@ -91,6 +81,15 @@ import {
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  Action,
+  Topic,
+  addActionReceptor,
+  removeActionReceptor
+} from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -103,6 +102,8 @@ import {
 import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
+
+import { encode } from 'msgpackr'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -182,16 +183,20 @@ export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) 
       network.transport.primus?.write(data)
     },
 
-    bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
-      transport.bufferToAll(dataChannelType, data)
+    bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {
+      transport.bufferToAll(dataChannelType, fromPeerID, data)
     },
 
-    bufferToAll: (dataChannelType: DataChannelType, data: any) => {
+    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
       const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(network.id, dataChannelType) as
         | DataProducer
         | undefined
       if (!dataProducer) return
-      if (!dataProducer.closed && dataProducer.readyState === 'open') dataProducer.send(data)
+      if (dataProducer.closed || dataProducer.readyState !== 'open') return
+      const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
+      if (typeof fromPeerIndex === 'undefined')
+        return console.warn('fromPeerIndex is undefined', fromPeerID, fromPeerIndex)
+      dataProducer.send(encode([fromPeerIndex, data]))
     },
     mediasoupDevice,
     mediasoupLoaded: false,

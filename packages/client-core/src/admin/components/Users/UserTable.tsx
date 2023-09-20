@@ -46,19 +46,12 @@ import { UserData, UserProps, userColumns } from '../../common/variables/user'
 import styles from '../../styles/admin.module.scss'
 import UserDrawer, { UserDrawerMode } from './UserDrawer'
 
-const USER_PAGE_LIMIT = 10
-
 const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: boolean }) => {
   const { t } = useTranslation()
 
   const openConfirm = useHookstate(false)
   const userName = useHookstate('')
   const userId = useHookstate('')
-
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(USER_PAGE_LIMIT)
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('name')
 
   const openUserDrawer = useHookstate(false)
   const userAdmin = useHookstate<UserType | undefined>(undefined)
@@ -69,19 +62,12 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
     query: {
       search,
       isGuest: skipGuests ? false : undefined,
-      $sort: { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 },
-      $skip: page.value * rowsPerPage.value
+      $sort: { name: 1 },
+      $skip: 0,
+      $limit: 20
     }
   })
   const removeUser = useMutation(userPath).remove
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    page.set(newPage)
-  }
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(parseInt(event.target.value, 10))
-  }
 
   const submitDeleteUser = async () => {
     await removeUser(userId.value)
@@ -199,19 +185,7 @@ const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: 
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={userColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={adminUserQuery.total!}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={adminUserQuery} rows={rows} column={userColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.user.confirmUserDelete')} '${userName.value}'?`}

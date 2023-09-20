@@ -35,7 +35,7 @@ Ethereal Engine. All Rights Reserved.
  * useMutation(serviceName) => { create, update, patch, remove, status, data, error }
  */
 
-import { Params } from '@feathersjs/feathers'
+import { Params, Query } from '@feathersjs/feathers'
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
@@ -159,8 +159,18 @@ export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string 
   return useQuery(serviceName, 'get', id, params)
 }
 
-export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Params = {}) => {
-  const response = useQuery(serviceName, 'find', params)
+export type PaginationQuery = Partial<PaginationProps> & Query
+
+export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Params<PaginationQuery> = {}) => {
+  const paginate = usePaginate(params.query)
+
+  const response = useQuery(serviceName, 'find', {
+    ...params,
+    query: {
+      ...params.query,
+      ...paginate.query
+    }
+  })
 
   const data = response?.data
     ? Array.isArray(response.data)
@@ -169,11 +179,18 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
       ? response.data.data
       : response.data
     : []
-  const total: number | undefined = response?.data && !Array.isArray(response.data) ? response.data.total : undefined
+  const total: number = response?.data && !Array.isArray(response.data) ? response.data.total : 0
 
   return {
     ...response,
     total,
+    setSort: paginate.setSort,
+    setLimit: paginate.setLimit,
+    setPage: paginate.setPage,
+    page: paginate.page,
+    skip: paginate.query.$skip,
+    limit: paginate.query.$limit,
+    sort: paginate.query.$sort,
     data: data as ArrayOrPaginatedType<(typeof response)['data']>
   }
 }
@@ -296,4 +313,42 @@ export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void
       service.off('removed', refetch)
     }
   }, [serviceName])
+}
+
+export type FeathersOrder = -1 | 0 | 1
+
+type PaginationProps = {
+  $skip: number
+  $limit: number
+  $sort: Record<string, FeathersOrder>
+}
+
+export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
+  const store = useHookstate({
+    $skip: defaultProps.$skip ?? 0,
+    $limit: defaultProps.$limit ?? 10,
+    $sort: defaultProps.$sort ?? {}
+  } as PaginationProps)
+
+  const query = store.get(NO_PROXY)
+
+  const setSort = (sort: Record<string, FeathersOrder>) => {
+    store.$sort.set(sort)
+  }
+
+  const setLimit = (limit: number) => {
+    store.$limit.set(limit)
+  }
+
+  const setPage = (page: number) => {
+    store.$skip.set(page * store.$limit.value)
+  }
+
+  return {
+    query,
+    page: Math.floor(store.$skip.value / store.$limit.value),
+    setSort,
+    setLimit,
+    setPage
+  }
 }
