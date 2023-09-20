@@ -35,8 +35,8 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { serverLogsPath } from '@etherealengine/engine/src/schemas/cluster/server-logs.schema'
+import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 
@@ -57,9 +57,7 @@ const ServerLogs = ({
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
 
   const serverInfo = useServerInfoFind().data
-  const serverLogsQuery = useFind(serverLogsPath, {
-    query: { podName: podName.value, containerName: containerName.value }
-  })
+  const serverLogsQuery = useGet(podsPath, `${podName.value}/${containerName.value}`)
   const serverLogs = serverLogsQuery.data as string
 
   const scrollLogsToBottom = () => {

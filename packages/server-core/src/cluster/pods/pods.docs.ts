@@ -23,45 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { podsSchema } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
-import { serverInfoExternalResolver, serverInfoResolver } from './server-info.resolvers'
-
-export default {
-  around: {
-    all: [schemaHooks.resolveExternal(serverInfoExternalResolver), schemaHooks.resolveResult(serverInfoResolver)]
-  },
-
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+export default createSwaggerServiceOptions({
+  schemas: { podsSchema },
+  docs: {
+    description: 'Pods service description',
+    securities: ['all']
   }
-} as any
+})

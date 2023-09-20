@@ -134,11 +134,6 @@ export class Engine {
   cameraEntity: Entity = UndefinedEntity
 
   /**
-   *
-   */
-  priorityAvatarEntities: ReadonlySet<Entity> = new Set()
-
-  /**
    * The local client entity
    */
   localClientEntity = UndefinedEntity

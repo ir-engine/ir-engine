@@ -343,7 +343,7 @@ export class LocalStorage implements StorageProviderInterface {
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
       res.size = fs.lstatSync(pathString).size
-      res.url = signedUrl.url + path.sep + signedUrl.fields.Key
+      res.url = signedUrl.url + path.sep + signedUrl.fields.key
     }
 
     return res
