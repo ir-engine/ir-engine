@@ -31,7 +31,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -178,7 +178,7 @@ const EditorContainer = () => {
   const reRouteToLoadScene = async (newSceneName: string) => {
     if (sceneName.value === newSceneName) return
     if (!projectName.value || !newSceneName) return
-    RouterService.navigate(`/studio/${projectName.value}/${newSceneName}`)
+    RouterState.navigate(`/studio/${projectName.value}/${newSceneName}`)
   }
 
   const loadScene = async (sceneName: string) => {
@@ -257,7 +257,7 @@ const EditorContainer = () => {
     editorState.projectName.set(null)
     editorState.sceneName.set(null)
     getMutableState(SceneState).sceneData.set(null)
-    RouterService.navigate('/studio')
+    RouterState.navigate('/studio')
   }
 
   const onSaveAs = async () => {
