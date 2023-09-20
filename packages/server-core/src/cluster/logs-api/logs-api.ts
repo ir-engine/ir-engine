@@ -23,30 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { v4 as uuidv4 } from 'uuid'
+import { logsApiMethods, logsApiPath } from '@etherealengine/engine/src/schemas/cluster/logs-api.schema'
+import { Application } from '../../../declarations'
+import { LogsApiService } from './logs-api.class'
+import logsApiDocs from './logs-api.docs'
+import hooks from './logs-api.hooks'
 
-import { API } from '@etherealengine/client-core/src/API'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { initializeBrowser } from '@etherealengine/engine/src/initializeBrowser'
-import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { getMutableState } from '@etherealengine/hyperflux'
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [logsApiPath]: LogsApiService
+  }
+}
 
-import { pipeLogs } from '@etherealengine/engine/src/common/functions/logger'
-import { initializei18n } from './util'
+export default (app: Application): void => {
+  app.use(logsApiPath, new LogsApiService(app), {
+    // A list of all methods this service exposes externally
+    methods: logsApiMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: logsApiDocs
+  })
 
-createEngine()
-Engine.instance.peerID = uuidv4() as PeerID
-getMutableState(EngineState).publicPath.set(
-  // @ts-ignore
-  import.meta.env.BASE_URL === '/client/' ? location.origin : import.meta.env.BASE_URL!.slice(0, -1) // remove trailing '/'
-)
-initializei18n()
-initializeBrowser()
-API.createAPI()
-pipeLogs(Engine.instance.api)
-
-export default function ({ children }) {
-  return children
+  const service = app.service(logsApiPath)
+  service.hooks(hooks)
 }

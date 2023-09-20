@@ -23,6 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import apiLog from './api-log.service'
+import { ServiceInterface } from '@feathersjs/feathers'
 
-export default [apiLog]
+import config from '@etherealengine/common/src/config'
+import { Application } from '../../../declarations'
+import { logger } from '../../ServerLogger'
+import { RootParams } from '../../api/root-params'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface LogsApiParams extends RootParams {}
+
+/**
+ * A class for LogsApi service
+ */
+
+export class LogsApiService implements ServiceInterface<void, any, LogsApiParams> {
+  app: Application
+
+  constructor(app: Application) {
+    this.app = app
+  }
+
+  async create(data: any, params?: LogsApiParams) {
+    if (config.client.logs.forceClientAggregate === 'true') {
+      const userId = params?.user?.id
+
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          this._processLogItem(item, userId)
+        }
+      } else {
+        this._processLogItem(data, userId)
+      }
+    }
+  }
+
+  _processLogItem = (logItem, userId?: string) => {
+    const { msg, level, component } = logItem
+    logger[level]({ component, userId }, msg)
+  }
+}

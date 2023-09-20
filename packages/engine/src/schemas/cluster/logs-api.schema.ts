@@ -23,38 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { isDev } from '@etherealengine/common/src/config'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-import { Application } from '../../declarations'
-import { elasticOnlyLogger } from '../ServerLogger'
+export const logsApiPath = 'logs-api'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    '/api/log': any
-  }
-}
-
-// Receive client-side log events (only active when APP_ENV != 'development')
-export default (app: Application): void => {
-  app.use(
-    '/api/log',
-    {
-      create: () => {
-        return
-      }
-    },
-    {
-      koa: {
-        before: [
-          async (ctx: any, next) => {
-            const { msg, ...mergeObject } = ctx.body
-            if (!isDev) elasticOnlyLogger.info({ user: ctx.params?.user, ...mergeObject }, msg)
-            await next()
-            ctx.status = 204
-            return
-          }
-        ]
-      }
-    }
-  )
-}
+export const logsApiMethods = ['create'] as const

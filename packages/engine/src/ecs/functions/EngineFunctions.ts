@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 /** Functions to provide engine level functionalities. */
 import { Object3D } from 'three'
 
-import logger from '@etherealengine/common/src/logger'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
