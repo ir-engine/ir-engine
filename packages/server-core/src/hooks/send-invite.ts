@@ -27,17 +27,16 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { EmailData } from '@etherealengine/engine/src/schemas/user/email.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
-import { EmailData } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { SmsData } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -75,7 +74,7 @@ async function generateEmail(
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
   if (inviteType === 'channel') {
-    const channel = await app.service('channel').get(targetObjectId! as ChannelID)
+    const channel = await app.service(channelPath).get(targetObjectId! as ChannelID)
     channelName = channel.name
   }
 
@@ -121,7 +120,7 @@ async function generateSMS(
   let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode!)
   if (inviteType === 'channel') {
-    const channel = await app.service('channel').get(targetObjectId! as ChannelID)
+    const channel = await app.service(channelPath).get(targetObjectId! as ChannelID)
     channelName = channel.name
   }
 

@@ -31,7 +31,9 @@ import {
   InstanceType
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { channelPath, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import logger from '../../ServerLogger'
 import { InstanceService } from './instance.class'
 import instanceDocs from './instance.docs'
@@ -96,12 +98,13 @@ export default (app: Application): void => {
     try {
       /** Remove channel if instance is a world server and it has ended */
       if (data.locationId && data.ended && !data.channelId) {
-        const channel = await app.service('channel').Model.findOne({
-          where: {
-            instanceId: data.id
+        const channel = (await app.service(channelPath)._find({
+          query: {
+            instanceId: data.id,
+            $limit: 1
           }
-        })
-        await app.service('channel').remove(channel.id)
+        })) as Paginated<ChannelType>
+        await app.service(channelPath).remove(channel.data[0].id)
       }
     } catch (e) {
       // fine - channel already cleaned up elsewhere

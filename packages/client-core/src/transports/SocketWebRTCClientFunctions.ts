@@ -38,8 +38,10 @@ import type { EventEmitter } from 'primus'
 import Primus from 'primus-client'
 
 import config from '@etherealengine/common/src/config'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -63,18 +65,6 @@ import {
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { AuthTask } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
-import {
-  Action,
-  Topic,
-  addActionReceptor,
-  removeActionReceptor
-} from '@etherealengine/hyperflux/functions/ActionFunctions'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   MediasoupDataProducerActions,
   MediasoupDataProducerConsumerState
@@ -91,6 +81,15 @@ import {
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { State, dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import {
+  Action,
+  Topic,
+  addActionReceptor,
+  removeActionReceptor
+} from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { MathUtils } from 'three'
 import { LocationInstanceState } from '../common/services/LocationInstanceConnectionService'
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'

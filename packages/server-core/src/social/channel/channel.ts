@@ -25,57 +25,56 @@ Ethereal Engine. All Rights Reserved.
 
 import '@feathersjs/transport-commons'
 
-import { Channel as Channelinterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { ChannelType, channelMethods, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
-import { Channel } from './channel.class'
+import { ChannelService } from './channel.class'
 import channelDocs from './channel.docs'
 import hooks from './channel.hooks'
-import createModel from './channel.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    channel: Channel
+    [channelPath]: ChannelService
   }
 }
 
-export const onCRUD =
-  (app: Application) =>
-  async (data: Channelinterface): Promise<any> => {
-    const channelUsers = (await app.service(channelUserPath).find({
-      query: {
-        channelId: data.id
-      },
-      paginate: false
-    })) as ChannelUserType[]
-
-    const userIds = channelUsers.map((channelUser) => {
-      return channelUser.userId
-    })
-
-    return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
-  }
-
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate')
+    name: channelPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Channel(options, app)
-  event.docs = channelDocs
+  app.use(channelPath, new ChannelService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: channelMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: channelDocs
+  })
 
-  app.use('channel', event)
-
-  const service: any = app.service('channel')
-
+  const service = app.service(channelPath)
   service.hooks(hooks)
 
+  const onCRUD =
+    (app: Application) =>
+    async (data: ChannelType): Promise<any> => {
+      const channelUsers = (await app.service(channelUserPath).find({
+        query: {
+          channelId: data.id
+        },
+        paginate: false
+      })) as ChannelUserType[]
+
+      const userIds = channelUsers.map((channelUser) => {
+        return channelUser.userId
+      })
+
+      return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
+    }
   service.publish('created', onCRUD(app))
   service.publish('patched', onCRUD(app))
 }
