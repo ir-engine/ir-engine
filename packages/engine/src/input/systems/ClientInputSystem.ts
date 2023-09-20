@@ -408,7 +408,7 @@ const execute = () => {
   pointerState.lastPosition.copy(pointerState.position)
   pointerState.lastScroll.copy(pointerState.scroll)
 
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
   const origin = ReferenceSpace.origin
 
   for (const eid of xrSpaces()) {

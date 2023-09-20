@@ -72,7 +72,7 @@ export class XRHitTestResultProxy {
     const _pos = new Vector3()
     const _rot = new Quaternion()
     _mat4.decompose(_pos, _rot, _scale)
-    return (Engine.instance.xrFrame! as any as XRFrameProxy).getPose(baseSpace, new XRSpace(_pos, _rot))
+    return (getState(XRState).xrFrame! as any as XRFrameProxy).getPose(baseSpace, new XRSpace(_pos, _rot))
   }
 
   /** @todo */

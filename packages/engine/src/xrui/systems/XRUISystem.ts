@@ -54,7 +54,8 @@ import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { ReferenceSpace } from '../../xr/XRState'
+import { ReferenceSpace, XRState } from '../../xr/XRState'
+
 import { XRUIState } from '../XRUIState'
 import { XRUIComponent } from '../components/XRUIComponent'
 
@@ -175,7 +176,7 @@ const execute = () => {
   const xruiState = getState(XRUIState)
   const inputSourceEntities = inputSourceQuery()
 
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
 
   /** Update the objects to use for intersection tests */
   const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
@@ -221,8 +222,9 @@ const execute = () => {
     const pointer = pointers.get(inputSource)!
 
     const referenceSpace = ReferenceSpace.origin
-    if (Engine.instance.xrFrame && referenceSpace) {
-      const pose = Engine.instance.xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
+    const xrFrame = getState(XRState).xrFrame
+    if (xrFrame && referenceSpace) {
+      const pose = xrFrame.getPose(inputSource.targetRaySpace, referenceSpace)
       if (pose) {
         pointer.position.copy(pose.transform.position as any as Vector3)
         pointer.quaternion.copy(pose.transform.orientation as any as Quaternion)
