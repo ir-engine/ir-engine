@@ -23,39 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params, ServiceMethods } from '@feathersjs/feathers'
-
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { smsMethods, smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { Application } from '../../../declarations'
+import { SmsService } from './sms.class'
+import smsDocs from './sms.docs'
+import hooks from './sms.hooks'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Data {}
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ServiceOptions {}
-
-export class ProjectSetting implements ServiceMethods<Data> {
-  app: Application
-  options: ServiceOptions
-
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
-    this.app = app
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [smsPath]: SmsService
   }
+}
 
-  async find(params?: Params) {
-    const result = await this.app.service(projectPath).find(params)
-    return result?.data[0]?.settings ? result.data[0].settings : []
-  }
+export default (app: Application): void => {
+  app.use(smsPath, new SmsService(app), {
+    // A list of all methods this service exposes externally
+    methods: smsMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: smsDocs
+  })
 
-  async patch(): Promise<any> {}
-
-  async setup(): Promise<any> {}
-
-  async get(): Promise<any> {}
-
-  async create(): Promise<any> {}
-
-  async remove(): Promise<any> {}
-
-  async update(): Promise<any> {}
+  const service = app.service(smsPath)
+  service.hooks(hooks)
 }

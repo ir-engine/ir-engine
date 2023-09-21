@@ -157,9 +157,7 @@ const RecordingsList = (props: {
         <button
           className="btn btn-ghost"
           disabled={recording.skip <= 0}
-          onClick={() => {
-            recording.previous()
-          }}
+          onClick={() => recording.setPage(recording.page - 1)}
         >
           Prev
         </button>
@@ -169,9 +167,7 @@ const RecordingsList = (props: {
         <button
           className="btn btn-ghost"
           disabled={recording.skip + recording.limit >= recording.total}
-          onClick={() => {
-            recording.next()
-          }}
+          onClick={() => recording.setPage(recording.page + 1)}
         >
           Next
         </button>

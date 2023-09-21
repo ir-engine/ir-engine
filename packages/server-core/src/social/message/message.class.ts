@@ -23,14 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BadRequest } from '@feathersjs/errors'
-import { Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
-
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   MessageData,
   MessagePatch,
@@ -38,6 +33,10 @@ import {
   MessageType
 } from '@etherealengine/engine/src/schemas/social/message.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { BadRequest } from '@feathersjs/errors'
+import { Paginated, Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
@@ -75,15 +74,14 @@ export class MessageService<T = MessageType, ServiceParams extends Params = Mess
    */
   // @ts-ignore
   async create(data: MessageData, params?: MessageParams) {
-    let channel: Channel | null = null
+    let channel: ChannelType | null = null
     let userIdList: any[] = []
     const loggedInUser = params!.user as UserType
     const userId = loggedInUser?.id
     const givenChannelId = data.channelId
     const instanceId = data.instanceId
-    const channelModel = this.app.service('channel').Model
 
-    if (givenChannelId) channel = await this.app.service('channel').get(givenChannelId)
+    if (givenChannelId) channel = await this.app.service(channelPath).get(givenChannelId)
 
     if (!channel) {
       if (instanceId) {
@@ -91,15 +89,19 @@ export class MessageService<T = MessageType, ServiceParams extends Params = Mess
         if (targetInstance == null) {
           throw new BadRequest('Invalid target instance ID')
         }
-        channel = await channelModel.findOne({
-          where: {
-            instanceId
+        const channelResult = (await this.app.service(channelPath)._find({
+          query: {
+            instanceId,
+            $limit: 1
           }
-        })
-        if (channel == null) {
-          channel = (await this.app.service('channel').create({
+        })) as Paginated<ChannelType>
+
+        if (channelResult.total === 0) {
+          channel = await this.app.service(channelPath).create({
             instanceId
-          })) as Channel
+          })
+        } else {
+          channel = channelResult.data[0]
         }
 
         const knexClient: Knex = this.app.get('knexClient')

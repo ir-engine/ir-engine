@@ -672,7 +672,8 @@ export class S3Provider implements StorageProviderInterface {
               key,
               url: `${this.bucketAssetURL}/${key}`,
               name: query!.groups!.name,
-              type: query!.groups!.extension
+              type: query!.groups!.extension,
+              size: folderContent.Contents[i].Size
             }
             resolve(cont)
           })

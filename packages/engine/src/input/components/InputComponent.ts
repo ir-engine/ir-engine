@@ -28,6 +28,7 @@ import { useLayoutEffect } from 'react'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { AnimateScaleComponent } from '../../renderer/components/AnimateScaleComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
 export const InputComponent = defineComponent({
@@ -37,7 +38,8 @@ export const InputComponent = defineComponent({
     return {
       /** populated automatically by ClientInputSystem */
       inputSources: [] as Entity[],
-      highlight: true
+      highlight: true,
+      grow: false
       // priority: 0
     }
   },
@@ -46,6 +48,7 @@ export const InputComponent = defineComponent({
     if (!json) return
 
     if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
+    if (typeof json.grow === 'boolean') component.grow.set(json.grow)
   },
 
   reactor: () => {
@@ -59,6 +62,14 @@ export const InputComponent = defineComponent({
         removeComponent(entity, HighlightComponent)
       }
     }, [input.inputSources, input.highlight])
+
+    useLayoutEffect(() => {
+      if (!input.inputSources.length || !input.grow.value) return
+      setComponent(entity, AnimateScaleComponent)
+      return () => {
+        removeComponent(entity, AnimateScaleComponent)
+      }
+    }, [input.inputSources, input.grow])
 
     return null
   }

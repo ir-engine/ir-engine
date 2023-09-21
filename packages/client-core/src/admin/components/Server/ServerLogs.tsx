@@ -28,21 +28,18 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import multiLogger from '@etherealengine/common/src/logger'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { serverLogsPath } from '@etherealengine/engine/src/schemas/cluster/server-logs.schema'
+import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 
 export type ServerLogsInputsType = { podName?: string; containerName?: string }
-
-const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
 
 const ServerLogs = ({
   podName,
@@ -57,9 +54,7 @@ const ServerLogs = ({
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
 
   const serverInfo = useServerInfoFind().data
-  const serverLogsQuery = useFind(serverLogsPath, {
-    query: { podName: podName.value, containerName: containerName.value }
-  })
+  const serverLogsQuery = useGet(podsPath, `${podName.value}/${containerName.value}`)
   const serverLogs = serverLogsQuery.data as string
 
   const scrollLogsToBottom = () => {
@@ -89,7 +84,6 @@ const ServerLogs = ({
   }, [autoRefresh.value])
 
   const handleRefreshServerLogs = () => {
-    logger.info('Refreshing server logs.')
     serverLogsQuery.refetch()
   }
 

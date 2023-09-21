@@ -34,10 +34,11 @@ import config from '../../appconfig'
 import { addAssetFromProject } from '../../media/static-resource/static-resource-helper'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
 import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { Params } from '@feathersjs/feathers'
 import { parseScenePortals } from './scene-parser'
+import { getSceneData } from './scene.class'
 import { SceneParams } from './scene.service'
-
-const FILE_NAME_REGEX = /(\w+\.\w+)$/
 
 export const getAllPortals = (app: Application) => {
   return async (params?: SceneParams) => {
@@ -49,18 +50,31 @@ export const getAllPortals = (app: Application) => {
   }
 }
 
-export const getPortal = (app: any) => {
-  return async (id: string, params?: SceneParams) => {
-    params!.metadataOnly = false
-    const scenes = await (await app.service('scene-data').find(params!)).data
-    const portals = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalDetail[]
+export const getPortal = (app: Application) => {
+  return async (id: string, params: Params<{ locationName: string }>) => {
+    const locationName = params?.query?.locationName
+
+    if (!params?.query?.locationName) throw new Error('No locationID provided')
+
+    const location = await app.service(locationPath).find({
+      query: {
+        slugifiedName: locationName
+      }
+    })
+    if (!location?.data?.length) throw new Error('No location found')
+
+    const [projectName, sceneName] = location.data[0].sceneId.split('/')
+
+    const sceneData = await getSceneData(projectName, sceneName, false, params!.provider == null)
+
+    const portals = parseScenePortals(sceneData) as PortalDetail[]
     return {
       data: portals.find((portal) => portal.portalEntityId === id)
     }
   }
 }
 
-export const getEnvMapBake = (app: any) => {
+export const getEnvMapBake = (app: Application) => {
   return async (ctx: koa.FeathersKoaContext) => {
     const envMapBake = await getEnvMapBakeById(app, ctx.params.entityId)
     ctx.body = {

@@ -35,7 +35,7 @@ import '../utils/threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
 import { Not } from 'bitecs'
-import { Group, Object3D, Raycaster, Scene, Vector2 } from 'three'
+import { Group, Object3D, Scene } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -105,8 +105,6 @@ export class Engine {
 
   gltfLoader: GLTFLoader = null!
 
-  xrFrame: XRFrame | null = null
-
   /**
    * Reference to the three.js scene object.
    */
@@ -134,22 +132,9 @@ export class Engine {
   cameraEntity: Entity = UndefinedEntity
 
   /**
-   *
-   */
-  priorityAvatarEntities: ReadonlySet<Entity> = new Set()
-
-  /**
    * The local client entity
    */
   localClientEntity = UndefinedEntity
-
-  pointerState = {
-    position: new Vector2(),
-    lastPosition: new Vector2(),
-    movement: new Vector2(),
-    scroll: new Vector2(),
-    lastScroll: new Vector2()
-  }
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
@@ -168,9 +153,6 @@ export class Engine {
   activeSystems = new Set<SystemUUID>()
   currentSystemUUID = '__null__' as SystemUUID
   activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
-
-  /** A screenspace raycaster for the pointer */
-  pointerScreenRaycaster = new Raycaster()
 }
 
 globalThis.Engine = Engine

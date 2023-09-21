@@ -40,10 +40,10 @@ jobs:
       - name: Setup Helm
         run: scripts/setup_helm_builder.sh
       - name: Setup AWS
-        run: scripts/setup_aws_builder.sh $EKS_AWS_ACCESS_KEY $EKS_AWS_SECRET $AWS_REGION $CLUSTER_NAME
+        run: scripts/setup_aws_builder.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME
         env:
-          EKS_AWS_ACCESS_KEY: ${{ secrets.EKS_AWS_ACCESS_KEY }}
-          EKS_AWS_SECRET: ${{ secrets.EKS_AWS_SECRET }}
+          EKS_AWS_ACCESS_KEY_ID: ${{ secrets.EKS_AWS_ACCESS_KEY_ID }}
+          EKS_AWS_ACCESS_KEY_SECRET: ${{ secrets.EKS_AWS_ACCESS_KEY_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       - name: Space debug

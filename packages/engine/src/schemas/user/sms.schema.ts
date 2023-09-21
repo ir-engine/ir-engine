@@ -23,17 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/client'
+import type { Static } from '@feathersjs/typebox'
+import { getValidator, Type } from '@feathersjs/typebox'
+import { dataValidator } from '../validators'
 
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { API } from '../../API'
+export const smsPath = 'sms'
+export const smsMethods = ['create'] as const
 
-//Service
-export const InstanceService = {
-  checkRoom: async (roomCode: string) => {
-    const { data } = (await API.instance.client
-      .service(instancePath)
-      .find({ query: { roomCode, ended: false, locationId: { $ne: undefined } } })) as Paginated<InstanceType>
-    return data[0] as InstanceType
-  }
-}
+export const smsDataSchema = Type.Object(
+  {
+    mobile: Type.String(),
+    text: Type.String()
+  },
+  { $id: 'SmsData', additionalProperties: false }
+)
+export type SmsData = Static<typeof smsDataSchema>
+
+export const smsDataValidator = getValidator(smsDataSchema, dataValidator)
