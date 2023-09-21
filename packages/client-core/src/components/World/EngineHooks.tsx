@@ -29,7 +29,6 @@ import { useEffect } from 'react'
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
@@ -38,6 +37,7 @@ import {
   AppLoadingState,
   AppLoadingStates
 } from '@etherealengine/engine/src/common/AppLoadingService'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import {
@@ -55,6 +55,7 @@ import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
+import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { FollowCameraComponent } from '@etherealengine/engine/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera/components/TargetCameraRotationComponent'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -62,13 +63,10 @@ import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
-import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { Paginated } from '@feathersjs/feathers'
-import { RouterService } from '../../common/services/RouterService'
+import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { AvatarService } from '../../user/services/AvatarService'
 import { startClientSystems } from '../../world/startClientSystems'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
@@ -128,14 +126,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
         name: user.name.value
       })
     } else {
-      /** @TODO use async suspend here */
-      Engine.instance.api
-        .service(avatarPath)
-        .find({})
-        .then((avatars: Paginated<AvatarType>) => {
-          const randomAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
-          AvatarService.updateUserAvatarId(Engine.instance.userID, randomAvatar.id)
-        })
+      AvatarState.selectRandomAvatar()
     }
   }, [sceneLoaded, authState.user.avatar])
 }
@@ -204,7 +195,7 @@ export const usePortalTeleport = () => {
         return
       }
 
-      RouterService.navigate('/location/' + activePortal.location)
+      RouterState.navigate('/location/' + activePortal.location)
       LocationService.getLocationByName(activePortal.location)
 
       // shut down connection with existing world instance server

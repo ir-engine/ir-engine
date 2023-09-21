@@ -24,10 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineState } from '@etherealengine/hyperflux'
+import { Raycaster, Vector2 } from 'three'
 
 export const InputState = defineState({
   name: 'InputState',
-  initial: {
-    inputSources: [] as XRInputSourceArray
-  }
+  initial: () => ({
+    inputSources: [] as XRInputSourceArray,
+    /** A screenspace raycaster for the pointer */
+    pointerScreenRaycaster: new Raycaster(),
+    pointerState: {
+      position: new Vector2(),
+      lastPosition: new Vector2(),
+      movement: new Vector2(),
+      scroll: new Vector2(),
+      lastScroll: new Vector2()
+    }
+  })
 })

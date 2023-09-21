@@ -75,7 +75,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   setComponent(entity, DistanceFromCameraComponent)
   addComponent(entity, XRUIComponent, container)
   addComponent(entity, VisibleComponent, true)
-  setComponent(entity, InputComponent, { highlight: false })
+  setComponent(entity, InputComponent, { highlight: false, grow: true })
 
   return { entity, state, container }
 }

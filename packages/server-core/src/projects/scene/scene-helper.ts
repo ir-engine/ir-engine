@@ -36,17 +36,16 @@ import {
   cleanStorageProviderURLs,
   parseStorageProviderURLs
 } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { Paginated } from '@feathersjs/feathers'
 import logger from '../../ServerLogger'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { SceneDataParams } from '../scene-data/scene-data.class'
 
-const FILE_NAME_REGEX = /(\w+\.\w+)$/
-
-export const getEnvMapBake = (app: any) => {
+export const getEnvMapBake = (app: Application) => {
   return async (ctx: koa.FeathersKoaContext) => {
     const envMapBake = await getEnvMapBakeById(app, ctx.params.entityId)
     ctx.body = {
@@ -204,8 +203,10 @@ export const getScenesForProject = async (app: Application, params?: SceneDataPa
   const metadataOnly = params?.metadataOnly
   const internal = params?.internal
   try {
-    const project = await app.service(projectPath).find({ ...params, query: { name: projectName } })
-    if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
+    const project = (await app
+      .service(projectPath)
+      .find({ ...params, query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
+    if (project.data.length === 0) throw new Error(`No project named ${projectName} exists`)
 
     const newSceneJsonPath = `projects/${projectName}/`
 

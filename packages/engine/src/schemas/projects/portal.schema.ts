@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
-import { Type } from '@feathersjs/typebox'
+import { Type, querySyntax } from '@feathersjs/typebox'
 
 export const portalPath = 'portal'
 
@@ -38,3 +38,21 @@ export const portalSchema = Type.Object(
   { $id: 'Portal', additionalProperties: false }
 )
 export type PortalType = Static<typeof portalSchema>
+
+// Schema for allowed query properties
+export const portalQueryProperties = Type.Pick(portalSchema, ['sceneName', 'portalEntityId', 'portalEntityName'])
+export const portalQuerySchema = Type.Intersect(
+  [
+    querySyntax(portalQueryProperties),
+    // Add additional query properties here
+    Type.Object(
+      {
+        metadataOnly: Type.Optional(Type.Boolean()),
+        locationName: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
+  ],
+  { additionalProperties: false }
+)
+export type PortalQuery = Static<typeof portalQuerySchema>

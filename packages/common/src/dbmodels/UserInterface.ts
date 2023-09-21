@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ChannelID } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { ChannelID } from './Channel'
 
 export interface UserInterface {
   id: string

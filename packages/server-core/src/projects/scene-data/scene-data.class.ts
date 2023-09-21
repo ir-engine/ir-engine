@@ -20,7 +20,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { SceneDataServiceType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { NullableId, Params, ServiceInterface } from '@feathersjs/feathers'
@@ -45,9 +45,9 @@ export class SceneDataService implements ServiceInterface<SceneDataServiceType, 
   }
 
   async find(params?: SceneDataParams) {
-    const projects = await this.app.service(projectPath).find(params)
+    const projects = (await this.app.service(projectPath).find({ ...params, paginate: false })) as ProjectType[]
     const scenes = await Promise.all(
-      projects.data.map(
+      projects.map(
         (project) =>
           new Promise<SceneDataType[]>(async (resolve) => {
             const projectScenes = (

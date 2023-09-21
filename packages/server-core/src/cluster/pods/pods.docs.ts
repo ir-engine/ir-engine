@@ -23,17 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/client'
+import { podsSchema } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { API } from '../../API'
-
-//Service
-export const InstanceService = {
-  checkRoom: async (roomCode: string) => {
-    const { data } = (await API.instance.client
-      .service(instancePath)
-      .find({ query: { roomCode, ended: false, locationId: { $ne: undefined } } })) as Paginated<InstanceType>
-    return data[0] as InstanceType
+export default createSwaggerServiceOptions({
+  schemas: { podsSchema },
+  docs: {
+    description: 'Pods service description',
+    securities: ['all']
   }
-}
+})

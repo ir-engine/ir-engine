@@ -50,7 +50,7 @@ export const onSessionEnd = () => {
   xrState.session.set(null)
   xrState.sceneScale.set(1)
 
-  Engine.instance.xrFrame = null
+  getMutableState(XRState).xrFrame.set(null)
 
   EngineRenderer.instance.renderer.domElement.style.display = ''
   setVisibleComponent(Engine.instance.localClientEntity, true)

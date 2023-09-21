@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { LocationInstanceState } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import logger from '@etherealengine/common/src/logger'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   InstanceActiveType,

@@ -20,28 +20,44 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '../../../declarations'
 
-import { PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { PortalQuery, PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
 import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { Params, ServiceInterface } from '@feathersjs/feathers'
+import { getSceneData } from '../scene/scene-helper'
 import { parseScenePortals } from '../scene/scene-parser'
-import { SceneParams } from '../scene/scene.class'
 
-export class PortalService implements ServiceInterface<PortalType, SceneParams> {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface PortalParams extends Params<PortalQuery> {}
+export class PortalService implements ServiceInterface<PortalType, PortalParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async get(id: string, params?: SceneParams) {
-    params = { ...params, query: { metadataOnly: false } }
-    const scenes = await (await this.app.service(sceneDataPath).find(params!)).data
-    const portals = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalType[]
+  async get(id: string, params?: PortalParams) {
+    const locationName = params?.query?.locationName
+
+    if (!params?.query?.locationName) throw new Error('No locationID provided')
+
+    const location = await this.app.service(locationPath).find({
+      query: {
+        slugifiedName: locationName
+      }
+    })
+    if (!location?.data?.length) throw new Error('No location found')
+
+    const [projectName, sceneName] = location.data[0].sceneId.split('/')
+
+    const sceneData = await getSceneData(projectName, sceneName, false, params!.provider == null)
+
+    const portals = parseScenePortals(sceneData) as PortalType[]
     const portalResult: PortalType = portals.find((portal) => portal.portalEntityId === id) || ({} as PortalType)
     return portalResult
   }
 
-  async find(params?: SceneParams) {
+  async find(params?: PortalParams) {
     params = { ...params, query: { metadataOnly: false } }
     const scenes = (await this.app.service(sceneDataPath).find(params!)).data
     return scenes.map((scene) => parseScenePortals(scene)).flat() as PortalType[]

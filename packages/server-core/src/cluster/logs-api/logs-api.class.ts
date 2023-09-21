@@ -23,12 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { ServiceInterface } from '@feathersjs/feathers'
 
-import { ServerInfoType } from '@etherealengine/engine/src/schemas/cluster/server-info.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/common/src/config'
+import { Application } from '../../../declarations'
+import { logger } from '../../ServerLogger'
+import { RootParams } from '../../api/root-params'
 
-export const serverInfoResolver = resolve<ServerInfoType, HookContext>({})
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface LogsApiParams extends RootParams {}
 
-export const serverInfoExternalResolver = resolve<ServerInfoType, HookContext>({})
+/**
+ * A class for LogsApi service
+ */
+
+export class LogsApiService implements ServiceInterface<void, any, LogsApiParams> {
+  app: Application
+
+  constructor(app: Application) {
+    this.app = app
+  }
+
+  async create(data: any, params?: LogsApiParams) {
+    if (config.client.logs.forceClientAggregate === 'true') {
+      const userId = params?.user?.id
+
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          this._processLogItem(item, userId)
+        }
+      } else {
+        this._processLogItem(data, userId)
+      }
+    }
+  }
+
+  _processLogItem = (logItem, userId?: string) => {
+    const { msg, level, component } = logItem
+    logger[level]({ component, userId }, msg)
+  }
+}

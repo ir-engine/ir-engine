@@ -265,7 +265,7 @@ const execute = () => {
   }
 
   getMutableState(XRState).viewerPose.set(
-    ReferenceSpace.localFloor && Engine.instance.xrFrame?.getViewerPose(ReferenceSpace.localFloor)
+    ReferenceSpace.localFloor && getState(XRState).xrFrame?.getViewerPose(ReferenceSpace.localFloor)
   )
 }
 

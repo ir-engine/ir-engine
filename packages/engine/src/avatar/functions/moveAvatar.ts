@@ -81,7 +81,7 @@ let beganFalling = false
 
 export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const entity = Engine.instance.localClientEntity
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
 
   if (!entity || (!xrFrame && !additionalMovement)) return
 
