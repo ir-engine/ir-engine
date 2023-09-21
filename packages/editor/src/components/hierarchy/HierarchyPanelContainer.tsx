@@ -410,7 +410,7 @@ export default function HierarchyPanel({
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
       : [node.entityNode ?? node.obj3d!.uuid]
 
-    EditorControlFunctions.groupObjects(objs, [], [])
+    EditorControlFunctions.groupObjects(objs)
   }, [])
   /* Event handlers */
 
