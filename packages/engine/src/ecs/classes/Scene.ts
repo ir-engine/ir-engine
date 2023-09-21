@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, MathUtils, Texture } from 'three'
+import { Color, FileLoader, MathUtils, Texture } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
-import { XRELoader } from '../../assets/classes/XRELoader'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -81,8 +81,9 @@ export const SceneState = defineState({
         load: false
       })
 
-      const sceneLoader = new XRELoader()
-      sceneLoader.load(url, (sceneData) => {})
+      const resolvedURL = AssetLoader.getAbsolutePath(url)
+      const fileLoader = new FileLoader()
+      fileLoader.load(resolvedURL, (data) => {})
       Engine.instance.api
         .service('scene')
         .get({ url, metadataOnly: null }, {})
