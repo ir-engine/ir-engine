@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   defineComponent,
   getComponent,
+  removeComponent,
   setComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -42,6 +43,7 @@ import { NameComponent } from '@etherealengine/engine/src/scene/components/NameC
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { Object3D } from 'three'
@@ -79,6 +81,9 @@ export const TransformGizmoComponent = defineComponent({
       // create dummy object to attach gizmo to
       const dummy = new Object3D()
       dummy.name = 'gizmoProxy'
+      const localTransform = getComponent(entity, LocalTransformComponent)
+      removeComponent(entity, LocalTransformComponent) /// band aid fix until we can make gizmo handle local transform
+
       // create dummy Entity for gizmo helper
       const dummyEntity = createEntity()
       setComponent(dummyEntity, NameComponent, 'gizmoEntity')
@@ -97,6 +102,7 @@ export const TransformGizmoComponent = defineComponent({
       return () => {
         removeObjectFromGroup(entity, dummy)
         removeEntity(dummyEntity)
+        if (localTransform) setComponent(entity, LocalTransformComponent, localTransform) // add it back in
       }
     }, [])
 

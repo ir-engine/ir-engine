@@ -380,13 +380,7 @@ const reactor = () => {
     setComponent(lastSelection as Entity, TransformGizmoComponent)
 
     // handle gizmo attachment
-  }, [
-    editorHelperState.transformMode,
-    editorHelperState.transformPivot,
-    editorHelperState.transformSpace,
-    selectionState.selectionCounter,
-    selectionState.selectedParentEntities
-  ])
+  }, [selectionState.selectionCounter, selectionState.selectedParentEntities])
 
   // there is no deterministic ordering for react useeffect better to club them togther
 
