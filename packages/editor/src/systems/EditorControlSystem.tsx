@@ -95,6 +95,8 @@ const raycastIgnoreLayers = new Layers()
 
 const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 let lastZoom = 0
+let dragging = false
+
 const onKeyQ = () => {
   /*const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
@@ -317,11 +319,12 @@ const execute = () => {
   if (buttons.Equal?.down) onEqual()
   if (buttons.Minus?.down) onMinus()
   if (buttons.Delete?.down) onDelete()
-  let dragging = false
-  const selectedEntities = getState(SelectionState).selectedEntities
-  if (!selectedEntities) dragging = false
-  const lastSelection = selectedEntities[selectedEntities.length - 1]
-  dragging = getComponent(lastSelection as Entity, TransformGizmoComponent).dragging
+  const selectedEntities = getMutableState(SelectionState).selectedEntities
+  if (selectedEntities) {
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    if (hasComponent(lastSelection.value as Entity, TransformGizmoComponent))
+      dragging = getComponent(lastSelection.value as Entity, TransformGizmoComponent).dragging
+  }
   const selecting = buttons.PrimaryClick?.pressed && !dragging
   const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
