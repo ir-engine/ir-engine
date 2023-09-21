@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineState } from '@etherealengine/hyperflux'
-import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
+import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 
 export const AssetLoaderState = defineState({
   name: 'AssetLoaderState',
   initial: () => ({
-    gltfLoader: null as GLTFLoader | null
+    gltfLoader: createGLTFLoader()
   })
 })

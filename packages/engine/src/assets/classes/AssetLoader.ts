@@ -55,7 +55,6 @@ import loadVideoTexture from '../../renderer/materials/functions/LoadVideoTextur
 import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
-import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { GLTF } from '../loaders/gltf/GLTFLoader'
@@ -306,7 +305,7 @@ export const getLoader = (assetType: AssetType) => {
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
-      return getState(AssetLoaderState).gltfLoader || createGLTFLoader()
+      return getState(AssetLoaderState).gltfLoader
     case AssetType.USDZ:
       return usdzLoader()
     case AssetType.FBX:

@@ -58,7 +58,6 @@
 
 //   beforeEach(async () => {
 //     createEngine()
-//     getMutableState(AssetLoaderState).gltfLoader.set(createGLTFLoader())
 //     assetModel = await AssetLoader.loadAsync(testGLTF)
 //   })
 
