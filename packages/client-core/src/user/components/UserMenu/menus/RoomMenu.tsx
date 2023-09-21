@@ -31,7 +31,9 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+
 import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
@@ -82,7 +84,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
       setError(t('user:roomMenu.invalidRoomCode'))
       return
     }
-    RouterService.navigate(`/location/${location ? location : locationName}?roomCode=${rooms.roomCode}`)
+    RouterState.navigate(`/location/${location ? location : locationName}?roomCode=${rooms.roomCode}`)
     requestXRSession()
   }
 
@@ -92,7 +94,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
       return false
     }
 
-    RouterService.navigate(`/location/${location ? location : locationName}`)
+    RouterState.navigate(`/location/${location ? location : locationName}`)
     requestXRSession()
   }
 
