@@ -43,8 +43,10 @@ export const NetworkTopics = {
 export interface TransportInterface {
   messageToPeer: (peerId: PeerID, data: any) => void
   messageToAll: (data: any) => void
+  onMessage: (fromPeerID: PeerID, data: any) => void
   bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerId: PeerID, data: any) => void
   bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
+  onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
 }
 
 export interface JitterBufferEntry {
@@ -60,8 +62,10 @@ export const createNetwork = <Ext>(
   transport = {
     messageToPeer: (peerId: PeerID, data: any) => {},
     messageToAll: (data: any) => {},
+    onMessage: (fromPeerID: PeerID, data: any) => {},
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerId: PeerID, data: any) => {},
-    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {}
+    bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {},
+    onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {}
   } as TransportInterface & Ext
 ) => {
   addOutgoingTopicIfNecessary(topic)
