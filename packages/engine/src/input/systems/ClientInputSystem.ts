@@ -515,8 +515,8 @@ const execute = () => {
             if (distance < hitDistance) {
               assignedInputEntity = entity
               hitDistance = distance
+              break
             }
-            break
           }
         }
       }
