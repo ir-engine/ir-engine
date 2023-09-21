@@ -34,6 +34,7 @@ import {
   channelUserQueryValidator
 } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 
+import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -115,7 +116,7 @@ export default {
           text: `${user.name} left the channel`,
           isNotification: true
         })
-        const channel = await app.service('channel').get(result.channelId)
+        const channel = await app.service(channelPath).get(result.channelId)
         if (channel.instanceId) return context
         const channelUserCount = (await app.service(channelUserPath).find({
           query: {
@@ -124,7 +125,7 @@ export default {
           paginate: false
         })) as ChannelUserType[]
         if (channelUserCount.length === 0) {
-          await app.service('channel').remove(result.channelId)
+          await app.service(channelPath).remove(result.channelId)
         }
         return context
       }

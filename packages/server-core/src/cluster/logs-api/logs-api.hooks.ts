@@ -23,25 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { InstanceID } from '../networking/instance.schema'
-import { ChannelUserType } from '../social/channel-user.schema'
-import { MessageType } from '../social/message.schema'
+import authenticate from '../../hooks/authenticate'
 
-export type Channel = {
-  id: ChannelID
-  name: string
-  instanceId: InstanceID | null
-  createdAt: string
-  updatedAt: string
-  updateNeeded: boolean
-  limit: 5
-  skip: 0
-  total: 0
-  channel_users: ChannelUserType[]
-  messages: MessageType[]
-}
+export default {
+  before: {
+    all: [authenticate()],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
 
-export interface PatchChannel {
-  name: string
-}
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+} as any

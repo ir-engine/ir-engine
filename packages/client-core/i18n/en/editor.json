@@ -25,6 +25,7 @@
   "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
+  "loadingScenes": "Loading Scenes",
   "menubar": {
     "newScene": "New Scene",
     "saveScene": "Save Scene",
@@ -230,7 +231,8 @@
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
-      "lbl-isMusic": "Is Music"
+      "lbl-isMusic": "Is Music",
+      "lbl-size": "Size"
     },
     "audio": {
       "name": "Positional Audio",

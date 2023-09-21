@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
@@ -39,7 +39,7 @@ import { uploadToFeathersService } from '../../util/upload'
 
 const logger = multiLogger.child({ component: 'client-core:ResourcesService' })
 
-export const RESOURCE_PAGE_LIMIT = 100
+export const RESOURCE_PAGE_LIMIT = 25
 
 export const AdminResourceState = defineState({
   name: 'AdminResourceState',

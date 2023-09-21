@@ -375,14 +375,9 @@ export async function createInternalDataConsumer(
     logger.info('DataConsumer:', dataConsumer)
     dataConsumer.on('message', (message) => {
       const [fromPeerIndex, data] = decode(message)
-      // console.log({fromPeerIndex, data})
       const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
-      // console.log(network.peerIDToPeerIndex, network.peerIndexToPeerID, fromPeerID)
-      if (fromPeerID !== peerID) return //logger.warn('Received message from unexpected peerID: ' + fromPeerID + ' for ' + peerID)
-      const DataChannelFunctions = getState(DataChannelRegistryState)[dataProducer.label as DataChannelType]
-      if (DataChannelFunctions) {
-        for (const func of DataChannelFunctions) func(network, dataProducer.label as DataChannelType, fromPeerID, data)
-      }
+      if (fromPeerID !== peerID) return
+      network.transport.onBuffer(dataProducer.label as DataChannelType, peerID, data)
     })
 
     if (!getState(MediasoupInternalWebRTCDataChannelState)[peerID]) {

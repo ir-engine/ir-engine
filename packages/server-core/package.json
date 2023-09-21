@@ -108,6 +108,7 @@
     "octokit": "2.0.14",
     "pino": "^8.11.0",
     "pino-elasticsearch": "6.6.0",
+    "pino-opensearch": "^1.1.0",
     "pino-pretty": "^10.0.0",
     "primus": "^8.0.6",
     "primus-emitter": "^3.1.1",

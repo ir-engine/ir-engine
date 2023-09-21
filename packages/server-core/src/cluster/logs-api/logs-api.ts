@@ -23,27 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { serverLogsMethods, serverLogsPath } from '@etherealengine/engine/src/schemas/cluster/server-logs.schema'
+import { logsApiMethods, logsApiPath } from '@etherealengine/engine/src/schemas/cluster/logs-api.schema'
 import { Application } from '../../../declarations'
-import { ServerLogsService } from './server-logs.class'
-import serverLogsDocs from './server-logs.docs'
-import hooks from './server-logs.hooks'
+import { LogsApiService } from './logs-api.class'
+import logsApiDocs from './logs-api.docs'
+import hooks from './logs-api.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [serverLogsPath]: ServerLogsService
+    [logsApiPath]: LogsApiService
   }
 }
 
 export default (app: Application): void => {
-  app.use(serverLogsPath, new ServerLogsService(app), {
+  app.use(logsApiPath, new LogsApiService(app), {
     // A list of all methods this service exposes externally
-    methods: serverLogsMethods,
+    methods: logsApiMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: serverLogsDocs
+    docs: logsApiDocs
   })
 
-  const service = app.service(serverLogsPath)
+  const service = app.service(logsApiPath)
   service.hooks(hooks)
 }

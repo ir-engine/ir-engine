@@ -43,6 +43,7 @@ import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHe
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
+  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -81,6 +82,7 @@ import {
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
@@ -257,8 +259,14 @@ function copy(event) {
   }
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 function paste(event) {
   if (isInputSelected()) return
+
+  const isMiddleClick = inputSourceQuery().find((e) => getComponent(e, InputSourceComponent).buttons.AuxiliaryClick)
+  if (isMiddleClick) return
+
   event.preventDefault()
 
   let data
@@ -425,7 +433,8 @@ const execute = () => {
       inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
     }
   }
-  const cursorPosition = Engine.instance.pointerState.position
+  const pointerState = getState(InputState).pointerState
+  const cursorPosition = pointerState.position
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
@@ -678,13 +687,13 @@ const execute = () => {
   if (buttons.Delete?.down) onDelete()
 
   const selecting = buttons.PrimaryClick?.pressed && !dragging
-  const zoom = Engine.instance.pointerState.scroll.y
+  const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
 
   if (selecting) {
     const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.isOrbiting.set(true)
-    const mouseMovement = Engine.instance.pointerState.movement
+    const mouseMovement = pointerState.movement
     if (mouseMovement) {
       editorCameraState.cursorDeltaX.set(mouseMovement.x)
       editorCameraState.cursorDeltaY.set(mouseMovement.y)
@@ -692,7 +701,7 @@ const execute = () => {
   } else if (panning) {
     const editorCameraState = getMutableState(EditorCameraState)
     editorCameraState.isPanning.set(true)
-    const mouseMovement = Engine.instance.pointerState.movement
+    const mouseMovement = pointerState.movement
     if (mouseMovement) {
       editorCameraState.cursorDeltaX.set(mouseMovement.x)
       editorCameraState.cursorDeltaY.set(mouseMovement.y)

@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { ChannelID } from '../social/channel.schema'
 import { locationSchema } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
 
