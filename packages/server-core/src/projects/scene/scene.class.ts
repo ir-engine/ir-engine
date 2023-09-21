@@ -169,7 +169,7 @@ export class SceneService
       }
     }
 
-    return { project: project!, scene: newSceneName } as SceneMetadataCreate
+    return { project: project!, name: newSceneName } as SceneMetadataCreate
   }
 
   async patch(id: NullableId, data: ScenePatch, params?: Params) {

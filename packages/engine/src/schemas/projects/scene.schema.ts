@@ -107,7 +107,7 @@ export type SceneCreateData = Static<typeof sceneCreateDataSchema>
 // Schema for new created entries
 export const sceneMetadataCreateSchema = Type.Object(
   {
-    scene: Type.String(),
+    name: Type.String(),
     project: Type.String()
   },
   {
