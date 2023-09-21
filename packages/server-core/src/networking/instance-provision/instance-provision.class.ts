@@ -186,6 +186,11 @@ export async function checkForDuplicatedAssignments({
     roomCode: '',
     currentUsers: 0
   })) as InstanceType
+  await new Promise((resolve) =>
+    setTimeout(() => {
+      resolve(null)
+    }, 100)
+  )
   //Check to see if there are any other non-ended instances assigned to this IP
   const duplicateIPAssignment: any = await app.service(instancePath).find({
     query: {
@@ -213,7 +218,10 @@ export async function checkForDuplicatedAssignments({
     //Iterate through all of the assignments to this IP address. If this one is later than any other one,
     //then this one needs to find a different IS
     for (const instance of duplicateIPAssignment.data) {
-      if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
+      if (
+        instance.id !== assignResult.id &&
+        new Date(instance.assignedAt).getTime() < new Date(assignResult.assignedAt).getTime()
+      ) {
         isFirstAssignment = false
         break
       }
@@ -221,7 +229,10 @@ export async function checkForDuplicatedAssignments({
       //If this instance was made at the exact same time as another, then randomly decide which one is removed
       //by converting their IDs to integers via base 16 and pick the 'larger' one. This is arbitrary, but
       //otherwise this process can get stuck if two provisions are occurring in lockstep.
-      if (instance.id !== assignResult.id && instance.assignedAt.getTime() === assignResult.assignedAt.getTime()) {
+      if (
+        instance.id !== assignResult.id &&
+        new Date(instance.assignedAt).getTime() === new Date(assignResult.assignedAt).getTime()
+      ) {
         const integerizedInstanceId = parseInt(instance.id.replace(/-/g, ''), 16)
         const integerizedAssignResultId = parseInt(instance.id.replace(/-/g, ''), 16)
         if (integerizedAssignResultId < integerizedInstanceId) {
@@ -234,7 +245,6 @@ export async function checkForDuplicatedAssignments({
       //If this is not the first assignment to this IP, remove the assigned instance row
       await app.service(instancePath)._remove(assignResult.id)
       //If this is the 10th or more attempt to get a free instanceserver, then there probably aren't any free ones,
-      //
       if (iteration < 10) {
         return getFreeInstanceserver({ app, iteration: iteration + 1, locationId, channelId, roomCode, userId })
       } else {
@@ -259,7 +269,10 @@ export async function checkForDuplicatedAssignments({
     //Iterate through all of the assignments for this location/channel. If this one is later than any other one,
     //then this one needs to find a different IS
     for (const instance of duplicateLocationAssignment.data) {
-      if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
+      if (
+        instance.id !== assignResult.id &&
+        new Date(instance.assignedAt).getTime() < new Date(assignResult.assignedAt).getTime()
+      ) {
         isFirstAssignment = false
         const ipSplit = instance.ipAddress.split(':')
         earlierInstance = {
@@ -275,9 +288,12 @@ export async function checkForDuplicatedAssignments({
       //If this instance was made at the exact same time as another, then randomly decide which one is removed
       //by converting their IDs to integers via base 16 and pick the 'larger' one. This is arbitrary, but
       //otherwise this process can get stuck if two provisions are occurring in lockstep.
-      if (instance.id !== assignResult.id && instance.assignedAt.getTime() === assignResult.assignedAt.getTime()) {
+      if (
+        instance.id !== assignResult.id &&
+        new Date(instance.assignedAt).getTime() === new Date(assignResult.assignedAt).getTime()
+      ) {
         const integerizedInstanceId = parseInt(instance.id.replace(/-/g, ''), 16)
-        const integerizedAssignResultId = parseInt(instance.id.replace(/-/g, ''), 16)
+        const integerizedAssignResultId = parseInt(assignResult.id.replace(/-/g, ''), 16)
         if (integerizedAssignResultId < integerizedInstanceId) {
           isFirstAssignment = false
           const ipSplit = instance.ipAddress.split(':')
@@ -573,7 +589,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
           instance = instances.length > 0 ? instances[0] : null
         }
 
-        if ((roomCode && (instance == null || instance.ended === true)) || createPrivateRoom)
+        if ((roomCode && (instance == null || instance.ended)) || createPrivateRoom)
           return getFreeInstanceserver({ app: this.app, iteration: 0, locationId, roomCode, userId, createPrivateRoom })
 
         let isCleanup
@@ -696,11 +712,10 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         })) as any as InstanceAuthorizedUserType[]
 
         for (const instance of availableLocationInstances) {
-          const location = locations.find((location) => location.id === instance.locationId)
-          instance.location = location
+          instance.location = locations.find((location) => location.id === instance.locationId)
 
-          const authorizedUsers = instanceAuthorizedUsers.find((user) => user.instanceId === instance.id) || []
-          instance.instance_authorized_users = authorizedUsers
+          instance.instance_authorized_users =
+            instanceAuthorizedUsers.find((user) => user.instanceId === instance.id) || []
         }
 
         const allowedLocationInstances = availableLocationInstances.filter(
