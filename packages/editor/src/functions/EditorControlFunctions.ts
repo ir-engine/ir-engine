@@ -75,7 +75,6 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { SelectionAction, SelectionState } from '../services/SelectionServices'
-import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
 import { getSpaceMatrix } from './getSpaceMatrix'
@@ -85,8 +84,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   component: C,
   add: boolean
 ) => {
-  cancelGrabOrPlacement()
-
   for (let i = 0; i < nodes.length; i++) {
     const entity = nodes[i]
     if (typeof entity === 'string') continue
@@ -106,8 +103,6 @@ const modifyProperty = <C extends Component<any, any>>(
   component: C,
   properties: Partial<SerializedComponentType<C>>
 ) => {
-  cancelGrabOrPlacement()
-
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node === 'string') continue
@@ -187,8 +182,6 @@ const createObjectFromSceneElement = (
   beforeEntity = null as Entity | null,
   updateSelection = true
 ) => {
-  cancelGrabOrPlacement()
-
   const newEntity = createEntity()
   let childIndex = undefined as undefined | number
   if (beforeEntity) {
@@ -216,8 +209,6 @@ const createObjectFromSceneElement = (
  * @todo copying an object should be rooted to which object is currently selected
  */
 const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
-  cancelGrabOrPlacement()
-
   const parents = [] as EntityOrObjectUUID[]
 
   for (const o of nodes) {
@@ -485,8 +476,6 @@ const reparentObject = (
   parent = getState(SceneState).sceneEntity,
   updateSelection = true
 ) => {
-  cancelGrabOrPlacement()
-
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') {
@@ -521,8 +510,6 @@ const groupObjects = (
   befores: EntityOrObjectUUID[] = [],
   updateSelection = true
 ) => {
-  cancelGrabOrPlacement()
-
   const groupNode = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, null, null, false)
 
   EditorControlFunctions.reparentObject(nodes, null, groupNode, false)
@@ -533,8 +520,6 @@ const groupObjects = (
 }
 
 const removeObject = (nodes: EntityOrObjectUUID[]) => {
-  cancelGrabOrPlacement()
-
   /** we have to manually set this here or it will cause react errors when entities are removed */
   getMutableState(SelectionState).selectedEntities.set([])
 

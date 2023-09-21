@@ -79,8 +79,6 @@
       "rotateRight": "Rotate Right",
       "cancelPlacement": "Cancel Placement",
       "placeDuplicate": "Place Duplicate",
-      "cancelGrab": "Cancel Grab",
-      "grab": "Grab",
       "deselectAll": "Deselect All"
     },
     "state": {

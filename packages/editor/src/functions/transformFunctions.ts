@@ -36,31 +36,6 @@ import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
 
 export const setTransformMode = (mode: TransformModeType): void => {
-  /*if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
-    let stop = false
-    const selectedEntities = getState(SelectionState).selectedEntities
-
-    // Dont allow grabbing / placing objects with transform disabled.
-    for (const entity of selectedEntities) {
-      const isUuid = typeof entity === 'string'
-      const node = isUuid ? Engine.instance.scene.getObjectByProperty('uuid', entity) : entity
-
-      if (!isUuid && node) {
-        traverseEntityNode(node as Entity, (child) => {
-          if (!hasComponent(child, TransformComponent)) stop = true
-        })
-      }
-
-      if (stop) return
-    }
-  }
-
-  if (mode !== TransformMode.Placement && mode !== TransformMode.Grab) {
-    dispatchAction(EditorHelperAction.changeTransformModeOnCancel({ mode }))
-  }
-
-  // EditorHistory.grabCheckPoint = undefined*/
-
   dispatchAction(EditorHelperAction.changedTransformMode({ mode }))
 }
 

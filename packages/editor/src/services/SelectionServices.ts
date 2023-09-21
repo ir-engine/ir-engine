@@ -35,7 +35,6 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { SelectTagComponent } from '@etherealengine/engine/src/scene/components/SelectTagComponent'
 import { defineAction, defineActionQueue, defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
 
 const transformProps = ['position', 'rotation', 'scale', 'matrix']
@@ -94,7 +93,6 @@ const forceUpdateQueue = defineActionQueue(SelectionAction.forceUpdate.matches)
 const execute = () => {
   const selectionState = getMutableState(SelectionState)
   for (const action of updateSelectionQueue()) {
-    cancelGrabOrPlacement()
     /** update SelectTagComponent to only newly selected entities */
     for (const entity of action.selectedEntities.concat(...selectionState.selectedEntities.value)) {
       if (typeof entity === 'number' && entityExists(entity)) {

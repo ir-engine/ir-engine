@@ -69,20 +69,8 @@ export function ControlText() {
       ' | [E] ' +
       t('editor:viewport.command.rotateRight')
   }
-
-  /*if (editorHelperState.transformMode.value === TransformMode.Placement) {
-    controlsText += ' | [ESC / G] ' + t('editor:viewport.command.cancelPlacement')
-  } else if (editorHelperState.transformMode.value === TransformMode.Grab) {
-    controlsText +=
-      ' | [Shift + Click] ' +
-      t('editor:viewport.command.placeDuplicate') +
-      ' | [ESC / G] ' +
-      t('editor:viewport.command.cancelGrab')*/
-
   if (objectSelected) {
-    controlsText +=
-      '| [G] ' + t('editor:viewport.command.grab') + ' | [ESC] ' + t('editor:viewport.command.deselectAll')
+    controlsText += ' | [ESC] ' + t('editor:viewport.command.deselectAll')
   }
-
   return <div className={styles.controlsText}>{controlsText}</div>
 }

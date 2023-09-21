@@ -62,7 +62,6 @@ import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
-import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import isInputSelected from '../functions/isInputSelected'
 import {
   setTransformMode,
@@ -105,7 +104,7 @@ const onKeyQ = () => {
     nodes,
     V_010,
     editorHelperState.rotationSnap * MathUtils.DEG2RAD,
-    //gizmoTransform.position
+    gizmoTransform.position
   )*/
 }
 
@@ -120,21 +119,9 @@ const onKeyE = () => {
     gizmoTransform.position
   )*/
 }
-
-const onKeyG = () => {
-  /*if (transformMode === TransformMode.Grab || transformMode === TransformMode.Placement) {
-    cancelGrabOrPlacement()
-    EditorControlFunctions.replaceSelection([])
-  }
-  if (selectedEntities.length > 0) {
-  }*/
-}
-
 const onEscape = () => {
-  cancelGrabOrPlacement()
   EditorControlFunctions.replaceSelection([])
 }
-
 const onKeyF = () => {
   const editorCameraState = getMutableState(EditorCameraState)
   const selectedEntities = getMutableState(SelectionState).selectedEntities.value
@@ -294,6 +281,7 @@ const execute = () => {
   if (Engine.instance.localClientEntity) return // we are in live mode
 
   const editorHelperState = getState(EditorHelperState)
+  const selectionState = getMutableState(SelectionState)
   const pointerState = getState(InputState).pointerState
   const cursorPosition = pointerState.position
 
@@ -307,8 +295,6 @@ const execute = () => {
 
   if (buttons.KeyQ?.down) onKeyQ()
   if (buttons.KeyE?.down) onKeyE()
-  if (buttons.KeyG?.down) onKeyG()
-  if (buttons.Escape?.down) onEscape()
   if (buttons.KeyF?.down) onKeyF()
   if (buttons.KeyT?.down) onKeyT()
   if (buttons.KeyR?.down) onKeyR()
@@ -319,9 +305,9 @@ const execute = () => {
   if (buttons.Equal?.down) onEqual()
   if (buttons.Minus?.down) onMinus()
   if (buttons.Delete?.down) onDelete()
-  const selectedEntities = getMutableState(SelectionState).selectedEntities
-  if (selectedEntities) {
-    const lastSelection = selectedEntities[selectedEntities.length - 1]
+
+  if (selectionState.selectedEntities) {
+    const lastSelection = selectionState.selectedEntities[selectionState.selectedEntities.length - 1]
     if (hasComponent(lastSelection.value as Entity, TransformGizmoComponent))
       dragging = getComponent(lastSelection.value as Entity, TransformGizmoComponent).dragging
   }
