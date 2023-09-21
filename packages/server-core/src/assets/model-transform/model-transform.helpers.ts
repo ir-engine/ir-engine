@@ -577,7 +577,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
   let result
   if (parms.modelFormat === 'glb') {
-    const data = await io.writeBinary(document)
+    const data = Buffer.from(await io.writeBinary(document))
     const [savePath, fileName] = fileUploadPath(args.dst)
     result = await app.service(fileBrowserPath).patch(null, {
       path: savePath,
