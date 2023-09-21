@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Euler, Vector3 } from 'three'
+import type { Quaternion, Vector3 } from 'three'
 
 export type PortalDetail = {
   sceneName: string
@@ -31,5 +31,5 @@ export type PortalDetail = {
   portalEntityName: string
   previewImageURL: string
   spawnPosition: Vector3
-  spawnRotation: Euler
+  spawnRotation: Quaternion
 }
