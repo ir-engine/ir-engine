@@ -61,6 +61,7 @@ export const TransformGizmoComponent = defineComponent({
   },
   onRemove: (entity, component) => {
     component.value.detach()
+    component.value.dispose()
     removeObjectFromGroup(entity, component.value)
   },
   reactor: function (props) {
