@@ -64,7 +64,7 @@ import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functi
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { RouterService } from '../../common/services/RouterService'
+import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { startClientSystems } from '../../world/startClientSystems'
@@ -195,7 +195,7 @@ export const usePortalTeleport = () => {
         return
       }
 
-      RouterService.navigate('/location/' + activePortal.location)
+      RouterState.navigate('/location/' + activePortal.location)
       LocationService.getLocationByName(activePortal.location)
 
       // shut down connection with existing world instance server

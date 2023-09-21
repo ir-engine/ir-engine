@@ -23,21 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import {
-  addActionReceptor,
-  dispatchAction,
-  getMutableState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
 import { useTranslation } from 'react-i18next'
-import { AppAction, AppServiceReceptor, AppState } from '../../common/services/AppService'
+import { AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'
 
 export const Shelves = () => {
@@ -47,19 +41,12 @@ export const Shelves = () => {
   const showTopShelf = appState.showTopShelf.value
   const showBottomShelf = appState.showBottomShelf.value
 
-  useEffect(() => {
-    addActionReceptor(AppServiceReceptor)
-    return () => {
-      removeActionReceptor(AppServiceReceptor)
-    }
-  }, [])
-
   const handleShowMediaIcons = () => {
-    dispatchAction(AppAction.showTopShelf({ show: !appState.showTopShelf.value }))
+    appState.showTopShelf.set((prevValue) => !prevValue)
   }
 
   const handleShowBottomIcons = () => {
-    dispatchAction(AppAction.showBottomShelf({ show: !appState.showBottomShelf.value }))
+    appState.showBottomShelf.set((prevValue) => !prevValue)
   }
 
   return (
