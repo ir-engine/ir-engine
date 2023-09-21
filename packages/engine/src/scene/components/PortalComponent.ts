@@ -233,7 +233,6 @@ export const PortalComponent = defineComponent({
       if (linkedPortalExists) {
         /** Portal is in the scene already */
         const portalDetails = getComponent(linkedPortalExists, PortalComponent)
-        // console.log({portalDetails})
         if (portalDetails) applyPortalDetails(portalDetails)
       } else {
         /** Portal is not in the scene yet */
