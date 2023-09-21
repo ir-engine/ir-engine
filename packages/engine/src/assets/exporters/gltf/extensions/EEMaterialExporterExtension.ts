@@ -27,10 +27,32 @@ import { CubeTexture, Material, Texture } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { materialToDefaultArgs } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import matches from 'ts-matches'
 import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+import { materialToDefaultArgs } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
+
+export type OldEEMaterialExtensionType = {
+  uuid: string
+  name: string
+  prototype: string
+  args: {
+    [field: string]: any
+  }
+}
+
+export function isOldEEMaterial(extension: any) {
+  const argValues = Object.values(extension.args)
+  return !matches
+    .arrayOf(
+      matches.shape({
+        type: matches.string,
+        contents: matches.any
+      })
+    )
+    .test(argValues)
+}
 
 export type EEMaterialExtensionType = {
   uuid: string

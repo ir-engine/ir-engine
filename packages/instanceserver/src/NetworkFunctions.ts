@@ -38,8 +38,7 @@ import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig } from '@etherealengine/server-core/src/config'
@@ -303,25 +302,6 @@ const getUserSpawnFromInvite = async (
       }
     }
   }
-}
-
-export const handleIncomingActions = (network: SocketWebRTCServerNetwork, peerID: PeerID) => (message) => {
-  const networkPeer = network.peers[peerID]
-  if (!networkPeer) return
-
-  networkPeer.lastSeenTs = Date.now()
-  if (!message?.length) {
-    // logger.info('Got heartbeat from ' + peerID + ' at ' + Date.now())
-    return
-  }
-
-  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
-  for (const a of actions) {
-    a.$from = networkPeer.userId
-    a.$network = network.id
-    dispatchAction(a)
-  }
-  // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerID: PeerID): Promise<any> {

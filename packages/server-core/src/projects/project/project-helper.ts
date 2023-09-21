@@ -1393,12 +1393,14 @@ export const updateProject = async (
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
-    return (await app.service(projectPath).find({
-      query: {
-        name: 'default-project',
-        $limit: 1
-      }
-    })) as Paginated<ProjectType>
+    return (
+      (await app.service(projectPath).find({
+        query: {
+          name: 'default-project',
+          $limit: 1
+        }
+      })) as Paginated<ProjectType>
+    ).data[0]
   }
 
   const urlParts = data.sourceURL.split('/')
