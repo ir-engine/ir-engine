@@ -23,39 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params, ServiceMethods } from '@feathersjs/feathers'
+import authenticate from '../../hooks/authenticate'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { Application } from '../../../declarations'
+export default {
+  before: {
+    all: [authenticate()],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Data {}
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ServiceOptions {}
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
 
-export class ProjectSetting implements ServiceMethods<Data> {
-  app: Application
-  options: ServiceOptions
-
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
-    this.app = app
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
   }
-
-  async find(params?: Params) {
-    const result = await this.app.service(projectPath).find(params)
-    return result?.data[0]?.settings ? result.data[0].settings : []
-  }
-
-  async patch(): Promise<any> {}
-
-  async setup(): Promise<any> {}
-
-  async get(): Promise<any> {}
-
-  async create(): Promise<any> {}
-
-  async remove(): Promise<any> {}
-
-  async update(): Promise<any> {}
-}
+} as any

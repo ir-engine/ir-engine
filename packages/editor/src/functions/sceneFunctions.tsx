@@ -28,7 +28,7 @@ import i18n from 'i18next'
 import { API } from '@etherealengine/client-core/src/API'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })

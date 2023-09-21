@@ -24,22 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, Vector3 } from 'three'
+import { Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { Tween } from '@tweenjs/tween.js'
-import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { TweenComponent } from '../../transform/components/TweenComponent'
 import { RendererState } from '../RendererState'
 import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 
@@ -59,7 +50,6 @@ export const HighlightComponent = defineComponent({
         object.traverse((obj) => {
           if (obj.type !== 'Mesh') return
           addToSelection(obj as Mesh)
-          animateScale(entity, obj as Mesh, true)
         })
       }
       return () => {
@@ -67,7 +57,6 @@ export const HighlightComponent = defineComponent({
           object.traverse((obj) => {
             if (obj.type !== 'Mesh') return
             removeFromSelection(obj as Mesh)
-            animateScale(entity, obj as Mesh, false)
           })
         }
       }
@@ -76,30 +65,6 @@ export const HighlightComponent = defineComponent({
     return null
   }
 })
-
-const animateScale = (entity: Entity, obj: Mesh, grow: boolean) => {
-  const highlight = { scaler: 0 }
-  const tween = getComponent(entity, TweenComponent)
-  setComponent(
-    entity,
-    TweenComponent,
-    new Tween<any>(highlight)
-      .to(
-        {
-          scaler: 1
-        },
-        300
-      )
-      .onUpdate(() => {
-        const v = grow ? new Vector3(1.05, 1.05, 1.05) : new Vector3(1, 1, 1)
-        obj.scale.lerp(v, highlight.scaler)
-      })
-      .start()
-      .onComplete(() => {
-        removeComponent(entity, TweenComponent)
-      })
-  )
-}
 
 const addToSelection = (obj: Mesh) => {
   if (!EngineRenderer.instance.effectComposer?.HighlightEffect) return

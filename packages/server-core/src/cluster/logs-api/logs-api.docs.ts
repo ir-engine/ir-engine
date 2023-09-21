@@ -23,42 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
-
-export default {
-  before: {
-    all: [],
-    find: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)], // TODO: project based scopes #5613
-    get: [disallow()],
-    create: [disallow()],
-    update: [disallow()],
-    patch: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('editor', 'write') as any)
-    ],
-    remove: [disallow()]
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Logs api service description',
+    securities: ['all']
   }
-} as any
+})

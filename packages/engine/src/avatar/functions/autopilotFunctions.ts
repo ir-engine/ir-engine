@@ -34,6 +34,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { InputState } from '../../input/state/InputState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -62,9 +63,11 @@ export const autopilotSetPosition = (entity: Entity) => {
 
   const { physicsWorld } = getState(PhysicsState)
 
+  const pointerState = getState(InputState).pointerState
+
   const castedRay = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    Engine.instance.pointerState.position,
+    pointerState.position,
     physicsWorld,
     autopilotRaycastArgs
   )

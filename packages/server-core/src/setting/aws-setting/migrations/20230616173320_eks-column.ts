@@ -39,8 +39,8 @@ export async function up(knex: Knex): Promise<void> {
     })
     await knex.table(awsSettingPath).update({
       eks: JSON.stringify({
-        accessKeyId: process.env.EKS_AWS_ACCESS_KEY || process.env.AWS_ACCESS_KEY,
-        secretAccessKey: process.env.EKS_AWS_SECRET || process.env.AWS_SECRET
+        accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID || process.env.EKS_AWS_ACCESS_KEY || process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET || process.env.EKS_AWS_SECRET || process.env.AWS_SECRET
       })
     })
   }

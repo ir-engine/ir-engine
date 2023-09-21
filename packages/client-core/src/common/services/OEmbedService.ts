@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 

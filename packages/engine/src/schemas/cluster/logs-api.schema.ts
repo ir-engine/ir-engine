@@ -23,17 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/client'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { API } from '../../API'
+export const logsApiPath = 'logs-api'
 
-//Service
-export const InstanceService = {
-  checkRoom: async (roomCode: string) => {
-    const { data } = (await API.instance.client
-      .service(instancePath)
-      .find({ query: { roomCode, ended: false, locationId: { $ne: undefined } } })) as Paginated<InstanceType>
-    return data[0] as InstanceType
-  }
-}
+export const logsApiMethods = ['create'] as const

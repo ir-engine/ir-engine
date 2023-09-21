@@ -23,6 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import apiLog from './api-log.service'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve, virtual } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export default [apiLog]
+import { ChannelID, ChannelQuery, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+
+export const channelResolver = resolve<ChannelType, HookContext>({
+  createdAt: virtual(async (channel) => fromDateTimeSql(channel.createdAt)),
+  updatedAt: virtual(async (channel) => fromDateTimeSql(channel.updatedAt))
+})
+
+export const channelExternalResolver = resolve<ChannelType, HookContext>({})
+
+export const channelDataResolver = resolve<ChannelType, HookContext>({
+  id: async () => {
+    return v4() as ChannelID
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const channelPatchResolver = resolve<ChannelType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const channelQueryResolver = resolve<ChannelQuery, HookContext>({})
