@@ -43,10 +43,13 @@ import { NameComponent } from '@etherealengine/engine/src/scene/components/NameC
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { Matrix4, Object3D } from 'three'
 import { EditorHelperState } from '../services/EditorHelperState'
 //import { setDragging } from '../systems/EditorControlSystem'
 
@@ -102,6 +105,13 @@ export const TransformGizmoComponent = defineComponent({
       return () => {
         removeObjectFromGroup(entity, dummy)
         removeEntity(dummyEntity)
+        const matrix = new Matrix4()
+        const parentTransform = getComponent(localTransform.parentEntity, TransformComponent)
+        const entityTransform = getComponent(entity, TransformComponent)
+
+        const localMatrix = matrix.copy(entityTransform.matrix).premultiply(parentTransform.matrixInverse)
+        localMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+
         if (localTransform) setComponent(entity, LocalTransformComponent, localTransform) // add it back in
       }
     }, [])
