@@ -29,7 +29,6 @@ import { Validator, matches } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import {
   removeSceneEntitiesFromOldJSON,
   updateSceneEntitiesFromJSON,
@@ -112,13 +111,14 @@ const applyCurrentSnapshot = () => {
     removeSceneEntitiesFromOldJSON()
     updateSceneEntity(snapshot.data.scene.root, snapshot.data.scene.entities[snapshot.data.scene.root])
     updateSceneEntitiesFromJSON(snapshot.data.scene.root)
+    dispatchAction(SelectionAction.changedSceneGraph({}))
   }
-  if (snapshot.selectedEntities)
-    dispatchAction(
-      SelectionAction.updateSelection({
-        selectedEntities: snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid)
-      })
-    )
+  // if (snapshot.selectedEntities)
+  //   dispatchAction(
+  //     SelectionAction.updateSelection({
+  //       selectedEntities: snapshot.selectedEntities.map((uuid) => UUIDComponent.entitiesByUUID[uuid] ?? uuid)
+  //     })
+  //   )
 }
 
 const undoQueue = defineActionQueue(EditorHistoryAction.undo.matches)

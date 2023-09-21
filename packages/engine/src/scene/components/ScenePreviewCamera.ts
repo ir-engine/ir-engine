@@ -50,13 +50,6 @@ export const ScenePreviewCameraComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component) => {
-    const transform = getComponent(entity, TransformComponent)
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    cameraTransform.position.copy(transform.position)
-    cameraTransform.rotation.copy(transform.rotation)
-  },
-
   onRemove: (entity, component) => {
     component.camera.value.removeFromParent()
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
@@ -73,6 +66,10 @@ export const ScenePreviewCameraComponent = defineComponent({
 
     useEffect(() => {
       addObjectToGroup(entity, camera.camera.value)
+      const transform = getComponent(entity, TransformComponent)
+      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      cameraTransform.position.copy(transform.position)
+      cameraTransform.rotation.copy(transform.rotation)
     }, [])
 
     useEffect(() => {

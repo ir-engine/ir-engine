@@ -42,7 +42,6 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
-  addEntityNodeChild,
   EntityOrObjectUUID,
   EntityTreeComponent,
   getEntityNodeArrayFromEntities,
@@ -51,14 +50,9 @@ import {
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
-import {
-  createNewEditorNode,
-  deserializeSceneEntity
-} from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
+import { createNewEditorNode } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
@@ -74,7 +68,7 @@ import { NameComponent } from '@etherealengine/engine/src/scene/components/NameC
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { EditorHistoryAction, EditorHistoryState } from '../services/EditorHistory'
-import { SelectionState } from '../services/SelectionServices'
+import { SelectionAction, SelectionState } from '../services/SelectionServices'
 import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
@@ -257,41 +251,46 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
     }
   }
 
-  const sceneData = nodes.map((obj) => {
-    const data = null!
-    if (typeof obj === 'number') {
-      return serializeWorld(obj)
-    }
-    return data
-  })
+  const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
 
   const rootObjects = getDetachedObjectsRoots(nodes)
 
-  const copyMap = {} as { [eid: EntityOrObjectUUID]: EntityOrObjectUUID }
-  const newEntities = [] as Entity[]
+  const copyMap = {} as { [entityUUID: EntityUUID | string]: EntityUUID | string }
 
-  // @todo insert children order
   for (let i = 0; i < rootObjects.length; i++) {
     const object = rootObjects[i]
     if (typeof object !== 'string') {
-      const data = sceneData[i] ?? sceneData[0]
-
       traverseEntityNode(object, (entity) => {
-        const node = getComponent(entity, EntityTreeComponent)
-        if (!node.parentEntity) return
-        const nodeUUID = getComponent(entity, UUIDComponent)
-        if (!data.entities[nodeUUID]) return
-        const newEntity = createEntity()
-        const parentEntity = (copyMap[node.parentEntity] as Entity) ?? node.parentEntity
-        setComponent(newEntity, SceneObjectComponent)
-        setComponent(newEntity, EntityTreeComponent, {
-          parentEntity,
-          uuid: MathUtils.generateUUID() as EntityUUID
-        })
-        addEntityNodeChild(newEntity, parentEntity)
-        deserializeSceneEntity(newEntity, data.entities[nodeUUID])
-        copyMap[entity] = newEntity
-        newEntities.push(newEntity)
+        const entityUUID = getComponent(entity, UUIDComponent)
+        const entityData = newSnapshot.data.scene.entities[entityUUID]
+        if (!entityData) return /** @todo entity may be loaded in via GLTF **/
+
+        const entityDataClone = JSON.parse(JSON.stringify(entityData))
+        const newUUID = MathUtils.generateUUID() as EntityUUID
+        copyMap[entityUUID] = newUUID
+
+        const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity!
+        const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
+
+        if (copyMap[parentEntityUUID]) {
+          entityDataClone.parent = copyMap[parentEntityUUID]
+        }
+
+        newSnapshot.data.scene.entities[newUUID] = entityDataClone
+
+        if (object === entity) {
+          /** update index of parent with new entity */
+          const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
+          const index = parentEntityTreeComponent.children.indexOf(entity)
+          if (index) {
+            for (const [entityUUID, data] of Object.entries(newSnapshot.data.scene.entities)) {
+              if (typeof data.index !== 'number') continue
+              if (data.parent === parentEntityUUID) {
+                if (data.index > index) data.index++
+              }
+            }
+          }
+        }
       })
     } else {
       // @todo check this is implemented correctly
@@ -306,13 +305,6 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
       newObject.parent = copyMap[parent] ? obj3dFromUuid(copyMap[parent] as string) : pObj3d
     }
   }
-
-  for (const entity of newEntities) removeEntity(entity)
-
-  EditorControlFunctions.replaceSelection(Object.values(copyMap))
-
-  const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
-  /** @todo add serialized data here */
 
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
@@ -520,6 +512,7 @@ const reparentObject = (
 ) => {
   cancelGrabOrPlacement()
 
+  console.log(EditorHistoryState.cloneCurrentSnapshot().data.scene.entities)
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
 
   for (let i = 0; i < nodes.length; i++) {
@@ -529,31 +522,32 @@ const reparentObject = (
 
       const currentParentEntity = getComponent(node, EntityTreeComponent).parentEntity!
       const currentParentEntityUUID = getComponent(currentParentEntity, UUIDComponent)
+      const parentEntityTreeComponent = getComponent(currentParentEntity, EntityTreeComponent)
+      const currentIndex = parentEntityTreeComponent.children.indexOf(node)
+
+      const newParentEntityTreeComponent = getComponent(parent, EntityTreeComponent)
+      const newIndex = before ? newParentEntityTreeComponent.children.indexOf(before as Entity) : 0
 
       const entityData = newSnapshot.data.scene.entities[getComponent(node, UUIDComponent)]
       entityData.parent = getComponent(parent, UUIDComponent)
+      entityData.index = newIndex
 
-      const parentEntityTreeComponent = getComponent(parent, EntityTreeComponent)
-      const index = before ? parentEntityTreeComponent.children.indexOf(before as Entity) : undefined
+      for (const [entityUUID, data] of Object.entries(newSnapshot.data.scene.entities)) {
+        if (typeof data.index !== 'number') continue
+        if (entityUUID === getComponent(node, UUIDComponent)) continue
 
-      if (index) {
-        for (const [entityUUID, data] of Object.entries(newSnapshot.data.scene.entities)) {
-          if (typeof data.index !== 'number') continue
-          if (entityUUID === getComponent(node, UUIDComponent)) continue
+        /** update indexes for old sibling entities */
+        if (data.parent === currentParentEntityUUID) {
+          if (data.index > currentIndex) data.index--
+        }
 
-          if (data.parent === currentParentEntityUUID) {
-            if (data.index > index) {
-              data.index--
-            }
-          } else if (data.parent === getComponent(parent, UUIDComponent)) {
-            if (index > data.index) continue
-            data.index++
+        /** update indexes for new sibling entities */
+        if (newIndex) {
+          if (data.parent === getComponent(parent, UUIDComponent)) {
+            if (data.index >= newIndex) data.index++
           }
         }
       }
-
-      /** @todo - is this needed? */
-      // reparentObject3D(node, parent as Entity, before as Entity)
     } else {
       const _parent = typeof parent === 'string' ? obj3dFromUuid(parent) : getComponent(parent, GroupComponent)[0]
 
@@ -569,6 +563,8 @@ const reparentObject = (
     EditorControlFunctions.replaceSelection(nodes)
   }
 
+  console.log(newSnapshot.data.scene.entities)
+
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
@@ -581,6 +577,7 @@ const groupObjects = (nodes: EntityOrObjectUUID[]) => {
   const parentEntity = getState(SceneState).sceneEntity
   const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
   const childIndex = parentEntityTreeComponent.children.length
+  const parentEntityUUID = getComponent(parentEntity, UUIDComponent)
 
   const groupEntity = createEntity()
 
@@ -592,52 +589,47 @@ const groupObjects = (nodes: EntityOrObjectUUID[]) => {
     components: [
       {
         name: TransformComponent.jsonID,
-        props: {}
+        props: {} // todo figure out where the new position should be
       },
       {
-        name: VisibleComponent.jsonID
+        name: VisibleComponent.jsonID,
+        props: {}
       }
     ],
-    parent: getComponent(parentEntity, UUIDComponent),
+    parent: parentEntityUUID,
     index: childIndex
   }
 
-  // for (let i = 0; i < nodes.length; i++) {
-  //   const node = nodes[i]
-  //   if (typeof node !== 'string') {
-  //     if (node) continue
+  let count = 0
 
-  //     const currentParentEntity = getComponent(node, EntityTreeComponent).parentEntity!
-  //     const currentParentEntityUUID = getComponent(currentParentEntity, UUIDComponent)
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+    if (typeof node === 'string') continue
 
-  //     const entityData = newSnapshot.data.scene.entities[getComponent(node, UUIDComponent)]
-  //     entityData.parent = getComponent(parent, UUIDComponent)
+    const currentParentEntity = getComponent(node, EntityTreeComponent).parentEntity!
+    const currentParentEntityUUID = getComponent(currentParentEntity, UUIDComponent)
 
-  //     const parentEntityTreeComponent = getComponent(parent, EntityTreeComponent)
-  //     const index = before ? parentEntityTreeComponent.children.indexOf(before as Entity) : undefined
+    const parentEntityTreeComponent = getComponent(currentParentEntity, EntityTreeComponent)
+    const currentIndex = parentEntityTreeComponent.children.indexOf(node)
 
-  //     if (index) {
-  //       for (const [entityUUID, data] of Object.entries(newSnapshot.data.scene.entities)) {
-  //         if (typeof data.index !== 'number') continue
-  //         if (entityUUID === getComponent(node, UUIDComponent)) continue
+    const entityData = newSnapshot.data.scene.entities[getComponent(node, UUIDComponent)]
+    entityData.parent = groupEntityUUID
+    entityData.index = count++
 
-  //         if (data.parent === currentParentEntityUUID) {
-  //           if (data.index > index) {
-  //             data.index--
-  //           }
-  //         } else if (data.parent === getComponent(parent, UUIDComponent)) {
-  //           if (index > data.index) continue
-  //           data.index++
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+    for (const [entityUUID, data] of Object.entries(newSnapshot.data.scene.entities)) {
+      if (typeof data.index !== 'number') continue
+      if (entityUUID === getComponent(node, UUIDComponent)) continue
 
-  /** @todo integrate into reparentObject */
-  // if (updateSelection) {
-  //   EditorControlFunctions.replaceSelection([groupNode])
-  // }
+      /** update indexes for old sibling entities */
+      if (data.parent === currentParentEntityUUID) {
+        if (data.index > currentIndex) data.index--
+      }
+    }
+  }
+
+  newSnapshot.selectedEntities = [groupEntityUUID]
+
+  dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
 const removeObject = (nodes: EntityOrObjectUUID[]) => {
@@ -689,7 +681,12 @@ const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
+  dispatchAction(
+    SelectionAction.updateSelection({
+      selectedEntities: nodes
+    })
+  )
+  // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
 const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
@@ -714,7 +711,12 @@ const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
+  dispatchAction(
+    SelectionAction.updateSelection({
+      selectedEntities
+    })
+  )
+  // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
 const addToSelection = (nodes: EntityOrObjectUUID[]) => {
@@ -734,7 +736,12 @@ const addToSelection = (nodes: EntityOrObjectUUID[]) => {
     })
     .filter(Boolean) as EntityUUID[]
 
-  dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
+  dispatchAction(
+    SelectionAction.updateSelection({
+      selectedEntities
+    })
+  )
+  // dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
 const commitTransformSave = (entity: Entity) => {
