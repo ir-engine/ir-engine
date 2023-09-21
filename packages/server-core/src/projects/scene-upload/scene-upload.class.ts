@@ -37,11 +37,11 @@ export class SceneUploadService implements ServiceInterface<SceneUpdate, SceneCr
 
     const thumbnailBuffer = params.files.length > 0 ? (params?.files[0].buffer as Buffer) : undefined
 
-    const { projectName, sceneName, sceneData, storageProviderName } = data
+    const { project, name, sceneData, storageProviderName } = data
 
     const result = await this.app
       .service(scenePath)
-      .update(null, { sceneName, sceneData, storageProviderName, thumbnailBuffer, projectName })
+      .update(null, { name, sceneData, storageProviderName, thumbnailBuffer, project })
 
     // Clear params otherwise all the files and auth details send back to client as response
     for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]

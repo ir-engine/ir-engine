@@ -18,6 +18,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import authenticate from '../../hooks/authenticate'
+import verifyScope from '../../hooks/verify-scope'
+
 export default {
   around: {
     all: []
@@ -27,7 +30,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [authenticate(), verifyScope('editor', 'write')],
     update: [],
     patch: [],
     remove: []

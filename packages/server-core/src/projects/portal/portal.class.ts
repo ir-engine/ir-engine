@@ -23,13 +23,16 @@ import { Application } from '../../../declarations'
 import { PortalQuery, PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
 import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { Params, ServiceInterface } from '@feathersjs/feathers'
+import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import { getSceneData } from '../scene/scene-helper'
 import { parseScenePortals } from '../scene/scene-parser'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface PortalParams extends Params<PortalQuery> {}
-export class PortalService implements ServiceInterface<PortalType, PortalParams> {
+export interface PortalParams extends Params<PortalQuery> {
+  paginate?: false
+}
+
+export class PortalService implements ServiceInterface<PortalType | Paginated<PortalType>, PortalParams> {
   app: Application
 
   constructor(app: Application) {
@@ -58,8 +61,14 @@ export class PortalService implements ServiceInterface<PortalType, PortalParams>
   }
 
   async find(params?: PortalParams) {
+    let paginate = params?.paginate
+    if (params?.query?.paginate === false) {
+      paginate = false
+    }
+
     params = { ...params, query: { metadataOnly: false } }
     const scenes = (await this.app.service(sceneDataPath).find(params!)).data
-    return scenes.map((scene) => parseScenePortals(scene)).flat() as PortalType[]
+    const sceneResult = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalType[]
+    return paginate === false ? sceneResult : { data: sceneResult, total: sceneResult.length, limit: 0, skip: 0 }
   }
 }

@@ -86,7 +86,7 @@ export const deleteScene = async (projectName, sceneName): Promise<any> => {
 
 export const renameScene = async (projectName: string, newSceneName: string, oldSceneName: string): Promise<any> => {
   try {
-    await API.instance.client.service(scenePath).patch(null, { newSceneName, oldSceneName, projectName })
+    await API.instance.client.service(scenePath).patch(null, { newSceneName, oldSceneName, project: projectName })
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
@@ -127,7 +127,7 @@ export const saveScene = async (
 
 export const createNewScene = async (projectName: string) => {
   try {
-    return API.instance.client.service(scenePath).create({ projectName })
+    return API.instance.client.service(scenePath).create({ project: projectName })
   } catch (error) {
     logger.error(error, 'Error in creating project')
     throw error

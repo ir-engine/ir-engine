@@ -23,10 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { portalSchema } from '@etherealengine/engine/src/schemas/projects/portal.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
-  schemas: {},
+  schemas: { portalSchema },
   docs: {
     description: 'Portal service description',
     securities: ['all']

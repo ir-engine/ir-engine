@@ -141,9 +141,9 @@ describe('scene.test', () => {
         await app.service(scenePath).update(
           null,
           {
-            sceneName: newSceneName,
+            name: newSceneName,
             sceneData: parsedData,
-            projectName: newProjectName
+            project: newProjectName
           },
           params
         )
@@ -166,8 +166,8 @@ describe('scene.test', () => {
           null,
           {
             sceneData: _.cloneDeep(parsedData),
-            sceneName: newSceneName,
-            projectName: newProjectName
+            name: newSceneName,
+            project: newProjectName
           },
           params
         )
@@ -183,11 +183,7 @@ describe('scene.test', () => {
       it('should rename scene', async function () {
         await app
           .service(scenePath)
-          .patch(
-            null,
-            { newSceneName: newestSceneName, oldSceneName: newSceneName, projectName: newProjectName },
-            params
-          )
+          .patch(null, { newSceneName: newestSceneName, oldSceneName: newSceneName, project: newProjectName }, params)
         const sceneData = await app
           .service(scenePath)
           .get(null, { ...params, query: { project: newProjectName, name: newestSceneName, metadataOnly: false } })

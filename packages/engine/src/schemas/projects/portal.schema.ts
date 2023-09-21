@@ -48,7 +48,8 @@ export const portalQuerySchema = Type.Intersect(
     Type.Object(
       {
         metadataOnly: Type.Optional(Type.Boolean()),
-        locationName: Type.Optional(Type.String())
+        locationName: Type.Optional(Type.String()),
+        paginate: Type.Optional(Type.Boolean())
       },
       { additionalProperties: false }
     )

@@ -18,6 +18,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import authenticate from '../../hooks/authenticate'
+
 export default {
   around: {
     all: []
@@ -25,8 +27,8 @@ export default {
 
   before: {
     all: [],
-    find: [],
-    get: [],
+    find: [authenticate()],
+    get: [authenticate()],
     create: [],
     update: [],
     patch: [],

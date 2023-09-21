@@ -39,7 +39,7 @@ import Project from './project/project'
 import Projects from './projects/projects'
 import SceneData from './scene-data/scene-data'
 import SceneUpload from './scene-upload/scene-upload'
-import Scene from './scene/scene.service'
+import Scene from './scene/scene'
 
 export default [
   BuilderInfo,

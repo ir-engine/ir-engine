@@ -102,7 +102,9 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const loadPortals = async () => {
     const portalsDetail: PortalType[] = []
     try {
-      portalsDetail.push(...(await API.instance.client.service(portalPath).find()))
+      portalsDetail.push(
+        ...((await API.instance.client.service(portalPath).find({ query: { paginate: false } })) as PortalType[])
+      )
       console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent))
     } catch (error) {
       throw new Error(error)
