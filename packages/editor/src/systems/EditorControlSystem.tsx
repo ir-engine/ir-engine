@@ -375,8 +375,7 @@ const reactor = () => {
     const lastSelection = selectedEntities[selectedEntities.length - 1].value
     if (!lastSelection) return
 
-    console.log('DEBUG changed entities', lastSelection)
-    if (typeof lastSelection === 'string') return
+    if (typeof lastSelection === 'string') return // TODO : gizmo for 3d objects without Ids
 
     setComponent(lastSelection as Entity, TransformGizmoComponent)
 

@@ -38,6 +38,7 @@ import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/function
 import { useExecute } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
@@ -80,6 +81,7 @@ export const TransformGizmoComponent = defineComponent({
       dummy.name = 'gizmoProxy'
       // create dummy Entity for gizmo helper
       const dummyEntity = createEntity()
+      setComponent(dummyEntity, NameComponent, 'gizmoEntity')
       setComponent(dummyEntity, VisibleComponent)
       // set layers
       const raycaster = gizmoComponent.value.getRaycaster()
