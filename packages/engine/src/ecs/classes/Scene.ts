@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Color, MathUtils, Texture } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { XRELoader } from '../../assets/classes/XRELoader'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -39,7 +40,7 @@ import { EntityTreeComponent } from '../functions/EntityTree'
 import { Engine } from './Engine'
 
 export interface StagedScene {
-  data?: SceneData
+  data?: SceneJson
   load: boolean
   loadProgress: {
     textures: number
@@ -67,7 +68,38 @@ export const SceneState = defineState({
     }
   },
 
-  fetchScene: (projectName: string, sceneName: string) => {
+  fetchScene: (url: string) => {
+    const scene = getMutableState(SceneState).scenes[url]
+    if (!scene.value) {
+      scene.set({
+        data: undefined,
+        loadProgress: {
+          textures: 0,
+          geometries: 0,
+          rigidbodies: 0
+        },
+        load: false
+      })
+
+      const sceneLoader = new XRELoader()
+      sceneLoader.load(url, (sceneData) => {})
+      Engine.instance.api
+        .service('scene')
+        .get({ url, metadataOnly: null }, {})
+        .then((sceneData) => {
+          if (scene.value) scene.data.set(sceneData.data.scene)
+        })
+    }
+    return scene
+  },
+
+  loadScene: (url: string) => {},
+
+  unloadScene: (url: string) => {},
+
+  // @todo: deprecate the below methods; all scenes should be addressible by a url
+
+  fetchProjectScene: (projectName: string, sceneName: string) => {
     const scene = getMutableState(SceneState).scenes[projectName + '/' + sceneName]
     if (!scene.value) {
       scene.set({
@@ -83,17 +115,17 @@ export const SceneState = defineState({
         .service('scene')
         .get({ projectName, sceneName, metadataOnly: null }, {})
         .then((sceneData) => {
-          if (scene.value) scene.data.set(sceneData.data)
+          if (scene.value) scene.data.set(sceneData.data.scene)
         })
     }
     return scene
   },
 
-  loadScene: (projectName: string, sceneName: string) => {
-    SceneState.fetchScene(projectName, sceneName).load.set(true)
+  loadProjectScene: (projectName: string, sceneName: string) => {
+    SceneState.fetchProjectScene(projectName, sceneName).load.set(true)
   },
 
-  unloadScene: (projectName: string, sceneName: string) => {
+  unloadProjectScene: (projectName: string, sceneName: string) => {
     getMutableState(SceneState).scenes[projectName + '/' + sceneName].set(none)
   }
 })

@@ -29,13 +29,13 @@ import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import logger from '@etherealengine/engine/src/common/functions/logger'
 import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { State, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import React from 'react'
 import { AppLoadingAction, AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
+import logger from '../../common/functions/logger'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -44,7 +44,6 @@ import {
   ComponentJSONIDMap,
   ComponentMap,
   defineQuery,
-  getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -63,7 +62,6 @@ import { SystemDefinitions, defineSystem, disableSystems, startSystem } from '..
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroupComponent } from '../components/GroupComponent'
 import { MediaSettingsComponent } from '../components/MediaSettingsComponent'
 import { NameComponent } from '../components/NameComponent'
 import { PostProcessingComponent } from '../components/PostProcessingComponent'
@@ -369,16 +367,6 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
 export const deserializeSceneEntity = (entity: Entity, sceneEntity: EntityJson): Entity => {
   setComponent(entity, NameComponent, sceneEntity.name ?? 'entity-' + sceneEntity.index)
 
-  /** remove ECS components that are in the scene register but not in the json */
-  const componentsToRemove = getAllComponents(entity).filter(
-    (C) =>
-      C.jsonID && ComponentJSONIDMap.has(C.jsonID) && !sceneEntity.components.find((json) => C.jsonID === json.name)
-  )
-  for (const C of componentsToRemove) {
-    if (entity === getState(SceneState).sceneEntity && C === VisibleComponent) continue
-    if (C === GroupComponent || C === TransformComponent) continue
-    removeComponent(entity, C)
-  }
   for (const component of sceneEntity.components) {
     try {
       deserializeComponent(entity, component)
@@ -442,14 +430,14 @@ const reactor = () => {
     return scene.load ? scene.data.ornull?.scene.entities ?? [] : []
   })
 
-  // @todo: figure out some rules for merging entity layers accross scenes,
+  // @todo: figure out some rules for merging entity layers across scenes,
   // rather than simply overriding based on scene order
   const entityMap = Object.assign({}, ...entityMaps) as { [uuid: string]: State<EntityJson> }
 
   return (
     <>
       {Object.entries(entityMap).map(([uuid, json]) => (
-        <EntityLoadReactor uuid={uuid as EntityUUID} json={json} />
+        <EntityLoadReactor key={uuid} uuid={uuid as EntityUUID} json={json} />
       ))}
     </>
   )
@@ -458,8 +446,12 @@ const reactor = () => {
 const EntityLoadReactor = React.memo((props: { uuid: EntityUUID; json: State<EntityJson> }) => {
   const uuid = props.uuid
   const json = useHookstate(props.json)
-  if (json) {
-  }
+
+  useEffect(() => {
+    if (json) {
+      deserializeSceneEntity()
+    }
+  }, [json])
   return null
 })
 
