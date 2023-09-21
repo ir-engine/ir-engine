@@ -30,6 +30,7 @@ import { AudioState } from '../../audio/AudioState'
 import {
   defineComponent,
   getMutableComponent,
+  removeComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -48,13 +49,12 @@ export const VolumetricComponent = defineComponent({
     setComponent(entity, MediaElementComponent, {
       element: document.createElement('video') as HTMLMediaElement
     })
-    setComponent(entity, UVOL1Component)
     setComponent(entity, ShadowComponent)
     return {
       paths: [] as string[],
       paused: false,
-      ended: false,
-      playing: false,
+      ended: true,
+      initialBuffersLoaded: false,
       volume: 1,
       playMode: PlayMode.loop as PlayMode,
       track: 0
@@ -119,30 +119,52 @@ export function VolumetricReactor() {
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
   const volumetric = useComponent(entity, VolumetricComponent)
   const videoElement = getMutableComponent(entity, MediaElementComponent)
-  const uvol1 = useComponent(entity, UVOL1Component)
 
   useEffect(() => {
-    const element = videoElement.element.value
-    ;(element as HTMLVideoElement).playsInline = true
+    const element = videoElement.element.value as HTMLVideoElement
+    element.playsInline = true
+    // element.autoplay = true
     element.preload = 'auto'
     element.crossOrigin = 'anonymous'
 
     if (!AudioNodeGroups.get(element)) {
       const source = audioContext.createMediaElementSource(element)
 
-      if (audioContext.state == 'suspended') {
-        audioContext.resume()
-      }
-
+      // if (audioContext.state == 'suspended') {
+      //   audioContext.resume()
+      // }
       const audioNodes = createAudioNodeGroup(element, source, gainNodeMixBuses.soundEffects)
 
       audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
     }
+
+    element.addEventListener('ended', () => {
+      volumetric.ended.set(true)
+      volumetric.initialBuffersLoaded.set(false)
+    })
+
+    const handleAutoplay = () => {
+      if (volumetric.initialBuffersLoaded.value && !volumetric.paused.value) {
+        element.play()
+        audioContext.resume()
+        window.removeEventListener('pointerdown', handleAutoplay)
+        window.removeEventListener('keypress', handleAutoplay)
+        window.removeEventListener('touchstart', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+      }
+    }
+
+    window.addEventListener('pointerdown', handleAutoplay)
+    window.addEventListener('keypress', handleAutoplay)
+    window.addEventListener('touchstart', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
   }, [])
 
   useEffect(() => {
     const pathCount = volumetric.paths.value.length
-    if (uvol1.playing.value || pathCount === 0) return
+    if (!volumetric.ended.value || pathCount === 0) return
 
     /**
      * Find the next valid track: If the current track is invalid, try the next one.
@@ -167,9 +189,11 @@ export function VolumetricReactor() {
     }
 
     if (currentTrack === -1) {
-      console.info('DEBUG: No valid tracks found.')
+      console.info('VDEBUG: No valid tracks found.')
       return
     }
+    volumetric.ended.set(false)
+    removeComponent(entity, UVOL1Component)
 
     volumetric.track.set(currentTrack)
 
@@ -179,31 +203,17 @@ export function VolumetricReactor() {
       manifestPath = manifestPath.replace('.mp4', '.manifest')
     }
 
-    // TODO: UVOL2
     fetch(manifestPath)
       .then((response) => response.json())
       .then((json) => {
-        uvol1.track.set({
+        setComponent(entity, UVOL1Component)
+        const player = getMutableComponent(entity, UVOL1Component)
+        player.track.set({
           manifestPath: manifestPath,
           data: json
         })
-        uvol1.active.set(true)
       })
-  }, [volumetric.paths, volumetric.playMode, uvol1.playing, uvol1.ended])
-
-  useEffect(() => {
-    if (uvol1.active.value) {
-      volumetric.paused.set(uvol1.paused.value)
-      volumetric.ended.set(uvol1.ended.value)
-      volumetric.playing.set(uvol1.playing.value)
-    }
-  }, [uvol1.paused, uvol1.ended, uvol1.playing])
-
-  useEffect(() => {
-    if (uvol1.active.value) {
-      uvol1.paused.set(volumetric.paused.value)
-    }
-  }, [volumetric.paused])
+  }, [volumetric.paths, volumetric.playMode, volumetric.ended])
 
   useEffect(() => {
     const volume = volumetric.volume.value
@@ -213,28 +223,6 @@ export function VolumetricReactor() {
       audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
     }
   }, [volumetric.volume])
-
-  useEffect(() => {
-    if (uvol1.handleAutoplay.value) {
-      const element = videoElement.element.value
-      const handleAutoplay = () => {
-        console.log('DEBUG: Autoplay trigerred')
-        element.play()
-        audioContext.resume()
-        window.removeEventListener('pointerdown', handleAutoplay)
-        window.removeEventListener('keypress', handleAutoplay)
-        window.removeEventListener('touchstart', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
-      }
-
-      window.addEventListener('pointerdown', handleAutoplay)
-      window.addEventListener('keypress', handleAutoplay)
-      window.addEventListener('touchstart', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
-    }
-  }, [uvol1.handleAutoplay])
 
   return null
 }

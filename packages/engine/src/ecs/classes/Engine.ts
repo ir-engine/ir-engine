@@ -40,6 +40,7 @@ import { Group, Object3D, Scene } from 'three'
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
+import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkState } from '../../networking/NetworkState'
@@ -103,6 +104,7 @@ export class Engine {
     return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 
+  cortoLoader: CORTOLoader = null!
   gltfLoader: GLTFLoader = null!
 
   /**

@@ -83,12 +83,13 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.volumetric.name')}
       description={t('editor:properties.volumetric.description')}
     >
-      <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
+      {/* TODO: Add Loading effect */}
+      {/* <InputGroup name="useLoadingEffect" label={t('editor:properties.volumetric.lbl-useLoadingEffect')}>
         <BooleanInput
           onChange={updateProperty(VolumetricComponent, 'useLoadingEffect')}
           value={volumetricComponent.useLoadingEffect.value}
         />
-      </InputGroup>
+      </InputGroup> */}
 
       <InputGroup
         name="Auto Play"
