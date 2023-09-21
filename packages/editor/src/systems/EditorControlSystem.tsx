@@ -52,7 +52,11 @@ import { TransformMode } from '@etherealengine/engine/src/scene/constants/transf
 import { defineActionQueue, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { SceneState } from '../../../engine/src/ecs/classes/Scene'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { TransformGizmoComponent } from '../classes/TransformGizmoComponent'
@@ -72,14 +76,25 @@ import { EditorHistoryAction, EditorHistoryReceptorSystem } from '../services/Ed
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
+const createTransformGizmo = () => {
+  const gizmoEntity = createEntity()
+  setComponent(gizmoEntity, NameComponent, 'gizmoEntity')
 
+  setComponent(gizmoEntity, TransformComponent)
+
+  setComponent(gizmoEntity, TransformGizmoComponent)
+
+  setComponent(gizmoEntity, VisibleComponent)
+  return gizmoEntity
+}
+
+//const gizmoEntity = createTransformGizmo()
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
 const raycastIgnoreLayers = new Layers()
 
 const isMacOS = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 let lastZoom = 0
-let dragging = false
 const onKeyQ = () => {
   /*const nodes = getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities)
   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
@@ -169,9 +184,6 @@ const onDelete = () => {
   EditorControlFunctions.removeObject(getEntityNodeArrayFromEntities(getState(SelectionState).selectedEntities))
 }
 
-export const setDragging = (value) => {
-  dragging = value
-}
 function copy(event) {
   if (isInputSelected()) return
   event.preventDefault()
@@ -305,7 +317,11 @@ const execute = () => {
   if (buttons.Equal?.down) onEqual()
   if (buttons.Minus?.down) onMinus()
   if (buttons.Delete?.down) onDelete()
-
+  let dragging = false
+  const selectedEntities = getState(SelectionState).selectedEntities
+  if (!selectedEntities) dragging = false
+  const lastSelection = selectedEntities[selectedEntities.length - 1]
+  dragging = getComponent(lastSelection as Entity, TransformGizmoComponent).dragging
   const selecting = buttons.PrimaryClick?.pressed && !dragging
   const zoom = pointerState.scroll.y
   const panning = buttons.AuxiliaryClick?.pressed
@@ -365,7 +381,6 @@ const reactor = () => {
 
     for (const entity of getAllEntitiesInTree(sceneState.sceneEntity.value)) {
       if (!hasComponent(entity, TransformGizmoComponent)) continue
-      console.log('DEBUG removed gizmo from ', entity)
       removeComponent(entity as Entity, TransformGizmoComponent)
     }
     const lastSelection = selectedEntities[selectedEntities.length - 1].value
