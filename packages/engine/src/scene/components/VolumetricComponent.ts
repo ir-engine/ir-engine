@@ -39,7 +39,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
-import { UVOL1Component } from './UVOLComponents/UVOL1/UVOL1Component'
+import { UVOL1Component } from './UVOL1Component'
 
 export const VolumetricComponent = defineComponent({
   name: 'EE_volumetric',
@@ -54,7 +54,6 @@ export const VolumetricComponent = defineComponent({
       paths: [] as string[],
       paused: false,
       ended: true,
-      initialBuffersLoaded: false,
       volume: 1,
       playMode: PlayMode.loop as PlayMode,
       track: 0
@@ -65,6 +64,7 @@ export const VolumetricComponent = defineComponent({
     return {
       paths: component.paths.value,
       paused: component.paused.value,
+      ended: component.ended.value,
       volume: component.volume.value,
       playMode: component.playMode.value
     }
@@ -78,6 +78,10 @@ export const VolumetricComponent = defineComponent({
 
     if (typeof json.paused === 'boolean') {
       component.paused.set(json.paused)
+    }
+
+    if (typeof json.ended === 'boolean') {
+      component.ended.set(json.ended)
     }
 
     if (typeof json.volume === 'number') {
@@ -123,16 +127,12 @@ export function VolumetricReactor() {
   useEffect(() => {
     const element = videoElement.element.value as HTMLVideoElement
     element.playsInline = true
-    // element.autoplay = true
+    element.autoplay = true
     element.preload = 'auto'
     element.crossOrigin = 'anonymous'
 
     if (!AudioNodeGroups.get(element)) {
       const source = audioContext.createMediaElementSource(element)
-
-      // if (audioContext.state == 'suspended') {
-      //   audioContext.resume()
-      // }
       const audioNodes = createAudioNodeGroup(element, source, gainNodeMixBuses.soundEffects)
 
       audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
@@ -140,11 +140,13 @@ export function VolumetricReactor() {
 
     element.addEventListener('ended', () => {
       volumetric.ended.set(true)
-      volumetric.initialBuffersLoaded.set(false)
     })
 
+    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+    // in order to ensure media will play programmatically
     const handleAutoplay = () => {
-      if (volumetric.initialBuffersLoaded.value && !volumetric.paused.value) {
+      // programatically started playback
+      if (!volumetric.paused.value) {
         element.play()
         audioContext.resume()
         window.removeEventListener('pointerdown', handleAutoplay)
@@ -154,7 +156,6 @@ export function VolumetricReactor() {
         EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
       }
     }
-
     window.addEventListener('pointerdown', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
     window.addEventListener('touchstart', handleAutoplay)
@@ -192,7 +193,15 @@ export function VolumetricReactor() {
       console.info('VDEBUG: No valid tracks found.')
       return
     }
+
+    // UVOL1/UVOL2 sets paused to true, when initial buffers are loaded
+    volumetric.paused.set(true)
+
+    // Starting a new track, reset ended
     volumetric.ended.set(false)
+
+    // Removing component triggers cleanup.
+    // Overwriting with setComponent doesn't trigger cleanup.
     removeComponent(entity, UVOL1Component)
 
     volumetric.track.set(currentTrack)

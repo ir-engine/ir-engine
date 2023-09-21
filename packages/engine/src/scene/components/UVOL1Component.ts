@@ -24,21 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { useEffect, useMemo, useRef } from 'react'
 import { BufferGeometry, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three'
-import { CORTOLoader } from '../../../../assets/loaders/corto/CORTOLoader'
-import { iOS } from '../../../../common/functions/isMobile'
-import { Engine } from '../../../../ecs/classes/Engine'
-import { EngineState } from '../../../../ecs/classes/EngineState'
-import { defineComponent, getMutableComponent, useComponent } from '../../../../ecs/functions/ComponentFunctions'
-import { AnimationSystemGroup } from '../../../../ecs/functions/EngineFunctions'
-import { useEntityContext } from '../../../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../../../ecs/functions/SystemFunctions'
-import { EngineRenderer } from '../../../../renderer/WebGLRendererSystem'
-import { addObjectToGroup, removeObjectFromGroup } from '../../GroupComponent'
-import { MediaElementComponent } from '../../MediaComponent'
-import { VolumetricComponent } from '../../VolumetricComponent'
+import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
+import { iOS } from '../../common/functions/isMobile'
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useExecute } from '../../ecs/functions/SystemFunctions'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { MediaElementComponent } from './MediaComponent'
+import { VolumetricComponent } from './VolumetricComponent'
 
 const decodeCorto = (url: string, start: number, end: number) => {
   return new Promise((res, rej) => {
@@ -79,42 +79,12 @@ export const UVOL1Component = defineComponent({
   reactor: UVOL1Reactor
 })
 
-export function UVOL1Reactor() {
+function UVOL1Reactor() {
   const entity = useEntityContext()
-  const volumetric = getMutableComponent(entity, VolumetricComponent)
+  const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL1Component)
   const videoElement = getMutableComponent(entity, MediaElementComponent).value
-  const element = videoElement.element as HTMLVideoElement
-
-  useEffect(() => {
-    if (!Engine.instance.cortoLoader) {
-      const loader = new CORTOLoader()
-      loader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
-      loader.preload()
-      Engine.instance.cortoLoader = loader
-    }
-    // Starting a new track
-    addObjectToGroup(entity, mesh)
-    pendingRequests.current = 0
-    nextFrameToRequest.current = 0
-    video.src = component.track.manifestPath.value.replace('.manifest', '.mp4')
-    initialBuffersLoaded.set(false)
-
-    return () => {
-      removeObjectFromGroup(entity, mesh)
-      videoTexture.dispose()
-      const numberOfFrames = component.track.data.value.frameData.length
-      removePlayedBuffer(numberOfFrames)
-      meshBuffer.clear()
-    }
-  }, [])
-
-  const handleVideoFrame = (now: DOMHighResTimeStamp, metadata: VideoFrameCallbackMetadata) => {
-    const frameToPlay = Math.round(metadata.mediaTime * component.track.data.value.frameRate)
-    processFrame(frameToPlay)
-  }
-
-  useVideoFrameCallback(element, handleVideoFrame)
+  const video = videoElement.element as HTMLVideoElement
 
   const meshBuffer = useMemo(() => new Map<number, BufferGeometry>(), [])
   const targetFramesToRequest = useMemo(() => (iOS ? 10 : 90), [])
@@ -137,16 +107,63 @@ export function UVOL1Reactor() {
     return _material
   }, [])
 
-  const defaultGeometry = useMemo(() => new PlaneGeometry(0.1, 0.1) as BufferGeometry, [])
+  const defaultGeometry = useMemo(() => new PlaneGeometry(0.001, 0.001) as BufferGeometry, [])
   const mesh = useMemo(() => new Mesh(defaultGeometry, material), [])
-
-  const mediaElement = getMutableComponent(entity, MediaElementComponent).value
-  const video = mediaElement.element as HTMLVideoElement
 
   const pendingRequests = useRef(0)
   const nextFrameToRequest = useRef(0)
 
-  const initialBuffersLoaded = useHookstate(false)
+  useEffect(() => {
+    if (!Engine.instance.cortoLoader) {
+      const loader = new CORTOLoader()
+      loader.setDecoderPath(getState(EngineState).publicPath + '/loader_decoders/')
+      loader.preload()
+      Engine.instance.cortoLoader = loader
+    }
+    addObjectToGroup(entity, mesh)
+    pendingRequests.current = 0
+    nextFrameToRequest.current = 0
+    video.src = component.track.manifestPath.value.replace('.manifest', '.mp4')
+
+    return () => {
+      removeObjectFromGroup(entity, mesh)
+      videoTexture.dispose()
+      const numberOfFrames = component.track.data.value.frameData.length
+      removePlayedBuffer(numberOfFrames)
+      meshBuffer.clear()
+      video.src = ''
+    }
+  }, [])
+
+  useEffect(() => {
+    if (volumetric.paused.value) {
+      video.pause()
+    } else {
+      video.play()
+    }
+  }, [volumetric.paused])
+
+  /**
+   * sync mesh frame to video texture frame
+   */
+  const processFrame = (frameToPlay: number) => {
+    if (meshBuffer.has(frameToPlay)) {
+      // @ts-ignore: value cannot be anything else other than BufferGeometry
+      mesh.geometry = meshBuffer.get(frameToPlay)
+      mesh.geometry.attributes.position.needsUpdate = true
+
+      videoTexture.needsUpdate = true
+      EngineRenderer.instance.renderer.initTexture(videoTexture)
+    }
+    removePlayedBuffer(frameToPlay)
+  }
+
+  const handleVideoFrame = (now: DOMHighResTimeStamp, metadata: VideoFrameCallbackMetadata) => {
+    const frameToPlay = Math.round(metadata.mediaTime * component.track.data.value.frameRate)
+    processFrame(frameToPlay)
+  }
+
+  useVideoFrameCallback(video, handleVideoFrame)
 
   const bufferLoop = () => {
     const numberOfFrames = component.track.data.value.frameData.length
@@ -174,28 +191,10 @@ export function UVOL1Reactor() {
         nextFrameToRequest.current = newLastFrame
       }
 
-      if (meshBufferHasEnoughToPlay && !volumetric.paused.value) {
-        volumetric.initialBuffersLoaded.set(true)
-        if (!volumetric.paused.value) {
-          video.play()
-        }
+      if (meshBufferHasEnoughToPlay && volumetric.paused.value) {
+        volumetric.paused.set(false)
       }
     }
-  }
-
-  /**
-   * sync mesh frame to video texture frame
-   */
-  const processFrame = (frameToPlay: number) => {
-    if (meshBuffer.has(frameToPlay)) {
-      // @ts-ignore: value cannot be anything else other than BufferGeometry
-      mesh.geometry = meshBuffer.get(frameToPlay)
-      mesh.geometry.attributes.position.needsUpdate = true
-
-      videoTexture.needsUpdate = true
-      EngineRenderer.instance.renderer.initTexture(videoTexture)
-    }
-    removePlayedBuffer(frameToPlay)
   }
 
   useExecute(bufferLoop, {
