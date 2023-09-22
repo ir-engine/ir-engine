@@ -322,8 +322,8 @@ const aws = {
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
   },
   eks: {
-    accessKeyId: process.env.EKS_AWS_ACCESS_KEY!,
-    secretAccessKey: process.env.EKS_AWS_SECRET!
+    accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET!
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID!,
