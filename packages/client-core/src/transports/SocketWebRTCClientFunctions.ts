@@ -103,6 +103,8 @@ import { AuthState } from '../user/services/AuthService'
 import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
 import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
+import { NetworkActionFunctions } from '@etherealengine/engine/src/networking/functions/NetworkActionFunctions'
+import { DataChannelRegistryState } from '@etherealengine/engine/src/networking/systems/DataChannelRegistry'
 import { encode } from 'msgpackr'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
@@ -183,6 +185,12 @@ export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) 
       network.transport.primus?.write(data)
     },
 
+    onMessage: (fromPeerID: PeerID, message: any) => {
+      const actions = message as any as Required<Action>[]
+      // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
+      NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
+    },
+
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {
       transport.bufferToAll(dataChannelType, fromPeerID, data)
     },
@@ -198,6 +206,14 @@ export const initializeNetwork = (id: InstanceID, hostId: UserID, topic: Topic) 
         return console.warn('fromPeerIndex is undefined', fromPeerID, fromPeerIndex)
       dataProducer.send(encode([fromPeerIndex, data]))
     },
+
+    onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
+      const dataChannelFunctions = getState(DataChannelRegistryState)[dataChannelType]
+      if (dataChannelFunctions) {
+        for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
+      }
+    },
+
     mediasoupDevice,
     mediasoupLoaded: false,
     primus: null! as Primus,
@@ -307,15 +323,6 @@ export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) =>
   return isWorldConnection ? null : currentChannelInstanceConnection?.channelId
 }
 
-function actionDataHandler(message) {
-  if (!message) return
-  const actions = message as any as Required<Action>[]
-  // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
-  for (const a of actions) {
-    Engine.instance.store.actions.incoming.push(a)
-  }
-}
-
 export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
   if (network.authenticated) return
 
@@ -363,7 +370,10 @@ export async function authenticateNetwork(network: SocketWebRTCClientNetwork) {
     network.transport.messageToPeer(network.hostPeerID, [])
   }, 1000)
 
-  network.transport.primus.on('data', actionDataHandler)
+  network.transport.primus.on('data', (message) => {
+    if (!message) return
+    network.transport.onMessage(network.hostPeerID, message)
+  })
 
   // handle cached actions
   for (const action of cachedActions!) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })

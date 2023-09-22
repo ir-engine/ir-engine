@@ -28,13 +28,15 @@ import { useEffect } from 'react'
 import { getState } from '@etherealengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -42,6 +44,7 @@ import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRState } from '../../xr/XRState'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
@@ -85,15 +88,16 @@ export const LinkComponent = defineComponent({
     }
   },
 
-  errors: ['INVALID_URL', 'INVALID_PATH'],
+  errors: ['INVALID_URL'],
 
   reactor: function () {
     if (!isClient) return null
     const entity = useEntityContext()
     const link = useComponent(entity, LinkComponent)
-    const input = useComponent(entity, InputComponent)
+    const input = useOptionalComponent(entity, InputComponent)
 
     useEffect(() => {
+      if (getState(EngineState).isEditor || !input) return
       const canvas = EngineRenderer.instance.renderer.domElement
       if (input.inputSources.length > 0) {
         canvas.style.cursor = 'pointer'
@@ -101,7 +105,7 @@ export const LinkComponent = defineComponent({
       return () => {
         canvas.style.cursor = 'auto'
       }
-    }, [input.inputSources])
+    }, [input?.inputSources])
 
     useEffect(() => {
       clearErrors(entity, LinkComponent)
@@ -115,11 +119,14 @@ export const LinkComponent = defineComponent({
     }, [link.url, link.sceneNav])
 
     useEffect(() => {
-      setComponent(entity, InputComponent)
+      setComponent(entity, BoundingBoxComponent)
+      setComponent(entity, InputComponent, { highlight: true, grow: true })
     }, [])
 
     useExecute(
       () => {
+        if (getState(EngineState).isEditor) return
+
         const linkComponent = getComponent(entity, LinkComponent)
         const inputComponent = getComponent(entity, InputComponent)
         const inputSourceEntity = inputComponent?.inputSources[0]
