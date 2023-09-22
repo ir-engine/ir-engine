@@ -64,11 +64,11 @@ function pushToEngine(): void {
       }
     })
 
-    if (cachedData.length > 0) {
-      LogConfig.api.service(logsApiPath).create(cachedData)
-
-      engineCache.flushAll()
-    }
+    // if (cachedData.length > 0) {
+    //   LogConfig.api.service(logsApiPath).create(cachedData)
+    //
+    //   engineCache.flushAll()
+    // }
   }
 }
 
