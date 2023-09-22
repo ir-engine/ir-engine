@@ -95,13 +95,14 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     if (add) {
       const tempEntity = createEntity()
       setComponent(tempEntity, component)
-      componentData[component.name] = {
+      componentData.push({
         name: sceneComponentID,
         props: serializeComponent(tempEntity, component)
-      }
+      })
       removeEntity(tempEntity)
     } else {
-      delete componentData[component.name]
+      const index = componentData.findIndex((c) => c.name === sceneComponentID)
+      if (index > -1) componentData.splice(index, 1)
     }
   }
 
@@ -123,10 +124,12 @@ const modifyProperty = <C extends Component<any, any>>(
   for (const node of nodes) {
     if (typeof node === 'string') continue
     const enttiyUUID = getComponent(node, UUIDComponent)
-    const componentData = newSnapshot.data.scene.entities[enttiyUUID].components[component.name]
+    const componentData = newSnapshot.data.scene.entities[enttiyUUID].components.find(
+      (c) => c.name === component.jsonID
+    )
     if (!componentData) continue
     Object.entries(properties).map(([k, v]) => {
-      newSnapshot[k] = v
+      componentData.props[k] = v
     })
   }
 
@@ -747,7 +750,8 @@ const commitTransformSave = (entity: Entity) => {
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
 
   const entityData = newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
-  entityData.components[TransformComponent.name] = serializeComponent(entity, TransformComponent)
+  const component = entityData.components.find((c) => c.name === TransformComponent.jsonID)!
+  component.props = serializeComponent(entity, TransformComponent)
 
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }

@@ -25,7 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { Component, SerializedComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  Component,
+  SerializedComponentType,
+  updateComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   EntityOrObjectUUID,
   getEntityNodeArrayFromEntities,
@@ -59,6 +63,37 @@ export const updateProperty = <C extends Component, K extends keyof SerializedCo
 }
 
 export const updateProperties = <C extends Component>(
+  component: C,
+  properties: Partial<SerializedComponentType<C>>,
+  nodes?: EntityOrObjectUUID[]
+) => {
+  const editorState = getMutableState(EditorState)
+  const selectionState = getMutableState(SelectionState)
+
+  const affectedNodes = nodes
+    ? nodes
+    : editorState.lockPropertiesPanel.value
+    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
+    : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityOrObjectUUID[])
+
+  for (let i = 0; i < affectedNodes.length; i++) {
+    const node = affectedNodes[i]
+    if (typeof node === 'string') continue
+    updateComponent(node, component, properties)
+  }
+}
+
+export const commitProperty = <C extends Component, K extends keyof SerializedComponentType<C>>(
+  component: C,
+  propName: K,
+  nodes?: EntityOrObjectUUID[]
+) => {
+  return (value: SerializedComponentType<C>[K]) => {
+    commitProperties(component, { [propName]: value } as any, nodes)
+  }
+}
+
+export const commitProperties = <C extends Component>(
   component: C,
   properties: Partial<SerializedComponentType<C>>,
   nodes?: EntityOrObjectUUID[]

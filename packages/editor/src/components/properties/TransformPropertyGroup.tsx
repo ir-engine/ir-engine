@@ -53,7 +53,7 @@ import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
@@ -123,6 +123,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
             step={1}
             value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
             onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
+            onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
           />
         )}
       </InputGroup>

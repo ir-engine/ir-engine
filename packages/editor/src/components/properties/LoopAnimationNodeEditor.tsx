@@ -42,7 +42,7 @@ import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperties, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -69,7 +69,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations])
 
   const onChangePlayingAnimation = (index) => {
-    updateProperties(LoopAnimationComponent, {
+    commitProperties(LoopAnimationComponent, {
       activeClipIndex: index
     })
     getCallback(props.entity, 'xre.play')!()
@@ -105,12 +105,13 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <NumericInput
           value={loopAnimationComponent.timeScale.value}
           onChange={updateProperty(LoopAnimationComponent, 'timeScale')}
+          onRelease={commitProperty(LoopAnimationComponent, 'timeScale')}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
           value={loopAnimationComponent.hasAvatarAnimations.value}
-          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
+          onChange={commitProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
     </NodeEditor>

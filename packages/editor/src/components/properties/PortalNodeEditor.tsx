@@ -52,7 +52,7 @@ import SelectInput from '../inputs/SelectInput'
 import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
 type PortalOptions = {
   name: string
@@ -142,6 +142,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <ControlledStringInput
           value={portalComponent.location.value}
           onChange={updateProperty(PortalComponent, 'location')}
+          onRelease={commitProperty(PortalComponent, 'location')}
         />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
@@ -149,11 +150,11 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={portals}
           value={portalComponent.linkedPortalId.value}
-          onChange={updateProperty(PortalComponent, 'linkedPortalId')}
+          onChange={commitProperty(PortalComponent, 'linkedPortalId')}
         />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>
-        <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect.value} />
+        <BooleanInput onChange={commitProperty(PortalComponent, 'redirect')} value={portalComponent.redirect.value} />
       </InputGroup>
       <InputGroup name="Effect Type" label={t('editor:properties.portal.lbl-effectType')}>
         <SelectInput
@@ -162,7 +163,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
             return { value: val, label: val }
           })}
           value={portalComponent.effectType.value}
-          onChange={updateProperty(PortalComponent, 'effectType')}
+          onChange={commitProperty(PortalComponent, 'effectType')}
         />
       </InputGroup>
       <InputGroup name="Preview Type" label={t('editor:properties.portal.lbl-previewType')}>
@@ -179,6 +180,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <ControlledStringInput
           value={portalComponent.previewImageURL.value}
           onChange={updateProperty(PortalComponent, 'previewImageURL')}
+          onRelease={commitProperty(PortalComponent, 'previewImageURL')}
         />
       </InputGroup>
       <InputGroup name="Preview Image Bake" label={t('editor:properties.portal.lbl-previewImage')}>
@@ -210,6 +212,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <Vector3Input
           value={portalComponent.spawnPosition.value}
           onChange={updateProperty(PortalComponent, 'spawnPosition')}
+          onRelease={commitProperty(PortalComponent, 'spawnPosition')}
         />
       </InputGroup>
       <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>

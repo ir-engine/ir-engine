@@ -44,7 +44,7 @@ import ErrorPopUp from '../popup/ErrorPopUp'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -113,14 +113,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput
           value={modelComponent.generateBVH.value}
-          onChange={updateProperty(ModelComponent, 'generateBVH')}
+          onChange={commitProperty(ModelComponent, 'generateBVH')}
           disabled={modelComponent.hasSkinnedMesh.value}
         />
       </InputGroup>
       <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
         <BooleanInput
           value={modelComponent.avoidCameraOcclusion.value}
-          onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
+          onChange={commitProperty(ModelComponent, 'avoidCameraOcclusion')}
         />
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />

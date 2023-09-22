@@ -36,7 +36,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * LinkNodeEditor component used to provide the editor view to customize link properties.
@@ -65,7 +65,7 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
         <></>
       )}
       <InputGroup name="Navigate Path" label={t('editor:properties.linkComp.lbl-navigateScene')}>
-        <BooleanInput value={linkComponent.sceneNav.value} onChange={updateProperty(LinkComponent, 'sceneNav')} />
+        <BooleanInput value={linkComponent.sceneNav.value} onChange={commitProperty(LinkComponent, 'sceneNav')} />
       </InputGroup>
       {linkComponent.sceneNav.value ? (
         <>
@@ -73,18 +73,24 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
             <ControlledStringInput
               value={linkComponent.projectName.value}
               onChange={updateProperty(LinkComponent, 'projectName')}
+              onRelease={commitProperty(LinkComponent, 'projectName')}
             />
           </InputGroup>
           <InputGroup name="SceneName" label={t('editor:properties.linkComp.lbl-scenename')}>
             <ControlledStringInput
               value={linkComponent.sceneName.value}
               onChange={updateProperty(LinkComponent, 'sceneName')}
+              onRelease={commitProperty(LinkComponent, 'sceneName')}
             />
           </InputGroup>
         </>
       ) : (
         <InputGroup name="LinkUrl" label={t('editor:properties.linkComp.lbl-url')}>
-          <ControlledStringInput value={linkComponent.url.value} onChange={updateProperty(LinkComponent, 'url')} />
+          <ControlledStringInput
+            value={linkComponent.url.value}
+            onChange={updateProperty(LinkComponent, 'url')}
+            onRelease={commitProperty(LinkComponent, 'url')}
+          />
         </InputGroup>
       )}
     </NodeEditor>

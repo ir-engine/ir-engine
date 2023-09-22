@@ -40,7 +40,7 @@ import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import PaginatedList from '../layout/PaginatedList'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const { t } = useTranslation()
@@ -65,7 +65,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
         <InputGroup name="lodHeuristic" label={t('editor:properties.variant.heuristic')}>
           <SelectInput
             value={variantComponent.heuristic.value}
-            onChange={(val: typeof variantComponent.heuristic.value) => variantComponent.heuristic.set(val)}
+            onChange={commitProperty(VariantComponent, 'heuristic')}
             options={[
               { value: 'DISTANCE', label: t('editor:properties.variant.heuristic-distance') },
               { value: 'SCENE_SCALE', label: t('editor:properties.variant.heuristic-sceneScale') },

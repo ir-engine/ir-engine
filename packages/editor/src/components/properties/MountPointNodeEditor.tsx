@@ -32,7 +32,7 @@ import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scen
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorPropType, updateProperty } from './Util'
+import { EditorPropType, commitProperty } from './Util'
 
 const MountPointTypes = [{ label: 'Seat', value: MountPoint.seat }]
 
@@ -52,7 +52,7 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
           key={props.entity}
           options={MountPointTypes}
           value={mountPointComponent.type.value}
-          onChange={updateProperty(MountPointComponent, 'type')}
+          onChange={commitProperty(MountPointComponent, 'type')}
         />
       </InputGroup>
     </NodeEditor>

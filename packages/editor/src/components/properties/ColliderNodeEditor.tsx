@@ -52,7 +52,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
 const bodyTypeOptions = Object.entries(RigidBodyType)
   .filter(([value]) => (value as string).length > 1)
@@ -146,13 +146,14 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
             <StringInput
               value={colliderComponent.onEnter.value!}
               onChange={updateProperty(ColliderComponent, 'onEnter')}
+              onRelease={commitProperty(ColliderComponent, 'onEnter')}
               disabled={props.multiEdit || !target}
             />
           ) : (
             <SelectInput
               key={props.entity}
               value={colliderComponent.onEnter.value!}
-              onChange={updateProperty(ColliderComponent, 'onEnter') as any}
+              onChange={commitProperty(ColliderComponent, 'onEnter') as any}
               options={targetOption?.callbacks ? targetOption.callbacks : []}
               disabled={props.multiEdit || !target}
             />
@@ -164,13 +165,14 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
             <StringInput
               value={colliderComponent.onExit.value!}
               onChange={updateProperty(ColliderComponent, 'onExit')}
+              onRelease={commitProperty(ColliderComponent, 'onExit')}
               disabled={props.multiEdit || !target}
             />
           ) : (
             <SelectInput
               key={props.entity}
               value={colliderComponent.onExit.value!}
-              onChange={updateProperty(ColliderComponent, 'onExit') as any}
+              onChange={commitProperty(ColliderComponent, 'onExit') as any}
               options={targetOption?.callbacks ? targetOption.callbacks : []}
               disabled={props.multiEdit || !target}
             />
@@ -186,14 +188,14 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           options={bodyTypeOptions}
           value={colliderComponent.bodyType.value}
-          onChange={updateProperty(ColliderComponent, 'bodyType')}
+          onChange={commitProperty(ColliderComponent, 'bodyType')}
         />
       </InputGroup>
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput
           options={shapeTypeOptions}
           value={colliderComponent.shapeType.value}
-          onChange={updateProperty(ColliderComponent, 'shapeType')}
+          onChange={commitProperty(ColliderComponent, 'shapeType')}
         />
       </InputGroup>
       <InputGroup name="Trigger" label={t('editor:properties.collider.lbl-isTrigger')}>
