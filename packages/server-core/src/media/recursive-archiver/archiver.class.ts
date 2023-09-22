@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServiceMethods } from '@feathersjs/feathers/lib/declarations'
+import { NullableId, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import JSZip from 'jszip'
 import fetch from 'node-fetch'
 
 import { BadRequest } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -41,11 +41,12 @@ const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
  * A class for Managing files in FileBrowser
  */
 
-export interface ArchiveParams extends UserParams {
+export interface ArchiverParams extends RootParams {
   isJob?: boolean
+  directory?: string
 }
 
-const archive = async (directory, params?: UserParams): Promise<string> => {
+const archive = async (directory, params?: RootParams): Promise<string> => {
   if (directory.at(0) === '/') directory = directory.slice(1)
   if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
     return Promise.reject(new Error('Cannot archive non-project directories'))
@@ -67,13 +68,13 @@ const archive = async (directory, params?: UserParams): Promise<string> => {
 
   logger.info(`Archiving ${directory} using ${storageProviderName}`)
 
-  let result = await storageProvider.listFolderContent(directory)
+  const result = await storageProvider.listFolderContent(directory)
 
   const zip = new JSZip()
 
   for (let i = 0; i < result.length; i++) {
     if (result[i].type == 'folder') {
-      let content = await storageProvider.listFolderContent(result[i].key + '/')
+      const content = await storageProvider.listFolderContent(result[i].key + '/')
       content.forEach((f) => {
         result.push(f)
       })
@@ -109,16 +110,19 @@ const archive = async (directory, params?: UserParams): Promise<string> => {
   return zipOutputDirectory
 }
 
-export class Archiver implements Partial<ServiceMethods<any>> {
+export class ArchiverService implements ServiceInterface<string, ArchiverParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async setup(app: Application, path: string) {}
+  async get(id: NullableId, params?: ArchiverParams) {
+    if (!params) throw new BadRequest('No directory specified')
 
-  async get(directory: string, params?: ArchiveParams): Promise<string> {
+    const directory = params?.directory!.toString()
+    delete params.directory
+
     if (!config.kubernetes.enabled || params?.isJob) return archive(directory, params)
     else {
       const split = directory.split('/')

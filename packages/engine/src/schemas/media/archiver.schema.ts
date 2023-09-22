@@ -23,12 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import OEmbed from './oembed/oembed.service'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-export default [StaticResource, StaticResourceFilters, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver]
+export const archiverPath = 'archiver'
+
+export const archiverMethods = ['get'] as const

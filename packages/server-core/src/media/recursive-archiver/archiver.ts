@@ -23,12 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import OEmbed from './oembed/oembed.service'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import { archiverMethods, archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
+import { Application } from '../../../declarations'
+import { ArchiverService } from './archiver.class'
+import archiverDocs from './archiver.docs'
+import hooks from './archiver.hooks'
 
-export default [StaticResource, StaticResourceFilters, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [archiverPath]: ArchiverService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(archiverPath, new ArchiverService(app), {
+    // A list of all methods this service exposes externally
+    methods: archiverMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: archiverDocs
+  })
+
+  const service = app.service(archiverPath)
+  service.hooks(hooks)
+}
