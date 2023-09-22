@@ -109,7 +109,17 @@ export const createNewEditorNode = (
     components: cloneDeep(components)
   })
   const localTransform = getComponent(entityNode, LocalTransformComponent)
-  setComponent(entityNode, TransformComponent)
+  setComponent(entityNode, TransformComponent, {
+    position: localTransform.position,
+    rotation: localTransform.rotation,
+    scale: localTransform.scale
+  })
+  const transform = getComponent(entityNode, TransformComponent)
+  setComponent(entityNode, LocalTransformComponent, {
+    position: transform.position,
+    rotation: transform.rotation,
+    scale: transform.scale
+  })
 }
 
 export const splitLazyLoadedSceneEntities = (json: SceneJson) => {

@@ -149,7 +149,7 @@ export const LocalTransformComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>> & { parentEntity: Entity }) => {
+  onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>>) => {
     if (!json) return
 
     const position = json.position?.isVector3
@@ -207,7 +207,6 @@ export function setTransformComponent(entity: Entity, position?: Vector3, rotati
  * Sets the local transform component. This is used to calculate relative transforms.
  * Used for objects that exist as part of a specific coordinate system - such as avatars and scene objects
  * @param entity
- * @param parentEntity
  * @param position
  * @param rotation
  * @param scale
@@ -215,10 +214,9 @@ export function setTransformComponent(entity: Entity, position?: Vector3, rotati
  */
 export function setLocalTransformComponent(
   entity: Entity,
-  parentEntity: Entity,
   position = new Vector3(),
   rotation = new Quaternion(),
   scale = new Vector3(1, 1, 1)
 ) {
-  setComponent(entity, LocalTransformComponent, { parentEntity, position, rotation, scale })
+  setComponent(entity, LocalTransformComponent, { position, rotation, scale })
 }
