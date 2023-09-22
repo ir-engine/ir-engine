@@ -62,7 +62,6 @@ import { WorkerPool } from './WorkerPool'
 
 const KTX2TransferSRGB = 2
 const KTX2_ALPHA_PREMULTIPLIED = 1
-const _taskCache = new WeakMap()
 
 let _activeLoaders = 0
 
@@ -179,43 +178,23 @@ class KTX2Loader extends Loader {
     if (this.workerConfig === null) {
       throw new Error('THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.')
     }
-
-    const loader = new FileLoader(this.manager)
-
-    loader.setResponseType('arraybuffer')
-    loader.setWithCredentials(this.withCredentials)
-
-    const texture = new CompressedTexture()
-
-    loader.load(
+    const source = {
       url,
-      (buffer) => {
-        // Check for an existing task using this buffer. A transferred buffer cannot be transferred
-        // again from this thread.
-        if (_taskCache.has(buffer)) {
-          const cachedTask = _taskCache.get(buffer)
+      credentials: this.withCredentials,
+      headers: this.requestHeader
+    }
 
-          return cachedTask.promise.then(onLoad).catch(onError)
-        }
+    this._createTexture(source)
+      .then(function ({texture, duration}) {
+        texture.needsUpdate = true
 
-        this._createTexture(buffer)
-          .then(function (_texture) {
-            texture.copy(_texture)
-            texture.needsUpdate = true
-
-            if (onLoad) onLoad(texture)
-          })
-          .catch(onError)
-      },
-      onProgress,
-      onError
-    )
-
-    return texture
+        if (onLoad) onLoad(texture, duration)
+      })
+      .catch(onError)
   }
 
   _createTextureFrom(transcodeResult) {
-    const { mipmaps, width, height, format, type, error, dfdTransferFn, dfdFlags } = transcodeResult
+    const { mipmaps, width, height, format, type, error, dfdTransferFn, dfdFlags, duration } = transcodeResult
 
     if (type === 'error') return Promise.reject(error)
 
@@ -227,24 +206,25 @@ class KTX2Loader extends Loader {
     texture.colorSpace = dfdTransferFn === KTX2TransferSRGB ? SRGBColorSpace : LinearSRGBColorSpace
     texture.premultiplyAlpha = !!(dfdFlags & KTX2_ALPHA_PREMULTIPLIED)
 
-    return texture
+    return {
+      texture,
+      duration
+    }
   }
 
   /**
-   * @param {ArrayBuffer} buffer
+   * @param {string} url
    * @param {object?} config
-   * @return {Promise<CompressedTexture>}
+   * @return {Promise<{
+   * CompressedTexture, duration}>}
    */
-  _createTexture(buffer, config = {}) {
+  _createTexture(source, config = {}) {
     const taskConfig = config
     const texturePending = this.init()
       .then(() => {
-        return this.workerPool.postMessage({ type: 'transcode', buffer, taskConfig: taskConfig }, [buffer])
+        return this.workerPool.postMessage({ type: 'transcode', source, taskConfig: taskConfig })
       })
       .then((e) => this._createTextureFrom(e.data))
-
-    // Cache the task result.
-    _taskCache.set(buffer, { promise: texturePending })
 
     return texturePending
   }
@@ -310,6 +290,11 @@ KTX2Loader.BasisWorker = function () {
   const TranscoderFormat = _TranscoderFormat // eslint-disable-line no-undef
   const BasisFormat = _BasisFormat // eslint-disable-line no-undef
 
+  function handleError(message, error) {
+    console.error(error)
+    self.postMessage({ type: 'error', id: message.id, error: error.message })
+  }
+
   self.addEventListener('message', function (e) {
     const message = e.data
 
@@ -321,24 +306,46 @@ KTX2Loader.BasisWorker = function () {
 
       case 'transcode':
         transcoderPending.then(() => {
-          try {
-            const { width, height, hasAlpha, mipmaps, format, dfdTransferFn, dfdFlags } = transcode(message.buffer)
+          const startTime = Date.now()
+          this.fetch(message.source.url, {
+            headers: message.source.headers,
+            credentials: message.source.credentials ? 'include' : 'same-origin' 
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`THREE.KTX2Loader: Unable to fetch ${message.url}. status: ${response.status} (${response.statusText})})`)
+              }
+              return response.arrayBuffer()
+            })
+            .then((buffer) => {
+              const { width, height, hasAlpha, mipmaps, format, dfdTransferFn, dfdFlags } = transcode(buffer)
 
-            const buffers = []
+              const buffers = []
 
-            for (let i = 0; i < mipmaps.length; ++i) {
-              buffers.push(mipmaps[i].data.buffer)
-            }
-
-            self.postMessage(
-              { type: 'transcode', id: message.id, width, height, hasAlpha, mipmaps, format, dfdTransferFn, dfdFlags },
-              buffers
-            )
-          } catch (error) {
-            console.error(error)
-
-            self.postMessage({ type: 'error', id: message.id, error: error.message })
-          }
+              for (let i = 0; i < mipmaps.length; ++i) {
+                buffers.push(mipmaps[i].data.buffer)
+              }
+              const endTime = Date.now()
+              self.postMessage(
+                {
+                  type: 'transcode',
+                  id: message.id,
+                  width,
+                  height,
+                  hasAlpha,
+                  mipmaps,
+                  format,
+                  dfdTransferFn,
+                  dfdFlags,
+                  duration: endTime - startTime
+                },
+                buffers
+              )
+            }).catch((error) => {
+              handleError(message, error)
+            })
+        }).catch((error) => {
+          handleError(message, error)
         })
         break
     }

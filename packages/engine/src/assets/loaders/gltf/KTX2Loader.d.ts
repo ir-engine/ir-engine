@@ -41,6 +41,9 @@ export class KTX2Loader extends CompressedTextureLoader {
         onError?: (event: ErrorEvent) => void,
     ): KTX2Loader;
 
+    /**
+     * onProgress is not supported. If any function is passed, it will be ignored.
+     */
     load(
         url: string,
         onLoad: (texture: CompressedTexture) => void,
