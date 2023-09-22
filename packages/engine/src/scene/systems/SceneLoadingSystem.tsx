@@ -30,10 +30,7 @@ import { MathUtils } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/engine/src/common/functions/logger'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   addActionReceptor,
   dispatchAction,
@@ -220,7 +217,12 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
       .children.filter((child) => hasComponent(child, TransformComponent))
       .map((child) => {
         const transform = getComponent(child, TransformComponent)
-        setLocalTransformComponent(child, rootEntity, transform.position, transform.rotation, transform.scale)
+        setComponent(child, EntityTreeComponent, { parentEntity: rootEntity })
+        setComponent(child, LocalTransformComponent, {
+          position: transform.position,
+          rotation: transform.rotation,
+          scale: transform.scale
+        })
       })
   return result
 }
@@ -381,7 +383,6 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
       setComponent(entity, SceneObjectComponent)
       setComponent(entity, EntityTreeComponent, { parentEntity, uuid, childIndex: entityJson.index })
-      setLocalTransformComponent(entity, parentEntity)
       addEntityNodeChild(entity, parentEntity)
       deserializeSceneEntity(entity, entityJson)
     }
