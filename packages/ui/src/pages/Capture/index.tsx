@@ -125,7 +125,7 @@ export const stopPlayback = () => {
 const sendResults = (results: MotionCaptureResults) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
-  // console.log('sending results', results)
+  console.log('sending results', results)
   const data = MotionCaptureFunctions.sendResults(results)
   network.transport.bufferToAll(mocapDataChannelType, Engine.instance.peerID, data)
 }
