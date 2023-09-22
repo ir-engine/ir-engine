@@ -33,7 +33,7 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
@@ -48,7 +48,7 @@ export enum ChannelDrawerMode {
 interface Props {
   open: boolean
   mode: ChannelDrawerMode
-  selectedChannel?: Channel
+  selectedChannel?: ChannelType
   onClose: () => void
 }
 
@@ -67,7 +67,7 @@ const ChannelDrawer = ({ open, mode, selectedChannel, onClose }: Props) => {
   const hasWriteAccess = userHasAccess('channel:write')
   const viewMode = mode === ChannelDrawerMode.ViewEdit && !editMode
 
-  const channelsMutation = useMutation('channel')
+  const channelsMutation = useMutation(channelPath)
 
   useEffect(() => {
     loadSelectedChannel()
@@ -97,7 +97,7 @@ const ChannelDrawer = ({ open, mode, selectedChannel, onClose }: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    let tempErrors = { ...state.formErrors }
+    const tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'name':
@@ -115,7 +115,7 @@ const ChannelDrawer = ({ open, mode, selectedChannel, onClose }: Props) => {
       name: state.name
     }
 
-    let tempErrors = {
+    const tempErrors = {
       ...state.formErrors,
       name: state.name ? '' : t('admin:components.channel.nameRequired')
     }
@@ -124,7 +124,7 @@ const ChannelDrawer = ({ open, mode, selectedChannel, onClose }: Props) => {
 
     if (validateForm(state, tempErrors)) {
       if (mode === ChannelDrawerMode.Create) {
-        await channelsMutation.create({})
+        await channelsMutation.create(data)
       } else if (selectedChannel) {
         await channelsMutation.patch(selectedChannel.id!, data)
         setEditMode(false)

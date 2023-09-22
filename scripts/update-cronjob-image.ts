@@ -27,7 +27,7 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
@@ -63,7 +63,7 @@ cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    const autoUpdateProjects = await app.service(projectPath).find({
+    const autoUpdateProjects = (await app.service(projectPath).find({
       query: {
         $or: [
           {
@@ -73,11 +73,12 @@ cli.main(async () => {
             updateType: 'tag'
           }
         ]
-      }
-    })
+      },
+      paginate: false
+    })) as ProjectType[]
     const k8BatchClient = getState(ServerState).k8BatchClient
     if (k8BatchClient)
-      for (const project of autoUpdateProjects.data) {
+      for (const project of autoUpdateProjects) {
         try {
           await k8BatchClient.patchNamespacedCronJob(
             `${process.env.RELEASE_NAME}-${project.name}-auto-update`,

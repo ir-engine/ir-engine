@@ -29,6 +29,7 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -38,10 +39,10 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  */
 export const getProjects = async (): Promise<ProjectType[]> => {
   try {
-    const { data } = await API.instance.client.service(projectPath).find({
+    const projects = (await API.instance.client.service(projectPath).find({
       query: { allowed: true }
-    })
-    return data
+    })) as Paginated<ProjectType>
+    return projects.data
   } catch (error) {
     throw new Error(error)
   }

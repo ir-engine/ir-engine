@@ -45,7 +45,7 @@ export const RendererState = defineState({
     gridVisibility: false,
     gridHeight: 0,
     forceBasicMaterials: false,
-    shadowMapResolution: 256
+    shadowMapResolution: isMobile ? 256 : 2048
   }),
   onCreate: (store, state) => {
     syncStateWithLocalStorage(RendererState, [

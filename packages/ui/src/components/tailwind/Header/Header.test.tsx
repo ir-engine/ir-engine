@@ -27,12 +27,12 @@ import { describe, expect, it } from '@jest/globals'
 import { shallow } from 'enzyme'
 import React from 'react'
 
-import Checkbox from './index'
+import Header from './index'
 import { Default as story } from './index.stories'
 
-describe('Checkbox', () => {
+describe('Header', () => {
   it('- should render', () => {
-    const wrapper = shallow(<Checkbox {...story?.args} />)
+    const wrapper = shallow(<Header {...story?.args} />)
     expect(wrapper).toMatchSnapshot()
   })
 })

@@ -35,31 +35,22 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { useGet, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectSettingType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import styles from '../../styles/settings.module.scss'
-
-interface ProjectSetting {
-  key: string
-  value: any
-}
 
 const Project = () => {
   const { t } = useTranslation()
   const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
 
-  const settings = useHookstate<Array<ProjectSetting> | []>([])
+  const settings = useHookstate<Array<ProjectSettingType> | []>([])
   const selectedProject = useHookstate(projects.get(NO_PROXY).length > 0 ? projects.get(NO_PROXY)[0].id : '')
 
-  let projectSetting = useFind('project-setting', {
-    query: {
-      $limit: 1,
-      id: selectedProject.value,
-      $select: ['settings']
-    }
-  }).data
+  const project = useGet(projectPath, selectedProject.value, { query: { $select: ['settings'] } }).data
+
+  let projectSetting = project?.settings || []
 
   const patchProjectSetting = useMutation(projectPath).patch
 
@@ -80,7 +71,6 @@ const Project = () => {
       return
     }
 
-    if (typeof projectSetting === 'string') projectSetting = JSON.parse(projectSetting)
     const tempSettings = JSON.parse(JSON.stringify(settings.value))
     for (const [index, setting] of tempSettings.entries()) {
       const savedSetting = projectSetting.filter((item) => item.key === setting.key)
@@ -96,7 +86,7 @@ const Project = () => {
     const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
 
     if (projectConfig && projectConfig?.settings) {
-      const tempSetting = [] as ProjectSetting[]
+      const tempSetting = [] as ProjectSettingType[]
 
       for (const setting of projectConfig.settings) {
         tempSetting.push({ key: setting.key, value: '' })

@@ -56,133 +56,139 @@ describe('storageprovider', () => {
   }
 
   storageProviders.forEach((providerType) => {
-    let provider
-    before(async function () {
-      createEngine()
-      provider = new providerType()
-      await providerBeforeTest(provider, testFolderName, folderKeyTemp, folderKeyTemp2)
-    })
-
-    it(`should put object in ${providerType.name}`, async function () {
-      const fileKey = path.join(testFolderName, testFileName)
-      const data = Buffer.from(testFileContent)
-      await provider.putObject({
-        Body: data,
-        Key: fileKey,
-        ContentType: getContentType(fileKey)
+    describe(`tests for ${providerType.name}`, () => {
+      let provider
+      before(async function () {
+        createEngine()
+        provider = new providerType()
+        await providerBeforeTest(provider, testFolderName, folderKeyTemp, folderKeyTemp2)
       })
-    })
 
-    it(`should have object in ${providerType.name}`, async function () {
-      assert(await provider.doesExist(testFileName, testFolderName))
-    })
+      it(`should put object in ${providerType.name}`, async function () {
+        const fileKey = path.join(testFolderName, testFileName)
+        const data = Buffer.from(testFileContent)
+        await provider.putObject({
+          Body: data,
+          Key: fileKey,
+          ContentType: getContentType(fileKey)
+        })
+      })
 
-    it(`should get object in ${providerType.name}`, async function () {
-      const fileKey = path.join(testFolderName, testFileName)
-      const file = await provider.getObject(fileKey)
-      assert.ok(file.Body.toString() === testFileContent)
-    })
+      it(`should have object in ${providerType.name}`, async function () {
+        assert(await provider.doesExist(testFileName, testFolderName))
+      })
 
-    it(`should list object in ${providerType.name}`, async function () {
-      const res = await provider.listFolderContent(testFolderName, true)
+      it(`should get object in ${providerType.name}`, async function () {
+        const fileKey = path.join(testFolderName, testFileName)
+        const file = await provider.getObject(fileKey)
+        assert.ok(file.Body.toString() === testFileContent)
+      })
 
-      let haveObject = false
-      for (let i = 0; i < res.length; i++) {
-        if (res[i].name === 'TestFile' && res[i].type === 'txt') {
-          haveObject = true
-          break
+      it(`should list object in ${providerType.name}`, async function () {
+        const res = await provider.listFolderContent(testFolderName, true)
+
+        let haveObject = false
+        for (let i = 0; i < res.length; i++) {
+          if (
+            res[i].name === 'TestFile' &&
+            res[i].type === 'txt' &&
+            res[i].size === Buffer.byteLength(testFileContent)
+          ) {
+            haveObject = true
+            break
+          }
         }
-      }
-      assert.ok(haveObject)
-    })
-
-    it(`should return valid object url in ${providerType.name}`, async function () {
-      const fileKey = path.join('/', testFolderName, testFileName)
-      const signedUrl = await provider.getSignedUrl(fileKey, 20000, [])
-      const httpAgent = new https.Agent({
-        rejectUnauthorized: false,
-        timeout: 1000
+        assert.ok(haveObject)
       })
-      let res
-      try {
-        res = await fetch(signedUrl.url + signedUrl.fields.Key, { agent: httpAgent })
-      } catch (err) {
-        console.log(err)
-      }
-      if (!res) console.log('Make sure server is running')
-      assert.ok(res?.ok)
-    })
 
-    // Unable to perform move/copy and rename test cases because Fleek storage doesn't implemented those methods
-
-    it(`should be able to move/copy object in ${providerType.name}`, async function () {
-      const newFolder1 = path.join(testFolderName, 'temp')
-      const newFolder2 = path.join(testFolderName, 'temp2')
-
-      //check copy functionality
-      await provider.moveObject(testFileName, testFileName, testFolderName, newFolder1, true)
-      assert(await provider.doesExist(testFileName, testFolderName))
-      assert(await provider.doesExist(testFileName, newFolder1))
-
-      //check move functionality
-      await provider.moveObject(testFileName, testFileName, newFolder1, newFolder2, false)
-      assert(await provider.doesExist(testFileName, newFolder2))
-      assert(!(await provider.doesExist(testFileName, newFolder1)))
-    })
-
-    it(`should be able to rename object in ${providerType.name}`, async function () {
-      const temp2Folder = path.join(testFolderName, 'temp2')
-      await provider.moveObject(testFileName, 'Renamed.txt', testFolderName, temp2Folder, false)
-      const res = await provider.listFolderContent(temp2Folder, true)
-
-      assert.equal(res[0]?.name, 'Renamed')
-    })
-
-    it(`should delete object in ${providerType.name}`, async function () {
-      const fileKey = path.join(testFolderName, testFileName)
-      assert.ok(await provider.deleteResources([fileKey]))
-    })
-
-    it(`should put and get same data for glbs in ${providerType.name}`, async function () {
-      const glbTestPath = 'packages/projects/default-project/assets/collisioncube.glb'
-      const filePath = path.join(approot.path, glbTestPath)
-      const fileData = fs.readFileSync(filePath)
-      const contentType = getContentType(filePath)
-      const key = path.join(testFolderName, glbTestPath)
-      await provider.putObject({
-        Body: fileData,
-        Key: key,
-        ContentType: contentType
+      it(`should return valid object url in ${providerType.name}`, async function () {
+        const fileKey = path.join('/', testFolderName, testFileName)
+        const signedUrl = await provider.getSignedUrl(fileKey, 20000, [])
+        const httpAgent = new https.Agent({
+          rejectUnauthorized: false,
+          timeout: 1000
+        })
+        let res
+        try {
+          res = await fetch(signedUrl.url + signedUrl.fields.key, { agent: httpAgent })
+        } catch (err) {
+          console.log(err)
+        }
+        if (!res) console.log('Make sure server is running')
+        assert.ok(res?.ok)
       })
-      const ret = await provider.getObject(key)
-      assert.strictEqual(contentType, ret.ContentType)
-      assert.deepStrictEqual(fileData, ret.Body)
-    })
 
-    it(`should put over 1000 objects in ${providerType.name}`, async function () {
-      const promises: any[] = []
-      for (let i = 0; i < 1010; i++) {
-        const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
-        const data = Buffer.from([])
-        promises.push(
-          provider.putObject({
-            Body: data,
-            Key: fileKey,
-            ContentType: getContentType(fileKey)
-          })
-        )
-      }
-      await Promise.all(promises)
-    })
+      // Unable to perform move/copy and rename test cases because Fleek storage doesn't implemented those methods
 
-    it(`should list over 1000 objects in ${providerType.name}`, async function () {
-      const res = await provider.listFolderContent(testFolderName, true)
-      assert(res.length > 1000)
-    })
+      it(`should be able to move/copy object in ${providerType.name}`, async function () {
+        const newFolder1 = path.join(testFolderName, 'temp')
+        const newFolder2 = path.join(testFolderName, 'temp2')
 
-    after(async function () {
-      await providerAfterTest(provider, testFolderName)
-      destroyEngine()
+        //check copy functionality
+        await provider.moveObject(testFileName, testFileName, testFolderName, newFolder1, true)
+        assert(await provider.doesExist(testFileName, testFolderName))
+        assert(await provider.doesExist(testFileName, newFolder1))
+
+        //check move functionality
+        await provider.moveObject(testFileName, testFileName, newFolder1, newFolder2, false)
+        assert(await provider.doesExist(testFileName, newFolder2))
+        assert(!(await provider.doesExist(testFileName, newFolder1)))
+      })
+
+      it(`should be able to rename object in ${providerType.name}`, async function () {
+        const temp2Folder = path.join(testFolderName, 'temp2')
+        await provider.moveObject(testFileName, 'Renamed.txt', testFolderName, temp2Folder, false)
+        const res = await provider.listFolderContent(temp2Folder, true)
+
+        assert.equal(res[0]?.name, 'Renamed')
+      })
+
+      it(`should delete object in ${providerType.name}`, async function () {
+        const fileKey = path.join(testFolderName, testFileName)
+        assert.ok(await provider.deleteResources([fileKey]))
+      })
+
+      it(`should put and get same data for glbs in ${providerType.name}`, async function () {
+        const glbTestPath = 'packages/projects/default-project/assets/collisioncube.glb'
+        const filePath = path.join(approot.path, glbTestPath)
+        const fileData = fs.readFileSync(filePath)
+        const contentType = getContentType(filePath)
+        const key = path.join(testFolderName, glbTestPath)
+        await provider.putObject({
+          Body: fileData,
+          Key: key,
+          ContentType: contentType
+        })
+        const ret = await provider.getObject(key)
+        assert.strictEqual(contentType, ret.ContentType)
+        assert.deepStrictEqual(fileData, ret.Body)
+      })
+
+      it(`should put over 1000 objects in ${providerType.name}`, async function () {
+        const promises: any[] = []
+        for (let i = 0; i < 1010; i++) {
+          const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
+          const data = Buffer.from([])
+          promises.push(
+            provider.putObject({
+              Body: data,
+              Key: fileKey,
+              ContentType: getContentType(fileKey)
+            })
+          )
+        }
+        await Promise.all(promises)
+      })
+
+      it(`should list over 1000 objects in ${providerType.name}`, async function () {
+        const res = await provider.listFolderContent(testFolderName, true)
+        assert(res.length > 1000)
+      })
+
+      after(async function () {
+        destroyEngine()
+        await providerAfterTest(provider, testFolderName)
+      })
     })
   })
 })
