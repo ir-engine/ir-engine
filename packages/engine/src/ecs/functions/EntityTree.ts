@@ -38,7 +38,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
 import {
   LocalTransformComponent,
-  setLocalTransformComponent,
   setTransformComponent,
   TransformComponent
 } from '../../transform/components/TransformComponent'
@@ -222,7 +221,6 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
     // computeTransformMatrix(parentEntity)
     // computeTransformMatrix(entity)
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
-    setLocalTransformComponent(entity, parentEntity)
     const localTransform = getComponent(entity, LocalTransformComponent)
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }
