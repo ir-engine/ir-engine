@@ -42,6 +42,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Timer } from '../../common/functions/Timer'
+import { NetworkState } from '../../networking/NetworkState'
 import {
   defineQuery,
   EntityRemovedComponent,
@@ -70,7 +71,7 @@ export class Engine {
       const isHost =
         action.$topic === this.store.defaultTopic
           ? false
-          : (action.$topic === NetworkTopics.world ? this.worldNetwork : this.mediaNetwork)?.isHosting
+          : (action.$topic === NetworkTopics.world ? NetworkState.worldNetwork : NetworkState.mediaNetwork)?.isHosting
       return isHost || action.$from === this.userID
     },
     getDispatchId: () => Engine.instance.userID,
