@@ -55,7 +55,8 @@ export class ModelTransformService implements ServiceInterface<void> {
 
   async create(data: any): Promise<void> {
     const createParams: ModelTransformParameters = data
-    if (!config.kubernetes.enabled) {
+    console.log('config', config)
+    if (!config.kubernetes?.enabled) {
       return transformModel(this.app, createParams)
     }
     try {

@@ -133,7 +133,8 @@ export default function ModelTransformProperties({
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      const nuPath = await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      await Engine.instance.api.service(modelTransformPath).create(transformParms.value)
+      const nuPath = modelSrc.replace(/\.glb$/, '-transformed.glb')
       transformHistory.set([modelSrc, ...transformHistory.value])
       const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
       await FileBrowserService.fetchFiles(directoryToRefresh)
