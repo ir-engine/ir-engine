@@ -453,7 +453,7 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
@@ -547,7 +547,7 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId

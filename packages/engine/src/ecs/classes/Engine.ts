@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import * as Hyperflux from '@etherealengine/hyperflux'
-import { createHyperStore, getMutableState, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { NetworkTopics } from '../../networking/classes/Network'
@@ -42,7 +42,6 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Timer } from '../../common/functions/Timer'
-import { NetworkState } from '../../networking/NetworkState'
 import {
   defineQuery,
   EntityRemovedComponent,
@@ -82,26 +81,6 @@ export class Engine {
   }) as HyperStore
 
   engineTimer = null! as ReturnType<typeof Timer>
-
-  /**
-   * get the default world network
-   */
-  get worldNetwork() {
-    return getState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
-  }
-  get worldNetworkState() {
-    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
-  }
-
-  /**
-   * get the default media network
-   */
-  get mediaNetwork() {
-    return getState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
-  }
-  get mediaNetworkState() {
-    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
-  }
 
   gltfLoader: GLTFLoader = null!
 

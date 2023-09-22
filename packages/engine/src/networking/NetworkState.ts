@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { defineAction, defineState, getMutableState, none } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
 import { Validator, matches } from '../common/functions/MatchesUtils'
 import { InstanceID } from '../schemas/networking/instance.schema'
 import { ChannelID } from '../schemas/social/channel.schema'
@@ -61,6 +61,26 @@ export const NetworkState = defineState({
       /** Use room IDs in url */
       roomID: false
     }
+  },
+
+  thing: () => {
+    console.log('asdf')
+  },
+
+  get worldNetwork() {
+    return getState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
+  },
+
+  get worldNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
+  },
+
+  get mediaNetwork() {
+    return getState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
+  },
+
+  get mediaNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 })
 

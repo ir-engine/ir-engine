@@ -200,7 +200,7 @@ export const usePortalTeleport = () => {
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too
-      leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
+      leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
 
       setAvatarToLocationTeleportingState()
       if (activePortal.effectType !== 'None') {
@@ -266,7 +266,7 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(
-        Engine.instance.worldNetwork as Network,
+        NetworkState.worldNetwork as Network,
         peerID,
         peerIndex,
         userId,

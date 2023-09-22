@@ -204,13 +204,13 @@ export const RecordingState = defineState({
     dispatchAction({
       ...action,
       $topic: NetworkTopics.world,
-      $to: Engine.instance.worldNetwork.hostPeerID
+      $to: NetworkState.worldNetwork.hostPeerID
     })
 
     dispatchAction({
       ...action,
       $topic: NetworkTopics.media,
-      $to: Engine.instance.mediaNetwork.hostPeerID
+      $to: NetworkState.mediaNetwork.hostPeerID
     })
   },
 
@@ -221,13 +221,13 @@ export const RecordingState = defineState({
     dispatchAction({
       ...recording,
       $topic: NetworkTopics.world,
-      $to: Engine.instance.worldNetwork.hostPeerID
+      $to: NetworkState.worldNetwork.hostPeerID
     })
     // todo - check that video actually needs to be stopped
     dispatchAction({
       ...recording,
       $topic: NetworkTopics.media,
-      $to: Engine.instance.mediaNetwork.hostPeerID
+      $to: NetworkState.mediaNetwork.hostPeerID
     })
   }
 })
@@ -264,13 +264,13 @@ export const PlaybackState = defineState({
     dispatchAction({
       ...action,
       $topic: NetworkTopics.world,
-      $to: Engine.instance.worldNetwork.hostPeerID
+      $to: NetworkState.worldNetwork.hostPeerID
     })
 
     dispatchAction({
       ...action,
       $topic: NetworkTopics.media,
-      $to: Engine.instance.mediaNetwork.hostPeerID
+      $to: NetworkState.mediaNetwork.hostPeerID
     })
   },
 
@@ -283,13 +283,13 @@ export const PlaybackState = defineState({
     dispatchAction({
       ...action,
       $topic: NetworkTopics.world,
-      $to: Engine.instance.worldNetwork.hostPeerID
+      $to: NetworkState.worldNetwork.hostPeerID
     })
 
     dispatchAction({
       ...action,
       $topic: NetworkTopics.media,
-      $to: Engine.instance.mediaNetwork.hostPeerID
+      $to: NetworkState.mediaNetwork.hostPeerID
     })
   }
 })
@@ -408,7 +408,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   if (!uploadRecordingChunk)
     return dispatchError('Recording not available - no upload method provided', action.$peer, action.$topic)
 
-  if (Engine.instance.worldNetwork) {
+  if (NetworkState.worldNetwork) {
     const serializationSchema = schema.user
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
       .filter(Boolean)
@@ -462,7 +462,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     }
   }
 
-  if (Engine.instance.mediaNetwork) {
+  if (NetworkState.mediaNetwork) {
     const createMediaRecording = getState(RecordingAPIState).createMediaChannelRecorder
     if (!createMediaRecording) return dispatchError('Media recording not available', action.$peer, action.$topic)
 
@@ -625,7 +625,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
           .get(uuid)
           .then((user) => {
             if (network && network.topic === NetworkTopics.world) {
-              const network = Engine.instance.worldNetwork
+              const network = NetworkState.worldNetwork
               const peerIDs = Object.keys(schema.peers) as PeerID[]
 
               // todo, this is a hack
@@ -785,7 +785,7 @@ const execute = () => {
 
   // todo - only set deserializer.active to true once avatar spawns, if clone mode
 
-  const network = Engine.instance.worldNetwork // TODO - support buffer playback in media server
+  const network = NetworkState.worldNetwork // TODO - support buffer playback in media server
 
   if (!network) return
 

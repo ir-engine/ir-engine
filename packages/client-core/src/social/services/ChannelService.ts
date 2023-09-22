@@ -27,6 +27,7 @@ import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -72,7 +73,7 @@ export const ChannelService = {
     try {
       const channelResult = (await Engine.instance.api.service(channelPath).find({
         query: {
-          instanceId: Engine.instance.worldNetwork.id,
+          instanceId: NetworkState.worldNetwork.id,
           paginate: false
         }
       })) as ChannelType[]
@@ -119,12 +120,12 @@ export const ChannelService = {
   },
   joinChannelInstance: (channelID: ChannelID) => {
     getMutableState(ChannelState).targetChannelId.set(channelID)
-    if (channelID === '' && Engine.instance.worldNetwork) {
+    if (channelID === '' && NetworkState.worldNetwork) {
       ChannelService.getInstanceChannel()
     } else {
       getMutableState(ChannelState).targetChannelId.set(channelID)
     }
-    const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const network = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (!network) return
     leaveNetwork(network)
   },

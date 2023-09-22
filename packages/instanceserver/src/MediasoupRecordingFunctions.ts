@@ -30,6 +30,7 @@ import { useEffect } from 'react'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
+  NetworkState,
   PeerMediaType,
   screenshareAudioDataChannelType,
   webcamAudioDataChannelType,
@@ -124,7 +125,7 @@ export const startMediaRecordingPair = async (
   mediaType: 'webcam' | 'screenshare',
   tracks: MediaTrackPair
 ) => {
-  const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
+  const network = NetworkState.mediaNetwork as SocketWebRTCServerNetwork
 
   const promises = [] as Promise<any>[]
 
@@ -247,7 +248,7 @@ export const uploadMediaStaticResource = async (props: onUploadPartArgs) => {
 
 // todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
 export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchemaType['peers']) => {
-  const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
+  const network = NetworkState.mediaNetwork as SocketWebRTCServerNetwork
 
   const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>
 

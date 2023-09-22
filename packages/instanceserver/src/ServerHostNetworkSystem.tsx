@@ -35,6 +35,7 @@ import { RecordingID } from '@etherealengine/engine/src/schemas/recording/record
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
@@ -51,7 +52,7 @@ export async function validateNetworkObjects(network: SocketWebRTCServerNetwork)
 }
 
 const execute = () => {
-  const worldNetwork = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
+  const worldNetwork = NetworkState.worldNetwork as SocketWebRTCServerNetwork
   if (worldNetwork) {
     if (worldNetwork.isHosting) validateNetworkObjects(worldNetwork)
   }

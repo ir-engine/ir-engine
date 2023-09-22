@@ -28,7 +28,6 @@ import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 // import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
@@ -42,6 +41,7 @@ import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkState } from '../../networking/NetworkState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -181,7 +181,7 @@ export const generatePhysicsObject = (
   const body = getComponent(entity, RigidBodyComponent).body
   body.setTranslation(transform.position, true)
 
-  if (isNetworkObject && Engine.instance.worldNetwork.isHosting) {
+  if (isNetworkObject && NetworkState.worldNetwork.isHosting) {
     // body.addTorque(defaultTorqueForce, true)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 

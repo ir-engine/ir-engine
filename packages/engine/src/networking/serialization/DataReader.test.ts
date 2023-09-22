@@ -484,7 +484,7 @@ describe('DataReader', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
     network.userIndexToUserID[userIndex] = userId
     network.userIDToUserIndex[userId] = userIndex
     network.peerIndexToPeerID[userIndex] = peerId
@@ -559,7 +559,7 @@ describe('DataReader', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
     network.userIndexToUserID[userIndex] = userId
     network.userIDToUserIndex[userId] = userIndex
 
@@ -631,7 +631,7 @@ describe('DataReader', () => {
     Engine.instance.userID = userId
     const userIndex = 0
 
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
     network.userIndexToUserID[userIndex] = userId
     network.userIDToUserIndex[userId] = userIndex
 
@@ -687,7 +687,7 @@ describe('DataReader', () => {
   it('should readEntities', () => {
     const writeView = createViewCursor()
 
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
 
     const userId = 'userId' as UserID
     const peerID = 'peerID' as PeerID
@@ -758,7 +758,7 @@ describe('DataReader', () => {
 
   it('should createDataWriter', () => {
     const write = createDataWriter()
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
 
     Engine.instance.userID = 'userId' as UserID
     Engine.instance.peerID = 'peer' as PeerID
@@ -877,7 +877,7 @@ describe('DataReader', () => {
     const write = createDataWriter()
 
     const peerID = 'peerID' as PeerID
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
     const engineState = getMutableState(EngineState)
     engineState.simulationTime.set(1)
 
@@ -919,7 +919,7 @@ describe('DataReader', () => {
   // todo - since we are now passing this down through the writers, we need to refactor this test
   // it('should createDataReader and return populated packet if no changes were made but on a fixedTick divisible by 60', () => {
   //   const write = createDataWriter()
-  //   const network = Engine.instance.worldNetwork as Network
+  //   const network = NetworkState.worldNetwork as Network
   //   const engineState = getMutableState(EngineState)
   //   engineState.fixedTick.set(60)
   //   const peerID = 'peerID' as PeerID
@@ -957,7 +957,7 @@ describe('DataReader', () => {
   it('should createDataWriter and detect changes', async () => {
     const write = createDataWriter()
 
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
     const engineState = getMutableState(EngineState)
     engineState.simulationTime.set(1)
     const peerID = 'peerID' as PeerID

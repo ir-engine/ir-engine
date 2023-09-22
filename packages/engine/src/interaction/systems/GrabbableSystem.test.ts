@@ -49,6 +49,7 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
@@ -128,10 +129,10 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
   it('Can equip and unequip', async () => {
     const hostUserId = 'world' as UserID & PeerID
-    ;(Engine.instance.worldNetwork as Network).hostId = hostUserId
+    ;(NetworkState.worldNetwork as Network).hostId = hostUserId
     const hostIndex = 0
 
-    Engine.instance.worldNetwork.peers[hostUserId] = {
+    NetworkState.worldNetwork.peers[hostUserId] = {
       peerID: hostUserId,
       peerIndex: hostIndex,
       userId: hostUserId,
@@ -163,7 +164,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     // network mock stuff
     // initially the object is owned by server
     addComponent(grabbableEntity, NetworkObjectComponent, {
-      ownerId: Engine.instance.worldNetwork.hostId,
+      ownerId: NetworkState.worldNetwork.hostId,
       authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
     })
@@ -177,7 +178,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
-    clearOutgoingActions(Engine.instance.worldNetwork.topic)
+    clearOutgoingActions(NetworkState.worldNetwork.topic)
     applyIncomingActions()
 
     // equipperQueryEnter(grabberEntity)
@@ -192,7 +193,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     // unequip stuff
     dropEntity(grabberEntity)
 
-    clearOutgoingActions(Engine.instance.worldNetwork.topic)
+    clearOutgoingActions(NetworkState.worldNetwork.topic)
     applyIncomingActions()
 
     // validations for unequip
