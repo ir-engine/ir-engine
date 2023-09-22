@@ -47,8 +47,7 @@ export function isOldEEMaterial(extension: any) {
   return !matches
     .arrayOf(
       matches.shape({
-        type: matches.string,
-        contents: matches.any
+        type: matches.string
       })
     )
     .test(argValues)
