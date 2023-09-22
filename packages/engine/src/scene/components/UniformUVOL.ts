@@ -29,11 +29,15 @@ import {
   BufferAttribute,
   BufferGeometry,
   Clock,
+  Color,
   CompressedTexture,
   InterleavedBufferAttribute,
   Mesh,
-  MeshBasicMaterial,
-  PlaneGeometry
+  MeshStandardMaterial,
+  PlaneGeometry,
+  ShaderLib,
+  ShaderMaterial,
+  Vector2
 } from 'three'
 import { AudioState } from '../../audio/AudioState'
 import { Engine } from '../../ecs/classes/Engine'
@@ -45,7 +49,6 @@ import {
   GeometryFormat,
   PlayerManifest,
   TextureFormat,
-  TextureType,
   UniformSolveTarget
 } from '../constants/UVOLTypes'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -61,7 +64,7 @@ export const UniformUVOL = defineComponent({
       data: {} as PlayerManifest,
       hasAudio: false,
       geometryTarget: '',
-      textureTarget: {} as Partial<Record<TextureType, string>>
+      textureTarget: ''
     }
   },
 
@@ -90,11 +93,39 @@ const countHashes = (str: string) => {
   return result
 }
 
+const vertexShader = `/**
+* 'vMapUv' is used by MeshBasicMaterial's fragment shader
+* Hence name of this varying should not be changed
+*/
+out vec2 vMapUv;
+
+attribute vec4 keyframeA;
+attribute vec4 keyframeB;
+uniform float mixRatio;
+
+uniform vec2 repeat;
+uniform vec2 offset;
+
+
+void main() {
+   vMapUv = uv * repeat + offset; 
+
+   vec4 localPosition = vec4(position, 1.0);
+
+   localPosition.x += mix(keyframeA.x, keyframeB.x, mixRatio); 
+   localPosition.y += mix(keyframeA.y, keyframeB.y, mixRatio);
+   localPosition.z += mix(keyframeA.z, keyframeB.z, mixRatio);
+
+   gl_Position = projectionMatrix * modelViewMatrix * localPosition;
+}`
+const fragmentShader = '#define USE_MAP\n' + ShaderLib.basic.fragmentShader
+
 type MorphAttribute = {
   position: BufferAttribute | InterleavedBufferAttribute
   normal?: BufferAttribute | InterleavedBufferAttribute
 }
 
+// TODO: Support PBR materials
 function UniformUVOLReactor() {
   const entity = useEntityContext()
   const volumetric = useComponent(entity, VolumetricComponent)
@@ -108,24 +139,11 @@ function UniformUVOLReactor() {
     keys.sort((a, b) => manifest.geometry.targets[a].priority - manifest.geometry.targets[b].priority)
     return keys
   }, [])
-  const textureTypes = useMemo(() => {
-    const _types = [] as TextureType[]
-    for (const type in manifest.texture) {
-      _types.push(type as TextureType)
-    }
-    return _types
-  }, [])
+
   const textureTargets = useMemo(() => {
-    const targets: Partial<Record<TextureType, string[]>> = {}
-    textureTypes.forEach((textureType) => {
-      const keys = Object.keys(manifest.texture[textureType]!.targets)
-      keys.sort(
-        (a, b) =>
-          manifest.texture[textureType]!.targets[a].priority - manifest.texture[textureType]!.targets[b].priority
-      )
-      targets[textureType] = keys
-    })
-    return targets
+    const keys = Object.keys(manifest.texture.baseColor.targets)
+    keys.sort((a, b) => manifest.geometry.targets[a].priority - manifest.geometry.targets[b].priority)
+    return keys
   }, [])
 
   const mediaElement = getMutableComponent(entity, MediaElementComponent).value
@@ -137,9 +155,28 @@ function UniformUVOLReactor() {
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
   const maxBufferHealth = 10 // seconds
   const minBufferToPlay = 2 // seconds
-
   const material = useMemo(() => {
-    const _material = new MeshBasicMaterial({ color: 0xffffff })
+    const _material = new ShaderMaterial({
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      uniforms: {
+        map: {
+          value: null
+        },
+        diffuse: {
+          value: new Color(0xffffff)
+        },
+        repeat: {
+          value: new Vector2(1, 1)
+        },
+        offset: {
+          value: new Vector2(0, 0)
+        },
+        mixRatio: {
+          value: 0
+        }
+      }
+    })
     return _material
   }, [])
 
@@ -151,7 +188,8 @@ function UniformUVOLReactor() {
     mesh.current = initialMesh
   }
 
-  const pendingRequests = useRef(0)
+  const pendingGeometryRequests = useRef(0)
+  const pendingTextureRequests = useRef(0)
 
   /**
    * This says until how long can we play geometry buffers without fetching new data.
@@ -164,15 +202,12 @@ function UniformUVOLReactor() {
   const resolvePath = (
     path: string,
     format: AudioFileFormat | GeometryFormat | TextureFormat,
-    textureType?: TextureType,
     target?: string,
     index?: number
   ) => {
     let resolvedPath = path
     resolvedPath = path.replace('[ext]', FORMAT_TO_EXTENSION[format])
-    if (textureType) {
-      resolvedPath = resolvedPath.replace('[type]', textureType)
-    }
+    resolvedPath = resolvedPath.replace('[type]', 'baseColor')
     if (target) {
       resolvedPath = resolvedPath.replace('[target]', target)
     }
@@ -194,12 +229,8 @@ function UniformUVOLReactor() {
     return resolvedPath
   }
 
-  const createKey = (target: string, index: number, textureType?: TextureType) => {
-    let key = target + index.toString().padStart(7, '0')
-    if (textureType) {
-      key += textureType
-    }
-    return key
+  const createKey = (target: string, index: number) => {
+    return target + index.toString().padStart(7, '0')
   }
 
   useEffect(() => {
@@ -211,9 +242,7 @@ function UniformUVOLReactor() {
     }
 
     component.geometryTarget.set(geometryTargets[0])
-    textureTypes.forEach((textureType) => {
-      component.textureTarget[textureType].set(textureTargets[textureType]![0])
-    })
+    component.textureTarget.set(textureTargets[0])
 
     return () => {
       removeObjectFromGroup(entity, mesh.current!)
@@ -224,7 +253,7 @@ function UniformUVOLReactor() {
 
   const fetchGeometry = () => {
     const currentBufferLength = geometryBufferHealth.current - currentTime.current
-    if (currentBufferLength >= maxBufferHealth) {
+    if (currentBufferLength >= maxBufferHealth || pendingGeometryRequests.current > 0) {
       return
     }
     const target = component.geometryTarget.value
@@ -240,10 +269,10 @@ function UniformUVOLReactor() {
     const endSegment = Math.floor(endFrame / targetData.segmentFrameCount)
 
     for (let i = startSegment; i <= endSegment; i++) {
-      const segmentURL = resolvePath(manifest.geometry.path, targetData.format, undefined, target, i)
-      pendingRequests.current++
+      const segmentURL = resolvePath(manifest.geometry.path, targetData.format, target, i)
+      pendingGeometryRequests.current++
       getMeshFromGLTF(segmentURL).then((segmentMesh) => {
-        pendingRequests.current--
+        pendingGeometryRequests.current--
         segmentMesh.geometry.morphAttributes.position.forEach((attribute, index) => {
           const key = createKey(target, i * targetData.segmentFrameCount + index)
           geometryBuffer.set(key, { position: attribute })
@@ -258,12 +287,70 @@ function UniformUVOLReactor() {
         if (mesh.current?.name === 'default') {
           // This is the first segment, replace the default mesh
           mesh.current = segmentMesh
+          material.uniforms.repeat.value = (mesh.current.material as MeshStandardMaterial).map!.repeat
+          material.uniforms.offset.value = (mesh.current.material as MeshStandardMaterial).map!.offset
+          mesh.current.material = material
         }
+
+        // in seconds
+        const segmentDuration = segmentMesh.geometry.morphAttributes.position.length / frameRate
+        geometryBufferHealth.current += segmentDuration
       })
     }
   }
 
-  const bufferLoop = () => {}
+  const fetchTextures = () => {
+    const currentBufferLength = textureBufferHealth.current - currentTime.current
+    if (currentBufferLength >= maxBufferHealth || pendingTextureRequests.current > 0) {
+      return
+    }
+    const target = component.textureTarget.value
+    const targetData = manifest.texture.baseColor.targets[target]
+    const frameRate = targetData.frameRate
+    const startFrame = Math.round(textureBufferHealth.current * frameRate)
+    const framesToFetch = Math.round((maxBufferHealth - currentBufferLength) * frameRate)
+    const endFrame = Math.min(startFrame + framesToFetch, targetData.frameRate - 1)
+
+    for (let i = startFrame; i <= endFrame; i++) {
+      const textureURL = resolvePath(manifest.texture.baseColor.path, targetData.format, target, i)
+      pendingTextureRequests.current++
+      if (!Engine.instance.gltfLoader.ktx2Loader) {
+        throw new Error('KTX2Loader not initialized')
+      }
+      Engine.instance.gltfLoader.ktx2Loader.load(textureURL, (texture) => {
+        pendingTextureRequests.current--
+        const key = createKey(target, i)
+        textureBuffer.set(key, texture)
+        textureBufferHealth.current += 1 / frameRate
+      })
+    }
+  }
+
+  const bufferLoop = () => {
+    fetchGeometry()
+    fetchTextures()
+    const canPlay = geometryBufferHealth.current >= minBufferToPlay && textureBufferHealth.current >= minBufferToPlay
+    if (canPlay && !volumetric.initialBuffersLoaded.value) {
+      volumetric.initialBuffersLoaded.set(true)
+    }
+  }
+
+  const update = () => {
+    if (component.hasAudio.value) {
+      currentTime.current = audioContext.currentTime
+    } else {
+      currentTime.current = clock.getElapsedTime()
+    }
+    const geometryTarget = component.geometryTarget.value
+    const textureTarget = component.textureTarget.value
+
+    const geometryFrame = currentTime.current * manifest.geometry.targets[geometryTarget].frameRate
+
+    // TODO: Avoid uploading same attribute twice
+    const keyframeA = Math.floor(geometryFrame)
+    const keyframeB = Math.ceil(geometryFrame)
+    const mixRatio = geometryFrame - keyframeA
+  }
 
   return null
 }
