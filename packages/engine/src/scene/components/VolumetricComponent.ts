@@ -41,6 +41,23 @@ import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './
 import { ShadowComponent } from './ShadowComponent'
 import { UVOL1Component } from './UVOL1Component'
 
+export function handleAutoplay(audioContext: AudioContext, element: HTMLMediaElement) {
+  const playMedia = () => {
+    element.play()
+    audioContext.resume()
+    window.removeEventListener('pointerdown', playMedia)
+    window.removeEventListener('keypress', playMedia)
+    window.removeEventListener('touchstart', playMedia)
+    EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', playMedia)
+    EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', playMedia)
+  }
+  window.addEventListener('pointerdown', playMedia)
+  window.addEventListener('keypress', playMedia)
+  window.addEventListener('touchstart', playMedia)
+  EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', playMedia)
+  EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', playMedia)
+}
+
 export const VolumetricComponent = defineComponent({
   name: 'EE_volumetric',
   jsonID: 'volumetric',
@@ -53,6 +70,7 @@ export const VolumetricComponent = defineComponent({
     return {
       paths: [] as string[],
       paused: false,
+      initialBuffersLoaded: false,
       ended: true,
       volume: 1,
       playMode: PlayMode.loop as PlayMode,
@@ -64,9 +82,11 @@ export const VolumetricComponent = defineComponent({
     return {
       paths: component.paths.value,
       paused: component.paused.value,
+      initialBuffersLoaded: component.initialBuffersLoaded.value,
       ended: component.ended.value,
       volume: component.volume.value,
-      playMode: component.playMode.value
+      playMode: component.playMode.value,
+      track: component.track.value
     }
   },
 
@@ -78,6 +98,10 @@ export const VolumetricComponent = defineComponent({
 
     if (typeof json.paused === 'boolean') {
       component.paused.set(json.paused)
+    }
+
+    if (typeof json.initialBuffersLoaded === 'boolean') {
+      component.initialBuffersLoaded.set(json.initialBuffersLoaded)
     }
 
     if (typeof json.ended === 'boolean') {
@@ -112,6 +136,10 @@ export const VolumetricComponent = defineComponent({
         component.playMode.set(json.playMode)
       }
     }
+
+    if (typeof json.track === 'number') {
+      component.track.set(json.track)
+    }
   },
 
   reactor: VolumetricReactor
@@ -141,26 +169,6 @@ export function VolumetricReactor() {
     element.addEventListener('ended', () => {
       volumetric.ended.set(true)
     })
-
-    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
-    // in order to ensure media will play programmatically
-    const handleAutoplay = () => {
-      // programatically started playback
-      if (!volumetric.paused.value) {
-        element.play()
-        audioContext.resume()
-        window.removeEventListener('pointerdown', handleAutoplay)
-        window.removeEventListener('keypress', handleAutoplay)
-        window.removeEventListener('touchstart', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
-      }
-    }
-    window.addEventListener('pointerdown', handleAutoplay)
-    window.addEventListener('keypress', handleAutoplay)
-    window.addEventListener('touchstart', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
   }, [])
 
   useEffect(() => {
@@ -194,15 +202,14 @@ export function VolumetricReactor() {
       return
     }
 
-    // UVOL1/UVOL2 sets paused to true, when initial buffers are loaded
-    volumetric.paused.set(true)
+    const resetTrack = () => {
+      // Overwriting with setComponent doesn't cleanup the component
+      removeComponent(entity, UVOL1Component)
+      volumetric.ended.set(false)
+      volumetric.initialBuffersLoaded.set(false)
+    }
 
-    // Starting a new track, reset ended
-    volumetric.ended.set(false)
-
-    // Removing component triggers cleanup.
-    // Overwriting with setComponent doesn't trigger cleanup.
-    removeComponent(entity, UVOL1Component)
+    resetTrack()
 
     volumetric.track.set(currentTrack)
 
@@ -217,7 +224,7 @@ export function VolumetricReactor() {
       .then((json) => {
         setComponent(entity, UVOL1Component)
         const player = getMutableComponent(entity, UVOL1Component)
-        player.track.set({
+        player.set({
           manifestPath: manifestPath,
           data: json
         })

@@ -32,7 +32,6 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
-
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import { Button } from '../inputs/Button'
@@ -119,7 +118,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         />
         {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
           <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
-            {volumetricComponent.paused
+            {volumetricComponent.paused.value
               ? t('editor:properties.media.playtitle')
               : t('editor:properties.media.pausetitle')}
           </Button>

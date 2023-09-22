@@ -28,6 +28,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { useEffect, useMemo, useRef } from 'react'
 import { BufferGeometry, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
+import { AudioState } from '../../audio/AudioState'
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -38,7 +39,7 @@ import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
-import { VolumetricComponent } from './VolumetricComponent'
+import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
 
 const decodeCorto = (url: string, start: number, end: number) => {
   return new Promise((res, rej) => {
@@ -69,10 +70,8 @@ export const UVOL1Component = defineComponent({
 
   onInit: (entity) => {
     return {
-      track: {
-        manifestPath: '',
-        data: {} as ManifestSchema
-      }
+      manifestPath: '',
+      data: {} as ManifestSchema
     }
   },
 
@@ -84,10 +83,11 @@ function UVOL1Reactor() {
   const volumetric = useComponent(entity, VolumetricComponent)
   const component = useComponent(entity, UVOL1Component)
   const videoElement = getMutableComponent(entity, MediaElementComponent).value
+  const audioContext = getState(AudioState).audioContext
   const video = videoElement.element as HTMLVideoElement
 
   const meshBuffer = useMemo(() => new Map<number, BufferGeometry>(), [])
-  const targetFramesToRequest = useMemo(() => (iOS ? 10 : 90), [])
+  const targetFramesToRequest = iOS ? 10 : 90
 
   const videoTexture = useMemo(() => {
     const element = videoElement.element as HTMLVideoElement
@@ -121,14 +121,12 @@ function UVOL1Reactor() {
       Engine.instance.cortoLoader = loader
     }
     addObjectToGroup(entity, mesh)
-    pendingRequests.current = 0
-    nextFrameToRequest.current = 0
-    video.src = component.track.manifestPath.value.replace('.manifest', '.mp4')
+    video.src = component.manifestPath.value.replace('.manifest', '.mp4')
 
     return () => {
       removeObjectFromGroup(entity, mesh)
       videoTexture.dispose()
-      const numberOfFrames = component.track.data.value.frameData.length
+      const numberOfFrames = component.data.value.frameData.length
       removePlayedBuffer(numberOfFrames)
       meshBuffer.clear()
       video.src = ''
@@ -136,12 +134,19 @@ function UVOL1Reactor() {
   }, [])
 
   useEffect(() => {
-    if (volumetric.paused.value) {
+    if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
       video.pause()
-    } else {
-      video.play()
+      return
     }
-  }, [volumetric.paused])
+
+    video.play().catch((e) => {
+      if (e.name === 'NotAllowedError') {
+        handleAutoplay(audioContext, video)
+      } else {
+        console.error(e)
+      }
+    })
+  }, [volumetric.paused, volumetric.initialBuffersLoaded])
 
   /**
    * sync mesh frame to video texture frame
@@ -159,29 +164,29 @@ function UVOL1Reactor() {
   }
 
   const handleVideoFrame = (now: DOMHighResTimeStamp, metadata: VideoFrameCallbackMetadata) => {
-    const frameToPlay = Math.round(metadata.mediaTime * component.track.data.value.frameRate)
+    const frameToPlay = Math.round(metadata.mediaTime * component.data.value.frameRate)
     processFrame(frameToPlay)
   }
 
   useVideoFrameCallback(video, handleVideoFrame)
 
   const bufferLoop = () => {
-    const numberOfFrames = component.track.data.value.frameData.length
+    const numberOfFrames = component.data.value.frameData.length
     if (nextFrameToRequest.current === numberOfFrames - 1) {
       // Fetched all frames
       return
     }
 
     const minimumBufferLength = targetFramesToRequest * 2
-    const meshBufferHasEnoughToPlay = meshBuffer.size >= minimumBufferLength * 3
+    const meshBufferHasEnoughToPlay = meshBuffer.size >= 60 // 2 seconds
     const meshBufferHasEnough = meshBuffer.size >= minimumBufferLength * 5
 
     if (pendingRequests.current == 0 && !meshBufferHasEnough) {
       const newLastFrame = Math.min(nextFrameToRequest.current + targetFramesToRequest - 1, numberOfFrames - 1)
       for (let i = nextFrameToRequest.current; i <= newLastFrame; i++) {
-        const meshFilePath = component.track.manifestPath.value.replace('.manifest', '.drcs')
-        const byteStart = component.track.data.value.frameData[i].startBytePosition
-        const byteEnd = byteStart + component.track.data.value.frameData[i].meshLength
+        const meshFilePath = component.manifestPath.value.replace('.manifest', '.drcs')
+        const byteStart = component.data.value.frameData[i].startBytePosition
+        const byteEnd = byteStart + component.data.value.frameData[i].meshLength
         pendingRequests.current += 1
         decodeCorto(meshFilePath, byteStart, byteEnd).then((geometry: BufferGeometry) => {
           meshBuffer.set(i, geometry)
@@ -191,8 +196,8 @@ function UVOL1Reactor() {
         nextFrameToRequest.current = newLastFrame
       }
 
-      if (meshBufferHasEnoughToPlay && volumetric.paused.value) {
-        volumetric.paused.set(false)
+      if (meshBufferHasEnoughToPlay && !volumetric.initialBuffersLoaded.value) {
+        volumetric.initialBuffersLoaded.set(true)
       }
     }
   }
