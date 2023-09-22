@@ -512,7 +512,6 @@ const reparentObject = (
 ) => {
   cancelGrabOrPlacement()
 
-  console.log(EditorHistoryState.cloneCurrentSnapshot().data.scene.entities)
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
 
   for (let i = 0; i < nodes.length; i++) {
@@ -526,7 +525,9 @@ const reparentObject = (
       const currentIndex = parentEntityTreeComponent.children.indexOf(node)
 
       const newParentEntityTreeComponent = getComponent(parent, EntityTreeComponent)
-      const newIndex = before ? newParentEntityTreeComponent.children.indexOf(before as Entity) : 0
+      const newIndex = before
+        ? newParentEntityTreeComponent.children.indexOf(before as Entity)
+        : newParentEntityTreeComponent.children.length
 
       const entityData = newSnapshot.data.scene.entities[getComponent(node, UUIDComponent)]
       entityData.parent = getComponent(parent, UUIDComponent)
@@ -562,8 +563,6 @@ const reparentObject = (
   if (updateSelection) {
     EditorControlFunctions.replaceSelection(nodes)
   }
-
-  console.log(newSnapshot.data.scene.entities)
 
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
