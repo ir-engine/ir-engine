@@ -45,7 +45,6 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
@@ -94,7 +93,7 @@ type SceneElementListItemType = {
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
   Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
-  'Scene Composition': [GroundPlaneComponent, GroupComponent, PrefabComponent, ColliderComponent],
+  'Scene Composition': [GroundPlaneComponent, GroupComponent, ColliderComponent],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
   Lighting: [
     AmbientLightComponent,

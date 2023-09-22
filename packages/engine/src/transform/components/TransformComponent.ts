@@ -32,14 +32,14 @@ import { getMutableState } from '@etherealengine/hyperflux'
 import { isZero } from '../../common/functions/MathFunctions'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
-  getComponent,
   getOptionalComponent,
   hasComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 
 export type TransformComponentType = {
   position: Vector3
@@ -65,7 +65,6 @@ const matrix = new Matrix4()
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
-  jsonID: 'transform',
   schema: TransformSchema,
 
   onInit: (entity) => {
@@ -110,24 +109,14 @@ export const TransformComponent = defineComponent({
     component.matrixInverse.value.copy(component.matrix.value).invert()
 
     const localTransform = getOptionalComponent(entity, LocalTransformComponent)
-    if (localTransform) {
-      const parentEntity = localTransform.parentEntity
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    if (localTransform && entityTree?.parentEntity) {
+      const parentEntity = entityTree.parentEntity
       const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
       if (parentTransform) {
         const localMatrix = matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
         localMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
       }
-    }
-  },
-
-  toJSON(entity, comp) {
-    const component = hasComponent(entity, LocalTransformComponent)
-      ? getComponent(entity, LocalTransformComponent)
-      : comp.value
-    return {
-      position: new Vector3().copy(component.position),
-      rotation: new Quaternion().copy(component.rotation),
-      scale: new Vector3().copy(component.scale)
     }
   },
 
@@ -140,11 +129,11 @@ export const TransformComponent = defineComponent({
 
 export const LocalTransformComponent = defineComponent({
   name: 'LocalTransformComponent',
+  jsonID: 'transform',
   schema: TransformSchema,
 
   onInit: (entity) => {
     return {
-      parentEntity: UndefinedEntity as Entity,
       position: new Vector3(),
       rotation: new Quaternion(),
       scale: new Vector3(1, 1, 1),
@@ -152,22 +141,37 @@ export const LocalTransformComponent = defineComponent({
     }
   },
 
+  toJSON: (entity, component) => {
+    return {
+      position: component.position.value,
+      rotation: component.rotation.value,
+      scale: component.scale.value
+    }
+  },
+
   onSet: (entity, component, json: Partial<DeepReadonly<TransformComponentType>> & { parentEntity: Entity }) => {
     if (!json) return
 
-    const position = json.position ?? new Vector3()
-    const rotation = json.rotation ?? new Quaternion()
-    const scale = json.scale ?? new Vector3(1, 1, 1)
-    const parentEntity = json.parentEntity
-
+    const position = json.position?.isVector3
+      ? json.position
+      : json.position
+      ? new Vector3(json.position.x, json.position.y, json.position.z)
+      : new Vector3()
+    const rotation = json.rotation?.isQuaternion
+      ? json.rotation
+      : json.rotation
+      ? new Quaternion(json.rotation.x, json.rotation.y, json.rotation.z, json.rotation.w)
+      : new Quaternion()
+    const scale = json.scale?.isVector3
+      ? json.scale
+      : json.scale
+      ? new Vector3(json.scale.x, json.scale.y, json.scale.z)
+      : new Vector3(1, 1, 1)
     const dirtyTransforms = TransformComponent.dirtyTransforms
 
-    if (entity === parentEntity!) throw new Error('Tried to parent entity to self - this is not allowed')
     if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
 
     getMutableState(EngineState).transformsNeedSorting.set(true)
-
-    component.parentEntity.set(parentEntity)
 
     // clone incoming transform properties, because we don't want to accidentally bind obj properties to local transform
     component.position.set(
@@ -189,7 +193,6 @@ globalThis.TransformComponent = TransformComponent
  * Sets the transform component.
  * Used for objects that exist as part of the world - such as avatars and scene objects
  * @param entity
- * @param parentEntity
  * @param position
  * @param rotation
  * @param scale

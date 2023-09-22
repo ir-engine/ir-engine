@@ -30,7 +30,10 @@ import { MathUtils } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/engine/src/common/functions/logger'
-import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  setLocalTransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   addActionReceptor,
   dispatchAction,
@@ -94,7 +97,7 @@ export const createNewEditorNode = (
   const components = [
     { name: ComponentMap.get(componentName)!.jsonID! },
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
-    { name: ComponentMap.get(TransformComponent.name)!.jsonID! }
+    { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
   ]
   const name = getUniqueName(entityNode, `New ${startCase(components[0].name.toLowerCase())}`)
 
@@ -105,6 +108,8 @@ export const createNewEditorNode = (
     type: componentName.toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
   })
+  const localTransform = getComponent(entityNode, LocalTransformComponent)
+  setComponent(entityNode, TransformComponent)
 }
 
 export const splitLazyLoadedSceneEntities = (json: SceneJson) => {

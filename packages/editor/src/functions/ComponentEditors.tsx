@@ -46,7 +46,6 @@ import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/compon
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
-import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
@@ -94,7 +93,6 @@ import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PositionalAudioNodeEditor from '../components/properties/PositionalAudioNodeEditor'
 import { PostProcessingSettingsEditor } from '../components/properties/PostProcessingSettingsEditor'
-import { PrefabNodeEditor } from '../components/properties/PrefabNodeEditor'
 import { RenderSettingsEditor } from '../components/properties/RenderSettingsEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
@@ -132,7 +130,6 @@ EntityNodeEditor.set(PortalComponent, PortalNodeEditor)
 EntityNodeEditor.set(MountPointComponent, MountPointNodeEditor)
 EntityNodeEditor.set(ColliderComponent, ColliderNodeEditor)
 EntityNodeEditor.set(GroupComponent, GroupNodeEditor)
-EntityNodeEditor.set(PrefabComponent, PrefabNodeEditor)
 EntityNodeEditor.set(SceneTagComponent, SceneNodeEditor)
 EntityNodeEditor.set(ScenePreviewCameraComponent, ScenePreviewCameraNodeEditor)
 EntityNodeEditor.set(SkyboxComponent, SkyboxNodeEditor)

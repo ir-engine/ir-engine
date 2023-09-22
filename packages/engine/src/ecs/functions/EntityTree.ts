@@ -42,7 +42,6 @@ import {
   setTransformComponent,
   TransformComponent
 } from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
@@ -220,8 +219,8 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
   const childTransform = getComponent(entity, TransformComponent)
   getMutableState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
-    computeTransformMatrix(parentEntity)
-    computeTransformMatrix(entity)
+    // computeTransformMatrix(parentEntity)
+    // computeTransformMatrix(entity)
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
     setLocalTransformComponent(entity, parentEntity)
     const localTransform = getComponent(entity, LocalTransformComponent)
