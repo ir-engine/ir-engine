@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import {
   Color,
+  CubeReflectionMapping,
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
@@ -50,7 +51,7 @@ import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunc
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { getPmremGenerator, getRGBArray, loadCubeMapTexture } from '../constants/Util'
+import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { applyBoxProjection, EnvMapBakeComponent } from './EnvMapBakeComponent'
 import { GroupComponent } from './GroupComponent'
@@ -119,8 +120,9 @@ export const EnvmapComponent = defineComponent({
       const texture = new DataTexture(getRGBArray(col), resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
       texture.colorSpace = SRGBColorSpace
+      texture.mapping = EquirectangularReflectionMapping
 
-      updateEnvMap(group.value, getPmremGenerator().fromEquirectangular(texture).texture)
+      updateEnvMap(group.value, texture)
     }, [component.type, group])
 
     useEffect(() => {
@@ -132,7 +134,8 @@ export const EnvmapComponent = defineComponent({
             component.envMapSourceURL.value,
             (texture: CubeTexture | undefined) => {
               if (texture) {
-                const EnvMap = getPmremGenerator().fromCubemap(texture).texture
+                texture.mapping = CubeReflectionMapping
+                const EnvMap = texture
                 EnvMap.colorSpace = SRGBColorSpace
                 if (group?.value) updateEnvMap(group.value, texture)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
