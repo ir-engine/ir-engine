@@ -45,10 +45,7 @@ import { ScreenshotSettings } from '@etherealengine/engine/src/scene/classes/Ima
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import {
-  TransformComponent,
-  setTransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
@@ -97,7 +94,7 @@ export async function previewScreenshot(
       setComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-      setTransformComponent(entity, position, rotation)
+      setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       addEntityNodeChild(entity, getState(SceneState).sceneEntity)
       scenePreviewCamera.updateMatrixWorld(true)
@@ -179,7 +176,7 @@ export async function takeScreenshot(
       setComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-      setTransformComponent(entity, position, rotation)
+      setComponent(entity, TransformComponent, { position, rotation })
       addObjectToGroup(entity, scenePreviewCamera)
       addEntityNodeChild(entity, getState(SceneState).sceneEntity)
       scenePreviewCamera.updateMatrixWorld(true)

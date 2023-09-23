@@ -42,7 +42,7 @@ import { NameComponent } from './scene/components/NameComponent'
 import { VisibleComponent } from './scene/components/VisibleComponent'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { setObjectLayers } from './scene/functions/setObjectLayers'
-import { TransformComponent, setTransformComponent } from './transform/components/TransformComponent'
+import { TransformComponent } from './transform/components/TransformComponent'
 
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
@@ -64,7 +64,7 @@ export const createEngine = () => {
   Engine.instance.originEntity = createEntity()
   setComponent(Engine.instance.originEntity, NameComponent, 'origin')
   setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: null })
-  setTransformComponent(Engine.instance.originEntity)
+  setComponent(Engine.instance.originEntity, TransformComponent)
   setComponent(Engine.instance.originEntity, VisibleComponent, true)
   addObjectToGroup(Engine.instance.originEntity, Engine.instance.origin)
   Engine.instance.origin.name = 'world-origin'

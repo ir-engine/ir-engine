@@ -58,11 +58,7 @@ import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent,
-  setTransformComponent
-} from '../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
@@ -280,7 +276,7 @@ const execute = () => {
 
   for (const action of xrSessionChangedQueue()) {
     if (!action.active) {
-      setTransformComponent(Engine.instance.originEntity) // reset world origin
+      setComponent(Engine.instance.originEntity, TransformComponent) // reset world origin
       getMutableState(XRState).scenePlacementMode.set('unplaced')
       for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
       for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)

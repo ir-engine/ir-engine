@@ -187,36 +187,3 @@ export const LocalTransformComponent = defineComponent({
 })
 
 globalThis.TransformComponent = TransformComponent
-
-/**
- * @deprecated - now included in TransfromComponent.onSet
- * Sets the transform component.
- * Used for objects that exist as part of the world - such as avatars and scene objects
- * @param entity
- * @param position
- * @param rotation
- * @param scale
- * @returns
- */
-export function setTransformComponent(entity: Entity, position?: Vector3, rotation?: Quaternion, scale?: Vector3) {
-  setComponent(entity, TransformComponent, { position, rotation, scale })
-}
-
-/**
- * @deprecated - now included in LocalTransfromComponent.onSet
- * Sets the local transform component. This is used to calculate relative transforms.
- * Used for objects that exist as part of a specific coordinate system - such as avatars and scene objects
- * @param entity
- * @param position
- * @param rotation
- * @param scale
- * @returns
- */
-export function setLocalTransformComponent(
-  entity: Entity,
-  position = new Vector3(),
-  rotation = new Quaternion(),
-  scale = new Vector3(1, 1, 1)
-) {
-  setComponent(entity, LocalTransformComponent, { position, rotation, scale })
-}
