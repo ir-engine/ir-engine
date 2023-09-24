@@ -45,7 +45,6 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/components/ParticleSystemComponent'
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
-import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
@@ -68,6 +67,7 @@ import { IconButton, PopoverPosition } from '@mui/material'
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { LinkComponent } from '@etherealengine/engine/src/scene/components/LinkComponent'
+import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
@@ -94,7 +94,7 @@ type SceneElementListItemType = {
 
 export const ComponentShelfCategories: Record<string, Component[]> = {
   Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
-  'Scene Composition': [GroundPlaneComponent, GroupComponent, PrefabComponent, ColliderComponent],
+  'Scene Composition': [GroundPlaneComponent, GroupComponent, ColliderComponent, LoadVolumeComponent],
   Interaction: [SpawnPointComponent, PortalComponent, LinkComponent],
   Lighting: [
     AmbientLightComponent,
