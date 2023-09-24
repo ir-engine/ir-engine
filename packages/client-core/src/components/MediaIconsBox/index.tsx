@@ -96,7 +96,8 @@ export const MediaIconsBox = () => {
 
   const spectating = useHookstate(getMutableState(EngineState).spectating)
   const xrState = useHookstate(getMutableState(XRState))
-  const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
+  // const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
+  const supportsAR = false
   const xrMode = xrState.sessionMode.value
   const supportsVR = xrState.supportedSessionModes['immersive-vr'].value
 
