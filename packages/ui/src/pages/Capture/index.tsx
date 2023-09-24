@@ -242,6 +242,7 @@ const CaptureMode = () => {
       numHands: 2
     }).then((hand) => {
       handDetector.set(hand)
+      handLandmarksReady.set(true)
     })
   }, [visionDetector])
 
