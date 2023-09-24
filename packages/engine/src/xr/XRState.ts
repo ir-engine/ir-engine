@@ -158,9 +158,10 @@ const userAgent = 'navigator' in globalThis ? navigator.userAgent.toLowerCase() 
  * Wheter or not this is a mobile XR headset
  **/
 export const isMobileXRHeadset =
-  !userAgent.includes('PICO') || // temporarily exclude PICO from mobile XR headsets
-  userAgent.includes('Oculus') ||
-  userAgent.includes('VR') ||
-  userAgent.includes('AR') ||
-  userAgent.includes('Reality') ||
-  userAgent.includes('Wolvic')
+  (userAgent.includes('Oculus') ||
+    userAgent.includes('VR') ||
+    userAgent.includes('AR') ||
+    userAgent.includes('Reality') ||
+    userAgent.includes('Wolvic')) &&
+  !userAgent.includes('PICO')
+// temporarily exclude PICO from mobile XR headsets
