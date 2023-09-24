@@ -152,14 +152,15 @@ export const getPreferredInputSource = (offhand = false) => {
   }
 }
 
+const userAgent = 'navigator' in globalThis ? navigator.userAgent.toLowerCase() : ''
+
 /**
  * Wheter or not this is a mobile XR headset
  **/
 export const isMobileXRHeadset =
-  'navigator' in globalThis === false
-    ? false
-    : navigator.userAgent.includes('Oculus') ||
-      navigator.userAgent.includes('VR') ||
-      navigator.userAgent.includes('AR') ||
-      navigator.userAgent.includes('Reality') ||
-      navigator.userAgent.includes('Wolvic')
+  !userAgent.includes('PICO') || // temporarily exclude PICO from mobile XR headsets
+  userAgent.includes('Oculus') ||
+  userAgent.includes('VR') ||
+  userAgent.includes('AR') ||
+  userAgent.includes('Reality') ||
+  userAgent.includes('Wolvic')
