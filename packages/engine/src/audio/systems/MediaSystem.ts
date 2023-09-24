@@ -151,18 +151,18 @@ const reactor = () => {
       // in order to ensure media will play programmatically
       const handleAutoplay = () => {
         enableAudioContext()
-        window.removeEventListener('pointerdown', handleAutoplay)
+        window.removeEventListener('pointerup', handleAutoplay)
         window.removeEventListener('keypress', handleAutoplay)
-        window.removeEventListener('touchstart', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
-        EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+        window.removeEventListener('touchend', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
       }
       // TODO: add destroy callbacks
-      window.addEventListener('pointerdown', handleAutoplay)
+      window.addEventListener('pointerup', handleAutoplay)
       window.addEventListener('keypress', handleAutoplay)
-      window.addEventListener('touchstart', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
+      window.addEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
     }
 
     const audioState = getMutableState(AudioState)
