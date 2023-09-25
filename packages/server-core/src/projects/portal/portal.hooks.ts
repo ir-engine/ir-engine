@@ -22,7 +22,7 @@ import authenticate from '../../hooks/authenticate'
 
 export default {
   around: {
-    all: [authenticate()]
+    all: []
   },
 
   before: {
