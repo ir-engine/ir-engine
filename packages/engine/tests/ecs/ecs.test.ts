@@ -236,10 +236,13 @@ describe('ECS', () => {
     assert.ok(!Engine.instance.entityQuery().includes(entity))
   })
 
-  it('should remove entity immedietly', async () => {
+  it('should remove entity immediately', async () => {
     const entity = createEntity()
 
+    const lengthBefore = Engine.instance.entityQuery().length
     removeEntity(entity)
+    const entities = Engine.instance.entityQuery()
+    assert.equal(entities.length, lengthBefore - 1)
     assert.throws(() => {
       removeEntity(entity)
     })
