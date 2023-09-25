@@ -30,7 +30,6 @@ import { setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { ImageComponent } from '../../../../../scene/components/ImageComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { ModelComponent } from '../../../../../scene/components/ModelComponent'
-import { PrefabComponent } from '../../../../../scene/components/PrefabComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../../../../scene/components/VolumetricComponent'
 import { addEntityToScene } from './entityHelper'
@@ -44,10 +43,7 @@ export async function addMediaComponent(url: string, parent?: Entity | null, bef
 
   let node: Entity | null = null
 
-  if (contentType.startsWith('prefab/')) {
-    componentName = PrefabComponent.name
-    updateFunc = () => setComponent(node!, PrefabComponent, { src: url })
-  } else if (contentType.startsWith('model/')) {
+  if (contentType.startsWith('model/')) {
     componentName = ModelComponent.name
     updateFunc = () => setComponent(node!, ModelComponent, { src: url })
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
