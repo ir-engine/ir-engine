@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [dev]
   push:
-    branches: [fix/docs-build-clear-commit-history]
+    branches: [dev]
 
 jobs:
   secrets-gate:
@@ -78,7 +78,7 @@ jobs:
           git checkout gh-pages
           git checkout --orphan temp-gh-pages
           git add -A
-          git commit -m "Update docs to latest commit only"
+          git commit -m "Update docs to latest commit only in gh-pages"
           git checkout gh-pages
           git reset --hard temp-gh-pages
           git push origin gh-pages --force
