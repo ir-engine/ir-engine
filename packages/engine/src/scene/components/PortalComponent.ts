@@ -38,12 +38,13 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
@@ -84,6 +85,13 @@ export const portalColliderValues = {
   target: '',
   onEnter: 'teleport'
 }
+
+export const PortalState = defineState({
+  name: 'PortalState',
+  initial: {
+    activePortalEntity: UndefinedEntity
+  }
+})
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',

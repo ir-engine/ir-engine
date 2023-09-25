@@ -27,45 +27,81 @@ import React from 'react'
 
 import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
+import { LoadVolumeComponent, LoadVolumeTarget } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
+import { Button, Grid } from '@mui/material'
+import { range } from 'lodash'
+import InputGroup from '../inputs/InputGroup'
+import { SceneObjectInput } from '../inputs/SceneObjectInput'
+import PaginatedList from '../layout/PaginatedList'
+import Well from '../layout/Well'
+import NodeEditor from './NodeEditor'
 
 const LoadVolumeNodeEditor: EditorComponentType = (props) => {
   const loadVolumeComponent = useComponent(props.entity, LoadVolumeComponent)
   const targets = loadVolumeComponent.targets.value
-  /*function onEditTargets(index) {
-    return (value) => {
-      const nuTargets = [...targets.values()].map(({ uuid, entityJson, loaded }, i) => {
-        if (i !== index) return [uuid, { uuid, entityJson, loaded }]
-        return [value, { uuid: value }]
+  function onEditTargets(index) {
+    return (value: EntityUUID) => {
+      const nuTargets = [...Object.values(targets)].map(({ uuid, entities, loaded }, i) => {
+        if (i !== index) return [uuid, { uuid, entities, loaded }]
+        return [
+          value,
+          {
+            uuid: value,
+            loaded: true,
+            entities: [
+              {
+                name: value,
+                components: [] as ComponentJson[]
+              }
+            ]
+          } as LoadVolumeTarget
+        ]
       }) as [EntityUUID, LoadVolumeTarget][]
-      loadVolumeComponent.targets = new Map(nuTargets)
+      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
     }
   }
 
   function onAddTarget() {
     return () => {
-      const nuTargets = [...targets.entries(), ['', {}] as [EntityUUID, LoadVolumeTarget]]
-      loadVolumeComponent.targets = new Map(nuTargets)
+      const nuTargets = [
+        ...Object.entries(targets),
+        [
+          '',
+          {
+            uuid: '' as EntityUUID,
+            loaded: true,
+            entities: [
+              {
+                name: '' as EntityUUID,
+                components: [] as ComponentJson[]
+              }
+            ]
+          }
+        ] as [EntityUUID, LoadVolumeTarget]
+      ]
+      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
     }
   }
 
   function onRemoveTarget(index) {
     return () => {
-      const nuTargets = [...targets.entries()].filter((_, i) => i !== index)
-      loadVolumeComponent.targets = new Map(nuTargets)
+      const nuTargets = [...Object.entries(targets)].filter((_, i) => i !== index)
+      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
     }
-  }*/
-  /*
+  }
+
   return (
     <NodeEditor description={'Description'} {...props}>
       <PaginatedList
-        list={range(0, targets.size)}
-        element={(i) => {
-          const { uuid } = targets[i]
+        list={range(0, Object.keys(targets).length)}
+        element={(i: number) => {
+          const { uuid } = Object.values(loadVolumeComponent.targets.value)[i]
           return (
-            <Well key={`${props.node.uuid}-load-volume-targets-${i}`}>
+            <Well key={`${props.entity}-load-volume-targets-${i}`}>
               <Grid container spacing={0.5}>
                 <Grid item xs={1}>
                   <Button onClick={onRemoveTarget(i)} style={{ backgroundColor: '#e33', width: 'auto' }}>
@@ -84,8 +120,7 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
       />
       <Button onClick={onAddTarget()}>Add Target</Button>
     </NodeEditor>
-  )*/
-  return <></>
+  )
 }
 
 LoadVolumeNodeEditor.iconComponent = CloudSyncIcon
