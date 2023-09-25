@@ -214,8 +214,6 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
   const childTransform = getComponent(entity, TransformComponent)
   getMutableState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
-    // computeTransformMatrix(parentEntity)
-    // computeTransformMatrix(entity)
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
     const localTransform = getComponent(entity, LocalTransformComponent)
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
