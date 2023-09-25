@@ -52,7 +52,6 @@ import { OceanComponent } from './components/OceanComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PointLightComponent } from './components/PointLightComponent'
 import { PostProcessingComponent } from './components/PostProcessingComponent'
-import { PrefabComponent } from './components/PrefabComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
 import { ScenePreviewCameraComponent } from './components/ScenePreviewCamera'
@@ -101,7 +100,6 @@ export const SceneComponents = [
   ParticleSystemComponent,
   PointLightComponent,
   PostProcessingComponent,
-  PrefabComponent,
   RenderSettingsComponent,
   SceneDynamicLoadTagComponent,
   ScenePreviewCameraComponent,
