@@ -48,7 +48,9 @@ export class SceneDataService
     delete params?.paginate
     delete params?.query?.paginate
 
-    const projects = (await this.app.service(projectPath).find({ ...params, paginate: false })) as ProjectType[]
+    const projects = (await this.app
+      .service(projectPath)
+      .find({ ...params, query: { name: params?.query?.projectName }, paginate: false })) as ProjectType[]
     const scenes = await Promise.all(
       projects.map(
         (project) =>
