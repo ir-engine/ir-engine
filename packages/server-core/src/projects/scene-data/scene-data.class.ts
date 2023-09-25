@@ -61,7 +61,7 @@ export class SceneDataService
                 query: {
                   ...params?.query,
                   projectName: project.name,
-                  metadataOnly: params?.metadataOnly,
+                  metadataOnly: params?.query?.metadataOnly,
                   internal: params?.provider == null
                 }
               })
