@@ -23,17 +23,20 @@ import { Application } from '../../../declarations'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { SceneDataServiceType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { NullableId, Params, ServiceInterface } from '@feathersjs/feathers'
-import { getScenesForProject } from '../scene/scene-helper'
+import { NullableId, Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
+import { getScenesForProject } from './scene-data-helper'
 
 export interface SceneDataParams extends Params {
   internal?: boolean
   projectName?: string
   metadataOnly?: boolean
   storageProviderName?: string
+  paginate?: false
 }
 
-export class SceneDataService implements ServiceInterface<SceneDataServiceType, SceneDataParams> {
+export class SceneDataService
+  implements ServiceInterface<SceneDataServiceType | SceneDataType | Paginated<SceneDataType>, SceneDataParams>
+{
   app: Application
 
   constructor(app: Application) {
@@ -45,6 +48,11 @@ export class SceneDataService implements ServiceInterface<SceneDataServiceType, 
   }
 
   async find(params?: SceneDataParams) {
+    if (params?.query?.paginate === false) {
+      params = { ...params, paginate: false }
+      delete params.query?.paginate
+    }
+
     const projects = (await this.app.service(projectPath).find({ ...params, paginate: false })) as ProjectType[]
     const scenes = await Promise.all(
       projects.map(
@@ -63,8 +71,9 @@ export class SceneDataService implements ServiceInterface<SceneDataServiceType, 
           })
       )
     )
-    return {
-      data: scenes.flat()
-    }
+
+    return params?.paginate === false
+      ? scenes.flat()
+      : { total: scenes.flat().length, limit: 0, skip: 0, data: scenes.flat() }
   }
 }

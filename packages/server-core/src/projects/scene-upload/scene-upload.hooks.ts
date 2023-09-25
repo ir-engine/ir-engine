@@ -23,7 +23,7 @@ import verifyScope from '../../hooks/verify-scope'
 
 export default {
   around: {
-    all: []
+    all: [authenticate()]
   },
 
   before: {
