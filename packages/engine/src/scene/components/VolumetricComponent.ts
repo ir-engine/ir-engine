@@ -174,11 +174,11 @@ export function VolumetricReactor() {
           }
 
           if (isClient) {
-            window.addEventListener('pointerdown', handleAutoplay)
+            window.addEventListener('pointerup', handleAutoplay)
             window.addEventListener('keypress', handleAutoplay)
-            window.addEventListener('touchstart', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
+            window.addEventListener('touchend', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
           }
 
           element.addEventListener('playing', () => {
@@ -186,11 +186,11 @@ export function VolumetricReactor() {
               audioContext.resume()
             }
 
-            window.removeEventListener('pointerdown', handleAutoplay)
+            window.removeEventListener('pointerup', handleAutoplay)
             window.removeEventListener('keypress', handleAutoplay)
-            window.removeEventListener('touchstart', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+            window.removeEventListener('touchend', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
 
             const transform = getComponent(entity, TransformComponent)
             if (!transform) return
