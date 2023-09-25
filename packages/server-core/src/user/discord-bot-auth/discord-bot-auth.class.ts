@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { errors } from '@feathersjs/errors'
 import { Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
-import { SequelizeServiceOptions } from 'feathers-sequelize/types'
 import fetch from 'node-fetch'
 
 import {
@@ -40,10 +39,8 @@ import logger from '../../ServerLogger'
 export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
   app: Application
   docs: any
-  options: Partial<SequelizeServiceOptions>
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    this.options = options
+  constructor(app: Application) {
     this.app = app
   }
 

@@ -52,7 +52,6 @@ import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import { default as appConfig, default as config } from './appconfig'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
-import sequelize from './sequelize'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
@@ -209,8 +208,7 @@ export const createFeathersKoaApp = (
   // Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
   // Doesn't appear anything else uses it.
   app.set('env', 'production')
-
-  app.configure(sequelize)
+  app.configure(mysql)
 
   // Enable security, CORS, compression, favicon and body parsing
   app.use(errorHandler()) // in koa no option to pass logger object its a async function instead and must be set first
@@ -225,8 +223,6 @@ export const createFeathersKoaApp = (
   //   ;(req as any).feathers.res = res
   //   next()
   // })
-
-  app.configure(mysql)
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)

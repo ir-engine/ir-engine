@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import knex from 'knex'
 
+import { isDev } from '@etherealengine/common/src/config'
 import appConfig from '@etherealengine/server-core/src/appconfig'
-
 import { Application } from '../declarations'
 import multiLogger from './ServerLogger'
+import { seeder } from './seeder'
 
 const logger = multiLogger.child({ component: 'server-core:mysql' })
 
@@ -37,6 +38,7 @@ export default (app: Application): void => {
     const { forceRefresh } = appConfig.db
 
     logger.info('Starting app.')
+    const oldSetup = app.setup
 
     const db = knex({
       log: forceRefresh
@@ -63,13 +65,39 @@ export default (app: Application): void => {
     app.teardown = async function (...args) {
       try {
         await db.destroy()
-        console.log('Sequelize connection closed')
+        console.log('Knex connection closed')
       } catch (err) {
-        logger.error('Sequelize teardown error')
+        logger.error('Knex teardown error')
         logger.error(err)
         throw err
       }
       return oldTeardown.apply(this, args)
+    }
+
+    app.setup = async function (...args) {
+      try {
+        const tableCount = await db.raw(
+          `select table_schema as etherealengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
+        )
+        const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
+
+        try {
+          // configure seeder and seed
+          await seeder(app, forceRefresh || appConfig.testEnabled, prepareDb)
+        } catch (err) {
+          logger.error('Feathers seeding error')
+          logger.error(err)
+          throw err
+        }
+
+        if ((prepareDb || forceRefresh) && (isDev || process.env.EXIT_ON_DB_INIT === 'true')) process.exit(0)
+      } catch (err) {
+        logger.error('Knex setup error')
+        logger.error(err)
+        throw err
+      }
+
+      return oldSetup.apply(this, args)
     }
 
     app.set('knexClient', db)

@@ -30,7 +30,7 @@ import fetch from 'node-fetch'
 import { BadRequest } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -41,11 +41,11 @@ const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
  * A class for Managing files in FileBrowser
  */
 
-export interface ArchiveParams extends UserParams {
+export interface ArchiveParams extends RootParams {
   isJob?: boolean
 }
 
-const archive = async (directory, params?: UserParams): Promise<string> => {
+const archive = async (directory, params?: RootParams): Promise<string> => {
   if (directory.at(0) === '/') directory = directory.slice(1)
   if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
     return Promise.reject(new Error('Cannot archive non-project directories'))
