@@ -159,6 +159,7 @@ const execute = () => {
   }
   for (const action of registerWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
+    setComponent(widget.ui.entity, LocalTransformComponent)
     setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: widgetMenuUI.entity })
   }
   for (const action of unregisterWidgetQueue()) {
