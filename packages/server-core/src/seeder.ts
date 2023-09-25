@@ -42,7 +42,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
 
     const knexClient = app.get('knexClient')
     for (const seedFile of knexSeeds) {
-      seedFile.seed(knexClient)
+      await seedFile.seed(knexClient)
     }
   }
 
