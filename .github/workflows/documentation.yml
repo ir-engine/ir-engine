@@ -79,7 +79,7 @@ jobs:
           git checkout gh-pages
           git checkout --orphan temp-gh-pages
           git add -A
-          git commit -m "Deploy website - based on" $latestMasterCommit
+          git commit -m "Deploy website - based on ${latestMasterCommit}"
           git checkout gh-pages
           git reset --hard temp-gh-pages
           git push origin gh-pages --force
