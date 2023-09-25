@@ -38,15 +38,17 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
+  getComponent,
   hasComponent,
   setComponent,
   useComponent
@@ -61,6 +63,7 @@ import { disposeMaterial } from '../systems/SceneObjectSystem'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { UUIDComponent } from './UUIDComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -82,6 +85,13 @@ export const portalColliderValues = {
   target: '',
   onEnter: 'teleport'
 }
+
+export const PortalState = defineState({
+  name: 'PortalState',
+  initial: {
+    activePortalEntity: UndefinedEntity
+  }
+})
 
 export const PortalComponent = defineComponent({
   name: 'PortalComponent',
@@ -202,36 +212,49 @@ export const PortalComponent = defineComponent({
 
     useEffect(() => {
       if (!isClient) return
-      Engine.instance.api
-        .service('portal')
-        .get(portalComponent.linkedPortalId.value)
-        .then((data) => {
-          const portalDetails = data.data!
-          if (portalDetails) {
-            portalComponent.remoteSpawnPosition.value.copy(portalDetails.spawnPosition)
-            portalComponent.remoteSpawnRotation.value.setFromEuler(
-              new Euler(
-                portalDetails.spawnRotation.x,
-                portalDetails.spawnRotation.y,
-                portalDetails.spawnRotation.z,
-                portalDetails.spawnRotation.order
-              )
-            )
-            if (
-              typeof portalComponent.previewImageURL.value !== 'undefined' &&
-              portalComponent.previewImageURL.value !== ''
-            ) {
-              const mesh = portalComponent.mesh.value
-              if (mesh) {
-                AssetLoader.loadAsync(portalDetails.previewImageURL).then((texture: Texture) => {
-                  if (!mesh || !entityExists(entity)) return
-                  mesh.material.map = texture
-                  texture.needsUpdate = true
-                })
-              }
-            }
+      if (!portalComponent.mesh.value) return
+
+      const linkedPortalExists = UUIDComponent.entitiesByUUID[portalComponent.linkedPortalId.value]
+
+      const applyPortalDetails = (portalDetails: {
+        spawnPosition: Vector3
+        spawnRotation: Quaternion
+        previewImageURL: string
+      }) => {
+        portalComponent.remoteSpawnPosition.value.copy(portalDetails.spawnPosition)
+        portalComponent.remoteSpawnRotation.value.copy(portalDetails.spawnRotation)
+        if (
+          typeof portalComponent.previewImageURL.value !== 'undefined' &&
+          portalComponent.previewImageURL.value !== ''
+        ) {
+          const mesh = portalComponent.mesh.value
+          if (mesh) {
+            AssetLoader.loadAsync(portalDetails.previewImageURL).then((texture: Texture) => {
+              if (!mesh || !entityExists(entity)) return
+              mesh.material.map = texture
+              texture.needsUpdate = true
+            })
           }
-        })
+        }
+      }
+
+      if (linkedPortalExists) {
+        /** Portal is in the scene already */
+        const portalDetails = getComponent(linkedPortalExists, PortalComponent)
+        if (portalDetails) applyPortalDetails(portalDetails)
+      } else {
+        /** Portal is not in the scene yet */
+        Engine.instance.api
+          .service('portal')
+          .get(portalComponent.linkedPortalId.value, { query: { locationName: portalComponent.location.value } })
+          .then((data) => {
+            const portalDetails = data.data!
+            if (portalDetails) applyPortalDetails(portalDetails)
+          })
+          .catch((e) => {
+            console.error('Error getting portal', e)
+          })
+      }
     }, [portalComponent.previewImageURL, portalComponent.mesh])
 
     return null

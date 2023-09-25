@@ -152,42 +152,36 @@ export const updateBuilder = async (
         builderLabelSelector
       )
 
-      if (builderJob && builderJob.body.items.length > 0) {
-        const jobName = builderJob.body.items[0].metadata!.name
-        if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
-          await execAsync(
-            `kubectl delete job --ignore-not-found=true ${jobName} && helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-          )
-        else {
-          const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
-          const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
-          if (builderChartVersion)
-            await execAsync(
-              `kubectl delete job --ignore-not-found=true ${jobName} && helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-            )
-        }
-      } else {
-        const builderDeployments = await k8sAppsClient.listNamespacedDeployment(
-          'default',
-          undefined,
-          false,
-          undefined,
-          undefined,
-          builderLabelSelector
+      const builderDeployments = await k8sAppsClient.listNamespacedDeployment(
+        'default',
+        undefined,
+        false,
+        undefined,
+        undefined,
+        builderLabelSelector
+      )
+
+      const isJob = builderJob && builderJob.body.items.length > 0
+      const isDeployment = builderDeployments && builderDeployments.body.items.length > 0
+
+      if (isJob)
+        await execAsync(`kubectl delete job --ignore-not-found=true ${builderJob.body.items[0].metadata!.name}`)
+      else if (isDeployment)
+        await execAsync(
+          `kubectl delete deployment --ignore-not-found=true ${builderDeployments.body.items[0].metadata!.name}`
         )
-        const deploymentName = builderDeployments.body.items[0].metadata!.name
-        if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+
+      if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+        await execAsync(
+          `helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+        )
+      else {
+        const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
+        const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)![1]
+        if (builderChartVersion)
           await execAsync(
-            `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+            `helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
           )
-        else {
-          const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
-          const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
-          if (builderChartVersion)
-            await execAsync(
-              `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-            )
-        }
       }
     } catch (err) {
       logger.error(err)
@@ -1393,12 +1387,14 @@ export const updateProject = async (
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
-    return (await app.service(projectPath).find({
-      query: {
-        name: 'default-project',
-        $limit: 1
-      }
-    })) as Paginated<ProjectType>
+    return (
+      (await app.service(projectPath).find({
+        query: {
+          name: 'default-project',
+          $limit: 1
+        }
+      })) as Paginated<ProjectType>
+    ).data[0]
   }
 
   const urlParts = data.sourceURL.split('/')
