@@ -365,7 +365,7 @@ export function updateGamepadInput(eid: Entity) {
   if (source.gamepad) {
     for (let i = 0; i < source.gamepad.buttons.length; i++) {
       const button = source.gamepad.buttons[i]
-      console.log('button ' + i + ' pressed: ' + button.pressed)
+      if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
     }
   }
 
