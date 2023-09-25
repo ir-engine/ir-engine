@@ -96,7 +96,7 @@ export const sceneCreateDataSchema = Type.Object(
     storageProvider: Type.Optional(Type.String()),
     name: Type.Optional(Type.String()),
     sceneData: Type.Optional(Type.Ref(sceneJsonSchema)),
-    thumbnailBuffer: Type.Optional(Type.Union([Type.Any()])),
+    thumbnailBuffer: Type.Optional(Type.Any()),
     storageProviderName: Type.Optional(Type.String()),
     project: Type.Optional(Type.String())
   },
