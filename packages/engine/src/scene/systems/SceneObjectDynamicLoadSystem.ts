@@ -34,7 +34,7 @@ import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { updateSceneEntitiesFromJSON, updateSceneEntity } from '../systems/SceneLoadingSystem'
@@ -68,7 +68,7 @@ const execute = () => {
 
   for (const [uuid, entityJson] of unloadedDynamicEntities as [EntityUUID, EntityJson][]) {
     // todo - figure out how to include parent transforms in this calculation
-    const transformComponent = entityJson.components.find((comp) => comp.name === TransformComponent.jsonID)!.props
+    const transformComponent = entityJson.components.find((comp) => comp.name === LocalTransformComponent.jsonID)!.props
 
     const dynamicComponent = entityJson.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
       ?.props

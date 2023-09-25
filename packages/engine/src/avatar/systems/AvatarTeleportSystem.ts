@@ -53,7 +53,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
-import { TransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ReferenceSpace, XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
@@ -134,7 +134,7 @@ const AvatarTeleportSystemState = defineState({
     guideline.name = 'teleport-guideline'
 
     const guidelineEntity = createEntity()
-    setTransformComponent(guidelineEntity)
+    setComponent(guidelineEntity, TransformComponent)
     addObjectToGroup(guidelineEntity, guideline)
     setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
 
@@ -148,7 +148,7 @@ const AvatarTeleportSystemState = defineState({
     guideCursor.frustumCulled = false
 
     const guideCursorEntity = createEntity()
-    setTransformComponent(guideCursorEntity)
+    setComponent(guideCursorEntity, TransformComponent)
     addObjectToGroup(guideCursorEntity, guideCursor)
     setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
 

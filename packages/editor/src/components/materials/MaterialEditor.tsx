@@ -81,7 +81,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
       })
     )
     return result
-  }, [materialComponent.parameters, materialComponent.material, materialComponent.prototype])
+  }, [materialComponent.material, materialComponent.prototype])
 
   const checkThumbs = useCallback(async () => {
     thumbnails.promised && (await thumbnails.promise)
@@ -92,7 +92,7 @@ export default function MaterialEditor({ material, ...rest }: { material: Materi
         thumbnails[k].set(none)
       }
     })
-  }, [])
+  }, [materialComponent.parameters])
 
   const clearThumbs = useCallback(async () => {
     thumbnails.promised && (await thumbnails.promise)
