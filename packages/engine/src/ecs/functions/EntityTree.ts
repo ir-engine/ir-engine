@@ -209,7 +209,7 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
     setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
   }
-
+  setComponent(entity, LocalTransformComponent)
   const parentTransform = getComponent(parentEntity, TransformComponent)
   const childTransform = getComponent(entity, TransformComponent)
   getMutableState(EngineState).transformsNeedSorting.set(true)
