@@ -57,13 +57,11 @@ export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingTyp
   }
 }
 
-export const userSettingResolver = resolve<UserSettingType, HookContext>({
-  createdAt: virtual(async (userSetting) => fromDateTimeSql(userSetting.createdAt)),
-  updatedAt: virtual(async (userSetting) => fromDateTimeSql(userSetting.updatedAt))
-})
-
-export const userSettingExternalResolver = resolve<UserSettingType, HookContext>(
-  {},
+export const userSettingResolver = resolve<UserSettingType, HookContext>(
+  {
+    createdAt: virtual(async (userSetting) => fromDateTimeSql(userSetting.createdAt)),
+    updatedAt: virtual(async (userSetting) => fromDateTimeSql(userSetting.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -71,6 +69,8 @@ export const userSettingExternalResolver = resolve<UserSettingType, HookContext>
     }
   }
 )
+
+export const userSettingExternalResolver = resolve<UserSettingType, HookContext>({})
 
 export const userSettingDataResolver = resolve<UserSettingDatabaseType, HookContext>(
   {
