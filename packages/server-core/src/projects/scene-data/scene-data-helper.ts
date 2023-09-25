@@ -33,9 +33,9 @@ import { SceneDataParams } from './scene-data.class'
 
 export const getScenesForProject = async (app: Application, params?: SceneDataParams) => {
   const storageProvider = getStorageProvider(params?.query?.storageProviderName)
-  const projectName = params?.projectName
-  const metadataOnly = params?.metadataOnly
-  const internal = params?.internal
+  const projectName = params?.query?.projectName
+  const metadataOnly = params?.query?.metadataOnly
+  const internal = params?.query?.internal
   try {
     const project = (await app
       .service(projectPath)

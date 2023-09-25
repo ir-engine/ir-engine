@@ -72,7 +72,7 @@ describe('scene.test', () => {
       it('should get default test scene', async function () {
         const { data } = await app
           .service(sceneDataPath)
-          .get(null, { ...params, projectName: defaultProjectName, metadataOnly: false })
+          .get(null, { ...params, query: { ...params.query, projectName: defaultProjectName, metadataOnly: false } })
         console.log('scene-data data', data)
         assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
       })
@@ -97,7 +97,7 @@ describe('scene.test', () => {
       it('should get all scenes for a project scenes with metadata only', async function () {
         const scenes = (await app.service(sceneDataPath).find({
           ...params,
-          metadataOnly: true,
+          query: { ...params.query, metadataOnly: true },
           paginate: false
         })) as SceneDataType[]
         assert(scenes.length > 0)

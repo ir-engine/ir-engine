@@ -43,7 +43,9 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
  */
 export const getScenes = async (projectName: string): Promise<SceneData[]> => {
   try {
-    const result = await API.instance.client.service(sceneDataPath).get(null, { projectName, metadataOnly: true })
+    const result = await API.instance.client
+      .service(sceneDataPath)
+      .get(null, { query: { projectName, metadataOnly: true } })
     return result?.data
   } catch (error) {
     logger.error(error, 'Error in getting project getScenes()')

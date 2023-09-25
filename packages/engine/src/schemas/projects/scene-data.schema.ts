@@ -18,7 +18,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type } from '@feathersjs/typebox'
+import { Static, Type, querySyntax } from '@feathersjs/typebox'
 import { sceneDataSchema } from './scene.schema'
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
@@ -34,3 +34,24 @@ export const sceneDataServiceSchema = Type.Object(
   { $id: 'SceneDataService', additionalProperties: false }
 )
 export type SceneDataServiceType = Static<typeof sceneDataServiceSchema>
+
+// Schema for allowed query properties
+export const sceneDataQueryProperties = Type.Partial(sceneDataServiceSchema)
+export const sceneDataQuerySchema = Type.Intersect(
+  [
+    querySyntax(sceneDataQueryProperties),
+    // Add additional query properties here
+    Type.Object(
+      {
+        internal: Type.Optional(Type.Boolean()),
+        projectName: Type.Optional(Type.String()),
+        metadataOnly: Type.Optional(Type.Boolean()),
+        storageProviderName: Type.Optional(Type.String()),
+        paginate: Type.Optional(Type.Boolean())
+      },
+      { additionalProperties: false }
+    )
+  ],
+  { additionalProperties: false }
+)
+export type SceneDataQuery = Static<typeof sceneDataQuerySchema>

@@ -81,9 +81,10 @@ export class SceneService
 
     const scenes: SceneDataType[] = []
     for (const project of projects) {
-      const { data } = await this.app
-        .service(sceneDataPath)
-        .get(null, { ...params, projectName: project.name, metadataOnly: true, internal: true })
+      const { data } = await this.app.service(sceneDataPath).get(null, {
+        ...params,
+        query: { ...params?.query, projectName: project.name, metadataOnly: true, internal: true }
+      })
       scenes.push(
         ...data.map((d) => {
           d.project = project.name

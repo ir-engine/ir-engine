@@ -21,16 +21,12 @@ Ethereal Engine. All Rights Reserved.
 import { Application } from '../../../declarations'
 
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { SceneDataServiceType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { SceneDataQuery, SceneDataServiceType } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
 import { SceneDataType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { NullableId, Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
 import { getScenesForProject } from './scene-data-helper'
 
-export interface SceneDataParams extends Params {
-  internal?: boolean
-  projectName?: string
-  metadataOnly?: boolean
-  storageProviderName?: string
+export interface SceneDataParams extends Params, SceneDataQuery {
   paginate?: false
 }
 
@@ -60,9 +56,12 @@ export class SceneDataService
             const projectScenes = (
               await getScenesForProject(this.app, {
                 ...params,
-                projectName: project.name,
-                metadataOnly: params?.metadataOnly,
-                internal: params?.provider == null
+                query: {
+                  ...params?.query,
+                  projectName: project.name,
+                  metadataOnly: params?.metadataOnly,
+                  internal: params?.provider == null
+                }
               })
             ).data
             projectScenes.forEach((scene) => (scene.project = project.name))
