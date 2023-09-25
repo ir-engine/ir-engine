@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [dev]
   push:
-    branches: [dev]
+    branches: [fix/docs-build-clear-commit-history]
 
 jobs:
   secrets-gate:
@@ -72,7 +72,7 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
           npm install --legacy-peer-deps
-          git clone https://github.com/etherealengine/etherealengine-docs.git docs
+          git clone git@github.com:etherealengine/etherealengine-docs.git docs
           echo "Starting to remove commit history for gh-pages branch"
           cd docs
           git checkout gh-pages
@@ -84,6 +84,7 @@ jobs:
           git push origin gh-pages --force
           git branch -D temp-gh-pages
           echo "gh-pages commit history has been cleared"
+          git checkout master
           cp .env.local.default .env.local
           npm install --legacy-peer-deps
           npm run deploy
