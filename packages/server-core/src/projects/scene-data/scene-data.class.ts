@@ -48,10 +48,9 @@ export class SceneDataService
   }
 
   async find(params?: SceneDataParams) {
-    if (params?.query?.paginate === false) {
-      params = { ...params, paginate: false }
-      delete params.query?.paginate
-    }
+    const paginate = params?.paginate === false || params?.query?.paginate === false ? false : undefined
+    delete params?.paginate
+    delete params?.query?.paginate
 
     const projects = (await this.app.service(projectPath).find({ ...params, paginate: false })) as ProjectType[]
     const scenes = await Promise.all(
@@ -72,8 +71,6 @@ export class SceneDataService
       )
     )
 
-    return params?.paginate === false
-      ? scenes.flat()
-      : { total: scenes.flat().length, limit: 0, skip: 0, data: scenes.flat() }
+    return paginate === false ? scenes.flat() : { total: scenes.flat().length, limit: 0, skip: 0, data: scenes.flat() }
   }
 }

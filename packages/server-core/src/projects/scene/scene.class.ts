@@ -73,10 +73,9 @@ export class SceneService
   }
 
   async find(params?: SceneParams) {
-    if (params?.query?.paginate === false) {
-      params = { ...params, paginate: false }
-      delete params.query?.paginate
-    }
+    const paginate = params?.paginate === false || params?.query?.paginate === false ? false : undefined
+    delete params?.paginate
+    delete params?.query?.paginate
 
     const projects = (await this.app.service(projectPath).find({ paginate: false })) as ProjectType[]
 
@@ -97,7 +96,7 @@ export class SceneService
       scenes[index].thumbnailUrl += `?${Date.now()}`
     }
 
-    return params?.paginate === false ? scenes : { total: scenes.length, limit: 0, skip: 0, data: scenes }
+    return paginate === false ? scenes : { total: scenes.length, limit: 0, skip: 0, data: scenes }
   }
 
   async get(id: NullableId, params?: SceneParams) {
