@@ -34,7 +34,7 @@ import defaultSceneSeed from '@etherealengine/projects/default-project/default.s
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
-import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { SceneDataType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -80,12 +80,13 @@ describe('scene.test', () => {
 
     describe('find', () => {
       it('should get all scenes for a project scenes', async function () {
-        const { data } = await app.service(sceneDataPath).find({
-          ...params
-        })
-        assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
-        assert(data.length > 0)
-        data.forEach((scene) => {
+        const scenes = (await app.service(sceneDataPath).find({
+          ...params,
+          paginate: false
+        })) as SceneDataType[]
+        assert.deepStrictEqual(parsedData, scenes.find((entry) => entry.name === defaultSceneName)!.scene)
+        assert(scenes.length > 0)
+        scenes.forEach((scene) => {
           assert(typeof scene.name === 'string')
           assert(typeof scene.project === 'string')
           assert(typeof scene.thumbnailUrl === 'string')
@@ -94,12 +95,13 @@ describe('scene.test', () => {
       })
 
       it('should get all scenes for a project scenes with metadata only', async function () {
-        const { data } = await app.service(sceneDataPath).find({
+        const scenes = (await app.service(sceneDataPath).find({
           ...params,
-          metadataOnly: true
-        })
-        assert(data.length > 0)
-        data.forEach((scene) => {
+          metadataOnly: true,
+          paginate: false
+        })) as SceneDataType[]
+        assert(scenes.length > 0)
+        scenes.forEach((scene) => {
           assert(typeof scene.name === 'string')
           assert(typeof scene.project === 'string')
           assert(typeof scene.thumbnailUrl === 'string')
