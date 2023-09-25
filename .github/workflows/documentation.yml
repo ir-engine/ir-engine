@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [dev]
   push:
-    branches: [fix/docs-build-clear-commit-history]
+    branches: [dev]
 
 jobs:
   secrets-gate:
