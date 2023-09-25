@@ -223,6 +223,9 @@ export class SceneService
   async update(id: NullableId, data: SceneCreateData, params?: Params) {
     try {
       const { name, sceneData, thumbnailBuffer, storageProviderName, project } = data
+      let parsedSceneData = sceneData
+      if (sceneData && typeof sceneData === 'string') parsedSceneData = JSON.parse(sceneData)
+
       logger.info('[scene.update]: ', project, data)
 
       const storageProvider = getStorageProvider(storageProviderName)
@@ -232,13 +235,13 @@ export class SceneService
         .find({ ...params, query: { name: project }, paginate: false })) as ProjectType[]
       if (projectResult.length === 0) throw new Error(`No project named ${project} exists`)
 
-      await downloadAssetsFromScene(this.app, project!, sceneData!)
+      await downloadAssetsFromScene(this.app, project!, parsedSceneData!)
 
       const newSceneJsonPath = `projects/${project}/${name}.scene.json`
       await storageProvider.putObject({
         Key: newSceneJsonPath,
         Body: Buffer.from(
-          JSON.stringify(cleanStorageProviderURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson)))
+          JSON.stringify(cleanStorageProviderURLs(parsedSceneData ?? (defaultSceneSeed as unknown as SceneJson)))
         ),
         ContentType: 'application/json'
       })
@@ -267,7 +270,11 @@ export class SceneService
 
         fs.writeFileSync(
           path.resolve(newSceneJsonPathLocal),
-          JSON.stringify(cleanStorageProviderURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson)), null, 2)
+          JSON.stringify(
+            cleanStorageProviderURLs(parsedSceneData ?? (defaultSceneSeed as unknown as SceneJson)),
+            null,
+            2
+          )
         )
 
         if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {

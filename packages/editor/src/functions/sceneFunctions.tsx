@@ -115,8 +115,8 @@ export const saveScene = async (
 
   try {
     return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {
-      projectName,
-      sceneName,
+      project: projectName,
+      name: sceneName,
       sceneData
     }).promise
   } catch (error) {
