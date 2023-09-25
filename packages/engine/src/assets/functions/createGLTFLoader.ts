@@ -61,10 +61,10 @@ export const createGLTFLoader = (keepMaterials = false) => {
     loader.register((parser) => new HubsLightMapExtension(parser))
     loader.register((parser) => new EEMaterialImporterExtension(parser))
     loader.register((parser) => new RegisterMaterialsExtension(parser))
-    loader.register((parser) => new KHRMaterialsPBRSpecularGlossinessExtension(parser))
   } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }
+  loader.register((parser) => new KHRMaterialsPBRSpecularGlossinessExtension(parser))
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: true }))
