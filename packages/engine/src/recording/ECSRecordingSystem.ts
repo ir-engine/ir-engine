@@ -163,6 +163,14 @@ export const RecordingState = defineState({
         state.startedAt.set(null)
         state.recordingID.set(null)
       }
+    ],
+    [
+      ECSRecordingActions.error,
+      (state, action: typeof ECSRecordingActions.error.matches._TYPE) => {
+        state.active.set(false)
+        state.startedAt.set(null)
+        state.recordingID.set(null)
+      }
     ]
   ],
 
@@ -466,18 +474,23 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     const createMediaRecording = getState(RecordingAPIState).createMediaChannelRecorder
     if (!createMediaRecording) return dispatchError('Media recording not available', action.$peer, action.$topic)
 
-    const mediaRecorder = await createMediaRecording(recording.id, schema.peers)
+    try {
+      const mediaRecorder = await createMediaRecording(recording.id, schema.peers)
 
-    activeRecording.mediaChannelRecorder = mediaRecorder
-    console.log('media recording started')
+      activeRecording.mediaChannelRecorder = mediaRecorder
 
-    dispatchAction(
-      ECSRecordingActions.recordingStarted({
-        recordingID: recording.id,
-        $to: action.$peer,
-        $topic: action.$topic
-      })
-    )
+      dispatchAction(
+        ECSRecordingActions.recordingStarted({
+          recordingID: recording.id,
+          $to: action.$peer,
+          $topic: action.$topic
+        })
+      )
+    } catch (e) {
+      logger.error('Could not start media recording')
+      console.log(e)
+      dispatchError('Could not start media recording', action.$peer, action.$topic)
+    }
   }
 
   activeRecordings.set(recording.id, activeRecording)
