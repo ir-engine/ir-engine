@@ -78,7 +78,7 @@ jobs:
           git checkout gh-pages
           git checkout --orphan temp-gh-pages
           git add -A
-          git commit -m "Update docs to latest commit only in gh-pages"
+          git commit -m "Commit history on gh-pages is removed and gh-pages points to latest master"
           git checkout gh-pages
           git reset --hard temp-gh-pages
           git push origin gh-pages --force
