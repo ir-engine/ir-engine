@@ -47,9 +47,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
+  SerializedComponentType,
   defineComponent,
   getComponent,
-  hasComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -75,15 +75,21 @@ PortalPreviewTypes.add(PortalPreviewTypeSpherical)
 export const PortalEffects = new Map<string, ComponentType<any>>()
 PortalEffects.set('None', null!)
 
-export const portalColliderValues = {
+export const portalColliderValues: SerializedComponentType<typeof ColliderComponent> = {
   bodyType: RigidBodyType.Fixed,
   shapeType: ShapeType.Cuboid,
   isTrigger: true,
   removeMesh: true,
   collisionLayer: CollisionGroups.Trigger,
   collisionMask: CollisionGroups.Avatars,
-  target: '',
-  onEnter: 'teleport'
+  restitution: 0,
+  triggers: [
+    {
+      onEnter: 'teleport',
+      onExit: null,
+      target: ''
+    }
+  ]
 }
 
 export const PortalState = defineState({
@@ -158,7 +164,7 @@ export const PortalComponent = defineComponent({
 
     useEffect(() => {
       setCallback(entity, 'teleport', portalTriggerEnter)
-      if (!hasComponent(entity, ColliderComponent)) setComponent(entity, ColliderComponent, { ...portalColliderValues })
+      setComponent(entity, ColliderComponent, JSON.parse(JSON.stringify(portalColliderValues)))
     }, [])
 
     useEffect(() => {
