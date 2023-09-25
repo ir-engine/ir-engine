@@ -49,7 +49,11 @@ import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/
 import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import {
+  PortalComponent,
+  PortalEffects,
+  PortalState
+} from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -64,7 +68,7 @@ import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functi
 import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { RouterService } from '../../common/services/RouterService'
+import { RouterState } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { startClientSystems } from '../../world/startClientSystems'
@@ -172,7 +176,7 @@ export const usePortalTeleport = () => {
   useEffect(() => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
-      const activePortalEntity = Engine.instance.activePortalEntity
+      const activePortalEntity = getState(PortalState).activePortalEntity
 
       if (!activePortalEntity) return
 
@@ -185,7 +189,7 @@ export const usePortalTeleport = () => {
           activePortal.remoteSpawnPosition
           // activePortal.remoteSpawnRotation
         )
-        Engine.instance.activePortalEntity = UndefinedEntity
+        getState(PortalState).activePortalEntity = UndefinedEntity
         dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
         return
       }
@@ -195,7 +199,7 @@ export const usePortalTeleport = () => {
         return
       }
 
-      RouterService.navigate('/location/' + activePortal.location)
+      RouterState.navigate('/location/' + activePortal.location)
       LocationService.getLocationByName(activePortal.location)
 
       // shut down connection with existing world instance server

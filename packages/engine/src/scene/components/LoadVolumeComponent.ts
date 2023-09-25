@@ -31,18 +31,22 @@ import {
   defineComponent,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { useEffect } from 'react'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent, iterateEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { serializeEntity } from '../functions/serializeWorld'
 import { updateSceneEntity } from '../systems/SceneLoadingSystem'
 import { CallbackComponent, setCallback } from './CallbackComponent'
+import { NameComponent } from './NameComponent'
 import { UUIDComponent } from './UUIDComponent'
 
 export type LoadVolumeTarget = {
   uuid: EntityUUID
-  entityJson: EntityJson
+  entities: (EntityJson & { uuid: EntityUUID })[]
   loaded: boolean
 }
 
@@ -63,44 +67,57 @@ export const LoadVolumeComponent = defineComponent({
     if ((matches.object as Validator<unknown, Record<EntityUUID, LoadVolumeTarget>>).test(json.targets)) {
       component.targets.set(json.targets)
     }
-
-    function doLoad() {
-      Object.values(component.targets.value).map(({ uuid, loaded, entityJson }) => {
-        if (loaded) return
-        updateSceneEntity(entityJson.name as EntityUUID, entityJson)
-        component.targets
-      })
-      component.targets.merge((_targets) => {
-        Object.keys(_targets).map((_uuid) => {
-          _targets[_uuid] = { ..._targets[_uuid], loaded: true }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, LoadVolumeComponent)
+    useEffect(() => {
+      function doLoad() {
+        Object.values(component.targets.value).map(({ uuid, loaded, entities }) => {
+          if (loaded) return
+          for (const entityJson of entities) {
+            const { name, parent, components } = entityJson
+            const nuJson = JSON.parse(JSON.stringify({ name, parent, components }))
+            updateSceneEntity(entityJson.uuid, nuJson)
+          }
         })
-        return _targets
-      })
-    }
+        component.targets.merge((_targets) => {
+          Object.keys(_targets).map((_uuid) => {
+            _targets[_uuid] = { ..._targets[_uuid], loaded: true }
+          })
+          return _targets
+        })
+      }
 
-    function doUnload() {
-      Object.values(component.targets.value).map(({ uuid, loaded, entityJson: oldEJson }) => {
-        if (!loaded) return
-        const targetEntity = UUIDComponent.entitiesByUUID[uuid]
-        const parent = getComponent(targetEntity, EntityTreeComponent)
-        const parentNode = parent.parentEntity!
-        const clearChildren = () => removeEntityNodeRecursively(targetEntity)
-        const componentJson = serializeEntity(targetEntity)
-        clearChildren()
-        const entityJson: EntityJson = {
-          name: uuid,
-          parent: getComponent(parentNode, UUIDComponent),
-          components: componentJson
-        }
-        component.targets[uuid].set({ uuid, loaded: false, entityJson })
-      })
-    }
+      function doUnload() {
+        Object.values(component.targets.value).map(({ uuid, loaded }) => {
+          if (!loaded) return
+          const rootEntity = UUIDComponent.entitiesByUUID[uuid]
+          const entities = iterateEntityNode(rootEntity, (targetEntity) => {
+            const entityTreeNode = getComponent(targetEntity, EntityTreeComponent)
+            const parentNode = entityTreeNode.parentEntity!
+            const componentJson = serializeEntity(targetEntity)
+            const entityJson: EntityJson & { uuid: EntityUUID } = {
+              uuid: getComponent(targetEntity, UUIDComponent),
+              name: getComponent(targetEntity, NameComponent),
+              parent: getComponent(parentNode, UUIDComponent),
+              components: componentJson
+            }
+            return entityJson
+          })
+          component.targets[uuid].set({ uuid, loaded: false, entities })
+          removeEntityNodeRecursively(rootEntity)
+        })
+      }
 
-    if (hasComponent(entity, CallbackComponent)) {
-      removeComponent(entity, CallbackComponent)
-    }
+      if (hasComponent(entity, CallbackComponent)) {
+        removeComponent(entity, CallbackComponent)
+      }
 
-    setCallback(entity, 'doLoad', doLoad)
-    setCallback(entity, 'doUnload', doUnload)
+      setCallback(entity, 'doLoad', doLoad)
+      setCallback(entity, 'doUnload', doUnload)
+    }, [component.targets])
+
+    return null
   }
 })

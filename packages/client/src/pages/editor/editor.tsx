@@ -28,7 +28,7 @@ import { t } from 'i18next'
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
@@ -51,7 +51,7 @@ const EditorProtectedRoutes = () => {
     if (user.scopes.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
-        RouterService.navigate('/')
+        RouterState.navigate('/')
         setAuthorized(false)
       } else setAuthorized(true)
     }

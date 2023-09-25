@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { Action, clearOutgoingActions, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkActions } from '../NetworkState'
 import { Network } from '../classes/Network'
+import { NetworkActionFunctions } from '../functions/NetworkActionFunctions'
 import { WorldState } from '../interfaces/WorldState'
-import { NetworkActions, NetworkState } from '../NetworkState'
 
 /** Publish to connected peers that peer information has changed */
 export const updatePeers = (network: Network) => {
@@ -53,70 +53,8 @@ export const updatePeers = (network: Network) => {
   )
 }
 
-export const sendActionsAsPeer = (network: Network) => {
-  if (!network.authenticated) return
-  const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
-  if (!actions.length) return
-  for (const action of actions) {
-    if (action.$network && !action.$topic && action.$network === network.id) action.$topic = network.topic
-  }
-  // for (const peerID of network.peers) {
-  network.transport.messageToPeer(
-    network.hostPeerID,
-    /*encode(*/ actions //)
-  )
-  clearOutgoingActions(network.topic)
-}
-
-export const sendActionsAsHost = (network: Network) => {
-  if (!network.authenticated) return
-
-  const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
-  if (!actions.length) return
-
-  const outgoing = Engine.instance.store.actions.outgoing
-
-  for (const peerID of Object.keys(network.peers) as PeerID[]) {
-    const arr: Action[] = []
-    for (const a of [...actions]) {
-      const action = { ...a }
-      if (action.$network) {
-        if (action.$network !== network.id) continue
-        else action.$topic = network.topic
-      }
-      if (outgoing[network.topic].historyUUIDs.has(action.$uuid)) {
-        const idx = outgoing[network.topic].queue.findIndex((a) => a.$uuid === action.$uuid)
-        outgoing[network.topic].queue.splice(idx, 1)
-      }
-      if (!action.$to) continue
-      if (action.$to === 'all' || (action.$to === 'others' && peerID !== action.$peer) || action.$to === peerID) {
-        arr.push(action)
-      }
-    }
-    if (arr.length)
-      network.transport.messageToPeer(
-        peerID,
-        /*encode(*/ arr //)
-      )
-  }
-
-  // TODO: refactor this to support multiple connections of the same topic type
-  clearOutgoingActions(network.topic)
-}
-
-export const sendOutgoingActions = () => {
-  for (const network of Object.values(getState(NetworkState).networks)) {
-    try {
-      if (Engine.instance.userID === network.hostId) sendActionsAsHost(network as Network)
-      else sendActionsAsPeer(network as Network)
-    } catch (e) {
-      console.error(e)
-    }
-  }
-}
-
 const execute = () => {
-  sendOutgoingActions()
+  NetworkActionFunctions.sendOutgoingActions()
 }
 
 export const OutgoingActionSystem = defineSystem({

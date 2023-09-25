@@ -27,7 +27,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CompressedTexture } from 'three'
 
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
@@ -113,7 +113,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
         dispatchAction(EngineActions.sceneUnloaded({}))
-        RouterService.navigate(`/studio/${editorState.projectName.value}`)
+        RouterState.navigate(`/studio/${editorState.projectName.value}`)
       }
 
       fetchItems()
@@ -151,7 +151,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    RouterService.navigate(`/studio/${editorState.projectName.value}/${newName}`)
+    RouterState.navigate(`/studio/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
   }

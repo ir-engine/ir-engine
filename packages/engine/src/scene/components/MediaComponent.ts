@@ -240,28 +240,37 @@ export function MediaReactor() {
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
     const handleAutoplay = () => {
+      const mediaComponent = getComponent(entity, MediaElementComponent)
       // handle when we dont have autoplay enabled but have programatically started playback
-      if (!media.autoplay.value && !media.paused.value) getComponent(entity, MediaElementComponent)?.element.play()
+      if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.play()
       // handle when we have autoplay enabled but have paused playback
       if (media.autoplay.value && media.paused.value) media.paused.set(false)
-      window.removeEventListener('pointerdown', handleAutoplay)
+      // handle when we have autoplay and mediaComponent is paused
+      if (media.autoplay.value && !media.paused.value && mediaComponent?.element.paused) mediaComponent.element.play()
+      window.removeEventListener('pointerup', handleAutoplay)
       window.removeEventListener('keypress', handleAutoplay)
-      window.removeEventListener('touchstart', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+      window.removeEventListener('touchend', handleAutoplay)
+      document.body.removeEventListener('pointerup', handleAutoplay)
+      document.body.removeEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
-    window.addEventListener('pointerdown', handleAutoplay)
+    window.addEventListener('pointerup', handleAutoplay)
     window.addEventListener('keypress', handleAutoplay)
-    window.addEventListener('touchstart', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-    EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
+    window.addEventListener('touchend', handleAutoplay)
+    document.body.addEventListener('pointerup', handleAutoplay)
+    document.body.addEventListener('touchend', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
 
     return () => {
-      window.removeEventListener('pointerdown', handleAutoplay)
+      window.removeEventListener('pointerup', handleAutoplay)
       window.removeEventListener('keypress', handleAutoplay)
-      window.removeEventListener('touchstart', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+      window.removeEventListener('touchend', handleAutoplay)
+      document.body.removeEventListener('pointerup', handleAutoplay)
+      document.body.removeEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
     }
   }, [])
 
