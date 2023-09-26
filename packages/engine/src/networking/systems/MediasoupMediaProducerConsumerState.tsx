@@ -372,16 +372,12 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
     const consumer = Object.entries(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
       ([_, consumer]) => consumer.producerID === producerID
     )
-    console.log(consumer)
     if (!producer || !consumer) return
 
     if (producer.closed || producer._closed) return
 
     if (producerState.paused.value && producer.pause) producer.pause()
     if (!producerState.paused.value && producer.resume) producer.resume()
-
-    console.log(getState(MediasoupMediaProducerConsumerState)[networkID].consumers)
-    console.log(getState(MediasoupMediaProducerConsumerState)[networkID].producers)
 
     if (!consumer) return console.warn('No consumer found for paused producer', producerID)
 
