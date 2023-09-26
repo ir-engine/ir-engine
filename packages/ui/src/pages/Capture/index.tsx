@@ -231,8 +231,7 @@ const CaptureMode = () => {
           modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`,
           delegate: 'GPU'
         },
-        runningMode: 'VIDEO',
-        numPoses: 1
+        runningMode: 'VIDEO'
       }).then((pose) => {
         poseDetector.set(pose)
         poseLandmarksReady.set(true)
@@ -259,8 +258,9 @@ const CaptureMode = () => {
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active') return
 
-    const poseResults = poseDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
-    poseLandmarksState.set({ worldLandmarks: poseResults.worldLandmarks, landmarks: poseResults.landmarks })
+    poseDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!, (result) => {
+      poseLandmarksState.set({ worldLandmarks: result.worldLandmarks, landmarks: result.landmarks })
+    })
 
     if (!handDetector.value) return
     const handResults = handDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
