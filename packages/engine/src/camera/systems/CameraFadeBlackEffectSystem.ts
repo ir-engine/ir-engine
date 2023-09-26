@@ -33,6 +33,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setVisibleComponent } from '../../scene/components/VisibleComponent'
@@ -110,12 +111,12 @@ const execute = () => {
   const { transition, mesh, entity } = getState(CameraFadeBlackEffectSystemState)
   for (const action of fadeToBlackQueue()) {
     transition.setState(action.in ? 'IN' : 'OUT')
-    if (action.in)
+    if (action.in) {
       setComponent(entity, LocalTransformComponent, {
-        parentEntity: Engine.instance.cameraEntity,
         position: new Vector3(0, 0, -0.1)
       })
-    else removeComponent(entity, LocalTransformComponent)
+      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
+    } else removeComponent(entity, LocalTransformComponent)
     if (action.graphicTexture) {
       AssetLoader.load(action.graphicTexture, {}, (texture: Texture) => {
         mesh.material.uniforms.graphicTexture = new Uniform(texture)

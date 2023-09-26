@@ -35,13 +35,11 @@ import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   serializeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
-import { LoadState, PrefabComponent } from '../components/PrefabComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
 export const serializeEntity = (entity: Entity) => {
@@ -100,13 +98,6 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => 
       entityJson.name = getComponent(entity, NameComponent)
 
       entityJson.components = serializeEntity(entity)
-
-      if (hasComponent(entity, PrefabComponent)) {
-        const asset = getComponent(entity, PrefabComponent)
-        if (asset.loaded === LoadState.LOADED) {
-          asset.roots.map((root) => loadedAssets.add(root))
-        }
-      }
     },
     (node) => !loadedAssets.has(node),
     true
