@@ -175,12 +175,10 @@ export class IdentityProviderService<
       userId = uuidv1()
     }
 
-    const userService = this.app.service(userPath)
-
     // check if there is a user with userId
     let foundUser
     try {
-      foundUser = await userService.get(userId)
+      foundUser = await this.app.service(userPath).get(userId)
     } catch (err) {
       //
     }

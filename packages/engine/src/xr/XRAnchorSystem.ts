@@ -54,15 +54,11 @@ import {
   useOptionalComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent,
-  setLocalTransformComponent,
-  setTransformComponent
-} from '../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
@@ -76,8 +72,9 @@ export const updateHitTest = (entity: Entity) => {
   const space = ReferenceSpace.localFloor // xrFrame.session.interactionMode === 'world-space' ? ReferenceSpace.localFloor! : ReferenceSpace.viewer!
   const pose = space && hitTestResults?.length && hitTestResults[0].getPose(space)
   if (pose) {
-    localTransform.parentEntity =
+    const parentEntity =
       space === ReferenceSpace.localFloor ? Engine.instance.originEntity : Engine.instance.cameraEntity
+    setComponent(entity, EntityTreeComponent, { parentEntity })
     localTransform.position.copy(pose.transform.position as any)
     localTransform.rotation.copy(pose.transform.orientation as any)
   }
@@ -259,7 +256,7 @@ const XRAnchorSystemState = defineState({
   initial: () => {
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-    setLocalTransformComponent(scenePlacementEntity, Engine.instance.originEntity)
+    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
 
     // const originAxesHelper = new AxesHelper(10000)
@@ -279,7 +276,7 @@ const execute = () => {
 
   for (const action of xrSessionChangedQueue()) {
     if (!action.active) {
-      setTransformComponent(Engine.instance.originEntity) // reset world origin
+      setComponent(Engine.instance.originEntity, TransformComponent) // reset world origin
       getMutableState(XRState).scenePlacementMode.set('unplaced')
       for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
       for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Validator, matches } from 'ts-matches'
 
-import { defineAction, defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useEffect } from 'react'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -59,6 +59,8 @@ export const graphQuery = defineQuery([BehaveGraphComponent])
 const executeQueue = defineActionQueue(BehaveGraphActions.execute.matches)
 const stopQueue = defineActionQueue(BehaveGraphActions.stop.matches)
 const execute = () => {
+  if (getState(EngineState).isEditor) return
+
   for (const action of executeQueue()) {
     const entity = action.entity
     if (hasComponent(entity, BehaveGraphComponent)) setComponent(entity, BehaveGraphComponent, { run: true })

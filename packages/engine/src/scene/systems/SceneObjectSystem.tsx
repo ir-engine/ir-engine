@@ -47,7 +47,7 @@ import { defineQuery, getComponent, hasComponent, useOptionalComponent } from '.
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
-import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
 import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
@@ -183,7 +183,12 @@ const execute = () => {
     /**
      * do frustum culling here, but only if the object is more than 5 units away
      */
-    const visible = hasComponent(entity, VisibleComponent) && !FrustumCullCameraComponent.isCulled[entity]
+    const visible =
+      hasComponent(entity, VisibleComponent) &&
+      !(
+        FrustumCullCameraComponent.isCulled[entity] &&
+        DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
+      )
 
     for (const obj of group) obj.visible = visible
   }

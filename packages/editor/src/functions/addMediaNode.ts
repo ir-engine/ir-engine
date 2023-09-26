@@ -29,7 +29,6 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
@@ -51,11 +50,7 @@ export async function addMediaNode(url: string, parent?: Entity | null, before?:
   let updateFunc = null! as () => void
 
   let node: Entity | null = null
-
-  if (contentType.startsWith('prefab/')) {
-    componentName = PrefabComponent.name
-    updateFunc = () => setComponent(node!, PrefabComponent, { src: url })
-  } else if (contentType.startsWith('model/')) {
+  if (contentType.startsWith('model/')) {
     componentName = ModelComponent.name
     updateFunc = () => setComponent(node!, ModelComponent, { src: url })
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {

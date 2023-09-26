@@ -39,7 +39,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
-import { TransformComponent, setLocalTransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
@@ -132,7 +132,11 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData.name
 
     // setTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
-    setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
+    setComponent(e, LocalTransformComponent, {
+      position: mesh.position,
+      rotation: mesh.quaternion,
+      scale: mesh.scale
+    })
     computeLocalTransformMatrix(entity)
     computeTransformMatrix(entity)
 
