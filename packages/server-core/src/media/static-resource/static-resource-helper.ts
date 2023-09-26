@@ -78,8 +78,8 @@ export const downloadResourceAndMetadata = async (
         buffer: Buffer.from(await file.arrayBuffer()),
         originalname: url.split('/').pop()!,
         mimetype:
-          file.headers.get('content-type') ||
-          file.headers.get('Content-Type') ||
+          file.headers.get('content-type') ??
+          file.headers.get('Content-Type') ??
           CommonKnownContentTypes[url.split('.').pop()!],
         size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
       }
@@ -90,8 +90,8 @@ export const downloadResourceAndMetadata = async (
         buffer: url,
         originalname: url.split('/').pop()!,
         mimetype:
-          file.headers.get('content-type') ||
-          file.headers.get('Content-Type') ||
+          file.headers.get('content-type') ??
+          file.headers.get('Content-Type') ??
           CommonKnownContentTypes[url.split('.').pop()!],
         size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
       }
