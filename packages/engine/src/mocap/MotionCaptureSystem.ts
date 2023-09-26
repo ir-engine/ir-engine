@@ -37,8 +37,6 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
-import { NormalizedLandmarkList } from '@mediapipe/pose'
-
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { getState } from '@etherealengine/hyperflux'
@@ -64,21 +62,15 @@ import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import { solveMotionCapturePose } from './solveMotionCapturePose'
 
-export type poseMotionCaptureResults = {
-  poseWorldLandmarks: NormalizedLandmarkList
-  poseLandmarks: NormalizedLandmarkList
-}
-
-export type handMotionCaptureResults = {
-  handWorldLandmarks: Landmark[][]
-  handLandmarks: NormalizedLandmark[][]
+export type motionCaptureResults = {
+  worldLandmarks: Landmark[][]
+  landmarks: NormalizedLandmark[][]
 }
 
 export type combinedCaptureResults = {
-  pose: poseMotionCaptureResults
-  hands: handMotionCaptureResults
+  pose: motionCaptureResults
+  hands: motionCaptureResults
 }
 
 export const sendResults = (results: combinedCaptureResults) => {
@@ -148,7 +140,7 @@ const execute = () => {
     if (data && entity) {
       timeSeriesMocapLastSeen.set(peerID, Date.now())
       setComponent(entity, MotionCaptureRigComponent)
-      solveMotionCapturePose(data.results.pose.poseWorldLandmarks, userID, entity)
+      //solveMotionCapturePose(data.results.pose.worldLandmarks, userID, entity)
     }
   }
 

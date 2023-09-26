@@ -55,9 +55,8 @@ import { throttle } from '@etherealengine/engine/src/common/functions/FunctionHe
 import {
   MotionCaptureFunctions,
   combinedCaptureResults,
-  handMotionCaptureResults,
   mocapDataChannelType,
-  poseMotionCaptureResults
+  motionCaptureResults
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
@@ -74,10 +73,14 @@ import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 
-import { NormalizedLandmarkList, Options, POSE_CONNECTIONS, Pose } from '@mediapipe/pose'
-import { DrawingUtils, FilesetResolver, HandLandmarker, NormalizedLandmark } from '@mediapipe/tasks-vision'
+import {
+  DrawingUtils,
+  FilesetResolver,
+  HandLandmarker,
+  NormalizedLandmark,
+  PoseLandmarker
+} from '@mediapipe/tasks-vision'
 
 import ReactSlider from 'react-slider'
 import Toolbar from '../../components/tailwind/mocap/Toolbar'
@@ -181,10 +184,10 @@ const CaptureMode = () => {
   const detectingStatus = useHookstate(getMutableState(CaptureState).detectingStatus)
   const isDetecting = detectingStatus.value === 'active'
 
-  const poseDetector = useHookstate(null as null | Pose)
+  const poseDetector = useHookstate(null as null | PoseLandmarker)
   const handDetector = useHookstate(null as null | HandLandmarker)
-  const handLandmarksState = useHookstate(null as null | handMotionCaptureResults)
-  const poseLandmarksState = useHookstate(null as null | poseMotionCaptureResults)
+  const handLandmarksState = useHookstate(null as null | motionCaptureResults)
+  const poseLandmarksState = useHookstate(null as null | motionCaptureResults)
   const visionDetector = useHookstate(null as null | any)
 
   const handLandmarksReady = useHookstate(false)
@@ -199,28 +202,6 @@ const CaptureMode = () => {
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
   useEffect(() => {
-    detectingStatus.set('loading')
-    const pose = new Pose({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-      }
-    })
-    pose.setOptions({
-      // enableFaceGeometry: trackingSettings?.enableFaceGeometry,
-      //selfieMode: trackingSettings?.flipVideo,
-      modelComplexity: trackingSettings?.modelComplexity,
-      smoothLandmarks: trackingSettings?.smoothLandmarks,
-      enableSegmentation: trackingSettings?.enableSegmentation,
-      smoothSegmentation: trackingSettings?.smoothSegmentation,
-      // refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
-      minDetectionConfidence: trackingSettings?.minDetectionConfidence,
-      minTrackingConfidence: trackingSettings?.minTrackingConfidence
-    } as Options)
-
-    poseDetector.set(pose)
-  }, [])
-
-  useEffect(() => {
     if (!visionDetector.value)
       FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.6/wasm').then(
         (vision) => {
@@ -230,18 +211,33 @@ const CaptureMode = () => {
   }, [])
 
   useEffect(() => {
-    if (!visionDetector.value || handDetector.value) return
-    HandLandmarker.createFromOptions(visionDetector.value, {
-      baseOptions: {
-        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
-        delegate: 'GPU'
-      },
-      runningMode: 'VIDEO',
-      numHands: 2
-    }).then((hand) => {
-      handDetector.set(hand)
-      handLandmarksReady.set(true)
-    })
+    if (!visionDetector.value) return
+    if (!handDetector.value) {
+      HandLandmarker.createFromOptions(visionDetector.value, {
+        baseOptions: {
+          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+          delegate: 'GPU'
+        },
+        runningMode: 'VIDEO',
+        numHands: 2
+      }).then((hand) => {
+        handDetector.set(hand)
+        handLandmarksReady.set(true)
+      })
+    }
+    if (!poseDetector.value) {
+      PoseLandmarker.createFromOptions(visionDetector.value, {
+        baseOptions: {
+          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`,
+          delegate: 'GPU'
+        },
+        runningMode: 'VIDEO',
+        numPoses: 1
+      }).then((pose) => {
+        poseDetector.set(pose)
+        poseLandmarksReady.set(true)
+      })
+    }
   }, [visionDetector])
 
   //Comenting this out until selfie mode is added to hands options
@@ -263,17 +259,12 @@ const CaptureMode = () => {
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     if (!poseDetector.value || processingFrame.value || detectingStatus.value !== 'active') return
 
-    processingFrame.set(true)
-    poseDetector.value.send({ image: videoRef.current! }).finally(() => {
-      processingFrame.set(false)
-    })
+    const poseResults = poseDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
+    poseLandmarksState.set({ worldLandmarks: poseResults.worldLandmarks, landmarks: poseResults.landmarks })
 
     if (!handDetector.value) return
-    processingFrame.set(true)
-    const results = handDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
-    const { landmarks, worldLandmarks } = results
-    handLandmarksState.set({ handWorldLandmarks: worldLandmarks, handLandmarks: landmarks })
-    processingFrame.set(false)
+    const handResults = handDetector.value.detectForVideo(videoRef.current!, videoRef.current?.currentTime!)
+    handLandmarksState.set({ worldLandmarks: handResults.worldLandmarks, landmarks: handResults.landmarks })
   })
 
   useEffect(() => {
@@ -290,9 +281,13 @@ const CaptureMode = () => {
     canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
     canvasCtxRef.current.globalCompositeOperation = 'source-over'
 
-    if (handLandmarksState.value) drawHandsToCanvas(handLandmarksState.value.handLandmarks, canvasCtxRef, canvasRef)
+    const drawingUtils = new DrawingUtils(canvasCtxRef.current)
 
-    if (poseLandmarksState.value) drawPoseToCanvas(poseLandmarksState.value.poseLandmarks, canvasCtxRef, canvasRef)
+    if (handLandmarksState.value)
+      drawHandsToCanvas(handLandmarksState.value.landmarks, canvasCtxRef, canvasRef, drawingUtils)
+
+    if (poseLandmarksState.value)
+      drawPoseToCanvas(poseLandmarksState.value.landmarks, canvasCtxRef, canvasRef, drawingUtils)
 
     canvasCtxRef.current.restore()
   }, [isDetecting, handLandmarksState, poseLandmarksState])
@@ -303,25 +298,6 @@ const CaptureMode = () => {
     if (!poseDetector.value) {
       return
     }
-
-    processingFrame.set(false)
-    //keep track of the status of the pose detector and hand detector
-    //when both are true we can send the results
-    poseDetector.value.onResults((results) => {
-      if (Object.keys(results).length === 0) return
-
-      const { poseWorldLandmarks, poseLandmarks } = results
-
-      //if (debugSettings?.throttleSend) {
-      //  throttledSend({ poseWorldLandmarks, poseLandmarks })
-      //} else {
-      //  sendResults({ poseWorldLandmarks, poseLandmarks })
-      //}
-
-      processingFrame.set(false)
-      poseLandmarksReady.set(true)
-      poseLandmarksState.set(results)
-    })
 
     return () => {
       // detectingStatus.set('inactive')
@@ -402,11 +378,10 @@ const CaptureMode = () => {
 const drawHandsToCanvas = (
   handLandmarks: NormalizedLandmark[][],
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
-  canvasRef: React.RefObject<HTMLCanvasElement | undefined>
+  canvasRef: React.RefObject<HTMLCanvasElement | undefined>,
+  drawingUtils: DrawingUtils
 ) => {
   if (!canvasCtxRef.current || !canvasRef.current) return
-
-  const drawingUtils = new DrawingUtils(canvasCtxRef.current)
 
   if (handLandmarks && canvasCtxRef.current) {
     for (let i = 0; i < handLandmarks.length; i++) {
@@ -421,22 +396,23 @@ const drawHandsToCanvas = (
 }
 
 const drawPoseToCanvas = (
-  poseLandmarks: NormalizedLandmarkList,
+  poseLandmarks: NormalizedLandmark[][],
   canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
-  canvasRef: React.RefObject<HTMLCanvasElement | undefined>
+  canvasRef: React.RefObject<HTMLCanvasElement | undefined>,
+  drawingUtils: DrawingUtils
 ) => {
   if (!canvasCtxRef.current || !canvasRef.current) return
 
-  // Pose Connections
-  drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
-    color: '#fff',
-    lineWidth: 4
-  })
-  // Pose Landmarks
-  drawLandmarks(canvasCtxRef.current, poseLandmarks, {
-    color: '#fff',
-    radius: 2
-  })
+  if (poseLandmarks && canvasCtxRef.current) {
+    for (let i = 0; i < poseLandmarks.length; i++) {
+      //use tasks-vision utils import for draw connectors
+      drawingUtils.drawConnectors(poseLandmarks[i], HandLandmarker.HAND_CONNECTIONS, {
+        color: '#fff',
+        lineWidth: 2
+      })
+      drawingUtils.drawLandmarks(poseLandmarks[i], { color: '#fff', lineWidth: 3 })
+    }
+  }
 }
 
 const VideoPlayback = (props: {
@@ -473,6 +449,7 @@ const VideoPlayback = (props: {
 
   const { handlePositionChange } = useScrubbableVideo(videoRef)
 
+  //TODO REFACTOR PLAYBACK SYSTEM TO USE NEW POSE/HANDS DETECTION
   /** When the current time changes, update the video's current time and render motion capture */
   useEffect(() => {
     if (!videoRef.current || typeof currentTimeSeconds.value !== 'number') return
@@ -485,7 +462,7 @@ const VideoPlayback = (props: {
       const currentTimeMS = currentTimeSeconds.value * 1000
       const frame = data.frames.find((frame) => frame.timecode > currentTimeMS)
       if (!frame) return
-      drawPoseToCanvas(frame.data.results.poseLandmarks, canvasCtxRef, canvasRef)
+      //drawPoseToCanvas(frame.data.results.poseLandmarks, canvasCtxRef, canvasRef)
     }
   }, [currentTimeSeconds])
 
