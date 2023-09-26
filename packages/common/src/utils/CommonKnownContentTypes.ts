@@ -45,7 +45,8 @@ export const CommonKnownContentTypes = {
   tsx: 'application/octet-stream',
   ts: 'application/octet-stream',
   js: 'application/octet-stream',
-  json: 'application/json'
+  json: 'application/json',
+  ktx2: 'image/ktx2'
 }
 
 export const MimeTypeToExtension = {
