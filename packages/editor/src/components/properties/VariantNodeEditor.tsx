@@ -75,12 +75,14 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
           />
         </InputGroup>
         <Button
-          onClick={() =>
-            variantComponent.levels[variantComponent.levels.length].set({
+          onClick={commitProperty(
+            VariantComponent,
+            `levels.${variantComponent.levels.length}` as any,
+            {
               src: '',
               metadata: {}
-            })
-          }
+            } as any
+          )}
         >
           Add Variant
         </Button>
@@ -127,10 +129,11 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                 </div>
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => {
-                      const index = variantComponent.levels.indexOf(level)
-                      variantComponent.levels.set(variantComponent.levels.value.filter((_, i) => i !== index))
-                    }}
+                    onClick={commitProperty(
+                      VariantComponent,
+                      `levels.${variantComponent.levels.indexOf(level)}` as any,
+                      undefined
+                    )}
                   >
                     Remove
                   </Button>
