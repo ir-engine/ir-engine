@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
+import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 
-export const mediaSeeds: Array<ServicesSeedConfig> = []
-
-export default mediaSeeds
+export const mediaSeeds: Array<KnexSeed> = []

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import {
   useLoadEngineWithScene,
   useOfflineNetwork,
@@ -42,12 +43,24 @@ import { AuthService } from '@etherealengine/client-core/src/user/services/AuthS
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { ECSRecordingActions } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
+import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
 
+const ecsRecordingErrorActionQueue = defineActionQueue(ECSRecordingActions.error.matches)
+
+const NotifyRecordingErrorSystem = defineSystem({
+  uuid: 'notifyRecordingErrorSystem',
+  execute: () => {
+    for (const action of ecsRecordingErrorActionQueue()) {
+      NotificationService.dispatchNotify(action.error, { variant: 'error' })
+    }
+  }
+})
+
 const startCaptureSystems = () => {
-  startSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
+  startSystems([ClientNetworkingSystem, NotifyRecordingErrorSystem], { after: PresentationSystemGroup })
 }
 
 export const CaptureLocation = () => {

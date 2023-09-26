@@ -302,6 +302,8 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     return upload
   })
 
+  logger.info('media recording started')
+
   return {
     recordings,
     activeUploads

@@ -23,6 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
+import { HookContext, NextFunction } from '@feathersjs/feathers'
 
-export const networkingSeeds: Array<KnexSeed> = []
+import { AsyncLocalStorage } from 'async_hooks'
+import { Application } from '../../declarations'
+
+export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
+
+/**
+ * https://github.com/feathersjs-ecosystem/dataloader/blob/main/docs/guide.md
+ */
+export default async (context: HookContext<Application>, next: NextFunction) => {
+  const store = asyncLocalStorage.getStore()
+
+  if (store && store.headers && !context.params.headers) {
+    context.params.headers = store.headers
+  } else {
+    const headers = context.params.headers || {}
+    asyncLocalStorage.enterWith({ headers })
+  }
+
+  return next()
+}

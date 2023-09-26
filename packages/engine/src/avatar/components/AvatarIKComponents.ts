@@ -47,11 +47,12 @@ export const AvatarHeadDecapComponent = defineComponent({
     const rig = useOptionalComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (rig?.value) {
-        if (headDecap?.value) rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
-        return () => {
-          rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
-        }
+      if (!rig?.value?.vrm?.humanoid?.rawHumanBones?.head?.node || !headDecap?.value) return
+
+      rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
+
+      return () => {
+        rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
       }
     }, [headDecap, rig])
 

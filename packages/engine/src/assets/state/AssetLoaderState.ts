@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>
-type SeedCallback = (ServicesSeedConfig) => Promise<any>
+import { defineState } from '@etherealengine/hyperflux'
+import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 
-export interface ServicesSeedConfig {
-  path?: string
-  templates?: any[]
-  insertSingle?: boolean
-  callback?: ServicesSeedCallback
-}
+export const AssetLoaderState = defineState({
+  name: 'AssetLoaderState',
+  initial: () => ({
+    gltfLoader: createGLTFLoader()
+  })
+})
