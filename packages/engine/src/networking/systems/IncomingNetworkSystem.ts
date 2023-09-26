@@ -64,6 +64,7 @@ const handleNetworkdata = (
   message: ArrayBufferLike
 ) => {
   const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = getState(IncomingNetworkState)
+  console.log('handling network data')
   if (network.isHosting) {
     incomingMessageQueueUnreliable.add(toArrayBuffer(message))
     incomingMessageQueueUnreliableIDs.add(fromPeerID)

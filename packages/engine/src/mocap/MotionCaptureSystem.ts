@@ -39,11 +39,7 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 
 import { NormalizedLandmarkList } from '@mediapipe/pose'
 
-import {
-  DataChannelRegistryState,
-  addDataChannelHandler,
-  removeDataChannelHandler
-} from '../networking/systems/DataChannelRegistry'
+import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { getState } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
@@ -82,7 +78,6 @@ export const sendResults = (results: MotionCaptureResults) => {
 }
 
 export const receiveResults = (buff: ArrayBuffer) => {
-  console.log(buff)
   return decode(new Uint8Array(buff)) as {
     timestamp: number
     results: MotionCaptureResults
@@ -102,12 +97,10 @@ const handleMocapData = (
   fromPeerID: PeerID,
   message: ArrayBufferLike
 ) => {
-  console.log('handling mocap data')
   if (network.isHosting) {
     network.transport.bufferToAll(dataChannel, fromPeerID, message)
   }
   const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
-  console.log(results)
   if (!timeSeriesMocapData.has(fromPeerID)) {
     timeSeriesMocapData.set(fromPeerID, new RingBuffer(10))
   }
@@ -135,10 +128,8 @@ const execute = () => {
       timeSeriesMocapLastSeen.delete(peerID)
     }
   }
-  console.log(motionCaptureQuery().length)
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.popLast()
-    console.log(data)
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
@@ -245,7 +236,6 @@ helperGroup.add(positionLineSegment)
 const reactor = () => {
   useEffect(() => {
     addDataChannelHandler(mocapDataChannelType, handleMocapData)
-    console.log(getState(DataChannelRegistryState)[mocapDataChannelType])
     return () => {
       removeDataChannelHandler(mocapDataChannelType, handleMocapData)
     }
