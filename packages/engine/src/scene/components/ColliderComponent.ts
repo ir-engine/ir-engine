@@ -27,7 +27,7 @@ import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getState } from '@etherealengine/hyperflux'
 
 import matches from 'ts-matches'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -106,18 +106,28 @@ export const ColliderComponent = defineComponent({
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
-    if (
-      matches
-        .arrayOf(
-          matches.shape({
-            onEnter: matches.nill.orParser(matches.string),
-            onExit: matches.nill.orParser(matches.string),
-            target: matches.nill.orParser(matches.string)
-          })
-        )
-        .test(json.triggers)
-    )
-      component.triggers.set(json.triggers)
+
+    // backwards compatibility
+    const onEnter = (json as any).onEnter ?? null
+    const onExit = (json as any).onExit ?? null
+    const target = (json as any).target ?? null
+    if (!!onEnter || !!onExit || !!target) {
+      component.triggers.set([{ onEnter, onExit, target }])
+    } else if (typeof json.triggers === 'object') {
+      if (
+        matches
+          .arrayOf(
+            matches.shape({
+              onEnter: matches.nill.orParser(matches.string),
+              onExit: matches.nill.orParser(matches.string),
+              target: matches.nill.orParser(matches.string)
+            })
+          )
+          .test(json.triggers)
+      ) {
+        component.triggers.set(json.triggers)
+      }
+    }
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -135,33 +145,7 @@ export const ColliderComponent = defineComponent({
   onRemove(entity, component) {},
 
   toJSON(entity, component) {
-    const response = {
-      bodyType: component.bodyType.value,
-      shapeType: component.shapeType.value,
-      isTrigger: component.isTrigger.value,
-      removeMesh: component.removeMesh.value,
-      collisionLayer: component.collisionLayer.value,
-      collisionMask: component.collisionMask.value,
-      restitution: component.restitution.value,
-      triggers: []
-    } as {
-      bodyType: RigidBodyType
-      shapeType: ShapeType
-      isTrigger: boolean
-      removeMesh: boolean
-      collisionLayer: number
-      collisionMask: number
-      restitution: number
-      triggers: {
-        onEnter?: string | null
-        onExit?: string | null
-        target?: string | null
-      }[]
-    }
-    if (component.isTrigger.value) {
-      response.triggers = component.triggers.value
-    }
-    return response
+    return component.get(NO_PROXY)
   },
 
   reactor: function () {

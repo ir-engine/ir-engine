@@ -697,7 +697,7 @@
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale"
     },
-    "triggereVolume": {
+    "triggerVolume": {
       "description": "Sets a property on the target object on enter and leave.",
       "lbl-target": "Object",
       "lbl-onenter": "On Enter",

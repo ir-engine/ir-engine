@@ -64,6 +64,7 @@ import {
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
@@ -129,7 +130,8 @@ const modifyProperty = <C extends Component<any, any>>(
     )
     if (!componentData) continue
     Object.entries(properties).map(([k, v]) => {
-      componentData.props[k] = v
+      const { result, finalProp } = getNestedObject(componentData.props, k)
+      result[finalProp] = v
     })
   }
 
@@ -590,7 +592,7 @@ const groupObjects = (nodes: EntityOrObjectUUID[]) => {
     name: 'New Group',
     components: [
       {
-        name: TransformComponent.jsonID,
+        name: LocalTransformComponent.jsonID,
         props: {} // todo figure out where the new position should be
       },
       {

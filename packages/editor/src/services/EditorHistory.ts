@@ -37,6 +37,12 @@ import {
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { Topic, defineActionQueue, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import {
+  ComponentJSONIDMap,
+  serializeComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { useEffect } from 'react'
 import { EditorState } from './EditorServices'
 import { SelectionAction, SelectionState } from './SelectionServices'
@@ -61,13 +67,35 @@ export const EditorHistoryState = defineState({
   },
 
   resetHistory: () => {
-    const sceneData = getState(SceneState).sceneData
+    const sceneData = getState(SceneState).sceneData!
     getMutableState(EditorHistoryState).set({
       index: 0,
-      history: [{ data: JSON.parse(JSON.stringify(sceneData)), selectedEntities: [] }]
+      history: [{ data: migrateSceneData(sceneData), selectedEntities: [] }]
     })
   }
 })
+
+const migrateSceneData = (sceneData: SceneData) => {
+  const migratedSceneData = JSON.parse(JSON.stringify(sceneData)) as SceneData
+
+  for (const [key, value] of Object.entries(migratedSceneData.scene.entities)) {
+    const tempEntity = createEntity()
+    for (const comp of Object.values(value.components)) {
+      const { name, props } = comp
+      const component = ComponentJSONIDMap.get(name)
+      if (!component) {
+        console.warn(`Component ${name} not found`)
+        continue
+      }
+      setComponent(tempEntity, component, props)
+      const data = serializeComponent(tempEntity, component)
+      comp.props = data
+    }
+    removeEntity(tempEntity)
+  }
+
+  return migratedSceneData
+}
 
 export class EditorHistoryAction {
   static undo = defineAction({

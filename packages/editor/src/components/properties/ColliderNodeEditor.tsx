@@ -52,7 +52,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 const bodyTypeOptions = Object.entries(RigidBodyType)
   .filter(([value]) => (value as string).length > 1)
@@ -109,7 +109,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       <>
         <Button
           onClick={() => {
-            const nuTriggers = [
+            const triggers = [
               ...colliderComponent.triggers.value,
               {
                 target: 'Self',
@@ -117,7 +117,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
                 onExit: ''
               }
             ]
-            colliderComponent.triggers.set(JSON.parse(JSON.stringify(nuTriggers)))
+            commitProperties(ColliderComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
           }}
         >
           Add Trigger
@@ -128,45 +128,47 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
             const target = targetOption ? targetOption.value : 'Self'
             return (
               <>
-                <InputGroup name="Target" label={t('editor:properties.triggereVolume.lbl-target')}>
+                <InputGroup name="Target" label={t('editor:properties.triggerVolume.lbl-target')}>
                   <SelectInput
                     key={props.entity}
                     value={trigger.target.value ?? 'Self'}
-                    onChange={(val) => colliderComponent.triggers[index].target.set(val)}
+                    onChange={commitProperty(ColliderComponent, `triggers.${index}.target` as any)}
                     options={targets.value}
                     disabled={props.multiEdit}
                   />
                 </InputGroup>
-                <InputGroup name="On Enter" label={t('editor:properties.triggereVolume.lbl-onenter')}>
+                <InputGroup name="On Enter" label={t('editor:properties.triggerVolume.lbl-onenter')}>
                   {targetOption?.callbacks.length == 0 ? (
                     <StringInput
                       value={trigger.onEnter.value!}
-                      onChange={(val) => trigger.onEnter.set(val)}
+                      onChange={updateProperty(ColliderComponent, `triggers.${index}.onEnter` as any)}
+                      onRelease={commitProperty(ColliderComponent, `triggers.${index}.onEnter` as any)}
                       disabled={props.multiEdit || !target}
                     />
                   ) : (
                     <SelectInput
                       key={props.entity}
                       value={trigger.onEnter.value!}
-                      onChange={(val) => trigger.onEnter.set(val)}
+                      onChange={commitProperty(ColliderComponent, `triggers.${index}.onEnter` as any)}
                       options={targetOption?.callbacks ? targetOption.callbacks : []}
                       disabled={props.multiEdit || !target}
                     />
                   )}
                 </InputGroup>
 
-                <InputGroup name="On Exit" label={t('editor:properties.triggereVolume.lbl-onexit')}>
+                <InputGroup name="On Exit" label={t('editor:properties.triggerVolume.lbl-onexit')}>
                   {targetOption?.callbacks.length == 0 ? (
                     <StringInput
                       value={trigger.onExit.value!}
-                      onChange={(val) => trigger.onExit.set(val)}
+                      onRelease={updateProperty(ColliderComponent, `triggers.${index}.onExit` as any)}
+                      onChange={commitProperty(ColliderComponent, `triggers.${index}.onExit` as any)}
                       disabled={props.multiEdit || !target}
                     />
                   ) : (
                     <SelectInput
                       key={props.entity}
                       value={trigger.onExit.value!}
-                      onChange={(val) => trigger.onExit.set(val)}
+                      onChange={commitProperty(ColliderComponent, `triggers.${index}.onExit` as any)}
                       options={targetOption?.callbacks ? targetOption.callbacks : []}
                       disabled={props.multiEdit || !target}
                     />
@@ -199,7 +201,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Trigger" label={t('editor:properties.collider.lbl-isTrigger')}>
         <BooleanInput
           value={colliderComponent.isTrigger.value}
-          onChange={updateProperty(ColliderComponent, 'isTrigger')}
+          onChange={commitProperty(ColliderComponent, 'isTrigger')}
         />
       </InputGroup>
       {colliderComponent.isTrigger.value && triggerProps()}
