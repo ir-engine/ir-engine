@@ -134,6 +134,7 @@ export const playAudio = makeFlowNodeDefinition({
     autoplay: 'boolean',
     isMusic: 'boolean',
     volume: 'float',
+    paused: 'boolean',
     playMode: (_, graphApi) => {
       const choices = Object.keys(PlayMode).map((key) => ({
         text: key,
@@ -155,12 +156,13 @@ export const playAudio = makeFlowNodeDefinition({
       resources = component.resources.length > 0 ? component.resources : []
       volume = component.volume
     }
-    setComponent(entity, PositionalAudioComponent)
+    if (!hasComponent(entity, PositionalAudioComponent)) setComponent(entity, PositionalAudioComponent)
     const media = read<string>('mediaPath')
     resources = media ? [media, ...resources] : resources
     const autoplay = read<boolean>('autoplay')
     volume = MathUtils.clamp(read('volume') ?? volume, 0, 1)
     const playMode = read<PlayMode>('playMode')
+    const paused = read<boolean>('paused')
     setComponent(entity, MediaComponent, {
       autoplay: autoplay,
       resources: resources,
@@ -168,7 +170,7 @@ export const playAudio = makeFlowNodeDefinition({
       playMode: playMode!
     }) // play
     const component = getMutableComponent(entity, MediaComponent)
-    component.paused.set(false)
+    component.paused.set(paused)
     commit('flow')
   }
 })
