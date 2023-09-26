@@ -175,6 +175,19 @@ class KTX2Loader extends Loader {
     return this.transcoderPending
   }
 
+  parse(buffer, onLoad, onError) {
+    const texture = new CompressedTexture()
+    this._createTexture(buffer)
+      .then(function (_texture) {
+        texture.copy(_texture)
+        texture.needsUpdate = true
+
+        if (onLoad) onLoad(texture)
+      })
+      .catch(onError)
+    return texture
+  }
+
   load(url, onLoad, onProgress, onError) {
     if (this.workerConfig === null) {
       throw new Error('THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.')
