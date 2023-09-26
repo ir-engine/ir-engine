@@ -28,6 +28,7 @@ import { disallow } from 'feathers-hooks-common'
 import {
   staticResourceDataValidator,
   staticResourcePatchValidator,
+  staticResourcePath,
   staticResourceQueryValidator
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
@@ -35,6 +36,9 @@ import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-logg
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import { Forbidden, NotFound } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
+import { getStorageProvider } from '../storageprovider/storageprovider'
 import {
   staticResourceDataResolver,
   staticResourceExternalResolver,
@@ -42,6 +46,28 @@ import {
   staticResourceQueryResolver,
   staticResourceResolver
 } from './static-resource.resolvers'
+
+const createActionHook = async (context: HookContext) => {
+  context.data = { ...context.data, userId: context.params?.user?.id }
+}
+
+const removeActionHook = async (context: HookContext) => {
+  const resource = await context.app.service(staticResourcePath).get(context.id!)
+
+  if (!resource) {
+    throw new NotFound('Unable to find specified resource id.')
+  }
+
+  if (!resource.userId) {
+    if (context.params?.provider) await verifyScope('admin', 'admin')({ context } as any)
+  } else if (context.params?.provider && resource.userId !== context.params?.user?.id)
+    throw new Forbidden('You are not the creator of this resource')
+
+  if (resource.key) {
+    const storageProvider = getStorageProvider()
+    await storageProvider.deleteResources([resource.key])
+  }
+}
 
 export default {
   around: {
@@ -62,7 +88,8 @@ export default {
       authenticate(),
       verifyScope('admin', 'admin'),
       () => schemaHooks.validateData(staticResourceDataValidator),
-      schemaHooks.resolveData(staticResourceDataResolver)
+      schemaHooks.resolveData(staticResourceDataResolver),
+      createActionHook
     ],
     update: [authenticate(), verifyScope('admin', 'admin')],
     patch: [
@@ -74,7 +101,8 @@ export default {
     remove: [
       authenticate(),
       // iff(isProvider('external'), verifyScope('admin', 'admin') as any),
-      attachOwnerIdInQuery('userId')
+      attachOwnerIdInQuery('userId'),
+      removeActionHook
     ]
   },
 
