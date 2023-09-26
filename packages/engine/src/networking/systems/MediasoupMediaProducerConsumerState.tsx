@@ -364,18 +364,19 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
     }
   }, [producerObjectState])
 
+  const mediaState = useHookstate(getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers)
   useEffect(() => {
     const producer = producerObjectState.value as any
-    if (!producer) return
+    const consumer = Object.entries(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
+      ([_, consumer]) => consumer.producerID === producerID
+    )
+
+    if (!producer || !consumer) return
 
     if (producer.closed || producer._closed) return
 
     if (producerState.paused.value && producer.pause) producer.pause()
     if (!producerState.paused.value && producer.resume) producer.resume()
-
-    const consumer = Object.entries(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
-      ([_, consumer]) => consumer.producerID === producerID
-    )
 
     if (!consumer) return console.warn('No consumer found for paused producer', producerID)
 
@@ -386,7 +387,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
         $topic: networkState.topic.value
       })
     )
-  }, [producerState.paused, producerObjectState])
+  }, [producerState.paused, producerObjectState, networkState, mediaState])
 
   return null
 }

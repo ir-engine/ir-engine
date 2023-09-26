@@ -42,6 +42,7 @@
     "@etherealengine/projects": "^1.4.0",
     "@heroicons/react": "^2.0.16",
     "@mediapipe/drawing_utils": "^0.3.1675466124",
+    "@mediapipe/tasks-vision": "^0.10.6",
     "@mui/icons-material": "5.11.11",
     "@mui/material": "5.11.13",
     "@pixiv/three-vrm": "^2.0.1",

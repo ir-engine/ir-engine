@@ -37,11 +37,10 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
-import { NormalizedLandmarkList } from '@mediapipe/pose'
-
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
 import { getState } from '@etherealengine/hyperflux'
+import { Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
@@ -63,14 +62,18 @@ import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import { solveMotionCapturePose } from './solveMotionCapturePose'
 
-export type MotionCaptureResults = {
-  poseWorldLandmarks: NormalizedLandmarkList
-  poseLandmarks: NormalizedLandmarkList
+export type motionCaptureResults = {
+  worldLandmarks: Landmark[][]
+  landmarks: NormalizedLandmark[][]
 }
 
-export const sendResults = (results: MotionCaptureResults) => {
+export type combinedCaptureResults = {
+  pose: motionCaptureResults
+  hands: motionCaptureResults
+}
+
+export const sendResults = (results: combinedCaptureResults) => {
   return encode({
     timestamp: Date.now(),
     results
@@ -80,7 +83,7 @@ export const sendResults = (results: MotionCaptureResults) => {
 export const receiveResults = (buff: ArrayBuffer) => {
   return decode(new Uint8Array(buff)) as {
     timestamp: number
-    results: MotionCaptureResults
+    results: combinedCaptureResults
   }
 }
 
@@ -113,7 +116,7 @@ const timeSeriesMocapData = new Map<
   PeerID,
   RingBuffer<{
     timestamp: number
-    results: MotionCaptureResults
+    results: combinedCaptureResults
   }>
 >()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
@@ -137,7 +140,7 @@ const execute = () => {
     if (data && entity) {
       timeSeriesMocapLastSeen.set(peerID, Date.now())
       setComponent(entity, MotionCaptureRigComponent)
-      solveMotionCapturePose(data.results.poseWorldLandmarks, userID, entity)
+      //solveMotionCapturePose(data.results.pose.worldLandmarks, userID, entity)
     }
   }
 
