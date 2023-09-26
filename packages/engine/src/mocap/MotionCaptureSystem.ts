@@ -89,7 +89,6 @@ export const sendResults = (results: combinedCaptureResults) => {
 }
 
 export const receiveResults = (buff: ArrayBuffer) => {
-  console.log('recieving buffer: ' + buff)
   return decode(new Uint8Array(buff)) as {
     timestamp: number
     results: combinedCaptureResults
@@ -109,7 +108,6 @@ const handleMocapData = (
   fromPeerID: PeerID,
   message: ArrayBufferLike
 ) => {
-  console.log('attempting to handle mocap data')
   if (network.isHosting) {
     network.transport.bufferToAll(mocapDataChannelType, fromPeerID, message)
   }

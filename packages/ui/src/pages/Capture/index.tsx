@@ -130,7 +130,6 @@ export const stopPlayback = () => {
 const sendResults = (results: combinedCaptureResults) => {
   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
-  // console.log('sending results', results)
   const data = MotionCaptureFunctions.sendResults(results)
   network.transport.bufferToAll(mocapDataChannelType, Engine.instance.peerID, data)
 }
@@ -231,7 +230,6 @@ const CaptureMode = () => {
   }, [])
 
   useEffect(() => {
-    console.log(visionDetector.value)
     if (!visionDetector.value || handDetector.value) return
     HandLandmarker.createFromOptions(visionDetector.value, {
       baseOptions: {
