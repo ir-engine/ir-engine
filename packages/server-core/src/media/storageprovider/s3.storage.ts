@@ -46,10 +46,12 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
+  ListObjectsV2Output,
   ObjectIdentifier,
   PutObjectCommand,
   S3Client,
-  UploadPartCommand
+  UploadPartCommand,
+  _Object
 } from '@aws-sdk/client-s3'
 
 import { Options, Upload } from '@aws-sdk/lib-storage'
@@ -270,23 +272,58 @@ export class S3Provider implements StorageProviderInterface {
    * @returns {Promise<StorageListObjectInterface>}
    */
   async listObjects(prefix: string, recursive = true, continuationToken?: string): Promise<StorageListObjectInterface> {
-    const command = new ListObjectsV2Command({
-      Bucket: this.bucket,
-      ContinuationToken: continuationToken,
-      Prefix: prefix,
-      Delimiter: recursive ? undefined : '/'
-    })
-    const response = await this.provider.send(command)
-    if (!response.Contents) response.Contents = []
-    if (!response.CommonPrefixes) response.CommonPrefixes = []
+    try {
+      const command = new ListObjectsV2Command({
+        Bucket: this.bucket,
+        ContinuationToken: continuationToken,
+        Prefix: prefix,
+        Delimiter: recursive ? undefined : '/'
+      })
+      let response: ListObjectsV2Output
+      if (config.aws.s3.s3DevMode === 'local') {
+        const objectsList = await new Promise<ListObjectsV2Output>((resolve, reject) => {
+          const objectsListTemp = [] as _Object[]
+          const stream = this.minioClient!.listObjectsV2(
+            command.input.Bucket!,
+            command.input.Prefix,
+            recursive,
+            command.input.ContinuationToken
+          )
 
-    if (response.IsTruncated) {
-      const _data = await this.listObjects(prefix, recursive, response.NextContinuationToken)
-      response.Contents = response.Contents.concat(_data.Contents)
-      if (_data.CommonPrefixes) response.CommonPrefixes = response.CommonPrefixes.concat(_data.CommonPrefixes)
+          stream.on('data', (obj) =>
+            objectsListTemp.push({
+              Key: obj.name,
+              LastModified: obj.lastModified,
+              Size: obj.size,
+              ETag: obj.etag
+            })
+          )
+          stream.on('error', reject)
+          stream.on('end', () => {
+            resolve({
+              Content: objectsListTemp,
+              IsTruncated: false
+            } as ListObjectsV2Output)
+          })
+        })
+        response = objectsList
+      } else {
+        response = await this.provider.send(command)
+      }
+      if (!response.Contents) response.Contents = []
+      if (!response.CommonPrefixes) response.CommonPrefixes = []
+
+      if (response.IsTruncated) {
+        const _data = await this.listObjects(prefix, recursive, response.NextContinuationToken)
+        response.Contents = response.Contents.concat(_data.Contents)
+        if (_data.CommonPrefixes) response.CommonPrefixes = response.CommonPrefixes.concat(_data.CommonPrefixes)
+      }
+
+      return response as StorageListObjectInterface
+    } catch (e) {
+      console.error(e, prefix)
+      return null!
     }
-
-    return response as StorageListObjectInterface
   }
 
   /**
