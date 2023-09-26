@@ -33,21 +33,6 @@ export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
 /**
  * https://github.com/feathersjs-ecosystem/dataloader/blob/main/docs/guide.md
  */
-// export default () => {
-//   return async (context: HookContext<Application>) => {
-//     const store = asyncLocalStorage.getStore()
-
-//     if (store && store.headers) {
-//       context.params.headers = store.headers
-//     } else {
-//       const headers = context.params.headers || {}
-//       asyncLocalStorage.enterWith({headers})
-//     }
-
-//     return context
-//   }
-// }
-
 export default async (context: HookContext<Application>, next: NextFunction) => {
   const store = asyncLocalStorage.getStore()
 
