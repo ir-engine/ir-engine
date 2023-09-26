@@ -433,7 +433,7 @@ export const solveLimb = (
 ) => {
   if (!start || !mid || !end) return
 
-  // if (start.visibility! < threshhold || mid.visibility! < threshhold || end.visibility! < threshhold) return
+  if (start.visibility! < threshhold || mid.visibility! < threshhold || end.visibility! < threshhold) return
 
   const rig = getComponent(entity, AvatarRigComponent)
 
