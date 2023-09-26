@@ -61,9 +61,7 @@ cli.main(async () => {
     await app.setup()
     const { directory, storageProviderName } = options
     await app.service(archiverPath).get(null, {
-      isJob: true,
-      directory: directory,
-      query: { storageProviderName: storageProviderName || undefined }
+      query: { storageProviderName: storageProviderName || undefined, isJob: true, directory: directory }
     })
     cli.exit(0)
   } catch (err) {
