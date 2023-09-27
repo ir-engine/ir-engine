@@ -27,10 +27,13 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  ScopeData,
+  ScopeType,
   scopeDataValidator,
   scopePatchValidator,
   scopeQueryValidator
 } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
@@ -41,6 +44,44 @@ import {
   scopeQueryResolver,
   scopeResolver
 } from '../../scope/scope/scope.resolvers'
+
+const findActionHook = async (context: HookContext) => {
+  if (context.params?.query?.paginate != null) {
+    if (context.params.query.paginate === false) context.params.paginate = context.params.query.paginate
+    delete context.params.query.paginate
+  }
+}
+
+const createActionHook = async (context: HookContext) => {
+  if (!Array.isArray(context.data)) {
+    context.data = [context.data]
+  }
+  const queryParams = { userId: context.data[0].userId }
+
+  const oldScopes = (await context.service._find({
+    query: queryParams,
+    paginate: false
+  })) as any as ScopeType[]
+
+  const existingData: ScopeData[] = []
+  const createData: ScopeData[] = []
+
+  for (const item of context.data) {
+    const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
+    if (existingScope) {
+      existingData.push(existingScope)
+    } else {
+      createData.push(item)
+    }
+  }
+
+  if (createData.length > 0) {
+    const createdData: any = await context.service._create(context.data)
+    context.result = [...existingData, ...createdData]
+  }
+
+  context.result = existingData
+}
 
 export default {
   around: {
@@ -53,12 +94,13 @@ export default {
       () => schemaHooks.validateQuery(scopeQueryValidator),
       schemaHooks.resolveQuery(scopeQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
+    find: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read')), findActionHook],
     get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
       () => schemaHooks.validateData(scopeDataValidator),
-      schemaHooks.resolveData(scopeDataResolver)
+      schemaHooks.resolveData(scopeDataResolver),
+      createActionHook
     ],
     update: [disallow()],
     patch: [
