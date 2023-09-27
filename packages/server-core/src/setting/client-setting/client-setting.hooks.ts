@@ -32,8 +32,15 @@ import {
   clientSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
+import { HookContext } from '@feathersjs/feathers'
+import path from 'path'
+import logger from '../../ServerLogger'
+import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getContentType } from '../../util/fileUtils'
 import {
   clientSettingDataResolver,
   clientSettingExternalResolver,
@@ -41,6 +48,65 @@ import {
   clientSettingQueryResolver,
   clientSettingResolver
 } from './client-setting.resolvers'
+
+const beforePatchActionHook = async (context: HookContext) => {
+  const webmanifestPath =
+    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' ? `client/public/site.webmanifest` : 'site.webmanifest'
+  const storageProvider = getStorageProvider()
+  try {
+    const webmanifestResponse = await storageProvider.getObject(webmanifestPath)
+    const webmanifest = JSON.parse(webmanifestResponse.Body.toString('utf-8'))
+    context.data.startPath = context.data.startPath?.replace(/https:\/\//, '/')
+    const icon192px = /https:\/\//.test(context.data.icon192px!)
+      ? context.data.icon192px
+      : path.join('client', context.data.icon192px!)
+    const icon512px = /https:\/\//.test(context.data.icon512px!)
+      ? context.data.icon512px
+      : path.join('client', context.data.icon512px!)
+    webmanifest.name = context.data.title
+    webmanifest.short_name = context.data.shortTitle
+    webmanifest.start_url =
+      config.client.url[config.client.url.length - 1] === '/' && context.data.startPath![0] === '/'
+        ? config.client.url + context.data.startPath!.slice(1)
+        : config.client.url[config.client.url.length - 1] !== '/' && context.data.startPath![0] !== '/'
+        ? config.client.url + '/' + context.data.startPath
+        : config.client.url + context.data.startPath
+    const cacheDomain = getCacheDomain(storageProvider)
+    webmanifest.icons = [
+      {
+        src: /https:\/\//.test(icon192px!)
+          ? icon192px
+          : cacheDomain[cacheDomain.length - 1] === '/' && icon192px![0] === '/'
+          ? `https://${cacheDomain}${icon192px?.slice(1)}`
+          : cacheDomain[cacheDomain.length - 1] !== '/' && icon192px![0] !== '/'
+          ? `https://${cacheDomain}/${icon192px}`
+          : `https://${cacheDomain}${icon192px}`,
+        sizes: '192x192',
+        type: getContentType(icon192px!)
+      },
+      {
+        src: /https:\/\//.test(icon512px!)
+          ? icon512px
+          : cacheDomain[cacheDomain.length - 1] === '/' && icon512px![0] === '/'
+          ? `https://${cacheDomain}${icon512px?.slice(1)}`
+          : cacheDomain[cacheDomain.length - 1] !== '/' && icon512px![0] !== '/'
+          ? `https://${cacheDomain}/${icon512px}`
+          : `https://${cacheDomain}${icon512px}`,
+        sizes: '512x512',
+        type: getContentType(icon512px!)
+      }
+    ]
+    await storageProvider.createInvalidation([webmanifestPath])
+    await storageProvider.putObject({
+      Body: Buffer.from(JSON.stringify(webmanifest)),
+      ContentType: 'application/manifest+json',
+      Key: 'client/public/site.webmanifest'
+    })
+  } catch (err) {
+    logger.info('Error with manifest update', webmanifestPath)
+    logger.error(err)
+  }
+}
 
 export default {
   around: {
@@ -68,7 +134,8 @@ export default {
       authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(clientSettingPatchValidator),
-      schemaHooks.resolveData(clientSettingPatchResolver)
+      schemaHooks.resolveData(clientSettingPatchResolver),
+      beforePatchActionHook
     ],
     remove: [
       authenticate(),
