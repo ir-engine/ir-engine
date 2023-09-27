@@ -126,7 +126,7 @@ export const EnvmapComponent = defineComponent({
       texture.mapping = EquirectangularReflectionMapping
 
       component.envmap.set(texture)
-    }, [component.type, group, component.envMapSourceColor])
+    }, [component.type, component.envMapSourceColor])
 
     useEffect(() => {
       if (component.type.value !== EnvMapSourceType.Texture) return
@@ -141,7 +141,6 @@ export const EnvmapComponent = defineComponent({
                 texture.colorSpace = SRGBColorSpace
                 component.envmap.set(texture)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
-                texture.dispose()
               }
             },
             undefined,
@@ -164,12 +163,12 @@ export const EnvmapComponent = defineComponent({
             }
           })
       }
-    }, [component.type, group, component.envMapSourceURL])
+    }, [component.type, component.envMapSourceURL])
 
     useEffect(() => {
-      if (component.envmap.value) return
+      if (!component.envmap.value) return
       updateEnvMap(group.value, component.envmap.value)
-    }, [group, component.envmap])
+    }, [group.length, component.envmap])
 
     useEffect(() => {
       const envmap = component.envmap.value
