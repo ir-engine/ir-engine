@@ -205,10 +205,14 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   }
 }
 
-export const createStaticResourceHash = (file: Buffer | string, props: { name?: string; assetURL?: string }) => {
+export const createStaticResourceHash = (
+  file: Buffer | string,
+  props: { mimeType: string; name?: string; assetURL?: string }
+) => {
   return createHash('sha3-256')
     .update(typeof file === 'string' ? file : file.length.toString())
-    .update(props.name || props.assetURL!.split('/').pop()!.split('.')[0])
+    .update(props.name || props.assetURL!.split('/').pop()!)
+    .update(props.mimeType)
     .digest('hex')
 }
 
@@ -255,7 +259,8 @@ export const addAssetAsStaticResource = async (
 
   const stats = await getStats(file.buffer, file.mimetype)
 
-  const hash = args.hash || createStaticResourceHash(file.buffer, { name: args.name, assetURL: url })
+  const hash =
+    args.hash || createStaticResourceHash(file.buffer, { mimeType: file.mimetype, name: args.name, assetURL: url })
   const body: Partial<StaticResourceType> = {
     hash,
     url,
