@@ -174,18 +174,14 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   setupAvatarEnvmaps(entity, model.scene)
   avatar.model = model.scene
 }
-
+const envmapBakeQuery = defineQuery([EnvMapBakeComponent])
 const setupAvatarEnvmaps = (entity: Entity, model: Object3D) => {
   //query all envmap bake components and get the url from the first one
-  const envmapBakes = defineQuery([EnvMapBakeComponent])
-  const envmapBake = getComponent(envmapBakes()[0], EnvMapBakeComponent)
-  console.log(envmapBake)
-  AssetLoader.loadAsync(envmapBake.envMapOrigin, {}).then((texture) => {
-    if (texture) {
-      console.log(texture)
-      texture.mapping = EquirectangularReflectionMapping
-      console.log(getComponent(entity, GroupComponent))
+  const envmapBake = getComponent(envmapBakeQuery()[0], EnvMapBakeComponent)
 
+  AssetLoader.loadAsync(envmapBake.envMapOrigin).then((texture) => {
+    if (texture) {
+      texture.mapping = EquirectangularReflectionMapping
       updateEnvMap(getComponent(entity, GroupComponent), texture)
     }
   })
