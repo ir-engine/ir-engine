@@ -32,6 +32,7 @@ import {
   userRelationshipPath
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
@@ -43,10 +44,55 @@ import {
   channelResolver
 } from './channel.resolvers'
 
+const ensureUserHasChannelAccess = async (context: HookContext) => {
+  const channelID = context.arguments[0]
+  if (!channelID) throw new BadRequest('Must be member of channel')
+
+  const loggedInUser = context.params!.user
+  const channelUser = (await context.app.service(channelUserPath).find({
+    query: {
+      channelId: channelID,
+      userId: loggedInUser.id,
+      $limit: 1
+    }
+  })) as Paginated<ChannelUserType>
+
+  if (channelUser.data.length === 0) throw new NotAuthenticated('Must be member of channel')
+
+  return context
+}
+
 /**
- *  Don't remove this comment. It's needed to format import lines nicely.
- *
+ * Ensure users are friends of the owner
+ * @param context
+ * @returns
  */
+const ensureUsersFriendWithOwner = async (context: HookContext) => {
+  const data = context.data
+  const users = data.users
+
+  const loggedInUser = context.params!.user
+  const userId = loggedInUser?.id
+
+  if (!users || !userId) return context
+
+  const userRelationships = (await context.app.service(userRelationshipPath)._find({
+    query: {
+      userId,
+      userRelationshipType: 'friend',
+      relatedUserId: {
+        $in: users
+      }
+    },
+    paginate: false
+  })) as any as UserRelationshipType[]
+
+  if (userRelationships.length !== users.length) {
+    throw new Error('Must be friends with all users to create channel!')
+  }
+
+  return context
+}
 
 export default {
   around: {
@@ -56,57 +102,12 @@ export default {
   before: {
     all: [authenticate()],
     find: [],
-    get: [
-      setLoggedInUser('userId'),
-      iff(isProvider('external'), async (context: HookContext) => {
-        const channelID = context.arguments[0]
-        if (!channelID) return context
-
-        const loggedInUser = context.params!.user
-        const channelUser = (await context.app.service(channelUserPath).find({
-          query: {
-            channelId: channelID,
-            userId: loggedInUser.id,
-            $limit: 1
-          }
-        })) as Paginated<ChannelUserType>
-
-        if (channelUser.data.length === 0) throw new Error('Must be member of channel!')
-
-        return context
-      })
-    ],
+    get: [setLoggedInUser('userId'), iff(isProvider('external'), ensureUserHasChannelAccess)],
     create: [
       () => schemaHooks.validateData(channelDataValidator),
       schemaHooks.resolveData(channelDataResolver),
       setLoggedInUser('userId'),
-      // ensure users are friends of the owner
-      iff(isProvider('external'), async (context: HookContext) => {
-        const data = context.data
-        const users = data.users
-
-        const loggedInUser = context.params!.user
-        const userId = loggedInUser?.id
-
-        if (!users || !userId) return context
-
-        const userRelationships = (await context.app.service(userRelationshipPath)._find({
-          query: {
-            userId,
-            userRelationshipType: 'friend',
-            relatedUserId: {
-              $in: users
-            }
-          },
-          paginate: false
-        })) as any as UserRelationshipType[]
-
-        if (userRelationships.length !== users.length) {
-          throw new Error('Must be friends with all users to create channel!')
-        }
-
-        return context
-      })
+      iff(isProvider('external'), ensureUsersFriendWithOwner)
     ],
     update: [disallow('external')],
     patch: [
