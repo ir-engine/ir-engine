@@ -23,35 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { HookContext, NextFunction } from '@feathersjs/feathers'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { AsyncLocalStorage } from 'async_hooks'
+import { Application } from '../../declarations'
 
-import { PodsType, ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
-import { useEffect } from 'react'
+export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
 
-export const useServerInfoFind = () => {
-  const serverInfoQuery = useFind(podsPath)
-  const serverInfo = useHookstate([] as typeof serverInfoQuery.data)
+/**
+ * https://github.com/feathersjs-ecosystem/dataloader/blob/main/docs/guide.md
+ */
+export default async (context: HookContext<Application>, next: NextFunction) => {
+  const store = asyncLocalStorage.getStore()
 
-  useEffect(() => {
-    const allPods: ServerPodInfoType[] = []
-    for (const item of serverInfoQuery.data as PodsType[]) {
-      allPods.push(...item.pods)
-    }
-
-    serverInfo.set([
-      {
-        id: 'all',
-        label: 'All',
-        pods: allPods
-      },
-      ...serverInfoQuery.data
-    ])
-  }, [serverInfoQuery.data])
-
-  return {
-    ...serverInfoQuery,
-    data: serverInfo.get(NO_PROXY)
+  if (store && store.headers && !context.params.headers) {
+    context.params.headers = store.headers
+  } else {
+    const headers = context.params.headers || {}
+    asyncLocalStorage.enterWith({ headers })
   }
+
+  return next()
 }

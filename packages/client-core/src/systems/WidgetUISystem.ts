@@ -92,6 +92,7 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')

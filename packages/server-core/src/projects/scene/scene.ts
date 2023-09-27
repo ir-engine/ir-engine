@@ -62,7 +62,7 @@ export default (app: Application): void => {
         query: { sceneId: updatedScene.id }
       })
 
-      const instanceAttendances = (await app.service(instanceAttendancePath)._find({
+      const instanceAttendances = (await app.service(instanceAttendancePath).find({
         query: {
           instanceId: {
             $in: instanceActive.map((item) => item.id)
