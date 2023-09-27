@@ -323,12 +323,9 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
   )
 
-  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
   const producerObjectState = useHookstate(
     getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producerID]
   )
-
-  const mediaState = useHookstate(getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers)
 
   useEffect(() => {
     const peerID = producerState.peerID.value
@@ -369,26 +366,48 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
 
   useEffect(() => {
     const producer = producerObjectState.value as any
-    const consumer = Object.entries(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
-      ([_, consumer]) => consumer.producerID === producerID
-    )
-    if (!producer || !consumer) return
+
+    if (!producer) return
 
     if (producer.closed || producer._closed) return
 
     if (producerState.paused.value && producer.pause) producer.pause()
     if (!producerState.paused.value && producer.resume) producer.resume()
+  }, [producerState.paused, producerObjectState])
 
-    if (!consumer) return console.warn('No consumer found for paused producer', producerID)
+  const consumer = Object.values(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
+    (p) => p.producerID === producerID
+  )
+
+  if (!consumer) return null
+
+  return <NetworkProducerConsumerPause networkID={networkID} producerID={producerID} consumerID={consumer.consumerID} />
+}
+
+const NetworkProducerConsumerPause = (props: { networkID: InstanceID; producerID: string; consumerID: string }) => {
+  const { networkID, producerID, consumerID } = props
+
+  const producerState = useHookstate(
+    getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
+  )
+
+  const consumerState = useHookstate(
+    getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers[consumerID]
+  )
+
+  useEffect(() => {
+    const consumer = consumerState.value
+
+    const network = getState(NetworkState).networks[networkID]
 
     dispatchAction(
       MediasoupMediaConsumerActions.consumerPaused({
-        consumerID: consumer[0],
+        consumerID: consumer.consumerID,
         paused: !!producerState.paused.value,
-        $topic: networkState.topic.value
+        $topic: network.topic
       })
     )
-  }, [producerState.paused, producerObjectState, networkState, mediaState])
+  }, [producerState.paused, consumerState])
 
   return null
 }
