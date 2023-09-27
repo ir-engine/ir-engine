@@ -287,49 +287,13 @@ export const getImageStats = async (
   mimeType: string
 ): Promise<{ width: number; height: number }> => {
   if (mimeType === 'image/ktx2') {
+    if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
+    const widthBuffer = file.slice(20, 24)
+    const heightBuffer = file.slice(24, 28)
     return {
-      height: 0,
-      width: 0
+      height: heightBuffer.readUInt32LE(),
+      width: widthBuffer.readUInt32LE()
     }
-    // FIXME Once the KTX2Loader works properly on the backend, uncomment this and remove the above return
-    // const loader = new KTX2Loader()
-    // loader.setTranscoderPath(config.client.dist + '/loader_decoders/basis/')
-    // return new Promise<{ width: number; height: number }>((resolve, reject) => {
-    //   if (typeof file === 'string') {
-    //     loader.load(
-    //       file,
-    //       (texture) => {
-    //         const { width, height } = texture.source.data
-    //         resolve({
-    //           width,
-    //           height
-    //         })
-    //       },
-    //       () => {},
-    //       (err) => {
-    //         logger.error('error parsing ktx2')
-    //         logger.error(err)
-    //         reject(err)
-    //       }
-    //     )
-    //   } else {
-    //     loader.parse(
-    //       file,
-    //       (texture) => {
-    //         const { width, height } = texture.source.data
-    //         resolve({
-    //           width,
-    //           height
-    //         })
-    //       },
-    //       (err) => {
-    //         logger.error('error parsing ktx2')
-    //         logger.error(err)
-    //         reject(err)
-    //       }
-    //     )
-    //   }
-    // })
   } else {
     if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
     const stream = new Readable()
