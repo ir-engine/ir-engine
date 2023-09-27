@@ -133,6 +133,17 @@ export const drawMocapDebug = () => {
 
 const drawDebug = drawMocapDebug()
 
+export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.5) => {
+  const hipsVisibility =
+    (landmarks[POSE_LANDMARKS.RIGHT_HIP].visibility! + landmarks[POSE_LANDMARKS.LEFT_HIP].visibility!) * 0.5 >
+    threshhold
+  const feetVisibility =
+    (landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE].visibility! + landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE].visibility!) *
+      0.5 >
+    threshhold
+  return hipsVisibility && feetVisibility
+}
+
 export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID, entity) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
@@ -163,9 +174,11 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     }
   })
 
+  const estimatingLowerBody = shouldEstimateLowerBody(smoothedLandmarks)
+
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
-  solveSpine(entity, lowestWorldY, landmarks)
+  solveSpine(entity, lowestWorldY, landmarks, estimatingLowerBody)
   solveLimb(
     entity,
     lowestWorldY,
@@ -188,28 +201,49 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     VRMHumanBoneName.RightUpperArm,
     VRMHumanBoneName.RightLowerArm
   )
-  solveLimb(
-    entity,
-    lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-    new Vector3(0, 1, 0),
-    VRMHumanBoneName.Hips,
-    VRMHumanBoneName.LeftUpperLeg,
-    VRMHumanBoneName.LeftLowerLeg
-  )
-  solveLimb(
-    entity,
-    lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-    new Vector3(0, 1, 0),
-    VRMHumanBoneName.Hips,
-    VRMHumanBoneName.RightUpperLeg,
-    VRMHumanBoneName.RightLowerLeg
-  )
+  if (estimatingLowerBody) {
+    solveLimb(
+      entity,
+      lowestWorldY,
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      new Vector3(0, 1, 0),
+      VRMHumanBoneName.Hips,
+      VRMHumanBoneName.LeftUpperLeg,
+      VRMHumanBoneName.LeftLowerLeg
+    )
+    solveLimb(
+      entity,
+      lowestWorldY,
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      new Vector3(0, 1, 0),
+      VRMHumanBoneName.Hips,
+      VRMHumanBoneName.RightUpperLeg,
+      VRMHumanBoneName.RightLowerLeg
+    )
+    solveFoot(
+      entity,
+      lowestWorldY,
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
+      smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
+      VRMHumanBoneName.RightUpperLeg,
+      VRMHumanBoneName.RightFoot
+    )
+    solveFoot(
+      entity,
+      lowestWorldY,
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
+      smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
+      VRMHumanBoneName.LeftUpperLeg,
+      VRMHumanBoneName.LeftFoot
+    )
+  }
+
   solveHand(
     entity,
     lowestWorldY,
@@ -229,24 +263,6 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     true,
     VRMHumanBoneName.LeftLowerArm,
     VRMHumanBoneName.LeftHand
-  )
-  solveFoot(
-    entity,
-    lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
-    VRMHumanBoneName.RightUpperLeg,
-    VRMHumanBoneName.RightFoot
-  )
-  solveFoot(
-    entity,
-    lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
-    VRMHumanBoneName.LeftUpperLeg,
-    VRMHumanBoneName.LeftFoot
   )
 
   // if (!planeHelper1.parent) {
@@ -275,7 +291,12 @@ const vec3 = new Vector3()
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
  */
 
-export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList) => {
+export const solveSpine = (
+  entity: Entity,
+  lowestWorldY,
+  landmarks: NormalizedLandmarkList,
+  estimatingLowerBody: boolean
+) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
@@ -388,12 +409,16 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
     1
   )
 
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipObject.quaternion.x
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipObject.quaternion.y
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipObject.quaternion.z
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipObject.quaternion.w
+  if (estimatingLowerBody) {
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipObject.quaternion.x
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipObject.quaternion.y
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipObject.quaternion.z
+    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipObject.quaternion.w
 
-  rig.localRig[VRMHumanBoneName.Hips]?.node.quaternion.copy(hipObject.quaternion)
+    rig.localRig[VRMHumanBoneName.Hips]?.node.quaternion.copy(hipObject.quaternion)
+  } else {
+    rig.localRig[VRMHumanBoneName.Hips]?.node.quaternion.identity()
+  }
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].x[entity] = spineObject.quaternion.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].y[entity] = spineObject.quaternion.y
@@ -539,8 +564,6 @@ export const solveFoot = (
   extentTargetBoneName: VRMHumanBoneName
 ) => {
   if (!extent || !ref1 || !ref2) return
-
-  // if (extent.visibility! < threshhold || ref1.visibility! < threshhold || ref2.visibility! < threshhold) return
 
   const rig = getComponent(entity, AvatarRigComponent)
 
