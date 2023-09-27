@@ -138,6 +138,7 @@ export const MediaComponent = defineComponent({
       paths: [] as string[],
       // runtime props
       paused: true,
+      reset: false,
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
@@ -292,6 +293,16 @@ export function MediaReactor() {
   )
 
   useEffect(
+    function updateReset() {
+      if (!mediaElement || !media.reset.value) return
+      mediaElement.element.value.load() // reset and stop playing
+      mediaElement.element.value.play() // start play again
+      media.reset.set(false)
+    },
+    [media.reset, mediaElement]
+  )
+
+  useEffect(
     function updateTrackMetadata() {
       clearErrors(entity, MediaComponent)
 
@@ -407,7 +418,7 @@ export function MediaReactor() {
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)
-
+      mediaElementState.element.value.crossOrigin = 'anonymous'
       if (isHLS(path)) {
         mediaElementState.hls.set(setupHLS(entity, path))
         mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)
@@ -510,6 +521,7 @@ export function getNextTrack(media: ComponentType<typeof MediaComponent>) {
 
   if (media.playMode == PlayMode.random) {
     // todo: smart random, i.e., lower probability of recently played tracks
+    // Rahul : use LRU cache?
     nextTrack = Math.floor(Math.random() * numTracks)
   } else if (media.playMode == PlayMode.single) {
     nextTrack = (currentTrack + 1) % numTracks
