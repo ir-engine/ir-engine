@@ -224,7 +224,7 @@ export class FileBrowserService
       }
     )
 
-    const hash = createStaticResourceHash(data.body, { assetURL: key })
+    const hash = createStaticResourceHash(data.body, { mimeType: data.contentType, assetURL: key })
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
     const url = getCachedURL(key, cacheDomain)
 

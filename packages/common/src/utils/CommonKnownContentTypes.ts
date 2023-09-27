@@ -34,6 +34,7 @@ export const CommonKnownContentTypes = {
   glb: 'model/gltf-binary',
   vrm: 'model/vrm',
   png: 'image/png',
+  ktx2: 'image/ktx2',
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
   pdf: 'application/pdf',
