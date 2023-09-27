@@ -23,15 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
-
 import {
   authenticationSettingDataValidator,
   authenticationSettingPatchValidator,
+  authenticationSettingPath,
   authenticationSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import * as k8s from '@kubernetes/client-node'
+import { iff, isProvider } from 'feathers-hooks-common'
 
+import { getState } from '@etherealengine/hyperflux'
+import { HookContext } from '@feathersjs/feathers'
+import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
+import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -39,8 +45,108 @@ import {
   authenticationSettingExternalResolver,
   authenticationSettingPatchResolver,
   authenticationSettingQueryResolver,
-  authenticationSettingResolver
+  authenticationSettingResolver,
+  authenticationSettingSchemaToDb
 } from './authentication-setting.resolvers'
+
+const findActionHook = async (context: HookContext) => {
+  const auth = context.result
+  const loggedInUser = context.params!.user!
+  const data = auth.data.map((el) => {
+    if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
+      return {
+        id: el.id,
+        entity: el.entity,
+        service: el.service,
+        authStrategies: el.authStrategies,
+        createdAt: el.createdAt,
+        updatedAt: el.updatedAt
+      }
+
+    return {
+      ...el,
+      authStrategies: el.authStrategies,
+      jwtOptions: el.jwtOptions,
+      bearerToken: el.bearerToken,
+      callback: el.callback,
+      oauth: {
+        ...el.oauth
+      }
+    }
+  })
+  context.result = { total: auth.total, limit: auth.limit, skip: auth.skip, data }
+}
+
+const beforePatchActionHook = async (context: HookContext) => {
+  const authSettings = await context.app.service(authenticationSettingPath).get(context.id!)
+
+  if (typeof context.data.oauth === 'string') {
+    context.data.oauth = JSON.parse(context.data.oauth)
+  }
+
+  const newOAuth = context.data.oauth!
+  context.data.callback = authSettings.callback
+
+  if (typeof context.data.callback === 'string') {
+    context.data.callback = JSON.parse(context.data.callback)
+
+    // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+    // was serialized multiple times, therefore we need to parse it twice.
+    if (typeof context.data.callback === 'string') {
+      context.data.callback = JSON.parse(context.data.callback)
+    }
+  }
+
+  for (const key of Object.keys(newOAuth)) {
+    if (config.authentication.oauth[key]?.scope) newOAuth[key].scope = config.authentication.oauth[key].scope
+    if (config.authentication.oauth[key]?.custom_data)
+      newOAuth[key].custom_data = config.authentication.oauth[key].custom_data
+    if (key !== 'defaults' && context.data.callback && !context.data.callback[key])
+      context.data.callback[key] = `${config.client.url}/auth/oauth/${key}`
+  }
+  context.data = authenticationSettingSchemaToDb(context.data)
+}
+
+const afterPatchActionHook = async (context: HookContext) => {
+  const patchResult = context.result
+
+  const k8AppsClient = getState(ServerState).k8AppsClient
+
+  if (k8AppsClient) {
+    try {
+      logger.info('Attempting to refresh API pods')
+      const refreshApiPodResponse = await k8AppsClient.patchNamespacedDeployment(
+        `${config.server.releaseName}-etherealengine-api`,
+        'default',
+        {
+          spec: {
+            template: {
+              metadata: {
+                annotations: {
+                  'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
+                }
+              }
+            }
+          }
+        },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        {
+          headers: {
+            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
+          }
+        }
+      )
+      logger.info(refreshApiPodResponse, 'updateBuilderTagResponse')
+    } catch (e) {
+      logger.error(e)
+      context.result = e
+    }
+  }
+}
 
 export default {
   around: {
@@ -67,18 +173,19 @@ export default {
     patch: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(authenticationSettingPatchValidator),
-      schemaHooks.resolveData(authenticationSettingPatchResolver)
+      schemaHooks.resolveData(authenticationSettingPatchResolver),
+      beforePatchActionHook
     ],
     remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))]
   },
 
   after: {
     all: [],
-    find: [],
+    find: [findActionHook],
     get: [],
     create: [],
     update: [],
-    patch: [],
+    patch: [afterPatchActionHook],
     remove: []
   },
 
