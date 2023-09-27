@@ -32,7 +32,7 @@ import { Application } from '../declarations'
 import multiLogger from './ServerLogger'
 import config from './appconfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from './projects/project/project-helper'
-import { knexSeeds, sequelizeSeeds } from './seeder-config'
+import { knexSeeds } from './seeder-config'
 
 const logger = multiLogger.child({ component: 'server-core:seeder' })
 
@@ -42,37 +42,7 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
 
     const knexClient = app.get('knexClient')
     for (const seedFile of knexSeeds) {
-      seedFile.seed(knexClient)
-    }
-
-    for (const config of sequelizeSeeds) {
-      if (config.path) {
-        const templates = config.templates
-        const service = app.service(config.path as any)
-        if (templates)
-          for (const template of templates) {
-            let isSeeded
-            if (config.path.endsWith('-setting')) {
-              const result = await service.find()
-              isSeeded = result.total > 0
-            } else {
-              const searchTemplate = {}
-
-              const sequelizeModel = service.Model
-              const uniqueField = Object.values(sequelizeModel.rawAttributes).find((value: any) => value.unique) as any
-              if (uniqueField) searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
-              else
-                for (const key of Object.keys(template))
-                  if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
-              const result = await service.find({
-                query: searchTemplate
-              })
-              isSeeded = result.total > 0
-            }
-            if (!isSeeded) await service.create(template)
-            logger.info({ template, configPath: config.path }, 'Creating template')
-          }
-      }
+      await seedFile.seed(knexClient)
     }
   }
 

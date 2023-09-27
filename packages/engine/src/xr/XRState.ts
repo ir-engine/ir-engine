@@ -108,6 +108,10 @@ export class XRAction {
   })
 }
 
+/**
+ * Gets the camera mode - either 'attached' or 'detached'
+ * @returns the camera mode
+ */
 export const getCameraMode = () => {
   const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
   if (!session || scenePlacementMode === 'placing') return 'detached'
@@ -152,14 +156,14 @@ export const getPreferredInputSource = (offhand = false) => {
   }
 }
 
+const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
+
 /**
  * Wheter or not this is a mobile XR headset
  **/
 export const isMobileXRHeadset =
-  'navigator' in globalThis === false
-    ? false
-    : navigator.userAgent.includes('Oculus') ||
-      navigator.userAgent.includes('VR') ||
-      navigator.userAgent.includes('AR') ||
-      navigator.userAgent.includes('Reality') ||
-      navigator.userAgent.includes('Wolvic')
+  userAgent.includes('Oculus') ||
+  userAgent.includes('VR') ||
+  userAgent.includes('AR') ||
+  userAgent.includes('Reality') ||
+  userAgent.includes('Wolvic')

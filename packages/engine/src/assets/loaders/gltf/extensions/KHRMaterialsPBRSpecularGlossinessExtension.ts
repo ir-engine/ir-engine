@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { CanvasTexture, Texture } from 'three'
+import { isClient } from '../../../../common/functions/getEnvironment'
 import createReadableTexture from '../../../functions/createReadableTexture'
 import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
@@ -41,6 +42,7 @@ export class KHRMaterialsPBRSpecularGlossinessExtension extends ImporterExtensio
   name = 'KHR_materials_pbrSpecularGlossiness'
 
   extendMaterialParams(materialIndex: number, materialParams: { [key: string]: any }): Promise<void> {
+    if (!isClient) return Promise.resolve()
     const parser = this.parser
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()

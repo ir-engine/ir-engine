@@ -58,7 +58,6 @@
 
 //   beforeEach(async () => {
 //     createEngine()
-//     Engine.instance.gltfLoader = createGLTFLoader()
 //     assetModel = await AssetLoader.loadAsync(testGLTF)
 //   })
 

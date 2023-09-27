@@ -50,6 +50,7 @@ import { Application } from '../declarations'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import { default as appConfig, default as config } from './appconfig'
+import persistHeaders from './hooks/persist-headers'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
 import sequelize from './sequelize'
@@ -250,6 +251,11 @@ export const createFeathersKoaApp = (
 
   // Set up our services (see `services/index.js`)
   app.configure(services)
+
+  // Store headers across internal service calls
+  app.hooks({
+    around: [persistHeaders]
+  })
 
   pipeLogs(Engine.instance.api)
 

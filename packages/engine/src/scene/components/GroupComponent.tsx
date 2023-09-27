@@ -33,17 +33,17 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   QueryComponents,
-  addComponent,
   defineComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
   removeComponent,
+  setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
@@ -77,9 +77,9 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   const obj = object as Object3DWithEntity & Camera
   obj.entity = entity
 
-  if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
+  if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
   if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
-  if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
+  if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
 
   getMutableComponent(entity, GroupComponent).merge([obj])
 
