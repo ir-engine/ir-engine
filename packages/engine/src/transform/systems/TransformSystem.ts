@@ -253,10 +253,13 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
 }
 
 const traverseComputeBoundingBox = (mesh: Mesh) => {
-  if (mesh.isMesh) mesh.geometry.computeBoundingBox()
+  if (mesh.isMesh) {
+    if (mesh.geometry.attributes.position.array.length < 2) return console.warn('Empty mesh geometry', mesh)
+    mesh.geometry.computeBoundingBox()
+  }
 }
 
-const computeBoundingBox = (entity: Entity) => {
+export const computeBoundingBox = (entity: Entity) => {
   const box = getComponent(entity, BoundingBoxComponent).box
   const group = getComponent(entity, GroupComponent)
 
@@ -414,7 +417,6 @@ const execute = () => {
 
   for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
 
-  for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
   for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
 
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position

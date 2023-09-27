@@ -24,17 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Box3Helper, Group } from 'three'
+import { Box3, Box3Helper } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { UndefinedEntity } from '../../ecs/classes/Entity'
+import {
+  defineComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { computeBoundingBox } from '../../transform/systems/TransformSystem'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
@@ -42,7 +51,7 @@ export const BoundingBoxComponent = defineComponent({
   onInit: (entity) => {
     return {
       box: new Box3(),
-      helper: null as Box3Helper | null
+      helper: UndefinedEntity
     }
   },
 
@@ -51,33 +60,40 @@ export const BoundingBoxComponent = defineComponent({
     if (matches.array.test(json.box)) component.box.value.copy(json.box)
   },
 
-  onRemove: (entity, component) => {
-    if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).physicsDebug)
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const boundingBox = useComponent(entity, BoundingBoxComponent)
+    const group = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      if (!boundingBox) return
-      if (debugEnabled.value && !boundingBox.helper.value) {
-        const helper = new Box3Helper(boundingBox.box.value)
-        helper.name = `bounding-box-helper-${entity}`
-        // we need an intermediary group because otherwise the helper's updateMatrixWorld() modifies the enities transform
-        const helperGroup = new Group()
-        helperGroup.add(helper)
-        setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(entity, helperGroup)
-        boundingBox.helper.set(helper)
-      }
+      console.log('boundingBox', boundingBox.box.value, group?.length, debugEnabled.value)
 
-      if (!debugEnabled.value && boundingBox.helper.value) {
-        removeObjectFromGroup(entity, boundingBox.helper.value)
-        boundingBox.helper.set(none)
+      if (!group?.length) return
+
+      computeBoundingBox(entity)
+
+      if (!debugEnabled.value) return
+
+      const helperEntity = createEntity()
+      setComponent(helperEntity, NameComponent, `bounding-box-helper-${entity}`)
+
+      const helper = new Box3Helper(boundingBox.box.value)
+      helper.name = `bounding-box-helper-${entity}`
+
+      // setComponent(helperEntity, LocalTransformComponent)
+      // setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+      setComponent(helperEntity, VisibleComponent)
+
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
+      addObjectToGroup(helperEntity, helper)
+      boundingBox.helper.set(helperEntity)
+
+      return () => {
+        removeEntity(helperEntity)
+        boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled])
+    }, [debugEnabled, group?.length])
 
     return null
   }
