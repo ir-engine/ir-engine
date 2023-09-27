@@ -218,7 +218,11 @@ export const createFeathersKoaApp = (
   app.use(helmet())
 
   app.use(compress())
-  app.use(bodyParser())
+  app.use(
+    bodyParser({
+      includeUnparsed: true
+    })
+  )
 
   app.configure(rest())
   // app.use(function (req, res, next) {
