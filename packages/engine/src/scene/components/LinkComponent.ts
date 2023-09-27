@@ -133,6 +133,7 @@ export const LinkComponent = defineComponent({
 
         if (inputSourceEntity) {
           const inputSource = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+          if (inputSource?.assignedButtonEntity != entity) return
           const buttons = inputSource?.buttons
 
           if (buttons)

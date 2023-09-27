@@ -182,7 +182,7 @@ const lastLookDelta = new Vector2()
 let lastMouseMoved = false
 
 const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
-
+let capturedInputSource: Entity | undefined = undefined
 const execute = () => {
   if (getState(XRState).xrFrame) return
 
@@ -195,13 +195,14 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
-  if (!nonCapturedInputSource) return
+  let InputSourceEntity = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (!InputSourceEntity && capturedInputSource) {
+    InputSourceEntity = capturedInputSource
+  }
 
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-
+  const inputSource = getComponent(InputSourceEntity, InputSourceComponent)
   const keys = inputSource.buttons
 
   if (keys.KeyV?.down) onKeyV()
@@ -242,7 +243,15 @@ const execute = () => {
         0.1
       )
     }
-
+    if (keys.PrimaryClick?.down && !capturedInputSource) {
+      setTimeout(() => {
+        InputSourceComponent.captureButtons(cameraEntity)
+        capturedInputSource = InputSourceEntity
+      }, 250)
+    } else if (capturedInputSource && keys.PrimaryClick?.up) {
+      InputSourceComponent.releaseButtons()
+      capturedInputSource = undefined
+    }
     throttleHandleCameraZoom(cameraEntity, pointerState.scroll.y)
   }
 
