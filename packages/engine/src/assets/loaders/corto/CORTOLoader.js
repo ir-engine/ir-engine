@@ -81,8 +81,8 @@ class CORTOLoader {
         var message = e.data
         if (!callbacks[message.request]) return
 
-        let callback = callbacks[message.request]
-        let geometry = that._createGeometry(message.geometry)
+        const callback = callbacks[message.request]
+        const geometry = that._createGeometry(message.geometry)
         callback.onLoad(geometry)
         delete callbacks[message.request]
       }
@@ -100,6 +100,9 @@ class CORTOLoader {
   }
 
   _createGeometry(geometry) {
+    if (!geometry) {
+      return null
+    }
     var bufferGeometry = new BufferGeometry()
 
     if (geometry.index) bufferGeometry.setIndex(new BufferAttribute(geometry.index, 1))

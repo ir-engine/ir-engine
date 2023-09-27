@@ -79,13 +79,18 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
 
   if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
   if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
-  if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
+  if (!hasComponent(entity, TransformComponent)) {
+    console.log('VDEBUG addObjectToGroup setting transform component')
+    setTransformComponent(entity)
+  }
 
   getMutableComponent(entity, GroupComponent).merge([obj])
 
   const transform = getComponent(entity, TransformComponent)
+  console.log('VDEBUG transform.position = ', transform.position)
   obj.position.copy(transform.position)
   obj.quaternion.copy(transform.rotation)
+  console.log('VDEBUG transform.scale = ', transform.scale)
   obj.scale.copy(transform.scale)
   obj.matrixAutoUpdate = false
   obj.matrixWorldAutoUpdate = false

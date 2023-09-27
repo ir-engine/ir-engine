@@ -37,9 +37,11 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PlayMode } from '../constants/PlayMode'
+import { UVOL_TYPE } from '../constants/UVOLTypes'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOL1Component } from './UVOL1Component'
+import { UniformUVOLComponent } from './UniformUVOL'
 
 export function handleAutoplay(audioContext: AudioContext, element: HTMLMediaElement) {
   const playMedia = () => {
@@ -82,11 +84,8 @@ export const VolumetricComponent = defineComponent({
     return {
       paths: component.paths.value,
       paused: component.paused.value,
-      initialBuffersLoaded: component.initialBuffersLoaded.value,
-      ended: component.ended.value,
       volume: component.volume.value,
-      playMode: component.playMode.value,
-      track: component.track.value
+      playMode: component.playMode.value
     }
   },
 
@@ -98,14 +97,6 @@ export const VolumetricComponent = defineComponent({
 
     if (typeof json.paused === 'boolean') {
       component.paused.set(json.paused)
-    }
-
-    if (typeof json.initialBuffersLoaded === 'boolean') {
-      component.initialBuffersLoaded.set(json.initialBuffersLoaded)
-    }
-
-    if (typeof json.ended === 'boolean') {
-      component.ended.set(json.ended)
     }
 
     if (typeof json.volume === 'number') {
@@ -135,10 +126,6 @@ export const VolumetricComponent = defineComponent({
       } else {
         component.playMode.set(json.playMode)
       }
-    }
-
-    if (typeof json.track === 'number') {
-      component.track.set(json.track)
     }
   },
 
@@ -172,8 +159,13 @@ export function VolumetricReactor() {
   }, [])
 
   useEffect(() => {
+    console.log(`VDEBUG track changing hook`)
+
     const pathCount = volumetric.paths.value.length
-    if (!volumetric.ended.value || pathCount === 0) return
+    if (!volumetric.ended.value || pathCount === 0) {
+      console.log(`VDEBUG returning without setting track. ended = ${volumetric.ended.value}, pathCount = ${pathCount}`)
+      return
+    }
 
     /**
      * Find the next valid track: If the current track is invalid, try the next one.
@@ -184,7 +176,10 @@ export function VolumetricReactor() {
     while (true) {
       const nextTrack = getNextTrack(volumetric.playMode.value, pathCount, currentTrack)
       const manifestPath = volumetric.paths.value[nextTrack]
-      if (manifestPath && (manifestPath.endsWith('.manifest') || manifestPath.endsWith('.mp4'))) {
+      if (
+        manifestPath &&
+        (manifestPath.endsWith('.manifest') || manifestPath.endsWith('.mp4') || manifestPath.endsWith('.json'))
+      ) {
         currentTrack = nextTrack
         break
       } else if (nextTrack == volumetric.track.value) {
@@ -205,6 +200,8 @@ export function VolumetricReactor() {
     const resetTrack = () => {
       // Overwriting with setComponent doesn't cleanup the component
       removeComponent(entity, UVOL1Component)
+      removeComponent(entity, UniformUVOLComponent)
+      console.log(`VDEBUG Setting ended to false`)
       volumetric.ended.set(false)
       volumetric.initialBuffersLoaded.set(false)
     }
@@ -219,15 +216,28 @@ export function VolumetricReactor() {
       manifestPath = manifestPath.replace('.mp4', '.manifest')
     }
 
+    console.log(`VDEBUG track: ${currentTrack} manifestPath: ${manifestPath}`)
+
     fetch(manifestPath)
       .then((response) => response.json())
       .then((json) => {
-        setComponent(entity, UVOL1Component)
-        const player = getMutableComponent(entity, UVOL1Component)
-        player.set({
-          manifestPath: manifestPath,
-          data: json
-        })
+        if (!json.type) {
+          console.log(`VDEBUG setting UVOL1Component`)
+          setComponent(entity, UVOL1Component)
+          const player = getMutableComponent(entity, UVOL1Component)
+          player.set({
+            manifestPath: manifestPath,
+            data: json
+          })
+        } else if (json.type && json.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+          console.log(`VDEBUG setting UniformUVOLComponent`)
+          setComponent(entity, UniformUVOLComponent)
+          const player = getMutableComponent(entity, UniformUVOLComponent)
+          player.manifestPath.set(manifestPath)
+          player.data.set(json)
+        } else {
+          console.error(`VDEBUG: Unknown volumetric type: ${json.type}`)
+        }
       })
   }, [volumetric.paths, volumetric.playMode, volumetric.ended])
 

@@ -34,7 +34,7 @@ export class CORTOLoader {
     url: string,
     byteStart: number,
     byteEnd: number,
-    onLoad: (geometry: BufferGeometry) => void,
+    onLoad: (geometry: BufferGeometry | null) => void,
   ): void
   preload(): Promise<void>
   dispose(): CORTOLoader

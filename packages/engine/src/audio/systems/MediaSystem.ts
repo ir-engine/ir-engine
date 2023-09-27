@@ -36,7 +36,6 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
-// import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { AudioSettingReceptor, AudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
@@ -102,7 +101,6 @@ globalThis.AudioEffectPlayer = AudioEffectPlayer
 
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
-// const volumetricQuery = defineQuery([VolumetricComponent])
 const audioQuery = defineQuery([PositionalAudioComponent])
 
 const execute = () => {

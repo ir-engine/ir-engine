@@ -787,6 +787,7 @@ onmessage = function(job) {
 		postMessage({ geometry: model, request: job.data.request}, undefined, transferables);
 	}).catch(e => {
 		console.error('CortoWorker Error: ', e, job.data)
+		postMessage({geometry: null, request: job.data.request})
 	})
 };
 

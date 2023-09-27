@@ -146,7 +146,7 @@ export class EngineRenderer {
     this.renderer.outputColorSpace = SRGBColorSpace
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    this.renderer.debug.checkShaderErrors = false
+    this.renderer.debug.checkShaderErrors = true
 
     // @ts-ignore
     this.xrManager = renderer.xr = createWebXRManager()

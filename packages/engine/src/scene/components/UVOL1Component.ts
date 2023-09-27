@@ -42,8 +42,8 @@ import { MediaElementComponent } from './MediaComponent'
 import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
 
 const decodeCorto = (url: string, start: number, end: number) => {
-  return new Promise((res, rej) => {
-    Engine.instance.cortoLoader.load(url, start, end, (geometry: BufferGeometry) => {
+  return new Promise<BufferGeometry | null>((res, rej) => {
+    Engine.instance.cortoLoader.load(url, start, end, (geometry) => {
       res(geometry)
     })
   })
@@ -159,6 +159,8 @@ function UVOL1Reactor() {
 
       videoTexture.needsUpdate = true
       EngineRenderer.instance.renderer.initTexture(videoTexture)
+    } else {
+      console.log(`VDEBUG Entity ${entity} wants to play ${frameToPlay}, but not available yet`)
     }
     removePlayedBuffer(frameToPlay)
   }
@@ -178,7 +180,7 @@ function UVOL1Reactor() {
     }
 
     const minimumBufferLength = targetFramesToRequest * 2
-    const meshBufferHasEnoughToPlay = meshBuffer.size >= 60 // 2 seconds
+    const meshBufferHasEnoughToPlay = meshBuffer.size >= Math.max(targetFramesToRequest * 2, 90) // 2 seconds
     const meshBufferHasEnough = meshBuffer.size >= minimumBufferLength * 5
 
     if (pendingRequests.current == 0 && !meshBufferHasEnough) {
@@ -188,10 +190,20 @@ function UVOL1Reactor() {
         const byteStart = component.data.value.frameData[i].startBytePosition
         const byteEnd = byteStart + component.data.value.frameData[i].meshLength
         pendingRequests.current += 1
-        decodeCorto(meshFilePath, byteStart, byteEnd).then((geometry: BufferGeometry) => {
-          meshBuffer.set(i, geometry)
-          pendingRequests.current -= 1
-        })
+        console.log(`VDEBUG Entity ${entity} requesting frame ${i}`)
+        decodeCorto(meshFilePath, byteStart, byteEnd)
+          .then((geometry) => {
+            if (!geometry) {
+              throw new Error('VDEBUG Entity ${entity} Invalid geometry frame: ' + i.toString())
+            }
+
+            meshBuffer.set(i, geometry)
+            pendingRequests.current -= 1
+          })
+          .catch((e) => {
+            console.error('Error decoding corto frame: ', i, e)
+            pendingRequests.current -= 1
+          })
 
         nextFrameToRequest.current = newLastFrame
       }
