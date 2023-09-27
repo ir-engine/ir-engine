@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
-import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Box3, Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
@@ -37,6 +37,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
@@ -49,6 +50,7 @@ import {
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { TransformSerialization } from '../TransformSerialization'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -179,8 +181,9 @@ const updateTransformFromLocalTransform = (entity: Entity) => {
     hasComponent(entity, RigidBodyDynamicTagComponent) ||
     hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) ||
     hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
-  const parentTransform = localTransform?.parentEntity
-    ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
+  const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+  const parentTransform = entityTree?.parentEntity
+    ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
     : undefined
   if (!localTransform || !parentTransform || isRigidbody) return false
   const transform = getComponent(entity, TransformComponent)
@@ -219,7 +222,7 @@ const originChildEntities = new Set<Entity>()
 /** get list of entities that are children of the world origin */
 const updateOriginChildEntities = (entity: Entity) => {
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
-  const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
   if (referenceEntity && (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.originEntity))
     originChildEntities.add(referenceEntity)
@@ -233,7 +236,7 @@ const updateTransformDepth = (entity: Entity) => {
   if (transformDepths.has(entity)) return transformDepths.get(entity)
 
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
-  const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
   const referenceEntityDepth = referenceEntity ? updateTransformDepth(referenceEntity) : 0
   const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
@@ -269,7 +272,28 @@ const updateBoundingBox = (entity: Entity) => {
   const box = getComponent(entity, BoundingBoxComponent).box
   const group = getComponent(entity, GroupComponent)
   box.makeEmpty()
-  for (const obj of group) box.expandByObject(obj)
+  for (const obj of group) expandBoxByObject(obj, box, 0)
+}
+
+const expandBoxByObject = (object, box: Box3, layer: number) => {
+  const geometry = object.geometry
+
+  if (geometry !== undefined) {
+    if (geometry.boundingBox === null) {
+      geometry.computeBoundingBox()
+    }
+
+    box.copy(geometry.boundingBox)
+    if (layer > 0) box.applyMatrix4(object.matrixWorld)
+
+    box.union(box)
+  }
+
+  const children = object.children
+
+  for (let i = 0, l = children.length; i < l; i++) {
+    expandBoxByObject(children[i], box, i)
+  }
 }
 
 const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
@@ -320,7 +344,7 @@ const execute = () => {
    * Sort transforms if needed
    */
   const engineState = getState(EngineState)
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
 
   let needsSorting = engineState.transformsNeedSorting
 
@@ -362,7 +386,7 @@ const execute = () => {
   for (const entity of transformQuery()) {
     const makeDirty =
       TransformComponent.dirtyTransforms[entity] ||
-      TransformComponent.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? -1] ||
+      TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
       TransformComponent.dirtyTransforms[
         getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? -1
       ] ||
@@ -402,13 +426,13 @@ const execute = () => {
   _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
   _frustum.setFromProjectionMatrix(_projScreenMatrix)
 
-  for (const entity of frustumCulledQuery())
-    FrustumCullCameraComponent.isCulled[entity] = _frustum.containsPoint(
-      getComponent(entity, TransformComponent).position
-    )
-      ? 0
-      : 1
-
+  for (const entity of frustumCulledQuery()) {
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)?.box
+    const cull = boundingBox
+      ? _frustum.intersectsBox(boundingBox)
+      : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
+    FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
+  }
   if (localClientEntity) {
     const localClientPosition = getOptionalComponent(localClientEntity, TransformComponent)?.position
     if (localClientPosition) {
@@ -422,7 +446,7 @@ const execute = () => {
 
   /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
   /** @todo include in auto performance scaling metrics */
-  // if (Engine.instance.xrFrame) {
+  // if (getState(XRState).xrFrame) {
   //   /**
   //    * Update threejs skeleton manually
   //    *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation

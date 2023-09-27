@@ -27,13 +27,13 @@ import { Paginated } from '@feathersjs/feathers'
 import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import logger from '@etherealengine/common/src/logger'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
 import { defineAction, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
+import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { API } from '../../API'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
@@ -70,7 +70,7 @@ export function useWorldInstance() {
 export const LocationInstanceConnectionService = {
   provisionServer: async (
     locationId?: string,
-    instanceId?: string,
+    instanceId?: InstanceID,
     sceneId?: string,
     roomCode?: string,
     createPrivateRoom?: boolean
@@ -78,17 +78,17 @@ export const LocationInstanceConnectionService = {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
     const token = getState(AuthState).authUser.accessToken
     if (instanceId != null) {
-      const instance = (await API.instance.client.service('instance').find({
+      const instance = (await API.instance.client.service(instancePath).find({
         query: {
           id: instanceId,
           ended: false
         }
-      })) as Paginated<Instance>
+      })) as Paginated<InstanceType>
       if (instance.total === 0) {
         instanceId = null!
       }
     }
-    const provisionResult = await API.instance.client.service('instance-provision').find({
+    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
       query: {
         locationId,
         instanceId,
@@ -118,12 +118,12 @@ export const LocationInstanceConnectionService = {
   provisionExistingServer: async (locationId: string, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
-    const instance = (await API.instance.client.service('instance').find({
+    const instance = (await API.instance.client.service(instancePath).find({
       query: {
         id: instanceId,
         ended: false
       }
-    })) as Paginated<Instance>
+    })) as Paginated<InstanceType>
     if (instance.total === 0) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
@@ -134,7 +134,7 @@ export const LocationInstanceConnectionService = {
       }
       return
     }
-    const provisionResult = await API.instance.client.service('instance-provision').find({
+    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
       query: {
         locationId,
         instanceId,
@@ -159,12 +159,12 @@ export const LocationInstanceConnectionService = {
   provisionExistingServerByRoomCode: async (locationId: string, roomCode: string, sceneId: string) => {
     logger.info({ locationId, roomCode, sceneId }, 'Provision Existing World Server')
     const token = getState(AuthState).authUser.accessToken
-    const instance = (await API.instance.client.service('instance').find({
+    const instance = (await API.instance.client.service(instancePath).find({
       query: {
         roomCode,
         ended: false
       }
-    })) as Paginated<Instance>
+    })) as Paginated<InstanceType>
     if (instance.total === 0) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
@@ -175,7 +175,7 @@ export const LocationInstanceConnectionService = {
       }
       return
     }
-    const provisionResult = await API.instance.client.service('instance-provision').find({
+    const provisionResult = await API.instance.client.service(instanceProvisionPath).find({
       query: {
         locationId,
         roomCode,
@@ -223,10 +223,10 @@ export const LocationInstanceConnectionService = {
           })
       }
 
-      API.instance.client.service('instance-provision').on('created', instanceProvisionCreatedListener)
+      API.instance.client.service(instanceProvisionPath).on('created', instanceProvisionCreatedListener)
 
       return () => {
-        API.instance.client.service('instance-provision').off('created', instanceProvisionCreatedListener)
+        API.instance.client.service(instanceProvisionPath).off('created', instanceProvisionCreatedListener)
       }
     }, [])
   }

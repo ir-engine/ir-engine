@@ -76,7 +76,7 @@ export interface ProjectConfigInterface {
 
   /**
    * Adds configurations to the database seeder
-   * @returns {Array<ServicesSeedConfig>}
+   * @returns {Array<KnexSeed>}
    */
   databaseSeed?: string
 

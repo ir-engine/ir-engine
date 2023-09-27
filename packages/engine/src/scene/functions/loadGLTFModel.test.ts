@@ -32,16 +32,16 @@ import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
-  addComponent,
   defineComponent,
   defineQuery,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
-import { TransformComponent, setLocalTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -78,8 +78,7 @@ describe('loadGLTFModel', () => {
 
     const entity = createEntity()
     addEntityNodeChild(entity, sceneEntity)
-    setLocalTransformComponent(entity, sceneEntity)
-    addComponent(entity, ModelComponent, {
+    setComponent(entity, ModelComponent, {
       ...mockComponentData
     })
     const entityName = 'entity name'

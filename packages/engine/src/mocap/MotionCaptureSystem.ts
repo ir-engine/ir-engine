@@ -59,29 +59,29 @@ import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponen
 import { V_010 } from '../common/constants/MathConstants'
 import { isClient } from '../common/functions/getEnvironment'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { entityExists } from '../ecs/functions/EntityFunctions'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
-export const sendResults = (results: NormalizedLandmarkList) => {
+export type MotionCaptureResults = {
+  poseWorldLandmarks: NormalizedLandmarkList
+  poseLandmarks: NormalizedLandmarkList
+}
+
+export const sendResults = (results: MotionCaptureResults) => {
   return encode({
     timestamp: Date.now(),
-    peerID: Engine.instance.peerID,
     results
   })
 }
 
 export const receiveResults = (buff: ArrayBuffer) => {
-  const { timestamp, peerID, results } = decode(new Uint8Array(buff)) as {
+  return decode(new Uint8Array(buff)) as {
     timestamp: number
-    peerID: PeerID
-    results: NormalizedLandmarkList
+    results: MotionCaptureResults
   }
-  // console.log('received mocap data', peerID, results)
-  return { timestamp, peerID, results }
 }
 
 export const MotionCaptureFunctions = {
@@ -98,19 +98,24 @@ const handleMocapData = (
   message: ArrayBufferLike
 ) => {
   if (network.isHosting) {
-    network.transport.bufferToAll(mocapDataChannelType, message)
+    network.transport.bufferToAll(dataChannel, fromPeerID, message)
   }
-  const { peerID, results } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
-  if (!peerID) return
-  if (!timeSeriesMocapData.has(peerID)) {
-    timeSeriesMocapData.set(peerID, new RingBuffer(10))
+  const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
+  if (!timeSeriesMocapData.has(fromPeerID)) {
+    timeSeriesMocapData.set(fromPeerID, new RingBuffer(10))
   }
-  timeSeriesMocapData.get(peerID)!.add(results)
+  timeSeriesMocapData.get(fromPeerID)!.add(results)
 }
 
 const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
 
-const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmarkList>>()
+const timeSeriesMocapData = new Map<
+  PeerID,
+  RingBuffer<{
+    timestamp: number
+    results: MotionCaptureResults
+  }>
+>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
@@ -121,26 +126,26 @@ const execute = () => {
     if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
-
-      const userID = network.peers[peerID]!.userId
-      const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
-      if (entity && entityExists(entity)) removeComponent(entity, MotionCaptureRigComponent)
     }
   }
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.popLast()
-    timeSeriesMocapLastSeen.set(peerID, Date.now())
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
     if (data && entity) {
+      timeSeriesMocapLastSeen.set(peerID, Date.now())
       setComponent(entity, MotionCaptureRigComponent)
-      solveMotionCapturePose(data, userID, entity)
+      solveMotionCapturePose(data.results.poseWorldLandmarks, userID, entity)
     }
   }
 
   for (const entity of motionCaptureQuery()) {
+    const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
+    if (!peers) {
+      removeComponent(entity, MotionCaptureRigComponent)
+      continue
+    }
     const rigComponent = getComponent(entity, AvatarRigComponent)
 
     for (const boneName of VRMHumanBoneList) {

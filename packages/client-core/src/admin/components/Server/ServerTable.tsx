@@ -30,8 +30,6 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
-import multiLogger from '@etherealengine/common/src/logger'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -39,13 +37,12 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 import { ServerLogsInputsType } from './ServerLogs'
-
-const logger = multiLogger.child({ component: 'client-core:ServerTable' })
 
 TimeAgo.addDefaultLocale(en)
 
@@ -61,10 +58,10 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
   const openConfirm = useHookstate(false)
   const autoRefresh = useHookstate('60')
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
-  const selectedPod = useHookstate<ServerPodInfo | null>(null)
+  const selectedPod = useHookstate<ServerPodInfoType | null>(null)
 
   const serverInfoQuery = useServerInfoFind()
-  const removeServerInfo = useMutation('server-info').remove
+  const removeServerInfo = useMutation(podsPath).remove
 
   useEffect(() => {
     if (autoRefresh.value !== '0') {
@@ -84,7 +81,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
     }
   }, [autoRefresh.value])
 
-  const createData = (el: ServerPodInfo): ServerPodData => {
+  const createData = (el: ServerPodInfoType): ServerPodData => {
     return {
       el,
       name: el.name,
@@ -150,7 +147,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
   }
 
   const handleRefreshServerInfo = () => {
-    logger.info('Refreshing server info.')
+    serverInfoQuery.refetch()
   }
 
   const handleAutoRefreshServerInfoChange = (e) => {
@@ -243,17 +240,7 @@ const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
 
   return (
     <>
-      <TableComponent
-        allowSort={false}
-        rows={rows}
-        column={serverInfoDataColumns}
-        page={0}
-        count={rows.length}
-        rowsPerPage={rows.length}
-        handlePageChange={() => {}}
-        handleRowsPerPageChange={() => {}}
-      />
-
+      <TableComponent query={serverInfoQuery} rows={rows} column={serverInfoDataColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.value?.name}'?`}

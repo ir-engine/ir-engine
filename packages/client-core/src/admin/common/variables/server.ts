@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
+import { ServerPodInfoType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 
 export interface ServerColumn {
   id: string
@@ -33,7 +33,7 @@ export interface ServerColumn {
 }
 
 export interface ServerPodData {
-  el: ServerPodInfo
+  el: ServerPodInfoType
   name: string
   status: string
   type: string

@@ -34,7 +34,8 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -48,22 +49,30 @@ import {
 } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import {
   LocalTransformComponent,
-  setLocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { isMobileXRHeadset, ReferenceSpace } from '@etherealengine/engine/src/xr/XRState'
+import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
   RegisteredWidgets,
   WidgetAppActions,
+  WidgetAppService,
   WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { defineActionQueue, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createRecordingsWidget } from './createRecordingsWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
@@ -83,6 +92,7 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -150,7 +160,8 @@ const execute = () => {
   }
   for (const action of registerWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
-    setLocalTransformComponent(widget.ui.entity, widgetMenuUI.entity)
+    setComponent(widget.ui.entity, LocalTransformComponent)
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: widgetMenuUI.entity })
   }
   for (const action of unregisterWidgetQueue()) {
     const widget = RegisteredWidgets.get(action.id)!
@@ -166,7 +177,7 @@ const execute = () => {
   if (activeInputSourceEntity) {
     const activeInputSource = getComponent(activeInputSourceEntity, InputSourceComponent)?.source
     const referenceSpace = ReferenceSpace.origin!
-    const pose = Engine.instance.xrFrame!.getPose(
+    const pose = getState(XRState).xrFrame!.getPose(
       activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,
       referenceSpace
     )
@@ -202,6 +213,14 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const xrState = useHookstate(getMutableState(XRState))
+  useEffect(() => {
+    if (!xrState.sessionActive.value) {
+      WidgetAppService.closeWidgets()
+      const widgetState = getState(WidgetAppState)
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false, handedness: widgetState.handedness }))
+    }
+  }, [xrState.sessionActive])
   useEffect(() => {
     createWidgetMenus()
     return () => {

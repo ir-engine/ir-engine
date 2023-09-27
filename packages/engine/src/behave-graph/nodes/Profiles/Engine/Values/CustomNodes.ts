@@ -54,7 +54,6 @@ import {
   hasComponent,
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
-import { StandardCallbacks, getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
@@ -135,6 +134,7 @@ export const playAudio = makeFlowNodeDefinition({
     autoplay: 'boolean',
     isMusic: 'boolean',
     volume: 'float',
+    paused: 'boolean',
     playMode: (_, graphApi) => {
       const choices = Object.keys(PlayMode).map((key) => ({
         text: key,
@@ -156,12 +156,13 @@ export const playAudio = makeFlowNodeDefinition({
       resources = component.resources.length > 0 ? component.resources : []
       volume = component.volume
     }
-    setComponent(entity, PositionalAudioComponent)
+    if (!hasComponent(entity, PositionalAudioComponent)) setComponent(entity, PositionalAudioComponent)
     const media = read<string>('mediaPath')
     resources = media ? [media, ...resources] : resources
     const autoplay = read<boolean>('autoplay')
     volume = MathUtils.clamp(read('volume') ?? volume, 0, 1)
     const playMode = read<PlayMode>('playMode')
+    const paused = read<boolean>('paused')
     setComponent(entity, MediaComponent, {
       autoplay: autoplay,
       resources: resources,
@@ -169,7 +170,7 @@ export const playAudio = makeFlowNodeDefinition({
       playMode: playMode!
     }) // play
     const component = getMutableComponent(entity, MediaComponent)
-    component.paused.set(false)
+    component.paused.set(paused)
     commit('flow')
   }
 })
@@ -248,40 +249,29 @@ export const playAnimation = makeFlowNodeDefinition({
   in: {
     flow: 'flow',
     entity: 'entity',
-    action: (_, graphApi) => {
-      const choices = [
-        { text: 'play', value: StandardCallbacks.PLAY },
-        { text: 'pause', value: StandardCallbacks.PAUSE },
-        { text: 'stop', value: StandardCallbacks.STOP }
-      ]
-      return {
-        valueType: 'string',
-        choices: choices
-      }
-    },
-    animationSpeed: 'float',
+    paused: 'boolean',
+    timeScale: 'float',
     animationPack: 'string',
-    activeClipIndex: 'number',
+    activeClipIndex: 'float',
     isAvatar: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const entity = read<Entity>('entity')
-    const action = read<string>('action')
-    const animationSpeed = read<number>('animationSpeed')
+    const paused = read<boolean>('paused')
+    const timeScale = read<number>('timeScale')
     const animationPack = read<string>('animationPack')
     const activeClipIndex = read<number>('activeClipIndex')
     const isAvatar = read<boolean>('isAvatar')
+
     setComponent(entity, LoopAnimationComponent, {
       hasAvatarAnimations: isAvatar,
-      animationSpeed: animationSpeed,
+      paused: paused,
+      timeScale: timeScale,
       animationPack: animationPack,
       activeClipIndex: activeClipIndex
     })
-
-    const trigger = getCallback(entity, action)
-    trigger?.()
 
     commit('flow')
   }
@@ -294,7 +284,7 @@ export const setAnimationAction = makeFlowNodeDefinition({
   in: {
     flow: 'flow',
     entity: 'entity',
-    animationSpeed: 'float',
+    timeScale: 'float',
     blendMode: (_, graphApi) => {
       const choices = [
         { text: 'normal', value: NormalAnimationBlendMode },
@@ -325,24 +315,23 @@ export const setAnimationAction = makeFlowNodeDefinition({
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const entity = read<Entity>('entity')
-    const animationSpeed = read<number>('animationSpeed')
+    const timeScale = read<number>('timeScale')
     const blendMode = read<AnimationBlendMode>('blendMode')
     const loopMode = read<AnimationActionLoopStyles>('loopMode')
     const clampWhenFinished = read<boolean>('clampWhenFinished')
     const zeroSlopeAtStart = read<boolean>('zeroSlopeAtStart')
     const zeroSlopeAtEnd = read<boolean>('zeroSlopeAtEnd')
     const weight = read<number>('weight')
-    setComponent(entity, LoopAnimationComponent, { animationSpeed: animationSpeed })
-    const animAction = getComponent(entity, LoopAnimationComponent).action
-    if (animAction) {
-      animAction!.blendMode = blendMode
-      animAction!.loop = loopMode
-      animAction!.clampWhenFinished = clampWhenFinished
-      animAction!.zeroSlopeAtStart = zeroSlopeAtStart
-      animAction!.zeroSlopeAtEnd = zeroSlopeAtEnd
-      animAction!.weight = weight
-      setComponent(entity, LoopAnimationComponent, { action: animAction })
-    }
+
+    setComponent(entity, LoopAnimationComponent, {
+      timeScale: timeScale,
+      blendMode: blendMode,
+      loop: loopMode,
+      clampWhenFinished: clampWhenFinished,
+      zeroSlopeAtStart: zeroSlopeAtStart,
+      zeroSlopeAtEnd: zeroSlopeAtEnd,
+      weight: weight
+    })
 
     commit('flow')
   }

@@ -48,6 +48,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { InputState } from '../../input/state/InputState'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
@@ -56,7 +57,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { XRState, hasMovementControls } from '../../xr/XRState'
+import { getCameraMode, hasMovementControls } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -149,9 +150,10 @@ const onKeyP = () => {
 }
 
 const isAvatarClicked = () => {
+  const pointerState = getState(InputState).pointerState
   const hits = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    Engine.instance.pointerState.position,
+    pointerState.position,
     getState(PhysicsState).physicsWorld,
     raycastComponentData
   )
@@ -175,7 +177,6 @@ const getAvatarDoubleClick = (buttons): boolean => {
   const followComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
   if (followComponent && followComponent.zoomLevel < 1) return false
 
-  if (getState(XRState).sessionActive) return false
   if (buttons.PrimaryClick?.up) {
     if (!isAvatarClicked()) {
       clickCount = 0
@@ -214,24 +215,28 @@ const execute = () => {
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-  const firstWalkableEntityWithInput = walkableQuery().find(
-    (entity) => getComponent(entity, InputComponent)?.inputSources.length
-  )
+  const attachedMode = getCameraMode() === 'attached'
+  if (!attachedMode) {
+    const firstWalkableEntityWithInput = walkableQuery().find(
+      (entity) => getComponent(entity, InputComponent)?.inputSources.length
+    )
 
-  if (firstWalkableEntityWithInput) {
-    const inputComponent = getComponent(firstWalkableEntityWithInput, InputComponent)
-    const inputSourceEntity = inputComponent?.inputSources[0]
+    if (firstWalkableEntityWithInput) {
+      const inputComponent = getComponent(firstWalkableEntityWithInput, InputComponent)
+      const inputSourceEntity = inputComponent?.inputSources[0]
 
-    if (inputSourceEntity) {
-      const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
-      if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
-        const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
-        if (mouseMoved) mouseMovedDuringPrimaryClick = true
+      if (inputSourceEntity) {
+        const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+        if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
+          const pointerState = getState(InputState).pointerState
+          const mouseMoved = pointerState.movement.lengthSq() > 0
+          if (mouseMoved) mouseMovedDuringPrimaryClick = true
 
-        if (inputSourceComponent.buttons.PrimaryClick.up) {
-          if (!mouseMovedDuringPrimaryClick) {
-            autopilotSetPosition(Engine.instance.localClientEntity)
-          } else mouseMovedDuringPrimaryClick = false
+          if (inputSourceComponent.buttons.PrimaryClick.up) {
+            if (!mouseMovedDuringPrimaryClick) {
+              autopilotSetPosition(Engine.instance.localClientEntity)
+            } else mouseMovedDuringPrimaryClick = false
+          }
         }
       }
     }
@@ -276,7 +281,7 @@ const execute = () => {
     if (!hasMovementControls()) return
     //** touch input (only for avatar jump)*/
 
-    const doubleClicked = getAvatarDoubleClick(buttons)
+    const doubleClicked = attachedMode ? false : getAvatarDoubleClick(buttons)
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =

@@ -41,12 +41,13 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { debounce } from 'lodash'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthState } from '../../../services/AuthService'
-import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
@@ -56,10 +57,10 @@ const AvatarMenu = () => {
   const { t } = useTranslation()
   const authState = useHookstate(getMutableState(AuthState))
   const userId = authState.user?.id?.value
-  const userAvatarId = authState.user?.avatarId?.value
+  const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as EntityUUID)
 
   const page = useHookstate(0)
-  const selectedAvatarId = useHookstate(userAvatarId)
+  const selectedAvatarId = useHookstate('')
   const search = useHookstate({ local: '', query: '' })
 
   const avatarsData = useFind(avatarPath, {
@@ -74,9 +75,9 @@ const AvatarMenu = () => {
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
 
   const handleConfirmAvatar = () => {
-    if (userAvatarId !== selectedAvatarId.value) {
+    if (userAvatarId.value !== selectedAvatarId.value) {
       if (!hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent) && authState.user?.value) {
-        AvatarService.updateUserAvatarId(authState.user.id.value, selectedAvatarId.value)
+        AvatarState.updateUserAvatarId(selectedAvatarId.value)
       }
     }
     selectedAvatarId.set('')
@@ -98,7 +99,7 @@ const AvatarMenu = () => {
       actions={
         <Box display="flex" width="100%">
           <Button
-            disabled={!currentAvatar || currentAvatar.id === userAvatarId}
+            disabled={!currentAvatar || currentAvatar.id === userAvatarId.value}
             startIcon={<Icon type="Check" />}
             size="medium"
             type="gradientRounded"

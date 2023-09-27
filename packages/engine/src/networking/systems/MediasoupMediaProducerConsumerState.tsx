@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import {
@@ -38,11 +35,13 @@ import {
   receiveActions,
   useHookstate
 } from '@etherealengine/hyperflux'
+import React, { useEffect } from 'react'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InstanceID } from '../../schemas/networking/instance.schema'
+import { ChannelID } from '../../schemas/social/channel.schema'
 import { MediaStreamAppData, MediaTagType, NetworkState } from '../NetworkState'
 
 export class MediaProducerActions {
@@ -323,7 +322,7 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
   const producerState = useHookstate(
     getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
   )
-  const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
+
   const producerObjectState = useHookstate(
     getMutableState(MediasoupMediaProducersConsumersObjectsState).producers[producerID]
   )
@@ -367,27 +366,48 @@ export const NetworkProducer = (props: { networkID: InstanceID; producerID: stri
 
   useEffect(() => {
     const producer = producerObjectState.value as any
+
     if (!producer) return
 
     if (producer.closed || producer._closed) return
 
     if (producerState.paused.value && producer.pause) producer.pause()
     if (!producerState.paused.value && producer.resume) producer.resume()
+  }, [producerState.paused, producerObjectState])
 
-    const consumer = Object.entries(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
-      ([_, consumer]) => consumer.producerID === producerID
-    )
+  const consumer = Object.values(getState(MediasoupMediaProducerConsumerState)[networkID].consumers).find(
+    (p) => p.producerID === producerID
+  )
 
-    if (!consumer) return console.warn('No consumer found for paused producer', producerID)
+  if (!consumer) return null
+
+  return <NetworkProducerConsumerPause networkID={networkID} producerID={producerID} consumerID={consumer.consumerID} />
+}
+
+const NetworkProducerConsumerPause = (props: { networkID: InstanceID; producerID: string; consumerID: string }) => {
+  const { networkID, producerID, consumerID } = props
+
+  const producerState = useHookstate(
+    getMutableState(MediasoupMediaProducerConsumerState)[networkID].producers[producerID]
+  )
+
+  const consumerState = useHookstate(
+    getMutableState(MediasoupMediaProducerConsumerState)[networkID].consumers[consumerID]
+  )
+
+  useEffect(() => {
+    const consumer = consumerState.value
+
+    const network = getState(NetworkState).networks[networkID]
 
     dispatchAction(
       MediasoupMediaConsumerActions.consumerPaused({
-        consumerID: consumer[0],
+        consumerID: consumer.consumerID,
         paused: !!producerState.paused.value,
-        $topic: networkState.topic.value
+        $topic: network.topic
       })
     )
-  }, [producerState.paused, producerObjectState])
+  }, [producerState.paused, consumerState])
 
   return null
 }

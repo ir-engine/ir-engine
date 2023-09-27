@@ -24,7 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, CubeTexture, SRGBColorSpace, Texture } from 'three'
+import {
+  Color,
+  CubeReflectionMapping,
+  CubeTexture,
+  EquirectangularReflectionMapping,
+  SRGBColorSpace,
+  Texture
+} from 'three'
 
 import { config } from '@etherealengine/common/src/config'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -38,7 +45,7 @@ import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
-import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
+import { loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const SkyboxComponent = defineComponent({
@@ -107,8 +114,8 @@ export const SkyboxComponent = defineComponent({
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
-        background.set(getPmremGenerator().fromCubemap(texture).texture)
-        texture.dispose()
+        texture.mapping = CubeReflectionMapping
+        background.set(texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
       const loadArgs: [
@@ -132,8 +139,8 @@ export const SkyboxComponent = defineComponent({
         {},
         (texture: Texture) => {
           texture.colorSpace = SRGBColorSpace
-          background.set(getPmremGenerator().fromEquirectangular(texture).texture)
-          texture.dispose()
+          texture.mapping = EquirectangularReflectionMapping
+          background.set(texture)
           removeError(entity, SkyboxComponent, 'FILE_ERROR')
         },
         undefined,
@@ -165,8 +172,9 @@ export const SkyboxComponent = defineComponent({
       sky.luminance = skyboxState.skyboxProps.value.luminance
 
       getState(RendererState).csm?.lightDirection.copy(sky.sunPosition).multiplyScalar(-1)
-      const skyboxTex = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
-      background.set(getPmremGenerator().fromCubemap(skyboxTex).texture)
+      const texture = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
+      texture.mapping = CubeReflectionMapping
+      background.set(texture)
       sky.dispose()
     }, [skyboxState.backgroundType, skyboxState.skyboxProps])
 

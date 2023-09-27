@@ -35,12 +35,11 @@ import '../utils/threejsPatches'
 
 import type { FeathersApplication } from '@feathersjs/feathers'
 import { Not } from 'bitecs'
-import { Group, Object3D, Raycaster, Scene, Vector2 } from 'three'
+import { Group, Object3D, Scene } from 'three'
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
-import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -103,42 +102,6 @@ export class Engine {
     return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 
-  gltfLoader: GLTFLoader = null!
-
-  xrFrame: XRFrame | null = null
-
-  /**
-   * The seconds since the last world execution
-   * @deprecated use getState(EngineState).deltaSeconds
-   */
-  get deltaSeconds() {
-    return getState(EngineState).deltaSeconds
-  }
-
-  /**
-   * The elapsed seconds since `performance.timeOrigin`
-   * @deprecated use `getState(EngineState).elapsedSeconds`
-   */
-  get elapsedSeconds() {
-    return getState(EngineState).elapsedSeconds
-  }
-
-  /**
-   * The current fixed tick (simulationTime / simulationTimeStep)
-   * @deprecated
-   */
-  get fixedTick() {
-    const engineState = getState(EngineState)
-    return engineState.simulationTime / engineState.simulationTimestep
-  }
-
-  /**
-   * @deprecated use `getState(EngineState).simulationTimestep / 1000`
-   */
-  get fixedDeltaSeconds() {
-    return getState(EngineState).simulationTimestep / 1000
-  }
-
   /**
    * Reference to the three.js scene object.
    */
@@ -166,30 +129,14 @@ export class Engine {
   cameraEntity: Entity = UndefinedEntity
 
   /**
-   *
-   */
-  priorityAvatarEntities: ReadonlySet<Entity> = new Set()
-
-  /**
    * The local client entity
    */
   localClientEntity = UndefinedEntity
-
-  pointerState = {
-    position: new Vector2(),
-    lastPosition: new Vector2(),
-    movement: new Vector2(),
-    scroll: new Vector2(),
-    lastScroll: new Vector2()
-  }
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
   #entityQuery = defineQuery([Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery() as Entity[]
-
-  // @todo move to EngineState
-  activePortalEntity = UndefinedEntity
 
   systemGroups = {} as {
     input: SystemUUID
@@ -200,9 +147,6 @@ export class Engine {
   activeSystems = new Set<SystemUUID>()
   currentSystemUUID = '__null__' as SystemUUID
   activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
-
-  /** A screenspace raycaster for the pointer */
-  pointerScreenRaycaster = new Raycaster()
 }
 
 globalThis.Engine = Engine

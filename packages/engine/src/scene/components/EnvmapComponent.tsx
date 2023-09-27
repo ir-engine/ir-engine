@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import {
   Color,
+  CubeReflectionMapping,
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
@@ -50,7 +51,7 @@ import { defineComponent, getMutableComponent, useComponent } from '../../ecs/fu
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { getPmremGenerator, getRGBArray, loadCubeMapTexture } from '../constants/Util'
+import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { applyBoxProjection, EnvMapBakeComponent } from './EnvMapBakeComponent'
 import { GroupComponent } from './GroupComponent'
@@ -122,9 +123,9 @@ export const EnvmapComponent = defineComponent({
       const texture = new DataTexture(getRGBArray(col), resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
       texture.colorSpace = SRGBColorSpace
+      texture.mapping = EquirectangularReflectionMapping
 
-      component.envmap.set(getPmremGenerator().fromEquirectangular(texture).texture)
-      texture.dispose()
+      component.envmap.set(texture)
     }, [component.type, group, component.envMapSourceColor])
 
     useEffect(() => {
@@ -136,9 +137,9 @@ export const EnvmapComponent = defineComponent({
             component.envMapSourceURL.value,
             (texture: CubeTexture | undefined) => {
               if (texture) {
-                const envMap = getPmremGenerator().fromCubemap(texture).texture
-                envMap.colorSpace = SRGBColorSpace
-                component.envmap.set(envMap)
+                texture.mapping = CubeReflectionMapping
+                texture.colorSpace = SRGBColorSpace
+                component.envmap.set(texture)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
                 texture.dispose()
               }

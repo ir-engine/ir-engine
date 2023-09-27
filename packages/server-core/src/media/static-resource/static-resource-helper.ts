@@ -33,9 +33,8 @@ import probe from 'probe-image-size'
 import { Readable } from 'stream'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import multiLogger from '@etherealengine/common/src/logger'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -61,7 +60,7 @@ export type MediaUploadArguments = {
 
 /**
  * Get the files to upload for a given resource
- * @param data
+ * @param url
  * @param download - if true, will download the file and return it as a buffer, otherwise will return the url
  * @returns
  */
@@ -113,21 +112,26 @@ const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/proj
 export const isAssetFromProject = (url: string, project: string) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
-  const isFromProject = url.includes(storageProviderPath) || url.includes(path.join(absoluteProjectPath, project))
-  return isFromProject
+  const originPath = path.join(storageProvider.originURLs[0], 'projects/', project)
+  return (
+    url.includes(storageProviderPath) ||
+    url.includes(originPath) ||
+    url.includes(path.join(absoluteProjectPath, project))
+  )
 }
 
 export const getKeyForAsset = (url: string, project: string, isFromProject: boolean) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = 'https://' + path.join(storageProvider.cacheDomain, 'projects/', project)
+  const originPath = 'https://' + path.join(storageProvider.originURLs[0], 'projects/', project)
   const projectPath = url
+    .replace(originPath, '')
     .replace(storageProviderPath, '')
     .replace(path.join(absoluteProjectPath, project), '')
     .split('/')
     .slice(0, -1)
     .join('/')
-  const key = isFromProject ? `projects/${project}${projectPath}` : `static-resources/${project}/`
-  return key
+  return isFromProject ? `projects/${project}${projectPath}` : `static-resources/${project}/`
 }
 
 /**
@@ -166,14 +170,12 @@ export const addAssetFromProject = async (
 
   const file = await downloadResourceAndMetadata(mainURL, forceDownload)
 
-  const staticResource = await addAssetAsStaticResource(app, file, {
+  return addAssetAsStaticResource(app, file, {
     hash: hash,
     // use key for when downloading the asset, otherwise pass the url directly to be inserted into the database
     path: isFromProject || download ? key : mainURL,
     project
   })
-
-  return staticResource
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {
@@ -285,47 +287,15 @@ export const getImageStats = async (
   mimeType: string
 ): Promise<{ width: number; height: number }> => {
   if (mimeType === 'image/ktx2') {
-    const loader = new KTX2Loader()
-    return new Promise<{ width: number; height: number }>((resolve, reject) => {
-      if (typeof file === 'string') {
-        loader.load(
-          file,
-          (texture) => {
-            const { width, height } = texture.source.data
-            resolve({
-              width,
-              height
-            })
-          },
-          () => {},
-          (err) => {
-            logger.error('error parsing ktx2')
-            logger.error(err)
-            reject(err)
-          }
-        )
-      } else {
-        loader.parse(
-          file,
-          (texture) => {
-            const { width, height } = texture.source.data
-            resolve({
-              width,
-              height
-            })
-          },
-          (err) => {
-            logger.error('error parsing ktx2')
-            logger.error(err)
-            reject(err)
-          }
-        )
-      }
-    })
-  } else {
-    if (typeof file === 'string') {
-      file = (await (await fetch(file)).arrayBuffer()) as Buffer
+    if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
+    const widthBuffer = file.slice(20, 24)
+    const heightBuffer = file.slice(24, 28)
+    return {
+      height: heightBuffer.readUInt32LE(),
+      width: widthBuffer.readUInt32LE()
     }
+  } else {
+    if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
     const stream = new Readable()
     stream.push(file)
     stream.push(null)

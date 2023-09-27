@@ -315,9 +315,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
   async find(params?: ProjectParams) {
     let projectPushIds: string[] = []
-    let populateProjectPermissions = false
-    const errors = [] as any
-    if (params?.query?.allowed != null) {
+    if (params?.query?.allowed) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
 
@@ -391,20 +389,28 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
       if (!params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
         params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
-      delete params.query.allowed
-
-      populateProjectPermissions = true
     }
 
-    params = {
+    let paramsWithoutExtras = {
       ...params,
+      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+      query: params?.query ? JSON.parse(JSON.stringify(params?.query)) : {}
+    }
+
+    paramsWithoutExtras = {
+      ...paramsWithoutExtras,
       query: {
-        ...params?.query,
-        $limit: params?.query?.$limit || 1000
+        ...paramsWithoutExtras.query,
+        $limit: params?.query?.$limit || 1000,
+        $sort: params?.query?.$sort || { name: 1 }
       }
     }
 
-    const data = ((await super._find(params)) as Paginated<ProjectType>).data
+    if (paramsWithoutExtras?.query?.allowed) delete paramsWithoutExtras.query.allowed
+
+    const result = (await super._find(paramsWithoutExtras)) as Paginated<ProjectType> | ProjectType[]
+
+    const data: ProjectType[] = result['data'] ? result['data'] : result
     for (const item of data) {
       try {
         const packageJson = getProjectPackageJson(item.name)
@@ -419,10 +425,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       }
     }
 
-    return {
-      data,
-      errors
-    }
+    return result
   }
 
   async _callOnLoad() {

@@ -31,8 +31,10 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { InputState } from '../../input/state/InputState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -61,9 +63,11 @@ export const autopilotSetPosition = (entity: Entity) => {
 
   const { physicsWorld } = getState(PhysicsState)
 
+  const pointerState = getState(InputState).pointerState
+
   const castedRay = Physics.castRayFromCamera(
     getComponent(Engine.instance.cameraEntity, CameraComponent),
-    Engine.instance.pointerState.position,
+    pointerState.position,
     physicsWorld,
     autopilotRaycastArgs
   )
@@ -100,7 +104,8 @@ const setupMarker = () => {
 
 export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
   const marker = getState(AutopilotMarker).markerObject!
-  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.elapsedSeconds))
+  const elapsedSeconds = getState(EngineState).elapsedSeconds
+  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * elapsedSeconds))
   marker.scale.set(scalePulse, 1, scalePulse)
   marker.updateMatrixWorld()
 }

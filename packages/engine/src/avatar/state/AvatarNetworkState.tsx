@@ -26,17 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineState, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
 
+import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { WorldState } from '../../networking/interfaces/WorldState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { avatarPath } from '../../schemas/user/avatar.schema'
+import { AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
+import { userPath } from '../../schemas/user/user.schema'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from './AvatarNetworkActions'
@@ -48,6 +49,7 @@ export const AvatarState = defineState({
     EntityUUID,
     {
       avatarID?: string
+      userAvatarDetails: AvatarType
     }
   >,
 
@@ -62,10 +64,43 @@ export const AvatarState = defineState({
     [
       WorldNetworkAction.destroyObject,
       (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
+        const cachedActions = Engine.instance.store.actions.cached
+        const peerCachedActions = cachedActions.filter(
+          (cachedAction) =>
+            AvatarNetworkAction.setAvatarID.matches.test(cachedAction) && cachedAction.entityUUID === action.entityUUID
+        )
+        for (const cachedAction of peerCachedActions) {
+          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
+        }
+
         state[action.entityUUID].set(none)
       }
     ]
-  ]
+  ],
+
+  selectRandomAvatar() {
+    Engine.instance.api
+      .service(avatarPath)
+      .find({})
+      .then((avatars: Paginated<AvatarType>) => {
+        const randomAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
+        AvatarState.updateUserAvatarId(randomAvatar.id)
+      })
+  },
+
+  updateUserAvatarId(avatarId: string) {
+    Engine.instance.api
+      .service(userPath)
+      .patch(Engine.instance.userID, { avatarId: avatarId })
+      .then(() => {
+        dispatchAction(
+          AvatarNetworkAction.setAvatarID({
+            avatarID: avatarId,
+            entityUUID: Engine.instance.userID as any as EntityUUID
+          })
+        )
+      })
+  }
 })
 
 const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
@@ -87,24 +122,40 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   useEffect(() => {
     if (!state.avatarID.value) return
 
+    let aborted = false
+
     Engine.instance.api
       .service(avatarPath)
       .get(state.avatarID.value)
       .then((avatarDetails) => {
+        if (aborted) return
+
         if (!avatarDetails.modelResource?.url) return
 
-        if (avatarDetails.id !== state.avatarID.value) return
-
-        // backwards compat
-        getMutableState(WorldState).userAvatarDetails[entityUUID].set(avatarDetails)
-
-        if (!isClient) return
-
-        const entity = UUIDComponent.entitiesByUUID[entityUUID]
-        if (!entity || !entityExists(entity)) return
-        loadAvatarForUser(entity, avatarDetails.modelResource?.url)
+        state.userAvatarDetails.set(avatarDetails)
       })
+
+    return () => {
+      aborted = true
+    }
   }, [state.avatarID, entityUUID])
+
+  useEffect(() => {
+    if (!isClient) return
+
+    if (!state.userAvatarDetails.value) return
+
+    const url = state.userAvatarDetails.value.modelResource?.url
+    if (!url) return
+
+    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    if (!entity || !entityExists(entity)) return
+
+    loadAvatarForUser(entity, url).catch((e) => {
+      console.error('Failed to load avatar for user', e)
+      AvatarState.selectRandomAvatar()
+    })
+  }, [state.userAvatarDetails])
 
   return null
 })

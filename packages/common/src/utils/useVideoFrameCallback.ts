@@ -43,6 +43,7 @@ export const useVideoFrameCallback = (
     }
 
     frameId = requestFrame(callbackFrame)
+    console.log({ frameId })
 
     return () => cancelFrame(frameId)
   }, [video])

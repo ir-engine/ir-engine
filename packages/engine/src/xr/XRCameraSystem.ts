@@ -53,6 +53,8 @@ cameraR.matrixWorldAutoUpdate = false
 
 const cameraPool = [cameraL, cameraR]
 
+const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
+
 /**
  * Assumes 2 cameras that are parallel and share an X-axis, and that
  * the cameras' projection and world matrices have already been set.
@@ -215,6 +217,12 @@ export function updateXRCamera() {
   const xrState = getState(XRState)
   const session = xrState.session
 
+  for (const action of sessionChangedQueue()) {
+    if (!action.active) {
+      camera.updateProjectionMatrix()
+    }
+  }
+
   if (session === null) {
     camera.cameras = [cameraL]
     cameraL.copy(camera, false)
@@ -257,7 +265,7 @@ const execute = () => {
   }
 
   getMutableState(XRState).viewerPose.set(
-    ReferenceSpace.localFloor && Engine.instance.xrFrame?.getViewerPose(ReferenceSpace.localFloor)
+    ReferenceSpace.localFloor && getState(XRState).xrFrame?.getViewerPose(ReferenceSpace.localFloor)
   )
 }
 

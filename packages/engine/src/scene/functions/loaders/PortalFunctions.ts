@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
 import { teleportAvatar } from '../../../avatar/functions/moveAvatar'
@@ -34,7 +34,7 @@ import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNetworkState } from '../../../networking/state/EntityNetworkState'
-import { PortalComponent } from '../../components/PortalComponent'
+import { PortalComponent, PortalState } from '../../components/PortalComponent'
 import { UUIDComponent } from '../../components/UUIDComponent'
 
 export const setAvatarToLocationTeleportingState = () => {
@@ -51,7 +51,7 @@ export const setAvatarToLocationTeleportingState = () => {
 
 export const revertAvatarToMovingStateFromTeleport = () => {
   const localClientEntity = Engine.instance.localClientEntity
-  const activePortal = getComponent(Engine.instance.activePortalEntity, PortalComponent)
+  const activePortal = getComponent(getState(PortalState).activePortalEntity, PortalComponent)
   getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
     activePortal!.remoteSpawnPosition
   )
@@ -60,14 +60,14 @@ export const revertAvatarToMovingStateFromTeleport = () => {
   // teleport player to where the portal spawn position is
   teleportAvatar(localClientEntity, activePortal!.remoteSpawnPosition)
 
-  Engine.instance.activePortalEntity = UndefinedEntity
+  getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
   dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
 }
 
 export const portalTriggerEnter = (triggerEntity: Entity) => {
   if (!getState(EngineState).isTeleporting && getComponent(triggerEntity, PortalComponent)) {
     const portalComponent = getComponent(triggerEntity, PortalComponent)
-    Engine.instance.activePortalEntity = triggerEntity
+    getMutableState(PortalState).activePortalEntity.set(triggerEntity)
     dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
     return
   }

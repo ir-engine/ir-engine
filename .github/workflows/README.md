@@ -42,8 +42,8 @@ variables and scripts deal with AWS SDKs. If you want to deploy to GKE or anothe
 have to modify some of these variables, downloads, and calls to use another service.
 
 This action uses several other secrets to control what repo it is interacting with:
-*`EKS_AWS_ACCESS_KEY`: The public key of an IAM user that has EKS access
-*`EKS_AWS_SECRET`: The secret key of an IAM user that has EKS access
+*`EKS_AWS_ACCESS_KEY_ID`: The public key of an IAM user that has EKS access
+*`EKS_AWS_ACCESS_KEY_SECRET`: The secret key of an IAM user that has EKS access
 *`AWS_REGION`: The region of the EKS cluster/ECR repo to which this built image will be pushed and deployed
 *`CLUSTER_NAME`: The name of the cluster to which this built image will be deployed
 *`DOCKER_LABEL`: In the builder service, this is the name of a Docker Hub repo that the final image
@@ -88,8 +88,8 @@ variables and scripts deal with AWS SDKs. If you want to deploy to GKE or anothe
 have to modify some of these variables, downloads, and calls to use another service.
 
 This action uses several other secrets to control what repo it is interacting with:
-*`EKS_AWS_ACCESS_KEY`: The public key of an IAM user that has EKS access
-*`EKS_AWS_SECRET`: The secret key of an IAM user that has EKS access
+*`EKS_AWS_ACCESS_KEY_ID`: The public key of an IAM user that has EKS access
+*`EKS_AWS_ACCESS_KEY_SECRET`: The secret key of an IAM user that has EKS access
 *`AWS_REGION`: The region of the EKS cluster/ECR repo to which this built image will be pushed and deployed
 *`CLUSTER_NAME`: The name of the cluster to which this built image will be deployed
 *`DOCKER_LABEL`: In the builder service, this is the name of a Docker Hub repo that the final image
