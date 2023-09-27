@@ -166,7 +166,8 @@ export const MediaComponent = defineComponent({
       volume: component.volume.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
-      isMusic: component.isMusic.value
+      isMusic: component.isMusic.value,
+      reset: false // let it always be false when saving, this allows set using SetComponent
     }
   },
 
@@ -219,6 +220,8 @@ export const MediaComponent = defineComponent({
 
       // @ts-ignore deprecated autoplay field
       if (typeof json.paused === 'boolean') component.autoplay.set(!json.paused)
+      if (typeof json.reset === 'boolean') component.reset.set(json.reset)
+
       if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
     })
   },
