@@ -137,6 +137,7 @@ export const MediaComponent = defineComponent({
       paths: [] as string[],
       // runtime props
       paused: true,
+      ended: true,
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
@@ -330,6 +331,12 @@ export function MediaReactor() {
 
   useEffect(
     function updateMediaElement() {
+      if (!media.ended.value) {
+        // If current track is not ended, don't change the track
+        return
+      }
+      media.ended.set(false)
+
       if (!isClient) return
 
       const track = media.track.value
@@ -386,7 +393,10 @@ export function MediaReactor() {
         element.addEventListener(
           'ended',
           () => {
-            if (media.playMode.value === PlayMode.single) return
+            media.ended.set(true)
+            if (media.playMode.value === PlayMode.single) {
+              return
+            }
             media.track.set(getNextTrack(media.track.value, media.resources.length, media.playMode.value))
             media.waiting.set(false)
           },
@@ -414,8 +424,12 @@ export function MediaReactor() {
       } else {
         mediaElementState.element.src.set(path)
       }
+
+      if (!media.paused.value) {
+        mediaElementState.value.element.play()
+      }
     },
-    [media.resources, media.track]
+    [media.resources, media.track, media.ended]
   )
 
   useEffect(
