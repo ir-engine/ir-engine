@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Params } from '@feathersjs/feathers'
 
-import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import {
   ChannelData,
   ChannelID,
@@ -139,19 +139,6 @@ export class ChannelService<T = ChannelType, ServiceParams extends Params = Chan
 
   /** only allow logged in user to delete the channel if they are the owner */
   async remove(id: ChannelID, params?: ChannelParams) {
-    const loggedInUser = params!.user
-    if (!loggedInUser) return super._remove(id, params)
-
-    const channelUser = (await this.app.service(channelUserPath).find({
-      query: {
-        channelId: id,
-        userId: loggedInUser.id,
-        isOwner: true
-      }
-    })) as Paginated<ChannelUserType>
-
-    if (channelUser.total < 1) throw new Error('Must be owner to delete channel')
-
     return super._remove(id)
   }
 }

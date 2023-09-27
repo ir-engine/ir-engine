@@ -41,8 +41,8 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
-import allowClientPagination from '../../hooks/allow-client-pagination'
 import authenticate from '../../hooks/authenticate'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'
 import verifyUserId from '../../hooks/verify-userId'
@@ -54,18 +54,41 @@ import {
 } from './channel.resolvers'
 
 /**
+ * Ensure user is owner of channel
+ * @param context
+ * @returns
+ */
+const ensureUserChannelOwner = async (context: HookContext) => {
+  const channelId = context.arguments[0]
+  if (!channelId) throw new BadRequest('Must pass id in request')
+
+  const loggedInUser = context.params!.user
+  const channelUser = (await context.app.service(channelUserPath).find({
+    query: {
+      channelId,
+      userId: loggedInUser.id,
+      isOwner: true
+    }
+  })) as Paginated<ChannelUserType>
+
+  if (channelUser.data.length === 0) throw new Forbidden('Must be owner to delete channel')
+
+  return context
+}
+
+/**
  * Ensure user is part of channel-user
  * @param context
  * @returns
  */
 const ensureUserHasChannelAccess = async (context: HookContext) => {
-  const channelID = context.arguments[0]
-  if (!channelID) throw new BadRequest('Must be member of channel')
+  const channelId = context.arguments[0]
+  if (!channelId) throw new BadRequest('Must pass id in request')
 
   const loggedInUser = context.params!.user
   const channelUser = (await context.app.service(channelUserPath).find({
     query: {
-      channelId: channelID,
+      channelId,
       userId: loggedInUser.id,
       $limit: 1
     }
@@ -138,7 +161,7 @@ export default {
   before: {
     all: [authenticate()],
     find: [
-      allowClientPagination(),
+      enableClientPagination(),
       verifyUserId(),
       iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('admin', 'admin'), handleChannelInstance)),
       discardQuery('action')
@@ -156,7 +179,7 @@ export default {
       () => schemaHooks.validateData(channelPatchValidator),
       schemaHooks.resolveData(channelPatchResolver)
     ],
-    remove: [setLoggedInUser('userId')]
+    remove: [iff(isProvider('external'), ensureUserChannelOwner)]
   },
 
   after: {
