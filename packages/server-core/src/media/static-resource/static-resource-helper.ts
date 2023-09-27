@@ -34,7 +34,6 @@ import { Readable } from 'stream'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
@@ -288,44 +287,49 @@ export const getImageStats = async (
   mimeType: string
 ): Promise<{ width: number; height: number }> => {
   if (mimeType === 'image/ktx2') {
-    const loader = new KTX2Loader()
-    loader.setTranscoderPath(config.client.dist + '/loader_decoders/basis/')
-    return new Promise<{ width: number; height: number }>((resolve, reject) => {
-      if (typeof file === 'string') {
-        loader.load(
-          file,
-          (texture) => {
-            const { width, height } = texture.source.data
-            resolve({
-              width,
-              height
-            })
-          },
-          () => {},
-          (err) => {
-            logger.error('error parsing ktx2')
-            logger.error(err)
-            reject(err)
-          }
-        )
-      } else {
-        loader.parse(
-          file,
-          (texture) => {
-            const { width, height } = texture.source.data
-            resolve({
-              width,
-              height
-            })
-          },
-          (err) => {
-            logger.error('error parsing ktx2')
-            logger.error(err)
-            reject(err)
-          }
-        )
-      }
-    })
+    return {
+      height: 0,
+      width: 0
+    }
+    // FIXME Once the KTX2Loader works properly on the backend, uncomment this and remove the above return
+    // const loader = new KTX2Loader()
+    // loader.setTranscoderPath(config.client.dist + '/loader_decoders/basis/')
+    // return new Promise<{ width: number; height: number }>((resolve, reject) => {
+    //   if (typeof file === 'string') {
+    //     loader.load(
+    //       file,
+    //       (texture) => {
+    //         const { width, height } = texture.source.data
+    //         resolve({
+    //           width,
+    //           height
+    //         })
+    //       },
+    //       () => {},
+    //       (err) => {
+    //         logger.error('error parsing ktx2')
+    //         logger.error(err)
+    //         reject(err)
+    //       }
+    //     )
+    //   } else {
+    //     loader.parse(
+    //       file,
+    //       (texture) => {
+    //         const { width, height } = texture.source.data
+    //         resolve({
+    //           width,
+    //           height
+    //         })
+    //       },
+    //       (err) => {
+    //         logger.error('error parsing ktx2')
+    //         logger.error(err)
+    //         reject(err)
+    //       }
+    //     )
+    //   }
+    // })
   } else {
     if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
     const stream = new Readable()

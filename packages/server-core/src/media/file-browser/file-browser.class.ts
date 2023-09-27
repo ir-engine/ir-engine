@@ -239,9 +239,13 @@ export class FileBrowserService
 
     if (existingResource.data.length > 0) {
       const resource = existingResource.data[0]
-      await this.app.service(staticResourcePath).patch(resource.id, {
-        url
-      })
+      await this.app.service(staticResourcePath).patch(
+        resource.id,
+        {
+          url
+        },
+        { isInternal: true }
+      )
       await storageProvider.createInvalidation([key])
     } else {
       await this.app.service(staticResourcePath).create(

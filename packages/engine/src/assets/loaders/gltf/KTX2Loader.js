@@ -60,6 +60,8 @@ import {
 } from 'three'
 import { WorkerPool } from './WorkerPool'
 
+import WebWorker from 'web-worker'
+
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 
 const KTX2TransferSRGB = 2
@@ -153,7 +155,7 @@ class KTX2Loader extends Loader {
         this.transcoderBinary = binaryContent
 
         this.workerPool.setWorkerCreator(() => {
-          const worker = new Worker(this.workerSourceURL)
+          const worker = isClient ? new Worker(this.workerSourceURL) : new WebWorker(`data:image/ktx2;base64,${Buffer.from(body, 'utf-8').toString('base64')}`)
           const transcoderBinary = this.transcoderBinary.slice(0)
 
           worker.postMessage({ type: 'init', config: this.workerConfig, transcoderBinary }, [transcoderBinary])
