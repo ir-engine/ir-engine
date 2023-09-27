@@ -46,7 +46,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
-import { PortalComponent, PortalEffects } from '../components/PortalComponent'
+import { PortalComponent, PortalEffects, PortalState } from '../components/PortalComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -119,7 +119,7 @@ const execute = () => {
         /**
          * hide scene, render just the hyperspace effect and avatar
          */
-        const activePortal = getComponent(Engine.instance.activePortalEntity, PortalComponent)
+        const activePortal = getComponent(getState(PortalState).activePortalEntity, PortalComponent)
         teleportAvatar(Engine.instance.localClientEntity, activePortal!.remoteSpawnPosition, true)
         camera.layers.disable(ObjectLayers.Scene)
         sceneVisible = false

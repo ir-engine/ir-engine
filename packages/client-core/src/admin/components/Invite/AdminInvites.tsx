@@ -181,7 +181,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       />
       <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteId.set}'?`}
+        description={`${t('admin:components.invite.confirmInviteDelete')} ${inviteId.value}?`}
         onClose={() => openConfirm.set(false)}
         onSubmit={deleteInvite}
       />

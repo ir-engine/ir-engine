@@ -143,9 +143,6 @@ export class Engine {
   #entityQuery = defineQuery([Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery() as Entity[]
 
-  // @todo move to EngineState
-  activePortalEntity = UndefinedEntity
-
   systemGroups = {} as {
     input: SystemUUID
     simulation: SystemUUID

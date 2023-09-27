@@ -36,11 +36,11 @@ import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { destroyEngine } from '../../ecs/classes/Engine'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
   RigidBodyComponent,
@@ -79,7 +79,7 @@ describe('Physics', () => {
     const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
-    setTransformComponent(entity)
+    setComponent(entity, TransformComponent)
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.ball(1)
@@ -103,7 +103,7 @@ describe('Physics', () => {
     const physicsWorld = getState(PhysicsState).physicsWorld
     const entity = createEntity()
 
-    setTransformComponent(entity)
+    setComponent(entity, TransformComponent)
 
     const rigidBodyDesc = RigidBodyDesc.fixed()
     const colliderDesc = ColliderDesc.ball(1)
@@ -186,7 +186,7 @@ describe('Physics', () => {
     const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
-    setTransformComponent(entity)
+    setComponent(entity, TransformComponent)
 
     const geometry = new BoxGeometry(1, 1, 1)
     const material = new MeshBasicMaterial()
@@ -221,7 +221,7 @@ describe('Physics', () => {
     const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
-    setTransformComponent(entity)
+    setComponent(entity, TransformComponent)
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
     const colliderDesc = ColliderDesc.ball(1)
@@ -281,11 +281,11 @@ describe('Physics', () => {
     const entity1 = createEntity()
     const entity2 = createEntity()
 
-    addComponent(entity1, CollisionComponent)
-    addComponent(entity2, CollisionComponent)
+    setComponent(entity1, CollisionComponent)
+    setComponent(entity2, CollisionComponent)
 
-    setTransformComponent(entity1)
-    setTransformComponent(entity2)
+    setComponent(entity1, TransformComponent)
+    setComponent(entity2, TransformComponent)
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
@@ -338,11 +338,11 @@ describe('Physics', () => {
     const entity1 = createEntity()
     const entity2 = createEntity()
 
-    addComponent(entity1, CollisionComponent)
-    addComponent(entity2, CollisionComponent)
+    setComponent(entity1, CollisionComponent)
+    setComponent(entity2, CollisionComponent)
 
-    setTransformComponent(entity1)
-    setTransformComponent(entity2)
+    setComponent(entity1, TransformComponent)
+    setComponent(entity2, TransformComponent)
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)

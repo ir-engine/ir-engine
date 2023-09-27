@@ -109,7 +109,6 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       const oldExtension: OldEEMaterialExtensionType = extension
       return Promise.all(
         Object.entries(oldExtension.args).map(async ([k, v]) => {
-          console.log('key', k, 'value', v)
           //check if the value is a texture
           if (matches.shape({ index: matches.number }).test(v)) {
             await parser.assignTexture(parseTarget, k, v)

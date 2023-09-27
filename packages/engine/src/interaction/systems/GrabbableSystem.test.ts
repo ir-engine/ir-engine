@@ -44,7 +44,13 @@ import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
@@ -53,7 +59,7 @@ import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
 import { dropEntity, grabEntity } from './GrabbableSystem'
 
@@ -97,14 +103,14 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
-    addComponent(item, GrabbedComponent, {
+    setComponent(item, GrabbedComponent, {
       grabberEntity: player,
       attachmentPoint: 'none'
     })
     const grabbedComponent = getComponent(player, GrabbedComponent)
-    addComponent(player, GrabberComponent, { grabbedEntity: item })
+    setComponent(player, GrabberComponent, { grabbedEntity: item })
 
-    setTransformComponent(item)
+    setComponent(item, TransformComponent)
     const equippableTransform = getComponent(item, TransformComponent)
     const attachmentPoint = grabbedComponent.attachmentPoint
     const { position, rotation } = getHandTarget(item, attachmentPoint)!
@@ -145,7 +151,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     const grabbableEntity = createEntity()
 
-    setTransformComponent(grabbableEntity)
+    setComponent(grabbableEntity, TransformComponent)
 
     // physics mock stuff
     const type = ShapeType.Cuboid
@@ -162,7 +168,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     Physics.createRigidBodyForGroup(grabbableEntity, getState(PhysicsState).physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
-    addComponent(grabbableEntity, NetworkObjectComponent, {
+    setComponent(grabbableEntity, NetworkObjectComponent, {
       ownerId: Engine.instance.worldNetwork.hostId,
       authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
@@ -170,7 +176,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     // Equipper
     const grabberEntity = createEntity()
-    setTransformComponent(grabberEntity)
+    setComponent(grabberEntity, TransformComponent)
 
     grabEntity(grabberEntity, grabbableEntity, 'none')
 

@@ -28,16 +28,17 @@ import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMateria
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
+import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { getComponent, getMutableComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
-import { LocalTransformComponent, setLocalTransformComponent } from '../transform/components/TransformComponent'
+import { LocalTransformComponent } from '../transform/components/TransformComponent'
 import { XRPlaneComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
@@ -97,7 +98,7 @@ export const foundPlane = (plane: XRPlane) => {
   const geometry = createGeometryFromPolygon(plane)
 
   const entity = createEntity()
-  setLocalTransformComponent(entity, Engine.instance.originEntity)
+  setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
   setVisibleComponent(entity, true)
   setComponent(entity, XRPlaneComponent)
   setComponent(entity, NameComponent, 'plane-' + planeId++)
