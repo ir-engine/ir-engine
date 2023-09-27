@@ -25,9 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
-export default (...params: string[]): any => {
-  const args = Array.from(params)
-  return (hook: HookContext): boolean => {
-    return hook.params && args.includes(hook.params.action)
+import { Application } from '../../declarations'
+
+/**
+ * https://github.com/feathersjs/feathers/issues/382#issuecomment-288125825
+ */
+export default () => {
+  return async (context: HookContext<Application>) => {
+    if (context.params.query && context.params.query.$paginate) {
+      context.params.paginate = context.params.query.$paginate === 'false' || context.params.query.$paginate === false
+      delete context.params.query.$paginate
+    } else if (context.params.query && context.params.query.paginate) {
+      context.params.paginate = context.params.query.paginate === 'false' || context.params.query.paginate === false
+      delete context.params.query.paginate
+    }
+
+    return context
   }
 }
