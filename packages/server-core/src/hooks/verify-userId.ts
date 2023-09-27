@@ -25,9 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
-export default (...params: string[]) => {
-  const args = Array.from(params)
-  return (hook: HookContext): boolean => {
-    return hook.params && args.includes(hook.params.action)
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+
+import { NotAuthenticated } from '@feathersjs/errors'
+import { Application } from '../../declarations'
+
+export default () => {
+  return async (context: HookContext<Application>) => {
+    const loggedInUser = context.params.user as UserType
+    if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
+
+    return context
   }
 }

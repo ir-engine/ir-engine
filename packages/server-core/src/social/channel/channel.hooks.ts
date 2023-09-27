@@ -25,18 +25,27 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { channelDataValidator, channelPatchValidator } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import {
+  channelDataValidator,
+  channelPatchValidator,
+  channelPath
+} from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   UserRelationshipType,
   userRelationshipPath
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations'
+import allowClientPagination from '../../hooks/allow-client-pagination'
 import authenticate from '../../hooks/authenticate'
+import isAction from '../../hooks/is-action'
+import verifyScope from '../../hooks/verify-scope'
+import verifyUserId from '../../hooks/verify-userId'
 import {
   channelDataResolver,
   channelExternalResolver,
@@ -44,6 +53,11 @@ import {
   channelResolver
 } from './channel.resolvers'
 
+/**
+ * Ensure user is part of channel-user
+ * @param context
+ * @returns
+ */
 const ensureUserHasChannelAccess = async (context: HookContext) => {
   const channelID = context.arguments[0]
   if (!channelID) throw new BadRequest('Must be member of channel')
@@ -57,7 +71,7 @@ const ensureUserHasChannelAccess = async (context: HookContext) => {
     }
   })) as Paginated<ChannelUserType>
 
-  if (channelUser.data.length === 0) throw new NotAuthenticated('Must be member of channel')
+  if (channelUser.data.length === 0) throw new Forbidden('Must be member of channel')
 
   return context
 }
@@ -88,10 +102,32 @@ const ensureUsersFriendWithOwner = async (context: HookContext) => {
   })) as any as UserRelationshipType[]
 
   if (userRelationships.length !== users.length) {
-    throw new BadRequest('Must be friends with all users to create channel')
+    throw new Forbidden('Must be friends with all users to create channel')
   }
 
   return context
+}
+
+const handleChannelInstance = async (context: HookContext) => {
+  const query = context.service.createQuery(context.params)
+
+  if (context.params.instanceId) {
+    query
+      .join(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
+      .where(`${instancePath}.id`, '=', query.instanceId)
+      .andWhere(`${instancePath}.ended`, '=', false)
+  } else {
+    const userId = context.params.user.id
+
+    query
+      .leftJoin(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
+      .join(channelUserPath, `${channelPath}.id`, `${channelUserPath}.channelId`)
+      .where(`${instancePath}.ended`, '=', false)
+      .orWhereNull(`${channelPath}.instanceId`)
+      .andWhere(`${channelUserPath}.userId`, '=', userId)
+  }
+
+  context.params.knex = query
 }
 
 export default {
@@ -101,7 +137,12 @@ export default {
 
   before: {
     all: [authenticate()],
-    find: [],
+    find: [
+      allowClientPagination(),
+      verifyUserId(),
+      iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('admin', 'admin'), handleChannelInstance)),
+      discardQuery('action')
+    ],
     get: [setLoggedInUser('userId'), iff(isProvider('external'), ensureUserHasChannelAccess)],
     create: [
       () => schemaHooks.validateData(channelDataValidator),
