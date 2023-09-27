@@ -74,7 +74,7 @@ const ensureUsersFriendWithOwner = async (context: HookContext) => {
   const loggedInUser = context.params!.user
   const userId = loggedInUser?.id
 
-  if (!users || !userId) return context
+  if (!users || !userId) throw new BadRequest('Users missing in request')
 
   const userRelationships = (await context.app.service(userRelationshipPath)._find({
     query: {
@@ -88,7 +88,7 @@ const ensureUsersFriendWithOwner = async (context: HookContext) => {
   })) as any as UserRelationshipType[]
 
   if (userRelationships.length !== users.length) {
-    throw new Error('Must be friends with all users to create channel!')
+    throw new BadRequest('Must be friends with all users to create channel')
   }
 
   return context
