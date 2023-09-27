@@ -28,6 +28,8 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import {
+  ChannelID,
+  ChannelType,
   channelDataValidator,
   channelPatchValidator,
   channelPath
@@ -38,9 +40,10 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-import { HookContext } from '../../../declarations'
+import { Knex } from 'knex'
+import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
@@ -153,6 +156,72 @@ const handleChannelInstance = async (context: HookContext) => {
   context.params.knex = query
 }
 
+const checkExistingChannel = async (context: HookContext) => {
+  const { users, instanceId } = context.data
+  const userId = context.params.user?.id
+
+  if (!instanceId && users?.length) {
+    // get channel that contains the same users
+    const userIds = users.filter(Boolean)
+    if (userId) userIds.push(userId)
+
+    const knexClient: Knex = context.app.get('knexClient')
+    const existingChannel: ChannelType = await knexClient(channelPath)
+      .select(`${channelPath}.*`)
+      .leftJoin(channelUserPath, `${channelPath}.id`, '=', `${channelUserPath}.channelId`)
+      .whereNull(`${channelPath}.instanceId`)
+      .andWhere((builder) => {
+        builder.whereIn(`${channelUserPath}.userId`, userIds)
+      })
+      .groupBy(`${channelPath}.id`)
+      .havingRaw('count(*) = ?', [userIds.length])
+      .first()
+
+    if (existingChannel) {
+      context.dispatch = existingChannel
+    }
+  }
+
+  return context
+}
+
+const setChannelName = () => {
+  return async (context: HookContext<Application>) => {
+    context.data.name = context.data.instanceId ? 'World ' + context.data.instanceId : context.data.name || ''
+  }
+}
+
+const createSelfOwner = async (context: HookContext) => {
+  const userId = context.params.user?.id
+
+  if (userId) {
+    await context.app.service(channelUserPath).create({
+      channelId: context.result.id as ChannelID,
+      userId,
+      isOwner: true
+    })
+  }
+
+  return context
+}
+
+const createChannelUsers = async (context: HookContext) => {
+  /** @todo ensure all users specified are friends of loggedInUser */
+
+  if (context.data.users) {
+    await Promise.all(
+      context.data.users.map(async (user) =>
+        context.app.service(channelUserPath).create({
+          channelId: context.result.id as ChannelID,
+          userId: user
+        })
+      )
+    )
+  }
+
+  return context
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(channelExternalResolver), schemaHooks.resolveResult(channelResolver)]
@@ -170,8 +239,10 @@ export default {
     create: [
       () => schemaHooks.validateData(channelDataValidator),
       schemaHooks.resolveData(channelDataResolver),
-      setLoggedInUser('userId'),
-      iff(isProvider('external'), ensureUsersFriendWithOwner)
+      iff(isProvider('external'), ensureUsersFriendWithOwner),
+      checkExistingChannel,
+      // Below if is to check if existing channel was found or not
+      iff((context) => !context.dispatch, discardQuery('users'), setChannelName())
     ],
     update: [disallow('external')],
     patch: [
@@ -186,7 +257,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [createSelfOwner, createChannelUsers],
     update: [],
     patch: [],
     remove: []

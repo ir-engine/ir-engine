@@ -23,23 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
+import { HookContext, NextFunction } from '@feathersjs/feathers'
 
-import {
-  ChannelData,
-  ChannelPatch,
-  ChannelQuery,
-  ChannelType
-} from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { KnexService } from '@feathersjs/knex'
-import { RootParams } from '../../api/root-params'
+import { Application } from '../../declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ChannelParams extends RootParams<ChannelQuery> {}
+/**
+ * This hook is useful to persist actual params.data as actualData.
+ * There are scenarios where we want to remove properties from params.data,
+ * to be passed to native knex call. Having params.actualData is useful if
+ * we want to use actual data in after hook or around hook after next() call.
+ */
+export default async (context: HookContext<Application>, next: NextFunction) => {
+  context.params.actualData = context.params.data ? JSON.parse(JSON.stringify(context.params.data)) : {}
 
-export class ChannelService<T = ChannelType, ServiceParams extends Params = ChannelParams> extends KnexService<
-  ChannelType,
-  ChannelData,
-  ChannelParams,
-  ChannelPatch
-> {}
+  return next()
+}
