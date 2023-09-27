@@ -60,6 +60,8 @@ import {
 } from 'three'
 import { WorkerPool } from './WorkerPool'
 
+import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
+
 const KTX2TransferSRGB = 2
 const KTX2_ALPHA_PREMULTIPLIED = 1
 const _taskCache = new WeakMap()
@@ -189,7 +191,7 @@ class KTX2Loader extends Loader {
   }
 
   load(url, onLoad, onProgress, onError) {
-    if (this.workerConfig === null) {
+    if (isClient && this.workerConfig === null) {
       throw new Error('THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.')
     }
 

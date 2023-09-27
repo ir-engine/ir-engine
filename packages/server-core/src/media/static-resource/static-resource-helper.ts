@@ -113,13 +113,20 @@ const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/proj
 export const isAssetFromProject = (url: string, project: string) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
-  return url.includes(storageProviderPath) || url.includes(path.join(absoluteProjectPath, project))
+  const originPath = path.join(storageProvider.originURLs[0], 'projects/', project)
+  return (
+    url.includes(storageProviderPath) ||
+    url.includes(originPath) ||
+    url.includes(path.join(absoluteProjectPath, project))
+  )
 }
 
 export const getKeyForAsset = (url: string, project: string, isFromProject: boolean) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = 'https://' + path.join(storageProvider.cacheDomain, 'projects/', project)
+  const originPath = 'https://' + path.join(storageProvider.originURLs[0], 'projects/', project)
   const projectPath = url
+    .replace(originPath, '')
     .replace(storageProviderPath, '')
     .replace(path.join(absoluteProjectPath, project), '')
     .split('/')
@@ -282,6 +289,7 @@ export const getImageStats = async (
 ): Promise<{ width: number; height: number }> => {
   if (mimeType === 'image/ktx2') {
     const loader = new KTX2Loader()
+    loader.setTranscoderPath(config.client.dist + '/loader_decoders/basis/')
     return new Promise<{ width: number; height: number }>((resolve, reject) => {
       if (typeof file === 'string') {
         loader.load(

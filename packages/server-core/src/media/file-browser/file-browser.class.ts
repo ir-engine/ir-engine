@@ -208,7 +208,10 @@ export class FileBrowserService
     const storageProvider = getStorageProvider(storageProviderName)
     const name = processFileName(data.fileName)
 
-    const key = path.join(data.path[0] === '/' ? data.path.substring(1) : data.path, name)
+    const reducedPath = data.path[0] === '/' ? data.path.substring(1) : data.path
+    const reducedPathSplit = reducedPath.split('/')
+    const project = reducedPathSplit.length > 0 && reducedPathSplit[0] === 'projects' ? reducedPathSplit[1] : undefined
+    const key = path.join(reducedPath, name)
 
     await storageProvider.putObject(
       {
@@ -225,16 +228,34 @@ export class FileBrowserService
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
     const url = getCachedURL(key, cacheDomain)
 
-    await this.app.service(staticResourcePath).create(
-      {
+    const existingResource = (await this.app.service(staticResourcePath).find({
+      query: {
         hash,
-        key,
-        url,
-        mimeType: data.contentType
-      },
-      { isInternal: true }
-    )
-    await storageProvider.createInvalidation([key])
+        project,
+        mimeType: data.contentType,
+        $limit: 1
+      }
+    })) as Paginated<StaticResourceType>
+
+    if (existingResource.data.length > 0) {
+      const resource = existingResource.data[0]
+      await this.app.service(staticResourcePath).patch(resource.id, {
+        url
+      })
+      await storageProvider.createInvalidation([key])
+    } else {
+      await this.app.service(staticResourcePath).create(
+        {
+          hash,
+          key,
+          url,
+          project,
+          mimeType: data.contentType
+        },
+        { isInternal: true }
+      )
+      await storageProvider.createInvalidation([key])
+    }
 
     const filePath = path.join(projectsRootFolder, key)
     const parentDirPath = path.dirname(filePath)
