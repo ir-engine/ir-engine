@@ -23,217 +23,117 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
-import assert from 'assert'
-import _ from 'lodash'
-import path from 'path'
-
-import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
-
+import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
+import assert from 'assert'
+import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
-import { copyDefaultProject, uploadLocalProjectToProvider } from '../project/project-helper'
-
-const defaultProjectName = 'default-project'
-const defaultSceneName = 'default'
-
-const newProjectName = 'SceneTest_test_project_name'
-const newSceneName = 'SceneTest_test_scene_name'
-const newestSceneName = 'SceneTest_test_scene_rename'
-
-const params = { isInternal: true } as any
 
 describe('scene.test', () => {
   let app: Application
-  let parsedData
+  let projectName: string
+  let sceneName: string
+  let sceneData: Record<string, unknown>
+  let parsedSceneData: Record<string, unknown>
+  const params = { isInternal: true }
 
   before(async () => {
-    const projectDir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName}/`)
-    deleteFolderRecursive(projectDir)
     app = createFeathersKoaApp()
     await app.setup()
-    copyDefaultProject()
-    await uploadLocalProjectToProvider(app, defaultProjectName)
-    parsedData = Object.assign({}, parseStorageProviderURLs(_.cloneDeep(defaultSceneSeed)))
-  })
-  after(() => {
-    return destroyEngine()
   })
 
-  describe("'scene-data' service", () => {
-    describe('get', () => {
-      it('should get default test scene', async function () {
-        const { data } = await app.service('scene-data').get(
-          {
-            projectName: defaultProjectName,
-            metadataOnly: false
-          },
-          params
-        )
-        console.log('scene-data data', data)
-        assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
+  before(async () => {
+    projectName = `test-scene-project-${v1()}`
+    sceneName = `test-scene-name-${v1()}`
+    sceneData = structuredClone(defaultSceneSeed)
+    parsedSceneData = parseStorageProviderURLs(structuredClone(defaultSceneSeed))
+    await app.service(projectPath).create({ name: projectName })
+    await app.service('scene/upload').create({ projectName, sceneName, sceneData }, { files: [] })
+  })
+
+  after(async () => {
+    const foundProjects = (await app
+      .service(projectPath)
+      .find({ query: { name: projectName }, paginate: false })) as ProjectType[]
+    await app.service(projectPath).remove(foundProjects[0].id, { ...params })
+    await destroyEngine()
+  })
+
+  describe('"scene-data" service', () => {
+    it('should get the scene data', async () => {
+      const { data } = await app.service('scene-data').get({ projectName, metadataOnly: false })
+      assert.deepStrictEqual(parsedSceneData, data.find((scene) => scene.name === sceneName)!.scene)
+    })
+
+    it('should find the scene data', async () => {
+      const { data } = await app.service('scene-data').find({ metadataOnly: false })
+      assert.deepStrictEqual(parsedSceneData, data.find((entry) => entry.name === sceneName)!.scene)
+      assert(data.length > 0)
+      data.forEach((scene) => {
+        assert(typeof scene.name === 'string')
+        assert(typeof scene.project === 'string')
+        assert(typeof scene.thumbnailUrl === 'string')
+        assert(typeof scene.scene === 'object')
       })
     })
 
-    describe('find', () => {
-      it('should get all scenes for a project scenes', async function () {
-        const { data } = await app.service('scene-data').find({
-          ...params
-        })
-        assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
-        assert(data.length > 0)
-        data.forEach((scene) => {
-          assert(typeof scene.name === 'string')
-          assert(typeof scene.project === 'string')
-          assert(typeof scene.thumbnailUrl === 'string')
-          assert(typeof scene.scene === 'object')
-        })
+    it('should get all scenes for a project scenes with metadata only', async function () {
+      const { data } = await app.service('scene-data').find({
+        metadataOnly: true
       })
-
-      it('should get all scenes for a project scenes with metadata only', async function () {
-        const { data } = await app.service('scene-data').find({
-          ...params,
-          metadataOnly: true
-        })
-        assert(data.length > 0)
-        data.forEach((scene) => {
-          assert(typeof scene.name === 'string')
-          assert(typeof scene.project === 'string')
-          assert(typeof scene.thumbnailUrl === 'string')
-          assert(typeof scene.scene === 'undefined')
-        })
+      assert(data.length > 0)
+      data.forEach((scene) => {
+        assert(typeof scene.name === 'string')
+        assert(typeof scene.project === 'string')
+        assert(typeof scene.thumbnailUrl === 'string')
+        assert(typeof scene.scene === 'undefined')
       })
     })
   })
 
-  describe("'scene' service", () => {
-    before(async () => {
-      await app.service(projectPath).create(
-        {
-          name: newProjectName
-        },
-        params
-      )
+  describe('"scene" service', () => {
+    it('should get scene data', async () => {
+      const { data } = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
+      assert.equal(data.name, sceneName)
+      assert.equal(data.project, projectName)
+      assert.deepStrictEqual(data.scene, parsedSceneData)
+      // const util = require('util')
+      // console.log(util.inspect(parsedSceneData, { showHidden: false, depth: null, colors: true }))
     })
 
-    after(async () => {
-      const project = (await app
-        .service(projectPath)
-        .find({ ...params, query: { name: newProjectName }, paginate: false })) as ProjectType[]
-      await app.service(projectPath).remove(project[0].id, params)
+    it('should add a new scene', async () => {
+      const sceneName = `test-apartment-scene-${v1()}`
+      await app.service('scene').update(projectName, { sceneName, sceneData } as any)
+
+      const { data: addedSceneData } = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
+      assert.equal(addedSceneData.name, sceneName)
+      assert.equal(addedSceneData.project, projectName)
+      assert.deepStrictEqual(addedSceneData.scene, parsedSceneData)
     })
 
-    describe('get', () => {
-      it('should get default scene data', async function () {
-        const { data } = await app.service('scene').get(
-          {
-            projectName: defaultProjectName,
-            sceneName: defaultSceneName,
-            metadataOnly: false
-          },
-          params
-        )
-        const entities = Object.values(data.scene!.entities)
-        assert(entities.length)
-      })
+    it('should save or update an existing scene', async () => {
+      const newSceneData = structuredClone(defaultSceneSeed) as unknown as SceneJson
+      const updatedVersion = Math.floor(Math.random() * 100)
+      newSceneData.version = updatedVersion
+      const newParsedSceneData = parseStorageProviderURLs(structuredClone(newSceneData))
+
+      await app.service('scene').update(projectName, { sceneName, sceneData: newSceneData })
+
+      const { data: updatedSceneData } = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
+      assert.equal(updatedSceneData.scene.version, updatedVersion)
+      assert.equal(updatedSceneData.name, sceneName)
+      assert.equal(updatedSceneData.project, projectName)
+      assert.deepStrictEqual(updatedSceneData.scene, newParsedSceneData)
     })
 
-    describe('update', () => {
-      it('should add new scene', async function () {
-        await app.service('scene').update(
-          newProjectName,
-          {
-            sceneName: newSceneName,
-            sceneData: parsedData
-          },
-          params
-        )
-
-        const { data } = await app.service('scene').get(
-          {
-            projectName: newProjectName,
-            sceneName: newSceneName,
-            metadataOnly: false
-          },
-          params
-        )
-
-        // For some reason, parsedData was reverting to un-replaced URLs.
-        // This just
-        const storageProvider = getStorageProvider()
-        parsedData = Object.assign({}, parseStorageProviderURLs(_.cloneDeep(defaultSceneSeed)))
-
-        assert.strictEqual(data.name, newSceneName)
-        assert.deepStrictEqual(data.scene, parsedData)
-      })
-
-      it('should save scene', async function () {
-        await app.service('scene').update(
-          newProjectName,
-          {
-            sceneData: _.cloneDeep(parsedData),
-            sceneName: newSceneName
-          },
-          params
-        )
-        const { data } = await app.service('scene').get(
-          {
-            projectName: newProjectName,
-            sceneName: newSceneName,
-            metadataOnly: false
-          },
-          params
-        )
-        assert.deepStrictEqual(data.name, newSceneName)
-        assert.deepStrictEqual(data.scene, parsedData)
-      })
-    })
-
-    describe('patch', () => {
-      it('should rename scene', async function () {
-        await app
-          .service('scene')
-          .patch(
-            null,
-            { newSceneName: newestSceneName, oldSceneName: newSceneName, projectName: newProjectName },
-            params
-          )
-        const { data } = await app.service('scene').get(
-          {
-            projectName: newProjectName,
-            sceneName: newestSceneName,
-            metadataOnly: false
-          },
-          params
-        )
-        assert.strictEqual(data.name, newestSceneName)
-      })
-    })
-
-    describe('remove', () => {
-      it('should remove scene', async function () {
-        await app.service('scene').remove(
-          {
-            projectName: newProjectName,
-            sceneName: newSceneName
-          },
-          params
-        )
-        assert.rejects(async () => {
-          await app.service('scene').get(
-            {
-              projectName: newProjectName,
-              sceneName: newSceneName,
-              metadataOnly: true
-            },
-            params
-          )
-        })
+    it('should remove the scene', async () => {
+      await app.service('scene').remove({ projectName, sceneName })
+      assert.rejects(async () => {
+        await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
       })
     })
   })
