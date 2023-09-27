@@ -72,7 +72,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   }
 
   const reset = () => {
-    media.reset.set(true)
+    media.seekTime.set(0.001) //safer to set to positive value
   }
 
   return (

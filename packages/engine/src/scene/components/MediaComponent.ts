@@ -138,7 +138,7 @@ export const MediaComponent = defineComponent({
       paths: [] as string[],
       // runtime props
       paused: true,
-      reset: false,
+      seekTime: -1,
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
@@ -167,7 +167,7 @@ export const MediaComponent = defineComponent({
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
       isMusic: component.isMusic.value,
-      reset: false // let it always be false when saving, this allows set using SetComponent
+      seekTime: component.seekTime.value // we can start media from a specific point if needed
     }
   },
 
@@ -220,7 +220,7 @@ export const MediaComponent = defineComponent({
 
       // @ts-ignore deprecated autoplay field
       if (typeof json.paused === 'boolean') component.autoplay.set(!json.paused)
-      if (typeof json.reset === 'boolean') component.reset.set(json.reset)
+      if (typeof json.seekTime === 'number') component.seekTime.set(json.seekTime)
 
       if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
     })
@@ -296,13 +296,15 @@ export function MediaReactor() {
   )
 
   useEffect(
-    function updateReset() {
-      if (!mediaElement || !media.reset.value) return
-      mediaElement.element.value.load() // reset and stop playing
-      mediaElement.element.value.play() // start play again
-      media.reset.set(false)
+    function updateSeekTime() {
+      console.log('DEBUG Triggred seek')
+      if (!mediaElement || media.seekTime.value < 0 || mediaElement.element.value.currentTime === media.seekTime.value)
+        return
+      mediaElement.element.value.currentTime = media.seekTime.value // set time and stop playing
+      media.paused.value ? media.paused.set(false) : mediaElement.element.value.play() // start play again
+      media.seekTime.set(-1)
     },
-    [media.reset, mediaElement]
+    [media.seekTime, mediaElement]
   )
 
   useEffect(
