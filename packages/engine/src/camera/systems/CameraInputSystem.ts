@@ -243,12 +243,12 @@ const execute = () => {
         0.1
       )
     }
-    if (keys.PrimaryClick?.down && !capturedInputSource) {
+    if (keys.PrimaryClick?.pressed) {
       setTimeout(() => {
         InputSourceComponent.captureButtons(cameraEntity)
         capturedInputSource = InputSourceEntity
       }, 250)
-    } else if (capturedInputSource && keys.PrimaryClick?.up) {
+    } else {
       InputSourceComponent.releaseButtons()
       capturedInputSource = undefined
     }
