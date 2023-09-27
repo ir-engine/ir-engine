@@ -30,6 +30,7 @@ import {
   AnimationMixer,
   Bone,
   Box3,
+  EquirectangularReflectionMapping,
   Group,
   Object3D,
   ShaderMaterial,
@@ -47,6 +48,7 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
+  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -54,7 +56,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
@@ -64,6 +66,8 @@ import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
+import { updateEnvMap } from '../../scene/components/EnvmapComponent'
 import avatarBoneMatching, {
   BoneNames,
   findSkinnedMeshes,
@@ -157,6 +161,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   rigAvatarModel(entity)(model)
   addObjectToGroup(entity, model.scene)
+
   iterateObject3D(model.scene, (obj) => {
     obj && (obj.frustumCulled = false)
   })
@@ -166,7 +171,24 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   createIKAnimator(entity)
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
+  setupAvatarEnvmaps(entity, model.scene)
   avatar.model = model.scene
+}
+
+const setupAvatarEnvmaps = (entity: Entity, model: Object3D) => {
+  //query all envmap bake components and get the url from the first one
+  const envmapBakes = defineQuery([EnvMapBakeComponent])
+  const envmapBake = getComponent(envmapBakes()[0], EnvMapBakeComponent)
+  console.log(envmapBake)
+  AssetLoader.loadAsync(envmapBake.envMapOrigin, {}).then((texture) => {
+    if (texture) {
+      console.log(texture)
+      texture.mapping = EquirectangularReflectionMapping
+      console.log(getComponent(entity, GroupComponent))
+
+      updateEnvMap(getComponent(entity, GroupComponent), texture)
+    }
+  })
 }
 
 export const createIKAnimator = async (entity: Entity) => {

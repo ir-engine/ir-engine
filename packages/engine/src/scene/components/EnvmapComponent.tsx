@@ -194,7 +194,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   return null
 }
 
-function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
+export function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
   if (!obj3ds?.length) return
 
   for (const obj of obj3ds) {
