@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 
@@ -52,6 +52,6 @@ export const useServerInfoFind = () => {
 
   return {
     ...serverInfoQuery,
-    data: serverInfo.value
+    data: serverInfo.get(NO_PROXY)
   }
 }
