@@ -31,6 +31,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 import collectAnalytics from './collect-analytics'
+import collectEvents from './collect-events'
 
 const logger = multiLogger.child({ component: 'taskserver' })
 
@@ -47,6 +48,7 @@ export const start = async (): Promise<Application> => {
   app.set('port', config.server.port)
 
   collectAnalytics(app)
+  collectEvents(app)
   logger.info('Task server running.')
 
   const port = Number(config.taskserver.port) || 5050
