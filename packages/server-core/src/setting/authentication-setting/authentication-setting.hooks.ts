@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import {
   authenticationSettingDataValidator,
   authenticationSettingPatchValidator,
-  authenticationSettingPath,
   authenticationSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
@@ -78,7 +77,7 @@ const findActionHook = async (context: HookContext) => {
 }
 
 const beforePatchActionHook = async (context: HookContext) => {
-  const authSettings = await context.app.service(authenticationSettingPath).get(context.id!)
+  const authSettings = await context.service.get(context.id!)
 
   if (typeof context.data.oauth === 'string') {
     context.data.oauth = JSON.parse(context.data.oauth)

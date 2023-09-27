@@ -45,7 +45,7 @@ export const botResolver = resolve<BotType, HookContext>({})
 export const botExternalResolver = resolve<BotType, HookContext>({
   location: virtual(async (bot, context) => {
     if (bot.locationId) {
-      const location = await context.app.service(locationPath)._get(bot.locationId)
+      const location = await context.app.service(locationPath).get(bot.locationId)
       return location
     }
   }),

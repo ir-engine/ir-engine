@@ -28,7 +28,6 @@ import { disallow } from 'feathers-hooks-common'
 import {
   staticResourceDataValidator,
   staticResourcePatchValidator,
-  staticResourcePath,
   staticResourceQueryValidator
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
@@ -52,7 +51,7 @@ const createActionHook = async (context: HookContext) => {
 }
 
 const removeActionHook = async (context: HookContext) => {
-  const resource = await context.app.service(staticResourcePath).get(context.id!)
+  const resource = await context.service.get(context.id!)
 
   if (!resource) {
     throw new NotFound('Unable to find specified resource id.')

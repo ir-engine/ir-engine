@@ -31,12 +31,27 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import authenticate from '../../hooks/authenticate'
 
 import {
+  LocationDatabaseType,
+  LocationType,
   locationDataValidator,
   locationPatchValidator,
+  locationPath,
   locationQueryValidator
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import {
+  LocationAuthorizedUserType,
+  locationAuthorizedUserPath
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import {
+  LocationSettingType,
+  locationSettingPath
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { HookContext, NextFunction } from '@feathersjs/feathers'
+import { Knex } from 'knex'
+import slugify from 'slugify'
+import logger from '../../ServerLogger'
 import { locationSettingSorts } from './location.class'
 import {
   locationDataResolver,
@@ -87,6 +102,189 @@ const applyLocationSettingSort = async (context: HookContext, next: NextFunction
   }
 }
 
+const makeLobby = async (trx: Knex.Transaction, selfUser: any) => {
+  if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
+    throw new Error('Only Admin can set Lobby')
+  }
+
+  await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
+}
+
+const findActionHook = async (context: HookContext) => {
+  const { adminnedLocations, search } = context.params?.query || {}
+
+  if (adminnedLocations && search) {
+    context.params.query = {
+      ...context.params?.query,
+      $or: [
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          sceneId: {
+            $like: `%${search}%`
+          }
+        }
+      ]
+    }
+  }
+
+  const paramsWithoutExtras = {
+    ...context.params,
+    // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+    query: context.params.query ? JSON.parse(JSON.stringify(context.params.query)) : {}
+  }
+
+  // Remove extra params
+  if (paramsWithoutExtras.query?.adminnedLocations) delete paramsWithoutExtras.query.adminnedLocations
+  if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
+    delete paramsWithoutExtras.query.search
+
+  // Remove location setting sorts
+  if (paramsWithoutExtras.query?.$sort) {
+    for (const sort of locationSettingSorts) {
+      const hasLocationSettingSort = Object.keys(paramsWithoutExtras.query.$sort).find((item) => item === sort)
+
+      if (hasLocationSettingSort) {
+        delete paramsWithoutExtras.query.$sort[sort]
+      }
+    }
+  }
+  context.params = paramsWithoutExtras
+}
+
+const createActionHook = async (context: HookContext) => {
+  const trx = await (context.app.get('knexClient') as Knex).transaction()
+
+  try {
+    const selfUser = context.params?.user
+
+    if (context.data.isLobby) {
+      await makeLobby(trx, selfUser)
+    }
+
+    context.data.slugifiedName = slugify(context.data.name, { lower: true })
+
+    const insertData = JSON.parse(JSON.stringify(context.data))
+    delete insertData.locationSetting
+    delete insertData.locationAdmin
+
+    await trx.from<LocationDatabaseType>(locationPath).insert(insertData)
+
+    await trx.from<LocationSettingType>(locationSettingPath).insert({
+      ...context.data.locationSetting,
+      locationId: (context.data as LocationType).id
+    })
+
+    if ((context.data as LocationType).locationAdmin) {
+      await trx.from<LocationAdminType>(locationAdminPath).insert({
+        ...(context.data as LocationType).locationAdmin,
+        userId: selfUser?.id,
+        locationId: (context.data as LocationType).id
+      })
+
+      await trx.from<LocationAuthorizedUserType>(locationAuthorizedUserPath).insert({
+        ...(context.data as LocationType).locationAdmin,
+        userId: selfUser?.id,
+        locationId: (context.data as LocationType).id
+      })
+    }
+
+    await trx.commit()
+
+    context.result = await context.service.get((context.data as LocationType).id)
+  } catch (err) {
+    logger.error(err)
+    await trx.rollback()
+    if (err.code === 'ER_DUP_ENTRY') {
+      throw new Error('Name is in use.')
+    }
+    throw err
+  }
+}
+
+const patchActionHook = async (context: HookContext) => {
+  const trx = await (context.app.get('knexClient') as Knex).transaction()
+  try {
+    const selfUser = context.params?.user
+
+    const oldLocation = await context.service.get(context.id)
+
+    if (!oldLocation.isLobby && context.data.isLobby) {
+      await makeLobby(trx, selfUser)
+    }
+
+    if (context.data.name) {
+      context.data.slugifiedName = slugify(context.data.name, { lower: true })
+    }
+
+    const updateData = JSON.parse(JSON.stringify(context.data))
+    delete updateData.locationSetting
+
+    await trx
+      .from<LocationDatabaseType>(locationPath)
+      .update(updateData)
+      .where({ id: context.id?.toString() })
+
+    if (context.data.locationSetting) {
+      await trx
+        .from<LocationSettingType>(locationSettingPath)
+        .update({
+          videoEnabled: context.data.locationSetting.videoEnabled,
+          audioEnabled: context.data.locationSetting.audioEnabled,
+          faceStreamingEnabled: context.data.locationSetting.faceStreamingEnabled,
+          screenSharingEnabled: context.data.locationSetting.screenSharingEnabled,
+          locationType: context.data.locationSetting.locationType || 'private'
+        })
+        .where({ id: oldLocation.locationSetting.id })
+    }
+
+    await trx.commit()
+
+    context.result = await context.service.get(context.id)
+  } catch (err) {
+    logger.error(err)
+    await trx.rollback()
+    if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
+      throw new Error('That name is already in use')
+    }
+    throw err
+  }
+}
+
+const removeActionHook = async (context: HookContext) => {
+  if (context.id) {
+    const location = await context.service.get(context.id)
+
+    if (location && location.isLobby) {
+      throw new Error("Lobby can't be deleted")
+    }
+
+    const selfUser = context.params!.user
+    if (location.locationSetting) await context.app.service(locationSettingPath).remove(location.locationSetting.id)
+
+    try {
+      // const admins = await this.app.service(locationAdminPath)._find(null, {
+      //   query: {
+      //     locationId: id,
+      //     userId: selfUser?.id ?? null
+      //   }
+      // })
+
+      await context.app.service(locationAdminPath).remove(null, {
+        query: {
+          locationId: context.id.toString(),
+          userId: selfUser?.id
+        }
+      })
+    } catch (err) {
+      logger.error(err, `Could not remove location-admin: ${err.message}`)
+    }
+  }
+}
+
 export default {
   around: {
     all: [
@@ -102,20 +300,22 @@ export default {
       () => schemaHooks.validateQuery(locationQueryValidator),
       schemaHooks.resolveQuery(locationQueryResolver)
     ],
-    find: [],
+    find: [findActionHook],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationDataValidator),
-      schemaHooks.resolveData(locationDataResolver)
+      schemaHooks.resolveData(locationDataResolver),
+      createActionHook
     ],
     update: [iff(isProvider('external'), verifyScope('location', 'write'))],
     patch: [
       iff(isProvider('external'), verifyScope('location', 'write')),
       () => schemaHooks.validateData(locationPatchValidator),
-      schemaHooks.resolveData(locationPatchResolver)
+      schemaHooks.resolveData(locationPatchResolver),
+      patchActionHook
     ],
-    remove: [iff(isProvider('external'), verifyScope('location', 'write'))]
+    remove: [iff(isProvider('external'), verifyScope('location', 'write')), removeActionHook]
   },
 
   after: {
