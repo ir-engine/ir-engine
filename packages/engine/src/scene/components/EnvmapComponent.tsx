@@ -168,7 +168,7 @@ export const EnvmapComponent = defineComponent({
     useEffect(() => {
       if (!component.envmap.value) return
       updateEnvMap(group.value, component.envmap.value)
-    }, [group.length, component.envmap])
+    }, [group, component.envmap])
 
     useEffect(() => {
       const envmap = component.envmap.value
@@ -213,8 +213,6 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
 }
 
 function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
-  if (!obj3ds?.length) return
-
   for (const obj of obj3ds) {
     if (obj instanceof Scene) {
       obj.environment = envmap
