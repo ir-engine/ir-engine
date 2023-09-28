@@ -229,7 +229,7 @@ export default {
     all: [authenticate()],
     find: [
       enableClientPagination(),
-      verifyUserId(),
+      iff(isProvider('external'), verifyUserId()),
       iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('admin', 'admin'), handleChannelInstance)),
       discardQuery('action')
     ],

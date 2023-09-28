@@ -54,7 +54,7 @@ export const channelExternalResolver = resolve<ChannelType, HookContext>({
     }
   }),
   messages: virtual(async (channel, context) => {
-    if (context.method === 'find') {
+    if (context.method === 'find' && context.params.user) {
       const loggedInUser = context.params.user as UserType
 
       const messages = (await context.app.service(messagePath).find({
