@@ -228,13 +228,14 @@ export class FileBrowserService
     const cacheDomain = getCacheDomain(storageProvider, params && params.provider == null)
     const url = getCachedURL(key, cacheDomain)
 
+    const query = {
+      hash,
+      mimeType: data.contentType,
+      $limit: 1
+    } as any
+    if (project) query.project = project
     const existingResource = (await this.app.service(staticResourcePath).find({
-      query: {
-        hash,
-        project,
-        mimeType: data.contentType,
-        $limit: 1
-      }
+      query
     })) as Paginated<StaticResourceType>
 
     if (existingResource.data.length > 0) {
