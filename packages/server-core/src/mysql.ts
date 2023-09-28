@@ -62,6 +62,12 @@ export default (app: Application): void => {
 
     const oldTeardown = app.teardown
 
+    let promiseResolve, promiseReject
+    app.isSetup = new Promise((resolve, reject) => {
+      promiseResolve = resolve
+      promiseReject = reject
+    })
+
     app.teardown = async function (...args) {
       try {
         await db.destroy()
@@ -69,6 +75,7 @@ export default (app: Application): void => {
       } catch (err) {
         logger.error('Knex teardown error')
         logger.error(err)
+        promiseReject()
         throw err
       }
       return oldTeardown.apply(this, args)
@@ -87,13 +94,16 @@ export default (app: Application): void => {
         } catch (err) {
           logger.error('Feathers seeding error')
           logger.error(err)
+          promiseReject()
           throw err
         }
 
+        promiseResolve()
         if ((prepareDb || forceRefresh) && (isDev || process.env.EXIT_ON_DB_INIT === 'true')) process.exit(0)
       } catch (err) {
         logger.error('Knex setup error')
         logger.error(err)
+        promiseReject()
         throw err
       }
 
