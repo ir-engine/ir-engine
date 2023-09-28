@@ -32,11 +32,17 @@ import { Application } from '../../declarations'
  */
 export default () => {
   return async (context: HookContext<Application>) => {
-    if (context.params.query && context.params.query.$paginate) {
-      context.params.paginate = context.params.query.$paginate === 'false' || context.params.query.$paginate === false
+    if (
+      context.params.query &&
+      (context.params.query.$paginate === 'false' || context.params.query.$paginate === false)
+    ) {
+      context.params.paginate = false
       delete context.params.query.$paginate
-    } else if (context.params.query && context.params.query.paginate) {
-      context.params.paginate = context.params.query.paginate === 'false' || context.params.query.paginate === false
+    } else if (
+      context.params.query &&
+      (context.params.query.paginate === 'false' || context.params.query.paginate === false)
+    ) {
+      context.params.paginate = false
       delete context.params.query.paginate
     }
 
