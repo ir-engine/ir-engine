@@ -300,7 +300,7 @@ export function MediaReactor() {
       console.log('DEBUG Triggred seek')
       if (!mediaElement || media.seekTime.value < 0 || mediaElement.element.value.currentTime === media.seekTime.value)
         return
-      mediaElement.element.value.currentTime = media.seekTime.value // set time and stop playing
+      mediaElement.element.currentTime.set(media.seekTime.value) // set time and stop playing
       media.paused.value ? media.paused.set(false) : mediaElement.element.value.play() // start play again
       media.seekTime.set(-1)
     },
