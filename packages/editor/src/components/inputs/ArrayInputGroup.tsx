@@ -78,9 +78,6 @@ const ArrayInputGroup = ({
 }: ArrayInputGroupProp) => {
   let count = 0
   if (values && values.length) count = values.length
-
-  console.log('debug1 styles', styles, 'and', styles.sizeLabel)
-
   return (
     <InputGroup name="label" label={label} labelClasses={styles.sizeLabel}>
       <div className={styles.arrayInputGroupContent}>
