@@ -205,6 +205,8 @@ const execute = () => {
   footRaycastTimer += deltaSeconds
   updateAnimationGraph(avatarAnimationEntities)
 
+  console.log(getState(XRState).viewerPose)
+
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
@@ -412,16 +414,17 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const localAvatarScale = useHookstate(getMutableState(XRState).userAvatarHeightDifference)
-  const mode = useHookstate(getMutableState(XRState).sessionMode)
+  const heightDifference = useHookstate(getMutableState(XRState).userAvatarHeightDifference)
+  const xrState = getMutableState(XRState)
+  const mode = useHookstate(xrState.sessionMode)
+  const pose = useHookstate(xrState.viewerPose)
   useEffect(() => {
-    const xrState = getMutableState(XRState)
-    xrState.sceneScale.set(Math.max(localAvatarScale.value, 0.5))
+    if (heightDifference.value) xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
     xrState.avatarCameraMode.set('attached')
-  }, [localAvatarScale])
+  }, [heightDifference])
   useEffect(() => {
-    if (mode.value == 'immersive-vr') setTrackingSpace()
-  }, [mode])
+    if (mode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
+  }, [pose])
   const renderState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
     setVisualizers()
