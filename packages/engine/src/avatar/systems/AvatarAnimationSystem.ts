@@ -205,8 +205,6 @@ const execute = () => {
   footRaycastTimer += deltaSeconds
   updateAnimationGraph(avatarAnimationEntities)
 
-  console.log(getState(XRState).viewerPose)
-
   for (const entity of avatarAnimationEntities) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
