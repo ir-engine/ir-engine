@@ -36,7 +36,7 @@
     "dev-api-server": "ts-node --swc src/index.ts",
     "dev-api-server-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",
     "dev-nossl": "concurrently \"cross-env NOSSL=true ts-node --swc src/index.ts\" \"cd ../instanceserver && cross-env NOSSL=true ts-node --swc src/index.ts\"",
-    "dev-reinit-db": "cross-env FORCE_DB_REFRESH=true ts-node --swc src/index.ts && migrate:rollback && migrate",
+    "dev-reinit-db": "cross-env FORCE_DB_REFRESH=true ts-node --swc src/index.ts && npm run migrate:rollback && npm run migrate",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "validate": "npm run build && npm run test",
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=* --brotli --gzip"
