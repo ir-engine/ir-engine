@@ -35,7 +35,7 @@ import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
-import { Button } from '../inputs/Button'
+import { PropertiesPanelButton } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -69,6 +69,10 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
 
   const toggle = () => {
     media.paused.set(!media.paused.value)
+  }
+
+  const reset = () => {
+    media.seekTime.set(0.001) //safer to set to positive value
   }
 
   return (
@@ -134,12 +138,17 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           value={media.playMode.value}
           onChange={commitProperty(MediaComponent, 'playMode')}
         />
-        {media.resources.length > 0 && (
-          <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
-            {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
-          </Button>
-        )}
       </InputGroup>
+      {media.resources.length > 0 && (
+        <PropertiesPanelButton type="submit" onClick={toggle}>
+          {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
+        </PropertiesPanelButton>
+      )}
+      {media.resources.length > 0 && (
+        <PropertiesPanelButton type="submit" onClick={reset}>
+          {t('editor:properties.media.resettitle')}
+        </PropertiesPanelButton>
+      )}
     </NodeEditor>
   )
 }
