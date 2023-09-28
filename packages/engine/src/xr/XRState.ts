@@ -108,6 +108,10 @@ export class XRAction {
   })
 }
 
+/**
+ * Gets the camera mode - either 'attached' or 'detached'
+ * @returns the camera mode
+ */
 export const getCameraMode = () => {
   const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
   if (!session || scenePlacementMode === 'placing') return 'detached'
@@ -152,7 +156,7 @@ export const getPreferredInputSource = (offhand = false) => {
   }
 }
 
-const userAgent = 'navigator' in globalThis ? navigator.userAgent.toLowerCase() : ''
+const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
 
 /**
  * Wheter or not this is a mobile XR headset

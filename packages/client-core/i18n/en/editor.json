@@ -224,6 +224,7 @@
       "playmode": "Play Mode",
       "playtitle": "Play",
       "pausetitle": "Pause",
+      "resettitle": "Reset",
       "lbl-controls": "controls",
       "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Autoplay",

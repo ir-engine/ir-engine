@@ -23,35 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { sceneDataServiceSchema } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-
-import { PodsType, ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
-import { useEffect } from 'react'
-
-export const useServerInfoFind = () => {
-  const serverInfoQuery = useFind(podsPath)
-  const serverInfo = useHookstate([] as typeof serverInfoQuery.data)
-
-  useEffect(() => {
-    const allPods: ServerPodInfoType[] = []
-    for (const item of serverInfoQuery.data as PodsType[]) {
-      allPods.push(...item.pods)
-    }
-
-    serverInfo.set([
-      {
-        id: 'all',
-        label: 'All',
-        pods: allPods
-      },
-      ...serverInfoQuery.data
-    ])
-  }, [serverInfoQuery.data])
-
-  return {
-    ...serverInfoQuery,
-    data: serverInfo.get(NO_PROXY)
+export default createSwaggerServiceOptions({
+  schemas: { sceneDataServiceSchema },
+  docs: {
+    description: 'Scene data service description',
+    securities: ['all']
   }
-}
+})

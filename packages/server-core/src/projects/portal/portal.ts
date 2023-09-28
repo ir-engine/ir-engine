@@ -23,35 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
+import { portalMethods, portalPath } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { Application } from '../../../declarations'
+import { PortalService } from './portal.class'
+import portalDocs from './portal.docs'
+import hooks from './portal.hooks'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-
-import { PodsType, ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
-import { useEffect } from 'react'
-
-export const useServerInfoFind = () => {
-  const serverInfoQuery = useFind(podsPath)
-  const serverInfo = useHookstate([] as typeof serverInfoQuery.data)
-
-  useEffect(() => {
-    const allPods: ServerPodInfoType[] = []
-    for (const item of serverInfoQuery.data as PodsType[]) {
-      allPods.push(...item.pods)
-    }
-
-    serverInfo.set([
-      {
-        id: 'all',
-        label: 'All',
-        pods: allPods
-      },
-      ...serverInfoQuery.data
-    ])
-  }, [serverInfoQuery.data])
-
-  return {
-    ...serverInfoQuery,
-    data: serverInfo.get(NO_PROXY)
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [portalPath]: PortalService
   }
+}
+
+export default (app: Application): void => {
+  app.use(portalPath, new PortalService(app), {
+    // A list of all methods this service exposes externally
+    methods: portalMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: portalDocs
+  })
+
+  const service = app.service(portalPath)
+  service.hooks(hooks)
 }
