@@ -28,6 +28,6 @@ import { HookContext } from '@feathersjs/feathers'
 export default (...params: string[]) => {
   const args = Array.from(params)
   return (hook: HookContext): boolean => {
-    return hook.params && args.includes(hook.params.action)
+    return hook.params?.query && args.includes(hook.params.query.action)
   }
 }
