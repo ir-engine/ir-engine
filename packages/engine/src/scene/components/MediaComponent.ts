@@ -138,6 +138,7 @@ export const MediaComponent = defineComponent({
       // runtime props
       paused: true,
       ended: true,
+      seekTime: -1,
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
@@ -165,7 +166,8 @@ export const MediaComponent = defineComponent({
       volume: component.volume.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
-      isMusic: component.isMusic.value
+      isMusic: component.isMusic.value,
+      seekTime: component.seekTime.value // we can start media from a specific point if needed
     }
   },
 
@@ -218,6 +220,8 @@ export const MediaComponent = defineComponent({
 
       // @ts-ignore deprecated autoplay field
       if (typeof json.paused === 'boolean') component.autoplay.set(!json.paused)
+      if (typeof json.seekTime === 'number') component.seekTime.set(json.seekTime)
+
       if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
     })
   },
@@ -289,6 +293,18 @@ export function MediaReactor() {
       }
     },
     [media.paused, mediaElement]
+  )
+
+  useEffect(
+    function updateSeekTime() {
+      console.log('DEBUG Triggred seek')
+      if (!mediaElement || media.seekTime.value < 0 || mediaElement.element.value.currentTime === media.seekTime.value)
+        return
+      mediaElement.element.currentTime.set(media.seekTime.value) // set time and stop playing
+      media.paused.value ? media.paused.set(false) : mediaElement.element.value.play() // start play again
+      media.seekTime.set(-1)
+    },
+    [media.seekTime, mediaElement]
   )
 
   useEffect(
@@ -417,7 +433,7 @@ export function MediaReactor() {
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)
-
+      mediaElementState.element.value.crossOrigin = 'anonymous'
       if (isHLS(path)) {
         mediaElementState.hls.set(setupHLS(entity, path))
         mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)

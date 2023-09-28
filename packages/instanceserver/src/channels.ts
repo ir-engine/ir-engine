@@ -47,6 +47,7 @@ import {
   instancePath
 } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -267,14 +268,16 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     const [projectName, sceneName] = sceneId.split('/')
 
-    const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
+    const sceneResultPromise = app
+      .service(scenePath)
+      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
 
     startWorldServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await sceneResultPromise).data
+      const sceneData = await sceneResultPromise
       getMutableState(SceneState).sceneData.set(sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
@@ -291,7 +294,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
       const worldState = getMutableState(WorldState)
       if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
     }
-    app.service('scene').on('updated', sceneUpdatedListener)
+    app.service(scenePath).on('updated', sceneUpdatedListener)
     app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
