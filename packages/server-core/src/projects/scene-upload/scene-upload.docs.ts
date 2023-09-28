@@ -23,35 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  componentJsonSchema,
-  entityJsonSchema,
-  sceneCreateDataSchema,
-  sceneDataSchema,
-  sceneJsonSchema,
-  sceneMetadataCreateSchema,
-  sceneMetadataSchema,
-  scenePatchSchema,
-  sceneQuerySchema,
-  sceneUpdateSchema
-} from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 export default createSwaggerServiceOptions({
-  schemas: {
-    componentJsonSchema,
-    entityJsonSchema,
-    sceneJsonSchema,
-    sceneMetadataSchema,
-    sceneDataSchema,
-    sceneCreateDataSchema,
-    sceneMetadataCreateSchema,
-    sceneUpdateSchema,
-    scenePatchSchema,
-    sceneQuerySchema
-  },
+  schemas: {},
   docs: {
-    description: 'Scene service description',
+    description: 'Scene upload service description',
     securities: ['all']
   }
 })

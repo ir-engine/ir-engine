@@ -195,7 +195,7 @@ const EditorContainer = () => {
       const sceneData = await createNewScene(projectName.value)
       if (!sceneData) return
 
-      reRouteToLoadScene(sceneData.sceneName)
+      reRouteToLoadScene(sceneData.name)
     } catch (error) {
       logger.error(error)
     }
