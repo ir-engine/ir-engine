@@ -23,22 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
 import { default as multiLogger, default as serverLogger } from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import config from '@etherealengine/server-core/src/appconfig'
 
-const logger = multiLogger.child({ component: 'taskserver:collect-analytics' })
+const logger = multiLogger.child({ component: 'taskserver:collect-events' })
 
 const DEFAULT_INTERVAL_SECONDS = 1800
 const configInterval = parseInt(config.taskserver.processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
-const k8DefaultClient = getState(ServerState).k8DefaultClient
-
 export default (app): void => {
+  logger.info('started event logging.')
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
   setInterval(async () => {
-    logger.info('Collecting events at %s.', new Date().toString())
+    //logger.info('Collecting events at %s.', new Date().toString())
+    logger.info(k8DefaultClient)
 
     if (k8DefaultClient) {
       try {
