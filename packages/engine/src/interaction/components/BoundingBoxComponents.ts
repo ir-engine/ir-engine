@@ -24,14 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Box3Helper } from 'three'
+import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
+  getComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -43,7 +44,6 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { computeBoundingBox } from '../../transform/systems/TransformSystem'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
@@ -67,8 +67,6 @@ export const BoundingBoxComponent = defineComponent({
     const group = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      console.log('boundingBox', boundingBox.box.value, group?.length, debugEnabled.value)
-
       if (!group?.length) return
 
       computeBoundingBox(entity)
@@ -81,8 +79,6 @@ export const BoundingBoxComponent = defineComponent({
       const helper = new Box3Helper(boundingBox.box.value)
       helper.name = `bounding-box-helper-${entity}`
 
-      // setComponent(helperEntity, LocalTransformComponent)
-      // setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
       setComponent(helperEntity, VisibleComponent)
 
       setObjectLayers(helper, ObjectLayers.NodeHelper)
@@ -93,10 +89,73 @@ export const BoundingBoxComponent = defineComponent({
         removeEntity(helperEntity)
         boundingBox.helper.set(UndefinedEntity)
       }
-    }, [debugEnabled, group?.length])
+    }, [debugEnabled, group])
 
     return null
   }
 })
+
+export const updateBoundingBoxAndHelper = (entity: Entity) => {
+  updateBoundingBox(entity)
+
+  const debugEnabled = getState(RendererState).nodeHelperVisibility
+  if (!debugEnabled) return
+
+  const boundingBox = getComponent(entity, BoundingBoxComponent)
+  const helperEntity = boundingBox.helper
+  const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
+  if (!helperObject) return
+
+  helperObject.box.copy(boundingBox.box)
+  helperObject.updateMatrixWorld(true)
+}
+
+export const computeBoundingBox = (entity: Entity) => {
+  const box = getComponent(entity, BoundingBoxComponent).box
+  const group = getComponent(entity, GroupComponent)
+
+  box.makeEmpty()
+
+  for (const obj of group) {
+    obj.traverse(traverseComputeBoundingBox)
+    box.expandByObject(obj, true)
+  }
+}
+
+export const updateBoundingBox = (entity: Entity) => {
+  const box = getComponent(entity, BoundingBoxComponent).box
+  const group = getComponent(entity, GroupComponent) as any as Mesh<BufferGeometry>[]
+  box.makeEmpty()
+  for (const obj of group) expandBoxByObject(obj, box, 0)
+}
+
+const traverseComputeBoundingBox = (mesh: Mesh) => {
+  if (mesh.isMesh) {
+    if (mesh.geometry.attributes.position.array.length < 3) return //console.warn('Empty mesh geometry', mesh)
+    mesh.geometry.computeBoundingBox()
+  }
+}
+
+const _box = new Box3()
+
+const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3, layer: number) => {
+  const geometry = object.geometry
+
+  if (geometry) {
+    if (geometry.boundingBox === null) {
+      geometry.computeBoundingBox()
+    }
+
+    _box.copy(geometry.boundingBox!)
+    _box.applyMatrix4(object.matrixWorld)
+    box.union(_box)
+  }
+
+  const children = object.children as Mesh<BufferGeometry>[]
+
+  for (let i = 0, l = children.length; i < l; i++) {
+    expandBoxByObject(children[i], box, i)
+  }
+}
 
 export const BoundingBoxDynamicTag = defineComponent({ name: 'BoundingBoxDynamicTag' })
