@@ -74,7 +74,7 @@ export const uploadRecordingStaticResource = async (props: {
 
   const provider = getStorageProvider()
   const url = getCachedURL(props.key, provider.cacheDomain)
-  const hash = createStaticResourceHash(props.body, { assetURL: props.key })
+  const hash = createStaticResourceHash(props.body, { mimeType: props.mimeType, assetURL: props.key })
 
   const staticResource = await api.service(staticResourcePath).create(
     {

@@ -56,6 +56,7 @@ import {
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
+import { portalPath } from '../../schemas/projects/portal.schema'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { portalTriggerEnter } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -251,10 +252,10 @@ export const PortalComponent = defineComponent({
       } else {
         /** Portal is not in the scene yet */
         Engine.instance.api
-          .service('portal')
+          .service(portalPath)
           .get(portalComponent.linkedPortalId.value, { query: { locationName: portalComponent.location.value } })
           .then((data) => {
-            const portalDetails = data.data!
+            const portalDetails = data
             if (portalDetails) applyPortalDetails(portalDetails)
           })
           .catch((e) => {
