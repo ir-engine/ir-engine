@@ -40,10 +40,10 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { HookContext, Paginated } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { Knex } from 'knex'
-import { Application } from '../../../declarations'
+import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
@@ -89,7 +89,7 @@ const ensureUserHasChannelAccess = async (context: HookContext) => {
   if (!channelId) throw new BadRequest('Must pass id in request')
 
   const loggedInUser = context.params!.user
-  const channelUser = (await context.app.service(channelUserPath).find({
+  const channelUser = (await context.app.service(channelUserPath)._find({
     query: {
       channelId,
       userId: loggedInUser.id,
@@ -185,10 +185,8 @@ const checkExistingChannel = async (context: HookContext) => {
   return context
 }
 
-const setChannelName = () => {
-  return async (context: HookContext<Application>) => {
-    context.data.name = context.data.instanceId ? 'World ' + context.data.instanceId : context.data.name || ''
-  }
+const setChannelName = async (context: HookContext) => {
+  context.data.name = context.data.instanceId ? 'World ' + context.data.instanceId : context.data.name || ''
 }
 
 const createSelfOwner = async (context: HookContext) => {
@@ -205,7 +203,7 @@ const createSelfOwner = async (context: HookContext) => {
   return context
 }
 
-const createChannelUsers = async (context: HookContext) => {
+const createChannelUsers = async (context) => {
   /** @todo ensure all users specified are friends of loggedInUser */
 
   if (context.data.users) {
@@ -242,7 +240,7 @@ export default {
       iff(isProvider('external'), ensureUsersFriendWithOwner),
       checkExistingChannel,
       // Below if is to check if existing channel was found or not
-      iff((context) => !context.dispatch, discardQuery('users'), setChannelName())
+      iff((context) => !context.dispatch, discardQuery('users') as any, setChannelName)
     ],
     update: [disallow('external')],
     patch: [
