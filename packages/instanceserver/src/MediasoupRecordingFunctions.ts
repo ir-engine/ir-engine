@@ -287,9 +287,13 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     const format = recording.format === 'mp3' ? 'audio/opus' : recording.format === 'vp8' ? 'video/webm' : 'video/mp4'
     const ext = recording.format === 'mp3' ? 'mp3' : recording.format === 'vp8' ? 'webm' : 'mp4'
     const key = `recordings/${recordingID}/${recording.peerID}-${recording.mediaType}.${ext}`
-    const hash = createHash('sha3-256').update(key.split('/').pop()!.split('.')[0]).digest('hex')
+    const hash = createHash('sha3-256')
+      .update(stream.readableLength.toString())
+      .update(key.split('/').pop()!)
+      .update(format)
+      .digest('hex')
 
-    const upload = uploadMediaStaticResource({
+    return uploadMediaStaticResource({
       recordingID,
       key,
       body: stream,
@@ -298,9 +302,9 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     }).then(() => {
       logger.info('Uploaded media file' + key)
     })
-
-    return upload
   })
+
+  logger.info('media recording started')
 
   return {
     recordings,

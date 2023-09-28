@@ -33,11 +33,18 @@ import { defineAction, getMutableState, getState, State, useHookstate } from '@e
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
 import { SceneState } from '../ecs/classes/Scene'
-import { defineComponent, getComponent, useComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { GroupComponent, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
 /**
@@ -184,12 +191,11 @@ function PersistentAnchorReactor() {
     if (active) {
       /** remove from scene and add to world origins */
       const originalParent = getComponent(
-        getComponent(entity, LocalTransformComponent).parentEntity ?? getState(SceneState).sceneEntity,
+        getComponent(entity, EntityTreeComponent).parentEntity ?? getState(SceneState).sceneEntity,
         UUIDComponent
       )
       originalParentEntityUUID.set(originalParent)
-      const localTransform = getComponent(entity, LocalTransformComponent)
-      localTransform.parentEntity = Engine.instance.originEntity
+      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       TransformComponent.dirtyTransforms[entity] = true
 
       const wireframe = anchor.wireframe.value
@@ -197,8 +203,7 @@ function PersistentAnchorReactor() {
     } else {
       /** add back to the scene */
       const originalParent = UUIDComponent.entitiesByUUID[originalParentEntityUUID.value]
-      const localTransform = getComponent(entity, LocalTransformComponent)
-      localTransform.parentEntity = originalParent
+      setComponent(entity, EntityTreeComponent, { parentEntity: originalParent })
       TransformComponent.dirtyTransforms[entity] = true
 
       anchorMeshLost(group, meshes)

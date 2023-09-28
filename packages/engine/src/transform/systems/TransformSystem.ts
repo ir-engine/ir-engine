@@ -37,6 +37,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
@@ -180,8 +181,9 @@ const updateTransformFromLocalTransform = (entity: Entity) => {
     hasComponent(entity, RigidBodyDynamicTagComponent) ||
     hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) ||
     hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
-  const parentTransform = localTransform?.parentEntity
-    ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
+  const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+  const parentTransform = entityTree?.parentEntity
+    ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
     : undefined
   if (!localTransform || !parentTransform || isRigidbody) return false
   const transform = getComponent(entity, TransformComponent)
@@ -220,7 +222,7 @@ const originChildEntities = new Set<Entity>()
 /** get list of entities that are children of the world origin */
 const updateOriginChildEntities = (entity: Entity) => {
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
-  const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
   if (referenceEntity && (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.originEntity))
     originChildEntities.add(referenceEntity)
@@ -234,7 +236,7 @@ const updateTransformDepth = (entity: Entity) => {
   if (transformDepths.has(entity)) return transformDepths.get(entity)
 
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
-  const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
   const referenceEntityDepth = referenceEntity ? updateTransformDepth(referenceEntity) : 0
   const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
@@ -384,7 +386,7 @@ const execute = () => {
   for (const entity of transformQuery()) {
     const makeDirty =
       TransformComponent.dirtyTransforms[entity] ||
-      TransformComponent.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? -1] ||
+      TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
       TransformComponent.dirtyTransforms[
         getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? -1
       ] ||

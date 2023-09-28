@@ -50,6 +50,7 @@ import { Application } from '../declarations'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
 import { default as appConfig, default as config } from './appconfig'
+import persistHeaders from './hooks/persist-headers'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
 import services from './services'
@@ -215,7 +216,11 @@ export const createFeathersKoaApp = (
   app.use(helmet())
 
   app.use(compress())
-  app.use(bodyParser())
+  app.use(
+    bodyParser({
+      includeUnparsed: true
+    })
+  )
 
   app.configure(rest())
   // app.use(function (req, res, next) {
@@ -229,6 +234,11 @@ export const createFeathersKoaApp = (
 
   // Set up our services (see `services/index.js`)
   app.configure(services)
+
+  // Store headers across internal service calls
+  app.hooks({
+    around: [persistHeaders]
+  })
 
   pipeLogs(Engine.instance.api)
 
