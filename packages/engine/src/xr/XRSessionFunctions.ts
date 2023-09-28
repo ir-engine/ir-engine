@@ -38,7 +38,6 @@ import { computeAndUpdateWorldOrigin, updateEyeHeight } from '../transform/updat
 import { Engine } from './../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { setTrackingSpace } from './XRScaleAdjustmentFunctions'
 import { ReferenceSpace, XRAction, XRState, getCameraMode } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
@@ -103,8 +102,6 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
       : xrState.supportedSessionModes['immersive-vr'].value
       ? 'immersive-vr'
       : 'inline')
-
-  if (mode == 'immersive-vr') setTrackingSpace()
 
   xrState.requestingSession.set(true)
 
