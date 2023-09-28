@@ -23,35 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  componentJsonSchema,
-  entityJsonSchema,
-  sceneCreateDataSchema,
-  sceneDataSchema,
-  sceneJsonSchema,
-  sceneMetadataCreateSchema,
-  sceneMetadataSchema,
-  scenePatchSchema,
-  sceneQuerySchema,
-  sceneUpdateSchema
-} from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { portalMethods, portalPath } from '@etherealengine/engine/src/schemas/projects/portal.schema'
+import { Application } from '../../../declarations'
+import { PortalService } from './portal.class'
+import portalDocs from './portal.docs'
+import hooks from './portal.hooks'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    componentJsonSchema,
-    entityJsonSchema,
-    sceneJsonSchema,
-    sceneMetadataSchema,
-    sceneDataSchema,
-    sceneCreateDataSchema,
-    sceneMetadataCreateSchema,
-    sceneUpdateSchema,
-    scenePatchSchema,
-    sceneQuerySchema
-  },
-  docs: {
-    description: 'Scene service description',
-    securities: ['all']
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [portalPath]: PortalService
   }
-})
+}
+
+export default (app: Application): void => {
+  app.use(portalPath, new PortalService(app), {
+    // A list of all methods this service exposes externally
+    methods: portalMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: portalDocs
+  })
+
+  const service = app.service(portalPath)
+  service.hooks(hooks)
+}
