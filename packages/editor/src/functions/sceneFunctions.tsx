@@ -30,6 +30,9 @@ import { uploadToFeathersService } from '@etherealengine/client-core/src/util/up
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
@@ -40,7 +43,9 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
  */
 export const getScenes = async (projectName: string): Promise<SceneData[]> => {
   try {
-    const result = await API.instance.client.service('scene-data').get({ projectName, metadataOnly: true })
+    const result = await API.instance.client
+      .service(sceneDataPath)
+      .get(null, { query: { projectName, metadataOnly: true } })
     return result?.data
   } catch (error) {
     logger.error(error, 'Error in getting project getScenes()')
@@ -56,8 +61,9 @@ export const getScenes = async (projectName: string): Promise<SceneData[]> => {
  */
 export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneData> => {
   try {
-    const { data } = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly })
-    return data
+    return await API.instance.client
+      .service(scenePath)
+      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: metadataOnly } })
   } catch (error) {
     logger.error(error, 'Error in getting project getScene()')
     throw error
@@ -72,7 +78,7 @@ export const getScene = async (projectName: string, sceneName: string, metadataO
  */
 export const deleteScene = async (projectName, sceneName): Promise<any> => {
   try {
-    await API.instance.client.service('scene').remove({ projectName, sceneName })
+    await API.instance.client.service(scenePath).remove(null, { query: { project: projectName, name: sceneName } })
   } catch (error) {
     logger.error(error, 'Error in deleting project')
     throw error
@@ -82,7 +88,7 @@ export const deleteScene = async (projectName, sceneName): Promise<any> => {
 
 export const renameScene = async (projectName: string, newSceneName: string, oldSceneName: string): Promise<any> => {
   try {
-    await API.instance.client.service('scene').patch(null, { newSceneName, oldSceneName, projectName })
+    await API.instance.client.service(scenePath).patch(null, { newSceneName, oldSceneName, project: projectName })
   } catch (error) {
     logger.error(error, 'Error in renaming project')
     throw error
@@ -110,9 +116,9 @@ export const saveScene = async (
   const sceneData = serializeWorld()
 
   try {
-    return await uploadToFeathersService('scene/upload', thumbnailFile ? [thumbnailFile] : [], {
-      projectName,
-      sceneName,
+    return await uploadToFeathersService(sceneUploadPath, thumbnailFile ? [thumbnailFile] : [], {
+      project: projectName,
+      name: sceneName,
       sceneData
     }).promise
   } catch (error) {
@@ -121,9 +127,9 @@ export const saveScene = async (
   }
 }
 
-export const createNewScene = async (projectName: string): Promise<{ projectName: string; sceneName: string }> => {
+export const createNewScene = async (projectName: string) => {
   try {
-    return API.instance.client.service('scene').create({ projectName })
+    return API.instance.client.service(scenePath).create({ project: projectName })
   } catch (error) {
     logger.error(error, 'Error in creating project')
     throw error

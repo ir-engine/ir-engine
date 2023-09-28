@@ -23,35 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  componentJsonSchema,
-  entityJsonSchema,
-  sceneCreateDataSchema,
-  sceneDataSchema,
-  sceneJsonSchema,
-  sceneMetadataCreateSchema,
-  sceneMetadataSchema,
-  scenePatchSchema,
-  sceneQuerySchema,
-  sceneUpdateSchema
-} from '@etherealengine/engine/src/schemas/projects/scene.schema'
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { sceneDataMethods, sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { Application } from '../../../declarations'
+import { SceneDataService } from './scene-data.class'
+import sceneDataDocs from './scene-data.docs'
+import hooks from './scene-data.hooks'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    componentJsonSchema,
-    entityJsonSchema,
-    sceneJsonSchema,
-    sceneMetadataSchema,
-    sceneDataSchema,
-    sceneCreateDataSchema,
-    sceneMetadataCreateSchema,
-    sceneUpdateSchema,
-    scenePatchSchema,
-    sceneQuerySchema
-  },
-  docs: {
-    description: 'Scene service description',
-    securities: ['all']
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [sceneDataPath]: SceneDataService
   }
-})
+}
+
+export default (app: Application): void => {
+  app.use(sceneDataPath, new SceneDataService(app), {
+    // A list of all methods this service exposes externally
+    methods: sceneDataMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: sceneDataDocs
+  })
+
+  const service = app.service(sceneDataPath)
+  service.hooks(hooks)
+}
