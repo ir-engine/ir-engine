@@ -23,18 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface OEmbed {
-  version: string
-  type: string
-  title: string
-  description: string
-  provider_name: string
-  provider_url: string
-  thumbnail_url: string
-  thumbnail_width: number
-  thumbnail_height: number
-  query_url: string
-  url?: string
-  height?: number
-  width?: number
-}
+import { oembedSchema } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    oembedSchema
+  },
+  docs: {
+    description: 'Oembed service description',
+    securities: ['all']
+  }
+})
