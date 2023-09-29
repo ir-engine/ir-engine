@@ -217,7 +217,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   if (targetScale !== xrState.sceneScale)
     getMutableState(XRState).sceneScale.set(MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha))
 
-  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(xrState.sceneScale)
+  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(1 / xrState.sceneScale)
   const targetRotation = localTransform.rotation.multiply(_quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset))
 
   xrState.scenePosition.copy(targetPosition)
