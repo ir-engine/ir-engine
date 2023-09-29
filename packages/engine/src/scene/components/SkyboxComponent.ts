@@ -34,7 +34,7 @@ import {
 } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -91,11 +91,7 @@ export const SkyboxComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    // todo, do this in reactors instead of onRemove once we have async suspend
-    const backgroundState = getMutableState(SceneState).background
-    const background = backgroundState.get(NO_PROXY) as Texture
-    background?.isTexture && background.dispose()
-    backgroundState.set(null)
+    getMutableState(SceneState).background.set(null)
   },
 
   reactor: function () {
