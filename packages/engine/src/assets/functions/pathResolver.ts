@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 export function pathResolver() {
   //const cacheRe = new RegExp(`(https://[^\\/]+)/projects/([^/]+)/(.*$)`)
-  const cacheRe = new RegExp(`.*/(?:projects|static-resources)/([^/]*)/(?:assets/|)(.*)`)
+  const cacheRe = new RegExp(`.*/(?:projects|static-resources)/([^/]*)/((?:assets/|).*)`)
   //                          1: project name -- 2: internal path
   return cacheRe
 }
