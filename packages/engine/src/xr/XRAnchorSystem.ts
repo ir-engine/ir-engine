@@ -294,6 +294,9 @@ const execute = () => {
   if (xrState.scenePlacementMode !== 'unplaced') {
     updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
+
+    worldOriginPinpointAnchor.scale.setScalar(1 / xrState.sceneScale)
+    worldOriginPinpointAnchor.updateMatrixWorld(true)
   }
 }
 
