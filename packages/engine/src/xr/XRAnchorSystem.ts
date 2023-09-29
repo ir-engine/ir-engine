@@ -182,6 +182,8 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
   /**
    * Lock lifesize to 1:1, whereas dollhouse mode uses
    * the distance from the camera to the hit test plane.
+   *
+   * Miniature scale math shrinks exponentially from 20% to 1%, between 0.6 meters to 0.01 meters from the hit test plane
    */
   const minDollhouseScale = 0.01
   const maxDollhouseScale = 0.2
@@ -195,7 +197,11 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
 
   const targetScale = lifeSize
     ? 1
-    : MathUtils.clamp(Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2), minDollhouseScale, maxDollhouseScale)
+    : MathUtils.clamp(
+        Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2) * maxDollhouseScale,
+        minDollhouseScale,
+        maxDollhouseScale
+      )
 
   return targetScale
 }
