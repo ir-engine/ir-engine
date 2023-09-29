@@ -652,7 +652,7 @@ const execute = () => {
       if (selectStartPosition.distanceTo(cursorPosition) < SELECT_SENSITIVITY) {
         const result = getIntersectingNodeOnScreen(raycaster, cursorPosition)
         if (result) {
-          if (result.node) {
+          if (result.node && (typeof result.node === 'string' || hasComponent(result.node, SceneObjectComponent))) {
             if (shift) {
               EditorControlFunctions.toggleSelection([result.node])
             } else {

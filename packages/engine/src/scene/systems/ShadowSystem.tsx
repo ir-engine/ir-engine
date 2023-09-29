@@ -32,7 +32,6 @@ import {
   Material,
   Mesh,
   MeshBasicMaterial,
-  Object3D,
   PlaneGeometry,
   Quaternion,
   Raycaster,
@@ -42,12 +41,13 @@ import {
 } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_001 } from '../../common/constants/MathConstants'
+import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -64,12 +64,13 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
+import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
@@ -77,6 +78,21 @@ import { NameComponent } from '../components/NameComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+
+export const ShadowSystemState = defineState({
+  name: 'ee.engine.scene.ShadowSystemState',
+  initial: () => {
+    const accumulationBudget = isMobileXRHeadset ? 4 : 20
+
+    const priorityQueue = createPriorityQueue({
+      accumulationBudget
+    })
+
+    return {
+      priorityQueue
+    }
+  }
+})
 
 export const shadowDirection = new Vector3(0, -1, 0)
 const shadowRotation = new Quaternion()
@@ -201,8 +217,6 @@ const shadowState = hookstate(null as MeshBasicMaterial | null)
 
 const dropShadowComponentQuery = defineQuery([DropShadowComponent, GroupComponent])
 
-let sceneObjects = [] as Object3D<any>[]
-
 const minRadius = 0.15
 const maxRadius = 5
 const sphere = new Sphere()
@@ -213,7 +227,6 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
   const useShadows = useShadowsEnabled()
   const shadowMaterial = useHookstate(shadowState)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
-  const boundingBoxComponent = useOptionalComponent(entity, BoundingBoxComponent)
   const shadow = useComponent(entity, ShadowComponent)
 
   useEffect(() => {
@@ -256,41 +269,53 @@ const DropShadowReactor = createQueryReactor([ShadowComponent], function DropSha
 
 const shadowOffset = new Vector3(0, 0.01, 0)
 
+const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
+const sortedEntityTransforms = [] as Entity[]
+
+const updateDropShadowTransforms = () => {
+  const { deltaSeconds } = getState(EngineState)
+  const { priorityQueue } = getState(ShadowSystemState)
+
+  sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
+
+  const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
+
+  for (const entity of priorityQueue.priorityEntities) {
+    const dropShadow = getComponent(entity, DropShadowComponent)
+    const group = getComponent(entity, GroupComponent)
+    const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)
+
+    raycasterPosition.copy(group[0].position).add(dropShadow.center)
+    raycaster.set(raycasterPosition, shadowDirection)
+
+    const intersected = raycaster.intersectObjects(sceneObjects)[0]
+    if (!intersected || !intersected.face) {
+      dropShadowTransform.scale.setScalar(0)
+      continue
+    }
+
+    const centerCorrectedDist = Math.max(intersected.distance - dropShadow.center.y, 0.0001)
+
+    //arbitrary bias to make it a bit smaller
+    const sizeBias = 0.3
+    const finalRadius = sizeBias * dropShadow.radius + dropShadow.radius * centerCorrectedDist * 0.5
+
+    const shadowMaterial = (getComponent(dropShadow.entity, GroupComponent)[0] as any).material as Material
+    shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 0.6
+
+    shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
+    dropShadowTransform.rotation.copy(shadowRotation)
+    dropShadowTransform.scale.setScalar(finalRadius * 2)
+    dropShadowTransform.position.copy(intersected.point.add(shadowOffset))
+  }
+}
+
 const execute = () => {
   const renderState = getState(RendererState)
 
-  sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Camera] || [])
-
   const useShadows = getShadowsEnabled()
   if (!useShadows && !getState(EngineState).isEditor) {
-    for (const entity of dropShadowComponentQuery()) {
-      const dropShadow = getComponent(entity, DropShadowComponent)
-      const group = getComponent(entity, GroupComponent)
-      const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)
-
-      raycasterPosition.copy(group[0].position).add(dropShadow.center)
-      raycaster.set(raycasterPosition, shadowDirection)
-
-      const intersected = raycaster.intersectObjects(sceneObjects)[0]
-      if (!intersected || !intersected.face) {
-        dropShadowTransform.scale.setScalar(0)
-        continue
-      }
-
-      const centerCorrectedDist = Math.max(intersected.distance - dropShadow.center.y, 0.0001)
-
-      //arbitrary bias to make it a bit smaller
-      const sizeBias = 0.3
-      const finalRadius = sizeBias * dropShadow.radius + dropShadow.radius * centerCorrectedDist * 0.5
-
-      const shadowMaterial = (getComponent(dropShadow.entity, GroupComponent)[0] as any).material as Material
-      shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 0.6
-
-      shadowRotation.setFromUnitVectors(intersected.face.normal, V_001)
-      dropShadowTransform.rotation.copy(shadowRotation)
-      dropShadowTransform.scale.setScalar(finalRadius * 2)
-      dropShadowTransform.position.copy(intersected.point.add(shadowOffset))
-    }
+    updateDropShadowTransforms()
     return
   }
 

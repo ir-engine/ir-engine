@@ -84,10 +84,10 @@ export async function up(knex: Knex): Promise<void> {
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
     })
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
