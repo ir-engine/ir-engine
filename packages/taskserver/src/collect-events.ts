@@ -38,26 +38,27 @@ export default (app): void => {
   logger.info('started event logging.')
   const k8DefaultClient = getState(ServerState).k8DefaultClient
   setInterval(async () => {
-    //logger.info('Collecting events at %s.', new Date().toString())
-    logger.info(k8DefaultClient)
+    logger.info('Collecting events at %s.', new Date().toString())
 
     if (k8DefaultClient) {
       try {
-        const jobName = `${config.server.releaseName}-etherealengine-testbot`
-        const podsResult = await k8DefaultClient.listNamespacedPod('default')
+        const namespace = 'default' // Replace with your target namespace
 
-        for (const pod of podsResult.body.items) {
-          logger.info(podsResult.body.items.length)
-          let labels = pod.metadata!.labels
-          if (labels && labels['job-name'] && labels['job-name'] === jobName) {
-            logger.info('Pod:', pod.metadata!.name!)
-            logger.info('status', pod.status!.phase!)
-          }
-        }
+        // Fetch all events in the namespace
+        const eventsResponse = await k8DefaultClient.listNamespacedEvent(namespace)
+        logger.info(eventsResponse.body.items.length)
+
+        const eventMessages = eventsResponse.body.items.map((event) => ({
+          name: event.involvedObject.name,
+          message: event.message,
+          timestamp: event.firstTimestamp
+        }))
+
+        logger.info(eventMessages)
       } catch (e) {
         serverLogger.error(e)
         return e
       }
     }
-  })
+  }, interval)
 }
