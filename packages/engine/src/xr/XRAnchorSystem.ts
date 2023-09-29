@@ -195,18 +195,14 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
 
   const targetScale = lifeSize
     ? 1
-    : MathUtils.clamp(
-        Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2) * maxDollhouseScale,
-        minDollhouseScale,
-        maxDollhouseScale
-      )
+    : MathUtils.clamp(Math.pow((dist - minDollhouseDist) / maxDollhouseDist, 2), minDollhouseScale, maxDollhouseScale)
 
   return targetScale
 }
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // assumes local transform is relative to origin
-  let localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
+  const localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
 
   const xrState = getState(XRState)
   const xrFrame = xrState.xrFrame
@@ -221,7 +217,7 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   if (targetScale !== xrState.sceneScale)
     getMutableState(XRState).sceneScale.set(MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha))
 
-  const targetPosition = _vecPosition.copy(localTransform.position) //.multiplyScalar(1 / xrState.sceneScale)
+  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(xrState.sceneScale)
   const targetRotation = localTransform.rotation.multiply(_quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset))
 
   xrState.scenePosition.copy(targetPosition)
@@ -256,6 +252,7 @@ const XRAnchorSystemState = defineState({
   initial: () => {
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
+    setComponent(scenePlacementEntity, LocalTransformComponent)
     setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
 

@@ -366,7 +366,6 @@ const reactor = () => {
   const pose = useHookstate(xrState.viewerPose)
   useEffect(() => {
     if (heightDifference.value) xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
-    xrState.avatarCameraMode.set('attached')
   }, [heightDifference])
   useEffect(() => {
     if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
