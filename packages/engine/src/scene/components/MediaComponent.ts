@@ -301,7 +301,7 @@ export function MediaReactor() {
       if (!mediaElement || media.seekTime.value < 0 || mediaElement.element.value.currentTime === media.seekTime.value)
         return
       mediaElement.element.currentTime.set(media.seekTime.value) // set time and stop playing
-      media.paused.value ? media.paused.set(false) : mediaElement.element.value.play() // start play again
+      if (!media.paused.value) mediaElement.element.value.play()
       media.seekTime.set(-1)
     },
     [media.seekTime, mediaElement]
