@@ -158,7 +158,7 @@ export type EntityOrObjectUUID = Entity | string
  */
 export function initializeSceneEntity(): void {
   const oldSceneEntity = getState(SceneState).sceneEntity
-  if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity, true)
+  if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity)
 
   const sceneEntity = createEntity()
   getMutableState(SceneState).sceneEntity.set(sceneEntity)
