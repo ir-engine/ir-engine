@@ -27,7 +27,7 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AudioState } from '../../audio/AudioState'
@@ -138,7 +138,7 @@ export const MediaComponent = defineComponent({
       // runtime props
       paused: true,
       ended: true,
-      seekTime: -1,
+      seekTime: 0,
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
@@ -297,12 +297,9 @@ export function MediaReactor() {
 
   useEffect(
     function updateSeekTime() {
-      console.log('DEBUG Triggred seek')
-      if (!mediaElement || media.seekTime.value < 0 || mediaElement.element.value.currentTime === media.seekTime.value)
-        return
-      mediaElement.element.currentTime.set(media.seekTime.value) // set time and stop playing
-      if (!media.paused.value) mediaElement.element.value.play()
-      media.seekTime.set(-1)
+      if (!mediaElement) return
+      setTime(mediaElement.element, media.seekTime.value)
+      if (!mediaElement.element.paused.value) mediaElement.element.value.play() // if not paused, start play again
     },
     [media.seekTime, mediaElement]
   )
@@ -532,6 +529,11 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
   })
 
   return hls
+}
+
+export function setTime(element: State<HTMLMediaElement>, time: number) {
+  if (!element.value || time < 0 || element.value.currentTime === time) return
+  element.currentTime.set(time)
 }
 
 export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayMode) {
