@@ -44,27 +44,21 @@ export const botResolver = resolve<BotType, HookContext>({})
 
 export const botExternalResolver = resolve<BotType, HookContext>({
   location: virtual(async (bot, context) => {
-    if (bot.locationId) {
-      const location = await context.app.service(locationPath)._get(bot.locationId)
-      return location
-    }
+    if (context.event !== 'removed' && bot.locationId)
+      return await context.app.service(locationPath)._get(bot.locationId)
   }),
   instance: virtual(async (bot, context) => {
-    if (bot.instanceId) {
-      const instance = (await context.app.service(instancePath)._get(bot.instanceId)) as any as InstanceType
-      return instance
-    }
+    if (context.event !== 'removed' && bot.instanceId)
+      return (await context.app.service(instancePath)._get(bot.instanceId)) as any as InstanceType
   }),
   botCommands: virtual(async (bot, context) => {
-    if (bot.id) {
-      const botCommands = (await context.app.service(botCommandPath).find({
+    if (context.event !== 'removed' && bot.id)
+      return (await context.app.service(botCommandPath).find({
         query: {
           botId: bot.id
         },
         paginate: false
       })) as BotCommandType[]
-      return botCommands
-    }
   }),
   createdAt: virtual(async (bot) => fromDateTimeSql(bot.createdAt)),
   updatedAt: virtual(async (bot) => fromDateTimeSql(bot.updatedAt))
