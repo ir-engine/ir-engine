@@ -38,7 +38,8 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingType => {
-  let themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
+  let themeModes
+  if (typeof rawData.themeModes !== 'object') themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.
