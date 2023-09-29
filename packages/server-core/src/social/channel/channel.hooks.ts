@@ -114,7 +114,7 @@ const ensureUsersFriendWithOwner = async (context: HookContext) => {
   const loggedInUser = context.params!.user
   const userId = loggedInUser?.id
 
-  if (!users || !userId) throw new BadRequest('Users missing in request')
+  if (!users || !userId) return context
 
   const userRelationships = (await context.app.service(userRelationshipPath)._find({
     query: {
