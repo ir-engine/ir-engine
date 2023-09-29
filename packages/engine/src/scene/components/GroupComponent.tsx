@@ -84,10 +84,8 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   getMutableComponent(entity, GroupComponent).merge([obj])
 
   const transform = getComponent(entity, TransformComponent)
-  console.log('VDEBUG transform.position = ', transform.position)
   obj.position.copy(transform.position)
   obj.quaternion.copy(transform.rotation)
-  console.log('VDEBUG transform.scale = ', transform.scale)
   obj.scale.copy(transform.scale)
   obj.matrixAutoUpdate = false
   obj.matrixWorldAutoUpdate = false

@@ -210,13 +210,13 @@ export function VolumetricReactor() {
     fetch(manifestPath)
       .then((response) => response.json())
       .then((json) => {
-        if (!json.type) {
-          setComponent(entity, UVOL1Component, {
+        if ('type' in json) {
+          setComponent(entity, UVOL2Component, {
             manifestPath: manifestPath,
             data: json
           })
         } else {
-          setComponent(entity, UVOL2Component, {
+          setComponent(entity, UVOL1Component, {
             manifestPath: manifestPath,
             data: json
           })
