@@ -414,7 +414,7 @@
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
             "generateBVH": true,
-            "avoidCameraOcclusion": false
+            "avoidCameraOcclusion": true
           }
         },
         {

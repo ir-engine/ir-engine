@@ -98,7 +98,7 @@ const handleMocapData = (
   message: ArrayBufferLike
 ) => {
   if (network.isHosting) {
-    network.transport.bufferToAll(mocapDataChannelType, fromPeerID, message)
+    network.transport.bufferToAll(dataChannel, fromPeerID, message)
   }
   const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
   if (!timeSeriesMocapData.has(fromPeerID)) {
@@ -128,7 +128,6 @@ const execute = () => {
       timeSeriesMocapLastSeen.delete(peerID)
     }
   }
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const data = mocapData.popLast()
     const userID = network.peers[peerID]!.userId
