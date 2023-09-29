@@ -206,7 +206,7 @@ const reactor = () => {
   const sceneData = useHookstate(getMutableState(SceneState)).sceneData
 
   useEffect(() => {
-    if (getState(EditorHistoryState).history.length) return
+    if (getState(EditorHistoryState).history.length || !sceneData.value?.scene) return
     EditorHistoryState.resetHistory()
   }, [sceneData])
 

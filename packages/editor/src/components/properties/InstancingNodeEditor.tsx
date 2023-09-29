@@ -64,7 +64,7 @@ import CollapsibleBlock from '../layout/CollapsibleBlock'
 import InstancingGrassProperties from './InstancingGrassProperties'
 import InstancingMeshProperties from './InstancingMeshProperties'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, traverseScene } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, traverseScene } from './Util'
 
 export const InstancingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -147,8 +147,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       }
     }
     scene.userData.set(uData)
-    scatterState.sourceProperties.set(srcProperties)
-    scatterState.mode.set(mode)
+    commitProperties(InstancingComponent, { mode, sourceProperties: srcProperties }, [entity])
   }
 
   return (
