@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext, NextFunction } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 
 import { Application } from '../../declarations'
 
@@ -33,8 +33,6 @@ import { Application } from '../../declarations'
  * to be passed to native knex call. Having params.actualQuery is useful if
  * we want to use actual query in after hook or around hook after next() call.
  */
-export default async (context: HookContext<Application>, next: NextFunction) => {
+export default async (context: HookContext<Application>) => {
   context.params.actualQuery = context.params.query ? JSON.parse(JSON.stringify(context.params.query)) : {}
-
-  return next()
 }

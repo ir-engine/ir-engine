@@ -544,7 +544,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         try {
           await this.app.service(channelPath).get(channelId)
         } catch (err) {
-          throw new BadRequest('Invalid channel ID')
+          throw new BadRequest('Invalid channel ID', channelId)
         }
         const channelInstance = (await this.app.service(instancePath)._find({
           query: {

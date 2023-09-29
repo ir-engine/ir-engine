@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext, NextFunction } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 
 import { Application } from '../../declarations'
 
@@ -33,8 +33,6 @@ import { Application } from '../../declarations'
  * to be passed to native knex call. Having params.actualData is useful if
  * we want to use actual data in after hook or around hook after next() call.
  */
-export default async (context: HookContext<Application>, next: NextFunction) => {
-  context.params.actualData = context.params.data ? JSON.parse(JSON.stringify(context.params.data)) : {}
-
-  return next()
+export default async (context: HookContext<Application>) => {
+  context.actualData = context.data ? JSON.parse(JSON.stringify(context.data)) : {}
 }

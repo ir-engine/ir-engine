@@ -41,12 +41,13 @@ import {
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
+import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
 import verifyUserId from '../../hooks/verify-userId'
 import {
@@ -178,7 +179,8 @@ const checkExistingChannel = async (context: HookContext) => {
       .first()
 
     if (existingChannel) {
-      context.dispatch = existingChannel
+      context.result = existingChannel
+      context.existingData = true
     }
   }
 
@@ -206,9 +208,9 @@ const createSelfOwner = async (context: HookContext) => {
 const createChannelUsers = async (context) => {
   /** @todo ensure all users specified are friends of loggedInUser */
 
-  if (context.data.users) {
+  if (context.actualData && context.actualData.users) {
     await Promise.all(
-      context.data.users.map(async (user) =>
+      context.actualData.users.map(async (user) =>
         context.app.service(channelUserPath).create({
           channelId: context.result.id as ChannelID,
           userId: user
@@ -240,11 +242,11 @@ export default {
       iff(isProvider('external'), ensureUsersFriendWithOwner),
       checkExistingChannel,
       // Below if is to check if existing channel was found or not
-      iff((context) => !context.dispatch, discardQuery('users') as any, setChannelName)
+      iff((context) => !context.existingData, persistData, discard('users') as any, setChannelName)
     ],
     update: [disallow('external')],
     patch: [
-      disallow('external'),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(channelPatchValidator),
       schemaHooks.resolveData(channelPatchResolver)
     ],
