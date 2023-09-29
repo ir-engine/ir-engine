@@ -798,9 +798,6 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
           }
         }, 100)
       })
-      if (mediaStreamState.videoPaused.value) await mediaStreamState.camVideoProducer.value!.pause()
-      else if (mediaStreamState.camVideoProducer.value)
-        resumeProducer(network, mediaStreamState.camVideoProducer.value!)
     } catch (err) {
       logger.error(err, 'Error producing video')
     }
@@ -852,10 +849,6 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
           }
         }, 100)
       })
-
-      if (mediaStreamState.audioPaused.value) mediaStreamState.camAudioProducer.value!.pause()
-      else if (mediaStreamState.camAudioProducer.value)
-        resumeProducer(network, mediaStreamState.camAudioProducer.value!)
     } catch (err) {
       logger.error(err, 'Error producing video')
     }

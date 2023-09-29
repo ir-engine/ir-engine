@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Object3D } from 'three'
-
 import { API } from '@etherealengine/client-core/src/API'
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
@@ -35,58 +33,10 @@ import {
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import {
-  GroupComponent,
-  Object3DWithEntity,
-  addObjectToGroup,
-  removeObjectFromGroup
-} from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
-import { sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
-import { getState } from '@etherealengine/hyperflux'
 
 import { assetLibraryPath } from '@etherealengine/engine/src/schemas/assets/asset-library.schema'
 import { fileBrowserUploadPath } from '@etherealengine/engine/src/schemas/media/file-browser-upload.schema'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
-import { EditorState } from '../services/EditorServices'
-
-export const exportPrefab = async (entity: Entity) => {
-  const node = getComponent(entity, EntityTreeComponent)
-  const asset = getComponent(entity, PrefabComponent)
-  const projectName = getState(EditorState).projectName ?? ''
-  if (!(node.children && node.children.length > 0)) {
-    console.warn('Exporting empty asset')
-  }
-  const dudObjs = new Array<Object3DWithEntity>()
-  const obj3ds = new Array<Object3DWithEntity>()
-  const frontier = new Array<Entity>(...node.children.filter((child) => hasComponent(child, EntityTreeComponent)))
-  do {
-    const entity = frontier.pop()! as Entity
-    if (getComponent(entity, GroupComponent)?.length) {
-      const childObjs = getComponent(entity, GroupComponent).filter((obj) => !obj.type.includes('Helper'))
-      obj3ds.push(...childObjs)
-    } else {
-      const dudObj = new Object3D() as Object3DWithEntity
-      dudObj.entity = entity
-      addObjectToGroup(entity, dudObj)
-      dudObjs.push(dudObj)
-      obj3ds.push(dudObj)
-    }
-    const prefabNode = getComponent(entity, EntityTreeComponent)
-    const nodeChildren = prefabNode.children.filter((child) => !!child && hasComponent(child, EntityTreeComponent))
-    frontier.push(...nodeChildren)
-  } while (frontier.length > 0)
-
-  const exportable = sceneToGLTF(obj3ds)
-  const uploadable = new File([JSON.stringify(exportable)], asset.src)
-  for (const dudObj of dudObjs) {
-    removeObjectFromGroup(dudObj.entity, dudObj)
-  }
-  return uploadProjectFiles(projectName, [uploadable], true).promises[0]
-}
 
 export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []

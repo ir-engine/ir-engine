@@ -29,7 +29,7 @@ import { CameraHelper, PerspectiveCamera } from 'three'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -50,13 +50,6 @@ export const ScenePreviewCameraComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component) => {
-    const transform = getComponent(entity, TransformComponent)
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    cameraTransform.position.copy(transform.position)
-    cameraTransform.rotation.copy(transform.rotation)
-  },
-
   onRemove: (entity, component) => {
     component.camera.value.removeFromParent()
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
@@ -69,24 +62,31 @@ export const ScenePreviewCameraComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const camera = useComponent(entity, ScenePreviewCameraComponent)
+    const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
+    const previewCameraTransform = useComponent(entity, TransformComponent)
+    const engineCameraTransform = useComponent(Engine.instance.cameraEntity, TransformComponent)
 
     useEffect(() => {
-      addObjectToGroup(entity, camera.camera.value)
+      addObjectToGroup(entity, previewCamera.camera.value)
     }, [])
 
     useEffect(() => {
-      if (debugEnabled.value && !camera.helper.value) {
-        const helper = new CameraHelper(camera.camera.value)
+      engineCameraTransform.position.value.copy(previewCameraTransform.position.value)
+      engineCameraTransform.rotation.value.copy(previewCameraTransform.rotation.value)
+    }, [previewCameraTransform])
+
+    useEffect(() => {
+      if (debugEnabled.value && !previewCamera.helper.value) {
+        const helper = new CameraHelper(previewCamera.camera.value)
         helper.name = `scene-preview-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         addObjectToGroup(entity, helper)
-        camera.helper.set(helper)
+        previewCamera.helper.set(helper)
       }
 
-      if (!debugEnabled.value && camera.helper.value) {
-        removeObjectFromGroup(entity, camera.helper.value)
-        camera.helper.set(none)
+      if (!debugEnabled.value && previewCamera.helper.value) {
+        removeObjectFromGroup(entity, previewCamera.helper.value)
+        previewCamera.helper.set(none)
       }
     }, [debugEnabled])
 
