@@ -268,7 +268,8 @@ export default function HierarchyPanel({
   /* Event handlers */
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 1) {
-      if (e.shiftKey) {
+      // add modifications here stuff here
+      if (e.ctrlKey) {
         EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
         setSelectedNode(null)
       } else if (!node.selected) {
