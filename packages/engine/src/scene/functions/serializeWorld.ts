@@ -35,13 +35,11 @@ import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   serializeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
-import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
 export const serializeEntity = (entity: Entity) => {
@@ -79,8 +77,6 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => 
   iterateEntityNode(
     traverseNode,
     (entity, index) => {
-      if (!hasComponent(entity, SceneObjectComponent)) return
-
       const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
       if (ignoreComponents?.includes('entity')) return
