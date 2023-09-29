@@ -75,6 +75,16 @@ export const UVOL1Component = defineComponent({
     }
   },
 
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (json.manifestPath) {
+      component.manifestPath.set(json.manifestPath)
+    }
+    if (json.data) {
+      component.data.set(json.data)
+    }
+  },
+
   reactor: UVOL1Reactor
 })
 
@@ -122,6 +132,10 @@ function UVOL1Reactor() {
     }
     addObjectToGroup(entity, mesh)
     video.src = component.manifestPath.value.replace('.manifest', '.mp4')
+    video.addEventListener('ended', function setEnded() {
+      volumetric.ended.set(true)
+      video.removeEventListener('ended', setEnded)
+    })
 
     return () => {
       removeObjectFromGroup(entity, mesh)
@@ -159,8 +173,6 @@ function UVOL1Reactor() {
 
       videoTexture.needsUpdate = true
       EngineRenderer.instance.renderer.initTexture(videoTexture)
-    } else {
-      console.log(`VDEBUG Entity ${entity} wants to play ${frameToPlay}, but not available yet`)
     }
     removePlayedBuffer(frameToPlay)
   }
@@ -190,7 +202,6 @@ function UVOL1Reactor() {
         const byteStart = component.data.value.frameData[i].startBytePosition
         const byteEnd = byteStart + component.data.value.frameData[i].meshLength
         pendingRequests.current += 1
-        console.log(`VDEBUG Entity ${entity} requesting frame ${i}`)
         decodeCorto(meshFilePath, byteStart, byteEnd)
           .then((geometry) => {
             if (!geometry) {

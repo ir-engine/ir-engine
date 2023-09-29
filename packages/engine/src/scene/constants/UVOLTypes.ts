@@ -77,7 +77,7 @@ export interface GeometryTarget {
    * Smaller targets are given smaller priority i.e., Player assumes smaller priority can be played on low-end devices
    * @default 0
    */
-  priority?: number
+  priority: number
 }
 
 export interface DracoEncodeOptions {
@@ -228,7 +228,7 @@ export interface TextureTarget {
    * Smaller targets are given smaller priority i.e., Player assumes smaller priority can be played on low-end devices
    * @default 0
    */
-  priority?: number
+  priority: number
 }
 
 export interface KTX2EncodeOptions {
@@ -355,8 +355,8 @@ export interface EncoderManifest {
   textureOutputPath: string
 }
 
-export interface DRACO_Manifest {
-  type: UVOL_TYPE.DRACO_WITH_COMPRESSED_TEXTURE
+export interface BasePlayerManifest {
+  duration: number
   audio?: {
     path: AudioInput['outputPath']
     formats: AudioFileFormat[]
@@ -367,76 +367,40 @@ export interface DRACO_Manifest {
      */
     playbackRate: number
   }
+  texture: {
+    baseColor: {
+      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
+      path: EncoderManifest['textureOutputPath']
+    }
+  } & Partial<{
+    [key in OptionalTextureType]: {
+      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
+    }
+  }>
+}
+
+export interface DRACO_Manifest extends BasePlayerManifest {
+  type: UVOL_TYPE.DRACO_WITH_COMPRESSED_TEXTURE
   geometry: {
     targets: Record<string, DRACOTarget>
     path: EncoderManifest['geometryOutputPath']
   }
-  texture: {
-    baseColor: {
-      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
-      path: EncoderManifest['textureOutputPath']
-    }
-  } & Partial<{
-    [key in OptionalTextureType]: {
-      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
-    }
-  }>
 }
 
-export interface GLB_Manifest {
+export interface GLB_Manifest extends BasePlayerManifest {
   type: UVOL_TYPE.GLB_WITH_COMPRESSED_TEXTURE
-  audio?: {
-    path: AudioInput['outputPath']
-    formats: AudioFileFormat[]
-    /**
-     * PlayBack rate.
-     * This is read by the player. Actual playbackRate data is not changed.
-     * @default 1
-     */
-    playbackRate: number
-  }
   geometry: {
     targets: Record<string, GLBTarget>
     path: EncoderManifest['geometryOutputPath']
   }
-  texture: {
-    baseColor: {
-      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
-      path: EncoderManifest['textureOutputPath']
-    }
-  } & Partial<{
-    [key in OptionalTextureType]: {
-      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
-    }
-  }>
 }
 
-export interface UniformSolve_Manifest {
+export interface UniformSolve_Manifest extends BasePlayerManifest {
   type: UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE
-  audio?: {
-    path: AudioInput['outputPath']
-    formats: AudioFileFormat[]
-    /**
-     * PlayBack rate.
-     * This is read by the player. Actual playbackRate data is not changed.
-     * @default 1
-     */
-    playbackRate: number
-  }
   geometry: {
     targets: Record<string, UniformSolveTarget>
     path: EncoderManifest['geometryOutputPath']
   }
-  texture: {
-    baseColor: {
-      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
-      path: EncoderManifest['textureOutputPath']
-    }
-  } & Partial<{
-    [key in OptionalTextureType]: {
-      targets: Record<string, KTX2TextureTarget | ASTCTextureTarget>
-    }
-  }>
 }
 
 export type PlayerManifest = DRACO_Manifest | GLB_Manifest | UniformSolve_Manifest

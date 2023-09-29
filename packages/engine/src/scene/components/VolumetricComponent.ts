@@ -37,11 +37,10 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PlayMode } from '../constants/PlayMode'
-import { UVOL_TYPE } from '../constants/UVOLTypes'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOL1Component } from './UVOL1Component'
-import { UniformUVOLComponent } from './UniformUVOL'
+import { UVOL2Component } from './UVOL2Component'
 
 export function handleAutoplay(audioContext: AudioContext, element: HTMLMediaElement) {
   const playMedia = () => {
@@ -152,18 +151,11 @@ export function VolumetricReactor() {
 
       audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
     }
-
-    element.addEventListener('ended', () => {
-      volumetric.ended.set(true)
-    })
   }, [])
 
   useEffect(() => {
-    console.log(`VDEBUG track changing hook`)
-
     const pathCount = volumetric.paths.value.length
     if (!volumetric.ended.value || pathCount === 0) {
-      console.log(`VDEBUG returning without setting track. ended = ${volumetric.ended.value}, pathCount = ${pathCount}`)
       return
     }
 
@@ -200,8 +192,7 @@ export function VolumetricReactor() {
     const resetTrack = () => {
       // Overwriting with setComponent doesn't cleanup the component
       removeComponent(entity, UVOL1Component)
-      removeComponent(entity, UniformUVOLComponent)
-      console.log(`VDEBUG Setting ended to false`)
+      removeComponent(entity, UVOL2Component)
       volumetric.ended.set(false)
       volumetric.initialBuffersLoaded.set(false)
     }
@@ -216,27 +207,19 @@ export function VolumetricReactor() {
       manifestPath = manifestPath.replace('.mp4', '.manifest')
     }
 
-    console.log(`VDEBUG track: ${currentTrack} manifestPath: ${manifestPath}`)
-
     fetch(manifestPath)
       .then((response) => response.json())
       .then((json) => {
         if (!json.type) {
-          console.log(`VDEBUG setting UVOL1Component`)
-          setComponent(entity, UVOL1Component)
-          const player = getMutableComponent(entity, UVOL1Component)
-          player.set({
+          setComponent(entity, UVOL1Component, {
             manifestPath: manifestPath,
             data: json
           })
-        } else if (json.type && json.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
-          console.log(`VDEBUG setting UniformUVOLComponent`)
-          setComponent(entity, UniformUVOLComponent)
-          const player = getMutableComponent(entity, UniformUVOLComponent)
-          player.manifestPath.set(manifestPath)
-          player.data.set(json)
         } else {
-          console.error(`VDEBUG: Unknown volumetric type: ${json.type}`)
+          setComponent(entity, UVOL2Component, {
+            manifestPath: manifestPath,
+            data: json
+          })
         }
       })
   }, [volumetric.paths, volumetric.playMode, volumetric.ended])

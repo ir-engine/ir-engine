@@ -40,8 +40,8 @@ import {
   Vector2
 } from 'three'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -111,6 +111,16 @@ export const UVOL2Component = defineComponent({
     }
   },
 
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (json.manifestPath) {
+      component.manifestPath.set(json.manifestPath)
+    }
+    if (json.data) {
+      component.data.set(json.data)
+    }
+  },
+
   reactor: UVOL2Reactor
 })
 
@@ -118,11 +128,11 @@ const loadGeometryAsync = (url: string, targetData: DRACOTarget | GLBTarget | Un
   return new Promise<BufferGeometry | Mesh>((resolve, reject) => {
     const format = targetData.format
     if (format === 'draco') {
-      Engine.instance.gltfLoader.dracoLoader?.load(url, (geometry: BufferGeometry) => {
+      getState(AssetLoaderState).gltfLoader.dracoLoader?.load(url, (geometry: BufferGeometry) => {
         resolve(geometry)
       })
     } else if (format === 'glb' || format === 'uniform-solve') {
-      Engine.instance.gltfLoader.load(url, ({ scene }: GLTF) => {
+      getState(AssetLoaderState).gltfLoader.load(url, ({ scene }: GLTF) => {
         const mesh = getFirstMesh(scene)!
         resolve(mesh)
       })
@@ -190,14 +200,14 @@ const resolvePath = (
   let resolvedPath = path
   resolvedPath = path.replace('[ext]', FORMAT_TO_EXTENSION[format])
   resolvedPath = resolvedPath.replace('[type]', 'baseColor')
-  if (target) {
+  if (target !== undefined) {
     resolvedPath = resolvedPath.replace('[target]', target)
   }
-  if (index) {
-    // TODO: Store the padding somewhere without recalculating everytime
+  if (index !== undefined) {
     const padLength = countHashes(resolvedPath)
-    const paddedString = '[' + '0'.repeat(padLength) + ']'
-    resolvedPath = resolvedPath.replace(paddedString, index.toString().padStart(padLength, '0'))
+    const paddedString = '[' + '#'.repeat(padLength) + ']'
+    const paddedIndex = index.toString().padStart(padLength, '0')
+    resolvedPath = resolvedPath.replace(paddedString, paddedIndex)
   }
 
   if (!resolvedPath.startsWith('http')) {
@@ -284,7 +294,7 @@ function UVOL2Reactor() {
   const currentTime = useRef(0) // in seconds
 
   useEffect(() => {
-    manifest.current = calculatePriority(component.data.value)
+    manifest.current = calculatePriority(component.data.get({ noproxy: true }))
     component.data.set(manifest.current)
     geometryTargets.current = Object.keys(manifest.current.geometry.targets)
     textureTargets.current = Object.keys(manifest.current.texture.baseColor.targets)
@@ -294,14 +304,14 @@ function UVOL2Reactor() {
       audio.src = resolvePath(manifest.current.audio.path, manifestPath, manifest.current.audio.formats[0])
       audio.playbackRate = manifest.current.audio.playbackRate
     }
-    addObjectToGroup(entity, group)
-    setGeometryTarget(geometryTargets.current[0])
-    setTextureTarget(textureTargets.current[0])
+    // addObjectToGroup(entity, group)
+    component.geometryTarget.set(geometryTargets.current[0])
+    component.textureTarget.set(textureTargets.current[0])
     const intervalId = setInterval(bufferLoop, 3000)
     bufferLoop() // calling now because setInterval will call after 3 seconds
 
     return () => {
-      removeObjectFromGroup(entity, mesh)
+      removeObjectFromGroup(entity, group)
       clearInterval(intervalId)
       mesh.geometry.dispose()
       for (const texture of textureBuffer.values()) {
@@ -330,6 +340,8 @@ function UVOL2Reactor() {
       const frameURL = resolvePath(manifest.current.geometry.path, manifestPath, targetData.format, target, i)
       pendingGeometryRequests.current++
       loadGeometryAsync(frameURL, targetData).then((model: BufferGeometry | Mesh) => {
+        const key = createKey(target, i)
+        model.name = key
         geometryBuffer.set(createKey(target, i), model)
         geometryBufferHealth.current += 1 / targetData.frameRate
         pendingGeometryRequests.current--
@@ -349,13 +361,17 @@ function UVOL2Reactor() {
         const segmentOffset = i * targetData.segmentFrameCount
 
         positionMorphAttributes.forEach((attr, index) => {
-          geometryBuffer.set(createKey(target, segmentOffset + index), attr)
+          const key = createKey(target, segmentOffset + index)
+          attr.name = key
+          geometryBuffer.set(key, attr)
         })
 
         model.geometry.morphAttributes = {}
         if (i === 0) {
           // @ts-ignore
           mesh.copy(model)
+          repeat.copy((model.material as MeshStandardMaterial).map?.repeat ?? repeat)
+          offset.copy((model.material as MeshStandardMaterial).map?.offset ?? offset)
           mesh.material = material
         }
 
@@ -363,18 +379,6 @@ function UVOL2Reactor() {
         pendingGeometryRequests.current--
       })
     }
-  }
-
-  const setGeometryTarget = (target: string) => {
-    const targetData = manifest.current.geometry.targets[target]
-    if (targetData.format === 'draco') {
-      mesh.scale.set(targetData.scale.x, targetData.scale.y, targetData.scale.z)
-    }
-    component.geometryTarget.set(target)
-  }
-
-  const setTextureTarget = (target: string) => {
-    component.textureTarget.set(target)
   }
 
   const fetchGeometry = () => {
@@ -437,10 +441,10 @@ function UVOL2Reactor() {
         i
       )
       pendingTextureRequests.current++
-      if (!Engine.instance.gltfLoader.ktx2Loader) {
+      if (!getState(AssetLoaderState).gltfLoader.ktx2Loader) {
         throw new Error('KTX2Loader not initialized')
       }
-      Engine.instance.gltfLoader.ktx2Loader.load(textureURL, (texture) => {
+      getState(AssetLoaderState).gltfLoader.ktx2Loader!.load(textureURL, (texture) => {
         const key = createKey(target, i)
         texture.name = key
         pendingTextureRequests.current--
@@ -459,6 +463,7 @@ function UVOL2Reactor() {
     fetchTextures()
     const canPlay = geometryBufferHealth.current >= minBufferToPlay && textureBufferHealth.current >= minBufferToPlay
     if (canPlay && !volumetric.initialBuffersLoaded.value) {
+      addObjectToGroup(entity, group)
       volumetric.initialBuffersLoaded.set(true)
     }
   }
@@ -505,11 +510,39 @@ function UVOL2Reactor() {
     return false
   }
 
+  /**
+   * Sets the attribute on the mesh's geometry
+   * And disposes the old attribute. Since that's not supported by three.js natively,
+   * we transfer the old attibute to a new geometry and dispose it.
+   */
   const setAttribute = (name: string, attribute: InterleavedBufferAttribute) => {
-    if (mesh.geometry.attributes[name] !== attribute) {
-      mesh.geometry.setAttribute(name, attribute)
-      mesh.geometry.attributes[name].needsUpdate = true
+    if (mesh.geometry.attributes[name] === attribute) return
+
+    const index = mesh.geometry.index
+    const geometry = new BufferGeometry()
+    geometry.setIndex(index)
+
+    for (const key in mesh.geometry.attributes) {
+      if (key !== name) {
+        geometry.setAttribute(key, mesh.geometry.attributes[key])
+      }
     }
+    geometry.setAttribute(name, attribute)
+    geometry.boundingSphere = mesh.geometry.boundingSphere
+    geometry.boundingBox = mesh.geometry.boundingBox
+    const oldGeometry = mesh.geometry
+    mesh.geometry = geometry
+
+    oldGeometry.index = null
+    for (const key in oldGeometry.attributes) {
+      if (key !== name) {
+        oldGeometry.deleteAttribute(key)
+      }
+    }
+    oldGeometry.dispose()
+
+    const oldAttributeKey = oldGeometry.attributes[name]?.name
+    geometryBuffer.delete(oldAttributeKey)
   }
 
   const setGeometry = (target: string, index: number) => {
@@ -534,6 +567,8 @@ function UVOL2Reactor() {
           mesh.geometry = geometry
           mesh.geometry.attributes.position.needsUpdate = true
           oldGeometry.dispose()
+          const oldGeometryKey = oldGeometry.name
+          geometryBuffer.delete(oldGeometryKey)
           return
         }
       } else if (targetData.format === 'glb') {
@@ -553,6 +588,8 @@ function UVOL2Reactor() {
             offset.copy(model.material.map.offset)
           }
         }
+        const oldModelKey = model.name
+        geometryBuffer.delete(oldModelKey)
         return
       }
     }
@@ -573,18 +610,22 @@ function UVOL2Reactor() {
     } else {
       const texture = textureBuffer.get(key)!
       if (mesh.material instanceof ShaderMaterial) {
+        const oldTextureKey = mesh.material.uniforms.map.value?.name ?? ''
         if (mesh.material.uniforms.map.value !== texture) {
           mesh.material.uniforms.map.value = texture
           mesh.material.uniforms.map.value.needsUpdate = true
           mesh.material.uniforms.repeat.value = repeat
           mesh.material.uniforms.offset.value = offset
+          textureBuffer.delete(oldTextureKey)
         }
       } else {
+        const oldTextureKey = mesh.material.map?.name ?? ''
         if (mesh.material.map !== texture) {
           texture.repeat.copy(repeat)
           texture.offset.copy(offset)
           mesh.material.map = texture
           mesh.material.map.needsUpdate = true
+          textureBuffer.delete(oldTextureKey)
         }
       }
     }
@@ -632,6 +673,11 @@ function UVOL2Reactor() {
     } else {
       currentTime.current = clock.getElapsedTime()
     }
+    if (currentTime.current > manifest.current.duration || audio.ended) {
+      volumetric.ended.set(true)
+      return
+    }
+    console.log('BufferSizes: ', geometryBuffer.size, textureBuffer.size)
 
     // TODO: ended logic
 
