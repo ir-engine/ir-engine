@@ -25,14 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { EditorNavbarProfile } from './EditorNavbarProfile'
 import styles from './styles.module.scss'
 
 export const EditorNavbar = () => {
+  const routeHome = () => {
+    RouterState.navigate('/')
+  }
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.navContainer}>
-        <div className={styles.logoBlock} style={{ backgroundImage: 'url(/static/etherealengine.png)' }}></div>
+        <div
+          className={styles.logoBlock}
+          style={{ backgroundImage: 'url(/static/etherealengine.png)' }}
+          onClick={routeHome}
+        ></div>
         <EditorNavbarProfile />
       </div>
     </nav>
