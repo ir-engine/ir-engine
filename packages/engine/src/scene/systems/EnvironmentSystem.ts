@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { Texture } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -35,6 +36,16 @@ import { XRState } from '../../xr/XRState'
 const reactor = () => {
   const background = useHookstate(getMutableState(SceneState).background)
   const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
+
+  /** @todo when we have asset loader hooks we can change this */
+  useEffect(() => {
+    if (!background.value) return
+    const backgroundTexture = background.value
+    if (backgroundTexture instanceof Texture)
+      return () => {
+        backgroundTexture.dispose()
+      }
+  }, [background])
 
   useEffect(() => {
     Engine.instance.scene.background = sessionMode.value === 'immersive-ar' ? null : background.value

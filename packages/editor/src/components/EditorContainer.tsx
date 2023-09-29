@@ -43,13 +43,13 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { getComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { useDrop } from 'react-dnd'
 import { Vector2 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
@@ -106,6 +106,87 @@ export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
   )
 }
 
+const ViewportDnD = () => {
+  const [{ isDragging, isOver }, dropRef] = useDrop({
+    accept: [ItemTypes.Prefab],
+    collect: (monitor) => ({
+      isDragging: monitor.getItem() !== null && monitor.canDrop(),
+      isOver: monitor.isOver()
+    }),
+    drop(item: SceneElementType, monitor) {
+      const node = addSceneComponentElement(item)
+      if (!node) return
+
+      const transformComponent = getComponent(node, TransformComponent)
+      if (transformComponent) {
+        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
+        const localTransformComponent = getComponent(node, LocalTransformComponent)
+        if (localTransformComponent) {
+          localTransformComponent.position.copy(transformComponent.position)
+        }
+      }
+    }
+  })
+
+  return (
+    <div
+      id="viewport-panel"
+      ref={dropRef}
+      style={{
+        pointerEvents: isDragging ? 'all' : 'none',
+        border: isDragging && isOver ? '5px solid white' : 'none',
+        width: '100%',
+        height: '100%'
+      }}
+    />
+  )
+}
+const ViewPortPanelContent = () => {
+  const { t } = useTranslation()
+  const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
+  return sceneName ? (
+    <ViewportDnD />
+  ) : (
+    <div className={styles.bgImageBlock}>
+      <img src="/static/etherealengine.png" alt="" />
+      <h2>{t('editor:selectSceneMsg')}</h2>
+    </div>
+  )
+}
+
+const SceneLoadingProgress = () => {
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
+  return (
+    <div style={{ top: '50px', position: 'relative' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          height: '100%',
+          width: '100%',
+          flexDirection: 'column'
+        }}
+      >
+        <div
+          style={{
+            // default values will be overridden by theme
+            fontFamily: 'Lato',
+            fontSize: '12px',
+            color: 'white',
+            padding: '16px'
+          }}
+        >
+          {`Scene Loading... ${loadingProgress}% - ${sceneAssetPendingTagQuery.length} assets left`}
+        </div>
+        <CircularProgress />
+      </div>
+    </div>
+  )
+}
+
 /**
  * EditorContainer class used for creating container for Editor
  */
@@ -115,9 +196,7 @@ const EditorContainer = () => {
   const sceneName = editorState.sceneName
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
 
-  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
-  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
-  const sceneLoading = sceneName && !sceneLoaded
+  const sceneLoading = sceneName.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -195,7 +274,7 @@ const EditorContainer = () => {
       const sceneData = await createNewScene(projectName.value)
       if (!sceneData) return
 
-      reRouteToLoadScene(sceneData.sceneName)
+      reRouteToLoadScene(sceneData.name)
     } catch (error) {
       logger.error(error)
     }
@@ -272,7 +351,8 @@ const EditorContainer = () => {
     const el = document.createElement('input')
     el.type = 'file'
     el.multiple = true
-    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
+    el.accept =
+      '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
     el.style.display = 'none'
     el.onchange = async () => {
       const pName = projectName.value
@@ -467,54 +547,6 @@ const EditorContainer = () => {
     ]
   }
 
-  const ViewportDnD = () => {
-    const [{ isDragging, isOver }, dropRef] = useDrop({
-      accept: [ItemTypes.Prefab],
-      collect: (monitor) => ({
-        isDragging: monitor.getItem() !== null && monitor.canDrop(),
-        isOver: monitor.isOver()
-      }),
-      drop(item: SceneElementType, monitor) {
-        const node = addSceneComponentElement(item)
-        if (!node) return
-
-        const transformComponent = getComponent(node, TransformComponent)
-        if (transformComponent) {
-          getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-          const localTransformComponent = getComponent(node, LocalTransformComponent)
-          if (localTransformComponent) {
-            localTransformComponent.position.copy(transformComponent.position)
-          }
-        }
-      }
-    })
-
-    return (
-      <div
-        id="viewport-panel"
-        ref={dropRef}
-        style={{
-          pointerEvents: isDragging ? 'all' : 'none',
-          border: isDragging && isOver ? '5px solid white' : 'none',
-          width: '100%',
-          height: '100%'
-        }}
-      />
-    )
-  }
-
-  const ViewPortPanelContent = () => {
-    const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
-    return sceneLoaded ? (
-      <ViewportDnD />
-    ) : (
-      <div className={styles.bgImageBlock}>
-        <img src="/static/etherealengine.png" alt="" />
-        <h2>{t('editor:selectSceneMsg')}</h2>
-      </div>
-    )
-  }
-
   const toolbarMenu = generateToolbarMenu()
 
   const defaultLayout: LayoutData = {
@@ -629,13 +661,7 @@ const EditorContainer = () => {
             <ToolBar menu={toolbarMenu} />
             <ElementList />
             <ControlText />
-            {sceneLoading && (
-              <div style={{ top: '5px' }}>
-                <LoadingCircle
-                  message={`Scene Loading... ${loadingProgress}% - ${sceneAssetPendingTagQuery.length} assets left`}
-                />
-              </div>
-            )}
+            {sceneLoading && <SceneLoadingProgress />}
             <div className={styles.workspaceContainer}>
               <AssetDropZone />
               <AppContext.Provider value={{ searchElement, searchHierarchy }}>

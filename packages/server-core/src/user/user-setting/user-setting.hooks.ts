@@ -64,8 +64,7 @@ const ensureUserThemeModes = () => {
     if (clientSettings && clientSettings.data.length > 0) {
       result.themeModes = clientSettings.data[0].themeModes
 
-      // @ts-ignore
-      await app.service(userSettingPath)._patch(result.id, result)
+      await app.service(userSettingPath).patch(result.id, result)
     }
 
     return context

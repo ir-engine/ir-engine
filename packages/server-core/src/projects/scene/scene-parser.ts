@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { PortalType } from '@etherealengine/engine/src/schemas/projects/portal.schema'
 
 export const parseScenePortals = (scene: SceneData) => {
-  const portals: PortalDetail[] = []
+  const portals: PortalType[] = []
   for (const [entityId, entity] of Object.entries(scene.scene?.entities!)) {
     for (const component of entity.components)
       if (component.name === 'portal') {
