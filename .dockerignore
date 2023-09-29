@@ -6,8 +6,6 @@ node_modules
 kubectl
 lib/
 packages/client/dist
-packages/native-plugin-example
-packages/ops
 readme/
 tests/
 vendor/
