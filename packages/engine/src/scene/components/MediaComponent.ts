@@ -35,7 +35,6 @@ import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  ComponentType,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -138,6 +137,7 @@ export const MediaComponent = defineComponent({
       paths: [] as string[],
       // runtime props
       paused: true,
+      ended: true,
       seekTime: -1,
       waiting: false,
       track: 0,
@@ -347,6 +347,12 @@ export function MediaReactor() {
 
   useEffect(
     function updateMediaElement() {
+      if (!media.ended.value) {
+        // If current track is not ended, don't change the track
+        return
+      }
+      media.ended.set(false)
+
       if (!isClient) return
 
       const track = media.track.value
@@ -393,7 +399,8 @@ export function MediaReactor() {
           'error',
           (err) => {
             addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            if (!media.paused.value) media.track.set(getNextTrack(media.value))
+            if (!media.paused.value)
+              media.track.set(getNextTrack(media.track.value, media.resources.length, media.playMode.value))
             media.waiting.set(false)
           },
           { signal }
@@ -402,8 +409,11 @@ export function MediaReactor() {
         element.addEventListener(
           'ended',
           () => {
-            if (media.playMode.value === PlayMode.single) return
-            media.track.set(getNextTrack(media.value))
+            media.ended.set(true)
+            if (media.playMode.value === PlayMode.single) {
+              return
+            }
+            media.track.set(getNextTrack(media.track.value, media.resources.length, media.playMode.value))
             media.waiting.set(false)
           },
           { signal }
@@ -430,8 +440,12 @@ export function MediaReactor() {
       } else {
         mediaElementState.element.src.set(path)
       }
+
+      if (!media.paused.value) {
+        mediaElementState.value.element.play()
+      }
     },
-    [media.resources, media.track]
+    [media.resources, media.track, media.ended]
   )
 
   useEffect(
@@ -519,22 +533,19 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
   return hls
 }
 
-export function getNextTrack(media: ComponentType<typeof MediaComponent>) {
-  const currentTrack = media.track
-  const numTracks = media.resources.length
+export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayMode) {
   let nextTrack = 0
 
-  if (media.playMode == PlayMode.random) {
+  if (currentMode == PlayMode.random) {
     // todo: smart random, i.e., lower probability of recently played tracks
-    // Rahul : use LRU cache?
-    nextTrack = Math.floor(Math.random() * numTracks)
-  } else if (media.playMode == PlayMode.single) {
-    nextTrack = (currentTrack + 1) % numTracks
-  } else if (media.playMode == PlayMode.singleloop) {
+    nextTrack = Math.floor(Math.random() * trackCount)
+  } else if (currentMode == PlayMode.single) {
+    nextTrack = (currentTrack + 1) % trackCount
+  } else if (currentMode == PlayMode.singleloop) {
     nextTrack = currentTrack
   } else {
     //PlayMode.Loop
-    nextTrack = (currentTrack + 1) % numTracks
+    nextTrack = (currentTrack + 1) % trackCount
   }
 
   return nextTrack

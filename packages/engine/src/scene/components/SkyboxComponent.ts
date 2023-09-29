@@ -34,7 +34,7 @@ import {
 } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -50,7 +50,9 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
+
   jsonID: 'skybox',
+
   onInit: (entity) => {
     return {
       backgroundColor: new Color(0x000000),
@@ -69,6 +71,7 @@ export const SkyboxComponent = defineComponent({
       }
     }
   },
+
   onSet: (entity, component, json) => {
     if (typeof json?.backgroundColor === 'number') component.backgroundColor.set(new Color(json.backgroundColor))
     if (typeof json?.equirectangularPath === 'string') component.equirectangularPath.set(json.equirectangularPath)
@@ -76,6 +79,7 @@ export const SkyboxComponent = defineComponent({
     if (typeof json?.backgroundType === 'number') component.backgroundType.set(json.backgroundType)
     if (typeof json?.skyboxProps === 'object') component.skyboxProps.set(json.skyboxProps)
   },
+
   toJSON: (entity, component) => {
     return {
       backgroundColor: component.backgroundColor.value,
@@ -88,7 +92,10 @@ export const SkyboxComponent = defineComponent({
 
   onRemove: (entity, component) => {
     // todo, do this in reactors instead of onRemove once we have async suspend
-    getMutableState(SceneState).background.set(null)
+    const backgroundState = getMutableState(SceneState).background
+    const background = backgroundState.get(NO_PROXY) as Texture
+    background?.isTexture && background.dispose()
+    backgroundState.set(null)
   },
 
   reactor: function () {
@@ -168,6 +175,7 @@ export const SkyboxComponent = defineComponent({
       const texture = sky.generateSkyboxTextureCube(EngineRenderer.instance.renderer)
       texture.mapping = CubeReflectionMapping
       background.set(texture)
+      sky.dispose()
     }, [skyboxState.backgroundType, skyboxState.skyboxProps])
 
     return null
