@@ -257,7 +257,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [createSelfOwner, createChannelUsers],
+    create: [iff((context) => !context.existingData, createSelfOwner, createChannelUsers)],
     update: [],
     patch: [],
     remove: []
