@@ -969,7 +969,7 @@
           "props": {
             "src": "__$project$__/default-project/assets/keycard.glb",
             "generateBVH": true,
-            "avoidCameraOcclusion": false
+            "avoidCameraOcclusion": true
           }
         },
         {
