@@ -287,7 +287,8 @@ export const getImageStats = async (
   mimeType: string
 ): Promise<{ width: number; height: number }> => {
   if (mimeType === 'image/ktx2') {
-    if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
+    if (typeof file === 'string')
+      file = Buffer.from(await (await fetch(file, { headers: { range: 'bytes=0-28' } })).arrayBuffer())
     const widthBuffer = file.slice(20, 24)
     const heightBuffer = file.slice(24, 28)
     return {
