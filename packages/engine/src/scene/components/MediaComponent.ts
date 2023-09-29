@@ -301,7 +301,7 @@ export function MediaReactor() {
       if (!mediaElement || media.seekTime.value < 0 || mediaElement.element.value.currentTime === media.seekTime.value)
         return
       mediaElement.element.currentTime.set(media.seekTime.value) // set time and stop playing
-      media.paused.value ? media.paused.set(false) : mediaElement.element.value.play() // start play again
+      if (!media.paused.value) mediaElement.element.value.play()
       media.seekTime.set(-1)
     },
     [media.seekTime, mediaElement]
@@ -351,12 +351,15 @@ export function MediaReactor() {
         // If current track is not ended, don't change the track
         return
       }
-      media.ended.set(false)
 
       if (!isClient) return
 
       const track = media.track.value
-      const path = media.resources[track].value
+      const nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
+
+      if (nextTrack === -1) return
+
+      const path = media.resources[nextTrack].value
       if (!path) {
         if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
         return
@@ -370,6 +373,9 @@ export function MediaReactor() {
         addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
         return
       }
+
+      media.ended.set(false)
+      media.track.set(nextTrack)
 
       if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
         setComponent(entity, MediaElementComponent, {
@@ -399,8 +405,7 @@ export function MediaReactor() {
           'error',
           (err) => {
             addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            if (!media.paused.value)
-              media.track.set(getNextTrack(media.track.value, media.resources.length, media.playMode.value))
+            media.ended.set(true)
             media.waiting.set(false)
           },
           { signal }
@@ -410,10 +415,6 @@ export function MediaReactor() {
           'ended',
           () => {
             media.ended.set(true)
-            if (media.playMode.value === PlayMode.single) {
-              return
-            }
-            media.track.set(getNextTrack(media.track.value, media.resources.length, media.playMode.value))
             media.waiting.set(false)
           },
           { signal }
@@ -445,7 +446,7 @@ export function MediaReactor() {
         mediaElementState.value.element.play()
       }
     },
-    [media.resources, media.track, media.ended]
+    [media.resources, media.track, media.ended, media.playMode]
   )
 
   useEffect(
@@ -534,13 +535,13 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
 }
 
 export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayMode) {
+  if (currentMode === PlayMode.single || trackCount === 0) return -1
+
   let nextTrack = 0
 
   if (currentMode == PlayMode.random) {
     // todo: smart random, i.e., lower probability of recently played tracks
     nextTrack = Math.floor(Math.random() * trackCount)
-  } else if (currentMode == PlayMode.single) {
-    nextTrack = (currentTrack + 1) % trackCount
   } else if (currentMode == PlayMode.singleloop) {
     nextTrack = currentTrack
   } else {
