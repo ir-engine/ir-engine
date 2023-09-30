@@ -78,7 +78,7 @@ const getScenePositionForBake = (entity: Entity | null) => {
  * @returns
  */
 
-export const uploadBPCEMBakeToServer = async (entity: Entity) => {
+export const uploadBPCEMBakeToServer = async (entity: Entity, blur = 0) => {
   const isSceneEntity = entity === getState(SceneState).sceneEntity
 
   if (isSceneEntity) {
@@ -104,7 +104,8 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     renderTarget.texture,
     bakeComponent.resolution,
     bakeComponent.resolution,
-    true
+    true,
+    blur
   )
 
   if (!blob) return null!
