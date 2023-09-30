@@ -69,7 +69,7 @@ export const EnvMapBakeComponent = defineComponent({
       bakePositionOffset: new Vector3(),
       bakeScale: new Vector3().set(1, 1, 1),
       bakeType: EnvMapBakeTypes.Baked,
-      blur: 8, // in pixels
+      blur: 0, // in pixels
       resolution: 1024,
       refreshMode: EnvMapBakeRefreshTypes.OnAwake,
       envMapOrigin: '',

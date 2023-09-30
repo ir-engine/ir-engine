@@ -144,7 +144,7 @@ export const ScreenshotSettings = defineState({
       srgb: false,
       uastc: true,
       uastcZstandard: true,
-      uastcFlags: UASTCFlags.UASTCLevelDefault
+      uastcFlags: UASTCFlags.UASTCLevelFastest
     } as KTX2EncodeOptions
   }
 })
