@@ -131,7 +131,7 @@ export const updateBoundingBox = (entity: Entity) => {
 
 const traverseComputeBoundingBox = (mesh: Mesh) => {
   if (mesh.isMesh) {
-    if (mesh.geometry.attributes.position.array.length < 3) return //console.warn('Empty mesh geometry', mesh)
+    if (mesh.geometry.attributes.position && mesh.geometry.attributes.position.array.length < 3) return //console.warn('Empty mesh geometry', mesh)
     mesh.geometry.computeBoundingBox()
   }
 }
