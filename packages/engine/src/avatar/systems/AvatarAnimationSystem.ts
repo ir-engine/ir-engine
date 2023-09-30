@@ -257,7 +257,8 @@ const execute = () => {
 
       //calculate hips to head
       rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-      _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
+      if (ikDataByName[ikTargets.head])
+        _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
 
       if (rigComponent.ikOverride == 'mocap')
         rig.hips.node.quaternion
