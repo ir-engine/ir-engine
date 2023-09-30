@@ -228,8 +228,6 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
 
   xrState.scenePosition.copy(targetPosition)
   xrState.sceneRotation.copy(targetRotation)
-  // xrState.scenePosition.value.lerp(targetPosition, lerpAlpha)
-  // xrState.sceneRotation.value.slerp(targetRotation, lerpAlpha)
 }
 
 const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
