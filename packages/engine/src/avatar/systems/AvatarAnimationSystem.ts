@@ -276,7 +276,7 @@ const execute = () => {
             ? ikDataByName[ikTargets.rightElbowHint].position
             : _vector3.copy(transform.position).sub(right),
           tipAxisRestriction,
-          midAxisRestriction,
+          null,
           null,
           ikDataByName[ikTargets.rightHand].blendWeight,
           ikDataByName[ikTargets.rightHand].blendWeight
@@ -295,7 +295,7 @@ const execute = () => {
             ? ikDataByName[ikTargets.leftElbowHint].position
             : _vector3.copy(transform.position).add(right),
           tipAxisRestriction,
-          midAxisRestriction,
+          null,
           null,
           ikDataByName[ikTargets.leftHand].blendWeight,
           ikDataByName[ikTargets.leftHand].blendWeight
