@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default [StaticResource, StaticResourceFilters, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver]
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Discord bot auth service description',
+    securities: ['all']
+  }
+})
