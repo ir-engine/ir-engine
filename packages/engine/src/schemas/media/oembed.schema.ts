@@ -23,25 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export function pathResolver() {
-  //const cacheRe = new RegExp(`(https://[^\\/]+)/projects/([^/]+)/(.*$)`)
-  const cacheRe = new RegExp(`.*/(?:projects|static-resources)/([^/]*)/((?:assets/|).*)`)
-  //                          1: project name -- 2: internal path
-  return cacheRe
-}
+import { Static, Type } from '@feathersjs/typebox'
 
-export function getFileName(path: string) {
-  return /[^\\/]+$/.exec(path)?.[0] ?? ''
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-export function getRelativeURI(path: string) {
-  return pathResolver().exec(path)?.[2] ?? ''
-}
+export const oembedPath = 'oembed'
 
-export function getProjectName(path: string) {
-  return pathResolver().exec(path)?.[1] ?? ''
-}
+export const oembedMethods = ['find'] as const
 
-export function modelResourcesPath(modelName: string) {
-  return `model-resources/${modelName.split('.').at(-2)!}`
-}
+export const oembedSchema = Type.Object(
+  {
+    version: Type.String(),
+    type: Type.String(),
+    title: Type.String(),
+    description: Type.String(),
+    provider_name: Type.String(),
+    provider_url: Type.String(),
+    thumbnail_url: Type.String(),
+    thumbnail_width: Type.Number(),
+    thumbnail_height: Type.Number(),
+    query_url: Type.String(),
+    url: Type.Optional(Type.String()),
+    height: Type.Optional(Type.Number()),
+    width: Type.Optional(Type.Number())
+  },
+  {
+    $id: 'Oembed'
+  }
+)
+export type OembedType = Static<typeof oembedSchema>
