@@ -25,17 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import getImagePalette from 'image-palette-core'
 import React, { useEffect } from 'react'
-import {
-  Color,
-  CompressedTexture,
-  DoubleSide,
-  Mesh,
-  MeshBasicMaterial,
-  SphereGeometry,
-  SRGBColorSpace,
-  Texture,
-  Vector2
-} from 'three'
+import { Color, CompressedTexture, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
@@ -116,8 +106,7 @@ function setDefaultPalette() {
   colors.alternate.set('black')
 }
 
-const setColors = (texture: Texture) => {
-  const image = texture.image as HTMLImageElement
+const setColors = (image: HTMLImageElement) => {
   const uiState = getState(LoadingUISystemState).ui.state
   const colors = uiState.colors
   const palette = getImagePalette(image)
@@ -126,6 +115,19 @@ const setColors = (texture: Texture) => {
     colors.background.set(palette.backgroundColor)
     colors.alternate.set(palette.alternativeColor)
   }
+}
+
+const blurTexture = (texture: Texture, blur = 4) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+  canvas.width = texture.image.width
+  canvas.height = texture.image.height
+  ctx.drawImage(texture.image, 0, 0)
+  ctx.filter = `blur(${blur}px)`
+  ctx.drawImage(canvas, 0, 0)
+  texture.image = canvas
+  texture.needsUpdate = true
+  return texture
 }
 
 function LoadingReactor() {
@@ -139,7 +141,6 @@ function LoadingReactor() {
   /** Handle loading state changes */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    console.log('metadataLoaded', metadataLoaded.value)
     if (
       loadingState.state.value === AppLoadingStates.SCENE_LOADING &&
       transition.state === 'OUT' &&
@@ -167,23 +168,27 @@ function LoadingReactor() {
         envmapURL,
         {},
         (texture: Texture | CompressedTexture) => {
-          texture.colorSpace = SRGBColorSpace
-          texture.needsUpdate = true
-          mesh.material.map = texture
-
           const compressedTexture = texture as CompressedTexture
           if (compressedTexture.isCompressedTexture) {
             try {
               createReadableTexture(compressedTexture).then((texture: Texture) => {
-                setColors(texture)
-                texture.dispose()
+                const image = texture.image
+                blurTexture(texture)
+                mesh.material.map = texture
+                texture.needsUpdate = true
+                setColors(image)
+                compressedTexture.dispose()
               })
             } catch (e) {
               console.error(e)
               setDefaultPalette()
             }
           } else {
-            setColors(texture)
+            const image = texture.image
+            blurTexture(texture)
+            mesh.material.map = texture
+            texture.needsUpdate = true
+            setColors(image)
           }
         },
         undefined,

@@ -83,10 +83,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
-      setComponent(entity, EnvMapBakeComponent, {
-        resolution: 512,
-        blur: 4
-      })
+      setComponent(entity, EnvMapBakeComponent, { resolution: 1024 })
     }
   }
 
@@ -107,8 +104,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     renderTarget.texture,
     bakeComponent.resolution,
     bakeComponent.resolution,
-    true,
-    bakeComponent.blur
+    true
   )
 
   if (!blob) return null!

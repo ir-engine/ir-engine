@@ -69,7 +69,6 @@ export const EnvMapBakeComponent = defineComponent({
       bakePositionOffset: new Vector3(),
       bakeScale: new Vector3().set(1, 1, 1),
       bakeType: EnvMapBakeTypes.Baked,
-      blur: 0, // in pixels
       resolution: 1024,
       refreshMode: EnvMapBakeRefreshTypes.OnAwake,
       envMapOrigin: '',
@@ -86,7 +85,6 @@ export const EnvMapBakeComponent = defineComponent({
     if (matches.object.test(json.bakePositionOffset)) component.bakePositionOffset.value.copy(json.bakePositionOffset)
     if (matches.object.test(json.bakeScale)) component.bakeScale.value.copy(json.bakeScale)
     if (matches.string.test(json.bakeType)) component.bakeType.set(json.bakeType)
-    if (matches.number.test(json.blur)) component.blur.set(json.blur)
     if (matches.number.test(json.resolution)) component.resolution.set(json.resolution)
     if (matches.string.test(json.refreshMode)) component.refreshMode.set(json.refreshMode)
     if (matches.string.test(json.envMapOrigin)) component.envMapOrigin.set(json.envMapOrigin)
@@ -99,7 +97,6 @@ export const EnvMapBakeComponent = defineComponent({
       bakePositionOffset: component.bakePositionOffset.value,
       bakeScale: component.bakeScale.value,
       bakeType: component.bakeType.value,
-      blur: component.blur.value,
       resolution: component.resolution.value,
       refreshMode: component.refreshMode.value,
       envMapOrigin: component.envMapOrigin.value,
