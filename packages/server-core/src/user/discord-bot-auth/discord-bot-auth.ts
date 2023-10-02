@@ -23,12 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import FileBrowserUpload from './file-browser-upload/file-browser-upload'
-import FileBrowser from './file-browser/file-browser'
-import OEmbed from './oembed/oembed'
-import Archiver from './recursive-archiver/archiver'
-import StaticResourceFilters from './static-resource-filters/static-resource-filters'
-import StaticResource from './static-resource/static-resource'
-import Upload from './upload-asset/upload-asset.service'
+import {
+  discordBotAuthMethods,
+  discordBotAuthPath
+} from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
+import { Application } from '../../../declarations'
+import { DiscordBotAuthService } from './discord-bot-auth.class'
+import discordBotAuthDocs from './discord-bot-auth.docs'
+import hooks from './discord-bot-auth.hooks'
 
-export default [StaticResource, StaticResourceFilters, FileBrowser, FileBrowserUpload, OEmbed, Upload, Archiver]
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [discordBotAuthPath]: DiscordBotAuthService
+  }
+}
+
+export default (app: Application): void => {
+  app.use(discordBotAuthPath, new DiscordBotAuthService(app), {
+    // A list of all methods this service exposes externally
+    methods: discordBotAuthMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: discordBotAuthDocs
+  })
+
+  const service = app.service(discordBotAuthPath)
+  service.hooks(hooks)
+}
