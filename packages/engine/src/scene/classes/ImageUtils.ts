@@ -141,7 +141,7 @@ export const ScreenshotSettings = defineState({
   name: 'ScreenshotSettings',
   initial: {
     ktx2: {
-      srgb: false,
+      srgb: true,
       uastc: true,
       uastcZstandard: true,
       uastcFlags: UASTCFlags.UASTCLevelFastest
@@ -156,8 +156,7 @@ export const convertCubemapToKTX2 = async (
   source: CubeTexture,
   width: number,
   height: number,
-  returnAsBlob: boolean,
-  blur = 0
+  returnAsBlob: boolean
 ) => {
   const scene = new Scene()
   const material = new RawShaderMaterial({
@@ -207,12 +206,6 @@ export const convertCubemapToKTX2 = async (
   canvas.width = width
   canvas.height = height
   ctx.putImageData(imageData, 0, 0)
-
-  if (blur > 0) {
-    ctx.filter = `blur(${blur}px)`
-    ctx.drawImage(canvas, 0, 0)
-    imageData = ctx.getImageData(0, 0, width, height)
-  }
 
   const ktx2texture = (await ktx2write.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
 

@@ -47,7 +47,7 @@
               "z": 0
             },
             "bakeType": "Baked",
-            "resolution": 2048,
+            "resolution": 1024,
             "refreshMode": "OnAwake",
             "envMapOrigin": "__$project$__/default-project/apartment.envmap.ktx2",
             "boxProjection": false
