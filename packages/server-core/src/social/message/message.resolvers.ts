@@ -36,8 +36,7 @@ import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 export const messageResolver = resolve<MessageType, HookContext>({
   sender: virtual(async (message, context) => {
     if (message.senderId) {
-      const sender = await context.app.service(userPath)._get(message.senderId)
-      return sender
+      return await context.app.service(userPath)._get(message.senderId)
     }
   }),
   createdAt: virtual(async (message) => fromDateTimeSql(message.createdAt)),

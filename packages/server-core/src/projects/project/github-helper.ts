@@ -33,6 +33,7 @@ import path from 'path'
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import {
   AudioFileTypes,
+  BinaryFileTypes,
   ImageFileTypes,
   ModelFileTypes,
   VideoFileTypes,
@@ -604,6 +605,7 @@ const isBase64Encoded = (filePath: string) => {
     AudioFileTypes.indexOf(extension) > -1 ||
     VolumetricFileTypes.indexOf(extension) > -1 ||
     VideoFileTypes.indexOf(extension) > -1 ||
-    ModelFileTypes.indexOf(extension) > -1
+    ModelFileTypes.indexOf(extension) > -1 ||
+    BinaryFileTypes.indexOf(extension) > -1
   )
 }

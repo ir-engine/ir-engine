@@ -29,8 +29,10 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
+import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -118,7 +120,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     }
 
     email.html = email.html.replace(/&amp;/g, '&')
-    await this.app.service('email').create(email)
+    await this.app.service(emailPath).create(email)
   }
 
   /**
@@ -146,7 +148,7 @@ export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
     }
 
     await this.app
-      .service('sms')
+      .service(smsPath)
       .create(sms, null!)
       .then(() => logger.info('Sent SMS'))
       .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))

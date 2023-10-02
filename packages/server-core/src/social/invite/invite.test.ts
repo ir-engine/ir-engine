@@ -143,14 +143,14 @@ describe.skip('invite service', () => {
   })
 
   it('should find invites with empty search string', async () => {
-    const items = await app.service('invite').find({ query: { search: '' } })
+    const items = await app.service(invitePath).find({ query: { search: '' } })
     assert.ok(items)
     assert.equal((items as Paginated<InviteType>).data.length, invites.length)
   })
 
   it('should find invites with search string present', async () => {
     const lastInvite = invites.at(-1)
-    const item = await app.service('invite').find({ query: { search: invites.passcode } })
+    const item = await app.service(invitePath).find({ query: { search: invites.passcode } })
 
     assert.equal((item as Paginated<InviteType>).data[0].passcode, lastInvite.passcode)
   })

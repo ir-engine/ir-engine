@@ -439,12 +439,16 @@ export class WebLayer3D extends Object3D {
 
   // private positioned = false
 
+  public onBeforeApplyLayout() {}
+
   protected _doUpdate() {
     this[ON_BEFORE_UPDATE]()
 
     // content must update before layout
     this.updateContent()
     this.updateLayout()
+
+    this.onBeforeApplyLayout()
 
     if (WebLayer3D.shouldApplyDOMLayout(this)) {
       this.position.copy(this.domLayout.position)

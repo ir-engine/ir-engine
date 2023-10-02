@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { V_010 } from '../../common/constants/MathConstants'
-import { createPriorityQueue } from '../../ecs/PriorityQueue'
+import { createPriorityQueue, createSortAndApplyPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -40,19 +39,14 @@ import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import {
-  DistanceFromCameraComponent,
-  FrustumCullCameraComponent,
-  compareDistanceToCamera
-} from '../../transform/components/DistanceComponents'
+import { compareDistanceToCamera } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { isMobileXRHeadset } from '../../xr/XRState'
+import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
+import { XRState, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
@@ -85,15 +79,6 @@ const avatarComponentQuery = defineQuery([AvatarComponent])
 
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
 
-const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
-
-const filterFrustumCulledEntities = (entity: Entity) =>
-  !(
-    DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr &&
-    FrustumCullCameraComponent.isCulled[entity]
-  )
-
-let avatarSortAccumulator = 0
 const _quat = new Quaternion()
 const _vector3 = new Vector3()
 const _right = new Vector3()
@@ -126,7 +111,6 @@ const setVisualizers = () => {
     visualizers[i].set(e)
   }
 }
-const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Default)
 
 interface targetTransform {
   position: Vector3
@@ -139,6 +123,8 @@ const ikDataByName = {} as Record<string, targetTransform>
 const footRaycastInterval = 0.25
 let footRaycastTimer = 0
 
+const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
+
 const execute = () => {
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
@@ -147,43 +133,7 @@ const execute = () => {
   /**
    * 1 - Sort & apply avatar priority queue
    */
-
-  let needsSorting = false
-  avatarSortAccumulator += deltaSeconds
-  if (avatarSortAccumulator > 1) {
-    needsSorting = true
-    avatarSortAccumulator = 0
-  }
-
-  for (const entity of avatarComponentQuery.enter()) {
-    sortedTransformEntities.push(entity)
-    needsSorting = true
-  }
-
-  for (const entity of avatarComponentQuery.exit()) {
-    const idx = sortedTransformEntities.indexOf(entity)
-    idx > -1 && sortedTransformEntities.splice(idx, 1)
-    needsSorting = true
-    priorityQueue.removeEntity(entity)
-  }
-
-  if (needsSorting && sortedTransformEntities.length > 1) {
-    insertionSort(sortedTransformEntities, compareDistanceToCamera)
-  }
-
-  const filteredSortedTransformEntities: Array<Entity> = []
-  for (let i = 0; i < sortedTransformEntities.length; i++) {
-    if (filterFrustumCulledEntities(sortedTransformEntities[i]))
-      filteredSortedTransformEntities.push(sortedTransformEntities[i])
-  }
-
-  for (let i = 0; i < filteredSortedTransformEntities.length; i++) {
-    const entity = filteredSortedTransformEntities[i]
-    const accumulation = Math.min(Math.exp(1 / (i + 1)) / 3, 1)
-    priorityQueue.addPriority(entity, accumulation * accumulation)
-  }
-
-  priorityQueue.update()
+  sortAndApplyPriorityQueue(priorityQueue, sortedTransformEntities, deltaSeconds)
 
   /**
    * 2 - Apply avatar animations
@@ -307,7 +257,8 @@ const execute = () => {
 
       //calculate hips to head
       rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-      _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
+      if (ikDataByName[ikTargets.head])
+        _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
 
       if (rigComponent.ikOverride == 'mocap')
         rig.hips.node.quaternion
@@ -326,7 +277,7 @@ const execute = () => {
             ? ikDataByName[ikTargets.rightElbowHint].position
             : _vector3.copy(transform.position).sub(right),
           tipAxisRestriction,
-          midAxisRestriction,
+          null,
           null,
           ikDataByName[ikTargets.rightHand].blendWeight,
           ikDataByName[ikTargets.rightHand].blendWeight
@@ -345,7 +296,7 @@ const execute = () => {
             ? ikDataByName[ikTargets.leftElbowHint].position
             : _vector3.copy(transform.position).add(right),
           tipAxisRestriction,
-          midAxisRestriction,
+          null,
           null,
           ikDataByName[ikTargets.leftHand].blendWeight,
           ikDataByName[ikTargets.leftHand].blendWeight
@@ -411,6 +362,16 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const heightDifference = useHookstate(getMutableState(XRState).userAvatarHeightDifference)
+  const xrState = getMutableState(XRState)
+  const pose = useHookstate(xrState.viewerPose)
+  useEffect(() => {
+    if (heightDifference.value) xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
+    xrState.avatarCameraMode.set('attached')
+  }, [heightDifference])
+  useEffect(() => {
+    if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
+  }, [pose])
   const renderState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
     setVisualizers()
