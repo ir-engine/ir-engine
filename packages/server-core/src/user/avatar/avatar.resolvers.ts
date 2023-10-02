@@ -35,16 +35,12 @@ import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
   modelResource: virtual(async (avatar, context) => {
-    if (avatar.modelResourceId) {
-      const modelStaticResource = await context.app.service(staticResourcePath).get(avatar.modelResourceId)
-      return modelStaticResource
-    }
+    if (context.event !== 'removed' && avatar.modelResourceId)
+      return context.app.service(staticResourcePath).get(avatar.modelResourceId)
   }),
   thumbnailResource: virtual(async (avatar, context) => {
-    if (avatar.thumbnailResourceId) {
-      const thumbnailStaticResource = await context.app.service(staticResourcePath).get(avatar.thumbnailResourceId)
-      return thumbnailStaticResource
-    }
+    if (context.event !== 'removed' && avatar.thumbnailResourceId)
+      return context.app.service(staticResourcePath).get(avatar.thumbnailResourceId)
   }),
   createdAt: virtual(async (avatar) => fromDateTimeSql(avatar.createdAt)),
   updatedAt: virtual(async (avatar) => fromDateTimeSql(avatar.updatedAt))
