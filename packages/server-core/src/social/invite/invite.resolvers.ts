@@ -70,17 +70,11 @@ export const inviteResolver = resolve<InviteType, HookContext>(
 
 export const inviteExternalResolver = resolve<InviteType, HookContext>({
   user: virtual(async (invite, context) => {
-    if (invite.userId) {
-      const user = await context.app.service(userPath)._get(invite.userId)
-      return user
-    }
+    if (invite.userId) return await context.app.service(userPath)._get(invite.userId)
   }),
 
   invitee: virtual(async (invite, context) => {
-    if (invite.inviteeId) {
-      const user = await context.app.service(userPath)._get(invite.inviteeId)
-      return user
-    }
+    if (invite.inviteeId) return await context.app.service(userPath)._get(invite.inviteeId)
   }),
   channelName: virtual(async (invite, context) => {
     if (invite.inviteType === 'channel' && invite.targetObjectId) {
