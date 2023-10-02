@@ -28,7 +28,7 @@ import React from 'react'
 
 import { Engine } from '../classes/Engine'
 import { Entity, UndefinedEntity } from '../classes/Entity'
-import { EntityRemovedComponent, removeAllComponents, setComponent } from './ComponentFunctions'
+import { removeAllComponents } from './ComponentFunctions'
 
 export const createEntity = (): Entity => {
   let entity = bitECS.addEntity(Engine.instance)
@@ -36,15 +36,12 @@ export const createEntity = (): Entity => {
   return entity as Entity
 }
 
-export const removeEntity = (entity: Entity, immediately = false) => {
+export const removeEntity = (entity: Entity) => {
   if (!entity || !entityExists(entity)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
   const promise = removeAllComponents(entity)
-  setComponent(entity, EntityRemovedComponent, true)
 
-  if (immediately) {
-    bitECS.removeEntity(Engine.instance, entity)
-  }
+  bitECS.removeEntity(Engine.instance, entity)
 
   return promise
 }

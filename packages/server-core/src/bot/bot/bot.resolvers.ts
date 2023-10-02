@@ -57,7 +57,7 @@ export const botExternalResolver = resolve<BotType, HookContext>({
   }),
   botCommands: virtual(async (bot, context) => {
     if (bot.id) {
-      const botCommands = (await context.app.service(botCommandPath)._find({
+      const botCommands = (await context.app.service(botCommandPath).find({
         query: {
           botId: bot.id
         },
