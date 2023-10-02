@@ -679,8 +679,6 @@ function UVOL2Reactor() {
     }
     console.log('BufferSizes: ', geometryBuffer.size, textureBuffer.size)
 
-    // TODO: ended logic
-
     if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       updateUniformSolve(currentTime.current)
     } else {

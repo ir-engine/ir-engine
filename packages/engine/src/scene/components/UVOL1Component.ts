@@ -162,72 +162,72 @@ function UVOL1Reactor() {
     })
   }, [volumetric.paused, volumetric.initialBuffersLoaded])
 
-  /**
-   * sync mesh frame to video texture frame
-   */
-  const processFrame = (frameToPlay: number) => {
-    if (meshBuffer.has(frameToPlay)) {
-      // @ts-ignore: value cannot be anything else other than BufferGeometry
-      mesh.geometry = meshBuffer.get(frameToPlay)
-      mesh.geometry.attributes.position.needsUpdate = true
+  useVideoFrameCallback(video, (now, metadata) => {
+    if (!metadata) return
+    /**
+     * sync mesh frame to video texture frame
+     */
+    const processFrame = (frameToPlay: number) => {
+      if (meshBuffer.has(frameToPlay)) {
+        // @ts-ignore: value cannot be anything else other than BufferGeometry
+        mesh.geometry = meshBuffer.get(frameToPlay)
+        mesh.geometry.attributes.position.needsUpdate = true
 
-      videoTexture.needsUpdate = true
-      EngineRenderer.instance.renderer.initTexture(videoTexture)
+        videoTexture.needsUpdate = true
+        EngineRenderer.instance.renderer.initTexture(videoTexture)
+      }
+      removePlayedBuffer(frameToPlay)
     }
-    removePlayedBuffer(frameToPlay)
-  }
 
-  const handleVideoFrame = (now: DOMHighResTimeStamp, metadata: VideoFrameCallbackMetadata) => {
     const frameToPlay = Math.round(metadata.mediaTime * component.data.value.frameRate)
     processFrame(frameToPlay)
-  }
-
-  useVideoFrameCallback(video, handleVideoFrame)
-
-  const bufferLoop = () => {
-    const numberOfFrames = component.data.value.frameData.length
-    if (nextFrameToRequest.current === numberOfFrames - 1) {
-      // Fetched all frames
-      return
-    }
-
-    const minimumBufferLength = targetFramesToRequest * 2
-    const meshBufferHasEnoughToPlay = meshBuffer.size >= Math.max(targetFramesToRequest * 2, 90) // 2 seconds
-    const meshBufferHasEnough = meshBuffer.size >= minimumBufferLength * 5
-
-    if (pendingRequests.current == 0 && !meshBufferHasEnough) {
-      const newLastFrame = Math.min(nextFrameToRequest.current + targetFramesToRequest - 1, numberOfFrames - 1)
-      for (let i = nextFrameToRequest.current; i <= newLastFrame; i++) {
-        const meshFilePath = component.manifestPath.value.replace('.manifest', '.drcs')
-        const byteStart = component.data.value.frameData[i].startBytePosition
-        const byteEnd = byteStart + component.data.value.frameData[i].meshLength
-        pendingRequests.current += 1
-        decodeCorto(meshFilePath, byteStart, byteEnd)
-          .then((geometry) => {
-            if (!geometry) {
-              throw new Error('VDEBUG Entity ${entity} Invalid geometry frame: ' + i.toString())
-            }
-
-            meshBuffer.set(i, geometry)
-            pendingRequests.current -= 1
-          })
-          .catch((e) => {
-            console.error('Error decoding corto frame: ', i, e)
-            pendingRequests.current -= 1
-          })
-
-        nextFrameToRequest.current = newLastFrame
-      }
-
-      if (meshBufferHasEnoughToPlay && !volumetric.initialBuffersLoaded.value) {
-        volumetric.initialBuffersLoaded.set(true)
-      }
-    }
-  }
-
-  useExecute(bufferLoop, {
-    with: AnimationSystemGroup
   })
+
+  useExecute(
+    () => {
+      const numberOfFrames = component.data.value.frameData.length
+      if (nextFrameToRequest.current === numberOfFrames - 1) {
+        // Fetched all frames
+        return
+      }
+
+      const minimumBufferLength = targetFramesToRequest * 2
+      const meshBufferHasEnoughToPlay = meshBuffer.size >= Math.max(targetFramesToRequest * 2, 90) // 2 seconds
+      const meshBufferHasEnough = meshBuffer.size >= minimumBufferLength * 5
+
+      if (pendingRequests.current == 0 && !meshBufferHasEnough) {
+        const newLastFrame = Math.min(nextFrameToRequest.current + targetFramesToRequest - 1, numberOfFrames - 1)
+        for (let i = nextFrameToRequest.current; i <= newLastFrame; i++) {
+          const meshFilePath = component.manifestPath.value.replace('.manifest', '.drcs')
+          const byteStart = component.data.value.frameData[i].startBytePosition
+          const byteEnd = byteStart + component.data.value.frameData[i].meshLength
+          pendingRequests.current += 1
+          decodeCorto(meshFilePath, byteStart, byteEnd)
+            .then((geometry) => {
+              if (!geometry) {
+                throw new Error('VDEBUG Entity ${entity} Invalid geometry frame: ' + i.toString())
+              }
+
+              meshBuffer.set(i, geometry)
+              pendingRequests.current -= 1
+            })
+            .catch((e) => {
+              console.error('Error decoding corto frame: ', i, e)
+              pendingRequests.current -= 1
+            })
+
+          nextFrameToRequest.current = newLastFrame
+        }
+
+        if (meshBufferHasEnoughToPlay && !volumetric.initialBuffersLoaded.value) {
+          volumetric.initialBuffersLoaded.set(true)
+        }
+      }
+    },
+    {
+      with: AnimationSystemGroup
+    }
+  )
 
   const removePlayedBuffer = (currentFrame: number) => {
     for (const [key, buffer] of meshBuffer.entries()) {

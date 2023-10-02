@@ -37,7 +37,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PlayMode } from '../constants/PlayMode'
-import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
+import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOL1Component } from './UVOL1Component'
 import { UVOL2Component } from './UVOL2Component'
@@ -154,39 +154,31 @@ export function VolumetricReactor() {
   }, [])
 
   useEffect(() => {
-    const pathCount = volumetric.paths.value.length
-    if (!volumetric.ended.value || pathCount === 0) {
+    console.log('vdebug triggered')
+    if (!volumetric.ended.value) {
+      // If current track is not ended, don't change the track
       return
     }
 
-    /**
-     * Find the next valid track: If the current track is invalid, try the next one.
-     * Here invalid means, path does not end with '.manifest'.
-     */
-    let currentTrack = volumetric.track.value
-    // eslint-disable-next-line
+    const pathCount = volumetric.paths.value.length
+
+    let nextTrack = getNextTrack(volumetric.track.value, pathCount, volumetric.playMode.value)
+    const ACCEPTED_TYPES = ['manifest', 'drcs', 'mp4', 'json']
+
+    // eslint-disable-next-line no-constant-condition
     while (true) {
-      const nextTrack = getNextTrack(volumetric.playMode.value, pathCount, currentTrack)
-      const manifestPath = volumetric.paths.value[nextTrack]
-      if (
-        manifestPath &&
-        (manifestPath.endsWith('.manifest') || manifestPath.endsWith('.mp4') || manifestPath.endsWith('.json'))
-      ) {
-        currentTrack = nextTrack
-        break
-      } else if (nextTrack == volumetric.track.value) {
-        // No valid tracks found, stop playing
-        currentTrack = -1
+      const path = volumetric.paths.value[nextTrack]
+      const extension = path ? path.split('.').pop() : ''
+      if (path && extension && ACCEPTED_TYPES.includes(extension)) {
         break
       } else {
-        // 'nextTrack' is not a valid track, try the next one
-        currentTrack = nextTrack
+        if (nextTrack === volumetric.track.value) {
+          // If we've looped through all the tracks and none are valid, return
+          return
+        }
+        nextTrack = getNextTrack(nextTrack, pathCount, volumetric.playMode.value)
+        if (nextTrack === -1) return
       }
-    }
-
-    if (currentTrack === -1) {
-      console.info('VDEBUG: No valid tracks found.')
-      return
     }
 
     const resetTrack = () => {
@@ -199,12 +191,15 @@ export function VolumetricReactor() {
 
     resetTrack()
 
-    volumetric.track.set(currentTrack)
+    volumetric.track.set(nextTrack)
 
-    let manifestPath = volumetric.paths.value[currentTrack]
+    let manifestPath = volumetric.paths.value[nextTrack]
     if (manifestPath.endsWith('.mp4')) {
       // UVOL1
       manifestPath = manifestPath.replace('.mp4', '.manifest')
+    } else if (manifestPath.endsWith('.drcs')) {
+      // UVOL2
+      manifestPath = manifestPath.replace('.drcs', '.manifest')
     }
 
     fetch(manifestPath)
@@ -234,22 +229,4 @@ export function VolumetricReactor() {
   }, [volumetric.volume])
 
   return null
-}
-
-export function getNextTrack(playMode: PlayMode, pathCount: number, currentTrack: number) {
-  let nextTrack = 0
-
-  if (playMode == PlayMode.random) {
-    // TODO: Smart random: Lower probability of recently played tracks
-    nextTrack = Math.floor(Math.random() * pathCount)
-  } else if (playMode == PlayMode.single) {
-    nextTrack = (currentTrack + 1) % pathCount
-  } else if (playMode == PlayMode.singleloop) {
-    nextTrack = currentTrack
-  } else {
-    // Default: PlayMode.Loop
-    nextTrack = (currentTrack + 1) % pathCount
-  }
-
-  return nextTrack
 }
