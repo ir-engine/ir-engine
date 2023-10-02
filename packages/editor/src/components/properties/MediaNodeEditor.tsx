@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import {
   MediaComponent,
@@ -70,7 +70,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const media = useComponent(props.entity, MediaComponent)
-  const element = useComponent(props.entity, MediaElementComponent)
+  const element = useOptionalComponent(props.entity, MediaElementComponent)
   const errors = getEntityErrors(props.entity, MediaComponent)
 
   const toggle = () => {
@@ -78,7 +78,9 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   }
 
   const reset = () => {
-    setTime(element.element, media.seekTime.value)
+    if (element) {
+      setTime(element.element, media.seekTime.value)
+    }
   }
 
   return (
