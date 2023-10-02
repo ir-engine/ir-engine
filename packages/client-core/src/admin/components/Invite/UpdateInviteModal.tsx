@@ -200,7 +200,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
 
   const handleLocationChange = async (e) => {
     locationId.set(e.target.value)
-    const location = await Engine.instance.api.service('location').get(e.target.value)
+    const location = await Engine.instance.api.service(locationPath).get(e.target.value)
     if (location && location.sceneId) {
       const sceneName = location.sceneId.split('/')
       AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
@@ -212,7 +212,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     const instance = adminInstances.find((instance) => instance.id === e.target.value)
 
     if (!instance) return
-    const location = await Engine.instance.api.service('location').get(instance.locationId as Id)
+    const location = await Engine.instance.api.service(locationPath).get(instance.locationId as Id)
 
     if (!location) return
     const sceneName = location.sceneId.split('/')

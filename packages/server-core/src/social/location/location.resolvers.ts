@@ -33,7 +33,10 @@ import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/l
 import { LocationQuery, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { LocationAuthorizedUserType } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import {
+  LocationAuthorizedUserType,
+  locationAuthorizedUserPath
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
@@ -73,7 +76,7 @@ export const locationResolver = resolve<LocationType, HookContext>({
     return undefined
   }),
   locationAuthorizedUsers: virtual(async (location, context) => {
-    return (await context.app.service('location-authorized-user').find({
+    return (await context.app.service(locationAuthorizedUserPath).find({
       query: {
         locationId: location.id
       },
