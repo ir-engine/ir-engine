@@ -10,6 +10,9 @@
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
   },
+  "interactables": {
+    "link": "Click to follow link"
+  },
   "toast": {
     "joined": "joined",
     "left": "left"

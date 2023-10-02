@@ -26,14 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { getState } from '@etherealengine/hyperflux'
+import { useTranslation } from 'react-i18next'
+import { MeshBasicMaterial, Vector3 } from 'three'
+import { clamp } from 'three/src/math/MathUtils'
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { matches } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { SceneServices } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
+  hasComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -45,9 +53,17 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { createInteractUI } from '../../interaction/functions/interactUI'
+import {
+  InteractableTransitions,
+  addInteractableUI,
+  removeInteractiveUI
+} from '../../interaction/systems/InteractiveSystem'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
+import { VisibleComponent } from './VisibleComponent'
 
 const linkLogic = (linkComponent, xrState) => {
   if (!linkComponent.sceneNav) {
@@ -56,6 +72,51 @@ const linkLogic = (linkComponent, xrState) => {
   } else {
     SceneServices.setCurrentScene(linkComponent.projectName, linkComponent.sceneName)
   }
+}
+
+const linkInteractMessage = 'Click to follow link'
+const vec3 = new Vector3()
+const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
+  const transform = getComponent(xrui.entity, TransformComponent)
+  if (!transform || !hasComponent(Engine.instance.localClientEntity, TransformComponent)) return
+  const boundingBox = getComponent(entity, BoundingBoxComponent)
+  const input = getComponent(entity, InputComponent)
+
+  if (hasComponent(xrui.entity, VisibleComponent)) {
+    transform.position.copy(getComponent(entity, TransformComponent).position)
+    if (boundingBox) {
+      transform.position.y += boundingBox.box.max.y + 0.5
+    } else {
+      transform.position.y += 0.5
+    }
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    transform.rotation.copy(cameraTransform.rotation)
+    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
+    const distance = vec3.distanceToSquared(transform.position)
+    transform.scale.set(1, 1, 1)
+    transform.scale.addScalar(clamp(distance * 0.01, 1, 5))
+  }
+
+  const transition = InteractableTransitions.get(entity)!
+
+  if (transition.state === 'OUT' && input.inputSources.length > 0) {
+    transition.setState('IN')
+    setComponent(xrui.entity, VisibleComponent)
+  }
+  if (transition.state === 'IN' && input.inputSources.length == 0) {
+    transition.setState('OUT')
+  }
+
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  transition.update(deltaSeconds, (opacity) => {
+    if (opacity === 0) {
+      removeComponent(xrui.entity, VisibleComponent)
+    }
+    xrui.container.rootLayer.traverseLayersPreOrder((layer) => {
+      const mat = layer.contentMesh.material as MeshBasicMaterial
+      mat.opacity = opacity
+    })
+  })
 }
 
 export const LinkComponent = defineComponent({
@@ -95,6 +156,7 @@ export const LinkComponent = defineComponent({
     const entity = useEntityContext()
     const link = useComponent(entity, LinkComponent)
     const input = useOptionalComponent(entity, InputComponent)
+    const { t } = useTranslation()
 
     useEffect(() => {
       if (getState(EngineState).isEditor || !input) return
@@ -121,6 +183,10 @@ export const LinkComponent = defineComponent({
     useEffect(() => {
       setComponent(entity, BoundingBoxComponent)
       setComponent(entity, InputComponent, { highlight: true, grow: true })
+      addInteractableUI(entity, createInteractUI(entity, t('common:interactables.link')), onLinkInteractUpdate)
+      return () => {
+        removeInteractiveUI(entity)
+      }
     }, [])
 
     useExecute(
