@@ -74,7 +74,6 @@ const linkLogic = (linkComponent, xrState) => {
   }
 }
 
-const linkInteractMessage = 'Click to follow link'
 const vec3 = new Vector3()
 const onLinkInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const transform = getComponent(xrui.entity, TransformComponent)
