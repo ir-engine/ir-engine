@@ -23,7 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CubeCamera, LinearFilter, RGBAFormat, Scene, Vector3, WebGLCubeRenderTarget, WebGLRenderer } from 'three'
+import {
+  CubeCamera,
+  LinearFilter,
+  RGBAFormat,
+  SRGBColorSpace,
+  Scene,
+  Vector3,
+  WebGLCubeRenderTarget,
+  WebGLRenderer
+} from 'three'
 
 export default class CubemapCapturer {
   width: number
@@ -43,6 +52,7 @@ export default class CubemapCapturer {
     const cubeMapSize = Math.min(resolution, gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE))
     this.cubeRenderTarget = new WebGLCubeRenderTarget(cubeMapSize, {
       format: RGBAFormat,
+      colorSpace: SRGBColorSpace,
       magFilter: LinearFilter,
       minFilter: LinearFilter
     })
@@ -53,7 +63,10 @@ export default class CubemapCapturer {
     const autoClear = this.renderer.autoClear
     this.renderer.autoClear = true
     this.cubeCamera.position.copy(position)
+    const originalColorSpace = this.renderer.outputColorSpace
+    this.renderer.outputColorSpace = SRGBColorSpace
     this.cubeCamera.update(this.renderer, this.sceneToRender)
+    this.renderer.outputColorSpace = originalColorSpace
     this.renderer.autoClear = autoClear
     return this.cubeRenderTarget
   }
