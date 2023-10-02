@@ -38,5 +38,5 @@ export const getTrackingSpaceOffset = (height: number) => {
 export const setTrackingSpace = () => {
   const xrState = getMutableState(XRState)
   const offset = xrState.viewerPose.value ? getTrackingSpaceOffset(xrState.viewerPose.value.transform.position.y) : 1
-  xrState.localAvatarScale.set(offset)
+  xrState.userAvatarHeightDifference.set(offset)
 }

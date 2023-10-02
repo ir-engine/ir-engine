@@ -59,7 +59,7 @@ export async function seed(knex: Knex): Promise<void> {
         icon192px: '/android-chrome-192x192.png',
         icon512px: '/android-chrome-512x512.png',
         appBackground: 'static/main-background.png',
-        appTitle: 'static/ethereal_mark.png',
+        appTitle: 'static/ethereal_watermark_small.png',
         appSubtitle: 'EtherealEngine.org',
         appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
         appSocialLinks: JSON.stringify([

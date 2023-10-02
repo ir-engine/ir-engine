@@ -28,11 +28,10 @@ process.env.APP_ENV = 'test'
 process.env.NODE_ENV = 'test'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
 
-const config = require("ts-node").register({
+require("ts-node").register({
   project: './tsconfig.json',
   files: true,
   swc: true
 })
-console.log(config)
 
 require("fix-esm").register()
