@@ -23,25 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export function pathResolver() {
-  //const cacheRe = new RegExp(`(https://[^\\/]+)/projects/([^/]+)/(.*$)`)
-  const cacheRe = new RegExp(`.*/(?:projects|static-resources)/([^/]*)/((?:assets/|).*)`)
-  //                          1: project name -- 2: internal path
-  return cacheRe
+import {
+  discordBotAuthMethods,
+  discordBotAuthPath
+} from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
+import { Application } from '../../../declarations'
+import { DiscordBotAuthService } from './discord-bot-auth.class'
+import discordBotAuthDocs from './discord-bot-auth.docs'
+import hooks from './discord-bot-auth.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [discordBotAuthPath]: DiscordBotAuthService
+  }
 }
 
-export function getFileName(path: string) {
-  return /[^\\/]+$/.exec(path)?.[0] ?? ''
-}
+export default (app: Application): void => {
+  app.use(discordBotAuthPath, new DiscordBotAuthService(app), {
+    // A list of all methods this service exposes externally
+    methods: discordBotAuthMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: discordBotAuthDocs
+  })
 
-export function getRelativeURI(path: string) {
-  return pathResolver().exec(path)?.[2] ?? ''
-}
-
-export function getProjectName(path: string) {
-  return pathResolver().exec(path)?.[1] ?? ''
-}
-
-export function modelResourcesPath(modelName: string) {
-  return `model-resources/${modelName.split('.').at(-2)!}`
+  const service = app.service(discordBotAuthPath)
+  service.hooks(hooks)
 }

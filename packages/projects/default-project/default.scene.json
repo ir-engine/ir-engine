@@ -47,6 +47,7 @@
               "z": 1
             },
             "bakeType": "Baked",
+            "blur": 8,
             "resolution": 2048,
             "refreshMode": "OnAwake",
             "envMapOrigin": "__$project$__/default-project/default.envmap.ktx2",
@@ -308,7 +309,6 @@
             "intensity": 1,
             "cameraFar": 2000,
             "castShadow": true,
-            "shadowMapResolution": 512,
             "shadowBias": -0.00001,
             "shadowRadius": 1,
             "useInCSM": true

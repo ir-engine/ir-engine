@@ -122,6 +122,7 @@ function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
   }
+  const originalColorSpace = map.colorSpace
   map.colorSpace = LinearSRGBColorSpace
   const temporaryRenderer = getTemporaryRenderer()
   const temporaryScene = getTemporaryScene()
@@ -153,6 +154,7 @@ function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   if (blit !== map) {
     blit.dispose()
   }
+  map.colorSpace = originalColorSpace
 }
 
 export function renderTargetFromTexture(map: Texture, options?: BlitTextureOptions | undefined): WebGLRenderTarget {

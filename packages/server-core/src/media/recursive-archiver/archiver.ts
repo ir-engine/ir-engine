@@ -23,25 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export function pathResolver() {
-  //const cacheRe = new RegExp(`(https://[^\\/]+)/projects/([^/]+)/(.*$)`)
-  const cacheRe = new RegExp(`.*/(?:projects|static-resources)/([^/]*)/((?:assets/|).*)`)
-  //                          1: project name -- 2: internal path
-  return cacheRe
+import { archiverMethods, archiverPath } from '@etherealengine/engine/src/schemas/media/archiver.schema'
+import { Application } from '../../../declarations'
+import { ArchiverService } from './archiver.class'
+import archiverDocs from './archiver.docs'
+import hooks from './archiver.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [archiverPath]: ArchiverService
+  }
 }
 
-export function getFileName(path: string) {
-  return /[^\\/]+$/.exec(path)?.[0] ?? ''
-}
+export default (app: Application): void => {
+  app.use(archiverPath, new ArchiverService(app), {
+    // A list of all methods this service exposes externally
+    methods: archiverMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: archiverDocs
+  })
 
-export function getRelativeURI(path: string) {
-  return pathResolver().exec(path)?.[2] ?? ''
-}
-
-export function getProjectName(path: string) {
-  return pathResolver().exec(path)?.[1] ?? ''
-}
-
-export function modelResourcesPath(modelName: string) {
-  return `model-resources/${modelName.split('.').at(-2)!}`
+  const service = app.service(archiverPath)
+  service.hooks(hooks)
 }
