@@ -182,9 +182,11 @@ export const LinkComponent = defineComponent({
     useEffect(() => {
       setComponent(entity, BoundingBoxComponent)
       setComponent(entity, InputComponent, { highlight: true, grow: true })
-      addInteractableUI(entity, createInteractUI(entity, t('common:interactables.link')), onLinkInteractUpdate)
-      return () => {
-        removeInteractiveUI(entity)
+      if (!getState(EngineState).isEditor) {
+        addInteractableUI(entity, createInteractUI(entity, t('common:interactables.link')), onLinkInteractUpdate)
+        return () => {
+          removeInteractiveUI(entity)
+        }
       }
     }, [])
 
