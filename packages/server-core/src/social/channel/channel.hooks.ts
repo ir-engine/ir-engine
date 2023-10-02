@@ -138,10 +138,10 @@ const ensureUsersFriendWithOwner = async (context: HookContext) => {
 const handleChannelInstance = async (context: HookContext) => {
   const query = context.service.createQuery(context.params)
 
-  if (context.params.instanceId) {
+  if (context.params.query.instanceId) {
     query
       .join(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
-      .where(`${instancePath}.id`, '=', query.instanceId)
+      .where(`${instancePath}.id`, '=', context.params.query.instanceId)
       .andWhere(`${instancePath}.ended`, '=', false)
   } else {
     const userId = context.params.user.id
