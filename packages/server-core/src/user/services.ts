@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import AcceptInvite from '../user/accept-invite/accept-invite'
 import Avatar from './avatar/avatar'
-import DiscordBotAuth from './discord-bot-auth/discord-bot-auth.service'
+import DiscordBotAuth from './discord-bot-auth/discord-bot-auth'
 import Email from './email/email'
 import GenerateToken from './generate-token/generate-token'
 import GithubRepoAccessRefresh from './github-repo-access-refresh/github-repo-access-refresh'
