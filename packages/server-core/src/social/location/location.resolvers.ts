@@ -73,22 +73,20 @@ export const locationResolver = resolve<LocationType, HookContext>({
     return undefined
   }),
   locationAuthorizedUsers: virtual(async (location, context) => {
-    const locationAuthorizedUser = (await context.app.service('location-authorized-user').find({
+    return (await context.app.service('location-authorized-user').find({
       query: {
         locationId: location.id
       },
       paginate: false
     })) as LocationAuthorizedUserType[]
-    return locationAuthorizedUser
   }),
   locationBans: virtual(async (location, context) => {
-    const locationBan = (await context.app.service(locationBanPath).find({
+    return (await context.app.service(locationBanPath).find({
       query: {
         locationId: location.id
       },
       paginate: false
     })) as LocationBanType[]
-    return locationBan
   }),
   createdAt: virtual(async (location) => fromDateTimeSql(location.createdAt)),
   updatedAt: virtual(async (location) => fromDateTimeSql(location.updatedAt))

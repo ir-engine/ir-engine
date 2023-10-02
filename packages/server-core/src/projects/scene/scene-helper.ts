@@ -75,7 +75,7 @@ export const getSceneData = async (
 
   const scenePath = `projects/${projectName}/${sceneName}.scene.json`
 
-  const sceneResult = await storageProvider.getCachedObject(scenePath)
+  const sceneResult = await storageProvider.getObject(scenePath)
   const sceneData: SceneData = {
     name: sceneName,
     project: projectName,

@@ -112,7 +112,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
         })
       })
       .catch((error) => {
-        console.error(error)
+        console.error(`Error in service: ${serviceName}, method: ${method}, args: ${JSON.stringify(args)}`, error)
         state[serviceName][queryId].merge({
           status: 'error',
           error: error.message

@@ -163,9 +163,7 @@ export const EnvMapBakeNodeEditor = (props) => {
       name="EnvMap Bake"
       description="For Adding EnvMap bake in your scene"
     >
-      <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.entity, bakeComponent.blur.value)}>
-        Bake
-      </PropertiesPanelButton>
+      <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.entity)}>Bake</PropertiesPanelButton>
       <InputGroup name="Position" label="Position Offset">
         <Vector3Input value={bakeComponent.bakePositionOffset.value} onChange={onChangePosition} />
       </InputGroup>
