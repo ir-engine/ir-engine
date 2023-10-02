@@ -98,6 +98,7 @@ export const ChannelService = {
       })
       channelState.merge({ messageCreated: true })
     } catch (err) {
+      console.error(err)
       //Occasionally, the client attempts to fetch the instance's channel after it's been created, but before the user's
       //channel-user has been created, which occurs when connecting to the instance server.
       //If it's a 403, it is almost definitely because of this issue, so just wait a second and try again.
