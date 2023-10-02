@@ -32,6 +32,8 @@ import {
   recordingQueryValidator
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { NotFound } from '@feathersjs/errors'
 import { HookContext, NextFunction } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -76,6 +78,52 @@ const applyUserNameSort = async (context: HookContext, next: NextFunction) => {
   }
 }
 
+const findActionHook = async (context: HookContext) => {
+  let paramsWithoutExtras = {
+    ...context.params,
+    // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+    query: context.params?.query ? JSON.parse(JSON.stringify(context.params?.query)) : {}
+  }
+  paramsWithoutExtras = {
+    ...paramsWithoutExtras,
+    query: { ...paramsWithoutExtras.query, userId: context.params?.user?.id }
+  }
+
+  if (context.params && context.params.user && context.params.query) {
+    const admin = await checkScope(context.params.user, 'admin', 'admin')
+    if (admin && context.params.query.action === 'admin') {
+      // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
+      if (paramsWithoutExtras.query?.userId || paramsWithoutExtras.query?.userId === '')
+        delete paramsWithoutExtras.query.userId
+    }
+  }
+
+  // Remove recording username sort
+  if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query?.$sort['user']) {
+    delete paramsWithoutExtras.query.$sort['user']
+  }
+
+  // Remove extra params
+  if (paramsWithoutExtras.query?.action || paramsWithoutExtras.query?.action === '')
+    delete paramsWithoutExtras.query.action
+
+  context.params = paramsWithoutExtras
+}
+
+const createActionHook = async (context: HookContext) => {
+  context.data = {
+    ...context.data,
+    userId: context.params?.user?.id
+  }
+}
+
+const removeActionHook = async (context: HookContext) => {
+  const recording = context.service._get(context.id)
+  if (!recording) {
+    throw new NotFound('Unable to find recording with this id')
+  }
+}
+
 export default {
   around: {
     all: [
@@ -91,12 +139,13 @@ export default {
       () => schemaHooks.validateQuery(recordingQueryValidator),
       schemaHooks.resolveQuery(recordingQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
+    find: [iff(isProvider('external'), verifyScope('recording', 'read')), findActionHook],
     get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingDataValidator),
-      schemaHooks.resolveData(recordingDataResolver)
+      schemaHooks.resolveData(recordingDataResolver),
+      createActionHook
     ],
     update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
     patch: [
@@ -104,7 +153,10 @@ export default {
       () => schemaHooks.validateData(recordingPatchValidator),
       schemaHooks.resolveData(recordingPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('recording', 'write'))]
+    remove: [
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('recording', 'write')),
+      removeActionHook
+    ]
   },
 
   after: {
