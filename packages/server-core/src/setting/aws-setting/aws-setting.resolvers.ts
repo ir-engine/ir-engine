@@ -82,13 +82,11 @@ export const awsDbToSchema = (rawData: AwsSettingDatabaseType): AwsSettingType =
   }
 }
 
-export const awsSettingResolver = resolve<AwsSettingType, HookContext>({
-  createdAt: virtual(async (awsSetting) => fromDateTimeSql(awsSetting.createdAt)),
-  updatedAt: virtual(async (awsSetting) => fromDateTimeSql(awsSetting.updatedAt))
-})
-
-export const awsSettingExternalResolver = resolve<AwsSettingType, HookContext>(
-  {},
+export const awsSettingResolver = resolve<AwsSettingType, HookContext>(
+  {
+    createdAt: virtual(async (awsSetting) => fromDateTimeSql(awsSetting.createdAt)),
+    updatedAt: virtual(async (awsSetting) => fromDateTimeSql(awsSetting.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -96,6 +94,8 @@ export const awsSettingExternalResolver = resolve<AwsSettingType, HookContext>(
     }
   }
 )
+
+export const awsSettingExternalResolver = resolve<AwsSettingType, HookContext>({})
 
 export const awsSettingDataResolver = resolve<AwsSettingDatabaseType, HookContext>(
   {

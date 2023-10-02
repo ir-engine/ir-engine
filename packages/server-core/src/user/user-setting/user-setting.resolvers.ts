@@ -38,7 +38,8 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingType => {
-  let themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
+  let themeModes
+  if (typeof rawData.themeModes !== 'object') themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.
@@ -57,13 +58,11 @@ export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingTyp
   }
 }
 
-export const userSettingResolver = resolve<UserSettingType, HookContext>({
-  createdAt: virtual(async (userSetting) => fromDateTimeSql(userSetting.createdAt)),
-  updatedAt: virtual(async (userSetting) => fromDateTimeSql(userSetting.updatedAt))
-})
-
-export const userSettingExternalResolver = resolve<UserSettingType, HookContext>(
-  {},
+export const userSettingResolver = resolve<UserSettingType, HookContext>(
+  {
+    createdAt: virtual(async (userSetting) => fromDateTimeSql(userSetting.createdAt)),
+    updatedAt: virtual(async (userSetting) => fromDateTimeSql(userSetting.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -71,6 +70,8 @@ export const userSettingExternalResolver = resolve<UserSettingType, HookContext>
     }
   }
 )
+
+export const userSettingExternalResolver = resolve<UserSettingType, HookContext>({})
 
 export const userSettingDataResolver = resolve<UserSettingDatabaseType, HookContext>(
   {
