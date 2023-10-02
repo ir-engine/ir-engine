@@ -69,13 +69,11 @@ export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): S
   }
 }
 
-export const staticResourceResolver = resolve<StaticResourceType, HookContext>({
-  createdAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.createdAt)),
-  updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt))
-})
-
-export const staticResourceExternalResolver = resolve<StaticResourceType, HookContext>(
-  {},
+export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
+  {
+    createdAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.createdAt)),
+    updatedAt: virtual(async (staticResource) => fromDateTimeSql(staticResource.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -83,6 +81,8 @@ export const staticResourceExternalResolver = resolve<StaticResourceType, HookCo
     }
   }
 )
+
+export const staticResourceExternalResolver = resolve<StaticResourceType, HookContext>({})
 
 export const staticResourceDataResolver = resolve<StaticResourceType, HookContext>(
   {

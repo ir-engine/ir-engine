@@ -78,7 +78,12 @@ export default {
       () => schemaHooks.validateData(projectDataValidator),
       schemaHooks.resolveData(projectDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('editor', 'write')), projectPermissionAuthenticate(false)],
+    update: [
+      iff(isProvider('external'), verifyScope('editor', 'write')),
+      projectPermissionAuthenticate(false),
+      () => schemaHooks.validateData(projectPatchValidator),
+      schemaHooks.resolveData(projectPatchResolver)
+    ],
     patch: [
       iff(isProvider('external'), verifyScope('editor', 'write')),
       projectPermissionAuthenticate(false),

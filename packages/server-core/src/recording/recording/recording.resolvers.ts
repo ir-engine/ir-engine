@@ -55,28 +55,26 @@ export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingTy
   }
 }
 
-export const recordingResolver = resolve<RecordingType, HookContext>({
-  resources: virtual(async (recording, context) => {
-    const recordingResources = await context.app.service(recordingResourcePath).find({
-      query: {
-        recordingId: recording.id
-      },
-      paginate: false
-    })
+export const recordingResolver = resolve<RecordingType, HookContext>(
+  {
+    resources: virtual(async (recording, context) => {
+      const recordingResources = await context.app.service(recordingResourcePath).find({
+        query: {
+          recordingId: recording.id
+        },
+        paginate: false
+      })
 
-    return recordingResources.map((resource) => resource.staticResource)
-  }),
-  userName: virtual(async (recording, context) => {
-    const user = await context.app.service(userPath)._get(recording.userId)
+      return recordingResources.map((resource) => resource.staticResource)
+    }),
+    userName: virtual(async (recording, context) => {
+      const user = await context.app.service(userPath)._get(recording.userId)
 
-    return user.name
-  }),
-  createdAt: virtual(async (recording) => fromDateTimeSql(recording.createdAt)),
-  updatedAt: virtual(async (recording) => fromDateTimeSql(recording.updatedAt))
-})
-
-export const recordingExternalResolver = resolve<RecordingType, HookContext>(
-  {},
+      return user.name
+    }),
+    createdAt: virtual(async (recording) => fromDateTimeSql(recording.createdAt)),
+    updatedAt: virtual(async (recording) => fromDateTimeSql(recording.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -84,6 +82,8 @@ export const recordingExternalResolver = resolve<RecordingType, HookContext>(
     }
   }
 )
+
+export const recordingExternalResolver = resolve<RecordingType, HookContext>({})
 
 export const recordingDataResolver = resolve<RecordingDatabaseType, HookContext>(
   {
