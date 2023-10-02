@@ -28,6 +28,7 @@ import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three
 import { defineActionQueue, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '../camera/components/CameraComponent'
+import { V_111 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -142,7 +143,7 @@ function updateCameraFromXRViewerPose() {
     cameraTransform.position.copy(pose.transform.position as any).multiplyScalar(1 / xrState.sceneScale)
     cameraTransform.rotation.copy(pose.transform.orientation as any)
     cameraTransform.matrix
-      .compose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
+      .compose(cameraTransform.position, cameraTransform.rotation, V_111)
       .premultiply(originTransform.matrix)
       .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
     cameraTransform.matrixInverse.copy(cameraTransform.matrix).invert()
@@ -192,7 +193,7 @@ function updateCameraFromXRViewerPose() {
       viewCamera.position.copy(view.transform.position as any).multiplyScalar(1 / xrState.sceneScale)
       viewCamera.quaternion.copy(view.transform.orientation as any)
       viewCamera.matrixWorld
-        .compose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
+        .compose(viewCamera.position, viewCamera.quaternion, V_111)
         .premultiply(originTransform.matrix)
         .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
       viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
