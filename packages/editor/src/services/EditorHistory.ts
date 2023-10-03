@@ -94,7 +94,7 @@ const migrateSceneData = (sceneData: SceneData) => {
     removeEntity(tempEntity)
   }
 
-  return migratedSceneData
+  return JSON.parse(JSON.stringify(migratedSceneData))
 }
 
 export class EditorHistoryAction {
