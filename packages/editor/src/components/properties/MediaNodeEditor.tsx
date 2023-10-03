@@ -153,14 +153,14 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       {media.resources.length > 0 && (
-        <PropertiesPanelButton type="submit" onClick={toggle}>
-          {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
-        </PropertiesPanelButton>
-      )}
-      {media.resources.length > 0 && (
-        <PropertiesPanelButton type="submit" onClick={reset}>
-          {t('editor:properties.media.resettitle')}
-        </PropertiesPanelButton>
+        <InputGroup name="media-controls" label="media-controls">
+          <PropertiesPanelButton type="submit" onClick={toggle}>
+            {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
+          </PropertiesPanelButton>
+          <PropertiesPanelButton type="submit" onClick={reset}>
+            {t('editor:properties.media.resettitle')}
+          </PropertiesPanelButton>
+        </InputGroup>
       )}
     </NodeEditor>
   )
