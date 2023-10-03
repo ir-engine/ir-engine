@@ -30,7 +30,7 @@ import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Proj
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import multiLogger from '@etherealengine/common/src/logger'
+
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
@@ -63,6 +63,7 @@ import {
 } from '@mui/material'
 
 import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { getProjects } from '../../functions/projectFunctions'
 import { Button, MediumButton } from '../inputs/Button'
