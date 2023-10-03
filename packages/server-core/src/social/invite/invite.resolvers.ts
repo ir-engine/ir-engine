@@ -79,7 +79,7 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>({
   channelName: virtual(async (invite, context) => {
     if (invite.inviteType === 'channel' && invite.targetObjectId) {
       try {
-        const channel = await context.app.service(channelPath)._get(invite.targetObjectId as ChannelID)
+        const channel = await context.app.service(channelPath).get(invite.targetObjectId as ChannelID)
         return channel.name
       } catch (err) {
         return '<A deleted channel>'
