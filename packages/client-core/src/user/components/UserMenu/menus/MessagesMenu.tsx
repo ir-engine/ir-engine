@@ -148,7 +148,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
               src={userThumbnail}
             />
           }
-          placeholder={''}
+          placeholder={t('user:messages.enterMessage')}
           sx={{ mb: 1, mt: 0 }}
           value={composingMessage.value}
           onChange={(e) => composingMessage.set(e.target.value)}
