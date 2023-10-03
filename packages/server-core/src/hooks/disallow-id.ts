@@ -23,21 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 
-import {
-  ChannelUserData,
-  ChannelUserPatch,
-  ChannelUserQuery,
-  ChannelUserType
-} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { KnexService } from '@feathersjs/knex'
-import { RootParams } from '../../api/root-params'
+import { BadRequest } from '@feathersjs/errors'
+import { AsyncLocalStorage } from 'async_hooks'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ChannelUserParams extends RootParams<ChannelUserQuery> {}
+export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
 
-export class ChannelUserService<
-  T = ChannelUserType,
-  ServiceParams extends Params = ChannelUserParams
-> extends KnexService<ChannelUserType, ChannelUserData, ChannelUserParams, ChannelUserPatch> {}
+/**
+ * A method that disallows the use of id in request.
+ */
+export default async (context: HookContext) => {
+  if (context.id) {
+    throw new BadRequest(`Can only ${context.method} via query`)
+  }
+}

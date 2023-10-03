@@ -48,7 +48,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(channelUserPath, new ChannelUserService(options, app), {
+  app.use(channelUserPath, new ChannelUserService(options), {
     // A list of all methods this service exposes externally
     methods: channelUserMethods,
     // You can add additional custom events to be sent to clients here
