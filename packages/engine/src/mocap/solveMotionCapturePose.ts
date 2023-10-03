@@ -245,11 +245,11 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
       VRMHumanBoneName.LeftFoot
     )
     //check state, if we are still not set to track lower body, update that
-    if (!mocapState.trackingLowerBody) {
+    if (!mocapState.trackingLowerBody.value) {
       dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
     }
   } else {
-    if (mocapState.trackingLowerBody) {
+    if (mocapState.trackingLowerBody.value) {
       dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
     }
   }
