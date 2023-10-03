@@ -1303,6 +1303,16 @@ class GLTFTextureBasisUExtension {
 
 		const parser = this.parser;
 		const json = parser.json;
+		/*
+		// if no texture at textureIndex, check if image exists
+		if ( ! json.textures[textureIndex] && json.images[ textureIndex ]) {
+			//if image exists, create textureDef for it
+			json.textures[textureIndex] = {
+				source: textureIndex,
+				sampler: 0
+			}
+		}*/
+		
 
 		const textureDef = json.textures[ textureIndex ];
 
@@ -2134,6 +2144,7 @@ const ATTRIBUTES = {
 	TEXCOORD_1: 'uv1',
 	TEXCOORD_2: 'uv2',
 	TEXCOORD_3: 'uv3',
+	TEXCOORD_4: 'uv4',
 	COLOR_0: 'color',
 	WEIGHTS_0: 'skinWeight',
 	JOINTS_0: 'skinIndex',
@@ -3348,7 +3359,7 @@ class GLTFParser {
 
 			if ( ! cachedMaterial ) {
 
-				cachedMaterial = material.clone();
+				cachedMaterial = material//.clone();
 
 				if ( useVertexColors ) cachedMaterial.vertexColors = true;
 				if ( useFlatShading ) cachedMaterial.flatShading = true;

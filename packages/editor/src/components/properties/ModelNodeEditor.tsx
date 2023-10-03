@@ -44,7 +44,6 @@ import ErrorPopUp from '../popup/ErrorPopUp'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import ShadowProperties from './ShadowProperties'
 import { EditorComponentType, updateProperty } from './Util'
 
 /**
@@ -115,6 +114,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <BooleanInput
           value={modelComponent.generateBVH.value}
           onChange={updateProperty(ModelComponent, 'generateBVH')}
+          disabled={modelComponent.hasSkinnedMesh.value}
         />
       </InputGroup>
       <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
@@ -124,7 +124,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
-      <ShadowProperties entity={props.entity} />
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting.value && modelComponent.src.value && (
         <Well>

@@ -26,14 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState } from '@etherealengine/hyperflux'
 
-import { AvatarType } from '../../schemas/user/avatar.schema'
-
 export const WorldState = defineState({
   name: 'WorldState',
   initial: () => ({
     /** a history of user names - does not get cleaned up upon a user leaving the world */
-    userNames: {} as Record<UserID, string>,
-    /** @deprecated */
-    userAvatarDetails: {} as Record<UserID, AvatarType>
+    userNames: {} as Record<UserID, string>
   })
 })

@@ -36,7 +36,10 @@ export const RouterState = defineState({
   name: 'RouterState',
   initial: () => ({
     pathname: location.pathname
-  })
+  }),
+  navigate: (pathname: string) => {
+    getMutableState(RouterState).pathname.set(pathname)
+  }
 })
 
 export type CustomRoute = {
@@ -99,10 +102,4 @@ export const useCustomRoutes = () => {
   }, [routerState.pathname])
 
   return customRoutes.get(NO_PROXY)
-}
-
-export const RouterService = {
-  navigate: (pathname: string) => {
-    getMutableState(RouterState).pathname.set(pathname)
-  }
 }

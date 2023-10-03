@@ -23,22 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { VRM, VRMHumanBoneList, VRMHumanBoneName, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
+import {
+  AnimationAction,
+  Bone,
+  Euler,
+  KeyframeTrack,
+  Matrix4,
+  Quaternion,
+  SkeletonHelper,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { defineComponent, useComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import {
+  defineComponent,
+  getComponent,
+  useComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
-import { AnimationGraph } from '../animation/AnimationGraph'
-import { BoneStructure } from '../AvatarBoneMatching'
+import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -46,121 +64,50 @@ export const AvatarAnimationComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      /** Animaiton graph of this entity */
       animationGraph: {
-        states: {},
-        transitionRules: {},
-        currentState: null!,
-        stateChanged: null!
-      } as AnimationGraph,
+        blendAnimation: undefined as undefined | AnimationAction,
+        fadingOut: false,
+        blendStrength: 0,
+        layer: 0
+      },
       /** ratio between original and target skeleton's root.position.y */
       rootYRatio: 1,
       /** The input vector for 2D locomotion blending space */
       locomotion: new Vector3(),
       /** Time since the last update */
-      deltaAccumulator: 0
+      deltaAccumulator: 0,
+      /** Tells us if we are suspended in midair */
+      isGrounded: true
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.object.test(json.animationGraph)) component.animationGraph.set(json.animationGraph as AnimationGraph)
     if (matches.number.test(json.rootYRatio)) component.rootYRatio.set(json.rootYRatio)
     if (matches.object.test(json.locomotion)) component.locomotion.value.copy(json.locomotion)
     if (matches.number.test(json.deltaAccumulator)) component.deltaAccumulator.set(json.deltaAccumulator)
+    if (matches.boolean.test(json.isGrounded)) component.isGrounded.set(json.isGrounded)
   }
 })
-
-const RigSchema = {
-  Root: PoseSchema,
-  Hips: PoseSchema,
-  Spine: PoseSchema,
-  Spine1: PoseSchema,
-  Spine2: PoseSchema,
-  Neck: PoseSchema,
-  Head: PoseSchema,
-  LeftEye: PoseSchema,
-  RightEye: PoseSchema,
-  LeftShoulder: PoseSchema,
-  LeftArm: PoseSchema,
-  LeftForeArm: PoseSchema,
-  // LeftForeArmTwist: PoseSchema,
-  LeftHand: PoseSchema,
-  LeftUpLeg: PoseSchema,
-  LeftLeg: PoseSchema,
-  LeftFoot: PoseSchema,
-  RightShoulder: PoseSchema,
-  RightArm: PoseSchema,
-  RightForeArm: PoseSchema,
-  // RightForeArmTwist: PoseSchema,
-  RightHand: PoseSchema,
-  RightUpLeg: PoseSchema,
-  RightLeg: PoseSchema,
-  RightFoot: PoseSchema,
-  LeftHandPinky1: PoseSchema,
-  LeftHandPinky2: PoseSchema,
-  LeftHandPinky3: PoseSchema,
-  LeftHandPinky4: PoseSchema,
-  LeftHandPinky5: PoseSchema,
-  LeftHandRing1: PoseSchema,
-  LeftHandRing2: PoseSchema,
-  LeftHandRing3: PoseSchema,
-  LeftHandRing4: PoseSchema,
-  LeftHandRing5: PoseSchema,
-  LeftHandMiddle1: PoseSchema,
-  LeftHandMiddle2: PoseSchema,
-  LeftHandMiddle3: PoseSchema,
-  LeftHandMiddle4: PoseSchema,
-  LeftHandMiddle5: PoseSchema,
-  LeftHandIndex1: PoseSchema,
-  LeftHandIndex2: PoseSchema,
-  LeftHandIndex3: PoseSchema,
-  LeftHandIndex4: PoseSchema,
-  LeftHandIndex5: PoseSchema,
-  LeftHandThumb1: PoseSchema,
-  LeftHandThumb2: PoseSchema,
-  LeftHandThumb3: PoseSchema,
-  LeftHandThumb4: PoseSchema,
-  RightHandPinky1: PoseSchema,
-  RightHandPinky2: PoseSchema,
-  RightHandPinky3: PoseSchema,
-  RightHandPinky4: PoseSchema,
-  RightHandPinky5: PoseSchema,
-  RightHandRing1: PoseSchema,
-  RightHandRing2: PoseSchema,
-  RightHandRing3: PoseSchema,
-  RightHandRing4: PoseSchema,
-  RightHandRing5: PoseSchema,
-  RightHandMiddle1: PoseSchema,
-  RightHandMiddle2: PoseSchema,
-  RightHandMiddle3: PoseSchema,
-  RightHandMiddle4: PoseSchema,
-  RightHandMiddle5: PoseSchema,
-  RightHandIndex1: PoseSchema,
-  RightHandIndex2: PoseSchema,
-  RightHandIndex3: PoseSchema,
-  RightHandIndex4: PoseSchema,
-  RightHandIndex5: PoseSchema,
-  RightHandThumb1: PoseSchema,
-  RightHandThumb2: PoseSchema,
-  RightHandThumb3: PoseSchema,
-  RightHandThumb4: PoseSchema
-}
 
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
-  schema: { rig: RigSchema },
+  schema: {
+    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, PoseSchema]))
+  },
 
   onInit: (entity) => {
     return {
       /** Holds all the bones */
-      rig: null! as BoneStructure,
+      rig: null! as VRMHumanBones,
       /** Read-only bones in bind pose */
-      bindRig: null! as BoneStructure,
+      localRig: null! as VRMHumanBones,
+      /** the target */
+      targetBones: null! as Record<VRMHumanBoneName, Bone>,
+
       helper: null as SkeletonHelper | null,
-      handRadius: 0,
-      /** The length of the torso in a t-pose, from the hip join to the head joint */
+      /** The length of the torso in a t-pose, from the hip joint to the head joint */
       torsoLength: 0,
       /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
       upperLegLength: 0,
@@ -168,20 +115,36 @@ export const AvatarRigComponent = defineComponent({
       lowerLegLength: 0,
       /** The height of the foot in a t-pose, from the ankle joint to the bottom of the avatar's model */
       footHeight: 0,
+
+      armLength: 0,
+
+      footGap: 0,
+
+      flipped: false,
+
       /** Cache of the skinned meshes currently on the rig */
-      skinnedMeshes: [] as SkinnedMesh[]
+      skinnedMeshes: [] as SkinnedMesh[],
+      /** The VRM model */
+      vrm: null! as VRM,
+
+      rootOffset: new Vector3(),
+      ikOverride: '' as 'xr' | 'mocap' | ''
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.object.test(json.rig)) component.rig.set(json.rig as BoneStructure)
-    if (matches.object.test(json.bindRig)) component.bindRig.set(json.bindRig as BoneStructure)
+    if (matches.object.test(json.rig)) component.rig.set(json.rig)
+    if (matches.object.test(json.localRig)) component.localRig.set(json.localRig)
+    if (matches.object.test(json.targetBones)) component.targetBones.set(json.targetBones)
     if (matches.number.test(json.torsoLength)) component.torsoLength.set(json.torsoLength)
     if (matches.number.test(json.upperLegLength)) component.upperLegLength.set(json.upperLegLength)
     if (matches.number.test(json.lowerLegLength)) component.lowerLegLength.set(json.lowerLegLength)
     if (matches.number.test(json.footHeight)) component.footHeight.set(json.footHeight)
+    if (matches.number.test(json.footGap)) component.footGap.set(json.footGap)
     if (matches.array.test(json.skinnedMeshes)) component.skinnedMeshes.set(json.skinnedMeshes as SkinnedMesh[])
+    if (matches.object.test(json.vrm)) component.vrm.set(json.vrm as VRM)
+    if (matches.string.test(json.ikOverride)) component.ikOverride.set(json.ikOverride)
   },
 
   onRemove: (entity, component) => {
@@ -192,41 +155,146 @@ export const AvatarRigComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
-    const anim = useComponent(entity, AvatarRigComponent)
+    const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
+    const rigComponent = useComponent(entity, AvatarRigComponent)
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
+    const visible = useOptionalComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (debugEnabled.value && !anim.helper.value && !pending?.value) {
-        const helper = new SkeletonHelper(anim.value.rig.Hips.parent!)
+      if (
+        visible?.value &&
+        debugEnabled.value &&
+        !rigComponent.helper.value &&
+        !pending?.value &&
+        rigComponent.value.rig?.hips?.node
+      ) {
+        const helper = new SkeletonHelper(rigComponent.value.targetBones.hips.parent!)
         helper.frustumCulled = false
-        helper.name = `skeleton-helper-${entity}`
-        setObjectLayers(helper, ObjectLayers.PhysicsHelper)
-        addObjectToGroup(entity, helper)
-        anim.helper.set(helper)
+        helper.name = `target-rig-helper-${entity}`
+        setObjectLayers(helper, ObjectLayers.AvatarHelper)
+        Engine.instance.scene.add(helper)
+        rigComponent.helper.set(helper)
       }
 
-      if ((!debugEnabled.value || pending?.value) && anim.helper.value) {
-        removeObjectFromGroup(entity, anim.helper.value)
-        anim.helper.set(none)
+      if ((!visible?.value || !debugEnabled.value || pending?.value) && rigComponent.helper.value) {
+        rigComponent.helper.value.removeFromParent()
+        rigComponent.helper.set(none)
       }
-    }, [debugEnabled, pending])
+    }, [visible, debugEnabled, pending])
+
+    useEffect(() => {
+      if (!rigComponent.value || !rigComponent.value.vrm) return
+      const userData = (rigComponent.value.vrm as any).userData
+      if (userData) rigComponent.flipped.set(userData && userData.flipped)
+    }, [rigComponent.vrm])
 
     /**
      * Proxify the rig bones with the bitecs store
      */
     useEffect(() => {
-      const rig = anim.rig.value
+      const rig = rigComponent.rig.value
+      if (!rig) return
       for (const [boneName, bone] of Object.entries(rig)) {
         if (!bone) continue
-        // const axesHelper = new AxesHelper(0.1)
-        // setObjectLayers(axesHelper, ObjectLayers.Scene)
-        // bone.add(axesHelper)
-        proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.position)
-        proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.quaternion)
+        proxifyVector3(AvatarRigComponent.rig[boneName].position, entity, bone.node.position)
+        proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity, bone.node.quaternion)
       }
-    }, [anim.rig])
+    }, [rigComponent.rig])
 
     return null
   }
 })
+
+/**Used to generate an offset map that retargets ik position animations to fit any rig */
+export const retargetIkUtility = (entity: Entity, bindTracks: KeyframeTrack[], height: number) => {
+  const offset = new Vector3()
+  const foot = new Vector3()
+
+  const rig = getComponent(entity, AvatarRigComponent)
+  if (!rig.rig.hips?.node) return
+
+  const avatarComponent = getComponent(entity, AvatarComponent)
+  const scaleMultiplier = height / avatarComponent.avatarHeight
+
+  offset.y = rig.localRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
+
+  const direction = rig.flipped ? -1 : 1
+
+  const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, rig.flipped ? Math.PI : 0, 0))
+
+  const ikOffsetsMap = new Map<string, Vector3>()
+
+  for (let i = 0; i < bindTracks.length; i += 3) {
+    const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
+
+    //todo: find a better way to map joints to ik targets here
+    //currently hints are offset by joint forward to estimate where they should be for every rig
+    const bonePos = new Matrix4()
+    switch (key) {
+      case 'rightHandTarget':
+      case 'leftHandTarget':
+      case 'rightFootTarget':
+      case 'leftFootTarget':
+      case 'headTarget':
+        bonePos.copy(
+          rig.localRig[key.replace('Target', '')].node.matrixWorld.multiply(
+            new Matrix4()
+              .setPosition(rig.localRig[key].node.getWorldDirection(new Vector3()))
+              .multiplyScalar(direction * -1)
+          )
+        )
+        break
+      case 'rightElbowHint':
+        bonePos.copy(
+          rig.localRig.rightLowerArm.node.matrixWorld.multiply(
+            new Matrix4()
+              .setPosition(rig.localRig.rightLowerArm.node.getWorldDirection(new Vector3()))
+              .multiplyScalar(direction * -1)
+          )
+        )
+        break
+      case 'leftElbowHint':
+        bonePos.copy(
+          rig.localRig.leftLowerArm.node.matrixWorld.multiply(
+            new Matrix4()
+              .setPosition(rig.localRig.leftLowerArm.node.getWorldDirection(new Vector3()))
+              .multiplyScalar(direction * -1)
+          )
+        )
+        break
+      case 'rightKneeHint':
+        bonePos.copy(
+          rig.localRig.rightLowerLeg.node.matrixWorld.multiply(
+            new Matrix4().setPosition(
+              rig.localRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
+            )
+          )
+        )
+        break
+      case 'leftKneeHint':
+        bonePos.copy(
+          rig.localRig.leftLowerLeg.node.matrixWorld.multiply(
+            new Matrix4().setPosition(
+              rig.localRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
+            )
+          )
+        )
+        break
+      case 'headHint':
+        bonePos.copy(rig.localRig.head.node.matrixWorld)
+      case 'hipsTarget':
+        bonePos.copy(rig.localRig.hips.node.matrixWorld)
+    }
+    const pos = new Vector3()
+    bonePos.decompose(pos, new Quaternion(), new Vector3())
+    pos.applyQuaternion(hipsRotationoffset)
+    pos.sub(
+      new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).multiplyScalar(
+        scaleMultiplier
+      )
+    )
+    pos.sub(offset)
+    ikOffsetsMap.set(key, pos)
+  }
+  return ikOffsetsMap
+}

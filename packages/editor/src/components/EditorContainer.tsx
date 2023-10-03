@@ -31,9 +31,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -43,11 +43,13 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
 import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { useDrop } from 'react-dnd'
 import { Vector2 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
@@ -91,8 +93,6 @@ const logger = multiLogger.child({ component: 'editor:EditorContainer' })
 
 /**
  *component used as dock container.
- *
- * @type {type}
  */
 export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {
@@ -106,16 +106,97 @@ export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
   )
 }
 
+const ViewportDnD = () => {
+  const [{ isDragging, isOver }, dropRef] = useDrop({
+    accept: [ItemTypes.Prefab],
+    collect: (monitor) => ({
+      isDragging: monitor.getItem() !== null && monitor.canDrop(),
+      isOver: monitor.isOver()
+    }),
+    drop(item: SceneElementType, monitor) {
+      const node = addSceneComponentElement(item)
+      if (!node) return
+
+      const transformComponent = getComponent(node, TransformComponent)
+      if (transformComponent) {
+        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
+        const localTransformComponent = getComponent(node, LocalTransformComponent)
+        if (localTransformComponent) {
+          localTransformComponent.position.copy(transformComponent.position)
+        }
+      }
+    }
+  })
+
+  return (
+    <div
+      id="viewport-panel"
+      ref={dropRef}
+      style={{
+        pointerEvents: isDragging ? 'all' : 'none',
+        border: isDragging && isOver ? '5px solid white' : 'none',
+        width: '100%',
+        height: '100%'
+      }}
+    />
+  )
+}
+const ViewPortPanelContent = () => {
+  const { t } = useTranslation()
+  const sceneName = useHookstate(getMutableState(EditorState).sceneName).value
+  return sceneName ? (
+    <ViewportDnD />
+  ) : (
+    <div className={styles.bgImageBlock}>
+      <img src="/static/etherealengine.png" alt="" />
+      <h2>{t('editor:selectSceneMsg')}</h2>
+    </div>
+  )
+}
+
+const SceneLoadingProgress = () => {
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress).value
+  return (
+    <div style={{ top: '50px', position: 'relative' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          height: '100%',
+          width: '100%',
+          flexDirection: 'column'
+        }}
+      >
+        <div
+          style={{
+            // default values will be overridden by theme
+            fontFamily: 'Lato',
+            fontSize: '12px',
+            color: 'white',
+            padding: '16px'
+          }}
+        >
+          {`Scene Loading... ${loadingProgress}% - ${sceneAssetPendingTagQuery.length} assets left`}
+        </div>
+        <CircularProgress />
+      </div>
+    </div>
+  )
+}
+
 /**
  * EditorContainer class used for creating container for Editor
- *
  */
 const EditorContainer = () => {
   const editorState = useHookstate(getMutableState(EditorState))
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
-  const sceneLoading = useHookstate(getMutableState(EngineState)).sceneLoading
+
+  const sceneLoading = sceneName.value && !sceneLoaded.value
 
   const errorState = useHookstate(getMutableState(EditorErrorState).error)
 
@@ -130,7 +211,6 @@ const EditorContainer = () => {
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
 
   const importScene = async (sceneFile: SceneJson) => {
-    setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
       loadProjectScene({
         project: projectName.value!,
@@ -140,13 +220,6 @@ const EditorContainer = () => {
       })
     } catch (error) {
       logger.error(error)
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:loadingError')}
-          message={error.message || t('editor:loadingErrorMsg')}
-          error={error}
-        />
-      )
     }
   }
 
@@ -166,12 +239,6 @@ const EditorContainer = () => {
   }, [editorState.sceneModified])
 
   useEffect(() => {
-    if (sceneLoaded.value) {
-      setDialogComponent(null)
-    }
-  }, [sceneLoading])
-
-  useEffect(() => {
     if (sceneName.value) {
       logger.info(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
@@ -181,57 +248,35 @@ const EditorContainer = () => {
   const reRouteToLoadScene = async (newSceneName: string) => {
     if (sceneName.value === newSceneName) return
     if (!projectName.value || !newSceneName) return
-    RouterService.navigate(`/studio/${projectName.value}/${newSceneName}`)
+    RouterState.navigate(`/studio/${projectName.value}/${newSceneName}`)
   }
 
   const loadScene = async (sceneName: string) => {
-    setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
       if (!projectName.value) {
-        setDialogComponent(null)
         return
       }
       const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) {
-        setDialogComponent(null)
         return
       }
       loadProjectScene(project)
     } catch (error) {
       logger.error(error)
-
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:loadingError')}
-          message={error.message || t('editor:loadingErrorMsg')}
-          error={error}
-        />
-      )
     }
   }
 
   const onNewScene = async () => {
     if (!projectName.value) return
 
-    setDialogComponent(<ProgressDialog title={t('editor:loading')} />)
-
     try {
       const sceneData = await createNewScene(projectName.value)
       if (!sceneData) return
 
-      reRouteToLoadScene(sceneData.sceneName)
-      setDialogComponent(null)
+      reRouteToLoadScene(sceneData.name)
     } catch (error) {
       logger.error(error)
-
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:loadingError')}
-          message={error.message || t('editor:loadingErrorMsg')}
-          error={error}
-        />
-      )
     }
   }
 
@@ -260,7 +305,7 @@ const EditorContainer = () => {
     editorState.projectName.set(null)
     editorState.sceneName.set(null)
     getMutableState(SceneState).sceneData.set(null)
-    RouterService.navigate('/studio')
+    RouterState.navigate('/studio')
   }
 
   const onSaveAs = async () => {
@@ -275,9 +320,9 @@ const EditorContainer = () => {
     const abortController = new AbortController()
     try {
       if (sceneName.value || editorState.sceneModified.value) {
-        const blob = await takeScreenshot(512, 320)
-        const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
-        const result: { name: string } = (await new Promise((resolve) => {
+        const blob = await takeScreenshot(512, 320, 'ktx2')
+        const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
+        const result: { name: string } | void = await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewSceneDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
@@ -286,9 +331,8 @@ const EditorContainer = () => {
               onCancel={resolve}
             />
           )
-        })) as any
-        if (result && projectName.value) {
-          await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
+        })
+        if (result?.name && projectName.value) {
           await saveScene(projectName.value, result.name, file, abortController.signal)
           editorState.sceneModified.set(false)
         }
@@ -297,7 +341,7 @@ const EditorContainer = () => {
     } catch (error) {
       logger.error(error)
       setDialogComponent(
-        <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
+        <ErrorDialog title={t('editor:savingError')} message={error?.message || t('editor:savingErrorMsg')} />
       )
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
@@ -307,7 +351,8 @@ const EditorContainer = () => {
     const el = document.createElement('input')
     el.type = 'file'
     el.multiple = true
-    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz'
+    el.accept =
+      '.bin,.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv,.avi,.m3u8,.usdz,.vrm'
     el.style.display = 'none'
     el.onchange = async () => {
       const pName = projectName.value
@@ -417,8 +462,8 @@ const EditorContainer = () => {
     try {
       if (projectName.value) {
         if (result.generateThumbnails) {
-          const blob = await takeScreenshot(512, 320)
-          const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
+          const blob = await takeScreenshot(512, 320, 'ktx2')
+          const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
           await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
           await saveScene(projectName.value, sceneName.value, file, abortController.signal)
@@ -500,54 +545,6 @@ const EditorContainer = () => {
         action: onCloseProject
       }
     ]
-  }
-
-  const ViewportDnD = () => {
-    const [{ isDragging, isOver }, dropRef] = useDrop({
-      accept: [ItemTypes.Prefab],
-      collect: (monitor) => ({
-        isDragging: monitor.getItem() !== null && monitor.canDrop(),
-        isOver: monitor.isOver()
-      }),
-      drop(item: SceneElementType, monitor) {
-        const node = addSceneComponentElement(item)
-        if (!node) return
-
-        const transformComponent = getComponent(node, TransformComponent)
-        if (transformComponent) {
-          getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-          const localTransformComponent = getComponent(node, LocalTransformComponent)
-          if (localTransformComponent) {
-            localTransformComponent.position.copy(transformComponent.position)
-          }
-        }
-      }
-    })
-
-    return (
-      <div
-        id="viewport-panel"
-        ref={dropRef}
-        style={{
-          pointerEvents: isDragging ? 'all' : 'none',
-          border: isDragging && isOver ? '5px solid white' : 'none',
-          width: '100%',
-          height: '100%'
-        }}
-      />
-    )
-  }
-
-  const ViewPortPanelContent = () => {
-    const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
-    return sceneLoaded ? (
-      <ViewportDnD />
-    ) : (
-      <div className={styles.bgImageBlock}>
-        <img src="/static/etherealengine.png" alt="" />
-        <h2>{t('editor:selectSceneMsg')}</h2>
-      </div>
-    )
   }
 
   const toolbarMenu = generateToolbarMenu()
@@ -656,7 +653,7 @@ const EditorContainer = () => {
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={sceneLoaded.value ? { background: 'transparent' } : {}}
+        style={sceneName.value ? { background: 'transparent' } : {}}
       >
         <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
           <DndWrapper id="editor-container">
@@ -664,6 +661,7 @@ const EditorContainer = () => {
             <ToolBar menu={toolbarMenu} />
             <ElementList />
             <ControlText />
+            {sceneLoading && <SceneLoadingProgress />}
             <div className={styles.workspaceContainer}>
               <AssetDropZone />
               <AppContext.Provider value={{ searchElement, searchHierarchy }}>

@@ -30,9 +30,10 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
 import { WorldState } from '../interfaces/WorldState'
+import { WorldNetworkAction } from './WorldNetworkAction'
 
 export enum AuthError {
   MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',
@@ -71,4 +72,9 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   worldState.userNames[Engine.instance.userID].set(name)
   dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, entityUUID }))
   dispatchAction(AvatarNetworkAction.setAvatarID({ avatarID, entityUUID }))
+  dispatchAction(
+    WorldNetworkAction.spawnCamera({
+      entityUUID: ('camera_' + entityUUID) as EntityUUID
+    })
+  )
 }

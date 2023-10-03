@@ -34,6 +34,7 @@ import {
   ProjectPermissionType,
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -47,7 +48,7 @@ const cleanup = async (app: Application) => {
   const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
   deleteFolderRecursive(project1Dir)
   try {
-    await app.service('project').Model.destroy({ where: { name: newProjectName1 } })
+    await app.service(projectPath)._remove(null, { query: { name: newProjectName1 } })
   } catch (e) {
     //
   }
@@ -160,7 +161,7 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        project1 = await app.service('project').create(
+        project1 = await app.service(projectPath).create(
           {
             name: newProjectName1
           },

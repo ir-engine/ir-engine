@@ -40,14 +40,12 @@ export const ImageFileTypes = [
   'image/ktx2'
 ]
 //array containing model file type.
-export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf-embedded', '.fbx', '.usdz']
+export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf-embedded', '.fbx', '.usdz', '.vrm']
 //array containing volumetric file type.
 export const VolumetricFileTypes = ['.manifest']
 //array containing custom script type.
 export const CustomScriptFileTypes = ['.tsx', '.ts', '.js', '.jsx']
-//array containing graph json type.
-export const GraphFileTypes = ['.graph.json']
-
+export const BinaryFileTypes = ['.bin']
 //array contains arrays of all files types.
 export const AllFileTypes = [
   ...AudioFileTypes,
@@ -56,7 +54,7 @@ export const AllFileTypes = [
   ...ModelFileTypes,
   ...VolumetricFileTypes,
   ...CustomScriptFileTypes,
-  ...GraphFileTypes
+  ...BinaryFileTypes
 ]
 
 //creating comma separated string contains all file types

@@ -23,57 +23,65 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { POSE_LANDMARKS } from '@mediapipe/holistic'
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
-import { isClient } from '../common/functions/getEnvironment'
+
 import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../ecs/functions/EntityFunctions'
+
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+
+import { NormalizedLandmarkList } from '@mediapipe/pose'
+
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
-import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction } from '../xr/XRState'
 
-export const motionCaptureHeadSuffix = '_motion_capture_head'
-export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
-export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
+import { getState } from '@etherealengine/hyperflux'
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
+import {
+  BufferAttribute,
+  BufferGeometry,
+  LineBasicMaterial,
+  LineSegments,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Quaternion,
+  SphereGeometry,
+  Vector3
+} from 'three'
+import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { V_010 } from '../common/constants/MathConstants'
+import { isClient } from '../common/functions/getEnvironment'
+import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { RendererState } from '../renderer/RendererState'
+import { ObjectLayers } from '../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
+import { solveMotionCapturePose } from './solveMotionCapturePose'
 
-export interface NormalizedLandmark {
-  x: number
-  y: number
-  z: number
-  visibility?: number
+export type MotionCaptureResults = {
+  poseWorldLandmarks: NormalizedLandmarkList
+  poseLandmarks: NormalizedLandmarkList
 }
 
-export const sendResults = (landmarks: NormalizedLandmark[]) => {
+export const sendResults = (results: MotionCaptureResults) => {
   return encode({
     timestamp: Date.now(),
-    peerID: Engine.instance.peerID,
-    landmarks
+    results
   })
 }
 
-export const receiveResults = (results: ArrayBuffer) => {
-  const { timestamp, peerID, landmarks } = decode(new Uint8Array(results)) as {
+export const receiveResults = (buff: ArrayBuffer) => {
+  return decode(new Uint8Array(buff)) as {
     timestamp: number
-    peerID: PeerID
-    landmarks: NormalizedLandmark[]
+    results: MotionCaptureResults
   }
-  return { timestamp, peerID, landmarks }
 }
 
 export const MotionCaptureFunctions = {
@@ -90,172 +98,144 @@ const handleMocapData = (
   message: ArrayBufferLike
 ) => {
   if (network.isHosting) {
-    network.transport.bufferToAll(mocapDataChannelType, message)
+    network.transport.bufferToAll(dataChannel, fromPeerID, message)
   }
-  const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
-  if (!peerID) return
-  if (!timeSeriesMocapData.has(peerID)) {
-    timeSeriesMocapData.set(peerID, new RingBuffer(10))
+  const results = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
+  if (!timeSeriesMocapData.has(fromPeerID)) {
+    timeSeriesMocapData.set(fromPeerID, new RingBuffer(10))
   }
-  timeSeriesMocapData.get(peerID)!.add(landmarks)
+  timeSeriesMocapData.get(fromPeerID)!.add(results)
 }
 
-const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmark[]>>()
+const motionCaptureQuery = defineQuery([MotionCaptureRigComponent, AvatarRigComponent])
+
+const timeSeriesMocapData = new Map<
+  PeerID,
+  RingBuffer<{
+    timestamp: number
+    results: MotionCaptureResults
+  }>
+>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
-const objs = [] as Mesh[]
-const debug = false
-
-if (debug)
-  for (let i = 0; i < 33; i++) {
-    objs.push(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial()))
-    Engine.instance.scene.add(objs[i])
-  }
-
-const hipsPos = new Vector3()
-const headPos = new Vector3()
-const leftHandPos = new Vector3()
-const rightHandPos = new Vector3()
-
 const execute = () => {
-  const engineState = getState(EngineState)
+  // for now, it is unnecessary to compute anything on the server
+  if (!isClient) return
   const network = Engine.instance.worldNetwork
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     if (!network?.peers?.[peerID] || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
       timeSeriesMocapLastSeen.delete(peerID)
     }
   }
-
-  const userPeers = network?.users?.[Engine.instance.userID]
-
-  // Stop mocap by removing entities if data doesnt exist
-  if (isClient && !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID))) {
-    const headUUID = (Engine.instance.userID + motionCaptureHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userID + motionCaptureLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userID + motionCaptureRightHandSuffix) as EntityUUID
-
-    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
-
-    if (ikTargetHead) removeEntity(ikTargetHead)
-    if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
-    if (ikTargetRightHand) removeEntity(ikTargetRightHand)
-  }
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
+    const data = mocapData.popLast()
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
-    if (entity) {
-      const data = mocapData.popLast()
-      if (!data) continue
-
+    if (data && entity) {
       timeSeriesMocapLastSeen.set(peerID, Date.now())
-
-      const leftHips = data[POSE_LANDMARKS.LEFT_HIP]
-      const rightHips = data[POSE_LANDMARKS.RIGHT_HIP]
-      const nose = data[POSE_LANDMARKS.NOSE]
-      const leftEar = data[POSE_LANDMARKS.LEFT_EAR]
-      const rightEar = data[POSE_LANDMARKS.RIGHT_EAR]
-      const leftShoulder = data[POSE_LANDMARKS.LEFT_SHOULDER]
-      const rightShoulder = data[POSE_LANDMARKS.RIGHT_SHOULDER]
-      const leftElbow = data[POSE_LANDMARKS.LEFT_ELBOW]
-      const rightElbow = data[POSE_LANDMARKS.RIGHT_ELBOW]
-      const rightWrist = data[POSE_LANDMARKS.LEFT_WRIST]
-      const leftWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
-
-      const head = !!nose.visibility && nose.visibility > 0.5
-      const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.1
-      const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.1
-
-      const headUUID = (userID + motionCaptureHeadSuffix) as EntityUUID
-      const leftHandUUID = (userID + motionCaptureLeftHandSuffix) as EntityUUID
-      const rightHandUUID = (userID + motionCaptureRightHandSuffix) as EntityUUID
-
-      const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-      const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-      const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
-
-      if (!head && ikTargetHead) removeEntity(ikTargetHead)
-      if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
-      if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
-
-      if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID }))
-      if (leftHand && !ikTargetLeftHand)
-        dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID }))
-      if (rightHand && !ikTargetRightHand)
-        dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID }))
-
-      const avatarRig = getComponent(entity, AvatarRigComponent)
-      const avatarTransform = getComponent(entity, TransformComponent)
-      if (!avatarRig) continue
-
-      const avatarHips = avatarRig.rig.Hips
-      avatarHips.getWorldPosition(hipsPos)
-
-      if (debug)
-        for (let i = 0; i < 33; i++) {
-          objs[i].position
-            .set(data[i].x, data[i].y, data[i].z)
-            .multiplyScalar(-1)
-            .applyQuaternion(avatarTransform.rotation)
-            .add(hipsPos)
-          objs[i].visible = !!data[i].visibility && data[i].visibility! > 0.5
-          objs[i].updateMatrixWorld(true)
-        }
-
-      if (ikTargetHead) {
-        if (!nose.visibility || nose.visibility < 0.1) continue
-        if (!nose.x || !nose.y || !nose.z) continue
-        const ik = getComponent(ikTargetHead, TransformComponent)
-        headPos
-          .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
-          .multiplyScalar(-1)
-          .applyQuaternion(avatarTransform.rotation)
-          .add(hipsPos)
-        ik.position.copy(headPos)
-        // ik.rotation.setFromUnitVectors(
-        //   new Vector3(0, 1, 0),
-        //   new Vector3(nose.x, -nose.y, nose.z).sub(headPos).normalize()
-        // ).multiply(avatarTransform.rotation)
-      }
-
-      if (ikTargetLeftHand) {
-        if (!leftWrist.visibility || leftWrist.visibility < 0.1) continue
-        if (!leftWrist.x || !leftWrist.y || !leftWrist.z) continue
-        const ik = getComponent(ikTargetLeftHand, TransformComponent)
-        leftHandPos
-          .set(leftWrist.x, leftWrist.y, leftWrist.z)
-          .multiplyScalar(-1)
-          .applyQuaternion(avatarTransform.rotation)
-          .add(hipsPos)
-        ik.position.lerp(leftHandPos, engineState.deltaSeconds * 10)
-        // ik.quaternion.copy()
-      }
-
-      if (ikTargetRightHand) {
-        if (!rightWrist.visibility || rightWrist.visibility < 0.5) continue
-        if (!rightWrist.x || !rightWrist.y || !rightWrist.z) continue
-        const ik = getComponent(ikTargetRightHand, TransformComponent)
-        rightHandPos
-          .set(rightWrist.x, rightWrist.y, rightWrist.z)
-          .multiplyScalar(-1)
-          .applyQuaternion(avatarTransform.rotation)
-          .add(hipsPos)
-        ik.position.lerp(rightHandPos, engineState.deltaSeconds * 10)
-        // ik.quaternion.copy()
-      }
+      setComponent(entity, MotionCaptureRigComponent)
+      solveMotionCapturePose(data.results.poseWorldLandmarks, userID, entity)
     }
   }
+
+  for (const entity of motionCaptureQuery()) {
+    const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
+    if (!peers) {
+      removeComponent(entity, MotionCaptureRigComponent)
+      continue
+    }
+    const rigComponent = getComponent(entity, AvatarRigComponent)
+
+    for (const boneName of VRMHumanBoneList) {
+      const localbone = rigComponent.localRig[boneName]?.node
+      if (!localbone) continue
+
+      if (
+        MotionCaptureRigComponent.rig[boneName].x[entity] === 0 &&
+        MotionCaptureRigComponent.rig[boneName].y[entity] === 0 &&
+        MotionCaptureRigComponent.rig[boneName].z[entity] === 0 &&
+        MotionCaptureRigComponent.rig[boneName].w[entity] === 0
+      ) {
+        MotionCaptureRigComponent.rig[boneName].w[entity] === 1
+      }
+      localbone.quaternion.set(
+        MotionCaptureRigComponent.rig[boneName].x[entity],
+        MotionCaptureRigComponent.rig[boneName].y[entity],
+        MotionCaptureRigComponent.rig[boneName].z[entity],
+        MotionCaptureRigComponent.rig[boneName].w[entity]
+      )
+
+      if (!rigComponent.vrm.humanoid.normalizedRestPose[boneName]) continue
+      localbone.position.fromArray(rigComponent.vrm.humanoid.normalizedRestPose[boneName]!.position as number[])
+      localbone.scale.set(1, 1, 1)
+    }
+
+    const hipBone = rigComponent.localRig.hips.node
+    hipBone.position.set(
+      MotionCaptureRigComponent.hipPosition.x[entity],
+      MotionCaptureRigComponent.hipPosition.y[entity],
+      MotionCaptureRigComponent.hipPosition.z[entity]
+    )
+
+    hipBone.updateMatrixWorld(true)
+
+    const avatarDebug = getState(RendererState).avatarDebug
+    helperGroup.visible = avatarDebug
+    if (avatarDebug) {
+      const rawBones = rigComponent.localRig
+      for (const [key, value] of Object.entries(rawBones)) {
+        if (!boneHelpers[key]) {
+          const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial())
+          setObjectLayers(mesh, ObjectLayers.AvatarHelper)
+          // mesh.add(new AxesHelper(0.1))
+          if (key === 'hips') mesh.material.color.setHex(0xff0000)
+          if (key === 'spine') mesh.material.color.setHex(0x00ff00)
+          if (key === 'chest') mesh.material.color.setHex(0x0000ff)
+          boneHelpers[key] = mesh
+          helperGroup.add(mesh)
+          if (!helperGroup.parent) Engine.instance.scene.add(helperGroup)
+          setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)
+        }
+        const mesh = boneHelpers[key]
+        value.node.getWorldPosition(mesh.position)
+        value.node.getWorldQuaternion(mesh.quaternion)
+        mesh.updateMatrixWorld(true)
+      }
+
+      const bones = Object.values(rigComponent.localRig).filter(
+        (bone) => bone.node.parent && !bone.node.name.toLowerCase().includes('hips')
+      )
+
+      const posAttr = new BufferAttribute(new Float32Array(bones.length * 2 * 3).fill(0), 3)
+
+      let i = 0
+      for (const bone of bones) {
+        const pos = bone.node.getWorldPosition(new Vector3())
+        posAttr.setXYZ(i, pos.x, pos.y, pos.z)
+        const prevPos = bone.node.parent!.getWorldPosition(new Vector3())
+        posAttr.setXYZ(i + 1, prevPos.x, prevPos.y, prevPos.z)
+        i += 2
+      }
+
+      positionLineSegment.geometry.setAttribute('position', posAttr)
+    }
+    // rotate hips 180 degrees
+    hipBone.quaternion.premultiply(rotate180YQuaternion)
+  }
 }
+
+const rotate180YQuaternion = new Quaternion().setFromAxisAngle(V_010, Math.PI)
+const boneHelpers = {} as Record<string, Object3D>
+const helperGroup = new Object3D()
+const positionLineSegment = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ vertexColors: true }))
+positionLineSegment.material.linewidth = 4
+helperGroup.add(positionLineSegment)
 
 const reactor = () => {
   useEffect(() => {
     addDataChannelHandler(mocapDataChannelType, handleMocapData)
-
     return () => {
       removeDataChannelHandler(mocapDataChannelType, handleMocapData)
     }

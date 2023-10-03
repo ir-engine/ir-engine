@@ -24,17 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { ChannelID } from '../social/channel.schema'
 import { locationSchema } from '../social/location.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const instancePath = 'instance'
 
-export const instanceMethods = ['create', 'find', 'get', 'remove', 'patch'] as const
+export const instanceMethods = ['create', 'find', 'get', 'patch', 'remove'] as const
 
 export type InstanceID = OpaqueType<'InstanceID'> & string
 
@@ -100,9 +100,16 @@ export const instanceQueryProperties = Type.Pick(instanceSchema, [
 ])
 export const instanceQuerySchema = Type.Intersect(
   [
-    querySyntax(instanceQueryProperties),
+    querySyntax(instanceQueryProperties, {
+      ipAddress: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      { action: Type.Optional(Type.String()), search: Type.Optional(Type.String()) },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

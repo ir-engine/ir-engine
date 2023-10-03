@@ -42,6 +42,7 @@ import {
   ProjectPermissionType
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -86,20 +87,26 @@ export class ProjectPermissionService<
   }
 
   async find(params?: ProjectPermissionParams) {
-    const loggedInUser = params!.user!
-    if (loggedInUser?.scopes?.find((scope) => scope.type === 'admin:admin')) return super._find(params)
-    if (params?.query?.projectId) {
+    if (!params) params = {}
+    if (!params.query) params.query = {}
+
+    const loggedInUser = params.user
+
+    if (!loggedInUser) throw new BadRequest('User missing from request')
+
+    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return super._find(params)
+
+    if (params.query.projectId) {
       const permissionStatus = (await super._find({
         query: {
           projectId: params.query.projectId,
-          userId: loggedInUser?.id,
+          userId: loggedInUser.id,
           $limit: 1
         }
       })) as Paginated<ProjectPermissionType>
       if (permissionStatus.data.length > 0) return super._find(params)
     }
-    if (!params) params = {}
-    if (!params.query) params.query = {}
+
     params.query.userId = loggedInUser.id
     return super._find(params)
   }
@@ -141,11 +148,8 @@ export class ProjectPermissionService<
         }
       })
       if (existing.total > 0) return existing.data[0]
-      const project = await this.app.service('project').Model.findOne({
-        where: {
-          id: data.projectId
-        }
-      })
+      const project = await this.app.service(projectPath).get(data.projectId!)
+
       if (!project) throw new BadRequest('Invalid project ID')
       const existingPermissionsCount = (await super._find({
         query: {

@@ -39,6 +39,12 @@ import { NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export class WorldNetworkAction {
+  static spawnDebugPhysicsObject = defineAction({
+    type: 'ee.engine.world.SPAWN_DEBUG_PHYSICS_OBJECT',
+    config: matches.any.optional(),
+    $topic: NetworkTopics.world
+  })
+
   static spawnObject = defineAction({
     type: 'ee.engine.world.SPAWN_OBJECT',
     prefab: matches.string,

@@ -31,12 +31,12 @@ import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { ReactorRoot, startReactor } from '@etherealengine/hyperflux'
-import { hookstate, NO_PROXY, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { hookstate, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
@@ -94,7 +94,7 @@ export interface Component<
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
   existenceMap: Readonly<Record<Entity, boolean>>
-  existenceMapState: State<Record<Entity, boolean>, Subscribable>
+  existenceMapState: State<Record<Entity, boolean>>
   existenceMapPromiseResolver: Record<Entity, { promise: Promise<void>; resolve: () => void }>
   stateMap: Record<Entity, State<ComponentType, Subscribable> | undefined>
   valueMap: Record<Entity, ComponentType>
@@ -134,7 +134,7 @@ export const defineComponent = <
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.existenceMap = {}
-  Component.existenceMapState = hookstate(Component.existenceMap, subscribable())
+  Component.existenceMapState = hookstate(Component.existenceMap)
   Component.existenceMapPromiseResolver = {}
   Component.stateMap = {}
   Component.valueMap = {}
@@ -352,7 +352,12 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
   if (root?.isRunning) await root?.stop()
   // NOTE: we may need to perform cleanup after a timeout here in case there
   // are other reactors also referencing this state in their cleanup functions
-  if (!hasComponent(entity, component)) component.stateMap[entity]?.set(undefined)
+  if (!hasComponent(entity, component)) {
+    component.stateMap[entity]?.set(none)
+    // Can not get the full destroy to function without widespread errors in our core systems
+    //component.stateMap[entity]?.destroy
+    //delete component.stateMap[entity]
+  }
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {
@@ -398,7 +403,7 @@ export const serializeComponent = <C extends Component<any, any, any>>(entity: E
 }
 
 export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
-  const query = bitECS.defineQuery([...components, bitECS.Not(EntityRemovedComponent)]) as bitECS.Query
+  const query = bitECS.defineQuery(components) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
 
@@ -524,14 +529,12 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
  */
 export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
   const hasComponent = useHookstate(Component.existenceMapState[entity]).value
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined)
+  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined) //in the case that this is called before a component is set we need a hookstate present for react
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }
 
 export type Query = ReturnType<typeof defineQuery>
-
-export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComponent' })
 
 globalThis.EE_getComponent = getComponent
 globalThis.EE_getAllComponents = getAllComponents

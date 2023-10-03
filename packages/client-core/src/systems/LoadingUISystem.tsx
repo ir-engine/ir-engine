@@ -36,6 +36,7 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   getComponent,
+  hasComponent,
   removeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -74,7 +75,7 @@ const LoadingUISystemState = defineState({
 
     const mesh = new Mesh(
       new SphereGeometry(10),
-      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false, color: 'white' })
+      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
     )
 
     // flip inside out
@@ -96,9 +97,42 @@ const LoadingUISystemState = defineState({
 const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
 const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
 
+/** Scene Colors */
+function setDefaultPalette() {
+  const uiState = getState(LoadingUISystemState).ui.state
+  const colors = uiState.colors
+  colors.main.set('black')
+  colors.background.set('white')
+  colors.alternate.set('black')
+}
+
+const setColors = (image: HTMLImageElement) => {
+  const uiState = getState(LoadingUISystemState).ui.state
+  const colors = uiState.colors
+  const palette = getImagePalette(image)
+  if (palette) {
+    colors.main.set(palette.color)
+    colors.background.set(palette.backgroundColor)
+    colors.alternate.set(palette.alternativeColor)
+  }
+}
+
+const blurTexture = (texture: Texture, blur = 4) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+  canvas.width = texture.image.width
+  canvas.height = texture.image.height
+  ctx.drawImage(texture.image, 0, 0)
+  ctx.filter = `blur(${blur}px)`
+  ctx.drawImage(canvas, 0, 0)
+  texture.image = canvas
+  texture.needsUpdate = true
+  return texture
+}
+
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
-  const engineState = useHookstate(getMutableState(EngineState))
+  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const mesh = state.mesh.value
@@ -107,7 +141,6 @@ function LoadingReactor() {
   /** Handle loading state changes */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    console.log('metadataLoaded', metadataLoaded.value)
     if (
       loadingState.state.value === AppLoadingStates.SCENE_LOADING &&
       transition.state === 'OUT' &&
@@ -119,28 +152,6 @@ function LoadingReactor() {
       transition.setState('OUT')
     }
   }, [loadingState.state, metadataLoaded])
-
-  /** Scene Colors */
-  function setDefaultPalette() {
-    const uiState = getState(LoadingUISystemState).ui.state
-    const colors = uiState.colors
-    colors.main.set('black')
-    colors.background.set('white')
-    colors.alternate.set('black')
-  }
-
-  const setColors = (texture: Texture) => {
-    const image = texture.image as HTMLImageElement
-    const uiState = getState(LoadingUISystemState).ui.state
-    const colors = uiState.colors
-    const palette = getImagePalette(image)
-    if (palette) {
-      colors.main.set(palette.color)
-      colors.background.set(palette.backgroundColor)
-      colors.alternate.set(palette.alternativeColor)
-      console.log('palette', palette)
-    }
-  }
 
   /** Scene data changes */
   useEffect(() => {
@@ -157,20 +168,27 @@ function LoadingReactor() {
         envmapURL,
         {},
         (texture: Texture | CompressedTexture) => {
-          mesh.material.map = texture
-
           const compressedTexture = texture as CompressedTexture
           if (compressedTexture.isCompressedTexture) {
             try {
               createReadableTexture(compressedTexture).then((texture: Texture) => {
-                setColors(texture)
+                const image = texture.image
+                blurTexture(texture)
+                mesh.material.map = texture
+                texture.needsUpdate = true
+                setColors(image)
+                compressedTexture.dispose()
               })
             } catch (e) {
               console.error(e)
               setDefaultPalette()
             }
           } else {
-            setColors(texture)
+            const image = texture.image
+            blurTexture(texture)
+            mesh.material.map = texture
+            texture.needsUpdate = true
+            setColors(image)
           }
         },
         undefined,
@@ -187,13 +205,17 @@ function LoadingReactor() {
     const progressBar = xrui.getObjectByName('progress-container') as WebLayer3D | undefined
     if (!progressBar) return
 
-    if (progressBar.position.lengthSq() <= 0) progressBar.shouldApplyDOMLayout = 'once'
-    const percentage = engineState.loadingProgress.value
+    const percentage = loadingProgress.value
     const scaleMultiplier = 0.01
     const centerOffset = 0.05
-    progressBar.scale.setX(percentage * scaleMultiplier)
-    progressBar.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
-  }, [engineState.loadingProgress])
+
+    progressBar.onBeforeApplyLayout = () => {
+      progressBar.domLayout.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
+      progressBar.domLayout.scale.setX(percentage * scaleMultiplier)
+    }
+
+    progressBar.updateMatrixWorld(true)
+  }, [loadingProgress])
 
   return null
 }
@@ -229,20 +251,21 @@ const execute = () => {
   const xrui = getComponent(ui.entity, XRUIComponent)
 
   if (transition.state === 'IN' && transition.alpha === 1) {
-    setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
-      const distance = 0.1
-      const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
-      if (!uiContainer) return
-      const uiSize = uiContainer.domSize
-      const screenSize = EngineRenderer.instance.renderer.getSize(SCREEN_SIZE)
-      const aspectRatio = screenSize.x / screenSize.y
-      const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
-      const scale =
-        ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
-        0.25 *
-        scaleMultiplier
-      ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
-    })
+    if (!hasComponent(ui.entity, ComputedTransformComponent))
+      setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
+        const distance = 0.1
+        const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
+        if (!uiContainer) return
+        const uiSize = uiContainer.domSize
+        const screenSize = EngineRenderer.instance.renderer.getSize(SCREEN_SIZE)
+        const aspectRatio = screenSize.x / screenSize.y
+        const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
+        const scale =
+          ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
+          0.25 *
+          scaleMultiplier
+        ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
+      })
   }
 
   mesh.position.copy(getComponent(Engine.instance.cameraEntity, CameraComponent).position)
@@ -272,7 +295,8 @@ const execute = () => {
     mat.opacity = opacity
     mat.visible = ready
     layer.visible = ready
-    mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
+    // mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
+    mat.color.copy(mainThemeColor)
   })
   setVisibleComponent(ui.entity, ready)
 }

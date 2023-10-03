@@ -31,7 +31,8 @@ export const ObjectLayers = {
   Gizmos: 4 as const,
   UI: 5 as const,
   PhysicsHelper: 6 as const,
-  NodeHelper: 7 as const,
-  Panel: 8 as const,
-  TransformGizmo: 9 as const
+  AvatarHelper: 7 as const,
+  NodeHelper: 8 as const,
+  Panel: 9 as const,
+  TransformGizmo: 10 as const
 }

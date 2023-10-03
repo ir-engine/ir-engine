@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { smsDataValidator } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
 export default {
@@ -30,7 +32,7 @@ export default {
     all: [disallow('external')],
     find: [],
     get: [],
-    create: [],
+    create: [() => schemaHooks.validateData(smsDataValidator)],
     update: [],
     patch: [],
     remove: []

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
 
-import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
+import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -35,7 +35,7 @@ import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/
 
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
-const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OEmbed) => {
+const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OembedType) => {
   const isLocation = /^\/location\//.test(url.pathname)
   const isAdminPanel = /^\/admin/.test(url.pathname)
   const isEditor = /^\/studio/.test(url.pathname)

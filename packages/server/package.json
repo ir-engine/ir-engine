@@ -31,7 +31,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\" \"npm run serve-local-files\"",
+    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files -c '#FF9800,#A2789C,#00908F,#F93822' \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\"",
     "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
     "dev-api-server": "ts-node --swc src/index.ts",
     "dev-api-server-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",
@@ -46,7 +46,7 @@
     "@etherealengine/server-core": "^1.4.0",
     "@feathersjs/koa": "5.0.5",
     "@feathersjs/transport-commons": "5.0.5",
-    "@swc/core": "^1.3.41",
+    "@swc/core": "1.3.41",
     "app-root-path": "^3.1.0",
     "cli": "1.0.1",
     "cross-env": "7.0.3",
@@ -55,7 +55,6 @@
     "koa-static": "5.0.0",
     "nanoid": "3.3.4",
     "ps-list": "7.2.0",
-    "sequelize": "6.29.3",
     "ts-node": "10.9.1",
     "typescript": "5.0.2",
     "uuid": "9.0.0"

@@ -44,6 +44,7 @@ import { GroupComponent } from './components/GroupComponent'
 import { HemisphereLightComponent } from './components/HemisphereLightComponent'
 import { ImageComponent } from './components/ImageComponent'
 import { InteriorComponent } from './components/InteriorComponent'
+import { LinkComponent } from './components/LinkComponent'
 import { LoadVolumeComponent } from './components/LoadVolumeComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MountPointComponent } from './components/MountPointComponent'
@@ -51,7 +52,6 @@ import { OceanComponent } from './components/OceanComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PointLightComponent } from './components/PointLightComponent'
 import { PostProcessingComponent } from './components/PostProcessingComponent'
-import { PrefabComponent } from './components/PrefabComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
 import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
 import { ScenePreviewCameraComponent } from './components/ScenePreviewCamera'
@@ -100,7 +100,6 @@ export const SceneComponents = [
   ParticleSystemComponent,
   PointLightComponent,
   PostProcessingComponent,
-  PrefabComponent,
   RenderSettingsComponent,
   SceneDynamicLoadTagComponent,
   ScenePreviewCameraComponent,
@@ -118,7 +117,8 @@ export const SceneComponents = [
   VolumetricComponent,
   WaterComponent,
   TransformComponent,
-  XRAnchorComponent
+  XRAnchorComponent,
+  LinkComponent
 ]
 
 export const SceneSystemUpdateGroup = defineSystem({

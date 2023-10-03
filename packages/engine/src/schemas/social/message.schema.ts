@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { InstanceID } from '../networking/instance.schema'
 import { UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
+import { ChannelID } from './channel.schema'
 
 export const messagePath = 'message'
 

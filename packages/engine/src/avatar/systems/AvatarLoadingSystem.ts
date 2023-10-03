@@ -41,7 +41,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineQuery,
   getComponent,
@@ -52,6 +52,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -62,7 +63,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
-import { DissolveEffect } from '.././DissolveEffect'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from '.././components/AvatarEffectComponent'
@@ -112,8 +112,54 @@ plate.geometry.computeBoundingSphere()
 light.name = 'light_obj'
 plate.name = 'plate_obj'
 
+const tweenOutEffect = (entity, effectComponent) => {
+  setComponent(
+    entity,
+    TweenComponent,
+    new Tween<any>(effectComponent)
+      .to(
+        {
+          opacityMultiplier: 0
+        },
+        2000
+      )
+      .start()
+      .onComplete(() => {
+        const objects = getOptionalComponent(entity, GroupComponent)
+        let pillar: Mesh = null!
+        let plate: Mesh = null!
+        if (objects?.length)
+          for (const obj of objects) {
+            const childrens = obj.children as Mesh[]
+            for (let i = 0; i < childrens.length; i++) {
+              if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+              if (childrens[i].name === 'plate_obj') plate = childrens[i]
+            }
+          }
+
+        if (pillar !== null) {
+          pillar.traverse(function (child) {
+            if (child['material']) child['material'].dispose()
+          })
+
+          pillar.removeFromParent()
+        }
+
+        if (plate !== null) {
+          plate.traverse(function (child) {
+            if (child['material']) child['material'].dispose()
+          })
+
+          plate.removeFromParent()
+        }
+
+        removeEntity(entity)
+      })
+  )
+}
+
 const execute = () => {
-  const { deltaSeconds: delta } = Engine.instance
+  const delta = getState(EngineState).deltaSeconds
 
   for (const entity of effectQuery.enter()) {
     const effectComponent = getComponent(entity, AvatarEffectComponent)
@@ -180,16 +226,19 @@ const execute = () => {
           const avatarObjects = getComponent(effectComponent.sourceEntity, GroupComponent)
           const bbox = new Box3()
           let scale = 1
-          for (const obj of avatarObjects) {
-            bbox.expandByObject(obj)
-            if (obj.userData?.scale) {
-              scale = obj.userData.scale
+          if (avatarObjects?.length) {
+            for (const obj of avatarObjects) {
+              bbox.expandByObject(obj)
+              if (obj.userData?.scale) {
+                scale = obj.userData.scale
+              }
             }
           }
-          setComponent(entity, AvatarDissolveComponent, {
-            /** @todo refactor to not be just the first index */
-            effect: new DissolveEffect(avatarObjects[0], bbox.min.y / scale, bbox.max.y / scale)
-          })
+          if (typeof avatarObjects === 'object' && avatarObjects.length > 0)
+            setComponent(entity, AvatarDissolveComponent, {
+              minHeight: bbox.min.y / scale,
+              maxHeight: bbox.max.y / scale
+            })
         })
     )
   }
@@ -236,11 +285,9 @@ const execute = () => {
   }
 
   for (const entity of dissolveQuery()) {
-    const disolveEffect = getComponent(entity, AvatarDissolveComponent).effect
-
-    if (disolveEffect.update(delta)) {
+    const effectComponent = getComponent(entity, AvatarEffectComponent)
+    if (AvatarDissolveComponent.updateDissolveEffect(effectComponent.dissolveMaterials, entity, delta)) {
       removeComponent(entity, AvatarDissolveComponent)
-      const effectComponent = getComponent(entity, AvatarEffectComponent)
       const avatarGroup = getOptionalComponent(effectComponent.sourceEntity, GroupComponent)
       if (avatarGroup?.length)
         effectComponent.originMaterials.forEach(({ id, material }) => {
@@ -254,49 +301,18 @@ const execute = () => {
           }
         })
 
-      setComponent(
-        entity,
-        TweenComponent,
-        new Tween<any>(effectComponent)
-          .to(
-            {
-              opacityMultiplier: 0
-            },
-            2000
-          )
-          .start()
-          .onComplete(async () => {
-            const objects = getOptionalComponent(entity, GroupComponent)
-            let pillar: Mesh = null!
-            let plate: Mesh = null!
-            if (objects?.length)
-              for (const obj of objects) {
-                const childrens = obj.children as Mesh[]
-                for (let i = 0; i < childrens.length; i++) {
-                  if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
-                  if (childrens[i].name === 'plate_obj') plate = childrens[i]
-                }
-              }
+      tweenOutEffect(entity, effectComponent)
+    }
+  }
 
-            if (pillar !== null) {
-              pillar.traverse(function (child) {
-                if (child['material']) child['material'].dispose()
-              })
-
-              pillar.removeFromParent()
-            }
-
-            if (plate !== null) {
-              plate.traverse(function (child) {
-                if (child['material']) child['material'].dispose()
-              })
-
-              plate.removeFromParent()
-            }
-
-            removeEntity(entity)
-          })
-      )
+  for (const entity of effectQuery()) {
+    const effectComponent = getComponent(entity, AvatarEffectComponent)
+    const avatar = getComponent(effectComponent.sourceEntity, NetworkObjectComponent)
+    if (avatar === undefined) {
+      const tween = getComponent(entity, TweenComponent)
+      if (tween === undefined) {
+        tweenOutEffect(entity, effectComponent)
+      }
     }
   }
 }

@@ -38,8 +38,8 @@ import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
   staticResource: virtual(async (recordingResource, context) => {
-    const staticResource = await context.app.service(staticResourcePath).get(recordingResource.staticResourceId)
-    return staticResource
+    if (context.event !== 'removed')
+      return context.app.service(staticResourcePath).get(recordingResource.staticResourceId)
   }),
   createdAt: virtual(async (recordingResource) => fromDateTimeSql(recordingResource.createdAt)),
   updatedAt: virtual(async (recordingResource) => fromDateTimeSql(recordingResource.updatedAt))

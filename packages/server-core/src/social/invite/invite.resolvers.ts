@@ -27,16 +27,15 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
+import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   InviteDatabaseType,
   InviteQuery,
   InviteType,
   SpawnDetailsType
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import type { HookContext } from '@etherealengine/server-core/declarations'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
@@ -54,38 +53,12 @@ export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
   }
 }
 
-export const inviteResolver = resolve<InviteType, HookContext>({
-  createdAt: virtual(async (invite) => fromDateTimeSql(invite.createdAt)),
-  updatedAt: virtual(async (invite) => fromDateTimeSql(invite.updatedAt)),
-  startTime: virtual(async (invite) => (invite.startTime ? fromDateTimeSql(invite.startTime) : '')),
-  endTime: virtual(async (invite) => (invite.endTime ? fromDateTimeSql(invite.endTime) : ''))
-})
-
-export const inviteExternalResolver = resolve<InviteType, HookContext>(
+export const inviteResolver = resolve<InviteType, HookContext>(
   {
-    user: virtual(async (invite, context) => {
-      if (invite.userId) {
-        const user = await context.app.service(userPath)._get(invite.userId)
-        return user
-      }
-    }),
-
-    invitee: virtual(async (invite, context) => {
-      if (invite.inviteeId) {
-        const user = await context.app.service(userPath)._get(invite.inviteeId)
-        return user
-      }
-    }),
-    channelName: virtual(async (invite, context) => {
-      if (invite.inviteType === 'channel' && invite.targetObjectId) {
-        try {
-          const channel = await context.app.service('channel')._get(invite.targetObjectId as ChannelID)
-          return channel.name
-        } catch (err) {
-          return '<A deleted channel>'
-        }
-      }
-    })
+    createdAt: virtual(async (invite) => fromDateTimeSql(invite.createdAt)),
+    updatedAt: virtual(async (invite) => fromDateTimeSql(invite.updatedAt)),
+    startTime: virtual(async (invite) => (invite.startTime ? fromDateTimeSql(invite.startTime) : '')),
+    endTime: virtual(async (invite) => (invite.endTime ? fromDateTimeSql(invite.endTime) : ''))
   },
   {
     // Convert the raw data into a new structure before running property resolvers
@@ -94,6 +67,26 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>(
     }
   }
 )
+
+export const inviteExternalResolver = resolve<InviteType, HookContext>({
+  user: virtual(async (invite, context) => {
+    if (invite.userId) return await context.app.service(userPath)._get(invite.userId)
+  }),
+
+  invitee: virtual(async (invite, context) => {
+    if (invite.inviteeId) return await context.app.service(userPath)._get(invite.inviteeId)
+  }),
+  channelName: virtual(async (invite, context) => {
+    if (invite.inviteType === 'channel' && invite.targetObjectId) {
+      try {
+        const channel = await context.app.service(channelPath).get(invite.targetObjectId as ChannelID)
+        return channel.name
+      } catch (err) {
+        return '<A deleted channel>'
+      }
+    }
+  })
+})
 
 export const inviteDataResolver = resolve<InviteType, HookContext>(
   {

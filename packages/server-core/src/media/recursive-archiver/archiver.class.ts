@@ -23,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServiceMethods } from '@feathersjs/feathers/lib/declarations'
+import { NullableId, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import JSZip from 'jszip'
 import fetch from 'node-fetch'
 
+import { ArchiverQuery } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../api/root-params'
+import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -41,13 +42,11 @@ const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
  * A class for Managing files in FileBrowser
  */
 
-export interface ArchiveParams extends UserParams {
-  isJob?: boolean
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ArchiverParams extends RootParams<ArchiverQuery> {}
 
-const archive = async (directory, params?: UserParams): Promise<string> => {
+const archive = async (directory, params?: ArchiverParams): Promise<string> => {
   if (directory.at(0) === '/') directory = directory.slice(1)
-  if (directory.at(-1) === '/') directory = directory.slice(0, -1)
   if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
     return Promise.reject(new Error('Cannot archive non-project directories'))
   }
@@ -60,7 +59,7 @@ const archive = async (directory, params?: UserParams): Promise<string> => {
 
   if (!params) params = {}
   if (!params.query) params.query = {}
-  const { storageProviderName } = params.query
+  const storageProviderName = params.query.storageProviderName?.toString()
 
   delete params.query.storageProviderName
 
@@ -68,13 +67,13 @@ const archive = async (directory, params?: UserParams): Promise<string> => {
 
   logger.info(`Archiving ${directory} using ${storageProviderName}`)
 
-  let result = await storageProvider.listFolderContent(directory)
+  const result = await storageProvider.listFolderContent(directory)
 
   const zip = new JSZip()
 
   for (let i = 0; i < result.length; i++) {
     if (result[i].type == 'folder') {
-      let content = await storageProvider.listFolderContent(result[i].key + '/')
+      const content = await storageProvider.listFolderContent(result[i].key + '/')
       content.forEach((f) => {
         result.push(f)
       })
@@ -110,24 +109,27 @@ const archive = async (directory, params?: UserParams): Promise<string> => {
   return zipOutputDirectory
 }
 
-export class Archiver implements Partial<ServiceMethods<any>> {
+export class ArchiverService implements ServiceInterface<string, ArchiverParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async setup(app: Application, path: string) {}
+  async get(id: NullableId, params?: ArchiverParams) {
+    if (!params) throw new BadRequest('No directory specified')
 
-  async get(directory: string, params?: ArchiveParams): Promise<string> {
-    if (!config.kubernetes.enabled || params?.isJob) return archive(directory, params)
+    const directory = params?.query?.directory!.toString()
+    delete params.query?.directory
+
+    if (!config.kubernetes.enabled || params?.query?.isJob) return archive(directory, params)
     else {
-      const split = directory.split('/')
+      const split = directory!.split('/')
       let projectName
       if (split[split.length - 1].length === 0) projectName = split[split.length - 2]
       else projectName = split[split.length - 1]
       projectName = projectName.toLowerCase()
-      const jobBody = await getDirectoryArchiveJobBody(this.app, directory, projectName)
+      const jobBody = await getDirectoryArchiveJobBody(this.app, directory!, projectName)
       const jobLabelSelector = `etherealengine/directoryField=${projectName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
       const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, DIRECTORY_ARCHIVE_TIMEOUT)
       try {

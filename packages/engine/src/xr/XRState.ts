@@ -32,8 +32,6 @@ import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsSta
 import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
-import { NetworkTopics } from '../networking/classes/Network'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DepthDataTexture } from './DepthDataTexture'
 
 // TODO: divide this up into the systems that manage these states
@@ -57,7 +55,7 @@ export const XRState = defineState({
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
       avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
-      localAvatarScale: 1,
+      userAvatarHeightDifference: null as number | null,
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
@@ -65,7 +63,8 @@ export const XRState = defineState({
       viewerPose: null as XRViewerPose | null | undefined,
       userEyeLevel: 1.8,
       //to be moved to user_settings
-      userHeight: 0
+      userHeight: 0,
+      xrFrame: null as XRFrame | null
     }
   },
 
@@ -107,24 +106,18 @@ export class XRAction {
     value: matches.number,
     duration: matches.number
   })
-
-  static spawnIKTarget = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'ik-target',
-    handedness: matches.literals('left', 'right', 'none'),
-    $cache: {
-      removePrevious: ['prefab', 'handedness']
-    },
-    $topic: NetworkTopics.world
-  })
 }
 
+/**
+ * Gets the camera mode - either 'attached' or 'detached'
+ * @returns the camera mode
+ */
 export const getCameraMode = () => {
-  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session, sessionMode } = getState(XRState)
   if (!session || scenePlacementMode === 'placing') return 'detached'
   if (avatarCameraMode === 'auto') {
     if (session.interactionMode === 'screen-space') return 'detached'
-    return sceneScale !== 1 ? 'detached' : 'attached'
+    return sceneScale === 1 || sessionMode == 'immersive-vr' ? 'attached' : 'detached'
   }
   return avatarCameraMode
 }
@@ -132,14 +125,14 @@ export const getCameraMode = () => {
 /**
  * Specifies that the user has movement controls if:
  * - they are not in an immersive session
- * - they are in an immersive session with a screen-space interaction mode
+ * - they are in an immersive session with a world-space interaction mode
  * - they are in an immersive-ar session with a scene scale of 1
  * @returns {boolean} true if the user has movement controls
  */
 export const hasMovementControls = () => {
   const { sessionActive, sceneScale, sessionMode, session } = getState(XRState)
   if (!sessionActive) return true
-  if (session && session.interactionMode === 'screen-space') return true
+  if (session && session.interactionMode === 'world-space') return true
   return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
 }
 
@@ -163,14 +156,14 @@ export const getPreferredInputSource = (offhand = false) => {
   }
 }
 
+const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
+
 /**
  * Wheter or not this is a mobile XR headset
  **/
 export const isMobileXRHeadset =
-  'navigator' in globalThis === false
-    ? false
-    : navigator.userAgent.includes('Oculus') ||
-      navigator.userAgent.includes('VR') ||
-      navigator.userAgent.includes('AR') ||
-      navigator.userAgent.includes('Reality') ||
-      navigator.userAgent.includes('Wolvic')
+  userAgent.includes('Oculus') ||
+  userAgent.includes('VR') ||
+  userAgent.includes('AR') ||
+  userAgent.includes('Reality') ||
+  userAgent.includes('Wolvic')

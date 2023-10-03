@@ -27,19 +27,21 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CompressedTexture } from 'three'
 
-import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@etherealengine/common/src/logger'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
 import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
-import { EditorAction, EditorState } from '../../services/EditorServices'
+import { EditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { useDialog } from '../hooks/useDialog'
 import { Button } from '../inputs/Button'
@@ -63,7 +65,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
   const editorState = useHookstate(getMutableState(EditorState))
   const [DialogComponent, setDialogComponent] = useDialog()
-  const [fetched, setFetch] = useState(false)
+  const [scenesLoading, setScenesLoading] = useState(true)
 
   const [thumbnails, setThumbnails] = useState<Map<string, string>>(new Map<string, string>())
   const fetchItems = async () => {
@@ -74,10 +76,10 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
         thumbnails.set(data[i].name, ktx2url)
       }
       setScenes(data ?? [])
-      console.log(data)
     } catch (error) {
       logger.error(error, 'Error fetching scenes')
     }
+    setScenesLoading(false)
   }
 
   useEffect(() => {
@@ -110,9 +112,8 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
         dispatchAction(EngineActions.sceneUnloaded({}))
-        RouterService.navigate(`/studio/${editorState.projectName.value}`)
+        RouterState.navigate(`/studio/${editorState.projectName.value}`)
       }
 
       fetchItems()
@@ -150,8 +151,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
-    RouterService.navigate(`/studio/${editorState.projectName.value}/${newName}`)
+    RouterState.navigate(`/studio/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
   }
@@ -162,7 +162,9 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
 
   const getSceneURL = async (url) => {
     const texture = (await AssetLoader.loadAsync(url)) as CompressedTexture
-    return (await createReadableTexture(texture, { url: true })) as string
+    const outUrl = (await createReadableTexture(texture, { url: true })) as string
+    texture.dispose()
+    return outUrl
   }
 
   return (
@@ -173,10 +175,17 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
             {t(`editor:newScene`)}
           </Button>
         </div>
-        <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
-          {scenes.map((scene, i) => {
-            return (
-              <div className={styles.sceneContainer} key={i}>
+        {scenesLoading ? (
+          <div className={styles.loadingContainer}>
+            <div>
+              <LoadingCircle />
+              <Typography className={styles.primaryText}>{t('editor:loadingScenes')}</Typography>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
+            {scenes.map((scene) => (
+              <div className={styles.sceneContainer} key={scene.name}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
                     <img src={thumbnails.get(scene.name)} alt="" crossOrigin="anonymous" />
@@ -210,9 +219,9 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
                   </div>
                 </a>
               </div>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
       <Menu
         id="menu"

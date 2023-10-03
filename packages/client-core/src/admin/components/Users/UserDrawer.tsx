@@ -88,12 +88,12 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
   const avatars = useFind(avatarPath, {
     query: {
-      admin: true
+      admin: true /** @todo - this should not be paginated */
     }
   }).data
   const scopeTypes = useFind(scopeTypePath, {
     query: {
-      $limit: SCOPE_PAGE_LIMIT
+      $limit: SCOPE_PAGE_LIMIT /** @todo - this should not be paginated */
     }
   }).data
   const userMutation = useMutation(userPath)

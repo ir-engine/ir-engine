@@ -27,14 +27,17 @@ import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { EmailData, emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { SmsData, smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -42,9 +45,20 @@ import { Application } from '../../declarations'
 import logger from '../ServerLogger'
 import config from '../appconfig'
 import { InviteParams } from '../social/invite/invite.class'
-import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
+
+/**
+ * A method which get an invite link
+ *
+ * @param type
+ * @param id of accept invite
+ * @param passcode
+ * @returns invite link
+ */
+export function getInviteLink(type: string, id: string, passcode: string): string {
+  return `${config.server.url}/${acceptInvitePath}/${id}?t=${passcode}`
+}
 
 async function generateEmail(
   app: Application,
@@ -60,7 +74,7 @@ async function generateEmail(
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
   if (inviteType === 'channel') {
-    const channel = await app.service('channel').get(targetObjectId! as ChannelID)
+    const channel = await app.service(channelPath).get(targetObjectId! as ChannelID)
     channelName = channel.name
   }
 
@@ -70,7 +84,7 @@ async function generateEmail(
   }
 
   if (inviteType === 'instance') {
-    const instance = await app.service('instance').get(targetObjectId!)
+    const instance = await app.service(instancePath).get(targetObjectId!)
     const location = await app.service(locationPath).get(instance.locationId!)
     locationName = location.name
   }
@@ -84,14 +98,15 @@ async function generateEmail(
     hashLink
   })
   const mailSender = config.email.from
-  const email = {
+  const email: EmailData = {
     from: mailSender,
     to: toEmail,
     subject: config.client.title + ' ' + (config.email.subject[inviteType] || 'Invitation'),
     html: compiledHTML
   }
 
-  return await sendEmail(app, email)
+  email.html = email.html.replace(/&amp;/g, '&')
+  await app.service(emailPath).create(email)
 }
 
 async function generateSMS(
@@ -105,7 +120,7 @@ async function generateSMS(
   let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode!)
   if (inviteType === 'channel') {
-    const channel = await app.service('channel').get(targetObjectId! as ChannelID)
+    const channel = await app.service(channelPath).get(targetObjectId! as ChannelID)
     channelName = channel.name
   }
 
@@ -115,7 +130,7 @@ async function generateSMS(
   }
 
   if (inviteType === 'instance') {
-    const instance = await app.service('instance').get(targetObjectId!)
+    const instance = await app.service(instancePath).get(targetObjectId!)
     const location = await app.service(locationPath).get(instance.locationId!)
     locationName = location.name
   }
@@ -130,11 +145,16 @@ async function generateSMS(
     })
     .replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
 
-  const sms = {
+  const sms: SmsData = {
     mobile,
     text: compiledHTML
   }
-  return await sendSms(app, sms)
+
+  await app
+    .service(smsPath)
+    .create(sms, null!)
+    .then(() => logger.info('Sent SMS'))
+    .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))
 }
 
 // This will attach the owner ID in the contact while creating/updating list item

@@ -23,17 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
 import React from 'react'
+import styles from './ArrayInputGroup.module.scss'
+import FileBrowserInput from './FileBrowserInput'
+import InputGroup from './InputGroup'
+import NumericStepperInput from './NumericStepperInput'
 
 export interface ArrayInputGroupProp {
   name?: string
   prefix?: string
-  isStringInput?: boolean
   label?: any
   values: string[]
   onChange?: (values: string[]) => void
   acceptFileTypes?: any
-  itemType?: any
+  acceptDropItems?: any
 }
 
 export interface ArrayInputGroupState {
@@ -64,88 +68,40 @@ const onChangeText = (text: string, index: number, values: string[], onChange?: 
   onChange?.(valuesCopy)
 }
 
-const groupContainerStyle: React.CSSProperties = {
-  backgroundColor: 'transparent',
-  color: '#9fa4b5',
-  whiteSpace: 'pre-wrap',
-  padding: '0 8px 8px'
-}
-
-const arrayInputGroupContentStyle: React.CSSProperties = {
-  margin: '4px 0px',
-  display: 'flex',
-  flexWrap: 'wrap',
-  flexDirection: 'row'
-}
-
-const labelStyle = {
-  maxWidth: '20%'
-}
-
-const inputStyle = {
-  maxWidth: '80%'
-}
-
-const divStyle = {
-  maxWidth: '80%'
-}
-
 const ArrayInputGroup = ({
-  isStringInput,
   prefix,
   label,
   values,
   onChange,
   acceptFileTypes,
-  itemType
+  acceptDropItems
 }: ArrayInputGroupProp) => {
   let count = 0
   if (values && values.length) count = values.length
-
   return (
-    <div style={groupContainerStyle}>
-      <div style={arrayInputGroupContentStyle}>
-        <label style={{ ...labelStyle, color: '#9FA4B5' }}>{label}:</label>
-        <div style={divStyle}>
-          <label> Size: </label>
-          <input
-            style={inputStyle}
-            value={'' + count}
-            onChange={(e) => {
-              onChangeSize(e.target.value, values, onChange)
-            }}
+    <InputGroup name="label" label={label} labelClasses={styles.sizeLabel}>
+      <div className={styles.arrayInputGroupContent}>
+        <InputGroup name="size" label={t('editor:properties.media.lbl-size')}>
+          <NumericStepperInput
+            value={count}
+            onChange={(val) => onChangeSize(val, values, onChange)}
+            mediumStep={1}
+            displayPrecision={0}
           />
-        </div>
+        </InputGroup>
         {values &&
-          values.map(function (value, index) {
-            return (
-              <div key={index} style={{ ...arrayInputGroupContentStyle, margin: '4px 0px' }}>
-                <label>
-                  {' '}
-                  {prefix} {index + 1}:{' '}
-                </label>
-                {isStringInput ? (
-                  <input
-                    style={inputStyle}
-                    value={value}
-                    onChange={(e) => {
-                      onChangeText(e.target.value, index, values, onChange)
-                    }}
-                  />
-                ) : (
-                  <input
-                    style={inputStyle}
-                    value={value}
-                    onChange={(e) => {
-                      onChangeText(e.target.value, index, values, onChange)
-                    }}
-                  />
-                )}
-              </div>
-            )
-          })}
+          values.map((value, index) => (
+            <InputGroup name={`${prefix} ${index + 1}`} label={`${prefix} ${index + 1}`} key={value + '' + index}>
+              <FileBrowserInput
+                value={value}
+                onChange={(value) => onChangeText(value, index, values, onChange)}
+                acceptFileTypes={acceptFileTypes}
+                acceptDropItems={acceptDropItems}
+              />
+            </InputGroup>
+          ))}
       </div>
-    </div>
+    </InputGroup>
   )
 }
 

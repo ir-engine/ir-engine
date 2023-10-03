@@ -30,7 +30,7 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dispatchAction, getMutableState, none } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -70,11 +70,8 @@ function createPeer(
     if (!network.users[userID]!.includes(peerID)) networkState.users[userID].merge([peerID])
   }
 
-  // TODO: we probably want an explicit config for detecting a non-user peer
-  if (peerID !== 'server') {
-    const worldState = getMutableState(WorldState)
-    worldState.userNames[userID].set(name)
-  }
+  const worldState = getMutableState(WorldState)
+  worldState.userNames[userID].set(name)
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Id, Params } from '@feathersjs/feathers'
+import type { Id, NullableId, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
@@ -175,12 +175,10 @@ export class IdentityProviderService<
       userId = uuidv1()
     }
 
-    const userService = this.app.service(userPath)
-
     // check if there is a user with userId
     let foundUser
     try {
-      foundUser = await userService.get(userId)
+      foundUser = await this.app.service(userPath).get(userId)
     } catch (err) {
       //
     }
@@ -284,7 +282,7 @@ export class IdentityProviderService<
     return super._patch(id, data, params)
   }
 
-  async remove(id: Id, params?: IdentityProviderParams) {
+  async remove(id: NullableId, params?: IdentityProviderParams) {
     return super._remove(id, params)
   }
 }

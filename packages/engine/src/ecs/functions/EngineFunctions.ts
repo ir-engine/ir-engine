@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 /** Functions to provide engine level functionalities. */
 import { Object3D } from 'three'
 
-import logger from '@etherealengine/common/src/logger'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
@@ -39,7 +39,7 @@ import { EngineActions, EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import { removeEntityNodeRecursively } from '../functions/EntityTree'
-import { EntityRemovedComponent, defineQuery } from './ComponentFunctions'
+import { defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
 import { executeFixedPipeline } from './FixedPipelineSystem'
 import { SystemDefinitions, defineSystem, disableAllSystems, enableSystems, executeSystem } from './SystemFunctions'
@@ -75,7 +75,7 @@ export const unloadScene = async () => {
   })
 
   for (const o of sceneObjectsToRemove) Engine.instance.scene.remove(o)
-  for (const entity of entitiesToRemove) removeEntity(entity, true)
+  for (const entity of entitiesToRemove) removeEntity(entity)
 
   await disableAllSystems()
   dispatchAction(EngineActions.sceneUnloaded({}))
@@ -155,8 +155,6 @@ const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
 }
 
-const entityRemovedQuery = defineQuery([EntityRemovedComponent])
-
 /**
  * Execute systems on this world
  *
@@ -176,8 +174,6 @@ export const executeSystems = (elapsedTime: number) => {
   engineState.elapsedSeconds.set(elapsedSeconds)
 
   executeSystem(RootSystemGroup)
-
-  for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)
 
   for (const { query, result } of Engine.instance.reactiveQueryStates) {
     const entitiesAdded = query.enter().length

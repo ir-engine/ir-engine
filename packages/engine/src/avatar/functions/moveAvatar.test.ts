@@ -47,7 +47,7 @@ import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarNetworkAction } from '../state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 

@@ -146,7 +146,7 @@ export class EngineRenderer {
     this.renderer.outputColorSpace = SRGBColorSpace
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    this.renderer.debug.checkShaderErrors = false //isDev
+    this.renderer.debug.checkShaderErrors = false
 
     // @ts-ignore
     this.xrManager = renderer.xr = createWebXRManager()
@@ -204,7 +204,7 @@ export class EngineRenderer {
    */
   execute(delta: number): void {
     const xrCamera = EngineRenderer.instance.xrManager.getCamera()
-    const xrFrame = Engine.instance.xrFrame
+    const xrFrame = getState(XRState).xrFrame
 
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
@@ -225,17 +225,20 @@ export class EngineRenderer {
 
         if (curPixelRatio !== scaledPixelRatio) this.renderer.setPixelRatio(scaledPixelRatio)
 
-        const width = window.innerWidth
-        const height = window.innerHeight
+        const canvasParent = document.getElementById('engine-renderer-canvas')?.parentElement
+        if (canvasParent) {
+          const width = canvasParent.clientWidth
+          const height = canvasParent.clientHeight
 
-        if (camera.isPerspectiveCamera) {
-          camera.aspect = width / height
-          camera.updateProjectionMatrix()
+          if (camera.isPerspectiveCamera) {
+            camera.aspect = width / height
+            camera.updateProjectionMatrix()
+          }
+
+          state.qualityLevel > 0 && state.csm?.updateFrustums()
+          // Effect composer calls renderer.setSize internally
+          this.effectComposer.setSize(width, height, true)
         }
-
-        state.qualityLevel > 0 && state.csm?.updateFrustums()
-        // Effect composer calls renderer.setSize internally
-        this.effectComposer.setSize(width, height, true)
         this.needsResize = false
       }
 
@@ -292,7 +295,8 @@ export const PostProcessingSettingsState = defineState({
 })
 
 const execute = () => {
-  EngineRenderer.instance.execute(Engine.instance.deltaSeconds)
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  EngineRenderer.instance.execute(deltaSeconds)
 }
 
 globalThis.EngineRenderer = EngineRenderer
@@ -332,9 +336,16 @@ const reactor = () => {
 
   useEffect(() => {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-    if (engineRendererSettings.debugEnable.value) camera.layers.enable(ObjectLayers.PhysicsHelper)
+    if (engineRendererSettings.physicsDebug.value) camera.layers.enable(ObjectLayers.PhysicsHelper)
     else camera.layers.disable(ObjectLayers.PhysicsHelper)
-  }, [engineRendererSettings.debugEnable])
+  }, [engineRendererSettings.physicsDebug])
+
+  useEffect(() => {
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    if (engineRendererSettings.avatarDebug.value) camera.layers.enable(ObjectLayers.AvatarHelper)
+    else camera.layers.disable(ObjectLayers.AvatarHelper)
+  }, [engineRendererSettings.avatarDebug])
+
   useEffect(() => {
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     if (engineRendererSettings.gridVisibility.value) camera.layers.enable(ObjectLayers.Gizmos)

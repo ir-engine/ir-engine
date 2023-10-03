@@ -54,7 +54,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarNetworkAction } from '../state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 describe('spawnAvatarReceptor', () => {

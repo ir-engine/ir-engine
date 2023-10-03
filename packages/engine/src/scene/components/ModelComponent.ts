@@ -24,11 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, Scene } from 'three'
+import { Mesh, Scene, SkinnedMesh } from 'three'
 
-import { NO_PROXY, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
+import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
@@ -43,17 +45,22 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
+import { FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
+import iterateObject3D from '../util/iterateObject3D'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { UUIDComponent } from './UUIDComponent'
+import { VariantComponent } from './VariantComponent'
 
 function clearMaterials(model: ComponentType<typeof ModelComponent>) {
   if (!model.scene) return
@@ -77,7 +84,10 @@ export const ModelComponent = defineComponent({
       src: '',
       generateBVH: true,
       avoidCameraOcclusion: false,
-      scene: null as Scene | null
+      // internal
+      scene: null as Scene | null,
+      asset: null as VRM | GLTF | null,
+      hasSkinnedMesh: false
     }
   },
 
@@ -93,9 +103,9 @@ export const ModelComponent = defineComponent({
     setComponent(entity, LoopAnimationComponent)
 
     if (!json) return
-    if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
-    if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
-      component.generateBVH.set(json.generateBVH)
+    if (typeof json.src === 'string') component.src.set(json.src)
+    if (typeof json.generateBVH === 'boolean') component.generateBVH.set(json.generateBVH)
+    if (typeof json.avoidCameraOcclusion === 'boolean') component.avoidCameraOcclusion.set(json.avoidCameraOcclusion)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -106,7 +116,9 @@ export const ModelComponent = defineComponent({
 
   onRemove: (entity, component) => {
     if (component.scene.value) {
-      clearMaterials(component.value)
+      if (component.src.value) {
+        clearMaterials(component.value)
+      }
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
@@ -121,11 +133,13 @@ function ModelReactor() {
   const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
+  const variantComponent = useOptionalComponent(entity, VariantComponent)
   const model = modelComponent.value
   const source = model.src
 
   useEffect(() => {
-    !hasComponent(entity, LoopAnimationComponent) && setComponent(entity, LoopAnimationComponent, {})
+    setComponent(entity, LoopAnimationComponent)
+    setComponent(entity, ShadowComponent)
   }, [])
 
   // update src
@@ -138,12 +152,14 @@ function ModelReactor() {
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
+      //wait for variant component to calculate if present
+      if (variantComponent && variantComponent.calculated.value === false) return
       switch (fileExtension) {
         case 'glb':
         case 'gltf':
         case 'fbx':
-        case 'usdz':
         case 'vrm':
+        case 'usdz':
           AssetLoader.load(
             model.src,
             {
@@ -156,6 +172,8 @@ function ModelReactor() {
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
+              modelComponent.asset.set(loadedAsset)
+              if (fileExtension == 'vrm') (model.asset as any).userData = { flipped: true }
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
@@ -169,6 +187,10 @@ function ModelReactor() {
                   totalAmount: onprogress.total
                 }
               })
+            },
+            (err) => {
+              console.error(err)
+              removeComponent(entity, SceneAssetPendingTagComponent)
             }
           )
           break
@@ -179,20 +201,35 @@ function ModelReactor() {
       console.error(err)
       addError(entity, ModelComponent, 'LOADING_ERROR', err.message)
     }
-  }, [modelComponent.src])
+  }, [modelComponent.src, variantComponent?.calculated])
 
   // update scene
   useEffect(() => {
-    const scene = modelComponent.scene.get(NO_PROXY)
+    const scene = getComponent(entity, ModelComponent).scene
 
     if (!scene) return
     addObjectToGroup(entity, scene)
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
-    // setComponent(entity, BoundingBoxComponent)
+    setComponent(entity, BoundingBoxComponent)
 
     let active = true
+
+    const skinnedMeshSearch = iterateObject3D(
+      scene,
+      (skinnedMesh) => skinnedMesh,
+      (ob: SkinnedMesh) => ob.isSkinnedMesh
+    )
+
+    if (skinnedMeshSearch[0]) {
+      modelComponent.hasSkinnedMesh.set(true)
+      modelComponent.generateBVH.set(false)
+      for (const skinnedMesh of skinnedMeshSearch) {
+        skinnedMesh.frustumCulled = false
+      }
+      setComponent(entity, FrustumCullCameraComponent)
+    }
 
     if (model.generateBVH) {
       enableObjectLayer(scene, ObjectLayers.Camera, false)
@@ -214,6 +251,12 @@ function ModelReactor() {
       active = false
     }
   }, [modelComponent.scene, model.generateBVH])
+
+  useEffect(() => {
+    if (!modelComponent.scene.value) return
+    if (modelComponent.avoidCameraOcclusion.value) removeComponent(entity, FrustumCullCameraComponent)
+    else setComponent(entity, FrustumCullCameraComponent)
+  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
 
   return null
 }

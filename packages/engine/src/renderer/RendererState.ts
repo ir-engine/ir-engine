@@ -38,13 +38,14 @@ export const RendererState = defineState({
     // usePBR: true,
     usePostProcessing: true,
     useShadows: true,
-    debugEnable: false,
+    physicsDebug: false,
+    avatarDebug: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
     gridVisibility: false,
     gridHeight: 0,
     forceBasicMaterials: false,
-    shadowMapResolution: 256
+    shadowMapResolution: isMobile ? 256 : 2048
   }),
   onCreate: (store, state) => {
     syncStateWithLocalStorage(RendererState, [
@@ -53,7 +54,8 @@ export const RendererState = defineState({
       // 'usePBR',
       'usePostProcessing',
       'useShadows',
-      'debugEnable',
+      'physicsDebug',
+      'avatarDebug',
       'renderMode',
       'nodeHelperVisibility',
       'gridVisibility',

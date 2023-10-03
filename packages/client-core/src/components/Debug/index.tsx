@@ -126,7 +126,11 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
   }
 
   const toggleDebug = () => {
-    rendererState.debugEnable.set(!rendererState.debugEnable.value)
+    rendererState.physicsDebug.set(!rendererState.physicsDebug.value)
+  }
+
+  const toggleAvatarDebug = () => {
+    rendererState.avatarDebug.set(!rendererState.avatarDebug.value)
   }
 
   const renderEntityTreeRoots = () => {
@@ -221,10 +225,18 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
             <button
               type="button"
               onClick={toggleDebug}
-              className={styles.flagBtn + (rendererState.debugEnable.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.physicsDebug.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
             >
               <Icon type="SquareFoot" fontSize="small" />
+            </button>
+            <button
+              type="button"
+              onClick={toggleAvatarDebug}
+              className={styles.flagBtn + (rendererState.avatarDebug.value ? ' ' + styles.active : '')}
+              title={t('common:debug.debug')}
+            >
+              <Icon type="Person" fontSize="small" />
             </button>
             <button
               type="button"
@@ -277,7 +289,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
-          postprocessValue={(v: any) => (v?.value && v?.get(NO_PROXY)) ?? v}
+          postprocessValue={(v: any) => (v?.value && v.get(NO_PROXY)) ?? v}
         />
       </div>
       <ActionsPanel />
@@ -311,7 +323,7 @@ export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefOb
               </>
             )
           }}
-          shouldExpandNodeInitially={() => false}
+          shouldExpandNodeInitially={() => true}
         />
       </div>
     </div>

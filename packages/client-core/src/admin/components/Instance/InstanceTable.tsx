@@ -27,13 +27,13 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import TableComponent from '../../common/Table'
 import { InstanceData, instanceColumns } from '../../common/variables/instance'
 import styles from '../../styles/admin.module.scss'
@@ -48,41 +48,28 @@ const INSTANCE_PAGE_LIMIT = 100
 
 const InstanceTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(INSTANCE_PAGE_LIMIT)
   const refetch = useHookstate(false)
   const openConfirm = useHookstate(false)
   const instanceId = useHookstate('')
   const instanceName = useHookstate('')
-  const fieldOrder = useHookstate<'asc' | 'desc'>('asc')
-  const sortField = useHookstate('createdAt')
-  const instanceAdmin = useHookstate<Instance | undefined>(undefined)
+  const instanceAdmin = useHookstate<InstanceType | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)
 
-  const instancesQuery = useFind('instance', {
+  const instancesQuery = useFind(instancePath, {
     query: {
-      $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
-      $skip: page.value * rowsPerPage.value,
-      $limit: rowsPerPage.value,
+      $sort: { createdAt: 1 },
+      $limit: 20,
       action: 'admin',
       search
     }
   })
-  const removeInstance = useMutation('instance').remove
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    page.set(newPage)
-  }
+  const removeInstance = useMutation(instancePath).remove
 
   const submitRemoveInstance = async () => {
     await removeInstance(instanceId.value)
     openConfirm.set(false)
   }
 
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
   const isMounted = useRef(false)
 
   const fetchTick = () => {
@@ -94,7 +81,7 @@ const InstanceTable = ({ className, search }: Props) => {
   }
 
   const handleOpenInstanceDrawer =
-    (open: boolean, instance: Instance) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (open: boolean, instance: InstanceType) => (event: React.KeyboardEvent | React.MouseEvent) => {
       event.preventDefault()
       if (
         event.type === 'keydown' &&
@@ -115,20 +102,20 @@ const InstanceTable = ({ className, search }: Props) => {
   }, [])
 
   const createData = (
-    el: Instance,
+    el: InstanceType,
     id: string,
     ipAddress: string,
     currentUsers: number,
     channelId: string,
     podName: string,
-    locationId?: LocationType
+    location?: LocationType
   ): InstanceData => {
     return {
       el,
       id,
       ipAddress,
       currentUsers,
-      locationId: locationId?.name || '',
+      locationName: location?.name || '',
       channelId,
       podName,
       action: (
@@ -151,11 +138,11 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = instancesQuery.data.map((el: Instance) =>
+  const rows = instancesQuery.data.map((el: InstanceType) =>
     createData(
       { ...el },
       el.id,
-      el.ipAddress,
+      el.ipAddress || '',
       el.currentUsers,
       el.channelId || '',
       el.podName || '',
@@ -165,19 +152,7 @@ const InstanceTable = ({ className, search }: Props) => {
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={instanceColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={instancesQuery.total!}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={instancesQuery} rows={rows} column={instanceColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName.value}'?`}

@@ -27,7 +27,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -37,7 +36,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
@@ -50,13 +49,11 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  selectedInstance?: Instance
+  selectedInstance?: InstanceType
   onClose: () => void
 }
 
 const INFINITY = 'INFINITY'
-
-const INSTANCE_USERS_PAGE_LIMIT = 10
 
 const useUsersInInstance = (instanceId: InstanceID) => {
   const instanceAttendances = useFind(instanceAttendancePath, {
@@ -70,7 +67,11 @@ const useUsersInInstance = (instanceId: InstanceID) => {
     query: {
       id: {
         $in: userIds
-      }
+      },
+      $sort: {
+        createdAt: 1
+      },
+      $limit: 10
     }
   })
 }
@@ -78,7 +79,7 @@ const useUsersInInstance = (instanceId: InstanceID) => {
 const useKickUser = () => {
   const createUserKick = useMutation(userKickPath).create
 
-  return (kickData: { userId: UserID; instanceId: Instance['id']; duration: string }) => {
+  return (kickData: { userId: UserID; instanceId: InstanceID; duration: string }) => {
     const duration = new Date()
     if (kickData.duration === 'INFINITY') {
       duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years
@@ -92,10 +93,6 @@ const useKickUser = () => {
 
 const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(INSTANCE_USERS_PAGE_LIMIT)
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('createdAt')
 
   const openKickDialog = useHookstate(false)
   const kickData = useHookstate({
@@ -152,19 +149,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>{selectedInstance?.ipAddress}</DialogTitle>
         <Grid container spacing={5} className={styles.mb15px}>
-          <TableComponent
-            allowSort={false}
-            fieldOrder={fieldOrder.value}
-            setSortField={sortField.set}
-            setFieldOrder={fieldOrder.set}
-            rows={rows}
-            column={instanceUsersColumns}
-            page={page.value}
-            rowsPerPage={rowsPerPage.value}
-            count={instanceUsersQuery.total!}
-            handlePageChange={() => {}}
-            handleRowsPerPageChange={() => {}}
-          />
+          <TableComponent query={instanceUsersQuery} rows={rows} column={instanceUsersColumns} />
         </Grid>
       </Container>
       <ConfirmDialog

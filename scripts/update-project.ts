@@ -27,8 +27,10 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 
 dotenv.config({
   path: appRootPath.path,
@@ -69,8 +71,8 @@ cli.main(async () => {
     const { userId, ...data } = options
     data.reset = data.reset === 'true'
     data.needsRebuild = data.needsRebuild === true
-    const user = await app.service('user').get(userId)
-    await app.service('project').update(data, null, { user: user, isJob: true })
+    const user = await app.service(userPath).get(userId)
+    await app.service(projectPath).update(data, null, { user: user, isJob: true })
     cli.exit(0)
   } catch (err) {
     console.log(err)

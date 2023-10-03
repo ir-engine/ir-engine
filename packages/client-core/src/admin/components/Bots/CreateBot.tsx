@@ -29,7 +29,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -43,7 +42,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { BotData, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -65,7 +64,7 @@ const CreateBot = () => {
     description: '',
     location: ''
   })
-  const currentInstance = useHookstate<Instance[]>([])
+  const currentInstance = useHookstate<InstanceType[]>([])
   const state = useHookstate({
     name: '',
     description: '',
@@ -74,7 +73,7 @@ const CreateBot = () => {
   })
   const user = useHookstate(getMutableState(AuthState).user)
 
-  const instanceQuery = useFind('instance')
+  const instanceQuery = useFind(instancePath)
   const instanceData = instanceQuery.data
 
   const locationQuery = useFind(locationPath)
@@ -101,7 +100,7 @@ const CreateBot = () => {
     }
   }
 
-  const data: Instance[] = instanceData.map((element) => {
+  const data: InstanceType[] = instanceData.map((element) => {
     return element
   })
 

@@ -23,20 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
 
 import AnimationIcon from '@mui/icons-material/Animation'
 
+import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
@@ -54,15 +56,16 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
   const animationOptions = useState([] as { label: string; value: number }[])
 
+  const errors = getEntityErrors(props.entity, ModelComponent)
+
   useEffect(() => {
     const obj3d = modelComponent.value.scene
-    const animations = loopAnimationComponent.value.hasAvatarAnimations
-      ? AnimationManager.instance._animations
-      : obj3d?.animations ?? []
-    animationOptions.set([
-      { label: 'None', value: -1 },
-      ...animations.map((clip, index) => ({ label: clip.name, value: index }))
-    ])
+    const animationComponent = getComponent(entity, AnimationComponent)
+    if (animationComponent && animationComponent.animations)
+      animationOptions.set([
+        { label: 'None', value: -1 },
+        ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
+      ])
   }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations])
 
   const onChangePlayingAnimation = (index) => {
@@ -71,6 +74,10 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
     })
     getCallback(props.entity, 'xre.play')!()
   }
+
+  const updateResources = useCallback((path: string) => {
+    updateProperties(LoopAnimationComponent, { animationPack: path })
+  }, [])
 
   return (
     <NodeEditor
@@ -86,16 +93,24 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
-        <BooleanInput
-          value={loopAnimationComponent.value.hasAvatarAnimations}
-          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
+      {loopAnimationComponent.hasAvatarAnimations.value && (
+        <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
+          <ModelInput value={loopAnimationComponent.animationPack.value} onChange={updateResources} />
+          {errors?.LOADING_ERROR && (
+            <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
+          )}
+        </InputGroup>
+      )}
+      <InputGroup name="Time Scale" label={t('editor:properties.loopAnimation.lbl-timeScale')}>
+        <NumericInput
+          value={loopAnimationComponent.timeScale.value}
+          onChange={updateProperty(LoopAnimationComponent, 'timeScale')}
         />
       </InputGroup>
-      <InputGroup name="Playback Speed" label={t('editor:properties.loopAnimation.lbl-playbackSpeed')}>
-        <NumericInput
-          value={loopAnimationComponent.animationSpeed.value}
-          onChange={updateProperty(LoopAnimationComponent, 'animationSpeed')}
+      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
+        <BooleanInput
+          value={loopAnimationComponent.hasAvatarAnimations.value}
+          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
     </NodeEditor>

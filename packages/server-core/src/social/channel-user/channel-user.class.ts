@@ -23,69 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Params } from '@feathersjs/feathers'
 
-import { ChannelUser as ChannelUserInterface } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import {
+  ChannelUserData,
+  ChannelUserPatch,
+  ChannelUserQuery,
+  ChannelUserType
+} from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { KnexService } from '@feathersjs/knex'
+import { RootParams } from '../../api/root-params'
 
-import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Paginated, Params } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ChannelUserParams extends RootParams<ChannelUserQuery> {}
 
-export type ChannelUserDataType = ChannelUserInterface
-
-export type RemoveParams = Params<{
-  userId: UserID
-  channelId: ChannelID
-}> & {
-  user?: UserType // loggedInUser
-  isInternal?: boolean
-}
-
-/**
- * A class for Channel user service
- */
-export class ChannelUser<T = ChannelUserDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-
-  async remove(id: string | null, params?: RemoveParams): Promise<T> {
-    const loggedInUser = params!.user
-    if (!loggedInUser) {
-      return super.remove(id, params) as Promise<T>
-    }
-
-    if (id) {
-      throw new Error('Can only remove via query')
-    }
-
-    // remove method that only allows a user removing the channel if the logged in user is the owner of the channel
-    const loggedInChannelUser = (await this.find({
-      query: {
-        userId: loggedInUser.id,
-        channelId: params!.query!.channelId
-      }
-    })) as Paginated<ChannelUserDataType>
-
-    if (!loggedInChannelUser.data.length || !loggedInChannelUser.data[0].isOwner) {
-      throw new Error('Only the owner of a channel can remove users')
-    }
-
-    // if no id is provided, remove all who match the userId and channelId
-    const { userId, channelId } = params!.query!
-    const channelUser = (await this.Model.findOne({
-      where: {
-        userId,
-        channelId
-      }
-    })) as ChannelUserDataType
-
-    if (!channelUser) {
-      throw new Error('Channel user not found')
-    }
-
-    return super.remove(channelUser.id, params) as Promise<T>
-  }
-}
+export class ChannelUserService<
+  T = ChannelUserType,
+  ServiceParams extends Params = ChannelUserParams
+> extends KnexService<ChannelUserType, ChannelUserData, ChannelUserParams, ChannelUserPatch> {}

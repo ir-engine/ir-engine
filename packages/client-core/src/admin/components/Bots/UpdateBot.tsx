@@ -28,8 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Dialog from '@etherealengine/ui/src/primitives/mui/Dialog'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
@@ -40,7 +39,7 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { BotPatch, BotType, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
@@ -66,9 +65,9 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     description: '',
     location: ''
   })
-  const currentInstance = useHookstate<Instance[]>([])
+  const currentInstance = useHookstate<InstanceType[]>([])
 
-  const instanceQuery = useFind('instance')
+  const instanceQuery = useFind(instancePath)
   const instancesData = instanceQuery.data
 
   const locationQuery = useFind(locationPath)
@@ -121,7 +120,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     state.merge({ [name]: value })
   }
 
-  const data: Instance[] = instancesData.map((element) => {
+  const data: InstanceType[] = instancesData.map((element) => {
     return element
   })
 
