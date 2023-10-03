@@ -35,7 +35,6 @@ import { uploadBPCEMBakeToServer } from '../../functions/uploadEnvMapBake'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
-import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import { EnvMapBakeProperties } from './EnvMapBakeProperties'
@@ -195,17 +194,6 @@ export const EnvMapBakeNodeEditor = (props) => {
           onChange={updateProperty(EnvMapBakeComponent, 'boxProjection')}
         />
       </InputGroup>
-      <NumericInputGroup
-        name="Blur"
-        label="Blur"
-        min={0}
-        max={20}
-        smallStep={1}
-        mediumStep={2}
-        largeStep={5}
-        value={bakeComponent.blur.value}
-        onChange={updateProperty(EnvMapBakeComponent, 'blur')}
-      />
     </NodeEditor>
   )
 }

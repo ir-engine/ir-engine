@@ -27,7 +27,7 @@ import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { oembedPath, OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
@@ -58,7 +58,7 @@ export const OEmbedService = {
   fetchData: async (pathname: string, queryUrl: string) => {
     try {
       dispatchAction(OEmbedActions.fetchData({ pathname }))
-      const oEmbed = (await API.instance.client.service('oembed').find({ query: { url: queryUrl } })) as OembedType
+      const oEmbed = (await API.instance.client.service(oembedPath).find({ query: { url: queryUrl } })) as OembedType
       dispatchAction(OEmbedActions.fetchedData({ oEmbed, pathname }))
     } catch (err) {
       logger.error(err)

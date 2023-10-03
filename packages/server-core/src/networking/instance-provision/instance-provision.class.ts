@@ -626,14 +626,14 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         // const friendsAtLocationResult = await this.app.service(userPath).Model.findAndCountAll({
         //   include: [
         //     {
-        //       model: this.app.service('user-relationship').Model,
+        //       model: this.app.service(userRelationshipPath).Model,
         //       where: {
         //         relatedUserId: userId,
         //         userRelationshipType: 'friend'
         //       }
         //     },
         //     {
-        //       model: this.app.service('instance').Model,
+        //       model: this.app.service(instancePath).Model,
         //       where: {
         //         locationId: locationId,
         //         ended: false
