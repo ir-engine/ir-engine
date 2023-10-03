@@ -23,44 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Static, Type } from '@feathersjs/typebox'
 
-export interface CreatorShort {
-  id: string
-  userId?: UserID
-  avatar?: string
-  newAvatar?: string
-  name: string
-  username?: string
-  verified?: boolean
-  steps?: boolean
-  terms?: boolean
-  policy?: boolean
-  blocked?: boolean
-  followed?: boolean
-  isBlocked?: boolean
-  createdAt?: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-export interface Creator extends CreatorShort {
-  email?: string
-  link?: string
-  background?: string
-  tags?: string
-  bio?: string
-  twitter?: string
-}
+export const oembedPath = 'oembed'
 
-export interface CreatorNotification {
-  id: string
-  type: string
-  previewUrl?: string
-  creator_username?: string
-  avatar?: string
-  comment_text?: string
-  feedId?: string
-  creatorAuthorId?: string
-  commentId?: string
-  creatorViewerId?: string
-  createdAt?: string
-}
+export const oembedMethods = ['find'] as const
+
+export const oembedSchema = Type.Object(
+  {
+    version: Type.String(),
+    type: Type.String(),
+    title: Type.String(),
+    description: Type.String(),
+    provider_name: Type.String(),
+    provider_url: Type.String(),
+    thumbnail_url: Type.String(),
+    thumbnail_width: Type.Number(),
+    thumbnail_height: Type.Number(),
+    query_url: Type.String(),
+    url: Type.Optional(Type.String()),
+    height: Type.Optional(Type.Number()),
+    width: Type.Optional(Type.Number())
+  },
+  {
+    $id: 'Oembed'
+  }
+)
+export type OembedType = Static<typeof oembedSchema>

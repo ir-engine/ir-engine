@@ -42,7 +42,7 @@ export default () => {
     }
     const channel = await app.service(channelPath).get(params.query!.channelId)
     if (channel == null) {
-      throw new BadRequest('Invalid channel ID')
+      throw new BadRequest(`Invalid channel ID: ${params.query.channelId}`)
     }
     const channelUser = (await app.service(channelUserPath).find({
       query: {
@@ -52,7 +52,7 @@ export default () => {
       }
     })) as Paginated<ChannelUserType>
     if (channelUser.data.length === 0) {
-      throw new Forbidden('You are not a member of that channel')
+      throw new Forbidden(`You are not a member of channel: ${params.query.channelId}`)
     }
     return context
   }

@@ -23,25 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CreatorShort } from './Creator'
+import { HookContext } from '@feathersjs/feathers'
 
-export interface TheFeedsShort {
-  id: string
-}
+import { Application } from '../../declarations'
 
-export interface TheFeeds extends TheFeedsShort {
-  creator: CreatorShort
-  videoUrl: string
-  title: string
-  description: string
-}
+/**
+ * https://github.com/feathersjs/feathers/issues/382#issuecomment-288125825
+ */
+export default () => {
+  return async (context: HookContext<Application>) => {
+    if (
+      context.params.query &&
+      (context.params.query.$paginate === 'false' || context.params.query.$paginate === false)
+    ) {
+      context.params.paginate = false
+      delete context.params.query.$paginate
+    } else if (
+      context.params.query &&
+      (context.params.query.paginate === 'false' || context.params.query.paginate === false)
+    ) {
+      context.params.paginate = false
+      delete context.params.query.paginate
+    }
 
-export interface TheFeedsDatabaseRow {
-  id: string
-  title: string
-  description: string
-  videoUrl: string
-  createdAt: string
-  updatedAt: string
-  authorId: string
+    return context
+  }
 }

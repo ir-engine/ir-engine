@@ -22,3 +22,14 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import { archiverQuerySchema } from '@etherealengine/engine/src/schemas/media/archiver.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+export default createSwaggerServiceOptions({
+  schemas: { archiverQuerySchema },
+  docs: {
+    description: 'Archiver service description',
+    securities: ['all']
+  }
+})

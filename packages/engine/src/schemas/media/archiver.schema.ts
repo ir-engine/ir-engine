@@ -23,33 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multer from '@koa/multer'
+import { Static, Type, querySyntax } from '@feathersjs/typebox'
 
-import { Application } from '../../../declarations'
-import { Archiver } from './archiver.class'
-import hooks from './archiver.hooks'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    archiver: Archiver
-  }
-}
+export const archiverPath = 'archiver'
 
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
+export const archiverMethods = ['get'] as const
 
-export default (app: Application): any => {
-  const archiver = new Archiver(app)
-  // fileBrowser.docs = projectDocs
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  app.use('archiver', archiver)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('archiver')
-
-  service.hooks(hooks as any)
-}
+export const archiverQueryProperties = Type.Object({
+  directory: Type.Optional(Type.String()),
+  storageProviderName: Type.Optional(Type.String()),
+  isJob: Type.Optional(Type.Boolean())
+})
+export const archiverQuerySchema = Type.Intersect(
+  [
+    querySyntax(archiverQueryProperties),
+    // Add additional query properties here
+    Type.Object({}, { additionalProperties: false })
+  ],
+  { additionalProperties: false }
+)
+export type ArchiverQuery = Static<typeof archiverQuerySchema>

@@ -48,10 +48,7 @@ import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const userResolver = resolve<UserType, HookContext>({
   avatar: virtual(async (user, context) => {
-    if (user.avatarId) {
-      const avatar = await context.app.service(avatarPath).get(user.avatarId)
-      return avatar
-    }
+    if (context.event !== 'removed' && user.avatarId) return await context.app.service(avatarPath).get(user.avatarId)
   }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({
@@ -74,53 +71,46 @@ export const userResolver = resolve<UserType, HookContext>({
     return apiKey.length > 0 ? apiKey[0] : undefined
   }),
   identityProviders: virtual(async (user, context) => {
-    const identityProviders = (await context.app.service(identityProviderPath).find({
+    return (await context.app.service(identityProviderPath).find({
       query: {
         userId: user.id
       },
       paginate: false
     })) as IdentityProviderType[]
-
-    return identityProviders
   }),
   locationAdmins: virtual(async (user, context) => {
-    const locationAdmins = (await context.app.service(locationAdminPath).find({
+    return (await context.app.service(locationAdminPath).find({
       query: {
         userId: user.id
       },
       paginate: false
     })) as LocationAdminType[]
-    return locationAdmins
   }),
   locationBans: virtual(async (user, context) => {
-    const locationBans = (await context.app.service(locationBanPath).find({
+    return (await context.app.service(locationBanPath).find({
       query: {
         userId: user.id
       },
       paginate: false
     })) as LocationBanType[]
-    return locationBans
   }),
   scopes: virtual(async (user, context) => {
-    const scopes = (await context.app.service(scopePath).find({
+    return (await context.app.service(scopePath).find({
       query: {
         userId: user.id
       },
       paginate: false
     })) as ScopeType[]
-    return scopes
   }),
   instanceAttendance: virtual(async (user, context) => {
-    if (context.params.user?.id === context.arguments[0]) {
-      const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
+    if (context.params.user?.id === context.arguments[0])
+      return (await context.app.service(instanceAttendancePath).find({
         query: {
           userId: user.id,
           ended: false
         },
         paginate: false
       })) as InstanceAttendanceType[]
-      return instanceAttendance
-    }
 
     return []
   }),

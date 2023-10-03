@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface SeatStatus {
-  status: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+
+export const discordBotAuthPath = 'discord-bot-auth'
+
+export const discordBotAuthMethods = ['find'] as const

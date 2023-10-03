@@ -38,6 +38,7 @@ import {
   RawShaderMaterial,
   RGBAFormat,
   Scene,
+  SRGBColorSpace,
   Texture,
   Uniform,
   UnsignedByteType,
@@ -47,7 +48,7 @@ import {
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
 import { defineState, getState } from '@etherealengine/hyperflux'
-import { KTX2EncodeOptions, KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+import { KTX2EncodeOptions, KTX2Encoder, UASTCFlags } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 export const ImageProjection = {
   Flat: 'Flat',
@@ -140,11 +141,10 @@ export const ScreenshotSettings = defineState({
   name: 'ScreenshotSettings',
   initial: {
     ktx2: {
-      srgb: false,
+      srgb: true,
       uastc: true,
       uastcZstandard: true,
-      qualityLevel: 256,
-      compressionLevel: 3
+      uastcFlags: UASTCFlags.UASTCLevelFastest
     } as KTX2EncodeOptions
   }
 })
@@ -183,17 +183,29 @@ export const convertCubemapToKTX2 = async (
     magFilter: LinearFilter,
     wrapS: ClampToEdgeWrapping,
     wrapT: ClampToEdgeWrapping,
+    colorSpace: SRGBColorSpace,
     format: RGBAFormat,
     type: UnsignedByteType
   })
 
+  const originalColorSpace = renderer.outputColorSpace
+  renderer.outputColorSpace = SRGBColorSpace
   renderer.setRenderTarget(renderTarget)
   quad.material.uniforms.map.value = source
+
   renderer.render(scene, camera)
   const pixels = new Uint8Array(4 * width * height)
   renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
-  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+  renderer.outputColorSpace = originalColorSpace
+
+  let imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+  canvas.width = width
+  canvas.height = height
+  ctx.putImageData(imageData, 0, 0)
 
   const ktx2texture = (await ktx2write.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
 

@@ -230,7 +230,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       } else if (invite.inviteType === 'channel') {
         const channel = (await this.app
           .service(channelPath)
-          ._find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
+          .find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
 
         if (channel.total === 0) {
           await this.app.service(invitePath).remove(invite.id)

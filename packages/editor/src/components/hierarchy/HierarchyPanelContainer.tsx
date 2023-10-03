@@ -162,6 +162,7 @@ export default function HierarchyPanel({
   const [contextSelectedItem, setContextSelectedItem] = React.useState<undefined | HeirarchyTreeNodeType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [prevClickedNode, setPrevClickedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const open = Boolean(anchorEl)
   const onUpload = useUpload(uploadOptions)
   const selectionState = useHookstate(getMutableState(SelectionState))
@@ -266,17 +267,28 @@ export default function HierarchyPanel({
   }, [selectionState.objectChangeCounter])
 
   /* Event handlers */
-  const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
-    if (e.detail === 1) {
-      if (e.shiftKey) {
-        EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
-        setSelectedNode(null)
-      } else if (!node.selected) {
-        EditorControlFunctions.replaceSelection([node.entityNode ?? node.obj3d!.uuid])
-        setSelectedNode(node)
+  const onMouseDown = useCallback(
+    (e: MouseEvent, node: HeirarchyTreeNodeType) => {
+      if (e.detail === 1) {
+        if (e.ctrlKey) {
+          EditorControlFunctions.toggleSelection([node.entityNode ?? node.obj3d!.uuid])
+          setSelectedNode(null)
+        } else if (e.shiftKey && prevClickedNode) {
+          const startIndex = nodes.findIndex((n) => n.entityNode === prevClickedNode.entityNode)
+          const endIndex = nodes.findIndex((n) => n.entityNode === node.entityNode)
+          const range = nodes.slice(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex) + 1)
+          const entityUuids = range.filter((n) => n.entityNode).map((n) => n.entityNode!)
+          EditorControlFunctions.replaceSelection(entityUuids)
+          setSelectedNode(node)
+        } else if (!node.selected) {
+          EditorControlFunctions.replaceSelection([node.entityNode ?? node.obj3d!.uuid])
+          setSelectedNode(node)
+        }
+        setPrevClickedNode(node)
       }
-    }
-  }, [])
+    },
+    [prevClickedNode, nodes]
+  )
 
   const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: HeirarchyTreeNodeType) => {
     event.preventDefault()
@@ -318,7 +330,6 @@ export default function HierarchyPanel({
     (e: KeyboardEvent, node: HeirarchyTreeNodeType) => {
       const nodeIndex = nodes.indexOf(node)
       const entityTree = getComponent(node.entityNode as Entity, EntityTreeComponent)
-
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
@@ -331,7 +342,9 @@ export default function HierarchyPanel({
           }
 
           const nextNodeEl = document.getElementById(getNodeElId(nextNode))
-          if (nextNodeEl) nextNodeEl.focus()
+          if (nextNodeEl) {
+            nextNodeEl.focus()
+          }
           break
         }
 
@@ -346,7 +359,9 @@ export default function HierarchyPanel({
           }
 
           const prevNodeEl = document.getElementById(getNodeElId(prevNode))
-          if (prevNodeEl) prevNodeEl.focus()
+          if (prevNodeEl) {
+            prevNodeEl.focus()
+          }
           break
         }
 

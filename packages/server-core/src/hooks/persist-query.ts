@@ -23,26 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { HookContext } from '@feathersjs/feathers'
 
-export interface UserAvatar {
-  avatar?: AvatarItem
-  userThumbnail?: UserThumbnail
-  'user-thumbnail'?: UserThumbnail // sequelize is frustrating
-}
+import { Application } from '../../declarations'
 
-interface AvatarItem {
-  id?: string
-  key?: string
-  name?: string
-  url?: string
-  userId?: UserID
-}
-
-interface UserThumbnail {
-  id?: string
-  key?: string
-  name?: string
-  url?: string
-  userId?: UserID
+/**
+ * This hook is useful to persist actual params.query as actualQuery.
+ * There are scenarios where we want to remove properties from params.query,
+ * to be passed to native knex call. Having params.actualQuery is useful if
+ * we want to use actual query in after hook or around hook after next() call.
+ */
+export default async (context: HookContext<Application>) => {
+  context.params.actualQuery = context.params.query ? JSON.parse(JSON.stringify(context.params.query)) : {}
 }
