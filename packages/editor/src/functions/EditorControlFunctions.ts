@@ -752,10 +752,11 @@ const addToSelection = (nodes: EntityOrObjectUUID[]) => {
 
 const commitTransformSave = (entity: Entity) => {
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
+  LocalTransformComponent.stateMap[entity]!.set(LocalTransformComponent.valueMap[entity])
 
   const entityData = newSnapshot.data.scene.entities[getComponent(entity, UUIDComponent)]
-  const component = entityData.components.find((c) => c.name === TransformComponent.jsonID)!
-  component.props = serializeComponent(entity, TransformComponent)
+  const component = entityData.components.find((c) => c.name === LocalTransformComponent.jsonID)!
+  component.props = serializeComponent(entity, LocalTransformComponent)
 
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
