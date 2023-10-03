@@ -40,6 +40,7 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
+import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
@@ -166,6 +167,7 @@ export const pushProject = async (
   user: UserType,
   reset = false,
   commitSHA?: string,
+  jobId?: string,
   storageProviderName?: string
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
@@ -249,7 +251,18 @@ export const pushProject = async (
         githubIdentityProvider.data[0].oauthToken,
         app
       )
+    if (jobId)
+      await app.service(apiJobPath).patch(jobId, {
+        status: 'succeeded',
+        endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      })
   } catch (err) {
+    if (jobId)
+      await app.service(apiJobPath).patch(jobId, {
+        status: 'failed',
+        returnData: err.toString(),
+        endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      })
     logger.error(err)
     throw err
   }
@@ -262,14 +275,27 @@ export const pushProjectToGithub = async (
   reset = false,
   commitSHA?: string,
   storageProviderName?: string,
-  isJob = false
+  isJob = false,
+  jobId = undefined
 ) => {
-  if (!config.kubernetes.enabled || isJob) return pushProject(app, project, user, reset, commitSHA, storageProviderName)
+  if (!config.kubernetes.enabled || isJob)
+    return pushProject(app, project, user, reset, commitSHA, jobId, storageProviderName)
   else {
     const projectName = project.name.toLowerCase()
-    const jobBody = await getProjectPushJobBody(app, project, user, reset, commitSHA)
+
+    const newJob = await app.service(apiJobPath).create({
+      name: '',
+      startTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      endTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      returnData: '',
+      status: 'pending'
+    })
+    const jobBody = await getProjectPushJobBody(app, project, user, reset, newJob.id, commitSHA)
+    await app.service(apiJobPath).patch(newJob.id, {
+      name: jobBody.metadata!.name
+    })
     const jobLabelSelector = `etherealengine/projectField=${project.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/projectPusher=true`
-    const jobFinishedPromise = createExecutorJob(app, jobBody, jobLabelSelector, PUSH_TIMEOUT)
+    const jobFinishedPromise = createExecutorJob(app, jobBody, jobLabelSelector, PUSH_TIMEOUT, newJob.id)
     try {
       await jobFinishedPromise
       return
