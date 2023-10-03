@@ -76,7 +76,7 @@ const nodeDisplayName = (node: MaterialLibraryEntryType) => {
       return (node.entry as MaterialComponentType).material.name
     case LibraryEntryType.MATERIAL_SOURCE:
       return (
-        pathResolver().exec((node.entry as MaterialSourceComponentType).src.path)?.[3] ??
+        pathResolver().exec((node.entry as MaterialSourceComponentType).src.path)?.[2] ??
         (node.entry as MaterialSourceComponentType).src.path
       )
     case LibraryEntryType.MATERIAL_PROTOTYPE:

@@ -71,13 +71,11 @@ export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSett
   }
 }
 
-export const clientSettingResolver = resolve<ClientSettingType, HookContext>({
-  createdAt: virtual(async (clientSetting) => fromDateTimeSql(clientSetting.createdAt)),
-  updatedAt: virtual(async (clientSetting) => fromDateTimeSql(clientSetting.updatedAt))
-})
-
-export const clientSettingExternalResolver = resolve<ClientSettingType, HookContext>(
-  {},
+export const clientSettingResolver = resolve<ClientSettingType, HookContext>(
+  {
+    createdAt: virtual(async (clientSetting) => fromDateTimeSql(clientSetting.createdAt)),
+    updatedAt: virtual(async (clientSetting) => fromDateTimeSql(clientSetting.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -85,6 +83,8 @@ export const clientSettingExternalResolver = resolve<ClientSettingType, HookCont
     }
   }
 )
+
+export const clientSettingExternalResolver = resolve<ClientSettingType, HookContext>({})
 
 export const clientSettingDataResolver = resolve<ClientSettingDatabaseType, HookContext>(
   {

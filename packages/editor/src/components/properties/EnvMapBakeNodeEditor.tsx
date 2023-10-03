@@ -193,7 +193,7 @@ export const EnvMapBakeNodeEditor = (props) => {
           options={bakeResolutionTypes.map((resolution) => ({ label: resolution.toString(), value: resolution }))}
           key={props.entity}
           value={bakeComponent.resolution.value}
-          onChange={commitProperty(EnvMapBakeComponent, 'bakeType')}
+          onChange={commitProperty(EnvMapBakeComponent, 'resolution')}
         />
       </InputGroup>
       <InputGroup name="Box Projection" label="Box Projection">

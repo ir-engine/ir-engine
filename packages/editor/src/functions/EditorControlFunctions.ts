@@ -66,6 +66,7 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { serializeEntity } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import { EditorHistoryAction, EditorHistoryState } from '../services/EditorHistory'
@@ -213,6 +214,7 @@ const createObjectFromSceneElement = (
   const entityUUID = MathUtils.generateUUID() as EntityUUID
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, UUIDComponent, entityUUID)
+  setComponent(newEntity, SceneObjectComponent)
 
   createNewEditorNode(newEntity, componentName)
 

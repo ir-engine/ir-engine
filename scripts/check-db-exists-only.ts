@@ -24,33 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import cli from 'cli'
-import { Sequelize } from 'sequelize'
-
-const db = {
-  username: process.env.MYSQL_USER ?? 'server',
-  password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'etherealengine',
-  host: process.env.MYSQL_HOST ?? '127.0.0.1',
-  port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql'
-} as any
-
-db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
+import knex from 'knex'
 
 cli.enable('status')
 
-const sequelize = new Sequelize({
-  ...db,
-  logging: false,
-  define: {
-    freezeTableName: true
+const knexClient = knex({
+  client: 'mysql',
+  connection: {
+    user: process.env.MYSQL_USER ?? 'server',
+    password: process.env.MYSQL_PASSWORD ?? 'password',
+    host: process.env.MYSQL_HOST ?? '127.0.0.1',
+    port: parseInt(process.env.MYSQL_PORT || '3306'),
+    database: process.env.MYSQL_DATABASE ?? 'etherealengine',
+    charset: 'utf8mb4'
   }
 })
 
 cli.main(async () => {
-  await sequelize.sync()
-
-  const [results] = await sequelize.query("SHOW TABLES LIKE 'user';")
+  const [results] = await knexClient.raw("SHOW TABLES LIKE 'user';")
 
   if (results.length === 0) {
     console.log('database not found')

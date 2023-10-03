@@ -233,7 +233,8 @@
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
       "lbl-isMusic": "Is Music",
-      "lbl-size": "Size"
+      "lbl-size": "Size",
+      "seektime": "Start Time"
     },
     "audio": {
       "name": "Positional Audio",

@@ -29,7 +29,11 @@ import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
-import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import {
+  MediaComponent,
+  MediaElementComponent,
+  setTime
+} from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
@@ -38,6 +42,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
@@ -65,6 +70,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const media = useComponent(props.entity, MediaComponent)
+  const element = useComponent(props.entity, MediaElementComponent)
   const errors = getEntityErrors(props.entity, MediaComponent)
 
   const toggle = () => {
@@ -72,7 +78,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   }
 
   const reset = () => {
-    media.seekTime.set(0.001) //safer to set to positive value
+    setTime(element.element, media.seekTime.value)
   }
 
   return (
@@ -98,6 +104,12 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(MediaComponent, 'volume')}
         />
       </InputGroup>
+      <NumericInputGroup
+        name="Seek Time"
+        label={t('editor:properties.media.seektime')}
+        value={media.seekTime.value}
+        onChange={updateProperty(MediaComponent, 'seekTime')}
+      />
       <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
         <BooleanInput value={media.isMusic.value} onChange={commitProperty(MediaComponent, 'isMusic')} />
       </InputGroup>
