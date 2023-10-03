@@ -63,7 +63,7 @@ import {
  * @returns
  */
 const ensureUserChannelOwner = async (context: HookContext) => {
-  const channelId = context.arguments[0]
+  const channelId = context.id as ChannelID
   if (!channelId) throw new BadRequest('Must pass id in request')
 
   const loggedInUser = context.params!.user
@@ -86,11 +86,11 @@ const ensureUserChannelOwner = async (context: HookContext) => {
  * @returns
  */
 const ensureUserHasChannelAccess = async (context: HookContext) => {
-  const channelId = context.arguments[0]
+  const channelId = context.id as ChannelID
   if (!channelId) throw new BadRequest('Must pass id in request')
 
   const loggedInUser = context.params!.user
-  const channelUser = (await context.app.service(channelUserPath)._find({
+  const channelUser = (await context.app.service(channelUserPath).find({
     query: {
       channelId,
       userId: loggedInUser.id,
@@ -109,8 +109,7 @@ const ensureUserHasChannelAccess = async (context: HookContext) => {
  * @returns
  */
 const ensureUsersFriendWithOwner = async (context: HookContext) => {
-  const data = context.data
-  const users = data.users
+  const users = context.data.users
 
   const loggedInUser = context.params!.user
   const userId = loggedInUser?.id

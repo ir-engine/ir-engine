@@ -443,7 +443,7 @@ export function MediaReactor() {
         mediaElementState.value.element.play()
       }
     },
-    [media.resources, media.track, media.ended, media.playMode]
+    [media.resources, media.ended, media.playMode]
   )
 
   useEffect(
