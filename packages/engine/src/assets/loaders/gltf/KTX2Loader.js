@@ -40,7 +40,6 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   CompressedTexture,
-  FileLoader,
   LinearSRGBColorSpace,
   LinearFilter,
   LinearMipmapLinearFilter,
@@ -59,6 +58,7 @@ import {
   UnsignedByteType
 } from 'three'
 import { WorkerPool } from './WorkerPool'
+import { FileLoader } from '../common/FileLoader'
 
 import WebWorker from 'web-worker'
 
@@ -192,7 +192,7 @@ class KTX2Loader extends Loader {
     return texture
   }
 
-  load(url, onLoad, onProgress, onError) {
+  load(url, onLoad, onProgress, onError, signal = undefined) {
     if (isClient && this.workerConfig === null) {
       throw new Error('THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.')
     }
@@ -225,7 +225,8 @@ class KTX2Loader extends Loader {
           .catch(onError)
       },
       onProgress,
-      onError
+      onError,
+      signal
     )
 
     return texture

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FileLoader } from 'three'
+import { FileLoader } from '../loaders/common/FileLoader'
 
 import { gltfToSceneJson } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { loadECSData } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'

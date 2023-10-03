@@ -34,7 +34,6 @@ import {
 	Color,
 	DirectionalLight,
 	DoubleSide,
-	FileLoader,
 	FrontSide,
 	Group,
 	ImageBitmapLoader,
@@ -51,7 +50,6 @@ import {
 	LinearFilter,
 	LinearMipmapLinearFilter,
 	LinearMipmapNearestFilter,
-	Loader,
 	LoaderUtils,
 	Material,
 	MathUtils,
@@ -80,7 +78,6 @@ import {
 	Sphere,
 	SpotLight,
 	Texture,
-	TextureLoader,
 	TrianglesDrawMode,
 	TriangleFanDrawMode,
 	TriangleStripDrawMode,
@@ -90,6 +87,9 @@ import {
 	SRGBColorSpace
 } from 'three';
 
+import { Loader } from '../common/Loader'
+import { FileLoader } from '../common/FileLoader'
+import { TextureLoader } from '../common/TextureLoader'
 class GLTFLoader extends Loader {
 
 	constructor( manager ) {
@@ -194,7 +194,7 @@ class GLTFLoader extends Loader {
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, signal ) {
 
 		const scope = this;
 
@@ -261,7 +261,7 @@ class GLTFLoader extends Loader {
 
 			}
 
-		}, onProgress, _onError );
+		}, onProgress, _onError,signal );
 
 	}
 
@@ -2543,6 +2543,12 @@ class GLTFParser {
 		// Clear the loader cache
 		this.cache.removeAll();
 		this.nodeCache = {};
+		this.primitiveCache = {};
+		this.meshCache = { refs: {}, uses: {} };
+		this.cameraCache = { refs: {}, uses: {} };
+		this.lightCache = { refs: {}, uses: {} };
+		this.sourceCache = {};
+		this.textureCache = {};
 
 		// Mark the special nodes/meshes in json for efficient parse
 		this._invokeAll( function ( ext ) {

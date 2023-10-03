@@ -45,6 +45,7 @@ export class KTX2Loader extends CompressedTextureLoader {
         url: string,
         onLoad: (texture: CompressedTexture) => void,
         onProgress: (requrest: ProgressEvent<EventTarget>) => void | undefined,
-        onError: ((event: ErrorEvent) => void) | undefined
+        onError: ((event: ErrorEvent) => void) | undefined,
+        signal: AbortSignal | undefined
     ): CompressedTexture
 }

@@ -35,12 +35,10 @@ import {
 	DirectionalLight,
 	EquirectangularReflectionMapping,
 	Euler,
-	FileLoader,
 	Float32BufferAttribute,
 	Group,
 	Line,
 	LineBasicMaterial,
-	Loader,
 	LoaderUtils,
 	MathUtils,
 	Matrix3,
@@ -70,7 +68,8 @@ import {
 } from 'three';
 import * as fflate from 'fflate';
 import { NURBSCurve } from './NURBSCurve';
-
+import { Loader } from '../common/Loader'
+import { FileLoader } from '../common/FileLoader'
 /**
  * Loader loads FBX file and generates Group representing FBX scene.
  * Requires FBX file to be >= 7.0 and in ASCII or >= 6400 in Binary format
@@ -99,7 +98,7 @@ class FBXLoader extends Loader {
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, onProgress, onError, signal ) {
 
 		const scope = this;
 
@@ -133,7 +132,7 @@ class FBXLoader extends Loader {
 
 			}
 
-		}, onProgress, onError );
+		}, onProgress, onError, signal );
 
 	}
 

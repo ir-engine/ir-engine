@@ -28,7 +28,6 @@ import {
   AudioLoader,
   BufferAttribute,
   BufferGeometry,
-  FileLoader,
   Group,
   LOD,
   Material,
@@ -44,8 +43,10 @@ import {
   TextureLoader
 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { FileLoader } from '../loaders/common/FileLoader'
 
+import { State, getState, useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { isClient } from '../../common/functions/getEnvironment'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -277,7 +278,7 @@ const tgaLoader = () => new TGALoader()
 const xreLoader = () => new XRELoader(fileLoader())
 const videoLoader = () => ({ load: loadVideoTexture })
 const ktx2Loader = () => ({
-  load: (src, onLoad) => {
+  load: (src, onLoad, onProgress, onError, signal = undefined) => {
     const ktxLoader = getState(AssetLoaderState).gltfLoader!.ktx2Loader
     if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
     ktxLoader.load(
@@ -287,8 +288,9 @@ const ktx2Loader = () => ({
         texture.source.data.src = src
         onLoad(texture)
       },
-      () => {},
-      () => {}
+      onProgress,
+      onError,
+      signal
     )
   }
 })
@@ -369,6 +371,48 @@ type LoadingArgs = {
   assetRoot?: Entity
 }
 
+const useLoad = (_url: State<string>, args: LoadingArgs, onProgress = (request: ProgressEvent) => {}) => {
+  const texture: State<any, any> = useHookstate(undefined)
+  const error: State<any, Error | ErrorEvent> = useHookstate(undefined)
+
+  useEffect(() => {
+    if (!_url.value) {
+      error.set(new Error('URL is empty'))
+      return
+    }
+    const controller = new AbortController()
+    const signal = controller.signal
+    const url = getAbsolutePath(_url.value)
+
+    const assetType = AssetLoader.getAssetType(url)
+    const loader = getLoader(assetType)
+    if (args.assetRoot && (loader as XRELoader).isXRELoader) {
+      ;(loader as XRELoader).rootNode = args.assetRoot
+    }
+    const onLoad = (text) => {
+      texture.set(text)
+      if (!controller.signal.aborted) controller.abort()
+    }
+    const onError = (err) => {
+      error.set(err)
+      if (!controller.signal.aborted) controller.abort()
+    }
+    const callback = assetLoadCallback(url, args, assetType, onLoad)
+
+    try {
+      //@ts-ignore
+      loader.load(url, callback, onProgress, onError, signal)
+    } catch (error) {
+      if (!controller.signal.aborted) controller.abort()
+      error.set(error)
+    }
+    return () => {
+      if (!controller.signal.aborted) controller.abort()
+    }
+  }, [_url])
+  return [texture, error]
+}
+
 const load = (
   _url: string,
   args: LoadingArgs,
@@ -413,5 +457,6 @@ export const AssetLoader = {
   getLoader,
   assetLoadCallback,
   load,
-  loadAsync
+  loadAsync,
+  useLoad
 }
