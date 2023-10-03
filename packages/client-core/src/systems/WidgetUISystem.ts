@@ -92,6 +92,7 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -176,7 +177,7 @@ const execute = () => {
   if (activeInputSourceEntity) {
     const activeInputSource = getComponent(activeInputSourceEntity, InputSourceComponent)?.source
     const referenceSpace = ReferenceSpace.origin!
-    const pose = getState(XRState).xrFrame!.getPose(
+    const pose = getState(XRState).xrFrame?.getPose(
       activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,
       referenceSpace
     )

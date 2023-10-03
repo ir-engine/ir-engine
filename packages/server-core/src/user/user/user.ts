@@ -76,7 +76,7 @@ export default (app: Application): void => {
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 
-      const instances = (await app.service(instanceAttendancePath)._find({
+      const instances = (await app.service(instanceAttendancePath).find({
         query: {
           userId: data.id,
           ended: false

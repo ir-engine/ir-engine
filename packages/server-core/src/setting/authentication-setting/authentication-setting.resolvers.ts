@@ -159,13 +159,11 @@ export const authenticationDbToSchema = (rawData: AuthenticationSettingDatabaseT
   }
 }
 
-export const authenticationSettingResolver = resolve<AuthenticationSettingType, HookContext>({
-  createdAt: virtual(async (authenticationSetting) => fromDateTimeSql(authenticationSetting.createdAt)),
-  updatedAt: virtual(async (authenticationSetting) => fromDateTimeSql(authenticationSetting.updatedAt))
-})
-
-export const authenticationSettingExternalResolver = resolve<AuthenticationSettingType, HookContext>(
-  {},
+export const authenticationSettingResolver = resolve<AuthenticationSettingType, HookContext>(
+  {
+    createdAt: virtual(async (authenticationSetting) => fromDateTimeSql(authenticationSetting.createdAt)),
+    updatedAt: virtual(async (authenticationSetting) => fromDateTimeSql(authenticationSetting.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -173,6 +171,8 @@ export const authenticationSettingExternalResolver = resolve<AuthenticationSetti
     }
   }
 )
+
+export const authenticationSettingExternalResolver = resolve<AuthenticationSettingType, HookContext>({})
 
 export const authenticationSettingDataResolver = resolve<AuthenticationSettingDatabaseType, HookContext>(
   {

@@ -236,20 +236,15 @@ describe('ECS', () => {
     assert.ok(!Engine.instance.entityQuery().includes(entity))
   })
 
-  it('should tolerate removal of same entity multiple times', async () => {
-    createEntity()
-    createEntity()
-    createEntity()
+  it('should remove entity immediately', async () => {
     const entity = createEntity()
 
     const lengthBefore = Engine.instance.entityQuery().length
     removeEntity(entity)
-    removeEntity(entity)
-    removeEntity(entity)
-    executeSystems(mockDeltaMillis)
-
     const entities = Engine.instance.entityQuery()
     assert.equal(entities.length, lengthBefore - 1)
-    assert.ok(!entities.includes(entity))
+    assert.throws(() => {
+      removeEntity(entity)
+    })
   })
 })

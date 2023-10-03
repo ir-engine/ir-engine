@@ -192,6 +192,7 @@ const createObjectFromSceneElement = (
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+  setComponent(newEntity, SceneObjectComponent)
 
   createNewEditorNode(newEntity, componentName)
 

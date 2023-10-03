@@ -26,53 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import koa from '@feathersjs/koa'
 import fs from 'fs'
 
-import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { addAssetFromProject } from '../../media/static-resource/static-resource-helper'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
-import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { Params } from '@feathersjs/feathers'
-import { parseScenePortals } from './scene-parser'
-import { getSceneData } from './scene.class'
-import { SceneParams } from './scene.service'
-
-export const getAllPortals = (app: Application) => {
-  return async (params?: SceneParams) => {
-    params!.metadataOnly = false
-    const scenes = (await app.service('scene-data').find(params!)).data
-    return {
-      data: scenes.map((scene) => parseScenePortals(scene)).flat()
-    }
-  }
-}
-
-export const getPortal = (app: Application) => {
-  return async (id: string, params: Params<{ locationName: string }>) => {
-    const locationName = params?.query?.locationName
-
-    if (!params?.query?.locationName) throw new Error('No locationID provided')
-
-    const location = await app.service(locationPath).find({
-      query: {
-        slugifiedName: locationName
-      }
-    })
-    if (!location?.data?.length) throw new Error('No location found')
-
-    const [projectName, sceneName] = location.data[0].sceneId.split('/')
-
-    const sceneData = await getSceneData(projectName, sceneName, false, params!.provider == null)
-
-    const portals = parseScenePortals(sceneData) as PortalDetail[]
-    return {
-      data: portals.find((portal) => portal.portalEntityId === id)
-    }
-  }
-}
+import {
+  cleanStorageProviderURLs,
+  parseStorageProviderURLs
+} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
+import { getCachedURL } from '../../media/storageprovider/getCachedURL'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 
 export const getEnvMapBake = (app: Application) => {
   return async (ctx: koa.FeathersKoaContext) => {
@@ -82,6 +48,42 @@ export const getEnvMapBake = (app: Application) => {
       json: envMapBake
     }
   }
+}
+
+export const getSceneData = async (
+  projectName: string,
+  sceneName: string,
+  metadataOnly?: boolean,
+  internal = false,
+  storageProviderName?: string
+) => {
+  const storageProvider = getStorageProvider(storageProviderName)
+  const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
+  if (!sceneExists) throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
+
+  let thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
+
+  //if no ktx2 is found, fallback on legacy jpg thumbnail format, if still not found, fallback on ethereal logo
+  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, `projects/${projectName}`))) {
+    thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
+    if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.jpeg`, `projects/${projectName}`))) thumbnailPath = ``
+  }
+
+  const cacheDomain = getCacheDomain(storageProvider, internal)
+  const thumbnailUrl =
+    thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
+
+  const scenePath = `projects/${projectName}/${sceneName}.scene.json`
+
+  const sceneResult = await storageProvider.getObject(scenePath)
+  const sceneData: SceneData = {
+    name: sceneName,
+    project: projectName,
+    thumbnailUrl: thumbnailUrl,
+    scene: metadataOnly ? undefined! : parseStorageProviderURLs(JSON.parse(sceneResult.Body.toString()))
+  }
+
+  return sceneData
 }
 
 export const getEnvMapBakeById = async (app, entityId: string) => {

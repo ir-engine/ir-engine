@@ -89,7 +89,7 @@ export class MessageService<T = MessageType, ServiceParams extends Params = Mess
         if (targetInstance == null) {
           throw new BadRequest('Invalid target instance ID')
         }
-        const channelResult = (await this.app.service(channelPath)._find({
+        const channelResult = (await this.app.service(channelPath).find({
           query: {
             instanceId,
             $limit: 1

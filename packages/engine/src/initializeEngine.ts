@@ -78,6 +78,7 @@ export const createEngine = () => {
   setComponent(Engine.instance.cameraEntity, CameraComponent)
   setComponent(Engine.instance.cameraEntity, VisibleComponent, true)
   getComponent(Engine.instance.cameraEntity, TransformComponent).position.set(0, 5, 2)
+  setComponent(Engine.instance.cameraEntity, EntityTreeComponent, { parentEntity: null })
 
   const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   camera.matrixAutoUpdate = false

@@ -32,12 +32,12 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
-import { UserParams } from '../../api/root-params'
 import { isAssetFromProject } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
+import { AvatarParams } from './avatar.class'
 
 export type AvatarUploadArguments = {
   avatar: Buffer
@@ -168,7 +168,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 export const uploadAvatarStaticResource = async (
   app: Application,
   data: AvatarUploadArguments,
-  params?: UserParams
+  params?: AvatarParams
 ) => {
   console.log('uploadAvatarStaticResource', data)
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)

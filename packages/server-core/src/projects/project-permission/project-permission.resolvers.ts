@@ -38,10 +38,7 @@ import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const projectPermissionResolver = resolve<ProjectPermissionType, HookContext>({
   user: virtual(async (projectPermission, context) => {
-    if (projectPermission.userId) {
-      const user = await context.app.service(userPath)._get(projectPermission.userId)
-      return user
-    }
+    if (projectPermission.userId) return await context.app.service(userPath)._get(projectPermission.userId)
   }),
   createdAt: virtual(async (projectPermission) => fromDateTimeSql(projectPermission.createdAt)),
   updatedAt: virtual(async (projectPermission) => fromDateTimeSql(projectPermission.updatedAt))

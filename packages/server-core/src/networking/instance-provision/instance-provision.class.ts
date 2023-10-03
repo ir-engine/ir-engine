@@ -544,7 +544,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         try {
           await this.app.service(channelPath).get(channelId)
         } catch (err) {
-          throw new BadRequest('Invalid channel ID')
+          throw new BadRequest('Invalid channel ID', channelId)
         }
         const channelInstance = (await this.app.service(instancePath)._find({
           query: {
@@ -626,14 +626,14 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         // const friendsAtLocationResult = await this.app.service(userPath).Model.findAndCountAll({
         //   include: [
         //     {
-        //       model: this.app.service('user-relationship').Model,
+        //       model: this.app.service(userRelationshipPath).Model,
         //       where: {
         //         relatedUserId: userId,
         //         userRelationshipType: 'friend'
         //       }
         //     },
         //     {
-        //       model: this.app.service('instance').Model,
+        //       model: this.app.service(instancePath).Model,
         //       where: {
         //         locationId: locationId,
         //         ended: false

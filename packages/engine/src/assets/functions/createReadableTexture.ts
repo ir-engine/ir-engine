@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import {
   Camera,
   CubeTexture,
-  LinearSRGBColorSpace,
   Mesh,
+  NoColorSpace,
   PerspectiveCamera,
   PlaneGeometry,
   Scene,
@@ -35,8 +35,7 @@ import {
   Texture,
   Uniform,
   Vector4,
-  WebGLRenderer,
-  WebGLRenderTarget
+  WebGLRenderer
 } from 'three'
 
 export type BlitTextureOptions = {
@@ -91,40 +90,16 @@ function initializeTemporaryScene() {
   return temporaryScene
 }
 
-let _temporaryRenderer: WebGLRenderer | undefined
-let _temporaryRenderTarget: WebGLRenderTarget | undefined
-let _temporaryScene: Scene | undefined
-
-export function getTemporaryRenderer(): WebGLRenderer {
-  if (!_temporaryRenderer) {
-    _temporaryRenderer = initializeTemporaryRenderer()
-  }
-  return _temporaryRenderer!
-}
-
-function getTemporaryScene(): Scene {
-  if (!_temporaryScene) {
-    _temporaryScene = initializeTemporaryScene()
-  }
-  return _temporaryScene
-}
-
-export function getTemporaryRenderTarget(width, height): WebGLRenderTarget {
-  if (!_temporaryRenderTarget) {
-    _temporaryRenderTarget = new WebGLRenderTarget(width, height)
-  }
-  _temporaryRenderTarget.setSize(width, height)
-  return _temporaryRenderTarget
-}
-
 function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   let blit: Texture = map.clone()
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
   }
-  map.colorSpace = LinearSRGBColorSpace
-  const temporaryRenderer = getTemporaryRenderer()
-  const temporaryScene = getTemporaryScene()
+  // set color space to no color space to avoid any correction
+  blit.colorSpace = NoColorSpace
+
+  const temporaryRenderer = initializeTemporaryRenderer()
+  const temporaryScene = initializeTemporaryScene()
   if (options?.keepTransform) {
     blitMaterial.uniforms['scaleOffset'].value = new Vector4(
       blit.repeat.x,
@@ -153,15 +128,10 @@ function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   if (blit !== map) {
     blit.dispose()
   }
-}
 
-export function renderTargetFromTexture(map: Texture, options?: BlitTextureOptions | undefined): WebGLRenderTarget {
-  const renderTarget = getTemporaryRenderTarget(map.image.width, map.image.height).clone()
-  const renderer = getTemporaryRenderer()
-  renderer.setRenderTarget(renderTarget)
-  blitTexture(map, options)
-  renderer.setRenderTarget(null)
-  return renderTarget
+  return new Promise<Blob | null>((resolve) =>
+    (temporaryRenderer.domElement.getContext('webgl2')!.canvas as HTMLCanvasElement).toBlob(resolve)
+  )
 }
 
 export default async function createReadableTexture(
@@ -174,12 +144,7 @@ export default async function createReadableTexture(
   if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
     return options?.url ? map.source.data.src : map
   }
-  const temporaryRenderer = getTemporaryRenderer()
-  blitTexture(map, options)
-  const result = await new Promise<Blob | null>((resolve) =>
-    (temporaryRenderer.domElement.getContext('webgl2')!.canvas as HTMLCanvasElement).toBlob(resolve)
-  )
-
+  const result = await blitTexture(map, options)
   if (!result) throw new Error('Error creating blob')
   const image = new Image(map.image.width, map.image.height)
   image.src = URL.createObjectURL(result)
