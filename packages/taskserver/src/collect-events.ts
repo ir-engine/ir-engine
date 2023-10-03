@@ -30,7 +30,7 @@ import config from '@etherealengine/server-core/src/appconfig'
 
 const logger = multiLogger.child({ component: 'taskserver:collect-events' })
 
-const DEFAULT_INTERVAL_SECONDS = 1800
+const DEFAULT_INTERVAL_SECONDS = 60
 const configInterval = parseInt(config.taskserver.processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
