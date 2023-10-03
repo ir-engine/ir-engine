@@ -46,7 +46,7 @@ import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
   NormalizedLandmarkList,
@@ -62,7 +62,7 @@ import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import { MotionCaptureAction } from './MotionCaptureState'
+import { MotionCaptureAction, MotionCaptureState } from './MotionCaptureState'
 
 const grey = new Color(0.5, 0.5, 0.5)
 
@@ -179,6 +179,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
+  const mocapState = getMutableState(MotionCaptureState)
   solveSpine(entity, lowestWorldY, landmarks, estimatingLowerBody)
   solveLimb(
     entity,
@@ -243,9 +244,14 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
       VRMHumanBoneName.LeftUpperLeg,
       VRMHumanBoneName.LeftFoot
     )
-    dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
+    //check state, if we are still not set to track lower body, update that
+    if (!mocapState.trackingLowerBody) {
+      dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
+    }
   } else {
-    dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
+    if (mocapState.trackingLowerBody) {
+      dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
+    }
   }
 
   solveHand(

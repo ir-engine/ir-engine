@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
+import { defineComponent } from '../ecs/functions/ComponentFunctions'
 
 export class MotionCaptureAction {
   static trackingScopeChanged = defineAction({
@@ -33,3 +34,10 @@ export class MotionCaptureAction {
     $cache: { removePrevious: true }
   })
 }
+
+export const MotionCaptureState = defineComponent({
+  name: 'MotionCaptureState',
+  initial: () => ({
+    trackingLowerBody: true
+  })
+})

@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { AxesHelper } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { MotionCaptureAction } from '../../mocap/MotionCaptureState'
+import { MotionCaptureAction, MotionCaptureState } from '../../mocap/MotionCaptureState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -91,6 +91,7 @@ const execute = () => {
     if (action.trackingLowerBody) {
       if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
       if (ikTargetRightFoot) removeEntity(ikTargetRightFoot)
+      getMutableState(MotionCaptureState).trackingLowerBody.set(true)
     } else {
       if (!ikTargetLeftFoot)
         dispatchAction(
@@ -100,6 +101,7 @@ const execute = () => {
         dispatchAction(
           AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', blendWeight: 1 })
         )
+      getMutableState(MotionCaptureState).trackingLowerBody.set(false)
     }
   }
 
