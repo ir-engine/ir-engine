@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import BuildStatus from './build-status/build-status'
-import ServerInfo from './server-info/server-info.service'
-import ServerLogs from './server-logs/server-logs.service'
+import LogsApi from './logs-api/logs-api'
+import Pods from './pods/pods'
 
-export default [BuildStatus, ServerInfo, ServerLogs]
+export default [LogsApi, BuildStatus, Pods]

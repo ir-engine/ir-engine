@@ -37,7 +37,6 @@ import { AudioState } from '../../audio/AudioState'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  ComponentType,
   defineComponent,
   getComponent,
   getMutableComponent,
@@ -52,7 +51,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { addObjectToGroup } from '../components/GroupComponent'
 import { PlayMode } from '../constants/PlayMode'
-import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
+import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup, getNextTrack } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 
 export const VolumetricComponent = defineComponent({
@@ -157,7 +156,9 @@ export function VolumetricReactor() {
               renderer: EngineRenderer.instance.renderer,
               onTrackEnd: () => {
                 volumetric.hasTrackStopped.set(true)
-                volumetric.track.set(getNextTrack(volumetric.value))
+                volumetric.track.set(
+                  getNextTrack(volumetric.track.value, volumetric.paths.length, volumetric.playMode.value)
+                )
               },
               video: element as HTMLVideoElement,
               V1Args: {
@@ -174,11 +175,11 @@ export function VolumetricReactor() {
           }
 
           if (isClient) {
-            window.addEventListener('pointerdown', handleAutoplay)
+            window.addEventListener('pointerup', handleAutoplay)
             window.addEventListener('keypress', handleAutoplay)
-            window.addEventListener('touchstart', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
+            window.addEventListener('touchend', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
           }
 
           element.addEventListener('playing', () => {
@@ -186,11 +187,11 @@ export function VolumetricReactor() {
               audioContext.resume()
             }
 
-            window.removeEventListener('pointerdown', handleAutoplay)
+            window.removeEventListener('pointerup', handleAutoplay)
             window.removeEventListener('keypress', handleAutoplay)
-            window.removeEventListener('touchstart', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', handleAutoplay)
-            EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', handleAutoplay)
+            window.removeEventListener('touchend', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
 
             const transform = getComponent(entity, TransformComponent)
             if (!transform) return
@@ -255,26 +256,6 @@ export function VolumetricReactor() {
   }, [volumetric.paused, volumetric.player])
 
   return null
-}
-
-export function getNextTrack(volumetric: ComponentType<typeof VolumetricComponent>) {
-  const currentTrack = volumetric.track
-  const numTracks = volumetric.paths.length
-  let nextTrack = 0
-
-  if (volumetric.playMode == PlayMode.random) {
-    // todo: smart random, i.e., lower probability of recently played tracks
-    nextTrack = Math.floor(Math.random() * numTracks)
-  } else if (volumetric.playMode == PlayMode.single) {
-    nextTrack = (currentTrack + 1) % numTracks
-  } else if (volumetric.playMode == PlayMode.singleloop) {
-    nextTrack = currentTrack
-  } else {
-    //PlayMode.Loop
-    nextTrack = (currentTrack + 1) % numTracks
-  }
-
-  return nextTrack
 }
 
 export const endLoadingEffect = (entity, object) => {

@@ -32,6 +32,7 @@ import {
   ProjectPermissionType,
   projectPermissionPath
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -52,14 +53,17 @@ export default (writeAccess) => {
     let projectId, projectRepoPath
     const projectName = context.arguments[0]?.projectName || params.query?.projectName
     if (projectName) {
-      const project = await (app.service('project') as any).Model.findOne({
-        where: {
-          name: projectName
+      const project = (await app.service(projectPath).find({
+        query: {
+          name: projectName,
+          $limit: 1
         }
-      })
-      projectRepoPath = project.repositoryPath
-      if (project) projectId = project.id
-      else throw new BadRequest('Invalid Project name')
+      })) as Paginated<ProjectType>
+
+      if (project.data.length > 0) {
+        projectRepoPath = project.data[0].repositoryPath
+        projectId = project.data[0].id
+      } else throw new BadRequest('Invalid Project name')
     }
     if (!projectId) projectId = params.id || context.id
     // @ts-ignore

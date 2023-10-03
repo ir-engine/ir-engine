@@ -45,29 +45,22 @@ interface Props {
   setSelectedAvatarIds: any
 }
 
-const AVATAR_PAGE_LIMIT = 100
-
 const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarIds }: Props) => {
   const { t } = useTranslation()
 
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(AVATAR_PAGE_LIMIT)
   const openConfirm = useHookstate(false)
   const avatarId = useHookstate('')
   const avatarName = useHookstate('')
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('name')
   const openAvatarDrawer = useHookstate(false)
   const avatarData = useHookstate<AvatarType | null>(null)
 
   const adminAvatarQuery = useFind(avatarPath, {
     query: {
       admin: true,
-      $limit: rowsPerPage.value,
-      $skip: page.value * rowsPerPage.value,
+      $limit: 20,
       search: search,
       $sort: {
-        [sortField.value]: fieldOrder.value === 'asc' ? 1 : -1
+        name: 1
       }
     }
   })
@@ -75,7 +68,6 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   const adminAvatarRemove = useMutation(avatarPath).remove
 
   const adminAvatars = adminAvatarQuery.data
-  const adminAvatarCount = adminAvatarQuery.data.length
 
   const toggleSelection = (id: string) => {
     if (selectedAvatarIds.has(id)) {
@@ -186,20 +178,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        fieldOrderBy="id"
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={columns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={adminAvatarCount}
-        handlePageChange={page.set}
-        handleRowsPerPageChange={(event) => rowsPerPage.set(parseInt(event.target.value, 10))}
-      />
+      <TableComponent query={adminAvatarQuery} rows={rows} column={columns} />
 
       <ConfirmDialog
         open={openConfirm.value}

@@ -40,6 +40,7 @@ import EEECSImporterExtension from '../loaders/gltf/extensions/EEECSImporterExte
 import { EEMaterialImporterExtension } from '../loaders/gltf/extensions/EEMaterialImporterExtension'
 import { GPUInstancingExtension } from '../loaders/gltf/extensions/GPUInstancingExtension'
 import { HubsComponentsExtension } from '../loaders/gltf/extensions/HubsComponentsExtension'
+import { KHRMaterialsPBRSpecularGlossinessExtension } from '../loaders/gltf/extensions/KHRMaterialsPBRSpecularGlossinessExtension'
 import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtension'
 import RegisterMaterialsExtension from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMaterialsExtension'
@@ -63,6 +64,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   } else {
     loader.register((parser) => new RemoveMaterialsExtension(parser))
   }
+  loader.register((parser) => new KHRMaterialsPBRSpecularGlossinessExtension(parser))
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
   loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: true }))

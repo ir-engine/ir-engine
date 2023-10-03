@@ -35,7 +35,6 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import classNames from 'classnames'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { buildStatusColumns } from '../../common/variables/buildStatus'
@@ -60,16 +59,12 @@ const defaultBuildStatus: BuildStatusType = {
 
 const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(10)
+
   const selectedStatusId = useHookstate(0)
   const logsModalOpen = useHookstate(false)
 
-  const fieldOrder = useHookstate('desc')
-  const sortField = useHookstate('id')
-
   const buildStatusesQuery = useFind(buildStatusPath, {
-    query: { $limit: rowsPerPage.value, $skip: page.value * rowsPerPage.value, $sort: { id: -1 } }
+    query: { $limit: 10, $sort: { id: -1 } }
   })
 
   const handleOpenLogsModal = (buildStatus: BuildStatusType) => {
@@ -151,39 +146,11 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
 
   const selectedStatus = buildStatusesQuery.data.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
 
-  const handlePageChange = (event: unknown, newPage: number) => {
-    page.set(newPage)
-  }
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
-
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
-        <DialogTitle
-          className={classNames({
-            [styles.textAlign]: true,
-            [styles.drawerHeader]: true
-          })}
-        >
-          {t('admin:components.project.buildStatus')}
-        </DialogTitle>
-        <TableComponent
-          allowSort={false}
-          fieldOrder={fieldOrder.value}
-          setSortField={sortField.set}
-          setFieldOrder={fieldOrder.set}
-          rows={rows}
-          column={buildStatusColumns}
-          page={page.value}
-          rowsPerPage={rowsPerPage.value}
-          count={buildStatusesQuery.total!}
-          handlePageChange={handlePageChange}
-          handleRowsPerPageChange={handleRowsPerPageChange}
-        />
+        <DialogTitle className={styles.textAlign}>{t('admin:components.project.buildStatus')}</DialogTitle>
+        <TableComponent query={buildStatusesQuery} rows={rows} column={buildStatusColumns} />
         <BuildStatusLogsModal open={logsModalOpen.value} onClose={handleCloseLogsModal} buildStatus={selectedStatus} />
       </Container>
     </DrawerView>

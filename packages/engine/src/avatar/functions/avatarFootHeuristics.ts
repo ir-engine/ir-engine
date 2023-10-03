@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getState } from '@etherealengine/hyperflux'
-import { Quaternion, Vector3 } from 'three'
+import { Euler, Quaternion, Vector3 } from 'three'
 import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -43,11 +43,14 @@ const nextStep = {
 const footOffset = new Vector3()
 const lastPlayerPosition = new Vector3()
 const ikTargetToPlayer = new Vector3()
+const offset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+const quat = new Quaternion()
 let currentStep = ikTargets.leftFoot
-const speedMultiplier = 75
+const speedMultiplier = 80
+const minSpeed = 2.5
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
-export const setIkFootTarget = (stepThreshold: number) => {
+export const setIkFootTarget = (stepThreshold: number, delta: number) => {
   const { localClientEntity, userID } = Engine.instance
 
   if (!localClientEntity) return
@@ -99,10 +102,13 @@ export const setIkFootTarget = (stepThreshold: number) => {
     }
 
     //interpolate foot to next step position
-    ikTransform.position.lerp(nextStep[key].position, getState(EngineState).deltaSeconds * (2 + playerSpeed))
+    ikTransform.position.lerp(nextStep[key].position, getState(EngineState).deltaSeconds * (minSpeed + playerSpeed))
     //set foot y to player y until we have step math
     ikTransform.position.y = playerTransform.position.y + 0.1
-    ikTransform.rotation.slerp(playerTransform.rotation, getState(EngineState).deltaSeconds * (1 + playerSpeed))
+    ikTransform.rotation.slerp(
+      quat.copy(playerTransform.rotation).multiply(offset),
+      getState(EngineState).deltaSeconds * (minSpeed + playerSpeed)
+    )
   }
 
   lastPlayerPosition.copy(playerTransform.position)

@@ -36,13 +36,7 @@ import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { serializeEntity } from '../../scene/functions/serializeWorld'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
-import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
@@ -164,7 +158,7 @@ export type EntityOrObjectUUID = Entity | string
  */
 export function initializeSceneEntity(): void {
   const oldSceneEntity = getState(SceneState).sceneEntity
-  if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity, true)
+  if (oldSceneEntity && entityExists(oldSceneEntity)) removeEntity(oldSceneEntity)
 
   const sceneEntity = createEntity()
   getMutableState(SceneState).sceneEntity.set(sceneEntity)
@@ -172,7 +166,7 @@ export function initializeSceneEntity(): void {
   setComponent(sceneEntity, VisibleComponent, true)
   setComponent(sceneEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
   setComponent(sceneEntity, SceneTagComponent, true)
-  setTransformComponent(sceneEntity)
+  setComponent(sceneEntity, TransformComponent)
   setComponent(sceneEntity, EntityTreeComponent, { parentEntity: null })
 }
 
@@ -215,15 +209,12 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
     setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
   }
-
+  setComponent(entity, LocalTransformComponent)
   const parentTransform = getComponent(parentEntity, TransformComponent)
   const childTransform = getComponent(entity, TransformComponent)
   getMutableState(EngineState).transformsNeedSorting.set(true)
   if (parentTransform && childTransform) {
-    computeTransformMatrix(parentEntity)
-    computeTransformMatrix(entity)
     const childLocalMatrix = parentTransform.matrix.clone().invert().multiply(childTransform.matrix)
-    setLocalTransformComponent(entity, parentEntity)
     const localTransform = getComponent(entity, LocalTransformComponent)
     childLocalMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
   }

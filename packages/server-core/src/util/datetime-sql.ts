@@ -40,7 +40,7 @@ export const fromDateTimeSql = (date: string) => {
   } else {
     dateObj = date
   }
-  const dateString =
+  return (
     dateObj.getFullYear() +
     '-' +
     ('00' + (dateObj.getMonth() + 1)).slice(-2) +
@@ -53,6 +53,5 @@ export const fromDateTimeSql = (date: string) => {
     ':' +
     ('00' + dateObj.getSeconds()).slice(-2) +
     '.000Z'
-
-  return dateString
+  )
 }

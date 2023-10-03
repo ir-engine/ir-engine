@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
+import matches from 'ts-matches'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -46,11 +47,12 @@ export const AvatarHeadDecapComponent = defineComponent({
     const rig = useOptionalComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (rig?.value) {
-        if (headDecap?.value) rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
-        return () => {
-          rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
-        }
+      if (!rig?.value?.vrm?.humanoid?.rawHumanBones?.head?.node || !headDecap?.value) return
+
+      rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(EPSILON)
+
+      return () => {
+        rig.value.vrm.humanoid.rawHumanBones.head.node.scale.setScalar(1)
       }
     }, [headDecap, rig])
 
@@ -68,10 +70,12 @@ export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
 
   onInit(entity) {
-    return {}
+    return { blendWeight: 0 }
   },
 
-  onSet(entity, component, json) {}
+  onSet(entity, component, json) {
+    if (json && matches.number.test(json?.blendWeight)) component.blendWeight.set(json.blendWeight)
+  }
 })
 
 /**

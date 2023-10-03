@@ -34,8 +34,15 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { teleportAvatar } from '../../../../../avatar/functions/moveAvatar'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { ComponentMap, defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import {
+  ComponentMap,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
+import { RigidBodyComponent } from '../../../../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
 import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
@@ -191,10 +198,18 @@ export const setEntityTransform = makeFlowNodeDefinition({
       teleportAvatar(entity, position!, true)
     } else {
       setComponent(entity, TransformComponent, { position: position!, rotation: rotation!, scale: scale! })
-      copyTransformToRigidBody(entity)
+      if (hasComponent(entity, RigidBodyComponent)) copyTransformToRigidBody(entity)
     }
     commit('flow')
   }
+})
+
+export const getUUID = makeInNOutFunctionDesc({
+  name: 'engine/entity/getUuid',
+  label: 'Entity uuid',
+  in: ['entity'],
+  out: 'string',
+  exec: (entity: Entity) => getComponent(entity, UUIDComponent)
 })
 
 export const Constant = makeInNOutFunctionDesc({

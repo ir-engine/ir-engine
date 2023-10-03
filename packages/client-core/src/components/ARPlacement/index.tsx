@@ -29,10 +29,10 @@ import { useTranslation } from 'react-i18next'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { AppAction } from '../../common/services/AppService'
+import { AppState } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
@@ -49,8 +49,7 @@ export const ARPlacement = () => {
 
   const place = () => {
     xrState.scenePlacementMode.set(xrState.scenePlacementMode.value === 'placing' ? 'placed' : 'placing')
-    dispatchAction(AppAction.showTopShelf({ show: false }))
-    dispatchAction(AppAction.showBottomShelf({ show: false }))
+    getMutableState(AppState).merge({ showTopShelf: false, showBottomShelf: false })
   }
 
   return (

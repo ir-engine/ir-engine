@@ -41,7 +41,7 @@ export const HelperToggleTool = () => {
   const rendererState = useHookstate(getMutableState(RendererState))
 
   const toggleDebug = () => {
-    rendererState.debugEnable.set(!rendererState.debugEnable.value)
+    rendererState.physicsDebug.set(!rendererState.physicsDebug.value)
   }
 
   const toggleNodeHelpers = () => {
@@ -57,7 +57,7 @@ export const HelperToggleTool = () => {
         >
           <button
             onClick={toggleDebug}
-            className={styles.toolButton + ' ' + (rendererState.debugEnable.value ? styles.selected : '')}
+            className={styles.toolButton + ' ' + (rendererState.physicsDebug.value ? styles.selected : '')}
           >
             <SquareFootIcon fontSize="small" />
           </button>

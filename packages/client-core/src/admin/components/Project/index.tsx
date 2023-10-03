@@ -33,6 +33,7 @@ import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import { isDev } from '@etherealengine/common/src/config'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../styles/admin.module.scss'
@@ -98,44 +99,48 @@ const Projects = () => {
             {t('admin:components.project.addProject')}
           </Button>
         </Grid>
-        <Grid item xs={4}>
-          <Button
-            className={styles.openModalBtn}
-            type="button"
-            variant="contained"
-            color="primary"
-            onClick={() => updateDrawerOpen.set(true)}
-          >
-            {projectState.rebuilding.value ? (
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
-                {isFirstRun.value ? t('admin:components.project.checking') : t('admin:components.project.rebuilding')}
-              </Box>
-            ) : (
-              t('admin:components.project.updateAndRebuild')
-            )}
-          </Button>
-        </Grid>
-        <Grid item xs={4}>
-          <Button
-            className={styles.openModalBtn}
-            type="button"
-            variant="contained"
-            color="primary"
-            onClick={() => buildStatusDrawerOpen.set(true)}
-          >
-            {t('admin:components.project.buildStatus')}
-            <div
-              className={`${styles.containerCircle} ${
-                projectState.succeeded.value === true
-                  ? styles.containerGreen
-                  : projectState.failed.value === true
-                  ? styles.containerRed
-                  : styles.containerYellow
-              }`}
-            />
-          </Button>
-        </Grid>
+        {!isDev && (
+          <Grid item xs={4}>
+            <Button
+              className={styles.openModalBtn}
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={() => updateDrawerOpen.set(true)}
+            >
+              {projectState.rebuilding.value ? (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
+                  {isFirstRun.value ? t('admin:components.project.checking') : t('admin:components.project.rebuilding')}
+                </Box>
+              ) : (
+                t('admin:components.project.updateAndRebuild')
+              )}
+            </Button>
+          </Grid>
+        )}
+        {!isDev && (
+          <Grid item xs={4}>
+            <Button
+              className={styles.openModalBtn}
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={() => buildStatusDrawerOpen.set(true)}
+            >
+              {t('admin:components.project.buildStatus')}
+              <div
+                className={`${styles.containerCircle} ${
+                  projectState.succeeded.value === true
+                    ? styles.containerGreen
+                    : projectState.failed.value === true
+                    ? styles.containerRed
+                    : styles.containerYellow
+                }`}
+              />
+            </Button>
+          </Grid>
+        )}
       </Grid>
 
       <div className={styles.engineInfo}>

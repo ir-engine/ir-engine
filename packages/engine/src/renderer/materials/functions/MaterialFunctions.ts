@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh } from 'three'
 
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../../ecs/classes/Engine'

@@ -27,7 +27,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { createState, none } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, EntityRemovedComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 const entitiesByUUID = {} as Record<EntityUUID, Entity>
 
@@ -40,11 +40,7 @@ export const UUIDComponent = defineComponent({
     if (component.value === uuid) return
 
     // throw error if uuid is already in use
-    if (
-      UUIDComponent.entitiesByUUID[uuid] !== undefined &&
-      UUIDComponent.entitiesByUUID[uuid] !== entity &&
-      !hasComponent(UUIDComponent.entitiesByUUID[uuid], EntityRemovedComponent)
-    ) {
+    if (UUIDComponent.entitiesByUUID[uuid] !== undefined && UUIDComponent.entitiesByUUID[uuid] !== entity) {
       throw new Error(`UUID ${uuid} is already in use`)
     }
 

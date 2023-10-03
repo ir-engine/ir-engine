@@ -83,7 +83,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
-      setComponent(entity, EnvMapBakeComponent)
+      setComponent(entity, EnvMapBakeComponent, { resolution: 1024 })
     }
   }
 

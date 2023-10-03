@@ -39,13 +39,6 @@ declare module '@etherealengine/common/declarations' {
 }
 
 export default (app: Application): void => {
-  const options = {
-    name: instanceActivePath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
   app.use(instanceActivePath, new InstanceActiveService(app), {
     // A list of all methods this service exposes externally
     methods: instanceActiveMethods,

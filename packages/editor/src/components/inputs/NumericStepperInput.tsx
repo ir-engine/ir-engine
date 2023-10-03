@@ -28,8 +28,9 @@ import React from 'react'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
+import { t } from 'i18next'
 import { InfoTooltip } from '../layout/Tooltip'
-import NumericInput from './NumericInput'
+import NumericInput, { NumericInputProp } from './NumericInput'
 
 const stepperInputContainerStyle = {
   display: 'flex',
@@ -62,15 +63,6 @@ const rightStepperButtonStyle = {
   borderBottomRightRadius: '4px'
 }
 
-/**
- *
- * @param {any} style
- * @param {any} className
- * @param {any} decrementTooltip
- * @param {any} incrementTooltip
- * @param {any} rest
- * @returns
- */
 export function NumericStepperInput({
   style,
   className,
@@ -80,7 +72,15 @@ export function NumericStepperInput({
   value,
   mediumStep,
   ...rest
-}) {
+}: {
+  style?: React.CSSProperties
+  className?: string
+  incrementTooltip?: string
+  decrementTooltip?: string
+  onChange: (val) => void
+  value: number
+  mediumStep: number
+} & NumericInputProp) {
   const onIncrement = () => onChange(value + mediumStep)
   const onDecrement = () => onChange(value - mediumStep)
 
@@ -99,6 +99,11 @@ export function NumericStepperInput({
       </InfoTooltip>
     </div>
   )
+}
+
+NumericStepperInput.defaultProps = {
+  incrementTooltip: t('editor:toolbar.grid.info-incrementHeight'),
+  decrementTooltip: t('editor:toolbar.grid.info-decrementHeight')
 }
 
 export default NumericStepperInput

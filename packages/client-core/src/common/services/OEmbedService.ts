@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { oembedPath, OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
 
@@ -36,7 +36,7 @@ const logger = multiLogger.child({ component: 'client-core:OEmbedService' })
 export const OEmbedState = defineState({
   name: 'OEmbedState',
   initial: () => ({
-    oEmbed: undefined as OEmbed | undefined,
+    oEmbed: undefined as OembedType | undefined,
     pathname: ''
   })
 })
@@ -58,7 +58,7 @@ export const OEmbedService = {
   fetchData: async (pathname: string, queryUrl: string) => {
     try {
       dispatchAction(OEmbedActions.fetchData({ pathname }))
-      const oEmbed = (await API.instance.client.service('oembed').find({ query: { url: queryUrl } })) as OEmbed
+      const oEmbed = (await API.instance.client.service(oembedPath).find({ query: { url: queryUrl } })) as OembedType
       dispatchAction(OEmbedActions.fetchedData({ oEmbed, pathname }))
     } catch (err) {
       logger.error(err)
@@ -74,7 +74,7 @@ export class OEmbedActions {
   })
   static fetchedData = defineAction({
     type: 'ee.client.OEmbed.FETCHED_DATA' as const,
-    oEmbed: matches.object as Validator<unknown, OEmbed>,
+    oEmbed: matches.object as Validator<unknown, OembedType>,
     pathname: matches.string
   })
 }

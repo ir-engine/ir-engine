@@ -47,7 +47,7 @@
               "z": 1
             },
             "bakeType": "Baked",
-            "resolution": 2048,
+            "resolution": 1024,
             "refreshMode": "OnAwake",
             "envMapOrigin": "__$project$__/default-project/sky-station.envmap.ktx2",
             "boxProjection": true
@@ -210,11 +210,25 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
-            "resource": {
-              "src": "__$project$__/default-project/assets/Skybase.glb"
-            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "hasAvatarAnimations": false,
+            "activeClipIndex": -1,
+            "animationPack": "",
+            "paused": false,
+            "time": 0,
+            "timeScale": 1,
+            "blendMode": 2500,
+            "loop": 2201,
+            "clampWhenFinished": false,
+            "zeroSlopeAtStart": true,
+            "zeroSlopeAtEnd": true,
+            "weight": 1
           }
         },
         {
@@ -224,6 +238,7 @@
             "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "__$project$__/default-project/assets/sky_skybox.jpg",
+            "envMapSourceEntityUUID": "",
             "envMapIntensity": 1.5
           }
         }
@@ -309,14 +324,15 @@
           "name": "media",
           "props": {
             "controls": true,
-            "paused": false,
+            "autoplay": true,
             "resources": [
               "__$project$__/default-project/assets/SampleVideo.mp4"
             ],
             "volume": 1,
             "synchronize": true,
             "playMode": "loop",
-            "isMusic": false
+            "isMusic": false,
+            "seekTime": 0
           }
         },
         {
@@ -414,7 +430,24 @@
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
             "generateBVH": true,
-            "avoidCameraOcclusion": false
+            "avoidCameraOcclusion": true
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "hasAvatarAnimations": false,
+            "activeClipIndex": -1,
+            "animationPack": "",
+            "paused": false,
+            "time": 0,
+            "timeScale": 1,
+            "blendMode": 2500,
+            "loop": 2201,
+            "clampWhenFinished": false,
+            "zeroSlopeAtStart": true,
+            "zeroSlopeAtEnd": true,
+            "weight": 1
           }
         },
         {
@@ -424,6 +457,7 @@
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
+            "envMapSourceEntityUUID": "",
             "envMapIntensity": 1
           }
         },
@@ -436,7 +470,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 0.5
+            "restitution": 0.5,
+            "triggers": []
           }
         },
         {
@@ -491,10 +526,14 @@
             "removeMesh": true,
             "collisionLayer": 8,
             "collisionMask": 2,
-            "restitution": 1,
-            "onEnter": "teleport",
-            "onExit": null,
-            "target": ""
+            "restitution": 0,
+            "triggers": [
+              {
+                "onEnter": "teleport",
+                "onExit": null,
+                "target": ""
+              }
+            ]
           }
         },
         {
@@ -555,14 +594,15 @@
           "name": "media",
           "props": {
             "controls": true,
-            "paused": true,
+            "autoplay": false,
             "resources": [
               "__$project$__/default-project/assets/SampleAudio.mp3"
             ],
             "volume": 1,
             "synchronize": true,
             "playMode": "loop",
-            "isMusic": true
+            "isMusic": true,
+            "seekTime": 0
           }
         },
         {
@@ -625,10 +665,14 @@
             "removeMesh": true,
             "collisionLayer": 8,
             "collisionMask": 2,
-            "restitution": 1,
-            "onEnter": "teleport",
-            "onExit": null,
-            "target": ""
+            "restitution": 0,
+            "triggers": [
+              {
+                "onEnter": "teleport",
+                "onExit": null,
+                "target": ""
+              }
+            ]
           }
         },
         {
@@ -701,10 +745,14 @@
             "removeMesh": true,
             "collisionLayer": 8,
             "collisionMask": 2,
-            "restitution": 1,
-            "onEnter": "teleport",
-            "onExit": null,
-            "target": ""
+            "restitution": 0,
+            "triggers": [
+              {
+                "onEnter": "teleport",
+                "onExit": null,
+                "target": ""
+              }
+            ]
           }
         },
         {
@@ -765,14 +813,15 @@
           "name": "media",
           "props": {
             "controls": false,
-            "paused": false,
+            "autoplay": true,
             "resources": [
               "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
             ],
             "volume": 1,
             "synchronize": true,
             "playMode": "loop",
-            "isMusic": false
+            "isMusic": false,
+            "seekTime": 0
           }
         },
         {

@@ -31,7 +31,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Resizable } from 're-resizable'
 import { ChannelsList } from './ChannelsList'
-import { Create } from './Create'
 import NotificationIcon from './assets/attach-file2.svg'
 import BoxSearch from './assets/bxbxsearchalt2.svg'
 import AddSquare from './assets/fluentaddsquare24filled.svg'
@@ -42,6 +41,7 @@ import SettingIcon from './assets/setting.svg'
  */
 export const ChatSection = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
+
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userID)
 
   const [checked, setChecked] = useState<boolean>(false)
@@ -114,17 +114,17 @@ export const ChatSection = () => {
               <button className="m-0">
                 <img className="max-w-full w-6 h-6 overflow-hidden" alt="" src={BoxSearch} />
               </button>
-              <button className="m-0" onClick={() => openModal(1)}>
-                <img className="max-w-full w-6 h-6 overflow-hidden" alt="" src={AddSquare} />
-                {isModalOpen === 1 && (
+              <button onClick={() => openModal(1)}>
+                <img className="w-6 h-6 overflow-hidden" alt="" src={AddSquare} />
+                {/* {isModalOpen === 1 && (
                   <div
                     ref={modalRef}
                     className="fixed h-[100vh] inset-0 flex bg-black  items-center justify-center bg-opacity-50"
                     style={{ zIndex: '1' }}
                   >
-                    <Create />
+                    <Create /> 
                   </div>
-                )}
+                )}*/}
               </button>
             </div>
           </div>

@@ -29,6 +29,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import matches from 'ts-matches'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -70,22 +71,26 @@ export const ColliderComponent = defineComponent({
       collisionLayer: CollisionGroups.Default,
       collisionMask: DefaultCollisionMask,
       restitution: 0.5,
-      /**
-       * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
-       */
-      onEnter: null as null | string | undefined,
-      /**
-       * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
-       */
-      onExit: null as null | string | undefined,
-      /**
-       * uuid (null as null | string)
-       *
-       * empty string represents self
-       *
-       * TODO: how do we handle non-scene entities?
-       */
-      target: null as null | string | undefined
+      triggers: [
+        {
+          /**
+           * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
+           */
+          onEnter: null as null | string | undefined,
+          /**
+           * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
+           */
+          onExit: null as null | string | undefined,
+          /**
+           * uuid (null as null | string)
+           *
+           * empty string represents self
+           *
+           * TODO: how do we handle non-scene entities?
+           */
+          target: null as null | string | undefined
+        }
+      ]
     }
   },
 
@@ -101,9 +106,18 @@ export const ColliderComponent = defineComponent({
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
-    if (typeof json.onEnter === 'string') component.onEnter.set(json.onEnter)
-    if (typeof json.onExit === 'string') component.onExit.set(json.onExit)
-    if (typeof json.target === 'string') component.target.set(json.target)
+    if (
+      matches
+        .arrayOf(
+          matches.shape({
+            onEnter: matches.nill.orParser(matches.string),
+            onExit: matches.nill.orParser(matches.string),
+            target: matches.nill.orParser(matches.string)
+          })
+        )
+        .test(json.triggers)
+    )
+      component.triggers.set(json.triggers)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
@@ -128,7 +142,8 @@ export const ColliderComponent = defineComponent({
       removeMesh: component.removeMesh.value,
       collisionLayer: component.collisionLayer.value,
       collisionMask: component.collisionMask.value,
-      restitution: component.restitution.value
+      restitution: component.restitution.value,
+      triggers: []
     } as {
       bodyType: RigidBodyType
       shapeType: ShapeType
@@ -137,14 +152,14 @@ export const ColliderComponent = defineComponent({
       collisionLayer: number
       collisionMask: number
       restitution: number
-      onEnter?: string | null
-      onExit?: string | null
-      target?: string | null
+      triggers: {
+        onEnter?: string | null
+        onExit?: string | null
+        target?: string | null
+      }[]
     }
     if (component.isTrigger.value) {
-      response.onEnter = component.onEnter.value
-      response.onExit = component.onExit.value
-      response.target = component.target.value
+      response.triggers = component.triggers.value
     }
     return response
   },

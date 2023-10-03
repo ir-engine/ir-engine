@@ -27,11 +27,11 @@ import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 import { v1 } from 'uuid'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -68,6 +68,17 @@ describe('instance.test', () => {
       },
       params
     )
+
+    testInstance = {
+      id: '' as InstanceID,
+      locationId: testLocation.id,
+      roomCode: '',
+      currentUsers: 0,
+      ended: false,
+      createdAt: '',
+      updatedAt: '',
+      location: testLocation
+    }
   })
 
   after(() => {
@@ -75,10 +86,14 @@ describe('instance.test', () => {
   })
 
   let testLocation: LocationType
-  let testInstance: Instance
+  let testInstance: InstanceType
 
   it('should create an instance', async () => {
-    const instance = (await app.service('instance').create({ locationId: testLocation.id })) as Instance
+    const instance = (await app.service(instancePath).create({
+      locationId: testLocation.id,
+      roomCode: testInstance.roomCode,
+      currentUsers: testInstance.currentUsers
+    })) as InstanceType
 
     assert.ok(instance)
     assert.equal(instance.locationId, testLocation.id)
@@ -89,7 +104,7 @@ describe('instance.test', () => {
   })
 
   it('should get that instance', async () => {
-    const instance = await app.service('instance').get(testInstance.id)
+    const instance = await app.service(instancePath)._get(testInstance.id)
 
     assert.ok(instance)
     assert.ok(instance.roomCode)
@@ -97,16 +112,16 @@ describe('instance.test', () => {
   })
 
   it('should find instances for admin', async () => {
-    const instances = (await app.service('instance').find({
+    const instances = (await app.service(instancePath).find({
       action: 'admin'
-    } as any)) as Paginated<Instance>
+    } as any)) as Paginated<InstanceType>
 
     assert.equal(instances.total, 1)
     assert.equal(instances.data[0].id, testInstance.id)
   })
 
   it('should have "total" in find method', async () => {
-    const item = await app.service('instance').find({
+    const item = await app.service(instancePath).find({
       action: 'admin'
     } as any)
 

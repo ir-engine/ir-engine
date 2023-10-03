@@ -25,14 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { memo } from 'react'
 
-import { ServerInfoInterface } from '@etherealengine/common/src/interfaces/ServerInfo'
-
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 
+import { PodsType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import styles from '../../styles/admin.module.scss'
 
 interface ServerItemProps {
-  data: ServerInfoInterface
+  data: PodsType
   isSelected: boolean
   onCardClick: (key: string) => void
 }

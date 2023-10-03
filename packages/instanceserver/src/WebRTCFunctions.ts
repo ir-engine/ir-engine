@@ -65,6 +65,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { decode } from 'msgpackr'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
@@ -354,10 +355,10 @@ export async function createInternalDataConsumer(
       ordered: false
     })
     dataConsumer.on('message', (message) => {
-      const DataChannelFunctions = getState(DataChannelRegistryState)[dataProducer.label as DataChannelType]
-      if (DataChannelFunctions) {
-        for (const func of DataChannelFunctions) func(network, dataProducer.label as DataChannelType, peerID, message)
-      }
+      const [fromPeerIndex, data] = decode(message)
+      const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
+      if (fromPeerID !== peerID) return
+      network.transport.onBuffer(dataProducer.label as DataChannelType, peerID, data)
     })
 
     if (!getState(MediasoupInternalWebRTCDataChannelState)[peerID]) {

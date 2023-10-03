@@ -63,7 +63,9 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
   const leftArm = mixamoRig.getObjectByName('mixamorigLeftArm')!
 
   const userData = (vrm as any).userData
-  if (userData?.flipped) hips.quaternion.copy(hipsOffset)
+  if (userData?.flipped) {
+    hips.quaternion.copy(hipsOffset)
+  }
   if (userData?.needsMixamoPrefix) {
     rightArm.quaternion.copy(rightArmOffset)
     leftArm.quaternion.copy(leftArmOffset)
@@ -108,17 +110,9 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoScene: Object
           })
         }
 
-        tracks.push(
-          new QuaternionKeyframeTrack(
-            `${vrmNodeName}.${propertyName}`,
-            track.times,
-            track.values.map((v, i) => (vrm.meta?.metaVersion === '0' && i % 2 === 0 ? v : v))
-          )
-        )
+        tracks.push(new QuaternionKeyframeTrack(`${vrmNodeName}.${propertyName}`, track.times, track.values))
       } else if (track instanceof VectorKeyframeTrack) {
-        const value = track.values.map(
-          (v, i) => (vrm.meta?.metaVersion === '0' && i % 3 !== 1 ? v : v) * hipsPositionScale
-        )
+        const value = track.values.map((v) => v * hipsPositionScale)
         tracks.push(new VectorKeyframeTrack(`${vrmNodeName}.${propertyName}`, track.times, value))
       }
     }

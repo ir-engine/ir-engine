@@ -23,18 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { State, useHookstate } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { RecordingFunctions, RecordingState } from '../../recording/RecordingService'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import {
+  ECSRecordingActions,
+  PlaybackState,
+  RecordingState
+} from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { RecordingType, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
@@ -185,22 +188,20 @@ export const RecordingPeerList = () => {
 
   const onToggleRecording = () => {
     if (recordingState.recordingID.value) {
-      ECSRecordingFunctions.stopRecording({
+      RecordingState.stopRecording({
         recordingID: recordingState.recordingID.value
       })
-      RecordingFunctions.getRecordings()
-    } else if (!recordingState.started.value) {
-      RecordingFunctions.startRecording(getState(RecordingSchemaState)).then((recordingID) => {
-        if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
-      })
+    } else {
+      RecordingState.requestRecording(getState(RecordingSchemaState))
     }
   }
 
-  const recordingStatus = !recordingState?.recordingID?.value
-    ? 'inactive'
-    : recordingState?.started?.value
-    ? 'active'
-    : 'ready'
+  const getRecordingStatus = () => {
+    if (!recordingState.active.value) return 'ready'
+    if (recordingState.startedAt.value) return 'active'
+    return 'starting'
+  }
+  const recordingStatus = getRecordingStatus()
 
   const peerIDs = useHookstate([] as PeerID[])
 
@@ -227,7 +228,7 @@ export const RecordingPeerList = () => {
           onChange={() => onCheckAvatar()}
         />
         <Button
-          label={recordingStatus === 'inactive' ? 'Record' : recordingStatus === 'active' ? 'Recording' : 'Stop'}
+          label={recordingStatus === 'ready' ? 'Record' : recordingStatus === 'starting' ? 'Starting...' : 'Recording'}
           onClick={() => onToggleRecording()}
         />
       </div>
@@ -286,22 +287,22 @@ export const RecordingTimer = () => {
 }
 
 const RecordingPlayback = () => {
-  const recordingState = useHookstate(getMutableState(RecordingState))
-  const recording = useGet(recordingPath, recordingState.playback.value!)
+  const playbackState = useHookstate(getMutableState(PlaybackState))
+  const recording = useGet(recordingPath, playbackState.recordingID.value!)
 
   useEffect(() => {
-    if (!recordingState.playback.value)
+    if (!playbackState.recordingID.value)
       return () => {
         getMutableState(RecordingUIState).mode.set('recordings')
       }
-    const playback = recordingState.playback.value
+    const playback = playbackState.recordingID.value
     return () => {
       getMutableState(RecordingUIState).mode.set('recordings')
-      ECSRecordingFunctions.stopPlayback({
+      ECSRecordingActions.stopPlayback({
         recordingID: playback
       })
     }
-  }, [recordingState.playback])
+  }, [playbackState.recordingID])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -327,10 +328,6 @@ const RecordingPlayback = () => {
 
 const RecordingsList = () => {
   const recording = useFind(recordingPath)
-
-  useEffect(() => {
-    RecordingFunctions.getRecordings()
-  }, [])
 
   const sortedRecordings = recording.data.sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -458,7 +455,7 @@ export const RecordingsWidgetUI = () => {
         </div>
         {mode.value === 'create' && <RecordingPeerList />}
         {mode.value === 'recordings' && <RecordingsList />}
-        {mode.value === 'playback' && recordingState.playback.value && <RecordingPlayback />}
+        {mode.value === 'playback' && recordingState.recordingID.value && <RecordingPlayback />}
       </div>
     </>
   )

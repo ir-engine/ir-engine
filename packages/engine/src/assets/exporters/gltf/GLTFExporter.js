@@ -50,7 +50,8 @@ import {
 	Source,
 	SRGBColorSpace,
 	Vector3,
-	Texture
+	Texture,
+	NoColorSpace
 } from 'three';
 
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
@@ -906,7 +907,7 @@ export class GLTFWriter {
 		const texture = reference.clone();
 
 		texture.source = new Source( canvas );
-		texture.colorSpace = LinearSRGBColorSpace;
+		texture.colorSpace = NoColorSpace
 
 		return texture;
 
@@ -1391,7 +1392,7 @@ export class GLTFWriter {
 			sampler: this.processSampler( map )
 		}
 
-		if ( mimeType === 'image/ktx2' ) {
+		if ( mimeType === 'image/ktx2' || map.isCompressedTexture ) {
 			//textureDef.source = this.processImage( map.mipmaps[0], map.format, map.flipY, mimeType )
 		} else {
 			textureDef.source = this.processImage( map.image, map.format, map.flipY, mimeType )

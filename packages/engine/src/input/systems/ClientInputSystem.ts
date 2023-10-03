@@ -30,8 +30,9 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
+import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -44,6 +45,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -52,7 +54,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent } from '../../scene/components/GroupComponent'
+import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -67,6 +69,7 @@ import {
 } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonStateMap, MouseButton, createInitialButtonState } from '../state/ButtonState'
+import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -157,7 +160,8 @@ export const addClientInputListeners = () => {
   /** Clear mouse events */
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
   const clearKeyState = () => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     for (const button of pointerButtons) {
       const val = state[button]
@@ -176,11 +180,12 @@ export const addClientInputListeners = () => {
 
   /** Mouse events */
   const onWheelEvent = (event: WheelEvent) => {
+    const pointerState = getState(InputState).pointerState
     const normalizedValues = normalizeWheel(event)
     const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
     const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
-    Engine.instance.pointerState.scroll.x += x
-    Engine.instance.pointerState.scroll.y += y
+    pointerState.scroll.x += x
+    pointerState.scroll.y += y
   }
   canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
 
@@ -199,15 +204,17 @@ export const addClientInputListeners = () => {
   }
 
   const handleMouseMove = (event: MouseEvent) => {
-    Engine.instance.pointerState.position.set(
+    const pointerState = getState(InputState).pointerState
+    pointerState.position.set(
       (event.clientX / window.innerWidth) * 2 - 1,
       (event.clientY / window.innerHeight) * -2 + 1
     )
   }
 
   const handleTouchMove = (event: TouchEvent) => {
+    const pointerState = getState(InputState).pointerState
     const touch = event.touches[0]
-    Engine.instance.pointerState.position.set(
+    pointerState.position.set(
       (touch.clientX / window.innerWidth) * 2 - 1,
       (touch.clientY / window.innerHeight) * -2 + 1
     )
@@ -256,12 +263,14 @@ export const addClientInputListeners = () => {
    */
 
   const onXRSelectStart = (event: any) => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     state.PrimaryClick = createInitialButtonState()
   }
   const onXRSelectEnd = (event: any) => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     if (!state.PrimaryClick) return
     state.PrimaryClick.up = true
@@ -286,6 +295,8 @@ export const addClientInputListeners = () => {
   } as Gamepad
 
   let gamepadRef = emulatedGamepad
+
+  console.log('XRSession interaction mode ' + session?.interactionMode)
 
   // create an emulated input source for mouse/keyboard/touch input
   const emulatedInputSource = {
@@ -352,6 +363,15 @@ export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const source = inputSource.source
   const buttons = inputSource.buttons as ButtonStateMap
+
+  // log buttons
+  if (source.gamepad) {
+    for (let i = 0; i < source.gamepad.buttons.length; i++) {
+      const button = source.gamepad.buttons[i]
+      if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
+    }
+  }
+
   if (!source.gamepad) return
   const gamepadButtons = source.gamepad.buttons
   if (gamepadButtons) {
@@ -376,6 +396,7 @@ const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
+const inputBoundingBoxes = defineQuery([InputComponent, VisibleComponent, BoundingBoxComponent])
 const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
 
 const rayRotation = new Quaternion()
@@ -391,22 +412,21 @@ const inputRaycast = {
 
 const inputRay = new Ray()
 const raycaster = new Raycaster()
+const bboxHitTarget = new Vector3()
 
 const execute = () => {
-  Engine.instance.pointerScreenRaycaster.setFromCamera(
-    Engine.instance.pointerState.position,
+  const pointerState = getState(InputState).pointerState
+  const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+  pointerScreenRaycaster.setFromCamera(
+    pointerState.position,
     getComponent(Engine.instance.cameraEntity, CameraComponent)
   )
 
-  Engine.instance.pointerState.movement.subVectors(
-    Engine.instance.pointerState.position,
-    Engine.instance.pointerState.lastPosition
-  )
-  Engine.instance.pointerState.lastPosition.copy(Engine.instance.pointerState.position)
+  pointerState.movement.subVectors(pointerState.position, pointerState.lastPosition)
+  pointerState.lastPosition.copy(pointerState.position)
+  pointerState.lastScroll.copy(pointerState.scroll)
 
-  Engine.instance.pointerState.lastScroll.copy(Engine.instance.pointerState.scroll)
-
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
   const origin = ReferenceSpace.origin
 
   for (const eid of xrSpaces()) {
@@ -431,7 +451,7 @@ const execute = () => {
     const source = getMutableComponent(sourceEid, InputSourceComponent)
 
     if (!xrFrame && source.source.targetRayMode.value === 'screen') {
-      const ray = Engine.instance.pointerScreenRaycaster.ray
+      const ray = pointerScreenRaycaster.ray
 
       TransformComponent.position.x[sourceEid] = ray.origin.x
       TransformComponent.position.y[sourceEid] = ray.origin.y
@@ -452,27 +472,14 @@ const execute = () => {
 
     if (!capturedButtons || !capturedAxes) {
       let assignedInputEntity = UndefinedEntity as Entity
+      let hitDistance = Infinity
 
       inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceTransform.rotation)
       inputRaycast.origin.copy(sourceTransform.position).addScaledVector(inputRaycast.direction, -0.01)
       inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)
 
-      // 1st heuristic is XRUI
-      for (const eid of inputXRUIs()) {
-        const xrui = getComponent(eid, XRUIComponent)
-        const layerHit = xrui.hitTest(inputRay)
-        if (
-          !layerHit ||
-          !layerHit.intersection.object.visible ||
-          (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
-        )
-          continue
-        assignedInputEntity = eid
-        break
-      }
-
-      /*      // 2nd heuristic is scene objects when in the editor
+      // only heuristic is scene objects when in the editor
       if (getState(EngineState).isEditor) {
         raycaster.set(inputRaycast.origin, inputRaycast.direction)
         const objects = inputObjects()
@@ -482,19 +489,52 @@ const execute = () => {
           .intersectObjects<Object3DWithEntity>(objects, true)
           .sort((a, b) => a.distance - b.distance)
 
-        if (hits.length) {
+        if (hits.length && hits[0].distance < hitDistance) {
           const object = hits[0].object
           const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
           assignedInputEntity = parentObject.entity
+          hitDistance = hits[0].distance
         }
-      }
-*/
-      const physicsWorld = getState(PhysicsState).physicsWorld
+      } else {
+        // 1st heuristic is XRUI
+        for (const eid of inputXRUIs()) {
+          const xrui = getComponent(eid, XRUIComponent)
+          const layerHit = xrui.hitTest(inputRay)
+          if (
+            !layerHit ||
+            !layerHit.intersection.object.visible ||
+            (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
+          )
+            continue
+          assignedInputEntity = eid
+          hitDistance = layerHit.intersection.distance
+          break
+        }
 
-      // 3nd heuristic is physics colliders
-      if (physicsWorld && !assignedInputEntity) {
-        const hit = Physics.castRay(physicsWorld, inputRaycast)[0]
-        if (hit) assignedInputEntity = hit.entity
+        const physicsWorld = getState(PhysicsState).physicsWorld
+
+        // 2nd heuristic is physics colliders
+        if (physicsWorld) {
+          const hit = Physics.castRay(physicsWorld, inputRaycast)[0]
+          if (hit && hit.distance < hitDistance) {
+            assignedInputEntity = hit.entity
+            hitDistance = hit.distance
+          }
+        }
+
+        // 3rd heuristic is bboxes
+        for (const entity of inputBoundingBoxes()) {
+          const boundingBox = getComponent(entity, BoundingBoxComponent)
+          const hit = inputRay.intersectBox(boundingBox.box, bboxHitTarget)
+          if (hit) {
+            const distance = inputRay.origin.distanceTo(bboxHitTarget)
+            if (distance < hitDistance) {
+              assignedInputEntity = entity
+              hitDistance = distance
+              break
+            }
+          }
+        }
       }
 
       if (!capturedButtons) source.assignedButtonEntity.set(assignedInputEntity)

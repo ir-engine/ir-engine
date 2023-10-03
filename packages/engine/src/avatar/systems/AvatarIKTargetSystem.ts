@@ -41,7 +41,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -78,6 +77,7 @@ const execute = () => {
     if (ikTargetRightHand) removeEntity(ikTargetRightHand)
     if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
     if (ikTargetRightFoot) removeEntity(ikTargetRightFoot)
+    if (!action.active) setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: '' })
   }
 
   for (const action of ikTargetSpawnQueue()) {
@@ -87,7 +87,7 @@ const execute = () => {
       continue
     }
     setComponent(entity, NameComponent, action.$from + '_' + action.name)
-    setComponent(entity, AvatarIKTargetComponent)
+    setComponent(entity, AvatarIKTargetComponent, { blendWeight: action.blendWeight })
 
     setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: 'xr' })
 
@@ -95,8 +95,6 @@ const execute = () => {
     setObjectLayers(helper, ObjectLayers.Gizmos)
     addObjectToGroup(entity, helper)
     setComponent(entity, VisibleComponent)
-
-    setTrackingSpace()
   }
 
   // todo - remove ik targets when session ends
@@ -125,17 +123,26 @@ const execute = () => {
     if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
-    if (head && !ikTargetHead) dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head' }))
+    if (head && !ikTargetHead)
+      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: headUUID, name: 'head', blendWeight: 1 }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand', position }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'leftHand', position, blendWeight: 1 })
+      )
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', position }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', position, blendWeight: 1 })
+      )
 
     if (!ikTargetLeftFoot)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', position }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', position, blendWeight: 1 })
+      )
 
     if (!ikTargetRightFoot)
-      dispatchAction(AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', position }))
+      dispatchAction(
+        AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', position, blendWeight: 1 })
+      )
   }
 }
 

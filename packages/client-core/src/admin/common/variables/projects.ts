@@ -39,23 +39,25 @@ export interface ProjectColumn {
   label: string
   minWidth?: number
   align?: 'right' | 'center'
+  sortable: boolean
 }
 
 export const projectsColumns: ProjectColumn[] = [
-  { id: 'name', label: 'Name', minWidth: 65 },
-  { id: 'projectVersion', label: 'Version', minWidth: 65 },
-  { id: 'commitSHA', label: 'Commit SHA', minWidth: 100 },
-  { id: 'commitDate', label: 'Commit Date', minWidth: 100 },
-  { id: 'update', label: 'Update', minWidth: 65, align: 'center' },
-  { id: 'push', label: 'Push to GitHub', minWidth: 65, align: 'center' },
-  { id: 'link', label: 'GitHub Repo Link', minWidth: 65, align: 'center' },
-  { id: 'projectPermissions', label: 'User Access', minWidth: 65, align: 'center' },
-  { id: 'invalidate', label: 'Invalidate Cache', minWidth: 65, align: 'center' },
-  { id: 'view', label: 'View Project Files', minWidth: 65, align: 'center' },
+  { id: 'name', label: 'Name', minWidth: 65, sortable: true },
+  { id: 'projectVersion', label: 'Version', minWidth: 65, sortable: false },
+  { id: 'commitSHA', label: 'Commit SHA', minWidth: 100, sortable: false },
+  { id: 'commitDate', label: 'Commit Date', minWidth: 100, sortable: true },
+  { id: 'update', label: 'Update', minWidth: 65, align: 'center', sortable: false },
+  { id: 'push', label: 'Push to GitHub', minWidth: 65, align: 'center', sortable: false },
+  { id: 'link', label: 'GitHub Repo Link', minWidth: 65, align: 'center', sortable: false },
+  { id: 'projectPermissions', label: 'User Access', minWidth: 65, align: 'center', sortable: false },
+  { id: 'invalidate', label: 'Invalidate Cache', minWidth: 65, align: 'center', sortable: false },
+  { id: 'view', label: 'View Project Files', minWidth: 65, align: 'center', sortable: false },
   {
     id: 'action',
     label: 'Remove',
     minWidth: 65,
-    align: 'center'
+    align: 'center',
+    sortable: false
   }
 ]

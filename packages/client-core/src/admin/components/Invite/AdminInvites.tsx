@@ -35,7 +35,6 @@ import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
-import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
 import TableComponent from '../../common/Table'
 import { InviteColumn, inviteColumns } from '../../common/variables/invite'
 import styles from '../../styles/admin.module.scss'
@@ -60,23 +59,16 @@ const defaultInvite = {
 
 const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
   const openConfirm = useHookstate(false)
   const inviteId = useHookstate('')
   const selectedInvite = useHookstate(defaultInvite)
-  const rowsPerPage = useHookstate(INVITE_PAGE_LIMIT)
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('id')
   const updateModalOpen = useHookstate(false)
 
-  const orderBy = fieldOrder.value === 'desc' ? -1 : 1
-  const $sort = sortField.value ? { [sortField.value === 'type' ? 'inviteType' : sortField.value]: orderBy } : {}
   const invitesQuery = useFind(invitePath, {
     query: {
       search,
-      $sort,
-      $skip: page.value * rowsPerPage.value,
-      $limit: rowsPerPage.value
+      $sort: { id: 1 },
+      $limit: 20
     }
   })
   const removeInvite = useMutation(invitePath).remove
@@ -84,15 +76,6 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
   const deleteInvite = () => {
     removeInvite(inviteId.value)
     openConfirm.set(false)
-  }
-
-  const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    page.set(newPage)
-  }
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    rowsPerPage.set(parseInt(event.target.value, 10))
-    page.set(0)
   }
 
   const toggleSelection = (id: string) => {
@@ -187,20 +170,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
 
   return (
     <React.Fragment>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        fieldOrderBy="id"
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={columns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={invitesQuery.total!}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={invitesQuery} rows={rows} column={columns} />
       <UpdateInviteModal
         open={updateModalOpen.value}
         onClose={() => {
@@ -211,7 +181,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       />
       <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteId.set}'?`}
+        description={`${t('admin:components.invite.confirmInviteDelete')} ${inviteId.value}?`}
         onClose={() => openConfirm.set(false)}
         onSubmit={deleteInvite}
       />

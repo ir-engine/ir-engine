@@ -118,9 +118,8 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         onChange={updateProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={VolumetricFileTypes}
-        itemType={ItemTypes.Volumetrics}
-        isStringInput
-      ></ArrayInputGroup>
+        acceptDropItems={ItemTypes.Volumetrics}
+      />
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
         <SelectInput

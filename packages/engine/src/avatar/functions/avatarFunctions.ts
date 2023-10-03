@@ -25,7 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import {
+  AnimationClip,
+  AnimationMixer,
+  Bone,
+  Box3,
+  Group,
+  Object3D,
+  ShaderMaterial,
+  Skeleton,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -53,14 +64,19 @@ import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, {
+  BoneNames,
+  findSkinnedMeshes,
+  getAllBones,
+  recursiveHipsLookup
+} from '../AvatarBoneMatching'
 import { defaultBonesData } from '../DefaultSkeletonBones'
-import { DissolveEffect } from '../DissolveEffect'
 import { getRootSpeed } from '../animation/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
@@ -73,7 +89,7 @@ const tempVec3ForCenter = new Vector3()
 export const locomotionPack = 'locomotion'
 
 export const parseAvatarModelAsset = (model: any) => {
-  const scene = model.scene || model // FBX files does not have 'scene' property
+  const scene = model.scene ?? model // FBX files does not have 'scene' property
   if (!scene) return
 
   const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as any
@@ -84,6 +100,12 @@ export const parseAvatarModelAsset = (model: any) => {
 }
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
+  // if (!sourceRig) {
+  //   const sourceVRM = await AssetLoader.loadAsync(
+  //     `${config.client.fileServer}/projects/default-project/assets/animations/mocap_skeleton.vrm`
+  //   )
+  //   sourceRig = parseAvatarModelAsset(sourceVRM)!.humanoid.normalizedHumanBones
+  // }
   const model = await AssetLoader.loadAsync(avatarURL)
   return parseAvatarModelAsset(model)
 }
@@ -94,7 +116,7 @@ export const loadAvatarForUser = async (
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
-    return
+    throw new Error('Avatar model already loading')
 
   if (loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) {
@@ -107,21 +129,22 @@ export const loadAvatarForUser = async (
 
   /** hack a cancellable promise - check if the url we start with is the one we end up with */
   if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
-    return
+    throw new Error('Avatar model changed while loading')
 
   removeComponent(entity, AvatarPendingComponent)
 
-  if (!parent) return
+  if (!parent) throw new Error('Avatar model not found')
   setupAvatarForUser(entity, parent)
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
-    const avatarMaterials = setupAvatarMaterials(entity, avatar?.model)
+    const [dissolveMaterials, avatarMaterials] = setupAvatarMaterials(entity, avatar?.model)
     const effectEntity = createEntity()
     addComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,
       opacityMultiplier: 1,
-      originMaterials: avatarMaterials
+      dissolveMaterials: dissolveMaterials as ShaderMaterial[],
+      originMaterials: avatarMaterials as MaterialMap[]
     })
   }
 
@@ -168,20 +191,20 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.loadedAnimations[locomotionPack].value) {
+  if (!manager.loadedAnimations.value[locomotionPack]) {
     //load both ik target animations and fk animations, then return the ones we'll be using based on the animation state
     const asset = (await AssetLoader.loadAsync(
       `${config.client.fileServer}/projects/default-project/assets/animations/${locomotionPack}.glb`
     )) as GLTF
 
-    if (asset && asset.animations && asset.animations[4] && asset.animations[6]) {
-      const movement = getState(AvatarMovementSettingsState)
-      movement.runSpeed = getRootSpeed(asset.animations[4]) * 0.01
-      movement.walkSpeed = getRootSpeed(asset.animations[6]) * 0.01
-    }
-
     manager.loadedAnimations[locomotionPack].set(asset)
   }
+
+  const run = manager.loadedAnimations.value[locomotionPack].animations[4] ?? [new AnimationClip()]
+  const walk = manager.loadedAnimations.value[locomotionPack].animations[6] ?? [new AnimationClip()]
+  const movement = getState(AvatarMovementSettingsState)
+  if (run) movement.runSpeed = getRootSpeed(run) * 0.01
+  if (walk) movement.walkSpeed = getRootSpeed(walk) * 0.01
 
   return cloneDeep(manager.loadedAnimations[locomotionPack].value?.animations) ?? [new AnimationClip()]
 }
@@ -193,10 +216,14 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const rig = model.humanoid?.normalizedHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
+  const hips = recursiveHipsLookup(model.scene)
+
+  const targetBones = getAllBones(hips)
 
   setComponent(entity, AvatarRigComponent, {
     rig,
-    localRig: cloneDeep(rig),
+    localRig: cloneDeep(rig), //cloneDeep(sourceRig),
+    targetBones,
     skinnedMeshes,
     vrm: model
   })
@@ -208,6 +235,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
 export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
+  const dissolveMatList: Array<ShaderMaterial> = []
   setObjectLayers(root, ObjectLayers.Avatar)
 
   root.traverse((object) => {
@@ -218,11 +246,12 @@ export const setupAvatarMaterials = (entity, root) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.createDissolveMaterial(object)
+      object.material = AvatarDissolveComponent.createDissolveMaterial(object)
+      dissolveMatList.push(object.material)
     }
   })
 
-  return materialList
+  return [dissolveMatList, materialList]
 }
 
 export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
