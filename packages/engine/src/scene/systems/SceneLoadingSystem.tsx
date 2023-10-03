@@ -326,6 +326,8 @@ export const updateSceneFromJSON = async () => {
     }
   }
 
+  console.log('setting entties')
+
   /** 4. update scene entities with new data, and load new ones */
   setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
@@ -467,7 +469,7 @@ const reactor = () => {
       dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
-  }, [sceneAssetPendingTagQuery, assetLoadingState])
+  }, [sceneAssetPendingTagQuery.length, assetLoadingState])
 
   useEffect(() => {
     updateSceneFromJSON()

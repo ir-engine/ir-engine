@@ -163,7 +163,8 @@ export async function takeScreenshot(
   width: number,
   height: number,
   format = 'ktx2' as 'png' | 'ktx2' | 'jpeg',
-  scenePreviewCamera?: PerspectiveCamera
+  scenePreviewCamera?: PerspectiveCamera,
+  hideHelpers = true
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
@@ -190,6 +191,11 @@ export async function takeScreenshot(
   scenePreviewCamera.updateProjectionMatrix()
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
+
+  const selection = EngineRenderer.instance.effectComposer.HighlightEffect.selection.values()
+  if (hideHelpers) {
+    EngineRenderer.instance.effectComposer.HighlightEffect.clearSelection()
+  }
 
   const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
   const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
@@ -223,6 +229,10 @@ export async function takeScreenshot(
 
   EngineRenderer.instance.effectComposer.render()
 
+  if (hideHelpers) {
+    EngineRenderer.instance.effectComposer.HighlightEffect.setSelection(selection)
+  }
+
   const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)
 
   let blob: Blob | null = null
@@ -253,7 +263,7 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent)).then(
+  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent), false).then(
     (blob) => {
       if (!blob) return
 
