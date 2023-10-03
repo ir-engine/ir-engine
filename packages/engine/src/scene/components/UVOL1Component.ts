@@ -26,13 +26,30 @@ Ethereal Engine. All Rights Reserved.
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect, useMemo, useRef } from 'react'
-import { BufferGeometry, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three'
+import {
+  BufferGeometry,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  SRGBColorSpace,
+  ShaderMaterial,
+  Texture
+} from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AudioState } from '../../audio/AudioState'
+import { AvatarDissolveComponent } from '../../avatar/components/AvatarDissolveComponent'
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
@@ -69,6 +86,9 @@ export const UVOL1Component = defineComponent({
   name: 'UVOL1Component',
 
   onInit: (entity) => {
+    if (!hasComponent(entity, AvatarDissolveComponent)) {
+      setComponent(entity, AvatarDissolveComponent)
+    }
     return {
       manifestPath: '',
       data: {} as ManifestSchema
@@ -76,6 +96,9 @@ export const UVOL1Component = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    if (!hasComponent(entity, AvatarDissolveComponent)) {
+      setComponent(entity, AvatarDissolveComponent)
+    }
     if (!json) return
     if (json.manifestPath) {
       component.manifestPath.set(json.manifestPath)
@@ -107,7 +130,7 @@ function UVOL1Reactor() {
     texture.magFilter = LinearFilter
     ;(texture as any).isVideoTexture = true
     ;(texture as any).update = () => {}
-    texture.colorSpace = EngineRenderer.instance.renderer.outputColorSpace
+    texture.colorSpace = SRGBColorSpace
     return texture
   }, [])
 
@@ -118,7 +141,15 @@ function UVOL1Reactor() {
   }, [])
 
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.001, 0.001) as BufferGeometry, [])
-  const mesh = useMemo(() => new Mesh(defaultGeometry, material), [])
+
+  // @ts-ignore
+  const mesh: Mesh<BufferGeometry, ShaderMaterial | MeshBasicMaterial> = useMemo(() => {
+    const _mesh = new Mesh(defaultGeometry, material)
+    // @ts-ignore
+    _mesh.material = AvatarDissolveComponent.createDissolveMaterial(_mesh)
+    _mesh.material.needsUpdate = true
+    return _mesh
+  }, [])
 
   const pendingRequests = useRef(0)
   const nextFrameToRequest = useRef(0)
@@ -130,6 +161,9 @@ function UVOL1Reactor() {
       loader.preload()
       Engine.instance.cortoLoader = loader
     }
+    const dissolveComponent = getMutableComponent(entity, AvatarDissolveComponent)
+    dissolveComponent.maxHeight.set(2.4)
+
     addObjectToGroup(entity, mesh)
     video.src = component.manifestPath.value.replace('.manifest', '.mp4')
     video.addEventListener('ended', function setEnded() {
@@ -168,6 +202,13 @@ function UVOL1Reactor() {
      * sync mesh frame to video texture frame
      */
     const processFrame = (frameToPlay: number) => {
+      if (mesh.material instanceof ShaderMaterial && !hasComponent(entity, AvatarDissolveComponent)) {
+        const oldMaterial = mesh.material
+        mesh.material = material
+        mesh.material.needsUpdate = true
+        oldMaterial.dispose()
+      }
+
       if (meshBuffer.has(frameToPlay)) {
         // @ts-ignore: value cannot be anything else other than BufferGeometry
         mesh.geometry = meshBuffer.get(frameToPlay)
@@ -185,6 +226,15 @@ function UVOL1Reactor() {
 
   useExecute(
     () => {
+      const delta = getState(EngineState).deltaSeconds
+      if (
+        meshBuffer.size > 0 &&
+        hasComponent(entity, AvatarDissolveComponent) &&
+        AvatarDissolveComponent.updateDissolveEffect([mesh.material as ShaderMaterial], entity, delta)
+      ) {
+        removeComponent(entity, AvatarDissolveComponent)
+      }
+
       const numberOfFrames = component.data.value.frameData.length
       if (nextFrameToRequest.current === numberOfFrames - 1) {
         // Fetched all frames
@@ -210,6 +260,11 @@ function UVOL1Reactor() {
 
               meshBuffer.set(i, geometry)
               pendingRequests.current -= 1
+
+              if (mesh.geometry instanceof PlaneGeometry) {
+                mesh.geometry = geometry
+                mesh.geometry.attributes.position.needsUpdate = true
+              }
             })
             .catch((e) => {
               console.error('Error decoding corto frame: ', i, e)

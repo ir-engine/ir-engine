@@ -47,11 +47,11 @@ export const AvatarDissolveComponent = defineComponent({
     if (matches.number.test(json.currentTime)) component.maxHeight.set(json.currentTime)
   },
 
-  createDissolveMaterial(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>): any {
+  createDissolveMaterial(object: Mesh<any, MeshBasicMaterial | ShaderMaterial>) {
     const hasUV = object.geometry.hasAttribute('uv')
-    const isShaderMaterial = object.material.type == 'ShaderMaterial'
     const material = object.material
-    const hasTexture = !!material.map
+    const isShaderMaterial = material instanceof ShaderMaterial
+    const hasTexture = 'map' in material && material.map !== null
 
     const shaderNameMapping = {
       MeshLambertMaterial: 'lambert',
@@ -97,6 +97,7 @@ export const AvatarDissolveComponent = defineComponent({
           uniforms[key] = { value: material[key] }
         }
       })
+      uniforms['origin_texture'] = uniforms['map']
     }
 
     uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
