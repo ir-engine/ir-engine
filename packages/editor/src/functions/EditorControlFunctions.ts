@@ -111,6 +111,22 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
+const modifyName = <C extends Component<any, any>>(nodes: EntityOrObjectUUID[], name: string) => {
+  cancelGrabOrPlacement()
+
+  const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
+
+  for (const node of nodes) {
+    if (typeof node === 'string') continue
+    const entityUUID = getComponent(node, UUIDComponent)
+    const entityData = newSnapshot.data.scene.entities[entityUUID]
+    if (!entityData) continue
+    entityData.name = name
+  }
+
+  dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
+}
+
 /**
  * Updates each property specified in 'properties' on the component for each of the specified entity nodes
  */
@@ -130,10 +146,14 @@ const modifyProperty = <C extends Component<any, any>>(
       (c) => c.name === component.jsonID
     )
     if (!componentData) continue
-    Object.entries(properties).map(([k, v]) => {
-      const { result, finalProp } = getNestedObject(componentData.props, k)
-      result[finalProp] = v
-    })
+    if (typeof properties === 'string') {
+      componentData.props = properties
+    } else {
+      Object.entries(properties).map(([k, v]) => {
+        const { result, finalProp } = getNestedObject(componentData.props, k)
+        result[finalProp] = v
+      })
+    }
   }
 
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
@@ -764,6 +784,7 @@ const commitTransformSave = (entity: Entity) => {
 export const EditorControlFunctions = {
   addOrRemoveComponent,
   modifyProperty,
+  modifyName,
   modifyObject3d,
   modifyMaterial,
   createObjectFromSceneElement,
