@@ -23,23 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 
-import {
-  ChannelData,
-  ChannelPatch,
-  ChannelQuery,
-  ChannelType
-} from '@etherealengine/engine/src/schemas/social/channel.schema'
-import { KnexService } from '@feathersjs/knex'
-import { RootParams } from '../../api/root-params'
+import { Application } from '../../declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ChannelParams extends RootParams<ChannelQuery> {}
+/**
+ * https://github.com/feathersjs/feathers/issues/382#issuecomment-288125825
+ */
+export default () => {
+  return async (context: HookContext<Application>) => {
+    if (
+      context.params.query &&
+      (context.params.query.$paginate === 'false' || context.params.query.$paginate === false)
+    ) {
+      context.params.paginate = false
+      delete context.params.query.$paginate
+    } else if (
+      context.params.query &&
+      (context.params.query.paginate === 'false' || context.params.query.paginate === false)
+    ) {
+      context.params.paginate = false
+      delete context.params.query.paginate
+    }
 
-export class ChannelService<T = ChannelType, ServiceParams extends Params = ChannelParams> extends KnexService<
-  ChannelType,
-  ChannelData,
-  ChannelParams,
-  ChannelPatch
-> {}
+    return context
+  }
+}

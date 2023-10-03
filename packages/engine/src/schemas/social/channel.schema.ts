@@ -75,11 +75,6 @@ export const channelDataSchema = Type.Intersect(
             format: 'uuid'
           })
         )
-      ),
-      userId: Type.Optional(
-        TypedString<UserID>({
-          format: 'uuid'
-        })
       )
     })
   ],
