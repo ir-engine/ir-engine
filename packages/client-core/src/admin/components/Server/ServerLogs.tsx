@@ -102,12 +102,13 @@ const ServerLogs = ({
   }
 
   const containers = serverInfo.find((item) => item.id === 'all')?.pods.find((item) => item.name === podName.value!)
-  const containersMenu = containers?.containers.map((item) => {
-    return {
-      value: item.name,
-      label: item.name
-    } as InputMenuItem
-  })
+  const containersMenu =
+    containers?.containers.map((item) => {
+      return {
+        value: item.name,
+        label: item.name
+      } as InputMenuItem
+    }) ?? []
 
   const autoRefreshMenu: InputMenuItem[] = [
     {
