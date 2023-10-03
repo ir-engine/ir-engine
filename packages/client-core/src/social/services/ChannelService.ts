@@ -102,7 +102,10 @@ export const ChannelService = {
       //Occasionally, the client attempts to fetch the instance's channel after it's been created, but before the user's
       //channel-user has been created, which occurs when connecting to the instance server.
       //If it's a 403, it is almost definitely because of this issue, so just wait a second and try again.
-      if (err.code == 403) return setTimeout(() => ChannelService.getInstanceChannel(), 1000)
+      //The second part of the if condition is to handle the scenario when its channel resolver calling message service.
+      if (err.code == 403 || (err.data && err.data.length > 0 && err.data[0].data?.code === 403)) {
+        return setTimeout(() => ChannelService.getInstanceChannel(), 1000)
+      }
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
