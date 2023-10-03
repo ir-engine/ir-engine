@@ -362,12 +362,14 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const heightDifference = useHookstate(getMutableState(XRState).userAvatarHeightDifference)
   const xrState = getMutableState(XRState)
+  const heightDifference = useHookstate(xrState.userAvatarHeightDifference)
+  const sessionMode = useHookstate(xrState.sessionMode)
   const pose = useHookstate(xrState.viewerPose)
   useEffect(() => {
-    if (heightDifference.value) xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
-  }, [heightDifference])
+    if (xrState.sessionMode.value == 'immersive-vr' && heightDifference.value)
+      xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
+  }, [heightDifference, sessionMode])
   useEffect(() => {
     if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
   }, [pose])
