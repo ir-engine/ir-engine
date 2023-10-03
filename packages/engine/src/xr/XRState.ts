@@ -113,11 +113,11 @@ export class XRAction {
  * @returns the camera mode
  */
 export const getCameraMode = () => {
-  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session, sessionMode } = getState(XRState)
   if (!session || scenePlacementMode === 'placing') return 'detached'
   if (avatarCameraMode === 'auto') {
     if (session.interactionMode === 'screen-space') return 'detached'
-    return sceneScale === 1 ? 'attached' : 'detached'
+    return sceneScale === 1 || sessionMode == 'immersive-vr' ? 'attached' : 'detached'
   }
   return avatarCameraMode
 }
