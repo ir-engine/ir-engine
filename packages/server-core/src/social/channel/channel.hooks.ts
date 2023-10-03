@@ -90,7 +90,7 @@ const ensureUserHasChannelAccess = async (context: HookContext) => {
   if (!channelId) throw new BadRequest('Must pass id in request')
 
   const loggedInUser = context.params!.user
-  const channelUser = (await context.app.service(channelUserPath)._find({
+  const channelUser = (await context.app.service(channelUserPath).find({
     query: {
       channelId,
       userId: loggedInUser.id,
