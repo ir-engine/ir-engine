@@ -46,7 +46,7 @@ import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
   NormalizedLandmarkList,
@@ -62,6 +62,7 @@ import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
+import { MotionCaptureAction } from './MotionCaptureState'
 
 const grey = new Color(0.5, 0.5, 0.5)
 
@@ -242,6 +243,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
       VRMHumanBoneName.LeftUpperLeg,
       VRMHumanBoneName.LeftFoot
     )
+    dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
+  } else {
+    dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
   }
 
   solveHand(
