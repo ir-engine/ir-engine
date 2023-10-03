@@ -22,3 +22,9 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+
+export const discordBotAuthPath = 'discord-bot-auth'
+
+export const discordBotAuthMethods = ['find'] as const

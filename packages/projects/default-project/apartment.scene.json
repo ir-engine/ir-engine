@@ -47,7 +47,7 @@
               "z": 0
             },
             "bakeType": "Baked",
-            "resolution": 2048,
+            "resolution": 1024,
             "refreshMode": "OnAwake",
             "envMapOrigin": "__$project$__/default-project/apartment.envmap.ktx2",
             "boxProjection": false
@@ -281,7 +281,6 @@
             "intensity": 0.6699999999999999,
             "cameraFar": 2000,
             "castShadow": true,
-            "shadowMapResolution": 512,
             "shadowBias": -0.00001,
             "shadowRadius": 1,
             "useInCSM": true
@@ -325,6 +324,23 @@
             "src": "__$project$__/default-project/assets/apartment.glb",
             "generateBVH": true,
             "avoidCameraOcclusion": false
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "hasAvatarAnimations": false,
+            "activeClipIndex": -1,
+            "animationPack": "",
+            "paused": false,
+            "time": 0,
+            "timeScale": 1,
+            "blendMode": 2500,
+            "loop": 2201,
+            "clampWhenFinished": false,
+            "zeroSlopeAtStart": true,
+            "zeroSlopeAtEnd": true,
+            "weight": 1
           }
         },
         {
@@ -386,7 +402,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -430,7 +447,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -474,7 +492,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -518,7 +537,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -562,7 +582,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -606,7 +627,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -650,7 +672,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -694,7 +717,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -745,10 +769,14 @@
             "removeMesh": true,
             "collisionLayer": 8,
             "collisionMask": 2,
-            "restitution": 1,
-            "onEnter": "teleport",
-            "onExit": null,
-            "target": ""
+            "restitution": 0,
+            "triggers": [
+              {
+                "onEnter": "teleport",
+                "onExit": null,
+                "target": ""
+              }
+            ]
           }
         },
         {
@@ -809,14 +837,15 @@
           "name": "media",
           "props": {
             "controls": false,
-            "paused": false,
+            "autoplay": true,
             "resources": [
               "__$project$__/default-project/assets/apartment-ambience.mp3"
             ],
             "volume": 1,
             "synchronize": true,
             "playMode": "loop",
-            "isMusic": false
+            "isMusic": false,
+            "seekTime": 0
           }
         },
         {
@@ -873,9 +902,13 @@
             "collisionLayer": 1,
             "collisionMask": 7,
             "restitution": 1,
-            "onEnter": "activate",
-            "onExit": "",
-            "target": "Self"
+            "triggers": [
+              {
+                "onEnter": null,
+                "onExit": null,
+                "target": null
+              }
+            ]
           }
         }
       ],
@@ -920,9 +953,13 @@
             "collisionLayer": 1,
             "collisionMask": 8,
             "restitution": 1,
-            "onEnter": "activate",
-            "onExit": "",
-            "target": "Self"
+            "triggers": [
+              {
+                "onEnter": null,
+                "onExit": null,
+                "target": null
+              }
+            ]
           }
         }
       ],
@@ -973,12 +1010,30 @@
           }
         },
         {
+          "name": "loop-animation",
+          "props": {
+            "hasAvatarAnimations": false,
+            "activeClipIndex": -1,
+            "animationPack": "",
+            "paused": false,
+            "time": 0,
+            "timeScale": 1,
+            "blendMode": 2500,
+            "loop": 2201,
+            "clampWhenFinished": false,
+            "zeroSlopeAtStart": true,
+            "zeroSlopeAtEnd": true,
+            "weight": 1
+          }
+        },
+        {
           "name": "envmap",
           "props": {
             "type": "Skybox",
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
+            "envMapSourceEntityUUID": "",
             "envMapIntensity": 1
           }
         }
@@ -1024,9 +1079,13 @@
             "collisionLayer": 1,
             "collisionMask": 8,
             "restitution": 1,
-            "onEnter": "receiveVc",
-            "onExit": "",
-            "target": "Self"
+            "triggers": [
+              {
+                "onEnter": null,
+                "onExit": null,
+                "target": null
+              }
+            ]
           }
         }
       ],

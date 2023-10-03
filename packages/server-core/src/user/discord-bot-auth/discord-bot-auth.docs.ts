@@ -23,44 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export interface CreatorShort {
-  id: string
-  userId?: UserID
-  avatar?: string
-  newAvatar?: string
-  name: string
-  username?: string
-  verified?: boolean
-  steps?: boolean
-  terms?: boolean
-  policy?: boolean
-  blocked?: boolean
-  followed?: boolean
-  isBlocked?: boolean
-  createdAt?: string
-}
-
-export interface Creator extends CreatorShort {
-  email?: string
-  link?: string
-  background?: string
-  tags?: string
-  bio?: string
-  twitter?: string
-}
-
-export interface CreatorNotification {
-  id: string
-  type: string
-  previewUrl?: string
-  creator_username?: string
-  avatar?: string
-  comment_text?: string
-  feedId?: string
-  creatorAuthorId?: string
-  commentId?: string
-  creatorViewerId?: string
-  createdAt?: string
-}
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Discord bot auth service description',
+    securities: ['all']
+  }
+})

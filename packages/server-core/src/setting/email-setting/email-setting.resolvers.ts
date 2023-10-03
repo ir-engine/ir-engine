@@ -68,13 +68,11 @@ export const emailDbToSchema = (rawData: EmailSettingDatabaseType): EmailSetting
   }
 }
 
-export const emailSettingResolver = resolve<EmailSettingType, HookContext>({
-  createdAt: virtual(async (emailSetting) => fromDateTimeSql(emailSetting.createdAt)),
-  updatedAt: virtual(async (emailSetting) => fromDateTimeSql(emailSetting.updatedAt))
-})
-
-export const emailSettingExternalResolver = resolve<EmailSettingType, HookContext>(
-  {},
+export const emailSettingResolver = resolve<EmailSettingType, HookContext>(
+  {
+    createdAt: virtual(async (emailSetting) => fromDateTimeSql(emailSetting.createdAt)),
+    updatedAt: virtual(async (emailSetting) => fromDateTimeSql(emailSetting.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -82,6 +80,8 @@ export const emailSettingExternalResolver = resolve<EmailSettingType, HookContex
     }
   }
 )
+
+export const emailSettingExternalResolver = resolve<EmailSettingType, HookContext>({})
 
 export const emailSettingDataResolver = resolve<EmailSettingDatabaseType, HookContext>(
   {

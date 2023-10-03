@@ -23,26 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { oembedSchema } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export interface UserAvatar {
-  avatar?: AvatarItem
-  userThumbnail?: UserThumbnail
-  'user-thumbnail'?: UserThumbnail // sequelize is frustrating
-}
-
-interface AvatarItem {
-  id?: string
-  key?: string
-  name?: string
-  url?: string
-  userId?: UserID
-}
-
-interface UserThumbnail {
-  id?: string
-  key?: string
-  name?: string
-  url?: string
-  userId?: UserID
-}
+export default createSwaggerServiceOptions({
+  schemas: {
+    oembedSchema
+  },
+  docs: {
+    description: 'Oembed service description',
+    securities: ['all']
+  }
+})

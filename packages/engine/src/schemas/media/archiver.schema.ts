@@ -23,8 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface AnalyticsInterface {
-  id: string
-  count: number
-  type: string
-}
+import { Static, Type, querySyntax } from '@feathersjs/typebox'
+
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+
+export const archiverPath = 'archiver'
+
+export const archiverMethods = ['get'] as const
+
+export const archiverQueryProperties = Type.Object({
+  directory: Type.Optional(Type.String()),
+  storageProviderName: Type.Optional(Type.String()),
+  isJob: Type.Optional(Type.Boolean())
+})
+export const archiverQuerySchema = Type.Intersect(
+  [
+    querySyntax(archiverQueryProperties),
+    // Add additional query properties here
+    Type.Object({}, { additionalProperties: false })
+  ],
+  { additionalProperties: false }
+)
+export type ArchiverQuery = Static<typeof archiverQuerySchema>

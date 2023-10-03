@@ -23,33 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import multer from '@koa/multer'
+import { archiverQuerySchema } from '@etherealengine/engine/src/schemas/media/archiver.schema'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-import { Application } from '../../../declarations'
-import { Archiver } from './archiver.class'
-import hooks from './archiver.hooks'
-
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    archiver: Archiver
+export default createSwaggerServiceOptions({
+  schemas: { archiverQuerySchema },
+  docs: {
+    description: 'Archiver service description',
+    securities: ['all']
   }
-}
-
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
-
-export default (app: Application): any => {
-  const archiver = new Archiver(app)
-  // fileBrowser.docs = projectDocs
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  app.use('archiver', archiver)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('archiver')
-
-  service.hooks(hooks as any)
-}
+})
