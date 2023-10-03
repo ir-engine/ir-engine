@@ -29,11 +29,10 @@ import { HookContext, Paginated } from '@feathersjs/feathers'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Application } from './../../declarations'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
-  return async (context: HookContext<Application>): Promise<HookContext> => {
+  return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
     const loggedInUser = params.user as UserType
     const userId = loggedInUser.id

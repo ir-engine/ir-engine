@@ -28,7 +28,7 @@ import { ChannelID } from './channel.schema'
 
 export const channelUserPath = 'channel-user'
 
-export const channelUserMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
+export const channelUserMethods = ['find', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
 export const channelUserSchema = Type.Object(
