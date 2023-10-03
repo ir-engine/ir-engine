@@ -41,6 +41,59 @@ import {
   messageResolver
 } from '../../social/message/message.resolvers'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext, Paginated } from '@feathersjs/feathers'
+import { discard, iff, isProvider } from 'feathers-hooks-common'
+
+const disallowEmptyMessage = async (context: HookContext) => {
+  const { text } = context.data
+
+  if (!text) throw new BadRequest('Make sure text is not empty')
+
+  return context
+}
+
+const ensureChannelId = async (context: HookContext) => {
+  let channel: ChannelType | undefined = undefined
+  const { channelId, instanceId } = context.data
+
+  if (channelId) {
+    channel = await context.app.service(channelPath).get(channelId)
+  }
+
+  if (!channel && instanceId) {
+    const targetInstance = await context.app.service(instancePath).get(instanceId)
+
+    if (!targetInstance) {
+      throw new BadRequest(`Invalid target instance ID: ${instanceId}`)
+    }
+
+    const channelResult = (await context.app.service(channelPath).find({
+      query: {
+        instanceId,
+        $limit: 1
+      }
+    })) as Paginated<ChannelType>
+
+    if (channelResult.data.length > 0) {
+      channel = channelResult.data[0]
+    } else {
+      channel = await context.app.service(channelPath).create({
+        instanceId
+      })
+    }
+  }
+
+  if (!channel) throw new BadRequest('Could not find or create channel')
+
+  context.data.channelId = channel.id
+
+  return context
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(messageExternalResolver), schemaHooks.resolveResult(messageResolver)]
@@ -52,9 +105,16 @@ export default {
       () => schemaHooks.validateQuery(messageQueryValidator),
       schemaHooks.resolveQuery(messageQueryResolver)
     ],
-    find: [channelPermissionAuthenticate()],
+    find: [iff(isProvider('external'), channelPermissionAuthenticate())],
     get: [],
-    create: [() => schemaHooks.validateData(messageDataValidator), schemaHooks.resolveData(messageDataResolver)], // TODO: disallow if message empty
+    create: [
+      () => schemaHooks.validateData(messageDataValidator),
+      schemaHooks.resolveData(messageDataResolver),
+      disallowEmptyMessage,
+      setLoggedInUser('senderId'),
+      ensureChannelId,
+      discard('instanceId')
+    ],
     update: [messagePermissionAuthenticate()],
     patch: [
       messagePermissionAuthenticate(),
