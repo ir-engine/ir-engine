@@ -32,12 +32,12 @@ import { ChannelID, channelPath } from '@etherealengine/engine/src/schemas/socia
 import { InviteType } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
-import { EmailData } from '@etherealengine/engine/src/schemas/user/email.schema'
+import { EmailData, emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
 import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { SmsData } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { SmsData, smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
@@ -106,7 +106,7 @@ async function generateEmail(
   }
 
   email.html = email.html.replace(/&amp;/g, '&')
-  await app.service('email').create(email)
+  await app.service(emailPath).create(email)
 }
 
 async function generateSMS(
@@ -151,7 +151,7 @@ async function generateSMS(
   }
 
   await app
-    .service('sms')
+    .service(smsPath)
     .create(sms, null!)
     .then(() => logger.info('Sent SMS'))
     .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))

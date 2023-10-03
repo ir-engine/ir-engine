@@ -221,45 +221,22 @@ export async function takeScreenshot(
     EngineRenderer.instance.renderer.setPixelRatio(1)
   })
 
+  EngineRenderer.instance.effectComposer.render()
+
+  const canvas = getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height)
+
   let blob: Blob | null = null
 
   if (format === 'ktx2') {
-    const renderer = EngineRenderer.instance.renderer
-    // todo - support post processing
-    // EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    // const renderer = EngineRenderer.instance.effectComposer.getRenderer()
-    renderer.outputColorSpace = SRGBColorSpace
-    const renderTarget = new WebGLRenderTarget(width, height, {
-      minFilter: LinearFilter,
-      magFilter: LinearFilter,
-      wrapS: ClampToEdgeWrapping,
-      wrapT: ClampToEdgeWrapping,
-      colorSpace: SRGBColorSpace,
-      format: RGBAFormat,
-      type: UnsignedByteType
-    })
-
-    renderer.setRenderTarget(renderTarget)
-
-    // EngineRenderer.instance.effectComposer.render()
-    renderer.render(Engine.instance.scene, scenePreviewCamera)
-
-    const pixels = new Uint8Array(4 * width * height)
-    renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
-    const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
-    renderer.setRenderTarget(null) // pass `null` to set canvas as render target
-
-    const ktx2texture = (await ktx2Encoder.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
+    const imageData = canvas.getContext('2d')!.getImageData(0, 0, width, height)
+    const ktx2texture = (await ktx2Encoder.encode(imageData, {
+      ...getState(ScreenshotSettings).ktx2,
+      yFlip: true
+    })) as ArrayBuffer
 
     blob = new Blob([ktx2texture])
   } else {
-    EngineRenderer.instance.effectComposer.render()
-
-    blob = await getCanvasBlob(
-      getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height),
-      format === 'jpeg' ? 'image/jpeg' : 'image/png',
-      format === 'jpeg' ? 0.9 : 1
-    )
+    blob = await getCanvasBlob(canvas, format === 'jpeg' ? 'image/jpeg' : 'image/png', format === 'jpeg' ? 0.9 : 1)
   }
 
   // restore
