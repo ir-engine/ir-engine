@@ -41,7 +41,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 const PlayModeOptions = [
   {
@@ -74,7 +74,9 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
   const toggle = () => {
-    volumetricComponent.paused.set(!volumetricComponent.paused.value)
+    commitProperties(VolumetricComponent, {
+      paused: !volumetricComponent.paused.value
+    })
   }
 
   return (

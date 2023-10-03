@@ -40,7 +40,7 @@ import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import PaginatedList from '../layout/PaginatedList'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty } from './Util'
 
 export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const { t } = useTranslation()
@@ -89,19 +89,22 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
         <PaginatedList
           options={{ countPerPage: 6 }}
           list={variantComponent.levels}
-          element={(level: State<VariantLevel>) => {
+          element={(level: State<VariantLevel>, index) => {
             return (
               <div className="bg-gray-900 m-2">
                 <div style={{ margin: '2em' }}>
                   <InputGroup name="src" label={t('editor:properties.variant.src')}>
-                    <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
+                    <ModelInput
+                      value={level.src.value}
+                      onChange={commitProperty(VariantComponent, `levels.${index}.src` as any)}
+                    />
                   </InputGroup>
                   {variantComponent.heuristic.value === 'DEVICE' && (
                     <>
                       <InputGroup name="device" label={t('editor:properties.variant.device')}>
                         <SelectInput
                           value={level.metadata['device'].value}
-                          onChange={onChangeLevelProperty(level.metadata, 'device')}
+                          onChange={commitProperty(VariantComponent, `levels.${index}.metadata.device` as any)}
                           options={[
                             { value: 'MOBILE', label: t('editor:properties.variant.device-mobile') },
                             { value: 'DESKTOP', label: t('editor:properties.variant.device-desktop') }
@@ -115,13 +118,13 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                       <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
                         <NumericInput
                           value={level.metadata['minDistance'].value}
-                          onChange={onChangeLevelProperty(level.metadata, 'minDistance')}
+                          onChange={commitProperty(VariantComponent, `levels.${index}.metadata.minDistance` as any)}
                         />
                       </InputGroup>
                       <InputGroup name="maxDistance" label={t('editor:properties.variant.maxDistance')}>
                         <NumericInput
                           value={level.metadata['maxDistance'].value}
-                          onChange={onChangeLevelProperty(level.metadata, 'maxDistance')}
+                          onChange={commitProperty(VariantComponent, `levels.${index}.metadata.maxDistance` as any)}
                         />
                       </InputGroup>
                     </>
@@ -129,11 +132,9 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                 </div>
                 <div className="flex justify-end">
                   <Button
-                    onClick={commitProperty(
-                      VariantComponent,
-                      `levels.${variantComponent.levels.indexOf(level)}` as any,
-                      undefined
-                    )}
+                    onClick={commitProperties(VariantComponent, {
+                      levels: JSON.parse(JSON.stringify(variantComponent.levels.value.filter((_, i) => i !== index)))
+                    })}
                   >
                     Remove
                   </Button>

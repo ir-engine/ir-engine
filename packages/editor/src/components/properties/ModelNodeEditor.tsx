@@ -44,7 +44,7 @@ import ErrorPopUp from '../popup/ErrorPopUp'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import { EditorComponentType, commitProperty, updateProperty } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -96,7 +96,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const updateResources = useCallback((path: string) => {
-    updateProperty(ModelComponent, 'src')(path)
+    commitProperty(ModelComponent, 'src')(path)
   }, [])
 
   return (

@@ -240,13 +240,13 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         {scatter.mode === ScatterMode.GRASS && (
           <InstancingGrassProperties
             state={scatterState.sourceProperties as State<SourceProperties>}
-            onChange={updateProperty(InstancingComponent, 'sourceProperties')}
+            onChange={commitProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
         {scatter.mode === ScatterMode.MESH && (
           <InstancingMeshProperties
             state={scatterState.sourceProperties as State<SourceProperties>}
-            onChange={updateProperty(InstancingComponent, 'sourceProperties')}
+            onChange={commitProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
       </span>

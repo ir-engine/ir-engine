@@ -125,8 +125,8 @@ const modifyProperty = <C extends Component<any, any>>(
 
   for (const node of nodes) {
     if (typeof node === 'string') continue
-    const enttiyUUID = getComponent(node, UUIDComponent)
-    const componentData = newSnapshot.data.scene.entities[enttiyUUID].components.find(
+    const entityUUID = getComponent(node, UUIDComponent)
+    const componentData = newSnapshot.data.scene.entities[entityUUID].components.find(
       (c) => c.name === component.jsonID
     )
     if (!componentData) continue

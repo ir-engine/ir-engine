@@ -42,7 +42,7 @@ import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperties, commitProperty, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -76,7 +76,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   }
 
   const updateResources = useCallback((path: string) => {
-    updateProperties(LoopAnimationComponent, { animationPack: path })
+    commitProperties(LoopAnimationComponent, { animationPack: path })
   }, [])
 
   return (

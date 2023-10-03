@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperties } from '@etherealengine/editor/src/components/properties/Util'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { LoadVolumeComponent, LoadVolumeTarget } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 
@@ -61,7 +61,7 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
           } as LoadVolumeTarget
         ]
       }) as [EntityUUID, LoadVolumeTarget][]
-      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
+      commitProperties(LoadVolumeComponent, { targets: Object.fromEntries(nuTargets) }, [props.entity])
     }
   }
 
@@ -83,14 +83,14 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
           }
         ] as [EntityUUID, LoadVolumeTarget]
       ]
-      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
+      commitProperties(LoadVolumeComponent, { targets: Object.fromEntries(nuTargets) }, [props.entity])
     }
   }
 
   function onRemoveTarget(index) {
     return () => {
       const nuTargets = [...Object.entries(targets)].filter((_, i) => i !== index)
-      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
+      commitProperties(LoadVolumeComponent, { targets: Object.fromEntries(nuTargets) }, [props.entity])
     }
   }
 
