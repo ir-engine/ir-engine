@@ -38,7 +38,7 @@ import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
-import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState, webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import {
   NetworkObjectComponent,
   NetworkObjectOwnedTag
@@ -190,7 +190,7 @@ const execute = () => {
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
 
   /** Render immersive media bubbles */
   for (const userEntity of userQuery()) {
