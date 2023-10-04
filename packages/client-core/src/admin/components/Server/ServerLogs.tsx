@@ -62,6 +62,7 @@ const ServerLogs = ({
   }
 
   useEffect(() => {
+    console.log('[ServerLogs]:', serverLogs)
     scrollLogsToBottom()
   }, [serverLogs])
 
@@ -172,7 +173,7 @@ const ServerLogs = ({
           icon={<Icon type="Download" />}
         />
 
-        {!serverLogs && (
+        {serverLogsQuery.status !== 'pending' && (
           <IconButton
             title={t('admin:components.common.refresh')}
             className={styles.iconButton}
@@ -182,7 +183,7 @@ const ServerLogs = ({
           />
         )}
 
-        {serverLogs && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
+        {serverLogsQuery.status === 'pending' && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
 
         <InputSelect
           name="autoRefresh"
