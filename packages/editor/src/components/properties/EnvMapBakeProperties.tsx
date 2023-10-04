@@ -36,7 +36,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import { BakePropertyTypes } from './EnvMapBakeNodeEditor'
-import { updateProperty } from './Util'
+import { commitProperty, updateProperty } from './Util'
 
 type EnvMapBakePropertyEditorProps = {
   bakeComponent: ComponentType<typeof EnvMapBakeComponent>
@@ -95,18 +95,22 @@ export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
   let renderVal = <></>
   const label = props.element.label
   const propertyName = props.element.propertyName
-  const changehandler = updateProperty(EnvMapBakeComponent, propertyName)
 
   switch (props.element.type) {
     case BakePropertyTypes.Boolean:
-      renderVal = <BooleanInput value={getPropertyValue(propertyName)} onChange={changehandler} />
+      renderVal = (
+        <BooleanInput
+          value={getPropertyValue(propertyName)}
+          onChange={commitProperty(EnvMapBakeComponent, propertyName)}
+        />
+      )
       break
     case BakePropertyTypes.BakeType:
       renderVal = (
         <SelectInput
           key={props.entity}
           options={envMapBakeSelectTypes}
-          onChange={changehandler}
+          onChange={commitProperty(EnvMapBakeComponent, propertyName)}
           value={getPropertyValue(propertyName)}
         />
       )
@@ -117,7 +121,7 @@ export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
         <SelectInput
           key={props.entity}
           options={envMapBakeRefreshSelectTypes}
-          onChange={changehandler}
+          onChange={commitProperty(EnvMapBakeComponent, propertyName)}
           value={getPropertyValue(propertyName)}
         />
       )
@@ -128,14 +132,20 @@ export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
         <SelectInput
           key={props.entity}
           options={bakeResolutionTypes}
-          onChange={changehandler}
+          onChange={commitProperty(EnvMapBakeComponent, propertyName)}
           value={getPropertyValue(propertyName)}
         />
       )
       break
 
     case BakePropertyTypes.Vector:
-      renderVal = <Vector3Input onChange={changehandler} value={getPropertyValue(propertyName)} />
+      renderVal = (
+        <Vector3Input
+          onChange={updateProperty(EnvMapBakeComponent, propertyName)}
+          onRelease={commitProperty(EnvMapBakeComponent, propertyName)}
+          value={getPropertyValue(propertyName)}
+        />
+      )
       break
 
     default:

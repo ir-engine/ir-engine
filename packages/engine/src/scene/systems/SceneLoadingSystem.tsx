@@ -376,10 +376,22 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
     if (existingEntity) {
       setComponent(existingEntity, SceneObjectComponent)
       deserializeSceneEntity(existingEntity, entityJson)
-      /** @todo handle reparenting due to changes in scene json */
-      // const parent = existingEntity.parentEntity
-      // if (parent && getComponent(parent, UUIDComponent) !== entityJson.parent)
-      //   reparentEntityNode(existingEntity, UUIDComponent.entitiesBy[entityJson.parent])
+      /** handle reparenting due to changes in scene json */
+      const currentParent = getComponent(existingEntity, EntityTreeComponent)
+      if (currentParent?.parentEntity) {
+        const currentParentEntityUUID = getComponent(currentParent.parentEntity, UUIDComponent)
+        if (
+          currentParentEntityUUID !== entityJson.parent ||
+          entityJson.index !== currentParent.children.indexOf(existingEntity)
+        ) {
+          const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
+          setComponent(existingEntity, EntityTreeComponent, {
+            parentEntity: parentEntity,
+            uuid,
+            childIndex: entityJson.index
+          })
+        }
+      }
     } else {
       const entity = createEntity()
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]

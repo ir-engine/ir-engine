@@ -97,7 +97,7 @@ import {
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
-import { EditorHistoryAction, EditorHistoryReceptorSystem } from '../services/EditorHistory'
+import { EditorHistoryAction, EditorHistoryReceptorSystem, EditorHistoryState } from '../services/EditorHistory'
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
@@ -224,9 +224,12 @@ const onKeyX = () => {
 
 const onKeyZ = (control: boolean, shift: boolean) => {
   if (control) {
+    const state = getState(EditorHistoryState)
     if (shift) {
+      if (state.index >= state.history.length - 1) return
       dispatchAction(EditorHistoryAction.redo({ count: 1 }))
     } else {
+      if (state.index <= 0) return
       dispatchAction(EditorHistoryAction.undo({ count: 1 }))
     }
   } else {
@@ -644,7 +647,7 @@ const execute = () => {
       setTransformMode(shift ? TransformMode.Placement : editorHelperState.transformModeOnCancel)
     } else if (transformMode === TransformMode.Placement) {
       if (shift) {
-        EditorControlFunctions.duplicateObject([])
+        // todo
       } else {
         setTransformMode(editorHelperState.transformModeOnCancel)
       }

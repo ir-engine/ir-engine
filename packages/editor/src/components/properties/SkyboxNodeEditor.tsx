@@ -42,7 +42,7 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -109,6 +109,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
         convertTo={hoursToRadians}
         value={skyboxComponent.skyboxProps.azimuth.value}
         onChange={updateProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)}
+        onRelease={commitProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)}
         unit="h"
       />
       <RadianNumericInputGroup
@@ -121,6 +122,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
         largeStep={1}
         value={skyboxComponent.skyboxProps.inclination.value}
         onChange={updateProperty(SkyboxComponent, 'skyboxProps.inclination' as any)}
+        onRelease={commitProperty(SkyboxComponent, 'skyboxProps.inclination' as any)}
       />
       <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')}>
         <CompoundNumericInput
@@ -129,6 +131,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           step={0.001}
           value={skyboxComponent.skyboxProps.luminance.value}
           onChange={updateProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
+          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
         />
       </InputGroup>
       <InputGroup name="Scattering Amount" label={t('editor:properties.skybox.lbl-scattering')}>
@@ -138,6 +141,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           step={0.001}
           value={skyboxComponent.skyboxProps.mieCoefficient.value}
           onChange={updateProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
+          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
         />
       </InputGroup>
       <InputGroup name="Scattering Distance" label={t('editor:properties.skybox.lbl-scatteringDistance')}>
@@ -147,6 +151,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           step={0.001}
           value={skyboxComponent.skyboxProps.mieDirectionalG.value}
           onChange={updateProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
+          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
         />
       </InputGroup>
       <InputGroup name="Horizon Start" label={t('editor:properties.skybox.lbl-horizonStart')}>
@@ -155,6 +160,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           max={20}
           value={skyboxComponent.skyboxProps.turbidity.value}
           onChange={updateProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
+          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
         />
       </InputGroup>
       <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')}>
@@ -163,6 +169,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           max={4}
           value={skyboxComponent.skyboxProps.rayleigh.value}
           onChange={updateProperty(SkyboxComponent, 'skyboxProps.rayleigh' as any)}
+          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.rayleigh' as any)}
         />
       </InputGroup>
     </>
@@ -190,6 +197,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
       <ColorInput
         value={skyboxComponent.backgroundColor.value}
         onChange={updateProperty(SkyboxComponent, 'backgroundColor')}
+        onRelease={commitProperty(SkyboxComponent, 'backgroundColor')}
       />
     </InputGroup>
   )
@@ -219,7 +227,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={SkyOption}
           value={skyboxComponent.backgroundType.value}
-          onChange={updateProperty(SkyboxComponent, 'backgroundType')}
+          onChange={commitProperty(SkyboxComponent, 'backgroundType')}
         />
       </InputGroup>
       {renderSkyBoxProps()}
