@@ -111,7 +111,8 @@ const ensureUserHasChannelAccess = async (context: HookContext<ChannelService>) 
  * @returns
  */
 const ensureUsersFriendWithOwner = async (context: HookResolver<ChannelService, ChannelData>) => {
-  const users = context.data.users
+  const [data] = Array.isArray(context.data) ? context.data : [context.data]
+  const users = data.users
 
   const loggedInUser = context.params!.user
   const userId = loggedInUser?.id
@@ -170,7 +171,8 @@ const handleChannelInstance = async (context: HookContext<ChannelService>) => {
  * @returns
  */
 const checkExistingChannel = async (context: HookResolver<ChannelService, ChannelData, ChannelType>) => {
-  const { users, instanceId } = context.data
+  const [data] = Array.isArray(context.data) ? context.data : [context.data]
+  const { users, instanceId } = data
   const userId = context.params.user?.id
 
   if (!instanceId && users?.length) {
@@ -205,7 +207,8 @@ const checkExistingChannel = async (context: HookResolver<ChannelService, Channe
  * @returns
  */
 const setChannelName = async (context: HookResolver<ChannelService, ChannelData>) => {
-  context.data.name = context.data.instanceId ? 'World ' + context.data.instanceId : context.data.name || ''
+  const [data] = Array.isArray(context.data) ? context.data : [context.data]
+  data.name = data.instanceId ? 'World ' + data.instanceId : data.name || ''
 }
 
 /**
@@ -234,12 +237,13 @@ const createSelfOwner = async (context: HookContext) => {
  */
 const createChannelUsers = async (context: HookResolver<ChannelService, ChannelData, ChannelType>) => {
   /** @todo ensure all users specified are friends of loggedInUser */
+  const [result] = Array.isArray(context.result) ? context.result : [context.result]
 
   if (context.actualData && context.actualData.users) {
     await Promise.all(
       context.actualData.users.map(async (user) =>
         context.app.service(channelUserPath).create({
-          channelId: context.result!.id as ChannelID,
+          channelId: result!.id as ChannelID,
           userId: user
         })
       )
