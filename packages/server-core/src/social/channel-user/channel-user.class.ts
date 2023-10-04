@@ -23,84 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Params } from '@feathersjs/feathers'
+
 import {
   ChannelUserData,
   ChannelUserPatch,
   ChannelUserQuery,
   ChannelUserType
 } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers'
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
-import { Application } from '../../../declarations'
+import { KnexService } from '@feathersjs/knex'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChannelUserParams extends RootParams<ChannelUserQuery> {}
 
-/**
- * A class for Channel user service
- */
 export class ChannelUserService<
   T = ChannelUserType,
   ServiceParams extends Params = ChannelUserParams
-> extends KnexAdapter<ChannelUserType, ChannelUserData, ChannelUserParams, ChannelUserPatch> {
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-  }
-
-  async create(data: ChannelUserData, params?: ChannelUserParams) {
-    return super._create(data, params)
-  }
-
-  async get(id: Id, params?: ChannelUserParams) {
-    return super._get(id, params)
-  }
-
-  async find(params?: ChannelUserParams) {
-    return super._find(params)
-  }
-
-  async patch(id: NullableId, data: ChannelUserPatch, params?: ChannelUserParams) {
-    return super._patch(id, data, params)
-  }
-
-  async remove(id: NullableId, params?: ChannelUserParams) {
-    const loggedInUser = params!.user
-    if (!loggedInUser) {
-      return super._remove(id, params)
-    }
-
-    if (id) {
-      throw new Error('Can only remove via query')
-    }
-
-    // remove method that only allows a user removing the channel if the logged in user is the owner of the channel
-    const loggedInChannelUser = (await this._find({
-      query: {
-        userId: loggedInUser.id,
-        channelId: params!.query!.channelId,
-        $limit: 1
-      }
-    })) as Paginated<ChannelUserType>
-
-    if (!loggedInChannelUser.data.length || !loggedInChannelUser.data[0].isOwner) {
-      throw new Error('Only the owner of a channel can remove users')
-    }
-
-    // if no id is provided, remove all who match the userId and channelId
-    const { userId, channelId } = params!.query!
-    const channelUser = (await this._find({
-      query: {
-        userId: userId,
-        channelId: channelId,
-        $limit: 1
-      }
-    })) as Paginated<ChannelUserType>
-
-    if (channelUser.data.length === 0) {
-      throw new Error('Channel user not found')
-    }
-
-    return super._remove(channelUser.data[0].id, params)
-  }
-}
+> extends KnexService<ChannelUserType, ChannelUserData, ChannelUserParams, ChannelUserPatch> {}

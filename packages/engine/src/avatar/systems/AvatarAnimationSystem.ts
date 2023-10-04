@@ -257,7 +257,8 @@ const execute = () => {
 
       //calculate hips to head
       rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-      _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
+      if (ikDataByName[ikTargets.head])
+        _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
 
       if (rigComponent.ikOverride == 'mocap')
         rig.hips.node.quaternion
@@ -276,7 +277,7 @@ const execute = () => {
             ? ikDataByName[ikTargets.rightElbowHint].position
             : _vector3.copy(transform.position).sub(right),
           tipAxisRestriction,
-          midAxisRestriction,
+          null,
           null,
           ikDataByName[ikTargets.rightHand].blendWeight,
           ikDataByName[ikTargets.rightHand].blendWeight
@@ -295,7 +296,7 @@ const execute = () => {
             ? ikDataByName[ikTargets.leftElbowHint].position
             : _vector3.copy(transform.position).add(right),
           tipAxisRestriction,
-          midAxisRestriction,
+          null,
           null,
           ikDataByName[ikTargets.leftHand].blendWeight,
           ikDataByName[ikTargets.leftHand].blendWeight
@@ -361,13 +362,14 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const heightDifference = useHookstate(getMutableState(XRState).userAvatarHeightDifference)
   const xrState = getMutableState(XRState)
+  const heightDifference = useHookstate(xrState.userAvatarHeightDifference)
+  const sessionMode = useHookstate(xrState.sessionMode)
   const pose = useHookstate(xrState.viewerPose)
   useEffect(() => {
-    if (heightDifference.value) xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
-    xrState.avatarCameraMode.set('attached')
-  }, [heightDifference])
+    if (xrState.sessionMode.value == 'immersive-vr' && heightDifference.value)
+      xrState.sceneScale.set(Math.max(heightDifference.value, 0.5))
+  }, [heightDifference, sessionMode])
   useEffect(() => {
     if (xrState.sessionMode.value == 'immersive-vr' && !heightDifference.value) setTrackingSpace()
   }, [pose])

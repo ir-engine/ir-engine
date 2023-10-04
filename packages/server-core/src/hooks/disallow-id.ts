@@ -22,3 +22,19 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import { HookContext } from '@feathersjs/feathers'
+
+import { BadRequest } from '@feathersjs/errors'
+import { AsyncLocalStorage } from 'async_hooks'
+
+export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
+
+/**
+ * A method that disallows the use of id in request.
+ */
+export default async (context: HookContext) => {
+  if (context.id) {
+    throw new BadRequest(`Can only ${context.method} via query`)
+  }
+}

@@ -143,11 +143,11 @@ describe.skip('matchmaking match-instance service', () => {
     })
     users.push(...(await Promise.all(usersPromises)))
 
-    // apiKey = await app.service('user-api-key').create({
+    // apiKey = await app.service(userApiKeyPath).create({
     //     userId: user.id
     // })
     //
-    // apiKey = await app.service('user-api-key').find({
+    // apiKey = await app.service(userApiKeyPath).find({
     //   query: {
     //     userId: user.id
     //   }
