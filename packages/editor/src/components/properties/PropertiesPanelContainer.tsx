@@ -113,10 +113,10 @@ export const PropertiesPanelContainer = () => {
     : nodeEntity
 
   const [{ isDragging }, dropRef] = useDrop({
-    accept: [ItemTypes.Prefab],
-    drop: (item: { componentName: string }) => {
+    accept: [ItemTypes.Component],
+    drop: (item: { componentJsonID: string }) => {
       if (isObject3D) return
-      const component = ComponentMap.get(item.componentName)
+      const component = ComponentMap.get(item.componentJsonID)
       const entity = node as Entity
       if (!component || hasComponent(entity, component)) return
       setComponent(entity, component)
@@ -127,7 +127,7 @@ export const PropertiesPanelContainer = () => {
 
       if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
 
-      const component = ComponentMap.get(monitor.getItem().componentName)
+      const component = ComponentMap.get(monitor.getItem().componentJsonID)
       if (!component) return { isDragging: false }
 
       const entity = node as Entity

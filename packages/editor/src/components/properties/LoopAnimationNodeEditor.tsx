@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
@@ -75,10 +75,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
     getCallback(props.entity, 'xre.play')!()
   }
 
-  const updateResources = useCallback((path: string) => {
-    commitProperties(LoopAnimationComponent, { animationPack: path })
-  }, [])
-
   return (
     <NodeEditor
       name={t('editor:properties.loopAnimation.title')}
@@ -95,7 +91,10 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       {loopAnimationComponent.hasAvatarAnimations.value && (
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
-          <ModelInput value={loopAnimationComponent.animationPack.value} onChange={updateResources} />
+          <ModelInput
+            value={loopAnimationComponent.animationPack.value}
+            onChange={commitProperty(LoopAnimationComponent, 'animationPack')}
+          />
           {errors?.LOADING_ERROR && (
             <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
           )}
