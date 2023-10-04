@@ -31,75 +31,81 @@ import { LoadVolumeComponent, LoadVolumeTarget } from '@etherealengine/engine/sr
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import { Button, Grid } from '@mui/material'
-import { range } from 'lodash'
 import InputGroup from '../inputs/InputGroup'
 import { SceneObjectInput } from '../inputs/SceneObjectInput'
-import PaginatedList from '../layout/PaginatedList'
 import Well from '../layout/Well'
 import NodeEditor from './NodeEditor'
 
 const LoadVolumeNodeEditor: EditorComponentType = (props) => {
   const loadVolumeComponent = useComponent(props.entity, LoadVolumeComponent)
-  const targets = loadVolumeComponent.targets.value
   function onEditTargets(index) {
     return (value: EntityUUID) => {
-      const nuTargets = [...Object.values(targets)].map(({ uuid, entities, loaded }, i) => {
-        if (i !== index) return [uuid, { uuid, entities, loaded }]
-        return [
-          value,
-          {
-            uuid: value,
-            loaded: true,
-            entities: [
-              {
-                name: value,
-                components: [] as ComponentJson[]
-              }
-            ]
-          } as LoadVolumeTarget
-        ]
-      }) as [EntityUUID, LoadVolumeTarget][]
-      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
+      const nuTargets = loadVolumeComponent.targets.value.map(({ uuid, entities, loaded }, i) => {
+        if (i !== index) return { uuid, entities, loaded }
+        return {
+          uuid: value,
+          loaded: true,
+          entities: [
+            {
+              name: value,
+              components: [] as ComponentJson[]
+            }
+          ]
+        }
+      })
+      loadVolumeComponent.targets.set(JSON.parse(JSON.stringify(nuTargets)))
     }
   }
 
   function onAddTarget() {
     return () => {
-      const nuTargets = [
-        ...Object.entries(targets),
-        [
-          '',
-          {
-            uuid: '' as EntityUUID,
-            loaded: true,
-            entities: [
-              {
-                name: '' as EntityUUID,
-                components: [] as ComponentJson[]
-              }
-            ]
-          }
-        ] as [EntityUUID, LoadVolumeTarget]
+      const nuTargets: LoadVolumeTarget[] = [
+        ...JSON.parse(JSON.stringify(loadVolumeComponent.targets.value)),
+        {
+          uuid: '' as EntityUUID,
+          loaded: true,
+          entities: [
+            {
+              name: '' as EntityUUID,
+              components: [] as ComponentJson[]
+            }
+          ]
+        }
       ]
-      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
+      loadVolumeComponent.targets.set(nuTargets)
     }
   }
 
   function onRemoveTarget(index) {
     return () => {
-      const nuTargets = [...Object.entries(targets)].filter((_, i) => i !== index)
-      loadVolumeComponent.targets.set(Object.fromEntries(nuTargets))
+      const nuTargets = [...JSON.parse(JSON.stringify(loadVolumeComponent.targets.value))]
+      nuTargets.splice(index, 1)
+      loadVolumeComponent.targets.set(nuTargets)
     }
   }
 
   return (
     <NodeEditor description={'Description'} {...props}>
-      <PaginatedList
-        list={range(0, Object.keys(targets).length)}
-        element={(i: number) => {
-          const { uuid } = Object.values(loadVolumeComponent.targets.value)[i]
+      <Button
+        onClick={() => {
+          getCallback(props.entity, 'doLoad')!()
+        }}
+      >
+        Load All
+      </Button>
+      <Button
+        onClick={() => {
+          getCallback(props.entity, 'doUnload')!()
+        }}
+      >
+        Unload All
+      </Button>
+      <div key={`load-volume-component-${props.entity}-targets`}>
+        {loadVolumeComponent.targets.map((target, i) => {
+          const { uuid } = loadVolumeComponent.targets[i].value
           return (
             <Well key={`${props.entity}-load-volume-targets-${i}`}>
               <Grid container spacing={0.5}>
@@ -116,8 +122,8 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
               </Grid>
             </Well>
           )
-        }}
-      />
+        })}
+      </div>
       <Button onClick={onAddTarget()}>Add Target</Button>
     </NodeEditor>
   )
