@@ -138,9 +138,9 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       audioElement?.play()
       harkListener?.value?.resume()
     }
-    window.addEventListener('pointerdown', onUserInteraction)
+    window.addEventListener('pointerup', onUserInteraction)
     return () => {
-      window.removeEventListener('pointerdown', onUserInteraction)
+      window.removeEventListener('pointerup', onUserInteraction)
     }
   }, [videoElement, audioElement, harkListener?.value])
 

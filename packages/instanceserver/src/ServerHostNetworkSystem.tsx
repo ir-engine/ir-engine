@@ -44,7 +44,7 @@ import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
   for (const [peerID, client] of Object.entries(network.peers)) {
     if (client.userId === Engine.instance.userID) continue
-    if (Date.now() - client.lastSeenTs > 5000) {
+    if (Date.now() - client.lastSeenTs > 10000) {
       NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
       updatePeers(network)
     }
@@ -75,7 +75,7 @@ export const uploadRecordingStaticResource = async (props: {
 
   const provider = getStorageProvider()
   const url = getCachedURL(props.key, provider.cacheDomain)
-  const hash = createStaticResourceHash(props.body, { assetURL: props.key })
+  const hash = createStaticResourceHash(props.body, { mimeType: props.mimeType, assetURL: props.key })
 
   const staticResource = await api.service(staticResourcePath).create(
     {

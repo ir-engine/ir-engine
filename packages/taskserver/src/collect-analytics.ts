@@ -43,7 +43,7 @@ export default (app): void => {
     logger.info('Collecting analytics at %s.', new Date().toString())
     const activeLocations: any[] = []
     const activeScenes: any[] = []
-    const activeChannels = (await app.service(channelPath)._find({
+    const activeChannels = (await app.service(channelPath).find({
       paginate: false,
       isInternal: true
     })) as ChannelType[]

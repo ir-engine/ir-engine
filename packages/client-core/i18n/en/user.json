@@ -420,6 +420,9 @@
     "requestReceived": "has requested to be your friend",
     "requestAccepted": "has accepted your request to be friends"
   },
+  "messages": {
+    "enterMessage": "Enter Message"
+  },
   "roomMenu": {
     "createRoom": "Create a room",
     "joinRoom": "Join a room",

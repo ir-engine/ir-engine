@@ -49,7 +49,11 @@ import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/
 import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import {
+  PortalComponent,
+  PortalEffects,
+  PortalState
+} from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -172,7 +176,7 @@ export const usePortalTeleport = () => {
   useEffect(() => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
-      const activePortalEntity = Engine.instance.activePortalEntity
+      const activePortalEntity = getState(PortalState).activePortalEntity
 
       if (!activePortalEntity) return
 
@@ -185,7 +189,7 @@ export const usePortalTeleport = () => {
           activePortal.remoteSpawnPosition
           // activePortal.remoteSpawnRotation
         )
-        Engine.instance.activePortalEntity = UndefinedEntity
+        getState(PortalState).activePortalEntity = UndefinedEntity
         dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
         return
       }

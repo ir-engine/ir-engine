@@ -28,15 +28,14 @@ import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 // import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+
+import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '@etherealengine/engine/src/physics/types/PhysicsTypes'
-import {
-  TransformComponent,
-  setTransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -160,7 +159,7 @@ export const generatePhysicsObject = (
   mesh.userData = config
 
   const entity = createEntity()
-  setTransformComponent(entity)
+  setComponent(entity, TransformComponent)
 
   // Add empty model node
   // const uuid = getUUID()

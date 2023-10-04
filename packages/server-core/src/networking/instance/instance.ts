@@ -98,7 +98,7 @@ export default (app: Application): void => {
     try {
       /** Remove channel if instance is a world server and it has ended */
       if (data.locationId && data.ended && !data.channelId) {
-        const channel = (await app.service(channelPath)._find({
+        const channel = (await app.service(channelPath).find({
           query: {
             instanceId: data.id,
             $limit: 1

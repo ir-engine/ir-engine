@@ -50,12 +50,12 @@ export function setModelVariant(entity: Entity) {
   } else if (variantComponent.heuristic.value === 'DISTANCE') {
     const distance = DistanceFromCameraComponent.squaredDistance[entity]
     for (let i = 0; i < variantComponent.levels.length; i++) {
-      const level = variantComponent.levels[i]
+      const level = variantComponent.levels[i].value
       if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
       const minDistance = Math.pow(level.metadata['minDistance'], 2)
       const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
       const useLevel = minDistance <= distance && distance <= maxDistance
-      useLevel && modelComponent.src.value !== level.src.value && modelComponent.src.set(level.src.value)
+      useLevel && modelComponent.src.value !== level.src && modelComponent.src.set(level.src)
       if (useLevel) break
     }
   }

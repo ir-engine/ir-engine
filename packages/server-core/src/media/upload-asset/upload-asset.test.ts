@@ -88,7 +88,7 @@ describe('upload-asset', () => {
         mimetype: 'application/json',
         size: buffer.byteLength
       } as UploadFile
-      const hash = createStaticResourceHash(buffer, { name: 'test.json' })
+      const hash = createStaticResourceHash(buffer, { mimeType: 'application/json', name: 'test.json' })
 
       const args = {
         hash,
@@ -120,7 +120,7 @@ describe('upload-asset', () => {
       // todo - serve this file from a local server
       const assetPath = path.join(appRootPath.path, 'packages/projects/default-project/default.scene.json')
       const name = 'default.scene.json'
-      const hash = createStaticResourceHash(assetPath, { name })
+      const hash = createStaticResourceHash(assetPath, { mimeType: 'application/json', name })
 
       const file = await downloadResourceAndMetadata(assetPath, true)
       const args = {
@@ -150,7 +150,7 @@ describe('upload-asset', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/default.scene.json', storageProvider.cacheDomain)
       const name = 'default.scene.json'
-      const hash = createStaticResourceHash(url, { name })
+      const hash = createStaticResourceHash(url, { mimeType: 'application/json', name })
 
       const file = await downloadResourceAndMetadata(url, true)
       const args = {

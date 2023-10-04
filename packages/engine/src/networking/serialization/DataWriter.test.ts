@@ -36,11 +36,11 @@ import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   readRotation,
   TransformSerialization,
@@ -237,12 +237,11 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setTransformComponent(
-      entity,
-      new Vector3().set(posX, posY, posZ),
-      new Quaternion().set(rotX, rotY, rotZ, rotW),
-      new Vector3(1, 1, 1)
-    )
+    setComponent(entity, TransformComponent, {
+      position: new Vector3().set(posX, posY, posZ),
+      rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
+      scale: new Vector3(1, 1, 1)
+    })
 
     writeTransform(writeView, entity)
 
@@ -379,14 +378,13 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setTransformComponent(
-      entity,
-      new Vector3().set(posX, posY, posZ),
-      new Quaternion().set(rotX, rotY, rotZ, rotW),
-      new Vector3(1, 1, 1)
-    )
+    setComponent(entity, TransformComponent, {
+      position: new Vector3().set(posX, posY, posZ),
+      rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
+      scale: new Vector3(1, 1, 1)
+    })
 
-    addComponent(entity, NetworkObjectComponent, {
+    setComponent(entity, NetworkObjectComponent, {
       networkId,
       authorityPeerID: peerID,
       ownerId: userId
@@ -461,14 +459,13 @@ describe('DataWriter', () => {
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
-      setTransformComponent(
-        entity,
-        new Vector3().set(posX, posY, posZ),
-        new Quaternion().set(rotX, rotY, rotZ, rotW),
-        new Vector3(1, 1, 1)
-      )
+      setComponent(entity, TransformComponent, {
+        position: new Vector3().set(posX, posY, posZ),
+        rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
+        scale: new Vector3(1, 1, 1)
+      })
 
-      addComponent(entity, NetworkObjectComponent, {
+      setComponent(entity, NetworkObjectComponent, {
         networkId,
         authorityPeerID: userId,
         ownerId: userId
@@ -555,14 +552,13 @@ describe('DataWriter', () => {
       const userIndex = entity
       NetworkObjectComponent.networkId[entity] = networkId
 
-      setTransformComponent(
-        entity,
-        new Vector3().set(posX, posY, posZ),
-        new Quaternion().set(rotX, rotY, rotZ, rotW),
-        new Vector3(1, 1, 1)
-      )
+      setComponent(entity, TransformComponent, {
+        position: new Vector3().set(posX, posY, posZ),
+        rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
+        scale: new Vector3(1, 1, 1)
+      })
 
-      addComponent(entity, NetworkObjectComponent, {
+      setComponent(entity, NetworkObjectComponent, {
         networkId,
         authorityPeerID: userId,
         ownerId: userId

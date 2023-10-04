@@ -38,8 +38,7 @@ export const scopeResolver = resolve<ScopeType, HookContext>({})
 export const scopeExternalResolver = resolve<ScopeType, HookContext>({
   user: virtual(async (scope, context) => {
     if (scope.userId) {
-      const user = await context.app.service(userPath)._get(scope.userId)
-      return user
+      return await context.app.service(userPath)._get(scope.userId)
     }
   }),
   createdAt: virtual(async (scope) => fromDateTimeSql(scope.createdAt)),

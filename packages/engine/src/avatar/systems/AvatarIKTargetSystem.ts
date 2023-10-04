@@ -41,7 +41,6 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -96,8 +95,6 @@ const execute = () => {
     setObjectLayers(helper, ObjectLayers.Gizmos)
     addObjectToGroup(entity, helper)
     setComponent(entity, VisibleComponent)
-
-    setTrackingSpace()
   }
 
   // todo - remove ik targets when session ends

@@ -160,7 +160,8 @@ export const addClientInputListeners = () => {
   /** Clear mouse events */
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
   const clearKeyState = () => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     for (const button of pointerButtons) {
       const val = state[button]
@@ -262,12 +263,14 @@ export const addClientInputListeners = () => {
    */
 
   const onXRSelectStart = (event: any) => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     state.PrimaryClick = createInitialButtonState()
   }
   const onXRSelectEnd = (event: any) => {
-    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const inputSourceComponent = getOptionalComponent(emulatedInputSourceEntity, InputSourceComponent)
+    if (!inputSourceComponent) return
     const state = inputSourceComponent.buttons as ButtonStateMap
     if (!state.PrimaryClick) return
     state.PrimaryClick.up = true
@@ -292,6 +295,8 @@ export const addClientInputListeners = () => {
   } as Gamepad
 
   let gamepadRef = emulatedGamepad
+
+  console.log('XRSession interaction mode ' + session?.interactionMode)
 
   // create an emulated input source for mouse/keyboard/touch input
   const emulatedInputSource = {
@@ -358,6 +363,15 @@ export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const source = inputSource.source
   const buttons = inputSource.buttons as ButtonStateMap
+
+  // log buttons
+  if (source.gamepad) {
+    for (let i = 0; i < source.gamepad.buttons.length; i++) {
+      const button = source.gamepad.buttons[i]
+      if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
+    }
+  }
+
   if (!source.gamepad) return
   const gamepadButtons = source.gamepad.buttons
   if (gamepadButtons) {
