@@ -247,6 +247,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     //check state, if we are still not set to track lower body, update that
     if (!mocapState.trackingLowerBody.value) {
       dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
+      mocapState.trackingLowerBody.set(true)
     }
   } else {
     if (mocapState.trackingLowerBody.value) {

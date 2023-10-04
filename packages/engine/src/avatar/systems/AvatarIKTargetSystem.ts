@@ -90,7 +90,7 @@ const execute = () => {
     const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
     const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
     const mocapState = getMutableState(MotionCaptureState)
-    if (!action.trackingLowerBody && mocapState.trackingLowerBody.value) {
+    if (!action.trackingLowerBody) {
       if (!ikTargetLeftFoot)
         dispatchAction(
           AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', blendWeight: 1 })
@@ -99,12 +99,9 @@ const execute = () => {
         dispatchAction(
           AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', blendWeight: 1 })
         )
-      mocapState.trackingLowerBody.set(false)
     } else {
-      console.log('removing ik targets')
       if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
       if (ikTargetRightFoot) removeEntity(ikTargetRightFoot)
-      mocapState.trackingLowerBody.set(true)
     }
   }
 
