@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { AxesHelper } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { MotionCaptureAction, MotionCaptureState } from '../../mocap/MotionCaptureState'
+import { MotionCaptureAction } from '../../mocap/MotionCaptureState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -89,15 +89,15 @@ const execute = () => {
     const rightFootUUID = (Engine.instance.userID + ikTargets.rightFoot) as EntityUUID
     const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
     const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
-    const mocapState = getMutableState(MotionCaptureState)
+    const position = getComponent(localClientEntity, TransformComponent).position
     if (!action.trackingLowerBody) {
       if (!ikTargetLeftFoot)
         dispatchAction(
-          AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', blendWeight: 1 })
+          AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', position, blendWeight: 1 })
         )
       if (!ikTargetRightFoot)
         dispatchAction(
-          AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', blendWeight: 1 })
+          AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', position, blendWeight: 1 })
         )
     } else {
       if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
