@@ -32,7 +32,6 @@ import { ModelComponent } from '@etherealengine/engine/src/scene/components/Mode
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -46,32 +45,35 @@ export async function addMediaNode(url: string, parent?: Entity | null, before?:
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
 
-  let componentName: string | null = null
-  let updateFunc = null! as () => void
-
-  let node: Entity | null = null
   if (contentType.startsWith('model/')) {
-    componentName = ModelComponent.name
-    updateFunc = () => setComponent(node!, ModelComponent, { src: url })
+    EditorControlFunctions.createObjectFromSceneElement(
+      [{ name: ModelComponent.name, props: { src: url } }],
+      parent!,
+      before
+    )
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    componentName = VideoComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
+    EditorControlFunctions.createObjectFromSceneElement(
+      [{ name: VideoComponent.name }, { name: MediaComponent.name, props: { resources: [url] } }],
+      parent!,
+      before
+    )
   } else if (contentType.startsWith('image/')) {
-    componentName = ImageComponent.name
-    updateFunc = () => setComponent(node!, ImageComponent, { source: url })
+    EditorControlFunctions.createObjectFromSceneElement(
+      [{ name: ImageComponent.name, props: { source: url } }],
+      parent!,
+      before
+    )
   } else if (contentType.startsWith('audio/')) {
-    componentName = PositionalAudioComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
+    EditorControlFunctions.createObjectFromSceneElement(
+      [{ name: PositionalAudioComponent.name }, { name: MediaComponent.name, props: { resources: [url] } }],
+      parent!,
+      before
+    )
   } else if (url.includes('.uvol')) {
-    componentName = VolumetricComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
+    EditorControlFunctions.createObjectFromSceneElement(
+      [{ name: VolumetricComponent.name }, { name: MediaComponent.name, props: { resources: [url] } }],
+      parent!,
+      before
+    )
   }
-
-  if (componentName) {
-    node = EditorControlFunctions.createObjectFromSceneElement(componentName, parent!, before)
-
-    if (node) updateFunc()
-  }
-
-  return node
 }

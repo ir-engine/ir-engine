@@ -50,7 +50,7 @@ export const addEntityToScene = (
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-  if (getState(EngineState).isEditor) createNewEditorNode(newEntity, componentName, parentEntity)
+  if (getState(EngineState).isEditor) createNewEditorNode(newEntity, [{ name: componentName }], parentEntity)
 
   return newEntity
 }

@@ -113,7 +113,7 @@ export const PropertiesPanelContainer = () => {
     : nodeEntity
 
   const [{ isDragging }, dropRef] = useDrop({
-    accept: [ItemTypes.Prefab],
+    accept: [ItemTypes.Component],
     drop: (item: { componentName: string }) => {
       if (isObject3D) return
       const component = ComponentMap.get(item.componentName)
