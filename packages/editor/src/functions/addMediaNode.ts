@@ -68,7 +68,7 @@ export async function addMediaNode(url: string, parent?: Entity | null, before?:
   }
 
   if (componentName) {
-    node = EditorControlFunctions.createObjectFromSceneElement(componentName, parent, before)
+    node = EditorControlFunctions.createObjectFromSceneElement(componentName, parent!, before)
 
     if (node) updateFunc()
   }

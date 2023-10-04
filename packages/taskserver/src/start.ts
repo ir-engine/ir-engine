@@ -25,12 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { Application } from '@etherealengine/server-core/declarations'
-import config from '@etherealengine/server-core/src/appconfig'
-import { configurePrimus, configureRedis, createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import config from '@etherealengine/server-core/src/appconfig'
+import {
+  configureK8s,
+  configurePrimus,
+  configureRedis,
+  createFeathersKoaApp
+} from '@etherealengine/server-core/src/createApp'
 
 import collectAnalytics from './collect-analytics'
+import collectEvents from './collect-events'
 
 const logger = multiLogger.child({ component: 'taskserver' })
 
@@ -38,7 +44,7 @@ process.on('unhandledRejection', (error, promise) => {
   logger.error(error, 'UNHANDLED REJECTION - Promise: %o', promise)
 })
 
-const taskServerPipe = pipe(configurePrimus(), configureRedis())
+const taskServerPipe = pipe(configurePrimus(), configureRedis(), configureK8s())
 
 export const start = async (): Promise<Application> => {
   const app = createFeathersKoaApp(ServerMode.Task, taskServerPipe)
@@ -47,6 +53,7 @@ export const start = async (): Promise<Application> => {
   app.set('port', config.server.port)
 
   collectAnalytics(app)
+  collectEvents(app)
   logger.info('Task server running.')
 
   const port = Number(config.taskserver.port) || 5050

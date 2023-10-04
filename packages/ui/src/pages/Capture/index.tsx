@@ -57,6 +57,7 @@ import {
   MotionCaptureResults,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { RecordingID, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
@@ -81,7 +82,7 @@ import Toolbar from '../../components/tailwind/mocap/Toolbar'
  * - If we are streaming data, close the data producer
  */
 export const startPlayback = async (recordingID: RecordingID, twin = true, fromServer = false) => {
-  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  const network = NetworkState.worldNetwork as SocketWebRTCClientNetwork
   // close the data producer if we are streaming data
   // const dataProducer = MediasoupDataProducerConsumerState.getProducerByDataChannel(
   //   network.id,
@@ -123,7 +124,7 @@ export const stopPlayback = () => {
 }
 
 const sendResults = (results: MotionCaptureResults) => {
-  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  const network = NetworkState.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.ready) return
   const data = MotionCaptureFunctions.sendResults(results)
   network.transport.bufferToAll(mocapDataChannelType, Engine.instance.peerID, data)

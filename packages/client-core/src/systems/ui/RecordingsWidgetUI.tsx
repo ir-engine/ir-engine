@@ -33,6 +33,7 @@ import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import {
   ECSRecordingActions,
   PlaybackState,
@@ -209,7 +210,7 @@ export const RecordingPeerList = () => {
   }
 
   useEffect(() => {
-    const mediaNetwork = Engine.instance.mediaNetwork
+    const mediaNetwork = NetworkState.mediaNetwork
     peerIDs.set(mediaNetwork?.users?.[Engine.instance.userID] ?? [])
   }, [mediaNetworkState?.peers, mediaNetworkState?.users])
 

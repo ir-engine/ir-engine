@@ -36,7 +36,7 @@ import {
 } from 'three'
 import { BurstParameters, RenderMode } from 'three.quarks'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,
@@ -70,7 +70,7 @@ import NodeEditor from './NodeEditor'
 import BehaviorInput from './three.quarks/BehaviorInput'
 import ColorGenerator from './three.quarks/ColorGenerator'
 import ValueGenerator from './three.quarks/ValueGenerator'
-import { EditorComponentType } from './Util'
+import { commitProperties, commitProperty, EditorComponentType } from './Util'
 
 const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -81,10 +81,8 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
   const onSetSystemParm = useCallback((field: keyof typeof particleSystem.systemParameters) => {
     const parm = particleSystem.systemParameters[field]
     return (value: typeof parm) => {
-      const nuParms = JSON.parse(JSON.stringify(particleSystem.systemParameters))
-      nuParms[field] = value
-      particleSystemState.systemParameters.set(nuParms)
       particleSystemState._refresh.set(particleSystem._refresh + 1)
+      commitProperty(ParticleSystemComponent, ('systemParameters' + field) as any)(value)
     }
   }, [])
 
@@ -107,14 +105,24 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
     return (value: any) => {
       const nuParms = JSON.parse(JSON.stringify(particleSystem.systemParameters.shape))
       nuParms[field] = value
-      particleSystemState.systemParameters.shape.set(nuParms)
+      commitProperty(ParticleSystemComponent, ('systemParameters.shape' + field) as any)(nuParms)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
 
   const onSetState = useCallback((state: State<any>) => {
     return (value: any) => {
-      state.set(JSON.parse(JSON.stringify(value)))
+      const { systemParameters, behaviorParameters } = JSON.parse(
+        JSON.stringify(getComponent(entity, ParticleSystemComponent))
+      )
+      commitProperties(
+        ParticleSystemComponent,
+        {
+          systemParameters,
+          behaviorParameters
+        },
+        [props.entity]
+      )
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
@@ -137,9 +145,8 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
 
   const onRemoveBehavior = useCallback(
     (behavior: BehaviorJSON) => () => {
-      particleSystemState.behaviorParameters.set(
-        JSON.parse(JSON.stringify(particleSystem.behaviorParameters.filter((b) => b !== behavior)))
-      )
+      const data = JSON.parse(JSON.stringify(particleSystem.behaviorParameters.filter((b) => b !== behavior)))
+      commitProperty(ParticleSystemComponent, 'behaviorParameters')(data)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     },
     []
@@ -153,18 +160,17 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       interval: 0,
       probability: 0
     }
-    particleSystemState.systemParameters.emissionBursts.set([
-      ...JSON.parse(JSON.stringify(particleSystem.systemParameters.emissionBursts)),
-      nuBurst
-    ])
+    const data = [...JSON.parse(JSON.stringify(particleSystem.systemParameters.emissionBursts)), nuBurst]
+    commitProperty(ParticleSystemComponent, 'systemParameters.emissionBursts' as any)(data)
     particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
   }, [])
 
   const onRemoveBurst = useCallback((burst: State<BurstParameters>) => {
     return () => {
-      particleSystemState.systemParameters.emissionBursts.set(
-        JSON.parse(JSON.stringify(particleSystem.systemParameters.emissionBursts.filter((b) => b !== burst.value)))
+      const data = JSON.parse(
+        JSON.stringify(particleSystem.systemParameters.emissionBursts.filter((b) => b !== burst.value))
       )
+      commitProperty(ParticleSystemComponent, 'systemParameters.emissionBursts' as any)(data)
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
@@ -363,6 +369,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
                   value: particleSystem.systemParameters.startTileIndex
                 }
                 particleSystemState.systemParameters.set(nuParms)
+                commitProperty(ParticleSystemComponent, 'systemParameters')(nuParms)
                 particleSystemState._refresh.set(particleSystem._refresh + 1)
               }}
             >

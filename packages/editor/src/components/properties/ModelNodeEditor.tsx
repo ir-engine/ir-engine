@@ -44,7 +44,7 @@ import ErrorPopUp from '../popup/ErrorPopUp'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -96,7 +96,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const updateResources = useCallback((path: string) => {
-    updateProperty(ModelComponent, 'src')(path)
+    commitProperty(ModelComponent, 'src')(path)
   }, [])
 
   return (
@@ -113,18 +113,18 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput
           value={modelComponent.generateBVH.value}
-          onChange={updateProperty(ModelComponent, 'generateBVH')}
+          onChange={commitProperty(ModelComponent, 'generateBVH')}
           disabled={modelComponent.hasSkinnedMesh.value}
         />
       </InputGroup>
       <InputGroup name="Avoid Camera Occlusion" label={t('editor:properties.model.lbl-avoidCameraOcclusion')}>
         <BooleanInput
           value={modelComponent.avoidCameraOcclusion.value}
-          onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
+          onChange={commitProperty(ModelComponent, 'avoidCameraOcclusion')}
         />
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
-      <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
+      <ModelTransformProperties modelState={modelComponent} onChangeModel={commitProperty(ModelComponent, 'src')} />
       {!exporting.value && modelComponent.src.value && (
         <Well>
           <ModelInput value={exportPath.value} onChange={onChangeExportPath} />

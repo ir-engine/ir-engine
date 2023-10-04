@@ -30,9 +30,9 @@ import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RingBuffer } from '../../common/classes/RingBuffer'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkState } from '../NetworkState'
 import { JitterBufferEntry, Network } from '../classes/Network'
 import { readDataPacket } from '../serialization/DataReader'
 import { addDataChannelHandler, removeDataChannelHandler } from './DataChannelRegistry'
@@ -86,7 +86,7 @@ const execute = () => {
   const { jitterBufferTaskList, jitterBufferDelay, incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } =
     getState(IncomingNetworkState)
 
-  const network = Engine.instance.worldNetwork
+  const network = NetworkState.worldNetwork
   if (!network) return
 
   while (incomingMessageQueueUnreliable.getBufferLength() > 0) {

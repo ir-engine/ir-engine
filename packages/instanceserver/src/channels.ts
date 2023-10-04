@@ -731,16 +731,16 @@ export default (app: Application): void => {
 
   const kickCreatedListener = async (data: UserKickType) => {
     // TODO: only run for instanceserver
-    if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
+    if (!NetworkState.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
 
     logger.info('kicking user id %s', data.userId)
 
-    const peerId = Engine.instance.worldNetwork.users[data.userId]
+    const peerId = NetworkState.worldNetwork.users[data.userId]
     if (!peerId || !peerId[0]) return
 
     logger.info('kicking peerId %o', peerId)
 
-    const peer = Engine.instance.worldNetwork.peers[peerId[0]]
+    const peer = NetworkState.worldNetwork.peers[peerId[0]]
     if (!peer || !peer.spark) return
 
     handleDisconnect(getServerNetwork(app), peer.peerID)

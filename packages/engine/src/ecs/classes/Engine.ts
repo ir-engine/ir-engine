@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import * as Hyperflux from '@etherealengine/hyperflux'
-import { createHyperStore, getMutableState, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { NetworkTopics } from '../../networking/classes/Network'
@@ -41,7 +41,6 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 import { getAllEntities } from 'bitecs'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
-import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { Timer } from '../../common/functions/Timer'
 import { NetworkState } from '../../networking/NetworkState'
 import { Query, QueryComponents, removeQuery } from '../functions/ComponentFunctions'
@@ -66,7 +65,7 @@ export class Engine {
       const isHost =
         action.$topic === this.store.defaultTopic
           ? false
-          : (action.$topic === NetworkTopics.world ? this.worldNetwork : this.mediaNetwork)?.isHosting
+          : (action.$topic === NetworkTopics.world ? NetworkState.worldNetwork : NetworkState.mediaNetwork)?.isHosting
       return isHost || action.$from === this.userID
     },
     getDispatchId: () => Engine.instance.userID,
@@ -78,28 +77,7 @@ export class Engine {
 
   engineTimer = null! as ReturnType<typeof Timer>
 
-  /**
-   * get the default world network
-   */
-  get worldNetwork() {
-    return getState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
-  }
-  get worldNetworkState() {
-    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
-  }
-
-  /**
-   * get the default media network
-   */
-  get mediaNetwork() {
-    return getState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
-  }
-  get mediaNetworkState() {
-    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
-  }
-
   cortoLoader: CORTOLoader = null!
-  gltfLoader: GLTFLoader = null!
 
   /**
    * Reference to the three.js scene object.

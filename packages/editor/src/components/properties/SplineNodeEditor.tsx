@@ -38,7 +38,7 @@ import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * SplineNodeEditor used to create and customize splines in the scene.
@@ -57,7 +57,8 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         <PropertiesPanelButton
           onClick={() => {
             const elem = { position: new Vector3(), quaternion: new Quaternion() }
-            component.elements.merge([elem])
+            const newElements = [...elements.value, elem]
+            commitProperty(SplineComponent, 'elements')(newElements)
           }}
         >
           {t('editor:properties.spline.lbl-addNode')}
@@ -69,10 +70,8 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
           <div style={{ display: 'flex-row' }}>
             <ClearIcon
               onClick={() => {
-                elements.set((p) => {
-                  p.splice(index, 1)
-                  return p
-                })
+                const newElements = [...elements.value].filter((_, i) => i !== index)
+                commitProperty(SplineComponent, 'elements')(newElements)
               }}
               style={{ color: 'white' }}
             />
@@ -83,9 +82,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                 smallStep={0.01}
                 mediumStep={0.1}
                 largeStep={1}
-                onChange={(position) => {
-                  elem.position.set(new Vector3(position.x, position.y, position.z))
-                }}
+                onChange={commitProperty(SplineComponent, `elements.${index}.position` as any)}
               />
             </InputGroup>
             <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')} ${index + 1}`}>
@@ -93,10 +90,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                 //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                 quaternion={elem.quaternion.value}
                 unit="°"
-                onChange={(euler) => {
-                  const quaternion = new Quaternion().setFromEuler(euler)
-                  elem.quaternion.set(quaternion)
-                }}
+                onChange={commitProperty(SplineComponent, `elements.${index}.quaternion` as any)}
               />
             </InputGroup>
           </div>

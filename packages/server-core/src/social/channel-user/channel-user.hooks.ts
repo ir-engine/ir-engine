@@ -39,9 +39,11 @@ import { messagePath } from '@etherealengine/engine/src/schemas/social/message.s
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
-import { HookContext } from '@feathersjs/feathers'
+import { Forbidden } from '@feathersjs/errors'
+import { HookContext, Paginated } from '@feathersjs/feathers'
+import disallowId from '../../hooks/disallow-id'
 import {
   channelUserDataResolver,
   channelUserExternalResolver,
@@ -49,6 +51,97 @@ import {
   channelUserQueryResolver,
   channelUserResolver
 } from './channel-user.resolvers'
+
+/**
+ * Adds user joined message to channel
+ * @param context
+ * @returns
+ */
+const addJoinedChannelMessage = async (context: HookContext) => {
+  const { app, result, params } = context
+
+  const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
+  await app.service(messagePath).create(
+    {
+      channelId: result.channelId,
+      text: `${user.name} joined the channel`,
+      isNotification: true
+    },
+    {
+      [identityProviderPath]: {
+        userId: result.userId
+      }
+    } as any
+  )
+
+  return context
+}
+
+/**
+ * Adds user left message to channel
+ * @param context
+ * @returns
+ */
+const addLeftChannelMessage = async (context: HookContext) => {
+  const { app, params, result } = context
+
+  const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
+  await app.service(messagePath).create({
+    channelId: result.channelId,
+    text: `${user.name} left the channel`,
+    isNotification: true
+  })
+
+  return context
+}
+
+/**
+ * Removes a channel if there is not user in it.
+ * @param context
+ * @returns
+ */
+const removeEmptyNonInstanceChannel = async (context: HookContext) => {
+  const { app, result } = context
+
+  const channel = await app.service(channelPath).get(result.channelId)
+  if (channel.instanceId) return context
+
+  const channelUserCount = (await app.service(channelUserPath).find({
+    query: {
+      channelId: result.channelId
+    }
+  })) as Paginated<ChannelUserType>
+
+  if (channelUserCount.data.length === 0) {
+    await app.service(channelPath).remove(result.channelId)
+  }
+
+  return context
+}
+
+/**
+ * Ensure user is owner of the channel in channel-user
+ * @param context
+ * @returns
+ */
+const ensureUserIsOwner = async (context: HookContext) => {
+  const userId = context.params.user.id
+  const channelId = context.params!.query!.channelId
+
+  const loggedInChannelUser = (await context.app.service(channelUserPath).find({
+    query: {
+      userId,
+      channelId,
+      $limit: 1
+    }
+  })) as Paginated<ChannelUserType>
+
+  if (!loggedInChannelUser.data.length || !loggedInChannelUser.data[0].isOwner) {
+    throw new Forbidden('Only the owner of a channel can remove users')
+  }
+
+  return context
+}
 
 export default {
   around: {
@@ -73,63 +166,17 @@ export default {
       () => schemaHooks.validateData(channelUserPatchValidator),
       schemaHooks.resolveData(channelUserPatchResolver)
     ],
-    remove: [setLoggedInUser('userId')]
+    remove: [iff(isProvider('external'), disallowId, ensureUserIsOwner)]
   },
 
   after: {
     all: [],
     find: [],
-    get: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context
-        result.user = await app.service(userPath).get(result.userId)
-        return context
-      }
-    ],
-    create: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, result, params } = context
-        const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
-        await app.service(messagePath).create(
-          {
-            channelId: result.channelId,
-            text: `${user.name} joined the channel`,
-            isNotification: true
-          },
-          {
-            'identity-provider': {
-              userId: result.userId
-            }
-          } as any
-        )
-        return context
-      }
-    ],
+    get: [],
+    create: [addJoinedChannelMessage],
     update: [],
     patch: [],
-    remove: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, params, result } = context
-        const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
-        await app.service(messagePath).create({
-          channelId: result.channelId,
-          text: `${user.name} left the channel`,
-          isNotification: true
-        })
-        const channel = await app.service(channelPath).get(result.channelId)
-        if (channel.instanceId) return context
-        const channelUserCount = (await app.service(channelUserPath).find({
-          query: {
-            channelId: result.channelId
-          },
-          paginate: false
-        })) as ChannelUserType[]
-        if (channelUserCount.length === 0) {
-          await app.service(channelPath).remove(result.channelId)
-        }
-        return context
-      }
-    ]
+    remove: [addLeftChannelMessage, removeEmptyNonInstanceChannel]
   },
 
   error: {
