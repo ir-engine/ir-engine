@@ -178,7 +178,9 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
                   onClick={() => {
                     const nuTriggers = [...colliderComponent.triggers.value]
                     nuTriggers.splice(index, 1)
-                    colliderComponent.triggers.set(JSON.parse(JSON.stringify(nuTriggers)))
+                    commitProperties(ColliderComponent, { triggers: JSON.parse(JSON.stringify(nuTriggers)) }, [
+                      props.entity
+                    ])
                   }}
                 >
                   Remove
