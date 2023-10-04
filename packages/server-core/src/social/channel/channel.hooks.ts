@@ -25,17 +25,31 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
-import { channelDataValidator, channelPatchValidator } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import {
+  ChannelID,
+  ChannelType,
+  channelDataValidator,
+  channelPatchValidator,
+  channelPath
+} from '@etherealengine/engine/src/schemas/social/channel.schema'
 import {
   UserRelationshipType,
   userRelationshipPath
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { Knex } from 'knex'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
+import enableClientPagination from '../../hooks/enable-client-pagination'
+import isAction from '../../hooks/is-action'
+import persistData from '../../hooks/persist-data'
+import verifyScope from '../../hooks/verify-scope'
+import verifyUserId from '../../hooks/verify-userId'
 import {
   channelDataResolver,
   channelExternalResolver,
@@ -44,9 +58,168 @@ import {
 } from './channel.resolvers'
 
 /**
- *  Don't remove this comment. It's needed to format import lines nicely.
- *
+ * Ensure user is owner of channel
+ * @param context
+ * @returns
  */
+const ensureUserChannelOwner = async (context: HookContext) => {
+  const channelId = context.id as ChannelID
+  if (!channelId) throw new BadRequest('Must pass id in request')
+
+  const loggedInUser = context.params!.user
+  const channelUser = (await context.app.service(channelUserPath).find({
+    query: {
+      channelId,
+      userId: loggedInUser.id,
+      isOwner: true
+    }
+  })) as Paginated<ChannelUserType>
+
+  if (channelUser.data.length === 0) throw new Forbidden('Must be owner to delete channel')
+
+  return context
+}
+
+/**
+ * Ensure user is part of channel-user
+ * @param context
+ * @returns
+ */
+const ensureUserHasChannelAccess = async (context: HookContext) => {
+  const channelId = context.id as ChannelID
+  if (!channelId) throw new BadRequest('Must pass id in request')
+
+  const loggedInUser = context.params!.user
+  const channelUser = (await context.app.service(channelUserPath).find({
+    query: {
+      channelId,
+      userId: loggedInUser.id,
+      $limit: 1
+    }
+  })) as Paginated<ChannelUserType>
+
+  if (channelUser.data.length === 0) throw new Forbidden('Must be member of channel')
+
+  return context
+}
+
+/**
+ * Ensure users are friends of the owner
+ * @param context
+ * @returns
+ */
+const ensureUsersFriendWithOwner = async (context: HookContext) => {
+  const users = context.data.users
+
+  const loggedInUser = context.params!.user
+  const userId = loggedInUser?.id
+
+  if (!users || !userId) return context
+
+  const userRelationships = (await context.app.service(userRelationshipPath)._find({
+    query: {
+      userId,
+      userRelationshipType: 'friend',
+      relatedUserId: {
+        $in: users
+      }
+    },
+    paginate: false
+  })) as any as UserRelationshipType[]
+
+  if (userRelationships.length !== users.length) {
+    throw new Forbidden('Must be friends with all users to create channel')
+  }
+
+  return context
+}
+
+const handleChannelInstance = async (context: HookContext) => {
+  const query = context.service.createQuery(context.params)
+
+  if (context.params.query.instanceId) {
+    query
+      .join(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
+      .where(`${instancePath}.id`, '=', context.params.query.instanceId)
+      .andWhere(`${instancePath}.ended`, '=', false)
+  } else {
+    const userId = context.params.user.id
+
+    query
+      .leftJoin(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
+      .join(channelUserPath, `${channelPath}.id`, `${channelUserPath}.channelId`)
+      .where(`${instancePath}.ended`, '=', false)
+      .orWhereNull(`${channelPath}.instanceId`)
+      .andWhere(`${channelUserPath}.userId`, '=', userId)
+  }
+
+  context.params.knex = query
+}
+
+const checkExistingChannel = async (context: HookContext) => {
+  const { users, instanceId } = context.data
+  const userId = context.params.user?.id
+
+  if (!instanceId && users?.length) {
+    // get channel that contains the same users
+    const userIds = users.filter(Boolean)
+    if (userId) userIds.push(userId)
+
+    const knexClient: Knex = context.app.get('knexClient')
+    const existingChannel: ChannelType = await knexClient(channelPath)
+      .select(`${channelPath}.*`)
+      .leftJoin(channelUserPath, `${channelPath}.id`, '=', `${channelUserPath}.channelId`)
+      .whereNull(`${channelPath}.instanceId`)
+      .andWhere((builder) => {
+        builder.whereIn(`${channelUserPath}.userId`, userIds)
+      })
+      .groupBy(`${channelPath}.id`)
+      .havingRaw('count(*) = ?', [userIds.length])
+      .first()
+
+    if (existingChannel) {
+      context.result = existingChannel
+      context.existingData = true
+    }
+  }
+
+  return context
+}
+
+const setChannelName = async (context: HookContext) => {
+  context.data.name = context.data.instanceId ? 'World ' + context.data.instanceId : context.data.name || ''
+}
+
+const createSelfOwner = async (context: HookContext) => {
+  const userId = context.params.user?.id
+
+  if (userId) {
+    await context.app.service(channelUserPath).create({
+      channelId: context.result.id as ChannelID,
+      userId,
+      isOwner: true
+    })
+  }
+
+  return context
+}
+
+const createChannelUsers = async (context) => {
+  /** @todo ensure all users specified are friends of loggedInUser */
+
+  if (context.actualData && context.actualData.users) {
+    await Promise.all(
+      context.actualData.users.map(async (user) =>
+        context.app.service(channelUserPath).create({
+          channelId: context.result.id as ChannelID,
+          userId: user
+        })
+      )
+    )
+  }
+
+  return context
+}
 
 export default {
   around: {
@@ -55,73 +228,35 @@ export default {
 
   before: {
     all: [authenticate()],
-    find: [],
-    get: [
-      setLoggedInUser('userId'),
-      iff(isProvider('external'), async (context: HookContext) => {
-        const channelID = context.arguments[0]
-        if (!channelID) return context
-
-        const loggedInUser = context.params!.user
-        const channelUser = (await context.app.service(channelUserPath).find({
-          query: {
-            channelId: channelID,
-            userId: loggedInUser.id,
-            $limit: 1
-          }
-        })) as Paginated<ChannelUserType>
-
-        if (channelUser.data.length === 0) throw new Error('Must be member of channel!')
-
-        return context
-      })
+    find: [
+      enableClientPagination(),
+      iff(isProvider('external'), verifyUserId()),
+      iff(isProvider('external'), iffElse(isAction('admin'), verifyScope('admin', 'admin'), handleChannelInstance)),
+      discardQuery('action')
     ],
+    get: [setLoggedInUser('userId'), iff(isProvider('external'), ensureUserHasChannelAccess)],
     create: [
       () => schemaHooks.validateData(channelDataValidator),
       schemaHooks.resolveData(channelDataResolver),
-      setLoggedInUser('userId'),
-      // ensure users are friends of the owner
-      iff(isProvider('external'), async (context: HookContext) => {
-        const data = context.data
-        const users = data.users
-
-        const loggedInUser = context.params!.user
-        const userId = loggedInUser?.id
-
-        if (!users || !userId) return context
-
-        const userRelationships = (await context.app.service(userRelationshipPath)._find({
-          query: {
-            userId,
-            userRelationshipType: 'friend',
-            relatedUserId: {
-              $in: users
-            }
-          },
-          paginate: false
-        })) as any as UserRelationshipType[]
-
-        if (userRelationships.length !== users.length) {
-          throw new Error('Must be friends with all users to create channel!')
-        }
-
-        return context
-      })
+      iff(isProvider('external'), ensureUsersFriendWithOwner),
+      checkExistingChannel,
+      // Below if is to check if existing channel was found or not
+      iff((context) => !context.existingData, persistData, discard('users') as any, setChannelName)
     ],
     update: [disallow('external')],
     patch: [
-      disallow('external'),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(channelPatchValidator),
       schemaHooks.resolveData(channelPatchResolver)
     ],
-    remove: [setLoggedInUser('userId')]
+    remove: [iff(isProvider('external'), ensureUserChannelOwner)]
   },
 
   after: {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [iff((context) => !context.existingData, createSelfOwner, createChannelUsers)],
     update: [],
     patch: [],
     remove: []

@@ -36,7 +36,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 export const MediaSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -56,7 +56,7 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
         <SelectInput
           options={DistanceModelOptions}
           value={mediaState.distanceModel.value}
-          onChange={(val: DistanceModelType) => mediaState.distanceModel.set(val)}
+          onChange={commitProperty(MediaSettingsComponent, 'distanceModel')}
         />
       </InputGroup>
       <InputGroup
@@ -64,7 +64,10 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.mediaSettings.lbl-immersiveMedia')}
         info={t('editor:properties.mediaSettings.info-immersiveMedia')}
       >
-        <BooleanInput value={mediaState.immersiveMedia.value} onChange={(val) => mediaState.immersiveMedia.set(val)} />
+        <BooleanInput
+          value={mediaState.immersiveMedia.value}
+          onChange={commitProperty(MediaSettingsComponent, 'immersiveMedia')}
+        />
       </InputGroup>
 
       {mediaState.distanceModel.value === DistanceModel.Linear ? (
@@ -80,7 +83,8 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
             mediumStep={0.01}
             largeStep={0.1}
             value={mediaState.rolloffFactor.value}
-            onChange={(val) => mediaState.rolloffFactor.set(val)}
+            onChange={updateProperty(MediaSettingsComponent, 'rolloffFactor')}
+            onRelease={commitProperty(MediaSettingsComponent, 'rolloffFactor')}
           />
         </InputGroup>
       ) : (
@@ -93,7 +97,8 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
           mediumStep={1}
           largeStep={10}
           value={mediaState.rolloffFactor.value}
-          onChange={(val) => mediaState.rolloffFactor.set(val)}
+          onChange={updateProperty(MediaSettingsComponent, 'rolloffFactor')}
+          onRelease={commitProperty(MediaSettingsComponent, 'rolloffFactor')}
         />
       )}
       <NumericInputGroup
@@ -105,7 +110,8 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
         mediumStep={1}
         largeStep={10}
         value={mediaState.refDistance.value}
-        onChange={(val) => mediaState.refDistance.set(val)}
+        onChange={updateProperty(MediaSettingsComponent, 'refDistance')}
+        onRelease={commitProperty(MediaSettingsComponent, 'refDistance')}
         unit="m"
       />
       <NumericInputGroup
@@ -117,7 +123,8 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
         mediumStep={1}
         largeStep={10}
         value={mediaState.maxDistance.value}
-        onChange={(val) => mediaState.maxDistance.set(val)}
+        onChange={updateProperty(MediaSettingsComponent, 'maxDistance')}
+        onRelease={commitProperty(MediaSettingsComponent, 'maxDistance')}
         unit="m"
       />
       <NumericInputGroup
@@ -130,7 +137,8 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
         mediumStep={1}
         largeStep={10}
         value={mediaState.coneInnerAngle.value}
-        onChange={(val) => mediaState.coneInnerAngle.set(val)}
+        onChange={updateProperty(MediaSettingsComponent, 'coneInnerAngle')}
+        onRelease={commitProperty(MediaSettingsComponent, 'coneInnerAngle')}
         unit="°"
       />
       <NumericInputGroup
@@ -143,7 +151,8 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
         mediumStep={1}
         largeStep={10}
         value={mediaState.coneOuterAngle.value}
-        onChange={(val) => mediaState.coneOuterAngle.set(val)}
+        onChange={updateProperty(MediaSettingsComponent, 'coneOuterAngle')}
+        onRelease={commitProperty(MediaSettingsComponent, 'coneOuterAngle')}
         unit="°"
       />
       <InputGroup
@@ -156,7 +165,8 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
           max={1}
           step={0.01}
           value={mediaState.coneOuterGain.value}
-          onChange={(val) => mediaState.coneOuterGain.set(val)}
+          onChange={updateProperty(MediaSettingsComponent, 'coneOuterGain')}
+          onRelease={commitProperty(MediaSettingsComponent, 'coneOuterGain')}
         />
       </InputGroup>
     </PropertyGroup>

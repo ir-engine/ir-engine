@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   Camera,
+  CompressedTexture,
   CubeTexture,
   Mesh,
   NoColorSpace,
@@ -135,13 +136,18 @@ function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
 }
 
 export default async function createReadableTexture(
-  map: Texture,
+  map: Texture | CompressedTexture,
   options?: {
     url?: boolean
     canvas?: boolean
   } & BlitTextureOptions
 ): Promise<Texture | string> {
-  if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
+  if (
+    map instanceof CompressedTexture &&
+    map.isCompressedTexture &&
+    typeof map.source?.data?.src === 'string' &&
+    !/ktx2$/.test(map.source.data.src)
+  ) {
     return options?.url ? map.source.data.src : map
   }
   const result = await blitTexture(map, options)

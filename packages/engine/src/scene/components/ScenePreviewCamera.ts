@@ -29,7 +29,7 @@ import { CameraHelper, PerspectiveCamera } from 'three'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -67,6 +67,10 @@ export const ScenePreviewCameraComponent = defineComponent({
     const engineCameraTransform = useComponent(Engine.instance.cameraEntity, TransformComponent)
 
     useEffect(() => {
+      const transform = getComponent(entity, TransformComponent)
+      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      cameraTransform.position.copy(transform.position)
+      cameraTransform.rotation.copy(transform.rotation)
       addObjectToGroup(entity, previewCamera.camera.value)
     }, [])
 

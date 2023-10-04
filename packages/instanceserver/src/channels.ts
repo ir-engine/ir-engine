@@ -208,7 +208,7 @@ const initializeInstance = async (
   } else {
     const instance = existingInstanceResult.data[0]
     if (locationId) {
-      const existingChannel = (await app.service(channelPath)._find({
+      const existingChannel = (await app.service(channelPath).find({
         query: {
           instanceId: instance.id,
           $limit: 1
@@ -318,7 +318,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 const handleUserAttendance = async (app: Application, userId: UserID) => {
   const instanceServerState = getState(InstanceServerState)
 
-  const channel = (await app.service(channelPath)._find({
+  const channel = (await app.service(channelPath).find({
     query: {
       instanceId: instanceServerState.instance.id,
       $limit: 1
@@ -442,7 +442,7 @@ const shutdownServer = async (app: Application, instanceId: InstanceID) => {
       ended: true
     })
     if (instanceServer.instance.locationId) {
-      const channel = (await app.service(channelPath)._find({
+      const channel = (await app.service(channelPath).find({
         query: {
           instanceId: instanceServer.instance.id,
           $limit: 1
@@ -530,7 +530,7 @@ const handleChannelUserRemoved = (app: Application) => async (params) => {
   if (!instanceServerState.isMediaInstance) return
   const instance = instanceServerState.instance
   if (!instance.channelId) return
-  const channel = (await app.service(channelPath)._find({
+  const channel = (await app.service(channelPath).find({
     query: {
       id: instance.channelId,
       $limit: 1
@@ -731,16 +731,16 @@ export default (app: Application): void => {
 
   const kickCreatedListener = async (data: UserKickType) => {
     // TODO: only run for instanceserver
-    if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
+    if (!NetworkState.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
 
     logger.info('kicking user id %s', data.userId)
 
-    const peerId = Engine.instance.worldNetwork.users[data.userId]
+    const peerId = NetworkState.worldNetwork.users[data.userId]
     if (!peerId || !peerId[0]) return
 
     logger.info('kicking peerId %o', peerId)
 
-    const peer = Engine.instance.worldNetwork.peers[peerId[0]]
+    const peer = NetworkState.worldNetwork.peers[peerId[0]]
     if (!peer || !peer.spark) return
 
     handleDisconnect(getServerNetwork(app), peer.peerID)

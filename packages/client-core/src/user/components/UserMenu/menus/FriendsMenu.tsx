@@ -35,6 +35,7 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -162,8 +163,8 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
       .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'blocking' as const }))
     displayList.push(...blockingList)
   } else if (selectedTab.value === 'find') {
-    const layerPeers = Engine.instance.worldNetwork
-      ? Object.values(Engine.instance.worldNetwork.peers).filter(
+    const layerPeers = NetworkState.worldNetwork
+      ? Object.values(NetworkState.worldNetwork.peers).filter(
           (peer) =>
             peer.peerID !== 'server' &&
             peer.userId !== userId &&

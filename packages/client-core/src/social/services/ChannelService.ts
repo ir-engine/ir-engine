@@ -27,6 +27,7 @@ import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -59,7 +60,7 @@ export const ChannelService = {
     try {
       const channelResult = (await Engine.instance.api
         .service(channelPath)
-        .find({ query: { paginate: false } })) as ChannelType[]
+        .find({ query: { paginate: false } })) as any as ChannelType[]
       const channelState = getMutableState(ChannelState)
       channelState.channels.merge({
         channels: channelResult
@@ -72,10 +73,10 @@ export const ChannelService = {
     try {
       const channelResult = (await Engine.instance.api.service(channelPath).find({
         query: {
-          instanceId: Engine.instance.worldNetwork.id,
+          instanceId: NetworkState.worldNetwork.id,
           paginate: false
         }
-      })) as ChannelType[]
+      })) as any as ChannelType[]
       if (channelResult.length === 0) return setTimeout(() => ChannelService.getInstanceChannel(), 2000)
 
       const channel = channelResult[0]
@@ -84,7 +85,7 @@ export const ChannelService = {
       let findIndex
       if (typeof channel.id === 'string')
         findIndex = channelState.channels.channels.findIndex((c) => c.id.value === channel.id)
-      let idx = findIndex > -1 ? findIndex : channelState.channels.channels.length
+      const idx = findIndex > -1 ? findIndex : channelState.channels.channels.length
       channelState.channels.channels[idx].set(channel)
       const endedInstanceChannelIndex = channelState.channels.channels.findIndex(
         (_channel) => channel.id !== _channel.id.value
@@ -98,10 +99,14 @@ export const ChannelService = {
       })
       channelState.merge({ messageCreated: true })
     } catch (err) {
+      console.error(err)
       //Occasionally, the client attempts to fetch the instance's channel after it's been created, but before the user's
       //channel-user has been created, which occurs when connecting to the instance server.
       //If it's a 403, it is almost definitely because of this issue, so just wait a second and try again.
-      if (err.code == 403) return setTimeout(() => ChannelService.getInstanceChannel(), 1000)
+      //The second part of the if condition is to handle the scenario when its channel resolver calling message service.
+      if (err.code == 403 || (err.data && err.data.length > 0 && err.data[0].data?.code === 403)) {
+        return setTimeout(() => ChannelService.getInstanceChannel(), 1000)
+      }
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
@@ -119,12 +124,12 @@ export const ChannelService = {
   },
   joinChannelInstance: (channelID: ChannelID) => {
     getMutableState(ChannelState).targetChannelId.set(channelID)
-    if (channelID === '' && Engine.instance.worldNetwork) {
+    if (channelID === '' && NetworkState.worldNetwork) {
       ChannelService.getInstanceChannel()
     } else {
       getMutableState(ChannelState).targetChannelId.set(channelID)
     }
-    const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const network = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (!network) return
     leaveNetwork(network)
   },
