@@ -43,7 +43,7 @@ export function getProjectName(path: string) {
 }
 
 export function getFileDirectory(path: string) {
-  return /^https:\/\/[^/]+\/(.+?)\/[^/]+\.*$/.exec(path)?.[1] ?? ''
+  return /^https:\/\/[^/]+\/[^/]+\/(.+?)\/[^/]+\.*$/.exec(path)?.[1] ?? ''
 }
 
 export function getDomainURL(path: string) {
