@@ -42,6 +42,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -109,7 +110,7 @@ const execute = () => {
       const deltaSeconds = getState(EngineState).deltaSeconds
       if (
         !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
-        Engine.instance.worldNetwork &&
+        NetworkState.worldNetwork &&
         controller.gamepadWorldMovement.lengthSq() > 0.1 * deltaSeconds
       ) {
         const networkObject = getComponent(controlledEntity, NetworkObjectComponent)

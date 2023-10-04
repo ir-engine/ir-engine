@@ -37,7 +37,7 @@ import { ComponentType, defineQuery, getComponent, useComponent } from '../../ec
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaSettingsState } from '../../networking/MediaSettingsState'
-import { webcamAudioDataChannelType } from '../../networking/NetworkState'
+import { NetworkState, webcamAudioDataChannelType } from '../../networking/NetworkState'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import {
   MediasoupMediaProducerConsumerState,
@@ -71,7 +71,7 @@ const execute = () => {
   const audioState = getState(AudioState)
 
   const audioContext = audioState.audioContext
-  const network = Engine.instance.mediaNetwork
+  const network = NetworkState.mediaNetwork
   const mediaSettings = getState(MediaSettingsState)
   const immersiveMedia = mediaSettings.immersiveMedia
 
