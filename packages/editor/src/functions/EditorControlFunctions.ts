@@ -240,12 +240,14 @@ const createObjectFromSceneElement = (
 
   const serializedEntity = serializeEntity(newEntity)
 
+  const name = getComponent(newEntity, NameComponent)
+
   removeEntity(newEntity)
 
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
   if (updateSelection) newSnapshot.selectedEntities = [entityUUID]
   newSnapshot.data.scene.entities[entityUUID] = {
-    name: getComponent(newEntity, NameComponent),
+    name,
     components: serializedEntity,
     parent: getComponent(parentEntity, UUIDComponent),
     index: childIndex
