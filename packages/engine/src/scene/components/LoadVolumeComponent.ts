@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import matches, { Validator } from 'ts-matches'
+import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -51,20 +51,37 @@ export type LoadVolumeTarget = {
 }
 
 export type LoadVolumeComponentType = {
-  targets: Record<EntityUUID, LoadVolumeTarget>
+  targets: LoadVolumeTarget[]
 }
 
 export const LoadVolumeComponent = defineComponent({
   name: 'EE_load_volume',
   jsonID: 'load-volume',
-  onInit: (entity) => ({ targets: {} }) as LoadVolumeComponentType,
+  onInit: (entity) => ({ targets: [] }) as LoadVolumeComponentType,
   toJSON: (entity, component) => {
     return component.value
   },
   onSet: (entity, component, json) => {
     if (!json) return
 
-    if ((matches.object as Validator<unknown, Record<EntityUUID, LoadVolumeTarget>>).test(json.targets)) {
+    if (
+      matches
+        .arrayOf(
+          matches.shape({
+            uuid: matches.string,
+            entities: matches.arrayOf(
+              matches.shape({
+                uuid: matches.string,
+                name: matches.string,
+                parent: matches.string,
+                components: matches.any
+              })
+            ),
+            loaded: matches.boolean
+          })
+        )
+        .test(json.targets)
+    ) {
       component.targets.set(json.targets)
     }
   },
@@ -73,24 +90,19 @@ export const LoadVolumeComponent = defineComponent({
     const component = useComponent(entity, LoadVolumeComponent)
     useEffect(() => {
       function doLoad() {
-        Object.values(component.targets.value).map(({ uuid, loaded, entities }) => {
+        component.targets.value.map(({ uuid, loaded, entities }, index) => {
           if (loaded) return
           for (const entityJson of entities) {
             const { name, parent, components } = entityJson
             const nuJson = JSON.parse(JSON.stringify({ name, parent, components }))
             updateSceneEntity(entityJson.uuid, nuJson)
           }
-        })
-        component.targets.merge((_targets) => {
-          Object.keys(_targets).map((_uuid) => {
-            _targets[_uuid] = { ..._targets[_uuid], loaded: true }
-          })
-          return _targets
+          component.targets[index].loaded.set(true)
         })
       }
 
       function doUnload() {
-        Object.values(component.targets.value).map(({ uuid, loaded }) => {
+        component.targets.value.map(({ uuid, loaded }, index) => {
           if (!loaded) return
           const rootEntity = UUIDComponent.entitiesByUUID[uuid]
           const entities = iterateEntityNode(rootEntity, (targetEntity) => {
@@ -105,7 +117,7 @@ export const LoadVolumeComponent = defineComponent({
             }
             return entityJson
           })
-          component.targets[uuid].set({ uuid, loaded: false, entities })
+          component.targets[index].set({ uuid, loaded: false, entities })
           removeEntityNodeRecursively(rootEntity)
         })
       }
