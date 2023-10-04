@@ -47,11 +47,6 @@ import {
   scopeResolver
 } from '../../scope/scope/scope.resolvers'
 
-/**
- * Ensure user is owner of the channel in channel-user
- * @param context
- * @returns
- */
 const ensureDataIsArray = async (context: HookContext) => {
   if (!Array.isArray(context.data)) {
     context.data = [context.data]
@@ -59,7 +54,7 @@ const ensureDataIsArray = async (context: HookContext) => {
 }
 
 /**
- * Ensure user is owner of the channel in channel-user
+ * Check and maintain existing scopes
  * @param context
  * @returns
  */
@@ -107,7 +102,7 @@ export default {
       () => schemaHooks.validateQuery(scopeQueryValidator),
       schemaHooks.resolveQuery(scopeQueryResolver)
     ],
-    find: [enableClientPagination, iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
+    find: [enableClientPagination(), iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
