@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { getState } from '@etherealengine/hyperflux'
+import { State, getState } from '@etherealengine/hyperflux'
 import { AudioState } from '../../audio/AudioState'
 import {
+  ComponentType,
   defineComponent,
   getMutableComponent,
   removeComponent,
@@ -42,9 +43,12 @@ import { ShadowComponent } from './ShadowComponent'
 import { UVOL1Component } from './UVOL1Component'
 import { UVOL2Component } from './UVOL2Component'
 
-export function handleAutoplay(audioContext: AudioContext, element: HTMLMediaElement) {
+export function handleAutoplay(
+  audioContext: AudioContext,
+  volumetric: State<ComponentType<typeof VolumetricComponent>>
+) {
   const playMedia = () => {
-    element.play()
+    volumetric.paused.set(false)
     audioContext.resume()
     window.removeEventListener('pointerdown', playMedia)
     window.removeEventListener('keypress', playMedia)

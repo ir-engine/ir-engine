@@ -479,7 +479,8 @@ function UVOL2Reactor() {
     if (component.hasAudio.value) {
       audio.play().catch((e) => {
         if (e.name === 'NotAllowedError') {
-          handleAutoplay(audioContext, audio)
+          volumetric.paused.set(true)
+          handleAutoplay(audioContext, volumetric)
         } else {
           console.error(e)
         }

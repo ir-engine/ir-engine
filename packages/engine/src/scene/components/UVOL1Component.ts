@@ -189,7 +189,8 @@ function UVOL1Reactor() {
 
     video.play().catch((e) => {
       if (e.name === 'NotAllowedError') {
-        handleAutoplay(audioContext, video)
+        volumetric.paused.set(true)
+        handleAutoplay(audioContext, volumetric)
       } else {
         console.error(e)
       }
