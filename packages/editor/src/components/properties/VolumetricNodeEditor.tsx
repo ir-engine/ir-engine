@@ -34,6 +34,7 @@ import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 import VideocamIcon from '@mui/icons-material/Videocam'
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -90,6 +91,17 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           value={volumetricComponent.useLoadingEffect.value}
         />
       </InputGroup> */}
+
+      <InputGroup
+        name="Autoplay"
+        label={t('editor:properties.media.lbl-autoplay')}
+        info={t('editor:properties.media.info-autoplay')}
+      >
+        <BooleanInput
+          onChange={commitProperty(VolumetricComponent, 'autoplay')}
+          value={volumetricComponent.autoplay.value}
+        />
+      </InputGroup>
 
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
         <CompoundNumericInput

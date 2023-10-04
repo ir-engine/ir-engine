@@ -469,24 +469,26 @@ function UVOL2Reactor() {
   }
 
   useEffect(() => {
+    // If autoplay is enabled, play the audio irrespective of paused state
+    if (volumetric.autoplay.value && volumetric.initialBuffersLoaded.value) {
+      if (component.hasAudio.value) {
+        handleAutoplay(audioContext, audio, volumetric)
+      } else {
+        volumetric.paused.set(false)
+      }
+    }
+  }, [volumetric.autoplay, volumetric.initialBuffersLoaded])
+
+  useEffect(() => {
     if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
       if (component.hasAudio.value) {
         audio.pause()
       }
-      return
     }
-
     if (component.hasAudio.value) {
-      audio.play().catch((e) => {
-        if (e.name === 'NotAllowedError') {
-          volumetric.paused.set(true)
-          handleAutoplay(audioContext, volumetric)
-        } else {
-          console.error(e)
-        }
-      })
+      handleAutoplay(audioContext, audio, volumetric)
     }
-  }, [volumetric.paused, volumetric.initialBuffersLoaded])
+  }, [volumetric.paused])
 
   const getAttribute = (name: string, target: string, index: number) => {
     const key = createKey(target, index)
@@ -666,13 +668,14 @@ function UVOL2Reactor() {
   }
 
   const update = () => {
+    const delta = clock.getDelta()
     if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
       return
     }
     if (manifest.current.audio) {
       currentTime.current = audio.currentTime
     } else {
-      currentTime.current = clock.getElapsedTime()
+      currentTime.current += delta
     }
     if (currentTime.current > manifest.current.duration || audio.ended) {
       volumetric.ended.set(true)

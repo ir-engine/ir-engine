@@ -182,20 +182,19 @@ function UVOL1Reactor() {
   }, [])
 
   useEffect(() => {
+    // If autoplay is enabled, play the video irrespective of paused state
+    if (volumetric.autoplay.value && volumetric.initialBuffersLoaded.value) {
+      handleAutoplay(audioContext, video, volumetric)
+    }
+  }, [volumetric.autoplay, volumetric.initialBuffersLoaded])
+
+  useEffect(() => {
     if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
       video.pause()
       return
     }
-
-    video.play().catch((e) => {
-      if (e.name === 'NotAllowedError') {
-        volumetric.paused.set(true)
-        handleAutoplay(audioContext, volumetric)
-      } else {
-        console.error(e)
-      }
-    })
-  }, [volumetric.paused, volumetric.initialBuffersLoaded])
+    handleAutoplay(audioContext, video, volumetric)
+  }, [volumetric.paused])
 
   useVideoFrameCallback(video, (now, metadata) => {
     if (!metadata) return

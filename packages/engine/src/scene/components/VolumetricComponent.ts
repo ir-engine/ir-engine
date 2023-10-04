@@ -45,22 +45,38 @@ import { UVOL2Component } from './UVOL2Component'
 
 export function handleAutoplay(
   audioContext: AudioContext,
+  media: HTMLMediaElement,
   volumetric: State<ComponentType<typeof VolumetricComponent>>
 ) {
-  const playMedia = () => {
-    volumetric.paused.set(false)
-    audioContext.resume()
-    window.removeEventListener('pointerdown', playMedia)
-    window.removeEventListener('keypress', playMedia)
-    window.removeEventListener('touchstart', playMedia)
-    EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', playMedia)
-    EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', playMedia)
+  const attachEventListeners = () => {
+    const playMedia = () => {
+      media.play()
+      audioContext.resume()
+      volumetric.paused.set(false)
+      window.removeEventListener('pointerdown', playMedia)
+      window.removeEventListener('keypress', playMedia)
+      window.removeEventListener('touchstart', playMedia)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerdown', playMedia)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchstart', playMedia)
+    }
+    window.addEventListener('pointerdown', playMedia)
+    window.addEventListener('keypress', playMedia)
+    window.addEventListener('touchstart', playMedia)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', playMedia)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', playMedia)
   }
-  window.addEventListener('pointerdown', playMedia)
-  window.addEventListener('keypress', playMedia)
-  window.addEventListener('touchstart', playMedia)
-  EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', playMedia)
-  EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', playMedia)
+
+  // Try to play. If it fails, attach event listeners to play on user interaction
+  media
+    .play()
+    .catch((e) => {
+      if (e.name === 'NotAllowedError') {
+        attachEventListeners()
+      }
+    })
+    .then(() => {
+      volumetric.paused.set(false)
+    })
 }
 
 export const VolumetricComponent = defineComponent({
@@ -74,8 +90,10 @@ export const VolumetricComponent = defineComponent({
     setComponent(entity, ShadowComponent)
     return {
       paths: [] as string[],
+      autoplay: true,
       paused: false,
       initialBuffersLoaded: false,
+      hasAudio: true,
       ended: true,
       volume: 1,
       playMode: PlayMode.loop as PlayMode,
@@ -86,6 +104,7 @@ export const VolumetricComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       paths: component.paths.value,
+      autoplay: component.autoplay.value,
       paused: component.paused.value,
       volume: component.volume.value,
       playMode: component.playMode.value
@@ -96,6 +115,10 @@ export const VolumetricComponent = defineComponent({
     if (!json) return
     if (typeof json.paths === 'object') {
       component.paths.set(json.paths)
+    }
+
+    if (typeof json.autoplay === 'boolean') {
+      component.autoplay.set(json.autoplay)
     }
 
     if (typeof json.paused === 'boolean') {
