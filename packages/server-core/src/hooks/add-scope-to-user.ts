@@ -38,15 +38,23 @@ export default () => {
         paginate: false
       })) as ScopeType[]
 
+      const removePromise = [] as Promise<ScopeType | null>[]
       if (foundItem.length > 0) {
-        foundItem.forEach(async (scp) => {
-          try {
-            await context.app.service(scopePath).remove(scp.id)
-          } catch (e) {
-            return
-          }
+        foundItem.forEach((scp) => {
+          removePromise.push(
+            new Promise<ScopeType | null>(async (resolve) => {
+              try {
+                const removedScope = await context.app.service(scopePath).remove(scp.id)
+                resolve(removedScope)
+              } catch (e) {
+                resolve(null)
+              }
+            })
+          )
         })
       }
+
+      await Promise.all(removePromise)
 
       const data = context.arguments[1].scopes.map((el) => {
         return {
