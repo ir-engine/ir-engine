@@ -49,7 +49,7 @@ import {
   clientSettingResolver
 } from './client-setting.resolvers'
 
-const beforePatchActionHook = async (context: HookContext) => {
+const updateWebManifest = async (context: HookContext) => {
   const webmanifestPath =
     process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' ? `client/public/site.webmanifest` : 'site.webmanifest'
   const storageProvider = getStorageProvider()
@@ -135,7 +135,7 @@ export default {
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(clientSettingPatchValidator),
       schemaHooks.resolveData(clientSettingPatchResolver),
-      beforePatchActionHook
+      updateWebManifest
     ],
     remove: [
       authenticate(),

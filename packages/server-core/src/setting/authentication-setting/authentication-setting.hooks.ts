@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   authenticationSettingDataValidator,
   authenticationSettingPatchValidator,
+  authenticationSettingPath,
   authenticationSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { hooks as schemaHooks } from '@feathersjs/schema'
@@ -48,7 +49,7 @@ import {
   authenticationSettingSchemaToDb
 } from './authentication-setting.resolvers'
 
-const findActionHook = async (context: HookContext) => {
+const mapResultAdmin = async (context: HookContext) => {
   const auth = context.result
   const loggedInUser = context.params!.user!
   const data = auth.data.map((el) => {
@@ -76,8 +77,8 @@ const findActionHook = async (context: HookContext) => {
   context.result = { total: auth.total, limit: auth.limit, skip: auth.skip, data }
 }
 
-const beforePatchActionHook = async (context: HookContext) => {
-  const authSettings = await context.service.get(context.id!)
+const ensureOAth = async (context: HookContext) => {
+  const authSettings = await context.app.service(authenticationSettingPath).get(context.id!)
 
   if (typeof context.data.oauth === 'string') {
     context.data.oauth = JSON.parse(context.data.oauth)
@@ -106,9 +107,7 @@ const beforePatchActionHook = async (context: HookContext) => {
   context.data = authenticationSettingSchemaToDb(context.data)
 }
 
-const afterPatchActionHook = async (context: HookContext) => {
-  const patchResult = context.result
-
+const refreshApiPods = async (context: HookContext) => {
   const k8AppsClient = getState(ServerState).k8AppsClient
 
   if (k8AppsClient) {
@@ -173,18 +172,18 @@ export default {
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(authenticationSettingPatchValidator),
       schemaHooks.resolveData(authenticationSettingPatchResolver),
-      beforePatchActionHook
+      ensureOAth
     ],
     remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))]
   },
 
   after: {
     all: [],
-    find: [findActionHook],
+    find: [mapResultAdmin],
     get: [],
     create: [],
     update: [],
-    patch: [afterPatchActionHook],
+    patch: [refreshApiPods],
     remove: []
   },
 
