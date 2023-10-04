@@ -172,6 +172,15 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
                     />
                   )}
                 </InputGroup>
+                <Button
+                  onClick={() => {
+                    const nuTriggers = [...colliderComponent.triggers.value]
+                    nuTriggers.splice(index, 1)
+                    colliderComponent.triggers.set(JSON.parse(JSON.stringify(nuTriggers)))
+                  }}
+                >
+                  Remove
+                </Button>
               </>
             )
           })}
