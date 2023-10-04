@@ -180,7 +180,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
   const mocapState = getMutableState(MotionCaptureState)
-  solveSpine(entity, lowestWorldY, landmarks, estimatingLowerBody)
+  solveSpine(entity, lowestWorldY, landmarks)
   solveLimb(
     entity,
     lowestWorldY,
@@ -303,12 +303,8 @@ const vec3 = new Vector3()
  * The spine is the joints connecting the hips and shoulders. Given solved hips, we can solve each of the spine bones connecting the hips to the shoulders using the shoulder's position and rotation.
  */
 
-export const solveSpine = (
-  entity: Entity,
-  lowestWorldY,
-  landmarks: NormalizedLandmarkList,
-  estimatingLowerBody: boolean
-) => {
+export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList) => {
+  const trackingLowerBody = getState(MotionCaptureState).trackingLowerBody
   const rig = getComponent(entity, AvatarRigComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
@@ -338,13 +334,13 @@ export const solveSpine = (
 
   const offset = 0
   const legLength = rig.upperLegLength + rig.lowerLegLength * 2 - offset
-  const hipleft = estimatingLowerBody
+  const hipleft = trackingLowerBody
     ? new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
     : new Vector3(0, legLength, 0)
-  const hipright = estimatingLowerBody
+  const hipright = trackingLowerBody
     ? new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
     : new Vector3(0, legLength, 0)
-  const hipcenter = estimatingLowerBody
+  const hipcenter = trackingLowerBody
     ? new Vector3().copy(hipleft).add(hipright).multiplyScalar(0.5)
     : new Vector3(0, legLength, 0)
 
@@ -417,7 +413,7 @@ export const solveSpine = (
     hipObject,
     spineObject,
     shoulderObject,
-    shoulderPositionAlongPlane, // target position
+    new Vector3(0, 2, 0), // target position
     shoulderWorldQuaternion, // target quaternion
     null,
     null,
@@ -429,7 +425,7 @@ export const solveSpine = (
     1
   )
 
-  if (estimatingLowerBody) {
+  if (trackingLowerBody) {
     MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipObject.quaternion.x
     MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipObject.quaternion.y
     MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipObject.quaternion.z
