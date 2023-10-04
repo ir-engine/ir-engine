@@ -36,6 +36,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { MotionCaptureState } from '../../mocap/MotionCaptureState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RendererState } from '../../renderer/RendererState'
@@ -192,140 +193,145 @@ const execute = () => {
       }
     }
 
-    hipsForward.set(0, 0, 1)
+    if (!getState(MotionCaptureState).trackingLowerBody || getState(XRState).sessionActive) {
+      hipsForward.set(0, 0, 1)
 
-    //calculate world positions
+      //calculate world positions
 
-    applyInputSourcePoseToIKTargets()
-    setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
+      applyInputSourcePoseToIKTargets()
+      setIkFootTarget(rigComponent.upperLegLength + rigComponent.lowerLegLength, deltaTime)
 
-    for (const ikEntity of ikEntities) {
-      const networkObject = getComponent(ikEntity, NetworkObjectComponent)
-      const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
-      if (ownerEntity !== entity) continue
+      for (const ikEntity of ikEntities) {
+        const networkObject = getComponent(ikEntity, NetworkObjectComponent)
+        const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
+        if (ownerEntity !== entity) continue
 
-      const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
-      const rigComponent = getComponent(ownerEntity, AvatarRigComponent)
+        const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
+        const rigComponent = getComponent(ownerEntity, AvatarRigComponent)
 
-      const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
-      const ikTransform = getComponent(ikEntity, TransformComponent)
-      const ikComponent = getComponent(ikEntity, AvatarIKTargetComponent)
+        const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
+        const ikTransform = getComponent(ikEntity, TransformComponent)
+        const ikComponent = getComponent(ikEntity, AvatarIKTargetComponent)
 
-      ikDataByName[ikTargetName] = {
-        position: ikTransform.position,
-        rotation: ikTransform.rotation,
-        blendWeight: ikComponent.blendWeight
+        ikDataByName[ikTargetName] = {
+          position: ikTransform.position,
+          rotation: ikTransform.rotation,
+          blendWeight: ikComponent.blendWeight
+        }
+
+        //special case for the head if we're in xr mode
+        //todo: automatically infer whether or not we need to set hips position from the head position
+        if (rigComponent.ikOverride == 'xr' && ikTargetName == 'head') {
+          rig.hips.node.position.copy(
+            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
+          )
+
+          //offset target forward to account for hips being behind the head
+          hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
+          hipsForward.multiplyScalar(0.125)
+          rig.hips.node.position.sub(hipsForward)
+
+          //calculate head look direction and apply to head bone
+          //look direction should be set outside of the xr switch
+          rig.head.node.quaternion.copy(
+            _quat.multiplyQuaternions(
+              rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
+              ikTransform.rotation
+            )
+          )
+          continue
+        }
       }
 
-      //special case for the head if we're in xr mode
-      //todo: automatically infer whether or not we need to set hips position from the head position
-      if (rigComponent.ikOverride == 'xr' && ikTargetName == 'head') {
-        rig.hips.node.position.copy(
-          _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
-        )
+      const transform = getComponent(entity, TransformComponent)
 
-        //offset target forward to account for hips being behind the head
-        hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
-        hipsForward.multiplyScalar(0.125)
-        rig.hips.node.position.sub(hipsForward)
+      const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
+      const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
 
-        //calculate head look direction and apply to head bone
-        //look direction should be set outside of the xr switch
-        rig.head.node.quaternion.copy(
-          _quat.multiplyQuaternions(rig.spine.node.getWorldQuaternion(new Quaternion()).invert(), ikTransform.rotation)
+      //calculate hips to head
+      rig.hips.node.position.applyMatrix4(transform.matrixInverse)
+      if (ikDataByName[ikTargets.head])
+        _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
+
+      if (ikDataByName[ikTargets.rightHand]) {
+        solveTwoBoneIK(
+          rig.rightUpperArm.node,
+          rig.rightLowerArm.node,
+          rig.rightHand.node,
+          ikDataByName[ikTargets.rightHand].position,
+          ikDataByName[ikTargets.rightHand].rotation,
+          null,
+          ikDataByName[ikTargets.rightElbowHint]
+            ? ikDataByName[ikTargets.rightElbowHint].position
+            : _vector3.copy(transform.position).sub(right),
+          tipAxisRestriction,
+          null,
+          null,
+          ikDataByName[ikTargets.rightHand].blendWeight,
+          ikDataByName[ikTargets.rightHand].blendWeight
         )
-        continue
       }
-    }
 
-    const transform = getComponent(entity, TransformComponent)
+      if (ikDataByName[ikTargets.leftHand]) {
+        solveTwoBoneIK(
+          rig.leftUpperArm.node,
+          rig.leftLowerArm.node,
+          rig.leftHand.node,
+          ikDataByName[ikTargets.leftHand].position,
+          ikDataByName[ikTargets.leftHand].rotation,
+          null,
+          ikDataByName[ikTargets.leftElbowHint]
+            ? ikDataByName[ikTargets.leftElbowHint].position
+            : _vector3.copy(transform.position).add(right),
+          tipAxisRestriction,
+          null,
+          null,
+          ikDataByName[ikTargets.leftHand].blendWeight,
+          ikDataByName[ikTargets.leftHand].blendWeight
+        )
+      }
 
-    const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
-    const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
+      if (footRaycastTimer >= footRaycastInterval) {
+        footRaycastTimer = 0
+      }
 
-    //calculate hips to head
-    rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-    if (ikDataByName[ikTargets.head])
-      _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
+      if (ikDataByName[ikTargets.rightFoot]) {
+        solveTwoBoneIK(
+          rig.rightUpperLeg.node,
+          rig.rightLowerLeg.node,
+          rig.rightFoot.node,
+          ikDataByName[ikTargets.rightFoot].position,
+          ikDataByName[ikTargets.rightFoot].rotation,
+          null,
+          ikDataByName[ikTargets.rightKneeHint]
+            ? ikDataByName[ikTargets.rightKneeHint].position
+            : _vector3.copy(transform.position).add(forward),
+          null,
+          midAxisRestriction,
+          null,
+          ikDataByName[ikTargets.rightFoot].blendWeight,
+          ikDataByName[ikTargets.rightFoot].blendWeight
+        )
+      }
 
-    if (ikDataByName[ikTargets.rightHand]) {
-      solveTwoBoneIK(
-        rig.rightUpperArm.node,
-        rig.rightLowerArm.node,
-        rig.rightHand.node,
-        ikDataByName[ikTargets.rightHand].position,
-        ikDataByName[ikTargets.rightHand].rotation,
-        null,
-        ikDataByName[ikTargets.rightElbowHint]
-          ? ikDataByName[ikTargets.rightElbowHint].position
-          : _vector3.copy(transform.position).sub(right),
-        tipAxisRestriction,
-        null,
-        null,
-        ikDataByName[ikTargets.rightHand].blendWeight,
-        ikDataByName[ikTargets.rightHand].blendWeight
-      )
-    }
-
-    if (ikDataByName[ikTargets.leftHand]) {
-      solveTwoBoneIK(
-        rig.leftUpperArm.node,
-        rig.leftLowerArm.node,
-        rig.leftHand.node,
-        ikDataByName[ikTargets.leftHand].position,
-        ikDataByName[ikTargets.leftHand].rotation,
-        null,
-        ikDataByName[ikTargets.leftElbowHint]
-          ? ikDataByName[ikTargets.leftElbowHint].position
-          : _vector3.copy(transform.position).add(right),
-        tipAxisRestriction,
-        null,
-        null,
-        ikDataByName[ikTargets.leftHand].blendWeight,
-        ikDataByName[ikTargets.leftHand].blendWeight
-      )
-    }
-
-    if (footRaycastTimer >= footRaycastInterval) {
-      footRaycastTimer = 0
-    }
-
-    if (ikDataByName[ikTargets.rightFoot]) {
-      solveTwoBoneIK(
-        rig.rightUpperLeg.node,
-        rig.rightLowerLeg.node,
-        rig.rightFoot.node,
-        ikDataByName[ikTargets.rightFoot].position,
-        ikDataByName[ikTargets.rightFoot].rotation,
-        null,
-        ikDataByName[ikTargets.rightKneeHint]
-          ? ikDataByName[ikTargets.rightKneeHint].position
-          : _vector3.copy(transform.position).add(forward),
-        null,
-        midAxisRestriction,
-        null,
-        ikDataByName[ikTargets.rightFoot].blendWeight,
-        ikDataByName[ikTargets.rightFoot].blendWeight
-      )
-    }
-
-    if (ikDataByName[ikTargets.leftFoot]) {
-      solveTwoBoneIK(
-        rig.leftUpperLeg.node,
-        rig.leftLowerLeg.node,
-        rig.leftFoot.node,
-        ikDataByName[ikTargets.leftFoot].position,
-        ikDataByName[ikTargets.leftFoot].rotation,
-        null,
-        ikDataByName[ikTargets.leftKneeHint]
-          ? ikDataByName[ikTargets.leftKneeHint].position
-          : _vector3.copy(transform.position).add(forward),
-        null,
-        midAxisRestriction,
-        null,
-        ikDataByName[ikTargets.leftFoot].blendWeight,
-        ikDataByName[ikTargets.leftFoot].blendWeight
-      )
+      if (ikDataByName[ikTargets.leftFoot]) {
+        solveTwoBoneIK(
+          rig.leftUpperLeg.node,
+          rig.leftLowerLeg.node,
+          rig.leftFoot.node,
+          ikDataByName[ikTargets.leftFoot].position,
+          ikDataByName[ikTargets.leftFoot].rotation,
+          null,
+          ikDataByName[ikTargets.leftKneeHint]
+            ? ikDataByName[ikTargets.leftKneeHint].position
+            : _vector3.copy(transform.position).add(forward),
+          null,
+          midAxisRestriction,
+          null,
+          ikDataByName[ikTargets.leftFoot].blendWeight,
+          ikDataByName[ikTargets.leftFoot].blendWeight
+        )
+      }
     }
 
     rigComponent.vrm.update(deltaTime)
