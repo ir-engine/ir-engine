@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { XRUI, createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { defineState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { PopupMenuActions } from '../../../user/components/UserMenu/PopupMenuService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
@@ -66,7 +66,7 @@ const AvatarContextMenu = () => {
   const authState = useHookstate(getMutableState(AuthState))
   const selfId = authState.user.id?.value ?? ''
 
-  const peers = Engine.instance.worldNetwork?.peers
+  const peers = NetworkState.worldNetwork?.peers
   const user = peers
     ? Object.values(peers).find((peer) => peer.userId === detailState.id.value) || undefined
     : undefined
@@ -94,7 +94,7 @@ const AvatarContextMenu = () => {
 
   useEffect(() => {
     if (detailState.id.value !== '') {
-      const tappedUser = Object.values(Engine.instance.worldNetwork.peers).find(
+      const tappedUser = Object.values(NetworkState.worldNetwork.peers).find(
         (peer) => peer.userId === detailState.id.value
       )
       dispatchAction(PopupMenuActions.showPopupMenu({ id: AvatarMenus.AvatarContext, params: { user: tappedUser } }))
