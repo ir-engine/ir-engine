@@ -30,7 +30,7 @@ import { Application } from '../../declarations'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
 
 export default async (app: Application, userId: UserID) => {
-  const adminCount = (await app.service(scopePath)._find({
+  const adminCount = (await app.service(scopePath).find({
     query: {
       $select: ['id'],
       type: 'admin:admin'

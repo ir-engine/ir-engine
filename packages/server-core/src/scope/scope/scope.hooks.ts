@@ -27,11 +27,16 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  ScopeData,
+  ScopeType,
   scopeDataValidator,
   scopePatchValidator,
+  scopePath,
   scopeQueryValidator
 } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
 import {
@@ -42,23 +47,74 @@ import {
   scopeResolver
 } from '../../scope/scope/scope.resolvers'
 
+/**
+ * Ensure user is owner of the channel in channel-user
+ * @param context
+ * @returns
+ */
+const ensureDataIsArray = async (context: HookContext) => {
+  if (!Array.isArray(context.data)) {
+    context.data = [context.data]
+  }
+}
+
+/**
+ * Ensure user is owner of the channel in channel-user
+ * @param context
+ * @returns
+ */
+const checkExistingScopes = async (context: HookContext) => {
+  const queryParams = { userId: context.data[0].userId }
+
+  const oldScopes = (await context.app.service(scopePath).find({
+    query: queryParams,
+    paginate: false
+  })) as ScopeType[]
+
+  const existingData: ScopeData[] = []
+  const createData: ScopeData[] = []
+
+  for (const item of context.data) {
+    const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
+    if (existingScope) {
+      existingData.push(existingScope)
+    } else {
+      createData.push(item)
+    }
+  }
+
+  if (createData.length > 0) {
+    context.data = createData
+    context.existingData = existingData
+  } else {
+    context.result = existingData
+  }
+}
+
+const addExistingScopes = async (context: HookContext) => {
+  if (context.existingData?.length > 0) {
+    context.result = [...context.result, ...context.existingData]
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(scopeExternalResolver), schemaHooks.resolveResult(scopeResolver)]
   },
-
   before: {
     all: [
       authenticate(),
       () => schemaHooks.validateQuery(scopeQueryValidator),
       schemaHooks.resolveQuery(scopeQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
+    find: [enableClientPagination, iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
       () => schemaHooks.validateData(scopeDataValidator),
-      schemaHooks.resolveData(scopeDataResolver)
+      schemaHooks.resolveData(scopeDataResolver),
+      ensureDataIsArray,
+      checkExistingScopes
     ],
     update: [disallow()],
     patch: [
@@ -73,7 +129,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addExistingScopes],
     update: [],
     patch: [],
     remove: []
