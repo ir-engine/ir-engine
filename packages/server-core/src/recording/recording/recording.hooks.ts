@@ -24,16 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
   recordingDataValidator,
   recordingPatchValidator,
+  recordingPath,
   recordingQueryValidator
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 
-import { HookContext, NextFunction } from '@feathersjs/feathers'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { NotFound } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
+import isAction from '../../hooks/is-action'
+import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
+import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import verifyScope from '../../hooks/verify-scope'
 import {
   recordingDataResolver,
@@ -43,46 +49,31 @@ import {
   recordingResolver
 } from './recording.resolvers'
 
-const applyUserNameSort = async (context: HookContext, next: NextFunction) => {
-  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
+const sortByUserName = async (context: HookContext) => {
+  if (context.params.query?.$sort?.['user']) {
+    const sort = context.params.query.$sort['user']
+    delete context.params.query.$sort['user']
 
-  const hasUserNameSort = context.params.query && context.params.query.$sort && context.params.query.$sort['user']
+    const query = context.service.createQuery(context.params)
 
-  if (hasUserNameSort) {
-    const { dispatch } = context
-    const data = dispatch.data ? dispatch.data : dispatch
+    query.join(userPath, `${userPath}.id`, `${recordingPath}.userId`)
+    query.orderBy(`${userPath}.name`, sort === 1 ? 'asc' : 'desc')
+    query.select(`${recordingPath}.*`)
 
-    data.sort((a, b) => {
-      let fa = a['user'],
-        fb = b['user']
+    context.params.knex = query
+  }
+}
 
-      if (typeof fa === 'string') {
-        fa = fa.toLowerCase()
-        fb = fb.toLowerCase()
-      }
-
-      if (fa < fb) {
-        return -1
-      }
-      if (fa > fb) {
-        return 1
-      }
-      return 0
-    })
-
-    if (context.params.query.$sort['user'] === 1) {
-      data.reverse()
-    }
+const ensureRecording = async (context: HookContext) => {
+  const recording = context.app.service(recordingPath).get(context.id!)
+  if (!recording) {
+    throw new NotFound('Unable to find recording with this id')
   }
 }
 
 export default {
   around: {
-    all: [
-      applyUserNameSort,
-      schemaHooks.resolveExternal(recordingExternalResolver),
-      schemaHooks.resolveResult(recordingResolver)
-    ]
+    all: [schemaHooks.resolveExternal(recordingExternalResolver), schemaHooks.resolveResult(recordingResolver)]
   },
 
   before: {
@@ -91,9 +82,18 @@ export default {
       () => schemaHooks.validateQuery(recordingQueryValidator),
       schemaHooks.resolveQuery(recordingQueryResolver)
     ],
-    find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
+    find: [
+      iff(isProvider('external'), verifyScope('recording', 'read')),
+      iff(
+        isProvider('external'),
+        iffElse(isAction('admin'), verifyScope('admin', 'admin'), setLoggedinUserInQuery('userId'))
+      ),
+      discardQuery('action'),
+      sortByUserName
+    ],
     get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
+      setLoggedinUserInBody('userId'),
       iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingDataValidator),
       schemaHooks.resolveData(recordingDataResolver)
@@ -104,7 +104,10 @@ export default {
       () => schemaHooks.validateData(recordingPatchValidator),
       schemaHooks.resolveData(recordingPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('recording', 'write'))]
+    remove: [
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('recording', 'write')),
+      ensureRecording
+    ]
   },
 
   after: {
