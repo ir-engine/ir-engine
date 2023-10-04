@@ -43,10 +43,9 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorHistoryAction } from '../../services/EditorHistory'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -54,7 +53,7 @@ import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
@@ -69,7 +68,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const localTransformComponent = useOptionalComponent(props.entity, LocalTransformComponent)
 
   const onRelease = () => {
-    dispatchAction(EditorHistoryAction.createSnapshot({}))
+    EditorControlFunctions.commitTransformSave(props.entity)
   }
 
   const onChangeDynamicLoad = (value) => {
@@ -83,6 +82,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const onChangePosition = (value: Vector3) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.positionObject(nodes, [value])
+    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
 
     const gizmoQuery = defineQuery([TransformGizmoComponent])
     for (const entity of gizmoQuery()) {
@@ -95,6 +95,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const onChangeRotation = (value: Euler) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateObject(nodes, [value])
+    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
 
     const gizmoQuery = defineQuery([TransformGizmoComponent])
     for (const entity of gizmoQuery()) {
@@ -107,6 +108,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const onChangeScale = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.Local, true)
+    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 
   //rendering editor view for Transform properties
@@ -124,6 +126,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
             step={1}
             value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
             onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
+            onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
           />
         )}
       </InputGroup>

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperties } from '@etherealengine/editor/src/components/properties/Util'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { LoadVolumeComponent, LoadVolumeTarget } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 
@@ -56,13 +56,13 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
           ]
         }
       })
-      loadVolumeComponent.targets.set(JSON.parse(JSON.stringify(nuTargets)))
+      commitProperties(LoadVolumeComponent, { targets: JSON.parse(JSON.stringify(nuTargets)) }, [props.entity])
     }
   }
 
   function onAddTarget() {
     return () => {
-      const nuTargets: LoadVolumeTarget[] = [
+      const targets: LoadVolumeTarget[] = [
         ...JSON.parse(JSON.stringify(loadVolumeComponent.targets.value)),
         {
           uuid: '' as EntityUUID,
@@ -75,15 +75,15 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
           ]
         }
       ]
-      loadVolumeComponent.targets.set(nuTargets)
+      commitProperties(LoadVolumeComponent, { targets }, [props.entity])
     }
   }
 
   function onRemoveTarget(index) {
     return () => {
-      const nuTargets = [...JSON.parse(JSON.stringify(loadVolumeComponent.targets.value))]
-      nuTargets.splice(index, 1)
-      loadVolumeComponent.targets.set(nuTargets)
+      const targets = [...JSON.parse(JSON.stringify(loadVolumeComponent.targets.value))]
+      targets.splice(index, 1)
+      commitProperties(LoadVolumeComponent, { targets }, [props.entity])
     }
   }
 
