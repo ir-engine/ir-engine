@@ -134,6 +134,11 @@ const ensureUsersFriendWithOwner = async (context: HookContext) => {
   return context
 }
 
+/**
+ * Handle instanceId in request to join instance table
+ * @param context
+ * @returns
+ */
 const handleChannelInstance = async (context: HookContext) => {
   const query = context.service.createQuery(context.params)
 
@@ -156,6 +161,12 @@ const handleChannelInstance = async (context: HookContext) => {
   context.params.knex = query
 }
 
+/**
+ * Checks if there is an existing channel for same users.
+ * This hook works only if it was a non-instance channel.
+ * @param context
+ * @returns
+ */
 const checkExistingChannel = async (context: HookContext) => {
   const { users, instanceId } = context.data
   const userId = context.params.user?.id
@@ -186,10 +197,20 @@ const checkExistingChannel = async (context: HookContext) => {
   return context
 }
 
+/**
+ * Set the channel name based on instanceId
+ * @param context
+ * @returns
+ */
 const setChannelName = async (context: HookContext) => {
   context.data.name = context.data.instanceId ? 'World ' + context.data.instanceId : context.data.name || ''
 }
 
+/**
+ * Makes the requesting user owner of the channel
+ * @param context
+ * @returns
+ */
 const createSelfOwner = async (context: HookContext) => {
   const userId = context.params.user?.id
 
@@ -204,6 +225,11 @@ const createSelfOwner = async (context: HookContext) => {
   return context
 }
 
+/**
+ * Created specified users members of the channel
+ * @param context
+ * @returns
+ */
 const createChannelUsers = async (context) => {
   /** @todo ensure all users specified are friends of loggedInUser */
 

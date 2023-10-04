@@ -48,6 +48,11 @@ import { BadRequest } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 import { discard, iff, isProvider } from 'feathers-hooks-common'
 
+/**
+ * Restricts from creating empty messages
+ * @param context
+ * @returns
+ */
 const disallowEmptyMessage = async (context: HookContext) => {
   const { text } = context.data
 
@@ -56,6 +61,11 @@ const disallowEmptyMessage = async (context: HookContext) => {
   return context
 }
 
+/**
+ * Populates the channelId in request based on query's channelId or instanceId
+ * @param context
+ * @returns
+ */
 const ensureChannelId = async (context: HookContext) => {
   let channel: ChannelType | undefined = undefined
   const { channelId, instanceId } = context.data
