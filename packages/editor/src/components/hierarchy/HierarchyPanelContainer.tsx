@@ -481,7 +481,7 @@ export default function HierarchyPanel({
       }
 
       if (item.type === ItemTypes.Component) {
-        EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentName }])
+        EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentJsonID }])
         return
       }
 

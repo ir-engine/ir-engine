@@ -78,7 +78,7 @@ import { InfoTooltip } from '../layout/Tooltip'
 import styles from './styles.module.scss'
 
 export type SceneElementType = {
-  componentName: string
+  componentJsonID: string
   label: string
   Icon: any
   type: typeof ItemTypes.Component
@@ -131,7 +131,7 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
     <div onContextMenu={(event) => onContextMenu(event, item)}>
       <InfoTooltip
         title={item.label}
-        info={t(`editor:layout.assetGrid.tooltip.${item.componentName}`)}
+        info={t(`editor:layout.assetGrid.tooltip.${item.componentJsonID}`)}
         placement="left"
         disableInteractive
       >
@@ -161,14 +161,14 @@ export function ElementList() {
     getSpawnPositionAtCenter(vec3)
 
     EditorControlFunctions.createObjectFromSceneElement([
-      { name: selectedItem!.componentName, props: { position: vec3 } }
+      { name: selectedItem!.componentJsonID, props: { position: vec3 } }
     ])
   }
 
   const placeObjectAtOrigin = () => {
     handleClose()
 
-    EditorControlFunctions.createObjectFromSceneElement([{ name: selectedItem!.componentName }])
+    EditorControlFunctions.createObjectFromSceneElement([{ name: selectedItem!.componentJsonID }])
   }
 
   const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: SceneElementType) => {
@@ -226,14 +226,14 @@ export function ElementList() {
             )}
             {items.map((item) => (
               <SceneElementListItem
-                key={item.name}
+                key={item.jsonID}
                 item={{
-                  componentName: item.name,
+                  componentJsonID: item.jsonID!,
                   label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),
                   Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon,
                   type: ItemTypes.Component
                 }}
-                onClick={() => EditorControlFunctions.createObjectFromSceneElement([{ name: item.name }])}
+                onClick={() => EditorControlFunctions.createObjectFromSceneElement([{ name: item.jsonID! }])}
                 onContextMenu={onContextMenu}
               />
             ))}

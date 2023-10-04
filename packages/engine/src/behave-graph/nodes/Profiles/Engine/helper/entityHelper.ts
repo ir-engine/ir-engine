@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getState } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 import { EngineState } from '../../../../../ecs/classes/EngineState'
@@ -36,7 +37,7 @@ import { UUIDComponent } from '../../../../../scene/components/UUIDComponent'
 import { createNewEditorNode } from '../../../../../scene/systems/SceneLoadingSystem'
 
 export const addEntityToScene = (
-  componentName: string,
+  componentJson: Array<ComponentJson>,
   parentEntity = getState(SceneState).sceneEntity as Entity,
   beforeEntity = null as Entity | null
 ) => {
@@ -50,7 +51,7 @@ export const addEntityToScene = (
   }
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-  if (getState(EngineState).isEditor) createNewEditorNode(newEntity, [{ name: componentName }], parentEntity)
+  if (getState(EngineState).isEditor) createNewEditorNode(newEntity, componentJson, parentEntity)
 
   return newEntity
 }

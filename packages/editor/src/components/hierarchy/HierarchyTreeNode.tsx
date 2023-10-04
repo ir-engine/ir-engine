@@ -208,7 +208,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         }
 
         if (item.type === ItemTypes.Component) {
-          EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentName }])
+          EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentJsonID }])
           return
         }
       }

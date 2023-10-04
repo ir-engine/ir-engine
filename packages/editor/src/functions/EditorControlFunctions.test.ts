@@ -158,7 +158,7 @@ describe.skip('EditorControlFunctions', () => {
     })
 
     it('creates prefab of given type', () => {
-      const entity = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
+      const entity = EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
       assert(hasComponent(entity, EntityTreeComponent))
       assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, rootNode)
       assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 1)
@@ -175,7 +175,11 @@ describe.skip('EditorControlFunctions', () => {
       addEntityNodeChild(createEntity(), rootNode)
       console.log(rootNode)
 
-      const entity = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode, before)
+      const entity = EditorControlFunctions.createObjectFromSceneElement(
+        [{ name: GroupComponent.jsonID }],
+        rootNode,
+        before
+      )
 
       assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, rootNode)
       assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 6)
@@ -183,9 +187,9 @@ describe.skip('EditorControlFunctions', () => {
     })
 
     it('creates unique name for each newly created objects', () => {
-      const entity1 = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
-      const entity2 = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
-      const entity3 = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
+      const entity1 = EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
+      const entity2 = EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
+      const entity3 = EditorControlFunctions.createObjectFromSceneElement([{ name: GroupComponent.jsonID }], rootNode)
 
       assert.equal(getComponent(entity1, NameComponent), 'New Group')
       assert.equal(getComponent(entity2, NameComponent), 'New Group 2')

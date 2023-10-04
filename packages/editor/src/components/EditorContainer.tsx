@@ -115,8 +115,8 @@ const ViewportDnD = () => {
       const vec3 = new Vector3()
       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
       EditorControlFunctions.createObjectFromSceneElement([
-        { name: item!.componentName },
-        { name: LocalTransformComponent.name, props: { position: vec3 } }
+        { name: item!.componentJsonID },
+        { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
       ])
     }
   })

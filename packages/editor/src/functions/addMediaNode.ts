@@ -47,31 +47,31 @@ export async function addMediaNode(url: string, parent?: Entity | null, before?:
 
   if (contentType.startsWith('model/')) {
     EditorControlFunctions.createObjectFromSceneElement(
-      [{ name: ModelComponent.name, props: { src: url } }],
+      [{ name: ModelComponent.jsonID, props: { src: url } }],
       parent!,
       before
     )
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     EditorControlFunctions.createObjectFromSceneElement(
-      [{ name: VideoComponent.name }, { name: MediaComponent.name, props: { resources: [url] } }],
+      [{ name: VideoComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
       parent!,
       before
     )
   } else if (contentType.startsWith('image/')) {
     EditorControlFunctions.createObjectFromSceneElement(
-      [{ name: ImageComponent.name, props: { source: url } }],
+      [{ name: ImageComponent.jsonID, props: { source: url } }],
       parent!,
       before
     )
   } else if (contentType.startsWith('audio/')) {
     EditorControlFunctions.createObjectFromSceneElement(
-      [{ name: PositionalAudioComponent.name }, { name: MediaComponent.name, props: { resources: [url] } }],
+      [{ name: PositionalAudioComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
       parent!,
       before
     )
   } else if (url.includes('.uvol')) {
     EditorControlFunctions.createObjectFromSceneElement(
-      [{ name: VolumetricComponent.name }, { name: MediaComponent.name, props: { resources: [url] } }],
+      [{ name: VolumetricComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
       parent!,
       before
     )
