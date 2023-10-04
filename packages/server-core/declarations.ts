@@ -55,3 +55,5 @@ declare module '@feathersjs/feathers' {
 
 // The context for hook functions - can be typed with a service class
 export type HookContext<S = any> = FeathersHookContext<Application, S>
+
+export type HookResolver<S, T, R = undefined> = HookContext<S> & { data: T } & { result: R }

@@ -34,15 +34,16 @@ import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import { ChannelService } from './channel.class'
 
-export const channelResolver = resolve<ChannelType, HookContext>({
+export const channelResolver = resolve<ChannelType, HookContext<ChannelService>>({
   createdAt: virtual(async (channel) => fromDateTimeSql(channel.createdAt)),
   updatedAt: virtual(async (channel) => fromDateTimeSql(channel.updatedAt))
 })
 
-export const channelExternalResolver = resolve<ChannelType, HookContext>({
+export const channelExternalResolver = resolve<ChannelType, HookContext<ChannelService>>({
   channelUsers: virtual(async (channel, context) => {
-    if (context.method === 'find' && !context.params.query.instanceId) {
+    if (context.method === 'find' && !context.params.query!.instanceId) {
       const channelUsers = (await context.app.service(channelUserPath).find({
         query: {
           channelId: channel.id
@@ -73,7 +74,7 @@ export const channelExternalResolver = resolve<ChannelType, HookContext>({
   })
 })
 
-export const channelDataResolver = resolve<ChannelType, HookContext>({
+export const channelDataResolver = resolve<ChannelType, HookContext<ChannelService>>({
   id: async () => {
     return v4() as ChannelID
   },
@@ -81,8 +82,8 @@ export const channelDataResolver = resolve<ChannelType, HookContext>({
   updatedAt: getDateTimeSql
 })
 
-export const channelPatchResolver = resolve<ChannelType, HookContext>({
+export const channelPatchResolver = resolve<ChannelType, HookContext<ChannelService>>({
   updatedAt: getDateTimeSql
 })
 
-export const channelQueryResolver = resolve<ChannelQuery, HookContext>({})
+export const channelQueryResolver = resolve<ChannelQuery, HookContext<ChannelService>>({})

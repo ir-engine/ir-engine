@@ -319,6 +319,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     const app = Engine.instance.api as Application
 
     if (!instanceServerState.isMediaInstance)
+      // @ts-ignore
       app.service(messagePath).create(
         {
           instanceId: instanceServerState.instance.id,
