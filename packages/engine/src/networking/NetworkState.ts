@@ -63,12 +63,9 @@ export const NetworkState = defineState({
     }
   },
 
-  thing: () => {
-    console.log('asdf')
-  },
-
   get worldNetwork() {
-    return getState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
+    const state = getState(NetworkState)
+    return state.networks[state.hostIds.world!]!
   },
 
   get worldNetworkState() {
@@ -76,7 +73,8 @@ export const NetworkState = defineState({
   },
 
   get mediaNetwork() {
-    return getState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
+    const state = getState(NetworkState)
+    return state.networks[state.hostIds.media!]!
   },
 
   get mediaNetworkState() {
