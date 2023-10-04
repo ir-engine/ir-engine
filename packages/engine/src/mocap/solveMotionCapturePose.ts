@@ -251,6 +251,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   } else {
     if (mocapState.trackingLowerBody.value) {
       dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
+      mocapState.trackingLowerBody.set(false)
     }
   }
 
@@ -334,9 +335,17 @@ export const solveSpine = (
   const restLegRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperLeg]!
   const averageHipToLegHeight = (restLegLeft.position![1] + restLegRight.position![1]) / 2
 
-  const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
-  const hipright = new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
-  const hipcenter = new Vector3().copy(hipleft).add(hipright).multiplyScalar(0.5)
+  const offset = 0.25
+  const legLength = rig.upperLegLength + rig.lowerLegLength * 2 - offset
+  const hipleft = estimatingLowerBody
+    ? new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
+    : new Vector3(0, legLength, 0)
+  const hipright = estimatingLowerBody
+    ? new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
+    : new Vector3(0, legLength, 0)
+  const hipcenter = estimatingLowerBody
+    ? new Vector3().copy(hipleft).add(hipright).multiplyScalar(0.5)
+    : new Vector3(0, legLength, 0)
 
   const shoulderLeft = new Vector3(rightShoulder.x, lowestWorldY - rightShoulder.y, rightShoulder.z)
   const shoulderRight = new Vector3(leftShoulder.x, lowestWorldY - leftShoulder.y, leftShoulder.z)
