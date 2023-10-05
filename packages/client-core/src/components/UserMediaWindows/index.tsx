@@ -52,6 +52,7 @@ export const useMediaWindows = () => {
   const mediaNetworkInstanceState = useMediaNetwork()
   const mediaNetwork = NetworkState.mediaNetwork
   const selfUser = useHookstate(getMutableState(AuthState).user)
+  useHookstate(NetworkState.mediaNetworkState.ornull?.peers?.keys)
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
@@ -100,7 +101,7 @@ export const useMediaWindows = () => {
     .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
   // if window doesnt exist for self, add it
-  if (!windows.find(({ peerID }) => peerID === selfPeerID)) {
+  if (mediaNetworkConnected && !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 
