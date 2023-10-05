@@ -221,7 +221,7 @@ const execute = () => {
 
         //special case for the head if we're in xr mode
         //todo: automatically infer whether or not we need to set hips position from the head position
-        if (rigComponent.ikOverride == 'xr' && ikTargetName == 'head') {
+        if (getState(XRState).sessionActive && ikTargetName == 'head') {
           rig.hips.node.position.copy(
             _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
@@ -248,10 +248,7 @@ const execute = () => {
       const forward = _forward.set(0, 0, 1).applyQuaternion(transform.rotation)
       const right = _right.set(5, 0, 0).applyQuaternion(transform.rotation)
 
-      //calculate hips to head
-      rig.hips.node.position.applyMatrix4(transform.matrixInverse)
-      if (ikDataByName[ikTargets.head])
-        _hipVector.subVectors(rig.hips.node.position, ikDataByName[ikTargets.head].position)
+      if (getState(XRState).sessionActive) rig.hips.node.position.applyMatrix4(transform.matrixInverse)
 
       if (ikDataByName[ikTargets.rightHand]) {
         solveTwoBoneIK(
