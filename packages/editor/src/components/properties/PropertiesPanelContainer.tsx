@@ -32,10 +32,9 @@ import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  ComponentMap,
+  ComponentJSONIDMap,
   getAllComponents,
   hasComponent,
-  setComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
@@ -46,6 +45,7 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionAction, SelectionState } from '../../services/SelectionServices'
 import MaterialEditor from '../materials/MaterialEditor'
@@ -130,18 +130,17 @@ export const PropertiesPanelContainer = () => {
     accept: [ItemTypes.Component],
     drop: (item: { componentJsonID: string }) => {
       if (isObject3D) return
-      const component = ComponentMap.get(item.componentJsonID)
+      const component = ComponentJSONIDMap.get(item.componentJsonID)
       const entity = node as Entity
       if (!component || hasComponent(entity, component)) return
-      setComponent(entity, component)
+      EditorControlFunctions.addOrRemoveComponent([entity], component, true)
       dispatchAction(SelectionAction.forceUpdate({}))
     },
     collect: (monitor) => {
       if (isObject3D) return { isDragging: false }
-
       if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
 
-      const component = ComponentMap.get(monitor.getItem().componentJsonID)
+      const component = ComponentJSONIDMap.get(monitor.getItem().componentJsonID)
       if (!component) return { isDragging: false }
 
       const entity = node as Entity
