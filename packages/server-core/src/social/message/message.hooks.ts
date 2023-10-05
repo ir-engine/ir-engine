@@ -45,18 +45,29 @@ import { instancePath } from '@etherealengine/engine/src/schemas/networking/inst
 import { ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest } from '@feathersjs/errors'
-import { HookContext, Paginated } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { discard, iff, isProvider } from 'feathers-hooks-common'
+import { HookContext } from '../../../declarations'
+import { MessageService } from './message.class'
 
 /**
  * Restricts from creating empty messages
  * @param context
  * @returns
  */
-const disallowEmptyMessage = async (context: HookContext) => {
-  const { text } = context.data
+const disallowEmptyMessage = async (context: HookContext<MessageService>) => {
+  if (!context.data) {
+    return
+  }
 
-  if (!text) throw new BadRequest('Make sure text is not empty')
+  if (!Array.isArray(context.data)) {
+    context.data = [context.data]
+  }
+
+  for (const data of context.data) {
+    const { text } = data
+    if (!text) throw new BadRequest('Make sure text is not empty')
+  }
 
   return context
 }
@@ -66,40 +77,50 @@ const disallowEmptyMessage = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const ensureChannelId = async (context: HookContext) => {
-  let channel: ChannelType | undefined = undefined
-  const { channelId, instanceId } = context.data
-
-  if (channelId) {
-    channel = await context.app.service(channelPath).get(channelId)
+const ensureChannelId = async (context: HookContext<MessageService>) => {
+  if (!context.data) {
+    return
   }
 
-  if (!channel && instanceId) {
-    const targetInstance = await context.app.service(instancePath).get(instanceId)
+  if (!Array.isArray(context.data)) {
+    context.data = [context.data]
+  }
 
-    if (!targetInstance) {
-      throw new BadRequest(`Invalid target instance ID: ${instanceId}`)
+  for (const data of context.data) {
+    let channel: ChannelType | undefined = undefined
+    const { channelId, instanceId } = data
+
+    if (channelId) {
+      channel = await context.app.service(channelPath).get(channelId)
     }
 
-    const channelResult = (await context.app.service(channelPath).find({
-      query: {
-        instanceId,
-        $limit: 1
+    if (!channel && instanceId) {
+      const targetInstance = await context.app.service(instancePath).get(instanceId)
+
+      if (!targetInstance) {
+        throw new BadRequest(`Invalid target instance ID: ${instanceId}`)
       }
-    })) as Paginated<ChannelType>
 
-    if (channelResult.data.length > 0) {
-      channel = channelResult.data[0]
-    } else {
-      channel = await context.app.service(channelPath).create({
-        instanceId
-      })
+      const channelResult = (await context.app.service(channelPath).find({
+        query: {
+          instanceId,
+          $limit: 1
+        }
+      })) as Paginated<ChannelType>
+
+      if (channelResult.data.length > 0) {
+        channel = channelResult.data[0]
+      } else {
+        channel = await context.app.service(channelPath).create({
+          instanceId
+        })
+      }
     }
+
+    if (!channel) throw new BadRequest('Could not find or create channel')
+
+    data.channelId = channel.id
   }
-
-  if (!channel) throw new BadRequest('Could not find or create channel')
-
-  context.data.channelId = channel.id
 
   return context
 }
