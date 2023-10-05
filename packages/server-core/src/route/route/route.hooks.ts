@@ -33,6 +33,7 @@ import {
 } from '@etherealengine/engine/src/schemas/route/route.schema'
 
 import authenticate from '../../hooks/authenticate'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import {
   routeDataResolver,
@@ -49,7 +50,7 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(routeQueryValidator), schemaHooks.resolveQuery(routeQueryResolver)],
-    find: [],
+    find: [enableClientPagination()],
     get: [],
     create: [
       authenticate(),

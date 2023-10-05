@@ -23,52 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { NullableId, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 import { RootParams } from '../../api/root-params'
 
 import { RouteData, RoutePatch, RouteQuery, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { Id } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RouteParams extends RootParams<RouteQuery> {}
 
-export class RouteService<T = RouteType, ServiceParams extends Params = RouteParams> extends KnexAdapter<
+export class RouteService<T = RouteType, ServiceParams extends Params = RouteParams> extends KnexService<
   RouteType,
   RouteData,
   RouteParams,
   RoutePatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async find(params?: RouteParams) {
-    if (params?.query?.paginate != null) {
-      if (params.query.paginate === false) params.paginate = params.query.paginate
-      delete params.query.paginate
-    }
-    return super._find(params)
-  }
-
-  async create(data: RouteData, params?: RouteParams) {
-    return super._create(data, params)
-  }
-
-  async get(id: Id, params?: RouteParams) {
-    return super._get(id, params)
-  }
-
-  async patch(id: Id, data: RouteData, params?: RouteParams) {
-    return super._patch(id, data, params)
-  }
-
-  async remove(id: NullableId, params?: RouteParams) {
-    return super._remove(id, params)
-  }
-}
+> {}
