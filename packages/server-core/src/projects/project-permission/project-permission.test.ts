@@ -48,7 +48,7 @@ const cleanup = async (app: Application) => {
   const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
   deleteFolderRecursive(project1Dir)
   try {
-    await app.service(projectPath)._remove(null, { query: { name: newProjectName1 } })
+    await app.service(projectPath).remove(null, { query: { name: newProjectName1 } })
   } catch (e) {
     //
   }

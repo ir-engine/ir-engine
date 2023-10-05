@@ -130,7 +130,7 @@ export const updateBuilder = async (
   }
 
   if (data.updateProjects) {
-    await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update(project, null, params)))
+    await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update('', project, params)))
   }
 
   const helmSettingsResult = await app.service(helmSettingPath).find()
@@ -1190,7 +1190,7 @@ export async function getDirectoryArchiveJobBody(
 }
 
 export const createOrUpdateProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
-  const projectData = (await app.service(projectPath)._find({
+  const projectData = (await app.service(projectPath).find({
     query: {
       name: projectName,
       $limit: 1
@@ -1246,7 +1246,7 @@ export const removeProjectUpdateJob = async (app: Application, projectName: stri
 
 export const checkProjectAutoUpdate = async (app: Application, projectName: string): Promise<void> => {
   let commitSHA
-  const projectData = (await app.service(projectPath)._find({
+  const projectData = (await app.service(projectPath).find({
     query: {
       name: projectName,
       $limit: 1
@@ -1275,6 +1275,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
   }
   if (commitSHA)
     await app.service(projectPath).update(
+      '',
       {
         sourceURL: project.sourceRepo!,
         destinationURL: project.repositoryPath,
@@ -1285,7 +1286,6 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
         updateType: project.updateType,
         updateSchedule: project.updateSchedule!
       },
-      null,
       { user: user }
     )
 }
@@ -1413,7 +1413,7 @@ export const updateProject = async (
     deleteFolderRecursive(projectDirectory)
   }
 
-  const projectResult = (await app.service(projectPath)._find({
+  const projectResult = (await app.service(projectPath).find({
     query: {
       name: projectName
     }
@@ -1463,7 +1463,7 @@ export const updateProject = async (
   const projectConfig = getProjectConfig(projectName) ?? {}
 
   // when we have successfully re-installed the project, remove the database entry if it already exists
-  const existingProjectResult = (await app.service(projectPath)._find({
+  const existingProjectResult = (await app.service(projectPath).find({
     query: {
       name: {
         $like: projectName
@@ -1480,7 +1480,7 @@ export const updateProject = async (
 
   const returned = !existingProject
     ? // Add to DB
-      await app.service(projectPath)._create(
+      await app.service(projectPath).create(
         {
           id: v4(),
           name: projectName,
@@ -1498,7 +1498,7 @@ export const updateProject = async (
         },
         params || {}
       )
-    : await app.service(projectPath)._patch(existingProject.id, {
+    : await app.service(projectPath).patch(existingProject.id, {
         commitSHA,
         commitDate: toDateTimeSql(commitDate),
         sourceRepo: data.sourceURL,
@@ -1518,7 +1518,7 @@ export const updateProject = async (
   }
 
   if (returned.name !== projectName)
-    await app.service(projectPath)._patch(existingProject!.id, {
+    await app.service(projectPath).patch(existingProject!.id, {
       name: projectName
     })
 
@@ -1529,7 +1529,7 @@ export const updateProject = async (
     await git.raw(['lfs', 'fetch', '--all'])
     await git.push('destination', branchName, ['-f', '--tags'])
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-    await app.service(projectPath)._patch(returned.id, {
+    await app.service(projectPath).patch(returned.id, {
       commitSHA,
       commitDate: toDateTimeSql(commitDate)
     })

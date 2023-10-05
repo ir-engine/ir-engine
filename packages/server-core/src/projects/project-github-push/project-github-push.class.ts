@@ -32,7 +32,7 @@ export class ProjectGithubPushService implements ServiceInterface<void> {
   }
 
   async patch(id: NullableId, data: any, params?: RootParams): Promise<void> {
-    const project = await this.app.service(projectPath)._get(id!)
+    const project = await this.app.service(projectPath).get(id!)
     return pushProjectToGithub(this.app, project, params!.user!)
   }
 }

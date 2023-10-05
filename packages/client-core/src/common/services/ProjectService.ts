@@ -127,7 +127,7 @@ export const ProjectService = {
 
   // restricted to admin scope
   uploadProject: async (data: ProjectBuildUpdateItemType) => {
-    const result = await API.instance.client.service(projectPath).update({
+    const result = await API.instance.client.service(projectPath).update('', {
       sourceURL: data.sourceURL,
       destinationURL: data.destinationURL,
       name: data.name,

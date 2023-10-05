@@ -72,7 +72,7 @@ cli.main(async () => {
     data.reset = data.reset === 'true'
     data.needsRebuild = data.needsRebuild === true
     const user = await app.service(userPath).get(userId)
-    await app.service(projectPath).update(data, null, { user: user, isJob: true })
+    await app.service(projectPath).update('', data, { user: user, isJob: true })
     cli.exit(0)
   } catch (err) {
     console.log(err)

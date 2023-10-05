@@ -27,16 +27,56 @@ import { iff, isProvider } from 'feathers-hooks-common'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
+  ProjectType,
   projectDataValidator,
   projectPatchValidator,
+  projectPath,
   projectQueryValidator
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import fs from 'fs'
+import path from 'path'
 import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 
-import { HookContext } from '@feathersjs/feathers'
+import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import {
+  GithubRepoAccessType,
+  githubRepoAccessPath
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import templateProjectJson from '@etherealengine/projects/template-project/package.json'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { HookContext, Paginated } from '@feathersjs/feathers'
+import appRootPath from 'app-root-path'
+import { Knex } from 'knex'
+import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import enableClientPagination from '../../hooks/enable-client-pagination'
+import { cleanString } from '../../util/cleanString'
+import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
+import { useGit } from '../../util/gitHelperFunctions'
+import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
+import {
+  createExecutorJob,
+  deleteProjectFilesInStorageProvider,
+  getEnginePackageJson,
+  getProjectConfig,
+  getProjectPackageJson,
+  getProjectUpdateJobBody,
+  onProjectEvent,
+  removeProjectUpdateJob,
+  updateProject,
+  uploadLocalProjectToProvider
+} from './project-helper'
 import {
   projectDataResolver,
   projectExternalResolver,
@@ -44,6 +84,219 @@ import {
   projectQueryResolver,
   projectResolver
 } from './project.resolvers'
+
+const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
+
+const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
+
+const ensurePushStatus = async (context: HookContext) => {
+  context.projectPushIds = []
+  if (context.params?.query?.allowed) {
+    // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
+    // can push to.
+
+    const githubIdentityProvider = (await context.app.service(identityProviderPath).find({
+      query: {
+        userId: context.params.user!.id,
+        type: 'github',
+        $limit: 1
+      }
+    })) as Paginated<IdentityProviderType>
+
+    // Get all of the projects that this user has permissions for, then calculate push status by whether the user
+    // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
+    const knexClient: Knex = context.app.get('knexClient')
+    const projectPermissions = await knexClient
+      .from(projectPermissionPath)
+      .join(projectPath, `${projectPath}.id`, `${projectPermissionPath}.projectId`)
+      .where(`${projectPermissionPath}.userId`, context.params.user!.id)
+      .select()
+      .options({ nestTables: true })
+
+    const allowedProjects = await projectPermissions.map((permission) => permission.project)
+    const repoAccess =
+      githubIdentityProvider.data.length > 0
+        ? ((await context.app.service(githubRepoAccessPath).find({
+            query: {
+              identityProviderId: githubIdentityProvider.data[0].id
+            },
+            paginate: false
+          })) as GithubRepoAccessType[])
+        : []
+    const pushRepoPaths = repoAccess.filter((repo) => repo.hasWriteAccess).map((item) => item.repo.toLowerCase())
+    let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
+    allowedProjectGithubRepos = await Promise.all(
+      allowedProjectGithubRepos.map(async (project) => {
+        const regexExec = GITHUB_URL_REGEX.exec(project.repositoryPath)
+        if (!regexExec) return { repositoryPath: '', name: '' }
+        const split = regexExec[2].split('/')
+        project.repositoryPath = `https://github.com/${split[0]}/${split[1]}`
+        return project
+      })
+    )
+    const pushableAllowedProjects = allowedProjectGithubRepos.filter(
+      (project) => pushRepoPaths.indexOf(project.repositoryPath.toLowerCase().replace(/.git$/, '')) > -1
+    )
+    context.projectPushIds = context.projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
+
+    if (githubIdentityProvider) {
+      const repositoryPaths: string[] = []
+      repoAccess.forEach((item) => {
+        if (item.hasWriteAccess) {
+          const url = item.repo.toLowerCase()
+          repositoryPaths.push(url)
+          repositoryPaths.push(`${url}.git`)
+          const regexExec = GITHUB_URL_REGEX.exec(url)
+          if (regexExec) {
+            const split = regexExec[2].split('/')
+            repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}`)
+            repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}.git`)
+          }
+        }
+      })
+
+      const matchingAllowedRepos = (await context.app.service(projectPath).find({
+        query: { repositoryPath: { $in: repositoryPaths } },
+        paginate: false
+      })) as ProjectType[]
+
+      context.projectPushIds = context.projectPushIds.concat(matchingAllowedRepos.map((repo) => repo.id))
+    }
+
+    if (!context.params.user!.scopes?.find((scope) => scope.type === 'admin:admin'))
+      context.params.query.id = { $in: [...new Set(allowedProjects.map((project) => project.id))] }
+  }
+}
+
+const addLimitToParams = async (context: HookContext) => {
+  context.params.query = {
+    ...context.params.query,
+    $limit: context.params?.query?.$limit || 1000,
+    $sort: context.params?.query?.$sort || { name: 1 }
+  }
+  if (context.params?.query?.allowed) delete context.params.query.allowed
+}
+
+const addDataToProjectResult = async (context: HookContext) => {
+  const data: ProjectType[] = context.result['data'] ? context.result['data'] : context.result
+  for (const item of data) {
+    try {
+      const packageJson = getProjectPackageJson(item.name)
+      const config = getProjectConfig(item.name)
+      item.thumbnail = config.thumbnail!
+      item.version = packageJson.version
+      item.engineVersion = packageJson.etherealEngine?.version
+      item.description = packageJson.description
+      item.hasWriteAccess = context.projectPushIds.indexOf(item.id) > -1
+    } catch (err) {
+      //
+    }
+  }
+
+  context.result =
+    context.params.paginate === false
+      ? data
+      : {
+          data: data,
+          total: data.length,
+          limit: context.params.query.$limit || 1000,
+          skip: context.params.query.$skip || 0
+        }
+}
+
+const createAndUploadProject = async (context: HookContext) => {
+  const projectName = cleanString(context.data.name!)
+  const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
+
+  const projectExists = (await context.app
+    .service(projectPath)
+    .find({ query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
+
+  if (projectExists.total > 0) throw new Error(`[Projects]: Project with name ${projectName} already exists`)
+
+  if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
+    throw new Error(`[Projects]: Project name ${projectName} not allowed`)
+
+  copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
+  fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
+
+  fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
+
+  const git = useGit(path.resolve(projectLocalDirectory, '.git'))
+  try {
+    await git.init(true)
+  } catch (e) {
+    logger.warn(e)
+  }
+
+  const packageData = Object.assign({}, templateProjectJson) as any
+  packageData.name = projectName
+  packageData.etherealEngine.version = getEnginePackageJson().version
+  fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
+
+  await uploadLocalProjectToProvider(context.service, projectName, false)
+
+  context.data = { name: projectName, needsRebuild: true }
+}
+
+const linkGithubToProject = async (context: HookContext) => {
+  if (context.data.repositoryPath) {
+    const repoPath = context.data.repositoryPath
+    const user = context.params!.user!
+
+    const githubIdentityProvider = (await context.app.service(identityProviderPath).find({
+      query: {
+        userId: user.id,
+        type: 'github',
+        $limit: 1
+      }
+    })) as Paginated<IdentityProviderType>
+
+    const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
+    if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
+    if (githubIdentityProvider.data.length === 0)
+      throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
+    const split = githubPathRegexExec[2].split('/')
+    const org = split[0]
+    const repo = split[1].replace('.git', '')
+    const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
+    if (!appOrgAccess)
+      throw new Forbidden(
+        `The organization ${org} needs to install the GitHub OAuth app ${config.authentication.oauth.github.key} in order to push code to its repositories`
+      )
+    const repoWriteStatus = await checkUserRepoWriteStatus(org, repo, githubIdentityProvider.data[0].oauthToken)
+    if (repoWriteStatus !== 200) {
+      if (repoWriteStatus === 404) {
+        const orgWriteStatus = await checkUserOrgWriteStatus(org, githubIdentityProvider.data[0].oauthToken)
+        if (orgWriteStatus !== 200) throw new Forbidden('You do not have write access to that organization')
+      } else {
+        throw new Forbidden('You do not have write access to that repo')
+      }
+    }
+  }
+}
+
+const getProjectName = async (context: HookContext) => {
+  if (!context.id) throw new BadRequest('You need to pass project id')
+  context.name = ((await context.app.service(projectPath).get(context.id, context.params)) as ProjectType).name
+}
+
+const runProjectUninstallScript = async (context: HookContext) => {
+  const projectConfig = getProjectConfig(context.name)
+
+  if (projectConfig?.onEvent) {
+    await onProjectEvent(context.service, context.name, projectConfig.onEvent, 'onUninstall')
+  }
+}
+
+const removeProjectFiles = async (context: HookContext) => {
+  if (fs.existsSync(path.resolve(projectsRootFolder, context.name))) {
+    fs.rmSync(path.resolve(projectsRootFolder, context.name), { recursive: true })
+  }
+
+  logger.info(`[Projects]: removing project id "${context.id}", name: "${name}".`)
+  await deleteProjectFilesInStorageProvider(context.name)
+}
 
 const createProjectPermission = async (context: HookContext) => {
   if (context.params?.user?.id) {
@@ -60,6 +313,99 @@ const createProjectPermission = async (context: HookContext) => {
   return context
 }
 
+const removeLocationFromProject = async (context: HookContext) => {
+  await context.app.service(locationPath).remove(null, {
+    query: {
+      sceneId: {
+        $like: `${name}/%`
+      }
+    }
+  })
+}
+
+const removeRouteFromProject = async (context: HookContext) => {
+  await context.app.service(routePath).remove(null, {
+    query: {
+      project: name
+    }
+  })
+}
+
+const removeAvatarsFromProject = async (context: HookContext) => {
+  const avatarItems = (await context.app.service(avatarPath).find({
+    query: {
+      project: name
+    },
+    paginate: false
+  })) as AvatarType[]
+
+  await Promise.all(
+    avatarItems.map(async (avatar) => {
+      await context.app.service(avatarPath).remove(avatar.id)
+    })
+  )
+}
+
+const removeStaticResourcesFromProject = async (context: HookContext) => {
+  const staticResourceItems = (await context.app.service(staticResourcePath).find({
+    query: {
+      project: name
+    },
+    paginate: false
+  })) as StaticResourceType[]
+  staticResourceItems.length &&
+    staticResourceItems.forEach(async (staticResource) => {
+      await context.app.service(staticResourcePath).remove(staticResource.id)
+    })
+}
+
+const removeProjectUpdate = async (context: HookContext) => {
+  await removeProjectUpdateJob(context.service, context.name)
+}
+
+/**
+ * 1. Clones the repo to the local FS
+ * 2. If in production mode, uploads it to the storage provider
+ * 3. Creates a database entry
+ * @param data
+ * @param placeholder This is where data normally goes, but we've put data as the first parameter
+ * @param params
+ * @returns
+ */
+const updateProjectJob = async (context: HookContext) => {
+  if (!config.kubernetes.enabled || context.params?.isJob)
+    context.result = updateProject(context.service, context.data, context.params)
+  else {
+    const urlParts = context.data.sourceURL.split('/')
+    let projectName = context.data.name || urlParts.pop()
+    if (!projectName) throw new Error('Git repo must be plain URL')
+    projectName = projectName.toLowerCase()
+    if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+    if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
+    const jobBody = await getProjectUpdateJobBody(context.data, context.service, context.params!.user!.id)
+    const jobLabelSelector = `etherealengine/projectField=${context.data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobFinishedPromise = createExecutorJob(context.service, jobBody, jobLabelSelector, 1000)
+    try {
+      await jobFinishedPromise
+      const result = (await context.app.service(projectPath).find({
+        query: {
+          name: {
+            $like: projectName
+          }
+        }
+      })) as Paginated<ProjectType>
+      let returned = {} as ProjectType
+      if (result.total > 0) returned = result.data[0]
+      else throw new BadRequest('Project did not exist after update')
+      returned.needsRebuild = typeof context.data.needsRebuild === 'boolean' ? context.data.needsRebuild : true
+      context.result = returned
+    } catch (err) {
+      console.log('Error: project did not exist after completing update', projectName, err)
+      throw err
+    }
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(projectExternalResolver), schemaHooks.resolveResult(projectResolver)]
@@ -71,30 +417,44 @@ export default {
       () => schemaHooks.validateQuery(projectQueryValidator),
       schemaHooks.resolveQuery(projectQueryResolver)
     ],
-    find: [],
+    find: [enableClientPagination(), ensurePushStatus, addLimitToParams],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('editor', 'write')),
       () => schemaHooks.validateData(projectDataValidator),
-      schemaHooks.resolveData(projectDataResolver)
+      schemaHooks.resolveData(projectDataResolver),
+      createAndUploadProject
     ],
     update: [
       iff(isProvider('external'), verifyScope('editor', 'write')),
       projectPermissionAuthenticate(false),
-      () => schemaHooks.validateData(projectPatchValidator)
+      () => schemaHooks.validateData(projectPatchValidator),
+      updateProjectJob
     ],
     patch: [
       iff(isProvider('external'), verifyScope('editor', 'write')),
       projectPermissionAuthenticate(false),
       () => schemaHooks.validateData(projectPatchValidator),
-      schemaHooks.resolveData(projectPatchResolver)
+      schemaHooks.resolveData(projectPatchResolver),
+      linkGithubToProject
     ],
-    remove: [iff(isProvider('external'), verifyScope('editor', 'write')), projectPermissionAuthenticate(false)]
+    remove: [
+      iff(isProvider('external'), verifyScope('editor', 'write')),
+      projectPermissionAuthenticate(false),
+      getProjectName,
+      runProjectUninstallScript,
+      removeProjectFiles,
+      removeLocationFromProject,
+      removeRouteFromProject,
+      removeAvatarsFromProject,
+      removeStaticResourcesFromProject,
+      removeProjectUpdate
+    ]
   },
 
   after: {
     all: [],
-    find: [],
+    find: [addDataToProjectResult],
     get: [],
     create: [createProjectPermission],
     update: [],
