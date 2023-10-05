@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
+  MessageData,
   messageDataValidator,
   messagePatchValidator,
   messageQueryValidator
@@ -60,12 +61,10 @@ const disallowEmptyMessage = async (context: HookContext<MessageService>) => {
     return
   }
 
-  if (!Array.isArray(context.data)) {
-    context.data = [context.data]
-  }
+  const data = Array.isArray(context.data) ? context.data : [context.data]
 
-  for (const data of context.data) {
-    const { text } = data
+  for (const item of data) {
+    const { text } = item
     if (!text) throw new BadRequest('Make sure text is not empty')
   }
 
@@ -78,17 +77,15 @@ const disallowEmptyMessage = async (context: HookContext<MessageService>) => {
  * @returns
  */
 const ensureChannelId = async (context: HookContext<MessageService>) => {
-  if (!context.data) {
+  if (!context.data || context.method !== 'create') {
     return
   }
 
-  if (!Array.isArray(context.data)) {
-    context.data = [context.data]
-  }
+  const data: MessageData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  for (const data of context.data) {
+  for (const item of data) {
     let channel: ChannelType | undefined = undefined
-    const { channelId, instanceId } = data
+    const { channelId, instanceId } = item
 
     if (channelId) {
       channel = await context.app.service(channelPath).get(channelId)
@@ -119,7 +116,7 @@ const ensureChannelId = async (context: HookContext<MessageService>) => {
 
     if (!channel) throw new BadRequest('Could not find or create channel')
 
-    data.channelId = channel.id
+    item.channelId = channel.id
   }
 
   return context
@@ -146,9 +143,10 @@ export default {
       ensureChannelId,
       discard('instanceId')
     ],
-    update: [messagePermissionAuthenticate()],
+    update: [messagePermissionAuthenticate(), disallowEmptyMessage],
     patch: [
       messagePermissionAuthenticate(),
+      disallowEmptyMessage,
       () => schemaHooks.validateData(messagePatchValidator),
       schemaHooks.resolveData(messagePatchResolver)
     ],
