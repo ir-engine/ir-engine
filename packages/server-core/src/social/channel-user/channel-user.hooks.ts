@@ -85,9 +85,9 @@ const addJoinedChannelMessage = async (context: HookContext) => {
 const addLeftChannelMessage = async (context: HookContext) => {
   const { app, params, result } = context
 
-  const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
+  const user = await app.service(userPath).get(result[0].userId, { ...params, query: {} })
   await app.service(messagePath).create({
-    channelId: result.channelId,
+    channelId: result[0].channelId,
     text: `${user.name} left the channel`,
     isNotification: true
   })
@@ -103,17 +103,17 @@ const addLeftChannelMessage = async (context: HookContext) => {
 const removeEmptyNonInstanceChannel = async (context: HookContext) => {
   const { app, result } = context
 
-  const channel = await app.service(channelPath).get(result.channelId)
+  const channel = await app.service(channelPath).get(result[0].channelId)
   if (channel.instanceId) return context
 
   const channelUserCount = (await app.service(channelUserPath).find({
     query: {
-      channelId: result.channelId
+      channelId: result[0].channelId
     }
   })) as Paginated<ChannelUserType>
 
   if (channelUserCount.data.length === 0) {
-    await app.service(channelPath).remove(result.channelId)
+    await app.service(channelPath).remove(result[0].channelId)
   }
 
   return context
