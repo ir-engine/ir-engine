@@ -94,7 +94,7 @@ const updateQueryBothWays = async (context: HookContext<UserRelationshipService>
     ]
   }
 
-  context.id = undefined
+  context.arguments[0] = null
 }
 
 /**
@@ -164,7 +164,7 @@ const ensureValidPatchId = async (context: HookContext<UserRelationshipService>)
       relatedUserId: context.id as UserID
     }
 
-    context.id = undefined
+    context.arguments[0] = null
   }
 }
 
@@ -178,7 +178,7 @@ const updatePatchBothWays = async (context: HookContext<UserRelationshipService>
     throw new BadRequest(`${context.path} service only works for single object patch`)
   }
 
-  const { userId, relatedUserId, userRelationshipType } = context.data as UserRelationshipData
+  const { userId, relatedUserId, userRelationshipType } = context.result![0] as UserRelationshipData
 
   if (
     (context.result || context.dispatch) &&
