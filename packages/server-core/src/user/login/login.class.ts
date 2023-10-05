@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
-import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { LoginTokenType, loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -62,11 +62,11 @@ export class LoginService implements ServiceInterface {
           error: 'invalid login token id, cannot be null or undefined'
         }
       }
-      const result = await this.app.service(loginTokenPath)._find({
+      const result = (await this.app.service(loginTokenPath).find({
         query: {
           token: id.toString()
         }
-      })
+      })) as Paginated<LoginTokenType>
 
       if (result.data.length === 0) {
         logger.info('Invalid login token')
@@ -92,7 +92,7 @@ export class LoginService implements ServiceInterface {
       const token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
-      await this.app.service(loginTokenPath)._remove(result.data[0].id)
+      await this.app.service(loginTokenPath).remove(result.data[0].id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })

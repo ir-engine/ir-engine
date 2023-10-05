@@ -31,7 +31,12 @@ import {
   loginTokenPatchValidator,
   loginTokenQueryValidator
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import crypto from 'crypto'
+import moment from 'moment'
+import config from '../../appconfig'
 
+import { HookContext } from '@feathersjs/feathers'
+import { toDateTimeSql } from '../../util/datetime-sql'
 import {
   loginTokenDataResolver,
   loginTokenExternalResolver,
@@ -39,6 +44,12 @@ import {
   loginTokenQueryResolver,
   loginTokenResolver
 } from './login-token.resolvers'
+
+const generateToken = async (context: HookContext) => {
+  const token = crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
+
+  context.data = { ...context.data, token, expiresAt: toDateTimeSql(moment().utc().add(2, 'days').toDate()) }
+}
 
 export default {
   around: {
@@ -52,7 +63,8 @@ export default {
     create: [
       disallow('external'),
       () => schemaHooks.validateData(loginTokenDataValidator),
-      schemaHooks.resolveData(loginTokenDataResolver)
+      schemaHooks.resolveData(loginTokenDataResolver),
+      generateToken
     ],
     update: [disallow('external')],
     patch: [
