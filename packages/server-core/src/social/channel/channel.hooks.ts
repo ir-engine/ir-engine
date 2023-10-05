@@ -28,6 +28,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import {
+  ChannelData,
   ChannelID,
   ChannelType,
   channelDataValidator,
@@ -50,6 +51,7 @@ import isAction from '../../hooks/is-action'
 import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
 import verifyUserId from '../../hooks/verify-userId'
+import { ChannelService } from './channel.class'
 import {
   channelDataResolver,
   channelExternalResolver,
@@ -62,11 +64,11 @@ import {
  * @param context
  * @returns
  */
-const ensureUserChannelOwner = async (context: HookContext) => {
+const ensureUserChannelOwner = async (context: HookContext<ChannelService>) => {
   const channelId = context.id as ChannelID
   if (!channelId) throw new BadRequest('Must pass id in request')
 
-  const loggedInUser = context.params!.user
+  const loggedInUser = context.params.user!
   const channelUser = (await context.app.service(channelUserPath).find({
     query: {
       channelId,
@@ -85,11 +87,11 @@ const ensureUserChannelOwner = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const ensureUserHasChannelAccess = async (context: HookContext) => {
+const ensureUserHasChannelAccess = async (context: HookContext<ChannelService>) => {
   const channelId = context.id as ChannelID
   if (!channelId) throw new BadRequest('Must pass id in request')
 
-  const loggedInUser = context.params!.user
+  const loggedInUser = context.params.user!
   const channelUser = (await context.app.service(channelUserPath).find({
     query: {
       channelId,
@@ -108,27 +110,35 @@ const ensureUserHasChannelAccess = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const ensureUsersFriendWithOwner = async (context: HookContext) => {
-  const users = context.data.users
+const ensureUsersFriendWithOwner = async (context: HookContext<ChannelService>) => {
+  if (!context.data) {
+    throw new BadRequest('Channel service data is empty')
+  }
 
-  const loggedInUser = context.params!.user
-  const userId = loggedInUser?.id
+  const data: ChannelData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  if (!users || !userId) return context
+  for (const item of data) {
+    const users = item.users
 
-  const userRelationships = (await context.app.service(userRelationshipPath)._find({
-    query: {
-      userId,
-      userRelationshipType: 'friend',
-      relatedUserId: {
-        $in: users
-      }
-    },
-    paginate: false
-  })) as any as UserRelationshipType[]
+    const loggedInUser = context.params.user!
+    const userId = loggedInUser.id
 
-  if (userRelationships.length !== users.length) {
-    throw new Forbidden('Must be friends with all users to create channel')
+    if (!users || !userId) return context
+
+    const userRelationships = (await context.app.service(userRelationshipPath)._find({
+      query: {
+        userId,
+        userRelationshipType: 'friend',
+        relatedUserId: {
+          $in: users
+        }
+      },
+      paginate: false
+    })) as any as UserRelationshipType[]
+
+    if (userRelationships.length !== users.length) {
+      throw new Forbidden('Must be friends with all users to create channel')
+    }
   }
 
   return context
@@ -139,16 +149,16 @@ const ensureUsersFriendWithOwner = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const handleChannelInstance = async (context: HookContext) => {
+const handleChannelInstance = async (context: HookContext<ChannelService>) => {
   const query = context.service.createQuery(context.params)
 
-  if (context.params.query.instanceId) {
+  if (context.params.query?.instanceId) {
     query
       .join(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
       .where(`${instancePath}.id`, '=', context.params.query.instanceId)
       .andWhere(`${instancePath}.ended`, '=', false)
   } else {
-    const userId = context.params.user.id
+    const userId = context.params.user!.id
 
     query
       .leftJoin(instancePath, `${instancePath}.id`, `${channelPath}.instanceId`)
@@ -167,8 +177,12 @@ const handleChannelInstance = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const checkExistingChannel = async (context: HookContext) => {
-  const { users, instanceId } = context.data
+const checkExistingChannel = async (context: HookContext<ChannelService>) => {
+  if (Array.isArray(context.data) || context.method !== 'create') {
+    throw new BadRequest('Channel service only works for single create')
+  }
+
+  const { users, instanceId } = context.data as ChannelData
   const userId = context.params.user?.id
 
   if (!instanceId && users?.length) {
@@ -193,8 +207,6 @@ const checkExistingChannel = async (context: HookContext) => {
       context.existingData = true
     }
   }
-
-  return context
 }
 
 /**
@@ -202,8 +214,18 @@ const checkExistingChannel = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const setChannelName = async (context: HookContext) => {
-  context.data.name = context.data.instanceId ? 'World ' + context.data.instanceId : context.data.name || ''
+const setChannelName = async (context: HookContext<ChannelService>) => {
+  if (!context.data) {
+    throw new BadRequest('Channel service data is empty')
+  }
+
+  if (Array.isArray(context.data) || context.method !== 'create') {
+    throw new BadRequest('Channel service only works for single create')
+  }
+
+  const { instanceId, name } = context.data as ChannelData
+
+  context.data.name = instanceId ? 'World ' + instanceId : name || ''
 }
 
 /**
@@ -211,18 +233,22 @@ const setChannelName = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const createSelfOwner = async (context: HookContext) => {
-  const userId = context.params.user?.id
-
-  if (userId) {
+const createSelfOwner = async (context: HookContext<ChannelService>) => {
+  const process = async (item: ChannelType) => {
     await context.app.service(channelUserPath).create({
-      channelId: context.result.id as ChannelID,
+      channelId: item.id as ChannelID,
       userId,
       isOwner: true
     })
   }
 
-  return context
+  const userId = context.params.user?.id
+
+  if (userId) {
+    Array.isArray(context.result)
+      ? await Promise.all(context.result.map(process))
+      : await process(context.result as ChannelType)
+  }
 }
 
 /**
@@ -230,21 +256,27 @@ const createSelfOwner = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const createChannelUsers = async (context) => {
+const createChannelUsers = async (context: HookContext<ChannelService>) => {
   /** @todo ensure all users specified are friends of loggedInUser */
 
-  if (context.actualData && context.actualData.users) {
-    await Promise.all(
-      context.actualData.users.map(async (user) =>
-        context.app.service(channelUserPath).create({
-          channelId: context.result.id as ChannelID,
-          userId: user
-        })
+  const process = async (item: ChannelData) => {
+    if (item.users) {
+      await Promise.all(
+        context.actualData.users.map(async (user) =>
+          context.app.service(channelUserPath).create({
+            channelId: item.id as ChannelID,
+            userId: user
+          })
+        )
       )
-    )
+    }
   }
 
-  return context
+  if (context.actualData) {
+    Array.isArray(context.actualData)
+      ? await Promise.all(context.actualData.map(process))
+      : await process(context.actualData as ChannelData)
+  }
 }
 
 export default {

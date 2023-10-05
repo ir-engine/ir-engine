@@ -44,6 +44,13 @@ export const UUIDComponent = defineComponent({
       throw new Error(`UUID ${uuid} is already in use`)
     }
 
+    // remove old uuid
+    const currentUUID = component.value
+    if (currentUUID !== '') {
+      UUIDComponent.entitiesByUUIDState[currentUUID].set(none)
+    }
+
+    // set new uuid
     component.set(uuid)
     UUIDComponent.valueMap[entity] = uuid
     UUIDComponent.entitiesByUUIDState[uuid].set(entity)
@@ -53,6 +60,8 @@ export const UUIDComponent = defineComponent({
     const uuid = component.value
     if (UUIDComponent.entitiesByUUIDState[uuid].value === entity) {
       UUIDComponent.entitiesByUUIDState[uuid].set(none)
+    } else {
+      throw new Error(`UUID ${uuid} is not associated with entity ${entity}`)
     }
   },
 

@@ -97,7 +97,7 @@ export const createNewEditorNode = (
     { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
   ]
   const name = getUniqueName(entityNode, `New ${startCase(components[0].name.toLowerCase())}`)
-
+  const uuid = componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
   addEntityNodeChild(entityNode, parentEntity)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
@@ -105,6 +105,7 @@ export const createNewEditorNode = (
     type: Object.keys(componentJson)[0].toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
   })
+  setComponent(entityNode, UUIDComponent, uuid)
   const localTransform = getComponent(entityNode, LocalTransformComponent)
   setComponent(entityNode, TransformComponent, {
     position: localTransform.position,

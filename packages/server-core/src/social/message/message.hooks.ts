@@ -58,7 +58,7 @@ import { MessageService } from './message.class'
  */
 const disallowEmptyMessage = async (context: HookContext<MessageService>) => {
   if (!context.data) {
-    return
+    throw new BadRequest('Message service data is empty')
   }
 
   const data = Array.isArray(context.data) ? context.data : [context.data]
@@ -78,7 +78,7 @@ const disallowEmptyMessage = async (context: HookContext<MessageService>) => {
  */
 const ensureChannelId = async (context: HookContext<MessageService>) => {
   if (!context.data || context.method !== 'create') {
-    return
+    throw new BadRequest('Message service only works for data in create')
   }
 
   const data: MessageData[] = Array.isArray(context.data) ? context.data : [context.data]
