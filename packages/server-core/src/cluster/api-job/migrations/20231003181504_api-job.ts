@@ -32,13 +32,6 @@ import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.s
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'api-job'
-
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  if (oldNamedTableExists) {
-    await knex.schema.renameTable(oldTableName, apiJobPath)
-  }
-
   const tableExists = await knex.schema.hasTable(apiJobPath)
 
   if (tableExists === false) {

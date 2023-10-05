@@ -45,15 +45,11 @@ export const apiJobDataResolver = resolve<ApiJobType, HookContext>({
   id: async () => {
     return v4()
   },
-  startTime: getDateTimeSql,
-  endTime: getDateTimeSql,
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })
 
 export const apiJobPatchResolver = resolve<ApiJobType, HookContext>({
-  startTime: getDateTimeSql,
-  endTime: getDateTimeSql,
   updatedAt: getDateTimeSql
 })
 

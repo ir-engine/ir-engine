@@ -39,9 +39,9 @@ export const apiJobSchema = Type.Object(
       format: 'uuid'
     }),
     name: Type.String(),
-    startTime: Type.String(),
+    startTime: Type.String({ format: 'date-time' }),
     endTime: Type.String({ format: 'date-time' }),
-    status: Type.String({ format: 'date-time' }),
+    status: Type.String(),
     returnData: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

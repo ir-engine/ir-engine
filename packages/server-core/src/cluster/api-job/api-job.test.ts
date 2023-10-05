@@ -30,12 +30,7 @@ import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
-
-const getRandomizedName = (name: string, suffix = '', prefix = 'test') =>
-  `${prefix}-${name}-${(Math.random() + 1).toString(36).substring(7)}${suffix}`
-
-/**appends trailing `/` for directory paths */
-const getDirectoryPath = (name: string) => name + '/'
+import { getDateTimeSql } from '../../util/datetime-sql'
 
 describe('api job service', () => {
   let app: Application
@@ -58,10 +53,11 @@ describe('api job service', () => {
 
   let jobId
   it('creates a job', async () => {
+    const date = await getDateTimeSql()
     const createdJob = await app.service(apiJobPath).create({
       name: 'test-job',
-      startTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      endTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      startTime: date,
+      endTime: date,
       returnData: '',
       status: 'pending'
     })

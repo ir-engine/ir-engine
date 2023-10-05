@@ -53,7 +53,7 @@ import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { toDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { createExecutorJob, getProjectPushJobBody } from './project-helper'
@@ -251,18 +251,22 @@ export const pushProject = async (
         githubIdentityProvider.data[0].oauthToken,
         app
       )
-    if (jobId)
+    if (jobId) {
+      const date = await getDateTimeSql()
       await app.service(apiJobPath).patch(jobId, {
         status: 'succeeded',
-        endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        endTime: date
       })
+    }
   } catch (err) {
-    if (jobId)
+    if (jobId) {
+      const date = await getDateTimeSql()
       await app.service(apiJobPath).patch(jobId, {
         status: 'failed',
         returnData: err.toString(),
-        endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        endTime: date
       })
+    }
     logger.error(err)
     throw err
   }
@@ -283,10 +287,11 @@ export const pushProjectToGithub = async (
   else {
     const projectName = project.name.toLowerCase()
 
+    const date = await getDateTimeSql()
     const newJob = await app.service(apiJobPath).create({
       name: '',
-      startTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      endTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      startTime: date,
+      endTime: date,
       returnData: '',
       status: 'pending'
     })

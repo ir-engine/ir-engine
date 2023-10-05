@@ -35,6 +35,7 @@ import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
+import { getDateTimeSql } from '../../util/datetime-sql'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
@@ -107,12 +108,14 @@ const archive = async (app: Application, directory, params?: ArchiverParams): Pr
 
   logger.info(`Archived ${directory} to ${zipOutputDirectory}`)
 
-  if (params.query.jobId)
+  if (params.query.jobId) {
+    const date = await getDateTimeSql()
     await app.service(apiJobPath).patch(params.query.jobId as string, {
       status: 'succeeded',
       returnData: zipOutputDirectory,
-      endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      endTime: date
     })
+  }
 
   return zipOutputDirectory
 }
@@ -138,10 +141,11 @@ export class ArchiverService implements ServiceInterface<string, ArchiverParams>
       else projectName = split[split.length - 1]
       projectName = projectName.toLowerCase()
 
+      const date = await getDateTimeSql()
       const newJob = await this.app.service(apiJobPath).create({
         name: '',
-        startTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
-        endTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        startTime: date,
+        endTime: date,
         returnData: '',
         status: 'pending'
       })

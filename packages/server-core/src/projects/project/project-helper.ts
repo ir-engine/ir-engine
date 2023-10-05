@@ -1337,9 +1337,10 @@ export const createExecutorJob = async (
       if (job.status === 'failed') reject()
       if (counter >= timeout) {
         clearInterval(interval)
+        const date = await getDateTimeSql()
         await app.service(apiJobPath).patch(jobId, {
           status: 'failed',
-          endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+          endTime: date
         })
         reject('Job timed out; try again later or check error logs of job')
       }
@@ -1400,11 +1401,13 @@ export const updateProject = async (
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
-    if (params?.jobId)
+    if (params?.jobId) {
+      const date = await getDateTimeSql()
       await app.service(apiJobPath).patch(params.jobId as string, {
         status: 'succeeded',
-        endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        endTime: date
       })
+    }
     return (
       (await app.service(projectPath).find({
         query: {
@@ -1472,12 +1475,14 @@ export const updateProject = async (
       await git.checkoutLocalBranch(branchName)
     } else await git.checkout(branchName)
   } catch (err) {
-    if (params?.jobId)
+    if (params?.jobId) {
+      const date = await getDateTimeSql()
       await app.service(apiJobPath).patch(params.jobId as string, {
         status: 'failed',
         returnData: err.toString(),
-        endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        endTime: date
       })
+    }
     logger.error(err)
     throw err
   }
@@ -1570,11 +1575,13 @@ export const updateProject = async (
   } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
     await removeProjectUpdateJob(app, projectName)
 
-  if (params?.jobId)
+  if (params?.jobId) {
+    const date = await getDateTimeSql()
     await app.service(apiJobPath).patch(params.jobId as string, {
       status: 'succeeded',
-      endTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      endTime: date
     })
+  }
 
   return returned
 }

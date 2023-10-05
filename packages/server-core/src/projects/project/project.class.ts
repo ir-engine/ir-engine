@@ -189,10 +189,11 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
       if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
 
+      const date = await getDateTimeSql()
       const newJob = await this.app.service(apiJobPath).create({
         name: '',
-        startTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
-        endTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        startTime: date,
+        endTime: date,
         returnData: '',
         status: 'pending'
       })
