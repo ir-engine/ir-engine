@@ -56,7 +56,6 @@ import {
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { solveTwoBoneIK } from '../avatar/animation/TwoBoneIKSolver'
 import { V_010, V_111 } from '../common/constants/MathConstants'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
@@ -334,6 +333,7 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
 
   const offset = 0
   const legLength = rig.upperLegLength + rig.lowerLegLength * 2 - offset
+
   const hipleft = trackingLowerBody
     ? new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
     : new Vector3(0, legLength, 0)
@@ -409,21 +409,9 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   )
   shoulderObject.matrixWorld.decompose(shoulderObject.position, shoulderObject.quaternion, shoulderObject.scale)
 
-  solveTwoBoneIK(
-    hipObject,
-    spineObject,
-    shoulderObject,
-    new Vector3(0, 2, 0), // target position
-    shoulderWorldQuaternion, // target quaternion
-    null,
-    null,
-    null,
-    null,
-    null,
-    1,
-    1,
-    1
-  )
+  const hipsToShoulders = new Vector3().subVectors(shoulderPositionAlongPlane, hipPositionAlongPlane)
+  const spineRotation = new Quaternion().setFromUnitVectors(V_010, hipsToShoulders)
+  spineObject.quaternion.copy(spineRotation)
 
   if (trackingLowerBody) {
     MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipObject.quaternion.x
