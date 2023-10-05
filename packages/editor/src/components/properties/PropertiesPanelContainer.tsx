@@ -32,10 +32,10 @@ import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  ComponentMap,
+  ComponentJSONIDMap,
   getAllComponents,
   hasComponent,
-  setComponent
+  useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
@@ -45,6 +45,7 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionAction, SelectionState } from '../../services/SelectionServices'
 import MaterialEditor from '../materials/MaterialEditor'
@@ -70,6 +71,19 @@ const noNodeSelectedMessageStyle: React.CSSProperties = {
   justifyContent: 'center',
   alignItems: 'center',
   color: 'var(--textColor)'
+}
+
+const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
+  const { entity, component, multiEdit } = props
+  const componentMounted = useOptionalComponent(entity as Entity, component)
+  const Editor = EntityNodeEditor.get(component)!
+  if (!componentMounted) return null
+  // nodeEntity is used as key here to signal to React when the entity has changed,
+  // and to prevent state from being recycled between editor instances, which
+  // can cause hookstate to throw errors.
+  return (
+    <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity as Entity} component={component} />
+  )
 }
 
 /**
@@ -116,18 +130,17 @@ export const PropertiesPanelContainer = () => {
     accept: [ItemTypes.Component],
     drop: (item: { componentJsonID: string }) => {
       if (isObject3D) return
-      const component = ComponentMap.get(item.componentJsonID)
+      const component = ComponentJSONIDMap.get(item.componentJsonID)
       const entity = node as Entity
       if (!component || hasComponent(entity, component)) return
-      setComponent(entity, component)
+      EditorControlFunctions.addOrRemoveComponent([entity], component, true)
       dispatchAction(SelectionAction.forceUpdate({}))
     },
     collect: (monitor) => {
       if (isObject3D) return { isDragging: false }
-
       if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
 
-      const component = ComponentMap.get(monitor.getItem().componentJsonID)
+      const component = ComponentJSONIDMap.get(monitor.getItem().componentJsonID)
       if (!component) return { isDragging: false }
 
       const entity = node as Entity
@@ -166,15 +179,9 @@ export const PropertiesPanelContainer = () => {
         }}
       >
         <CoreNodeEditor entity={node as Entity} key={node as Entity} />
-        {components.map((c, i) => {
-          const Editor = EntityNodeEditor.get(c)!
-          // nodeEntity is used as key here to signal to React when the entity has changed,
-          // and to prevent state from being recycled between editor instances, which
-          // can cause hookstate to throw errors.
-          return (
-            <Editor key={`${nodeEntity}-${Editor.name}`} multiEdit={multiEdit} entity={node as Entity} component={c} />
-          )
-        })}
+        {components.map((c, i) => (
+          <EntityComponentEditor key={`${nodeEntity}-${c.name}`} multiEdit={multiEdit} entity={node} component={c} />
+        ))}
       </div>
     )
   }

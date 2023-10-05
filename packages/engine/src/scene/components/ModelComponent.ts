@@ -101,6 +101,7 @@ export const ModelComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     setComponent(entity, LoopAnimationComponent)
+    setComponent(entity, ShadowComponent)
 
     if (!json) return
     if (typeof json.src === 'string') component.src.set(json.src)
@@ -136,11 +137,6 @@ function ModelReactor() {
   const variantComponent = useOptionalComponent(entity, VariantComponent)
   const model = modelComponent.value
   const source = model.src
-
-  useEffect(() => {
-    setComponent(entity, LoopAnimationComponent)
-    setComponent(entity, ShadowComponent)
-  }, [])
 
   // update src
   useEffect(() => {
