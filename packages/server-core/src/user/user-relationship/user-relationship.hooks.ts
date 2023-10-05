@@ -36,9 +36,11 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 
 import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
+import verifyUserId from '../../hooks/verify-userId'
 import { UserRelationshipService } from './user-relationship.class'
 import {
   userRelationshipDataResolver,
@@ -88,6 +90,8 @@ const updateQueryBothWays = async (context: HookContext<UserRelationshipService>
       }
     ]
   }
+
+  context.id = undefined
 }
 
 export default {
@@ -104,7 +108,7 @@ export default {
       () => schemaHooks.validateQuery(userRelationshipQueryValidator),
       schemaHooks.resolveQuery(userRelationshipQueryResolver)
     ],
-    find: [],
+    find: [verifyUserId(), setLoggedInUserInQuery('userId')],
     get: [disallow()],
     create: [
       () => schemaHooks.validateData(userRelationshipDataValidator),
