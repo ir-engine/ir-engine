@@ -35,7 +35,8 @@ import {
   ComponentMap,
   getAllComponents,
   hasComponent,
-  setComponent
+  setComponent,
+  useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
@@ -70,6 +71,19 @@ const noNodeSelectedMessageStyle: React.CSSProperties = {
   justifyContent: 'center',
   alignItems: 'center',
   color: 'var(--textColor)'
+}
+
+const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
+  const { entity, component, multiEdit } = props
+  const componentMounted = useOptionalComponent(entity as Entity, component)
+  const Editor = EntityNodeEditor.get(component)!
+  if (!componentMounted) return null
+  // nodeEntity is used as key here to signal to React when the entity has changed,
+  // and to prevent state from being recycled between editor instances, which
+  // can cause hookstate to throw errors.
+  return (
+    <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity as Entity} component={component} />
+  )
 }
 
 /**
@@ -166,15 +180,9 @@ export const PropertiesPanelContainer = () => {
         }}
       >
         <CoreNodeEditor entity={node as Entity} key={node as Entity} />
-        {components.map((c, i) => {
-          const Editor = EntityNodeEditor.get(c)!
-          // nodeEntity is used as key here to signal to React when the entity has changed,
-          // and to prevent state from being recycled between editor instances, which
-          // can cause hookstate to throw errors.
-          return (
-            <Editor key={`${nodeEntity}-${Editor.name}`} multiEdit={multiEdit} entity={node as Entity} component={c} />
-          )
-        })}
+        {components.map((c, i) => (
+          <EntityComponentEditor key={`${nodeEntity}-${c.name}`} multiEdit={multiEdit} entity={node} component={c} />
+        ))}
       </div>
     )
   }
