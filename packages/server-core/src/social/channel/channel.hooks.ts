@@ -112,7 +112,7 @@ const ensureUserHasChannelAccess = async (context: HookContext<ChannelService>) 
  */
 const ensureUsersFriendWithOwner = async (context: HookContext<ChannelService>) => {
   if (!context.data) {
-    throw new BadRequest('Channel service data is empty')
+    throw new BadRequest(`${context.path} service data is empty`)
   }
 
   const data: ChannelData[] = Array.isArray(context.data) ? context.data : [context.data]
