@@ -88,11 +88,11 @@ import { getUniqueName } from '../functions/getUniqueName'
 
 export const createNewEditorNode = (
   entityNode: Entity,
-  componentName: string,
+  componentJson: Array<ComponentJson>,
   parentEntity = getState(SceneState).sceneEntity as Entity
 ): void => {
   const components = [
-    { name: ComponentMap.get(componentName)!.jsonID! },
+    ...componentJson,
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
     { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
   ]
@@ -102,7 +102,7 @@ export const createNewEditorNode = (
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,
-    type: componentName.toLowerCase().replace(/\s/, '_'),
+    type: Object.keys(componentJson)[0].toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
   })
   const localTransform = getComponent(entityNode, LocalTransformComponent)

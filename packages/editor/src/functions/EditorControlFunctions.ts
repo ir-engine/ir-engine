@@ -64,6 +64,7 @@ import {
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
@@ -215,7 +216,7 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 }
 
 const createObjectFromSceneElement = (
-  componentName: string,
+  componentJson: ComponentJson[] = [],
   parentEntity = getState(SceneState).sceneEntity as Entity,
   beforeEntity = null as Entity | null,
   updateSelection = true
@@ -236,7 +237,7 @@ const createObjectFromSceneElement = (
   setComponent(newEntity, UUIDComponent, entityUUID)
   setComponent(newEntity, SceneObjectComponent)
 
-  createNewEditorNode(newEntity, componentName)
+  createNewEditorNode(newEntity, componentJson)
 
   const serializedEntity = serializeEntity(newEntity)
 

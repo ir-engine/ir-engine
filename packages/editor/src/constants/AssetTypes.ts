@@ -56,7 +56,7 @@ export const ItemTypes = {
   ECS: [AssetType.XRE, 'scene.json'],
   Node: 'Node',
   Material: 'Material',
-  Prefab: 'Prefab'
+  Component: 'Component'
 }
 
 export const SupportedFileTypes = [
