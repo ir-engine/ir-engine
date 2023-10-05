@@ -224,20 +224,23 @@ const createObjectFromSceneElement = (
   cancelGrabOrPlacement()
 
   const newEntity = createEntity()
-  let childIndex = undefined as undefined | number
-  if (beforeEntity) {
+  let childIndex = 0
+  if (typeof beforeEntity === 'number') {
     const beforeNode = getComponent(beforeEntity, EntityTreeComponent)
     if (beforeNode?.parentEntity && hasComponent(beforeNode.parentEntity, EntityTreeComponent)) {
       childIndex = getComponent(beforeNode.parentEntity, EntityTreeComponent).children.indexOf(beforeEntity)
     }
+  } else {
+    const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
+    childIndex = parentEntityTreeComponent.children.length
   }
 
-  const entityUUID = MathUtils.generateUUID() as EntityUUID
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, UUIDComponent, entityUUID)
   setComponent(newEntity, SceneObjectComponent)
 
   createNewEditorNode(newEntity, componentJson)
+
+  const entityUUID = getComponent(newEntity, UUIDComponent)
 
   const serializedEntity = serializeEntity(newEntity)
 
@@ -255,8 +258,6 @@ const createObjectFromSceneElement = (
   }
 
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
-
-  return newEntity
 }
 
 /**

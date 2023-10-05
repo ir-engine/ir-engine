@@ -45,7 +45,7 @@ import {
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { useEffect } from 'react'
 import { EditorState } from './EditorServices'
-import { SelectionAction, SelectionState } from './SelectionServices'
+import { SelectionAction } from './SelectionServices'
 
 export const EditorTopic = 'editor' as Topic
 
@@ -156,8 +156,6 @@ const appendSnapshotQueue = defineActionQueue(EditorHistoryAction.appendSnapshot
 const modifyQueue = defineActionQueue(EditorHistoryAction.createSnapshot.matches)
 
 const execute = () => {
-  const selectedEntitiesState = getState(SelectionState)
-
   const state = getMutableState(EditorHistoryState)
   for (const action of undoQueue()) {
     if (state.index.value <= 0) continue
