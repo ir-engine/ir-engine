@@ -27,6 +27,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  MatchTicketType,
   matchTicketDataValidator,
   matchTicketQueryValidator
 } from '@etherealengine/matchmaking/src/match-ticket.schema'
@@ -35,13 +36,56 @@ import matchmakingRestrictMultipleQueueing from '@etherealengine/server-core/src
 import matchmakingSaveTicket from '@etherealengine/server-core/src/hooks/matchmaking-save-ticket'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
+import { BadRequest, NotFound } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
+import config from '../../appconfig'
 import authenticate from '../../hooks/authenticate'
+import { emulate_createTicket, emulate_getTicket } from '../emulate'
 import {
   matchTicketDataResolver,
   matchTicketExternalResolver,
   matchTicketQueryResolver,
   matchTicketResolver
 } from './match-ticket.resolvers'
+
+const ensureId = async (context: HookContext) => {
+  if (typeof context.id !== 'string' || context.id.length === 0) {
+    throw new BadRequest('Invalid ticket id, not empty string is expected')
+  }
+}
+
+const getEmulationTicket = async (context: HookContext) => {
+  let ticket
+  if (config.server.matchmakerEmulationMode) {
+    // emulate response from open-match-api
+    ticket = await emulate_getTicket(context.service, context.id, context.params.user!.id)
+  } else {
+    ticket = getTicket(String(context.id!))
+  }
+
+  if (!ticket) {
+    throw new NotFound()
+  }
+  context.result = ticket as MatchTicketType
+}
+
+const createInEmulation = async (context: HookContext) => {
+  if (config.server.matchmakerEmulationMode) {
+    // emulate response from open-match-api
+    return emulate_createTicket(context.data.gameMode)
+  }
+
+  context.result = await createTicket(context.data.gameMode, context.data.attributes)
+}
+
+const skipDeleteInEmulation = async (context: HookContext) => {
+  if (!config.server.matchmakerEmulationMode) {
+    await deleteTicket(String(context.id))
+  }
+
+  context.result = undefined
+}
 
 export default {
   around: {
@@ -54,17 +98,22 @@ export default {
       schemaHooks.resolveQuery(matchTicketQueryResolver)
     ],
     find: [],
-    get: [iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any)],
+    get: [
+      iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
+      ensureId,
+      getEmulationTicket
+    ],
     create: [
       iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
       matchmakingRestrictMultipleQueueing(),
       // addUUID(),
       () => schemaHooks.validateData(matchTicketDataValidator),
-      schemaHooks.resolveData(matchTicketDataResolver)
+      schemaHooks.resolveData(matchTicketDataResolver),
+      createInEmulation
     ],
     update: [disallow()],
     patch: [disallow()],
-    remove: [iff(isProvider('external'))]
+    remove: [iff(isProvider('external')), skipDeleteInEmulation]
   },
 
   after: {
