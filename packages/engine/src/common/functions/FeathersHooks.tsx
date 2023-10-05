@@ -191,6 +191,7 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
     skip: paginate.query.$skip,
     limit: paginate.query.$limit,
     sort: paginate.query.$sort,
+    paginateState: paginate.paginateState,
     data: data as ArrayOrPaginatedType<(typeof response)['data']>
   }
 }
@@ -323,14 +324,19 @@ type PaginationProps = {
   $sort: Record<string, FeathersOrder>
 }
 
-export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
-  const store = useHookstate({
+function resetPaginationProps(defaultProps: Partial<PaginationProps>) {
+  return {
     $skip: defaultProps.$skip ?? 0,
     $limit: defaultProps.$limit ?? 10,
     $sort: defaultProps.$sort ?? {}
-  } as PaginationProps)
+  } as PaginationProps
+}
+
+export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
+  const store = useHookstate(resetPaginationProps(defaultProps))
 
   const query = store.get(NO_PROXY)
+  const storedPagination = useHookstate(query)
 
   const setSort = (sort: Record<string, FeathersOrder>) => {
     store.$sort.set(sort)
@@ -344,11 +350,29 @@ export function usePaginate(defaultProps = {} as Partial<PaginationProps>) {
     store.$skip.set(page * store.$limit.value)
   }
 
+  const reset = () => {
+    store.set(resetPaginationProps(defaultProps))
+  }
+
+  const storePagination = () => {
+    reset()
+    storedPagination.set(query)
+  }
+
+  const restorePagination = () => {
+    store.set(storedPagination.value)
+  }
+
   return {
     query,
     page: Math.floor(store.$skip.value / store.$limit.value),
     setSort,
     setLimit,
-    setPage
+    setPage,
+    paginateState: {
+      reset,
+      store: storePagination,
+      restore: restorePagination
+    }
   }
 }

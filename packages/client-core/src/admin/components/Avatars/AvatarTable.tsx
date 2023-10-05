@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
@@ -66,6 +66,14 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
       }
     }
   })
+
+  useEffect(() => {
+    if (search) {
+      adminAvatarQuery.paginateState.store()
+    } else {
+      adminAvatarQuery.paginateState.restore()
+    }
+  }, [search])
 
   const adminAvatarRemove = useMutation(avatarPath).remove
 
