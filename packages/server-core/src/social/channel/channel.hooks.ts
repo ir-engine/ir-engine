@@ -125,7 +125,7 @@ const ensureUsersFriendWithOwner = async (context: HookContext<ChannelService>) 
 
     if (!users || !userId) return context
 
-    const userRelationships = (await context.app.service(userRelationshipPath)._find({
+    const userRelationships = (await context.app.service(userRelationshipPath).find({
       query: {
         userId,
         userRelationshipType: 'friend',
@@ -179,7 +179,7 @@ const handleChannelInstance = async (context: HookContext<ChannelService>) => {
  */
 const checkExistingChannel = async (context: HookContext<ChannelService>) => {
   if (Array.isArray(context.data) || context.method !== 'create') {
-    throw new BadRequest('Channel service only works for single create')
+    throw new BadRequest(`${context.path} service only works for single object create`)
   }
 
   const { users, instanceId } = context.data as ChannelData
