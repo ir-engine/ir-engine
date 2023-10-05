@@ -38,11 +38,12 @@ import logger from '../../ServerLogger'
 
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'
+import { AvatarService } from './avatar.class'
 import {
   avatarDataResolver,
   avatarExternalResolver,
@@ -56,12 +57,18 @@ import {
  * @param context
  * @returns
  */
-const setIdentifierName = async (context: HookContext) => {
-  context.result = await context.app.service(avatarPath).patch(context.result.id, {
-    identifierName: context.result.name + '_' + context.result.id
-  })
+const setIdentifierName = async (context: HookContext<AvatarService>) => {
+  const process = async (item: AvatarType) => {
+    const updatedAvatar = await context.app.service(avatarPath).patch(item.id, {
+      identifierName: item.name + '_' + item.id
+    })
 
-  return context
+    return { ...item, ...updatedAvatar }
+  }
+
+  context.result = Array.isArray(context.result)
+    ? await Promise.all(context.result.map(process))
+    : await process(context.result as AvatarType)
 }
 
 /**
@@ -69,12 +76,12 @@ const setIdentifierName = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const ensureUserAccessibleAvatars = async (context: HookContext) => {
+const ensureUserAccessibleAvatars = async (context: HookContext<AvatarService>) => {
   if (context.params.user && context.params.user.id) {
     context.params.query = {
       ...context.params?.query,
       $or: [
-        ...(context.params?.query.$or || []),
+        ...(context.params?.query?.$or || []),
         {
           isPublic: true
         },
@@ -99,7 +106,7 @@ const ensureUserAccessibleAvatars = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const removeAvatarResources = async (context: HookContext) => {
+const removeAvatarResources = async (context: HookContext<AvatarService>) => {
   const avatar = await context.app.service(avatarPath).get(context.id!, context.params)
 
   try {
@@ -123,11 +130,11 @@ const removeAvatarResources = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const updateUserAvatars = async (context: HookContext) => {
+const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   const avatars = (await context.app.service(avatarPath).find({
     query: {
       id: {
-        $ne: context.id
+        $ne: context.id?.toString()
       }
     },
     paginate: false
@@ -142,7 +149,7 @@ const updateUserAvatars = async (context: HookContext) => {
       },
       {
         query: {
-          avatarId: context.id
+          avatarId: context.id?.toString()
         }
       }
     )
