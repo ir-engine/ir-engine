@@ -58,19 +58,17 @@ import {
  * @returns
  */
 const setIdentifierName = async (context: HookContext<AvatarService>) => {
-  const result = (Array.isArray(context.result) ? context.result : [context.result]) as AvatarType[]
-
-  for (let index = 0; index < result.length; index++) {
-    const updatedAvatar = await context.app.service(avatarPath).patch(result[index].id, {
-      identifierName: result[index].name + '_' + result[index].id
+  const process = async (item: AvatarType) => {
+    const updatedAvatar = await context.app.service(avatarPath).patch(item.id, {
+      identifierName: item.name + '_' + item.id
     })
 
-    result[index] = { ...result[index], ...updatedAvatar }
+    return { ...item, ...updatedAvatar }
   }
 
-  // We need to do this in order to update the context.result because
-  // in the end of above for loop, we are creating a new object.
-  context.result = Array.isArray(context.result) ? result : result[0]
+  context.result = Array.isArray(context.result)
+    ? await Promise.all(context.result.map(process))
+    : await process(context.result as AvatarType)
 }
 
 /**
