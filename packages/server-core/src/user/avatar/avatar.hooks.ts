@@ -68,7 +68,8 @@ const setIdentifierName = async (context: HookContext<AvatarService>) => {
     result[index] = { ...result[index], ...updatedAvatar }
   }
 
-  // We need to do this in order to update the context.result
+  // We need to do this in order to update the context.result because
+  // in the end of above for loop, we are creating a new object.
   context.result = Array.isArray(context.result) ? result : result[0]
 }
 
