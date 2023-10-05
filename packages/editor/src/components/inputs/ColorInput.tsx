@@ -36,6 +36,7 @@ interface ColorInputProp {
   value: Color
   onChange: (color: Color) => void
   onSelect?: (color: Color) => void
+  onRelease?: (color: Color) => void
   disabled?: boolean
   isValueAsInteger?: boolean
 }
@@ -50,7 +51,7 @@ interface ColorInputProp {
  * @constructor
  */
 
-export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: ColorInputProp) {
+export function ColorInput({ value, onChange, onRelease, onSelect, disabled, ...rest }: ColorInputProp) {
   const [color, setColor] = useState(value)
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
@@ -60,6 +61,7 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
 
   const handleClose = () => {
     setAnchorEl(null)
+    onRelease && onRelease(color)
   }
 
   useEffect(() => {

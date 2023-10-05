@@ -49,6 +49,7 @@ import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
+import { NetworkState } from '../NetworkState'
 import {
   EntityNetworkState,
   EntityNetworkStateSystem,
@@ -78,7 +79,7 @@ describe('EntityNetworkState', () => {
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userID = userId
-      const network = Engine.instance.worldNetwork as Network
+      const network = NetworkState.worldNetwork as Network
       Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
@@ -89,7 +90,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnObject({
-          $from: Engine.instance.worldNetwork.hostId, // from  host
+          $from: NetworkState.worldNetwork.hostId, // from  host
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $topic: NetworkTopics.world,
@@ -123,7 +124,7 @@ describe('EntityNetworkState', () => {
 
       Engine.instance.userID = userId
 
-      const network = Engine.instance.worldNetwork as Network
+      const network = NetworkState.worldNetwork as Network
       Engine.instance.peerID = peerID2
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
@@ -169,7 +170,7 @@ describe('EntityNetworkState', () => {
       const peerID3 = 'peer id 3' as PeerID
 
       Engine.instance.userID = userId
-      const network = Engine.instance.worldNetwork as Network
+      const network = NetworkState.worldNetwork as Network
       Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
@@ -211,7 +212,7 @@ describe('EntityNetworkState', () => {
       const peerID = 'peer id' as PeerID
 
       Engine.instance.userID = userId
-      const network = Engine.instance.worldNetwork as Network
+      const network = NetworkState.worldNetwork as Network
       Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
@@ -247,7 +248,7 @@ describe('EntityNetworkState', () => {
       const peerID2 = 'peer id 2' as PeerID
 
       Engine.instance.userID = userId
-      const network = Engine.instance.worldNetwork as Network
+      const network = NetworkState.worldNetwork as Network
       Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
@@ -321,7 +322,7 @@ describe('EntityNetworkState', () => {
     const peerID2 = 'peer id 2' as PeerID
 
     Engine.instance.userID = userId // user being the action dispatcher
-    const network = Engine.instance.worldNetwork as Network
+    const network = NetworkState.worldNetwork as Network
     Engine.instance.peerID = peerID
 
     NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')

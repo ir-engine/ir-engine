@@ -38,7 +38,7 @@ import InputGroup from '../inputs/InputGroup'
 import Vector2Input from '../inputs/Vector2Input'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * Clouds Editor provides the editor to customize properties.
@@ -68,6 +68,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
           mediumStep={0.1}
           largeStep={1}
           onChange={updateProperty(CloudComponent, 'worldScale')}
+          onRelease={commitProperty(CloudComponent, 'worldScale')}
         />
       </InputGroup>
 
@@ -78,6 +79,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
           mediumStep={1}
           largeStep={1}
           onChange={updateProperty(CloudComponent, 'dimensions')}
+          onRelease={commitProperty(CloudComponent, 'dimensions')}
         />
       </InputGroup>
 
@@ -88,6 +90,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
           mediumStep={0.1}
           largeStep={1}
           onChange={updateProperty(CloudComponent, 'noiseZoom')}
+          onRelease={commitProperty(CloudComponent, 'noiseZoom')}
         />
       </InputGroup>
 
@@ -98,6 +101,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
           mediumStep={0.1}
           largeStep={1}
           onChange={updateProperty(CloudComponent, 'noiseOffset')}
+          onRelease={commitProperty(CloudComponent, 'noiseOffset')}
         />
       </InputGroup>
 
@@ -105,17 +109,23 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
         <Vector2Input
           value={cloudComponent.spriteScaleRange.value}
           onChange={updateProperty(CloudComponent, 'spriteScaleRange')}
+          onRelease={commitProperty(CloudComponent, 'spriteScaleRange')}
         />
       </InputGroup>
 
       <InputGroup name="Fog Color" label={t('editor:properties.clouds.lbl-fogColor')}>
-        <ColorInput value={cloudComponent?.fogColor.value} onChange={updateProperty(CloudComponent, 'fogColor')} />
+        <ColorInput
+          value={cloudComponent?.fogColor.value}
+          onChange={updateProperty(CloudComponent, 'fogColor')}
+          onRelease={commitProperty(CloudComponent, 'fogColor')}
+        />
       </InputGroup>
 
       <InputGroup name="Fog Range" label={t('editor:properties.clouds.lbl-fogRange')}>
         <Vector2Input
           value={cloudComponent.fogRange.value}
           onChange={updateProperty(CloudComponent, 'fogRange')}
+          onRelease={commitProperty(CloudComponent, 'fogRange')}
           hideLabels
         />
       </InputGroup>

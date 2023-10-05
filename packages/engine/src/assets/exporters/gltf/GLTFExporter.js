@@ -50,7 +50,8 @@ import {
 	Source,
 	SRGBColorSpace,
 	Vector3,
-	Texture
+	Texture,
+	NoColorSpace
 } from 'three';
 
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
@@ -906,7 +907,7 @@ export class GLTFWriter {
 		const texture = reference.clone();
 
 		texture.source = new Source( canvas );
-		texture.colorSpace = LinearSRGBColorSpace;
+		texture.colorSpace = NoColorSpace
 
 		return texture;
 

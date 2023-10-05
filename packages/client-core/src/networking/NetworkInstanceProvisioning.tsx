@@ -37,7 +37,6 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -57,7 +56,7 @@ export const WorldInstanceProvisioning = () => {
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useHookstate(getMutableState(EngineState))
 
-  const worldNetwork = Engine.instance.worldNetwork
+  const worldNetwork = NetworkState.worldNetwork
   const worldNetworkState = useWorldNetwork()
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
 
@@ -156,7 +155,7 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
 export const MediaInstanceProvisioning = () => {
   const channelState = useHookstate(getMutableState(ChannelState))
 
-  const worldNetworkId = Engine.instance.worldNetwork?.id
+  const worldNetworkId = NetworkState.worldNetwork?.id
   const worldNetwork = useWorldNetwork()
 
   MediaInstanceConnectionService.useAPIListeners()

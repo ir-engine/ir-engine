@@ -54,7 +54,7 @@ export const SpawnPointNodeEditor: EditorComponentType = (props) => {
         name="Users"
         prefix="User"
         values={spawnComponent.permissionedUsers}
-        onChange={updateProperty(SpawnPointComponent, 'permissionedUsers')}
+        onChange={commitProperty(SpawnPointComponent, 'permissionedUsers')}
         label={t('editor:properties.spawnPoint.users')}
       ></ArrayInputGroup> */}
     </NodeEditor>

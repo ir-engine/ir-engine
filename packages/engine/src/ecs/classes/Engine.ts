@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import * as Hyperflux from '@etherealengine/hyperflux'
-import { createHyperStore, getMutableState, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
 import { NetworkTopics } from '../../networking/classes/Network'
@@ -64,7 +64,7 @@ export class Engine {
       const isHost =
         action.$topic === this.store.defaultTopic
           ? false
-          : (action.$topic === NetworkTopics.world ? this.worldNetwork : this.mediaNetwork)?.isHosting
+          : (action.$topic === NetworkTopics.world ? NetworkState.worldNetwork : NetworkState.mediaNetwork)?.isHosting
       return isHost || action.$from === this.userID
     },
     getDispatchId: () => Engine.instance.userID,
@@ -75,26 +75,6 @@ export class Engine {
   }) as HyperStore
 
   engineTimer = null! as ReturnType<typeof Timer>
-
-  /**
-   * get the default world network
-   */
-  get worldNetwork() {
-    return getState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
-  }
-  get worldNetworkState() {
-    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
-  }
-
-  /**
-   * get the default media network
-   */
-  get mediaNetwork() {
-    return getState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
-  }
-  get mediaNetworkState() {
-    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
-  }
 
   /**
    * Reference to the three.js scene object.
@@ -150,9 +130,6 @@ export async function destroyEngine() {
 
   if (Engine.instance.api) {
     if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()
-
-    const sequelize = (Engine.instance.api as any).get?.('sequelizeClient')
-    if (sequelize) await sequelize.close()
 
     const knex = (Engine.instance.api as any).get?.('knexClient')
     if (knex) await knex.destroy()

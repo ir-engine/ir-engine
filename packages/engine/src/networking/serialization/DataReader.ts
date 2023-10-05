@@ -242,7 +242,7 @@ export const readMetadata = (v: ViewCursor) => {
   const userIndex = readUint32(v)
   const peerIndex = readUint32(v)
   const simulationTime = readFloat64(v)
-  // if (userIndex === world.peerIDToUserIndex.get(Engine.instance.worldNetwork.hostId)! && !Engine.instance.worldNetwork.isHosting) Engine.instance.fixedTick = fixedTick
+  // if (userIndex === world.peerIDToUserIndex.get(NetworkState.worldNetwork.hostId)! && !NetworkState.worldNetwork.isHosting) Engine.instance.fixedTick = fixedTick
   return { userIndex, peerIndex, simulationTime }
 }
 

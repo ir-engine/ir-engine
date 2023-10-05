@@ -23,9 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface VerificationEventInterface {
-  id: string
-  userId: string
-  expiresAt: Date
-  log: string // verification result log (fine-grained results, like "expired" / "revoked"
+import { HookContext } from '@feathersjs/feathers'
+
+import { BadRequest } from '@feathersjs/errors'
+import { AsyncLocalStorage } from 'async_hooks'
+
+export const asyncLocalStorage = new AsyncLocalStorage<{ headers: any }>()
+
+/**
+ * A method that disallows the use of id in request.
+ */
+export default async (context: HookContext) => {
+  if (context.id) {
+    throw new BadRequest(`Can only ${context.method} via query`)
+  }
 }

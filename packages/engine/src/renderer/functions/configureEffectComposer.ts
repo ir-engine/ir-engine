@@ -86,7 +86,8 @@ export const configureEffectComposer = (
 
   const postprocessingSettings = getState(PostProcessingSettingsState)
   if (!postprocessingSettings.enabled) {
-    composer.addPass(new EffectPass(camera, ...effects))
+    composer.EffectPass = new EffectPass(camera, ...effects)
+    composer.addPass(composer.EffectPass)
     return
   }
 
@@ -172,7 +173,8 @@ export const configureEffectComposer = (
       effects.push(textureEffect)
     }
 
-    composer.addPass(new EffectPass(camera, ...effects))
+    composer.EffectPass = new EffectPass(camera, ...effects)
+    composer.addPass(composer.EffectPass)
   }
   if (getState(EngineState).isEditor) changeRenderMode()
 }

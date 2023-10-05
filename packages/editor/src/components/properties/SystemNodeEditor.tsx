@@ -44,7 +44,7 @@ import ScriptInput from '../inputs/ScriptInput'
 import { SelectInput } from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
 const systemGroups = [
   {
@@ -110,7 +110,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={systemGroups}
-          onChange={updateProperty(SystemComponent, 'insertUUID')}
+          onChange={commitProperty(SystemComponent, 'insertUUID')}
           value={systemComponent.insertUUID}
         />
       </InputGroup>
@@ -118,18 +118,22 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={insertTypes}
-          onChange={updateProperty(SystemComponent, 'insertOrder')}
+          onChange={commitProperty(SystemComponent, 'insertOrder')}
           value={systemComponent.insertOrder}
         />
       </InputGroup>
       <InputGroup name="enableClient" label={t('editor:properties.systemnode.lbl-enableClient')}>
-        <BooleanInput onChange={updateProperty(SystemComponent, 'enableClient')} value={systemComponent.enableClient} />
+        <BooleanInput onChange={commitProperty(SystemComponent, 'enableClient')} value={systemComponent.enableClient} />
       </InputGroup>
       <InputGroup name="enableServer" label={t('editor:properties.systemnode.lbl-enableServer')}>
-        <BooleanInput onChange={updateProperty(SystemComponent, 'enableServer')} value={systemComponent.enableServer} />
+        <BooleanInput onChange={commitProperty(SystemComponent, 'enableServer')} value={systemComponent.enableServer} />
       </InputGroup>
       <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
-        <StringInput onChange={updateProperty(SystemComponent, 'args') as any} value={systemComponent.args as any} />
+        <StringInput
+          onChange={updateProperty(SystemComponent, 'args') as any}
+          value={systemComponent.args as any}
+          onRelease={commitProperty(SystemComponent, 'args') as any}
+        />
       </InputGroup>
     </NodeEditor>
   )

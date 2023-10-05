@@ -23,9 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface RtcPortsInterface {
-  id: string
-  start_port: number
-  end_port: number
-  allocated: boolean
+import { HookContext } from '@feathersjs/feathers'
+
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+
+import { NotAuthenticated } from '@feathersjs/errors'
+import { Application } from '../../declarations'
+
+export default () => {
+  return async (context: HookContext<Application>) => {
+    const loggedInUser = context.params.user as UserType
+    if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
+
+    return context
+  }
 }

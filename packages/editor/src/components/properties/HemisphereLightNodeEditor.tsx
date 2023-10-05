@@ -35,7 +35,7 @@ import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * HemisphereLightNodeEditor used to provide property customization view for Hemisphere Light.
@@ -52,12 +52,17 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.hemisphere.description')}
     >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
-        <ColorInput value={lightComponent.skyColor} onChange={updateProperty(HemisphereLightComponent, 'skyColor')} />
+        <ColorInput
+          value={lightComponent.skyColor}
+          onChange={updateProperty(HemisphereLightComponent, 'skyColor')}
+          onRelease={commitProperty(HemisphereLightComponent, 'skyColor')}
+        />
       </InputGroup>
       <InputGroup name="Ground Color" label={t('editor:properties.hemisphere.lbl-groundColor')}>
         <ColorInput
           value={lightComponent.groundColor}
           onChange={updateProperty(HemisphereLightComponent, 'groundColor')}
+          onRelease={commitProperty(HemisphereLightComponent, 'groundColor')}
         />
       </InputGroup>
       <NumericInputGroup
@@ -69,6 +74,7 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
         largeStep={0.1}
         value={lightComponent.intensity}
         onChange={updateProperty(HemisphereLightComponent, 'intensity')}
+        onRelease={commitProperty(HemisphereLightComponent, 'intensity')}
         unit="cd"
       />
     </NodeEditor>

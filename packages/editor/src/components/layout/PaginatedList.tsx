@@ -38,7 +38,7 @@ export default function PaginatedList<T>({
   options
 }: {
   ['list']: T[] | State<T[]>
-  ['element']: (index: T | State<T>) => JSX.Element
+  ['element']: (val: T | State<T>, _index: number) => JSX.Element
   ['options']?: {
     ['countPerPage']?: number
   }
@@ -104,8 +104,8 @@ export default function PaginatedList<T>({
           </Grid>
         </Grid>
       </Well>
-      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((index, _index) => {
-        return <div key={`${_index}`}>{element(index)}</div>
+      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((val, index) => {
+        return <div key={`${index}`}>{element(val, index)}</div>
       })}
     </>
   )
