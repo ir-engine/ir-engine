@@ -319,11 +319,18 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
     const app = Engine.instance.api as Application
 
     if (!instanceServerState.isMediaInstance)
-      app.service(messagePath).create({
-        instanceId: instanceServerState.instance.id,
-        text: `${userName} left`,
-        isNotification: true
-      })
+      app.service(messagePath).create(
+        {
+          instanceId: instanceServerState.instance.id,
+          text: `${userName} left`,
+          isNotification: true
+        },
+        {
+          'identity-provider': {
+            userId: userId
+          }
+        } as any
+      )
 
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
