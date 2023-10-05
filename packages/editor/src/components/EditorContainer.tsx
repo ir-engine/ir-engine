@@ -43,16 +43,14 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import Dialog from '@mui/material/Dialog'
 
-import { getComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SceneAssetPendingTagComponent } from '@etherealengine/engine/src/scene/components/SceneAssetPendingTagComponent'
-import {
-  LocalTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import { useDrop } from 'react-dnd'
-import { Vector2 } from 'three'
+import { Vector2, Vector3 } from 'three'
 import { ItemTypes } from '../constants/AssetTypes'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
 import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
@@ -75,7 +73,7 @@ import SaveNewSceneDialog from './dialogs/SaveNewSceneDialog'
 import SaveSceneDialog from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
-import ElementList, { SceneElementType, addSceneComponentElement } from './element/ElementList'
+import ElementList, { SceneElementType } from './element/ElementList'
 import GraphPanel from './graph/GraphPanel'
 import { GraphPanelTitle } from './graph/GraphPanelTitle'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
@@ -108,23 +106,18 @@ export const DockContainer = ({ children, id = 'dock', dividerAlpha = 0 }) => {
 
 const ViewportDnD = () => {
   const [{ isDragging, isOver }, dropRef] = useDrop({
-    accept: [ItemTypes.Prefab],
+    accept: [ItemTypes.Component],
     collect: (monitor) => ({
       isDragging: monitor.getItem() !== null && monitor.canDrop(),
       isOver: monitor.isOver()
     }),
     drop(item: SceneElementType, monitor) {
-      const node = addSceneComponentElement(item)
-      if (!node) return
-
-      const transformComponent = getComponent(node, TransformComponent)
-      if (transformComponent) {
-        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-        const localTransformComponent = getComponent(node, LocalTransformComponent)
-        if (localTransformComponent) {
-          localTransformComponent.position.copy(transformComponent.position)
-        }
-      }
+      const vec3 = new Vector3()
+      getCursorSpawnPosition(monitor.getClientOffset() as Vector2, vec3)
+      EditorControlFunctions.createObjectFromSceneElement([
+        { name: item!.componentJsonID },
+        { name: LocalTransformComponent.jsonID, props: { position: vec3 } }
+      ])
     }
   })
 

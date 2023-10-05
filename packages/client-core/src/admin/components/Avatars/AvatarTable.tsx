@@ -56,9 +56,11 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
 
   const adminAvatarQuery = useFind(avatarPath, {
     query: {
-      admin: true,
+      action: 'admin',
+      name: {
+        $like: `%${search}%`
+      },
       $limit: 20,
-      search: search,
       $sort: {
         name: 1
       }

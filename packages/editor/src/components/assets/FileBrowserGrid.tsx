@@ -29,8 +29,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { StateMethods } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
@@ -40,6 +39,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import { PopoverPosition } from '@mui/material/Popover'
 
+import { Vector3 } from 'three'
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
@@ -163,10 +163,9 @@ export function FileBrowserItem({
   }
 
   const placeObject = async () => {
-    const node = await addMediaNode(item.url)
-    if (!node) return
-    const transformComponent = getComponent(node, TransformComponent)
-    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
+    const vec3 = new Vector3()
+    getSpawnPositionAtCenter(vec3)
+    addMediaNode(item.url, undefined, undefined, [{ name: LocalTransformComponent.jsonID, props: { position: vec3 } }])
 
     handleClose()
   }
