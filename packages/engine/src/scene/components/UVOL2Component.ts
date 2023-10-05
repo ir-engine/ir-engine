@@ -27,14 +27,12 @@ import { getState } from '@etherealengine/hyperflux'
 import { useEffect, useMemo, useRef } from 'react'
 import {
   BufferGeometry,
-  Clock,
   CompressedTexture,
   Group,
   InterleavedBufferAttribute,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
-  ShaderChunk,
   ShaderMaterial,
   SphereGeometry,
   Vector2
@@ -42,6 +40,7 @@ import {
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -143,8 +142,9 @@ const loadGeometryAsync = (url: string, targetData: DRACOTarget | GLBTarget | Un
 }
 
 const uniformSolveVertexShader = `
-${ShaderChunk.common}
-${ShaderChunk.logdepthbuf_pars_vertex}
+#include <common>
+#include <logdepthbuf_pars_vertex>
+#include <clipping_planes_pars_vertex>
 out vec2 vMapUv;
 
 attribute vec4 keyframeA;
@@ -165,19 +165,32 @@ void main() {
    localPosition.z += mix(keyframeA.z, keyframeB.z, mixRatio);
 
    gl_Position = projectionMatrix * modelViewMatrix * localPosition;
-   ${ShaderChunk.logdepthbuf_vertex}
+   #include <logdepthbuf_vertex>
+   #include <fog_vertex>
 }`
 
 const uniformSolveFragmentShader = `
-${ShaderChunk.logdepthbuf_pars_fragment}
+#define OPAQUE
+#include <logdepthbuf_pars_fragment>
 
 in vec2 vMapUv;
 uniform sampler2D map;
 
+#include <clipping_planes_pars_fragment>
+
 void main() {
   vec4 color = texture2D(map, vMapUv);
-  gl_FragColor = color;
-  ${ShaderChunk.logdepthbuf_fragment}
+  
+  /**
+   * We can directly pass color to gl_FragColor,
+   * but AvatarDissolveComponent expects output_fragment
+   * in the fragment shader.
+   */
+  vec3 outgoingLight = color.rgb;
+  vec4 diffuseColor = vec4(1);
+  #include <output_fragment>
+  
+  #include <logdepthbuf_fragment>
 }`
 
 const countHashes = (str: string) => {
@@ -240,7 +253,6 @@ function UVOL2Reactor() {
   const audioContext = getState(AudioState).audioContext
   const audio = mediaElement.element
 
-  const clock = useMemo(() => new Clock(), [])
   const geometryBuffer = useMemo(() => new Map<string, Mesh | BufferGeometry | InterleavedBufferAttribute>(), [])
   const textureBuffer = useMemo(() => new Map<string, CompressedTexture>(), [])
   const maxBufferHealth = 10 // seconds
@@ -345,6 +357,10 @@ function UVOL2Reactor() {
         geometryBuffer.set(createKey(target, i), model)
         geometryBufferHealth.current += 1 / targetData.frameRate
         pendingGeometryRequests.current--
+        if (i === 0) {
+          setGeometry(target, 0)
+          addObjectToGroup(entity, group)
+        }
       })
     }
   }
@@ -373,6 +389,7 @@ function UVOL2Reactor() {
           repeat.copy((model.material as MeshStandardMaterial).map?.repeat ?? repeat)
           offset.copy((model.material as MeshStandardMaterial).map?.offset ?? offset)
           mesh.material = material
+          addObjectToGroup(entity, group)
         }
 
         geometryBufferHealth.current += segmentDuration
@@ -453,6 +470,9 @@ function UVOL2Reactor() {
         textureBufferHealth.current += 1 / frameRate
         if (textureBufferHealth.current >= minBufferToPlay && !component.initialTextureBuffersLoaded.value) {
           component.initialTextureBuffersLoaded.set(true)
+        }
+        if (i === 0) {
+          setTexture(target, 0)
         }
       })
     }
@@ -668,7 +688,7 @@ function UVOL2Reactor() {
   }
 
   const update = () => {
-    const delta = clock.getDelta()
+    const delta = getState(EngineState).deltaSeconds
     if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
       return
     }

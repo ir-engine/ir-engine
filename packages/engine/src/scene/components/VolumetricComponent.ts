@@ -30,6 +30,7 @@ import { AudioState } from '../../audio/AudioState'
 import {
   ComponentType,
   defineComponent,
+  getComponent,
   getMutableComponent,
   removeComponent,
   setComponent,
@@ -84,14 +85,11 @@ export const VolumetricComponent = defineComponent({
   jsonID: 'volumetric',
 
   onInit: (entity) => {
-    setComponent(entity, MediaElementComponent, {
-      element: document.createElement('video') as HTMLMediaElement
-    })
-    setComponent(entity, ShadowComponent)
     return {
       paths: [] as string[],
+      useLoadingEffect: true,
       autoplay: true,
-      paused: false,
+      paused: true,
       initialBuffersLoaded: false,
       hasAudio: true,
       ended: true,
@@ -104,6 +102,7 @@ export const VolumetricComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       paths: component.paths.value,
+      useLoadingEffect: component.useLoadingEffect.value,
       autoplay: component.autoplay.value,
       paused: component.paused.value,
       volume: component.volume.value,
@@ -112,9 +111,14 @@ export const VolumetricComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
     if (!json) return
     if (typeof json.paths === 'object') {
       component.paths.set(json.paths)
+    }
+
+    if (typeof json.useLoadingEffect === 'boolean') {
+      component.useLoadingEffect.set(json.useLoadingEffect)
     }
 
     if (typeof json.autoplay === 'boolean') {
@@ -163,12 +167,14 @@ export function VolumetricReactor() {
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
   const volumetric = useComponent(entity, VolumetricComponent)
-  const videoElement = getMutableComponent(entity, MediaElementComponent)
 
   useEffect(() => {
+    setComponent(entity, MediaElementComponent, {
+      element: document.createElement('video') as HTMLMediaElement
+    })
+    const videoElement = getMutableComponent(entity, MediaElementComponent)
     const element = videoElement.element.value as HTMLVideoElement
     element.playsInline = true
-    element.autoplay = true
     element.preload = 'auto'
     element.crossOrigin = 'anonymous'
 
@@ -181,7 +187,6 @@ export function VolumetricReactor() {
   }, [])
 
   useEffect(() => {
-    console.log('vdebug triggered')
     if (!volumetric.ended.value) {
       // If current track is not ended, don't change the track
       return
@@ -214,6 +219,7 @@ export function VolumetricReactor() {
       removeComponent(entity, UVOL2Component)
       volumetric.ended.set(false)
       volumetric.initialBuffersLoaded.set(false)
+      volumetric.paused.set(true)
     }
 
     resetTrack()
@@ -248,7 +254,7 @@ export function VolumetricReactor() {
 
   useEffect(() => {
     const volume = volumetric.volume.value
-    const element = videoElement.element.value
+    const element = getComponent(entity, MediaElementComponent).element as HTMLVideoElement
     const audioNodes = AudioNodeGroups.get(element)
     if (audioNodes) {
       audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)

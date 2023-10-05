@@ -86,12 +86,10 @@ export const UVOL1Component = defineComponent({
   name: 'UVOL1Component',
 
   onInit: (entity) => {
-    if (!hasComponent(entity, AvatarDissolveComponent)) {
-      setComponent(entity, AvatarDissolveComponent)
-    }
     return {
       manifestPath: '',
-      data: {} as ManifestSchema
+      data: {} as ManifestSchema,
+      loadingEffectStarted: false
     }
   },
 
@@ -143,13 +141,10 @@ function UVOL1Reactor() {
   const defaultGeometry = useMemo(() => new PlaneGeometry(0.001, 0.001) as BufferGeometry, [])
 
   // @ts-ignore
-  const mesh: Mesh<BufferGeometry, ShaderMaterial | MeshBasicMaterial> = useMemo(() => {
-    const _mesh = new Mesh(defaultGeometry, material)
-    // @ts-ignore
-    _mesh.material = AvatarDissolveComponent.createDissolveMaterial(_mesh)
-    _mesh.material.needsUpdate = true
-    return _mesh
-  }, [])
+  const mesh: Mesh<BufferGeometry, ShaderMaterial | MeshBasicMaterial> = useMemo(
+    () => new Mesh(defaultGeometry, material),
+    []
+  )
 
   const pendingRequests = useRef(0)
   const nextFrameToRequest = useRef(0)
@@ -164,8 +159,8 @@ function UVOL1Reactor() {
     const dissolveComponent = getMutableComponent(entity, AvatarDissolveComponent)
     dissolveComponent.maxHeight.set(2.4)
 
-    addObjectToGroup(entity, mesh)
     video.src = component.manifestPath.value.replace('.manifest', '.mp4')
+    video.load()
     video.addEventListener('ended', function setEnded() {
       volumetric.ended.set(true)
       video.removeEventListener('ended', setEnded)
@@ -184,6 +179,7 @@ function UVOL1Reactor() {
   useEffect(() => {
     // If autoplay is enabled, play the video irrespective of paused state
     if (volumetric.autoplay.value && volumetric.initialBuffersLoaded.value) {
+      addObjectToGroup(entity, mesh)
       handleAutoplay(audioContext, video, volumetric)
     }
   }, [volumetric.autoplay, volumetric.initialBuffersLoaded])
@@ -227,12 +223,22 @@ function UVOL1Reactor() {
   useExecute(
     () => {
       const delta = getState(EngineState).deltaSeconds
-      if (
-        meshBuffer.size > 0 &&
-        hasComponent(entity, AvatarDissolveComponent) &&
-        AvatarDissolveComponent.updateDissolveEffect([mesh.material as ShaderMaterial], entity, delta)
-      ) {
-        removeComponent(entity, AvatarDissolveComponent)
+
+      if (video.buffered.length > 0 && meshBuffer.size > 0) {
+        if (volumetric.useLoadingEffect.value) {
+          if (hasComponent(entity, AvatarDissolveComponent)) {
+            if (!component.loadingEffectStarted.value) {
+              videoTexture.needsUpdate = true
+              EngineRenderer.instance.renderer.initTexture(videoTexture)
+              mesh.material = AvatarDissolveComponent.createDissolveMaterial(mesh)
+              mesh.material.needsUpdate = true
+              component.loadingEffectStarted.set(true)
+              addObjectToGroup(entity, mesh)
+            } else if (AvatarDissolveComponent.updateDissolveEffect([mesh.material as ShaderMaterial], entity, delta)) {
+              removeComponent(entity, AvatarDissolveComponent)
+            }
+          }
+        }
       }
 
       const numberOfFrames = component.data.value.frameData.length
@@ -262,6 +268,8 @@ function UVOL1Reactor() {
               pendingRequests.current -= 1
 
               if (mesh.geometry instanceof PlaneGeometry) {
+                // Setting the first frame to mesh.geometry, so that
+                // Loading effect uses this geometry
                 mesh.geometry = geometry
                 mesh.geometry.attributes.position.needsUpdate = true
               }
