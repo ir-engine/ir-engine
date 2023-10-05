@@ -32,6 +32,7 @@ import {
   userApiKeyQueryValidator
 } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import authenticate from '../../hooks/authenticate'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import {
@@ -53,15 +54,19 @@ export default {
       () => schemaHooks.validateQuery(userApiKeyQueryValidator),
       schemaHooks.resolveQuery(userApiKeyQueryResolver)
     ],
-    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
-    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
+    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
+    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     create: [
-      disallow('external'),
       () => schemaHooks.validateData(userApiKeyDataValidator),
-      schemaHooks.resolveData(userApiKeyDataResolver)
+      schemaHooks.resolveData(userApiKeyDataResolver),
+      iff(isProvider('external'), setLoggedInUser('userId'))
     ],
     update: [disallow('external')],
-    patch: [() => schemaHooks.validateData(userApiKeyPatchValidator), schemaHooks.resolveData(userApiKeyPatchResolver)],
+    patch: [
+      () => schemaHooks.validateData(userApiKeyPatchValidator),
+      schemaHooks.resolveData(userApiKeyPatchResolver),
+      iff(isProvider('external'), setLoggedInUser('userId'))
+    ],
     remove: [disallow('external')]
   },
 
