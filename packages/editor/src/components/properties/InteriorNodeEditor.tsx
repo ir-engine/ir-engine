@@ -37,7 +37,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import Vector2Input from '../inputs/Vector2Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * Interior Editor provides the editor to customize properties.
@@ -61,7 +61,11 @@ export const InteriorNodeEditor: EditorComponentType = (props) => {
         {errors && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.interior.error-url')}</div>}
       </InputGroup>
       <InputGroup name="Size" label={t('editor:properties.interior.lbl-size')}>
-        <Vector2Input value={interiorComponent.size.value} onChange={updateProperty(InteriorComponent, 'size')} />
+        <Vector2Input
+          value={interiorComponent.size.value}
+          onChange={updateProperty(InteriorComponent, 'size')}
+          onRelease={commitProperty(InteriorComponent, 'size')}
+        />
       </InputGroup>
       <NumericInputGroup
         name="Tiling"
@@ -72,6 +76,7 @@ export const InteriorNodeEditor: EditorComponentType = (props) => {
         largeStep={2.0}
         value={interiorComponent.tiling.value}
         onChange={updateProperty(InteriorComponent, 'tiling')}
+        onRelease={commitProperty(InteriorComponent, 'tiling')}
       />
     </NodeEditor>
   )

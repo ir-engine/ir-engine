@@ -64,7 +64,7 @@ import CollapsibleBlock from '../layout/CollapsibleBlock'
 import InstancingGrassProperties from './InstancingGrassProperties'
 import InstancingMeshProperties from './InstancingMeshProperties'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, traverseScene } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, traverseScene } from './Util'
 
 export const InstancingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -147,8 +147,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       }
     }
     scene.userData.set(uData)
-    scatterState.sourceProperties.set(srcProperties)
-    scatterState.mode.set(mode)
+    commitProperties(InstancingComponent, { mode, sourceProperties: srcProperties }, [entity])
   }
 
   return (
@@ -167,12 +166,13 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
           min={0}
           value={scatter.count}
           onChange={updateProperty(InstancingComponent, 'count')}
+          onRelease={commitProperty(InstancingComponent, 'count')}
         />
         <InputGroup name="Target Surface" label={t('editor:properties:instancing.lbl-surface')}>
           <SelectInput
             placeholder={t('editor:properties.instancing.placeholder-surface')}
             value={scatterState.surface.value}
-            onChange={updateProperty(InstancingComponent, 'surface')}
+            onChange={commitProperty(InstancingComponent, 'surface')}
             options={surfaces.value}
           />
         </InputGroup>
@@ -189,7 +189,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         <InputGroup name="Sampling Mode" label={t('editor:properties:instancing.samplingMode')}>
           <SelectInput
             value={scatter.sampling}
-            onChange={updateProperty(InstancingComponent, 'sampling')}
+            onChange={commitProperty(InstancingComponent, 'sampling')}
             options={[
               { label: 'Scatter', value: SampleMode.SCATTER },
               { label: 'Vertices', value: SampleMode.VERTICES },
@@ -240,13 +240,13 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         {scatter.mode === ScatterMode.GRASS && (
           <InstancingGrassProperties
             state={scatterState.sourceProperties as State<SourceProperties>}
-            onChange={updateProperty(InstancingComponent, 'sourceProperties')}
+            onChange={commitProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
         {scatter.mode === ScatterMode.MESH && (
           <InstancingMeshProperties
             state={scatterState.sourceProperties as State<SourceProperties>}
-            onChange={updateProperty(InstancingComponent, 'sourceProperties')}
+            onChange={commitProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
       </span>

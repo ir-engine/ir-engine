@@ -39,7 +39,7 @@ import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import { EnvMapBakeProperties } from './EnvMapBakeProperties'
 import NodeEditor from './NodeEditor'
-import { updateProperty } from './Util'
+import { commitProperty, updateProperty } from './Util'
 
 export const enum BakePropertyTypes {
   'Boolean',
@@ -164,10 +164,18 @@ export const EnvMapBakeNodeEditor = (props) => {
     >
       <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.entity)}>Bake</PropertiesPanelButton>
       <InputGroup name="Position" label="Position Offset">
-        <Vector3Input value={bakeComponent.bakePositionOffset.value} onChange={onChangePosition} />
+        <Vector3Input
+          value={bakeComponent.bakePositionOffset.value}
+          onChange={updateProperty(EnvMapBakeComponent, 'bakePositionOffset')}
+          onRelease={commitProperty(EnvMapBakeComponent, 'bakePositionOffset')}
+        />
       </InputGroup>
       <InputGroup name="Scale" label="Scale">
-        <Vector3Input value={bakeComponent.bakeScale.value} onChange={onChangeScale} />
+        <Vector3Input
+          value={bakeComponent.bakeScale.value}
+          onChange={updateProperty(EnvMapBakeComponent, 'bakeScale')}
+          onRelease={commitProperty(EnvMapBakeComponent, 'bakeScale')}
+        />
       </InputGroup>
       <InputGroup name="Type" label="Bake Type">
         <SelectInput
@@ -177,7 +185,7 @@ export const EnvMapBakeNodeEditor = (props) => {
           ]}
           key={props.entity}
           value={bakeComponent.bakeType.value}
-          onChange={updateProperty(EnvMapBakeComponent, 'bakeType')}
+          onChange={commitProperty(EnvMapBakeComponent, 'bakeType')}
         />
       </InputGroup>
       <InputGroup name="Bake Resolution" label="Bake Resolution">
@@ -185,13 +193,13 @@ export const EnvMapBakeNodeEditor = (props) => {
           options={bakeResolutionTypes.map((resolution) => ({ label: resolution.toString(), value: resolution }))}
           key={props.entity}
           value={bakeComponent.resolution.value}
-          onChange={updateProperty(EnvMapBakeComponent, 'resolution')}
+          onChange={commitProperty(EnvMapBakeComponent, 'resolution')}
         />
       </InputGroup>
       <InputGroup name="Box Projection" label="Box Projection">
         <BooleanInput
           value={bakeComponent.boxProjection.value}
-          onChange={updateProperty(EnvMapBakeComponent, 'boxProjection')}
+          onChange={commitProperty(EnvMapBakeComponent, 'boxProjection')}
         />
       </InputGroup>
     </NodeEditor>

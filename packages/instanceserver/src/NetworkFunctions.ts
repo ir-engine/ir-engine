@@ -329,7 +329,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
           'identity-provider': {
             userId: userId
           }
-        }
+        } as any
       )
 
     NetworkPeerFunctions.destroyPeer(network, peerID)

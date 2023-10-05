@@ -23,149 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter, type KnexAdapterOptions } from '@feathersjs/knex'
+import { Params } from '@feathersjs/feathers'
 
-import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import {
-  AvatarData,
-  AvatarDatabaseType,
-  AvatarPatch,
-  AvatarQuery,
-  AvatarType
-} from '@etherealengine/engine/src/schemas/user/avatar.schema'
-
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
+import { AvatarData, AvatarPatch, AvatarQuery, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { KnexService } from '@feathersjs/knex'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AvatarParams extends RootParams<AvatarQuery> {}
 
-/**
- * A class for Avatar service
- */
-
-export class AvatarService<T = AvatarType, ServiceParams extends Params = AvatarParams> extends KnexAdapter<
+export class AvatarService<T = AvatarType, ServiceParams extends Params = AvatarParams> extends KnexService<
   AvatarType,
   AvatarData,
   AvatarParams,
   AvatarPatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async get(id: Id, params?: AvatarParams) {
-    return super._get(id, params)
-  }
-
-  async find(params?: AvatarParams) {
-    let isAdmin = false
-
-    if (params && params.user && params.user.id && params.query?.admin) {
-      // TODO: Do we want to use globalAvatars:read/write instead here?
-      isAdmin = await checkScope(params?.user, 'admin', 'admin')
-      delete params.query.admin
-    }
-
-    if (params?.query?.search) {
-      params.query.name = {
-        $like: `%${params.query.search}%`
-      }
-    }
-
-    if (params?.query) delete params.query.search
-
-    if (!isAdmin && params) {
-      if (params.user && params.user.id) {
-        params.query = {
-          ...params?.query,
-          $or: [
-            {
-              isPublic: true
-            },
-            {
-              isPublic: false,
-              userId: params.user.id
-            }
-          ]
-        }
-      } else {
-        params.query = {
-          ...params?.query,
-          isPublic: true
-        }
-      }
-    }
-
-    return await super._find(params)
-  }
-
-  async create(data: AvatarData, params?: AvatarParams) {
-    let avatar = await super._create({
-      ...data,
-      isPublic: data.isPublic ?? true,
-      userId: params?.user?.id
-    })
-
-    avatar = await super._patch(avatar.id, {
-      identifierName: avatar.name + '_' + avatar.id
-    })
-
-    return avatar
-  }
-
-  async patch(id: Id, data: AvatarPatch, params?: AvatarParams) {
-    return await super._patch(id, data, params)
-  }
-
-  async remove(id: string, params?: AvatarParams) {
-    const avatar = await this.get(id, params)
-
-    try {
-      await this.app.service(staticResourcePath).remove(avatar.modelResourceId)
-    } catch (err) {
-      logger.error(err)
-    }
-
-    try {
-      await this.app.service(staticResourcePath).remove(avatar.thumbnailResourceId)
-    } catch (err) {
-      logger.error(err)
-    }
-
-    const avatars = (await super._find({
-      query: {
-        id: {
-          $ne: id
-        }
-      },
-      paginate: false
-    })) as any as AvatarDatabaseType[]
-
-    //Users that have the avatar that's being deleted will have theirs replaced with a random one, if there are other
-    //avatars to use
-    if (id && avatars.length > 0) {
-      const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
-      await this.app.service(userPath)._patch(
-        null,
-        {
-          avatarId: randomReplacementAvatar.id
-        },
-        {
-          query: {
-            avatarId: id
-          }
-        }
-      )
-    }
-
-    return super._remove(id, params)
-  }
-}
+> {}

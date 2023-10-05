@@ -68,7 +68,9 @@ export const AvatarService = {
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
     const result = (await Engine.instance.api.service(avatarPath).find({
       query: {
-        search,
+        name: {
+          $like: `%${search}%`
+        },
         $skip: newSkip,
         $limit: AVATAR_PAGE_LIMIT
       }

@@ -32,7 +32,7 @@ import { ShadowComponent } from '@etherealengine/engine/src/scene/components/Sha
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * ShadowProperties used to create editor view for the properties of ModelNode.
@@ -50,10 +50,10 @@ export const ShadowProperties: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Cast Shadow" label={t('editor:properties.shadow.lbl-castShadow')}>
-        <BooleanInput value={shadowComponent.cast.value} onChange={updateProperty(ShadowComponent, 'cast')} />
+        <BooleanInput value={shadowComponent.cast.value} onChange={commitProperty(ShadowComponent, 'cast')} />
       </InputGroup>
       <InputGroup name="Receive Shadow" label={t('editor:properties.shadow.lbl-receiveShadow')}>
-        <BooleanInput value={shadowComponent.receive.value} onChange={updateProperty(ShadowComponent, 'receive')} />
+        <BooleanInput value={shadowComponent.receive.value} onChange={commitProperty(ShadowComponent, 'receive')} />
       </InputGroup>
     </NodeEditor>
   )

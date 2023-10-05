@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
@@ -42,7 +42,7 @@ import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -69,15 +69,11 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations])
 
   const onChangePlayingAnimation = (index) => {
-    updateProperties(LoopAnimationComponent, {
+    commitProperties(LoopAnimationComponent, {
       activeClipIndex: index
     })
     getCallback(props.entity, 'xre.play')!()
   }
-
-  const updateResources = useCallback((path: string) => {
-    updateProperties(LoopAnimationComponent, { animationPack: path })
-  }, [])
 
   return (
     <NodeEditor
@@ -95,7 +91,10 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       {loopAnimationComponent.hasAvatarAnimations.value && (
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
-          <ModelInput value={loopAnimationComponent.animationPack.value} onChange={updateResources} />
+          <ModelInput
+            value={loopAnimationComponent.animationPack.value}
+            onChange={commitProperty(LoopAnimationComponent, 'animationPack')}
+          />
           {errors?.LOADING_ERROR && (
             <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
           )}
@@ -105,12 +104,13 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <NumericInput
           value={loopAnimationComponent.timeScale.value}
           onChange={updateProperty(LoopAnimationComponent, 'timeScale')}
+          onRelease={commitProperty(LoopAnimationComponent, 'timeScale')}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
           value={loopAnimationComponent.hasAvatarAnimations.value}
-          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
+          onChange={commitProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
     </NodeEditor>

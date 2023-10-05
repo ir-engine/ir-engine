@@ -73,7 +73,7 @@ export interface NumericInputProp {
   precision?: number
   mediumStep?: number
   onChange?: (n: any) => void
-  onCommit?: (n: any) => void
+  onRelease?: (n: any) => void
   smallStep?: number
   largeStep?: number
   min?: number
@@ -96,7 +96,7 @@ const NumericInput = React.forwardRef(
     precision,
     mediumStep,
     onChange,
-    onCommit,
+    onRelease,
     smallStep,
     largeStep,
     min,
@@ -116,10 +116,8 @@ const NumericInput = React.forwardRef(
       const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
       const finalValue = convertTo(roundedValue)
 
-      if (onCommit) {
-        onCommit(finalValue)
-      } else {
-        onChange?.(finalValue)
+      if (onChange) {
+        onChange(finalValue)
       }
 
       setTempValue(
@@ -204,10 +202,8 @@ const NumericInput = React.forwardRef(
       setTempValue(null)
       setFocused(false)
 
-      if (onCommit) {
-        onCommit(value)
-      } else {
-        onChange?.(value)
+      if (onRelease) {
+        onRelease(value)
       }
     }
 
@@ -241,7 +237,7 @@ NumericInput.propTypes = {
   max: PropTypes.number.isRequired,
   value: PropTypes.number.isRequired,
   onChange: PropTypes.func.isRequired,
-  onCommit: PropTypes.func,
+  onRelease: PropTypes.func,
   convertTo: PropTypes.func.isRequired,
   convertFrom: PropTypes.func.isRequired,
   precision: PropTypes.number.isRequired,

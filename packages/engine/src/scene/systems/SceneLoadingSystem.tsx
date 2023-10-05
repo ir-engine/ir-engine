@@ -88,11 +88,11 @@ import { getUniqueName } from '../functions/getUniqueName'
 
 export const createNewEditorNode = (
   entityNode: Entity,
-  componentName: string,
+  componentJson: Array<ComponentJson>,
   parentEntity = getState(SceneState).sceneEntity as Entity
 ): void => {
   const components = [
-    { name: ComponentMap.get(componentName)!.jsonID! },
+    ...componentJson,
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
     { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
   ]
@@ -102,7 +102,7 @@ export const createNewEditorNode = (
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,
-    type: componentName.toLowerCase().replace(/\s/, '_'),
+    type: Object.keys(componentJson)[0].toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
   })
   const localTransform = getComponent(entityNode, LocalTransformComponent)
@@ -326,6 +326,8 @@ export const updateSceneFromJSON = async () => {
     }
   }
 
+  console.log('setting entties')
+
   /** 4. update scene entities with new data, and load new ones */
   setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
   updateSceneEntity(sceneData.scene.root, sceneData.scene.entities[sceneData.scene.root])
@@ -374,10 +376,22 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
     if (existingEntity) {
       setComponent(existingEntity, SceneObjectComponent)
       deserializeSceneEntity(existingEntity, entityJson)
-      /** @todo handle reparenting due to changes in scene json */
-      // const parent = existingEntity.parentEntity
-      // if (parent && getComponent(parent, UUIDComponent) !== entityJson.parent)
-      //   reparentEntityNode(existingEntity, UUIDComponent.entitiesBy[entityJson.parent])
+      /** handle reparenting due to changes in scene json */
+      const currentParent = getComponent(existingEntity, EntityTreeComponent)
+      if (currentParent?.parentEntity) {
+        const currentParentEntityUUID = getComponent(currentParent.parentEntity, UUIDComponent)
+        if (
+          currentParentEntityUUID !== entityJson.parent ||
+          entityJson.index !== currentParent.children.indexOf(existingEntity)
+        ) {
+          const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
+          setComponent(existingEntity, EntityTreeComponent, {
+            parentEntity: parentEntity,
+            uuid,
+            childIndex: entityJson.index
+          })
+        }
+      }
     } else {
       const entity = createEntity()
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
@@ -455,7 +469,7 @@ const reactor = () => {
       dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
-  }, [sceneAssetPendingTagQuery, assetLoadingState])
+  }, [sceneAssetPendingTagQuery.length, assetLoadingState])
 
   useEffect(() => {
     updateSceneFromJSON()

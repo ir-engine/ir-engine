@@ -63,12 +63,7 @@ describe('channel service', () => {
       scopes: []
     })
 
-    const channel = await app.service(channelPath).create(
-      {
-        userId: user.id
-      },
-      { user }
-    )
+    const channel = await app.service(channelPath).create({}, { user })
 
     assert.ok(channel.id)
 
@@ -174,8 +169,7 @@ describe('channel service', () => {
     try {
       await app.service(channelPath).create(
         {
-          instanceId: instance.id,
-          userId: user.id
+          instanceId: instance.id
         },
         { user }
       )
