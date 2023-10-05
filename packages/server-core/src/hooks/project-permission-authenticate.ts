@@ -67,7 +67,7 @@ export default (writeAccess) => {
     }
     if (!projectId) projectId = params.id || context.id
     // @ts-ignore
-    const projectPermissionResult = (await app.service(projectPermissionPath)._find({
+    const projectPermissionResult = (await app.service(projectPermissionPath).find({
       query: {
         projectId: projectId,
         userId: loggedInUser.id,

@@ -324,7 +324,7 @@ describe('project-permission.test', () => {
           params
         )
 
-        const permissions = await app.service(projectPermissionPath)._find({
+        const permissions = await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },
@@ -345,7 +345,7 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        const update = await app.service(projectPermissionPath).patch(
+        const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
             projectId: project1.id,
@@ -353,7 +353,7 @@ describe('project-permission.test', () => {
             type: 'owner'
           },
           params
-        )
+        )) as any as ProjectPermissionType
         assert.strictEqual(update.type, 'owner')
         assert.strictEqual(update.userId, user2.id)
       })
@@ -366,7 +366,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const update = await app.service(projectPermissionPath).patch(
+        const update = (await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
             projectId: project1.id,
@@ -374,7 +374,7 @@ describe('project-permission.test', () => {
             type: 'user'
           },
           params
-        )
+        )) as any as ProjectPermissionType
         assert.strictEqual(update.type, 'user')
         assert.strictEqual(update.userId, user2.id)
       })
@@ -411,7 +411,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const permissions = await app.service(projectPermissionPath)._find({
+        const permissions = await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },
@@ -494,7 +494,7 @@ describe('project-permission.test', () => {
         }
 
         await app.service(projectPermissionPath).remove(project1Permission1.id, params)
-        const permissions = (await app.service(projectPermissionPath)._find({
+        const permissions = (await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },

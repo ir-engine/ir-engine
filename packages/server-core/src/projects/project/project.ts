@@ -64,7 +64,7 @@ export default (app: Application): void => {
   service.publish('patched', async (data: ProjectType) => {
     try {
       let targetIds: string[] = []
-      const projectOwners = await app.service(projectPermissionPath)._find({
+      const projectOwners = await app.service(projectPermissionPath).find({
         query: {
           projectId: data.id
         },
