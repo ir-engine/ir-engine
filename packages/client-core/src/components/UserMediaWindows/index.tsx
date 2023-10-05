@@ -52,7 +52,6 @@ export const useMediaWindows = () => {
   const mediaNetworkInstanceState = useMediaNetwork()
   const mediaNetwork = NetworkState.mediaNetwork
   const selfUser = useHookstate(getMutableState(AuthState).user)
-  useHookstate(NetworkState.mediaNetworkState.ornull?.peers?.keys)
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
