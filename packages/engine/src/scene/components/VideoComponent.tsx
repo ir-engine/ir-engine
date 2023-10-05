@@ -102,6 +102,7 @@ export const VideoComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     setComponent(entity, MediaComponent)
+
     if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)
@@ -129,7 +130,6 @@ function VideoReactor() {
   const video = useComponent(entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.entitiesByUUID[mediaUUID] ?? entity
-  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
   useEffect(() => {
     video.videoGroup.value.add(video.videoMesh.value)
