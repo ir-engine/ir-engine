@@ -27,7 +27,9 @@ import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { SceneDataType, SceneJsonType } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { sceneDataPath } from '@etherealengine/engine/src/schemas/projects/scene-data.schema'
+import { sceneUploadPath } from '@etherealengine/engine/src/schemas/projects/scene-upload.schema'
+import { SceneDataType, SceneJsonType, scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
@@ -55,7 +57,7 @@ describe('scene.test', () => {
     parsedSceneData = parseStorageProviderURLs(structuredClone(defaultSceneSeed))
     await app.service(projectPath).create({ name: projectName })
     await app
-      .service('scene-upload')
+      .service(sceneUploadPath)
       .create({ project: projectName, name: sceneName, sceneData }, { files: [], ...params })
   })
 
@@ -69,13 +71,13 @@ describe('scene.test', () => {
 
   describe('"scene-data" service', () => {
     it('should get the scene data', async () => {
-      const { data } = await app.service('scene-data').get(null, { query: { projectName, metadataOnly: false } })
+      const { data } = await app.service(sceneDataPath).get(null, { query: { projectName, metadataOnly: false } })
       assert.deepStrictEqual(parsedSceneData, data.find((scene) => scene.name === sceneName)!.scene)
     })
 
     it('should find the scene data', async () => {
       const { data } = (await app
-        .service('scene-data')
+        .service(sceneDataPath)
         .find({ query: { metadataOnly: false } })) as Paginated<SceneDataType>
       assert.deepStrictEqual(parsedSceneData, data.find((entry) => entry.name === sceneName)!.scene)
       assert(data.length > 0)
@@ -88,12 +90,11 @@ describe('scene.test', () => {
     })
 
     it('should get all scenes for a project scenes with metadata only', async function () {
-      const { data } = (await app.service('scene-data').find({
+      const { data } = (await app.service(sceneDataPath).find({
         query: {
           metadataOnly: true
         }
       })) as Paginated<SceneDataType>
-      console.log('debug2 there was', data)
       assert(data.length > 0)
       data.forEach((scene) => {
         assert(typeof scene.name === 'string')
@@ -107,21 +108,19 @@ describe('scene.test', () => {
   describe('"scene" service', () => {
     it('should get scene data', async () => {
       const data = await app
-        .service('scene')
+        .service(scenePath)
         .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
       assert.equal(data.name, sceneName)
       assert.equal(data.project, projectName)
       assert.deepStrictEqual(data.scene, parsedSceneData)
-      // const util = require('util')
-      // console.log(util.inspect(parsedSceneData, { showHidden: false, depth: null, colors: true }))
     })
 
     it('should add a new scene', async () => {
       const sceneName = `test-apartment-scene-${v1()}`
-      await app.service('scene').update(null, { name: sceneName, project: projectName, sceneData } as any)
+      await app.service(scenePath).update(null, { name: sceneName, project: projectName, sceneData } as any)
 
       const addedSceneData = await app
-        .service('scene')
+        .service(scenePath)
         .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
       assert.equal(addedSceneData.name, sceneName)
       assert.equal(addedSceneData.project, projectName)
@@ -134,10 +133,10 @@ describe('scene.test', () => {
       newSceneData.version = updatedVersion
       const newParsedSceneData = parseStorageProviderURLs(structuredClone(newSceneData))
 
-      await app.service('scene').update(null, { name: sceneName, project: projectName, sceneData: newSceneData })
+      await app.service(scenePath).update(null, { name: sceneName, project: projectName, sceneData: newSceneData })
 
       const updatedSceneData = await app
-        .service('scene')
+        .service(scenePath)
         .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
       assert.equal(updatedSceneData.scene.version, updatedVersion)
       assert.equal(updatedSceneData.name, sceneName)
@@ -146,9 +145,11 @@ describe('scene.test', () => {
     })
 
     it('should remove the scene', async () => {
-      await app.service('scene').remove(null, { query: { project: projectName, name: sceneName } })
+      await app.service(scenePath).remove(null, { query: { project: projectName, name: sceneName } })
       assert.rejects(async () => {
-        await app.service('scene').get(null, { query: { name: sceneName, project: projectName, metadataOnly: false } })
+        await app
+          .service(scenePath)
+          .get(null, { query: { name: sceneName, project: projectName, metadataOnly: false } })
       })
     })
   })
