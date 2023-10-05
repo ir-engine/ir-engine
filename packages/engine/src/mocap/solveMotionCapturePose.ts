@@ -32,7 +32,6 @@ import {
   Color,
   LineBasicMaterial,
   LineSegments,
-  MathUtils,
   Matrix4,
   Object3D,
   Plane,
@@ -139,11 +138,11 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     return
   }
 
-  const last = lastLandmarks
+  // const last = lastLandmarks
 
-  lastLandmarks = landmarks
+  // lastLandmarks = landmarks
 
-  if (!last || !landmarks?.length) return
+  if (!landmarks?.length) return
 
   const avatarDebug = getState(RendererState).avatarDebug
 
@@ -151,17 +150,17 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     drawDebug(landmarks)
   }
 
-  const smoothedLandmarks = landmarks.map((landmark, index) => {
-    const lastLandmark = lastLandmarks[index]
-    if (!lastLandmark.visibility || !landmark.visibility) return landmark
-    const confidence = (landmark.visibility + lastLandmark.visibility) / 2
-    return {
-      visibility: confidence,
-      x: MathUtils.lerp(lastLandmark.x, landmark.x, confidence),
-      y: MathUtils.lerp(lastLandmark.y, landmark.y, confidence),
-      z: MathUtils.lerp(lastLandmark.z, landmark.z, confidence)
-    }
-  })
+  // const landmarks = landmarks.map((landmark, index) => {
+  //   const lastLandmark = lastLandmarks[index]
+  //   if (!lastLandmark.visibility || !landmark.visibility) return landmark
+  //   const confidence = (landmark.visibility + lastLandmark.visibility) / 2
+  //   return {
+  //     visibility: confidence,
+  //     x: MathUtils.lerp(lastLandmark.x, landmark.x, confidence),
+  //     y: MathUtils.lerp(lastLandmark.y, landmark.y, confidence),
+  //     z: MathUtils.lerp(lastLandmark.z, landmark.z, confidence)
+  //   }
+  // })
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
@@ -169,9 +168,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   solveLimb(
     entity,
     lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
-    smoothedLandmarks[POSE_LANDMARKS.RIGHT_ELBOW],
-    smoothedLandmarks[POSE_LANDMARKS.RIGHT_WRIST],
+    landmarks[POSE_LANDMARKS.RIGHT_SHOULDER],
+    landmarks[POSE_LANDMARKS.RIGHT_ELBOW],
+    landmarks[POSE_LANDMARKS.RIGHT_WRIST],
     new Vector3(1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.LeftUpperArm,
@@ -180,9 +179,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   solveLimb(
     entity,
     lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS.LEFT_SHOULDER],
-    smoothedLandmarks[POSE_LANDMARKS.LEFT_ELBOW],
-    smoothedLandmarks[POSE_LANDMARKS.LEFT_WRIST],
+    landmarks[POSE_LANDMARKS.LEFT_SHOULDER],
+    landmarks[POSE_LANDMARKS.LEFT_ELBOW],
+    landmarks[POSE_LANDMARKS.LEFT_WRIST],
     new Vector3(-1, 0, 0),
     VRMHumanBoneName.Chest,
     VRMHumanBoneName.RightUpperArm,
@@ -191,9 +190,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   solveLimb(
     entity,
     lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
     new Vector3(0, 1, 0),
     VRMHumanBoneName.Hips,
     VRMHumanBoneName.LeftUpperLeg,
@@ -202,9 +201,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   solveLimb(
     entity,
     lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
     new Vector3(0, 1, 0),
     VRMHumanBoneName.Hips,
     VRMHumanBoneName.RightUpperLeg,
@@ -213,9 +212,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   solveHand(
     entity,
     lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
     false,
     VRMHumanBoneName.RightLowerArm,
     VRMHumanBoneName.RightHand
@@ -223,9 +222,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   solveHand(
     entity,
     lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
     true,
     VRMHumanBoneName.LeftLowerArm,
     VRMHumanBoneName.LeftHand
@@ -233,18 +232,18 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   solveFoot(
     entity,
     lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
-    smoothedLandmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
+    landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
     VRMHumanBoneName.RightUpperLeg,
     VRMHumanBoneName.RightFoot
   )
   solveFoot(
     entity,
     lowestWorldY,
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
-    smoothedLandmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
+    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
     VRMHumanBoneName.LeftUpperLeg,
     VRMHumanBoneName.LeftFoot
   )
