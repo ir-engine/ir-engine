@@ -35,6 +35,11 @@ import {
   userRelationshipQueryValidator
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
+import disallowNonId from '../../hooks/disallow-non-id'
+import { UserRelationshipService } from './user-relationship.class'
 import {
   userRelationshipDataResolver,
   userRelationshipExternalResolver,
@@ -42,6 +47,48 @@ import {
   userRelationshipQueryResolver,
   userRelationshipResolver
 } from './user-relationship.resolvers'
+
+/**
+ * Ensure id passed in request is a valid user id
+ * @param context
+ * @returns
+ */
+const ensureValidId = async (context: HookContext<UserRelationshipService>) => {
+  if (context.method !== 'remove') {
+    throw new BadRequest(`${context.path} service wrong hook in ${context.method}`)
+  }
+
+  const user = await context.app.service(userPath).get(context.id!)
+  if (!user) {
+    throw new BadRequest(`${context.path} service ${context.method} id should be user id`)
+  }
+}
+
+/**
+ * Update query such that user is removed from relationship both ways
+ * @param context
+ * @returns
+ */
+const updateQueryBothWays = async (context: HookContext<UserRelationshipService>) => {
+  if (context.method !== 'remove') {
+    throw new BadRequest(`${context.path} service wrong hook in ${context.method}`)
+  }
+
+  const userId = context.params.user!.id
+
+  context.params.query = {
+    $or: [
+      {
+        userId,
+        relatedUserId: context.id! as UserID
+      },
+      {
+        userId: context.id! as UserID,
+        relatedUserId: userId
+      }
+    ]
+  }
+}
 
 export default {
   around: {
@@ -68,7 +115,7 @@ export default {
       () => schemaHooks.validateData(userRelationshipPatchValidator),
       schemaHooks.resolveData(userRelationshipPatchResolver)
     ],
-    remove: []
+    remove: [disallowNonId, ensureValidId, updateQueryBothWays]
   },
 
   after: {
