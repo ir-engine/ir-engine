@@ -378,6 +378,22 @@ export class CSM {
     addOBCPlugin(material, material.userData.CSMPlugin)
   }
 
+  teardownMaterial(mesh: Mesh): void {
+    const material = mesh.material as Material
+    if (!material.userData) material.userData = {}
+    if (material.userData.CSMPlugin) {
+      removeOBCPlugin(material, material.userData.CSMPlugin)
+      delete material.userData.CSMPlugin
+    }
+    if (material.defines) {
+      delete material.defines.USE_CSM
+      delete material.defines.CSM_CASCADES
+      delete material.defines.CSM_FADE
+    }
+    material.needsUpdate = true
+    this.shaders.delete(material)
+  }
+
   updateUniforms(): void {
     const far = Math.min(this.camera.far, this.maxFar)
     this.shaders.forEach(function (shader: ShaderType, material: Material) {
