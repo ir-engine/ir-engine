@@ -24,15 +24,24 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import {
+  AvatarType,
   avatarDataValidator,
   avatarPatchValidator,
+  avatarPath,
   avatarQueryValidator
 } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
+import logger from '../../ServerLogger'
 
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
+import disallowNonId from '../../hooks/disallow-non-id'
+import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'
 import {
   avatarDataResolver,
@@ -41,6 +50,104 @@ import {
   avatarQueryResolver,
   avatarResolver
 } from './avatar.resolvers'
+
+/**
+ * Set identifier name based on name and id
+ * @param context
+ * @returns
+ */
+const setIdentifierName = async (context: HookContext) => {
+  context.result = await context.app.service(avatarPath).patch(context.result.id, {
+    identifierName: context.result.name + '_' + context.result.id
+  })
+
+  return context
+}
+
+/**
+ * Updates query params to restrict access to avatars based on userId
+ * @param context
+ * @returns
+ */
+const ensureUserAccessibleAvatars = async (context: HookContext) => {
+  if (context.params.user && context.params.user.id) {
+    context.params.query = {
+      ...context.params?.query,
+      $or: [
+        ...(context.params?.query.$or || []),
+        {
+          isPublic: true
+        },
+        {
+          isPublic: false,
+          userId: context.params.user.id
+        }
+      ]
+    }
+  } else {
+    context.params.query = {
+      ...context.params?.query,
+      isPublic: true
+    }
+  }
+
+  return context
+}
+
+/**
+ * Remove avatar resources from storage provider
+ * @param context
+ * @returns
+ */
+const removeAvatarResources = async (context: HookContext) => {
+  const avatar = await context.app.service(avatarPath).get(context.id!, context.params)
+
+  try {
+    await context.app.service(staticResourcePath).remove(avatar.modelResourceId)
+  } catch (err) {
+    logger.error(err)
+  }
+
+  try {
+    await context.app.service(staticResourcePath).remove(avatar.thumbnailResourceId)
+  } catch (err) {
+    logger.error(err)
+  }
+
+  return context
+}
+
+/**
+ * Users that have the avatar that's being deleted will have theirs replaced with
+ * a random one, if there are other avatars to use.
+ * @param context
+ * @returns
+ */
+const updateUserAvatars = async (context: HookContext) => {
+  const avatars = (await context.app.service(avatarPath).find({
+    query: {
+      id: {
+        $ne: context.id
+      }
+    },
+    paginate: false
+  })) as AvatarType[]
+
+  if (avatars.length > 0) {
+    const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
+    await context.app.service(userPath).patch(
+      null,
+      {
+        avatarId: randomReplacementAvatar.id
+      },
+      {
+        query: {
+          avatarId: context.id
+        }
+      }
+    )
+  }
+}
 
 export default {
   around: {
@@ -53,22 +160,34 @@ export default {
       () => schemaHooks.validateQuery(avatarQueryValidator),
       schemaHooks.resolveQuery(avatarQueryResolver)
     ],
-    find: [],
+    find: [
+      iffElse(isAction('admin'), verifyScope('admin', 'admin'), ensureUserAccessibleAvatars),
+      discardQuery('action')
+    ],
     get: [],
-    create: [() => schemaHooks.validateData(avatarDataValidator), schemaHooks.resolveData(avatarDataResolver)],
+    create: [
+      () => schemaHooks.validateData(avatarDataValidator),
+      schemaHooks.resolveData(avatarDataResolver),
+      setLoggedInUser('userId')
+    ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(avatarPatchValidator),
       schemaHooks.resolveData(avatarPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
+    remove: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      disallowNonId,
+      removeAvatarResources,
+      updateUserAvatars
+    ]
   },
   after: {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [setIdentifierName],
     update: [],
     patch: [],
     remove: []

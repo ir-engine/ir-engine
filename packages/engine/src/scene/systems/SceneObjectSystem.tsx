@@ -175,6 +175,15 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
         csm.setupMaterial(child)
       }
     })
+
+    return () => {
+      obj.traverse((child: Mesh<any, Material>) => {
+        if (!child.isMesh) return
+        if (csm) {
+          csm.teardownMaterial(child)
+        }
+      })
+    }
   }, [shadowComponent?.cast, shadowComponent?.receive, csm])
 
   return null

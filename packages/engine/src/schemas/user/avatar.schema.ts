@@ -104,10 +104,7 @@ export const avatarQuerySchema = Type.Intersect(
       }
     }),
     // Add additional query properties here
-    Type.Object(
-      { admin: Type.Optional(Type.Boolean()), search: Type.Optional(Type.String()) },
-      { additionalProperties: false }
-    )
+    Type.Object({ action: Type.Optional(Type.String()) }, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )

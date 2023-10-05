@@ -32,7 +32,6 @@ import { FixedSizeList, areEqual } from 'react-window'
 import { Object3D } from 'three'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
@@ -67,7 +66,6 @@ import { SelectionState } from '../../services/SelectionServices'
 import Search from '../Search/Search'
 import { AppContext } from '../Search/context'
 import useUpload from '../assets/useUpload'
-import { addSceneComponentElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
@@ -458,7 +456,7 @@ export default function HierarchyPanel({
   /* Rename functions */
 
   const [, treeContainerDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ...SupportedFileTypes],
     drop(item: any, monitor) {
       if (monitor.didDrop()) return
 
@@ -481,8 +479,8 @@ export default function HierarchyPanel({
         return
       }
 
-      if (item.type === ItemTypes.Prefab) {
-        addSceneComponentElement(item) // TODO: need to test this
+      if (item.type === ItemTypes.Component) {
+        EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentJsonID }])
         return
       }
 
@@ -544,11 +542,9 @@ export default function HierarchyPanel({
           </div>
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
-        {Engine.instance.scene && (
-          <div style={{ height: '100%' }}>
-            <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
-          </div>
-        )}
+        <div style={{ height: '100%', width: '100%' }}>
+          <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
+        </div>
         <Button
           variant="contained"
           // TODO see why we have to specify capitalize here
@@ -559,7 +555,7 @@ export default function HierarchyPanel({
             fontSize: '12px',
             lineHeight: '0.5'
           }}
-          onClick={() => EditorControlFunctions.createObjectFromSceneElement('VisibleComponent')}
+          onClick={() => EditorControlFunctions.createObjectFromSceneElement()}
         >
           {t('editor:hierarchy.lbl-addEntity')}
         </Button>

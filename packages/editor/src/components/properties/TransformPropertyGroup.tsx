@@ -52,7 +52,7 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
-import NodeEditor from './NodeEditor'
+import PropertyGroup from './PropertyGroup'
 import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
@@ -115,7 +115,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const transform = localTransformComponent ?? transformComponent!
 
   return (
-    <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
+    <PropertyGroup name={t('editor:properties.transform.title')}>
       <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
         <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
@@ -154,7 +154,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           onRelease={onRelease}
         />
       </InputGroup>
-    </NodeEditor>
+    </PropertyGroup>
   )
 }
 
