@@ -47,29 +47,6 @@ import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/sch
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const userResolver = resolve<UserType, HookContext>({
-  avatar: virtual(async (user, context) => {
-    if (context.event !== 'removed' && user.avatarId) return await context.app.service(avatarPath).get(user.avatarId)
-  }),
-  userSetting: virtual(async (user, context) => {
-    const userSetting = (await context.app.service(userSettingPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as UserSettingType[]
-
-    return userSetting.length > 0 ? userSetting[0] : undefined
-  }),
-  apiKey: virtual(async (user, context) => {
-    const apiKey = (await context.app.service(userApiKeyPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as UserApiKeyType[]
-
-    return apiKey.length > 0 ? apiKey[0] : undefined
-  }),
   identityProviders: virtual(async (user, context) => {
     return (await context.app.service(identityProviderPath).find({
       query: {
@@ -77,22 +54,6 @@ export const userResolver = resolve<UserType, HookContext>({
       },
       paginate: false
     })) as IdentityProviderType[]
-  }),
-  locationAdmins: virtual(async (user, context) => {
-    return (await context.app.service(locationAdminPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as LocationAdminType[]
-  }),
-  locationBans: virtual(async (user, context) => {
-    return (await context.app.service(locationBanPath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as LocationBanType[]
   }),
   scopes: virtual(async (user, context) => {
     return (await context.app.service(scopePath).find({
@@ -119,6 +80,45 @@ export const userResolver = resolve<UserType, HookContext>({
 })
 
 export const userExternalResolver = resolve<UserType, HookContext>({
+  avatar: virtual(async (user, context) => {
+    if (context.event !== 'removed' && user.avatarId) return await context.app.service(avatarPath).get(user.avatarId)
+  }),
+  userSetting: virtual(async (user, context) => {
+    const userSetting = (await context.app.service(userSettingPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as UserSettingType[]
+
+    return userSetting.length > 0 ? userSetting[0] : undefined
+  }),
+  apiKey: virtual(async (user, context) => {
+    const apiKey = (await context.app.service(userApiKeyPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as UserApiKeyType[]
+
+    return apiKey.length > 0 ? apiKey[0] : undefined
+  }),
+  locationAdmins: virtual(async (user, context) => {
+    return (await context.app.service(locationAdminPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as LocationAdminType[]
+  }),
+  locationBans: virtual(async (user, context) => {
+    return (await context.app.service(locationBanPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as LocationBanType[]
+  }),
   isGuest: async (value, user) => !!user.isGuest // https://stackoverflow.com/a/56523892/2077741
 })
 
