@@ -136,7 +136,7 @@ const execute = () => {
     if (data && entity) {
       timeSeriesMocapLastSeen.set(peerID, Date.now())
       setComponent(entity, MotionCaptureRigComponent)
-      solveMotionCapturePose(data.results.poseWorldLandmarks, userID, entity)
+      solveMotionCapturePose(data.results.poseWorldLandmarks, data.results.poseLandmarks, entity)
     }
 
     mocapData.clear() // TODO: add a predictive filter and remove this
@@ -194,7 +194,8 @@ const execute = () => {
           // mesh.add(new AxesHelper(0.1))
           if (key === 'hips') mesh.material.color.setHex(0xff0000)
           if (key === 'spine') mesh.material.color.setHex(0x00ff00)
-          if (key === 'chest') mesh.material.color.setHex(0x0000ff)
+          if (key === 'chest') mesh.material.color.setHex(0x4488ff)
+          if (key === 'upperChest') mesh.material.color.setHex(0x0000ff)
           boneHelpers[key] = mesh
           helperGroup.add(mesh)
           if (!helperGroup.parent) Engine.instance.scene.add(helperGroup)
