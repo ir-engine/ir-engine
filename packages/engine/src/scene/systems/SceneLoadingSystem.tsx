@@ -91,33 +91,35 @@ export const createNewEditorNode = (
   componentJson: Array<ComponentJson>,
   parentEntity = getState(SceneState).sceneEntity as Entity
 ): void => {
-  if (componentJson.length === 0) {
-    componentJson.push({
-      name: 'Entity'
-    })
-  }
-
   const components = [
     ...componentJson,
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
     { name: ComponentMap.get(LocalTransformComponent.name)!.jsonID! }
   ]
-  const name = getUniqueName(entityNode, `New ${startCase(components[0].name.toLowerCase())}`)
+
+  const name = getUniqueName(
+    entityNode,
+    componentJson.length ? `New ${startCase(componentJson[0].name.toLowerCase())}` : `New Entity`
+  )
   const uuid = componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? MathUtils.generateUUID()
+
   addEntityNodeChild(entityNode, parentEntity)
+
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,
-    type: Object.keys(componentJson)[0].toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
   })
+
   setComponent(entityNode, UUIDComponent, uuid)
+
   const localTransform = getComponent(entityNode, LocalTransformComponent)
   setComponent(entityNode, TransformComponent, {
     position: localTransform.position,
     rotation: localTransform.rotation,
     scale: localTransform.scale
   })
+
   const transform = getComponent(entityNode, TransformComponent)
   setComponent(entityNode, LocalTransformComponent, {
     position: transform.position,
