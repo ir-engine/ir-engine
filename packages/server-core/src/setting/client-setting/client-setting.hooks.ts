@@ -27,11 +27,13 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
+  ClientSettingData,
   clientSettingDataValidator,
   clientSettingPatchValidator,
   clientSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
+import { BadRequest } from '@feathersjs/errors'
 import path from 'path'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -41,6 +43,7 @@ import verifyScope from '../../hooks/verify-scope'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getContentType } from '../../util/fileUtils'
+import { ClientSettingService } from './client-setting.class'
 import {
   clientSettingDataResolver,
   clientSettingExternalResolver,
@@ -49,28 +52,33 @@ import {
   clientSettingResolver
 } from './client-setting.resolvers'
 
-const updateWebManifest = async (context: HookContext) => {
+const updateWebManifest = async (context: HookContext<ClientSettingService>) => {
+  if (!context.data || context.method !== 'patch') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ClientSettingData[] = Array.isArray(context.data) ? context.data : [context.data]
   const webmanifestPath =
     process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' ? `client/public/site.webmanifest` : 'site.webmanifest'
   const storageProvider = getStorageProvider()
   try {
     const webmanifestResponse = await storageProvider.getObject(webmanifestPath)
     const webmanifest = JSON.parse(webmanifestResponse.Body.toString('utf-8'))
-    context.data!.startPath = context.data!.startPath?.replace(/https:\/\//, '/')
-    const icon192px = /https:\/\//.test(context.data!.icon192px!)
-      ? context.data!.icon192px
-      : path.join('client', context.data!.icon192px!)
-    const icon512px = /https:\/\//.test(context.data!.icon512px!)
-      ? context.data!.icon512px
-      : path.join('client', context.data!.icon512px!)
-    webmanifest.name = context.data!.title
-    webmanifest.short_name = context.data!.shortTitle
+    context.data![0].startPath = data![0].startPath?.replace(/https:\/\//, '/')
+    const icon192px = /https:\/\//.test(data![0].icon192px!)
+      ? data![0].icon192px
+      : path.join('client', data![0].icon192px!)
+    const icon512px = /https:\/\//.test(data![0].icon512px!)
+      ? data![0].icon512px
+      : path.join('client', data![0].icon512px!)
+    webmanifest.name = data![0].title
+    webmanifest.short_name = data![0].shortTitle
     webmanifest.start_url =
-      config.client.url[config.client.url.length - 1] === '/' && context.data!.startPath![0] === '/'
-        ? config.client.url + context.data!.startPath!.slice(1)
-        : config.client.url[config.client.url.length - 1] !== '/' && context.data!.startPath![0] !== '/'
-        ? config.client.url + '/' + context.data!.startPath
-        : config.client.url + context.data!.startPath
+      config.client.url[config.client.url.length - 1] === '/' && data![0].startPath![0] === '/'
+        ? config.client.url + data![0].startPath!.slice(1)
+        : config.client.url[config.client.url.length - 1] !== '/' && data![0].startPath![0] !== '/'
+        ? config.client.url + '/' + data![0].startPath
+        : config.client.url + data![0].startPath
     const cacheDomain = getCacheDomain(storageProvider)
     webmanifest.icons = [
       {
