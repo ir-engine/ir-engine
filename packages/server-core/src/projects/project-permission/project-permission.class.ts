@@ -137,7 +137,7 @@ export class ProjectPermissionService<
         : {
             id: data.userId
           }
-      const users = await this.app.service(userPath)._find({
+      const users = await this.app.service(userPath).find({
         query: searchParam
       })
       if (users.data.length === 0) throw new BadRequest('Invalid user ID and/or user invite code')

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Params } from '@feathersjs/feathers'
+import { NullableId, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
@@ -91,7 +91,7 @@ export class ScopeService<T = ScopeType, ServiceParams extends Params = ScopePar
     return existingData
   }
 
-  async remove(id: Id, _params?: ScopeParams) {
+  async remove(id: NullableId, _params?: ScopeParams) {
     return super._remove(id, _params)
   }
 }

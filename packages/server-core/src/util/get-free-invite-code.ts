@@ -28,7 +28,7 @@ import crypto from 'crypto'
 
 const getFreeInviteCode = async (app): Promise<string> => {
   const code = crypto.randomBytes(4).toString('hex')
-  const users = await app.service(userPath)._find({
+  const users = await app.service(userPath).find({
     query: {
       inviteCode: code
     },

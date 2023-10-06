@@ -30,17 +30,11 @@ import { v4 } from 'uuid'
 import { ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const scopeResolver = resolve<ScopeType, HookContext>({})
 
 export const scopeExternalResolver = resolve<ScopeType, HookContext>({
-  user: virtual(async (scope, context) => {
-    if (scope.userId) {
-      return await context.app.service(userPath)._get(scope.userId)
-    }
-  }),
   createdAt: virtual(async (scope) => fromDateTimeSql(scope.createdAt)),
   updatedAt: virtual(async (scope) => fromDateTimeSql(scope.updatedAt))
 })

@@ -44,10 +44,10 @@ export const userRelationshipResolver = resolve<UserRelationshipType, HookContex
 
 export const userRelationshipExternalResolver = resolve<UserRelationshipType, HookContext>({
   user: virtual(async (userRelationship, context) => {
-    if (userRelationship.userId) return await context.app.service(userPath)._get(userRelationship.userId)
+    if (userRelationship.userId) return await context.app.service(userPath).get(userRelationship.userId)
   }),
   relatedUser: virtual(async (userRelationship, context) => {
-    if (userRelationship.relatedUserId) return await context.app.service(userPath)._get(userRelationship.relatedUserId)
+    if (userRelationship.relatedUserId) return await context.app.service(userPath).get(userRelationship.relatedUserId)
   })
 })
 
