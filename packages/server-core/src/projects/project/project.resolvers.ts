@@ -70,7 +70,7 @@ export const projectResolver = resolve<ProjectType, HookContext>(
           },
           user: context.params?.user,
           paginate: false
-        })) as ProjectPermissionType[]
+        })) as any as ProjectPermissionType[]
     }),
 
     commitDate: virtual(async (project) => {

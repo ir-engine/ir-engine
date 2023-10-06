@@ -124,7 +124,7 @@ describe('scene.test', () => {
     after(async () => {
       const project = (await app
         .service(projectPath)
-        .find({ ...params, query: { name: newProjectName }, paginate: false })) as ProjectType[]
+        .find({ ...params, query: { name: newProjectName }, paginate: false })) as any as ProjectType[]
       await app.service(projectPath).remove(project[0].id, params)
     })
 
