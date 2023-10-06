@@ -247,11 +247,20 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     //check state, if we are still not set to track lower body, update that
     if (!mocapState.trackingLowerBody.value) {
       //dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
+
       mocapState.trackingLowerBody.set(true)
     }
   } else {
     if (mocapState.trackingLowerBody.value) {
       //dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
+      //very quick dirty reset of legs
+      rig.localRig[VRMHumanBoneName.LeftUpperLeg]?.node.quaternion.identity()
+      rig.localRig[VRMHumanBoneName.LeftLowerLeg]?.node.quaternion.identity()
+      rig.localRig[VRMHumanBoneName.LeftFoot]?.node.quaternion.identity()
+
+      rig.localRig[VRMHumanBoneName.RightUpperLeg]?.node.quaternion.identity()
+      rig.localRig[VRMHumanBoneName.RightLowerLeg]?.node.quaternion.identity()
+      rig.localRig[VRMHumanBoneName.RightFoot]?.node.quaternion.identity()
       mocapState.trackingLowerBody.set(false)
     }
   }
@@ -410,32 +419,33 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   )
   shoulderObject.matrixWorld.decompose(shoulderObject.position, shoulderObject.quaternion, shoulderObject.scale)
 
-  solveTwoBoneIK(
-    hipObject,
-    spineObject,
-    shoulderObject,
-    shoulderPositionAlongPlane, // target position
-    shoulderWorldQuaternion, // target quaternion
-    null,
-    null,
-    null,
-    null,
-    null,
-    1,
-    1,
-    1
-  )
-
   if (trackingLowerBody) {
-    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipObject.quaternion.x
-    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipObject.quaternion.y
-    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipObject.quaternion.z
-    MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipObject.quaternion.w
-
-    rig.localRig[VRMHumanBoneName.Hips]?.node.quaternion.copy(hipObject.quaternion)
+    solveTwoBoneIK(
+      hipObject,
+      spineObject,
+      shoulderObject,
+      shoulderPositionAlongPlane, // target position
+      shoulderWorldQuaternion, // target quaternion
+      null,
+      null,
+      null,
+      null,
+      null,
+      1,
+      1,
+      1
+    )
   } else {
-    rig.localRig[VRMHumanBoneName.Hips]?.node.quaternion.identity()
+    hipObject.quaternion.identity()
+    spineObject.quaternion.copy(hipToShoulderQuaternion)
   }
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipObject.quaternion.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipObject.quaternion.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].z[entity] = hipObject.quaternion.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].w[entity] = hipObject.quaternion.w
+
+  rig.localRig[VRMHumanBoneName.Hips]?.node.quaternion.copy(hipObject.quaternion)
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].x[entity] = spineObject.quaternion.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Spine].y[entity] = spineObject.quaternion.y
