@@ -85,7 +85,7 @@ export const EditorHistoryState = defineState({
 
       getMutableState(SceneState).sceneData.ornull!.scene.set(snapshot.data.scene)
       const sceneData = getState(SceneState).sceneData!
-      // updateSceneFromJSON()
+
       removeSceneEntitiesFromOldJSON()
       const sceneState = getState(SceneState)
       setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
