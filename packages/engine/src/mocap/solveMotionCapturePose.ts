@@ -138,10 +138,6 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     return
   }
 
-  // const last = lastLandmarks
-
-  // lastLandmarks = landmarks
-
   if (!landmarks?.length) return
 
   const avatarDebug = getState(RendererState).avatarDebug
@@ -149,18 +145,6 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
   if (avatarDebug) {
     drawDebug(landmarks)
   }
-
-  // const landmarks = landmarks.map((landmark, index) => {
-  //   const lastLandmark = lastLandmarks[index]
-  //   if (!lastLandmark.visibility || !landmark.visibility) return landmark
-  //   const confidence = (landmark.visibility + lastLandmark.visibility) / 2
-  //   return {
-  //     visibility: confidence,
-  //     x: MathUtils.lerp(lastLandmark.x, landmark.x, confidence),
-  //     y: MathUtils.lerp(lastLandmark.y, landmark.y, confidence),
-  //     z: MathUtils.lerp(lastLandmark.z, landmark.z, confidence)
-  //   }
-  // })
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
 
