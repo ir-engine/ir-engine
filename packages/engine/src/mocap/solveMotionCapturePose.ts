@@ -293,7 +293,9 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   // if (!hips) return
 
   const restSpine = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Spine]!
-  const restChest = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Chest]!
+  const restChest =
+    rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.UpperChest]! ??
+    rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Chest]!
   const restShoulderLeft = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.LeftUpperArm]!
   const restShoulderRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperArm]!
   const averageChestToShoulderHeight = (restShoulderLeft.position![1] + restShoulderRight.position![1]) / 2
