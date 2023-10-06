@@ -170,7 +170,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           throw new BadRequest('Invalid user ID')
         }
 
-        const existingRelationshipResult = await this.app.service(userRelationshipPath)._find({
+        const existingRelationshipResult = await this.app.service(userRelationshipPath).find({
           query: {
             $or: [
               {
@@ -204,7 +204,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           )
         }
 
-        const relationshipToPatch = await this.app.service(userRelationshipPath)._find({
+        const relationshipToPatch = await this.app.service(userRelationshipPath).find({
           query: {
             $or: [
               {

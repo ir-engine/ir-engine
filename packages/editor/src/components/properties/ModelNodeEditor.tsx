@@ -86,18 +86,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     [exportPath, exportType]
   )
 
-  const onExportModel = useCallback(() => {
+  const onExportModel = () => {
     if (exporting.value) {
       console.warn('already exporting')
       return
     }
     exporting.set(true)
     exportGLTF(entity, exportPath.value).then(() => exporting.set(false))
-  }, [])
-
-  const updateResources = useCallback((path: string) => {
-    commitProperty(ModelComponent, 'src')(path)
-  }, [])
+  }
 
   return (
     <NodeEditor
@@ -106,7 +102,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src.value} onChange={updateResources} />
+        <ModelInput value={modelComponent.src.value} onChange={commitProperty(ModelComponent, 'src')} />
         {errors?.LOADING_ERROR ||
           (errors?.INVALID_URL && ErrorPopUp({ message: t('editor:properties.model.error-url') }))}
       </InputGroup>

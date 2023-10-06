@@ -31,8 +31,6 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RingBuffer } from '../common/classes/RingBuffer'
 
-import { Engine } from '../ecs/classes/Engine'
-
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
@@ -58,6 +56,7 @@ import {
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { V_010 } from '../common/constants/MathConstants'
 import { isClient } from '../common/functions/getEnvironment'
+import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkState } from '../networking/NetworkState'
 import { RendererState } from '../renderer/RendererState'
@@ -130,7 +129,7 @@ const execute = () => {
     }
   }
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    const data = mocapData.popLast()
+    const data = mocapData.getFirst()
     const userID = network.peers[peerID]!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
@@ -139,6 +138,8 @@ const execute = () => {
       setComponent(entity, MotionCaptureRigComponent)
       solveMotionCapturePose(data.results.poseWorldLandmarks, userID, entity)
     }
+
+    mocapData.clear() // TODO: add a predictive filter and remove this
   }
 
   for (const entity of motionCaptureQuery()) {
@@ -193,7 +194,8 @@ const execute = () => {
           // mesh.add(new AxesHelper(0.1))
           if (key === 'hips') mesh.material.color.setHex(0xff0000)
           if (key === 'spine') mesh.material.color.setHex(0x00ff00)
-          if (key === 'chest') mesh.material.color.setHex(0x0000ff)
+          if (key === 'chest') mesh.material.color.setHex(0x4488ff)
+          if (key === 'upperChest') mesh.material.color.setHex(0x0000ff)
           boneHelpers[key] = mesh
           helperGroup.add(mesh)
           if (!helperGroup.parent) Engine.instance.scene.add(helperGroup)
