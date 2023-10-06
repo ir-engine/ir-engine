@@ -55,7 +55,6 @@ import {
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { solveTwoBoneIK } from '../avatar/animation/TwoBoneIKSolver'
 import { V_010, V_111 } from '../common/constants/MathConstants'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
@@ -405,21 +404,9 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   shoulderObject.matrixWorld.decompose(shoulderObject.position, shoulderObject.quaternion, shoulderObject.scale)
 
   if (trackingLowerBody) {
-    solveTwoBoneIK(
-      hipObject,
-      spineObject,
-      shoulderObject,
-      shoulderPositionAlongPlane, // target position
-      shoulderWorldQuaternion, // target quaternion
-      null,
-      null,
-      null,
-      null,
-      null,
-      1,
-      1,
-      1
-    )
+    hipObject.quaternion.copy(hipToShoulderQuaternion)
+    spineObject.quaternion.identity()
+    shoulderObject.quaternion.identity()
   } else {
     hipObject.quaternion.identity()
     spineObject.quaternion.copy(hipToShoulderQuaternion)
