@@ -148,7 +148,7 @@ const removeUserScopes = async (context: HookContext<UserService>) => {
 
 /**
  * Adds new scopes to user
- * @param context
+ * @param useActualData
  */
 const addUserScopes = (useActualData = false) => {
   return async (context: HookContext<UserService>) => {
@@ -287,7 +287,7 @@ export default {
       schemaHooks.resolveData(userPatchResolver),
       disallowNonId,
       removeUserScopes,
-      addUserScopes,
+      addUserScopes(false),
       discard('scopes')
     ],
     remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
