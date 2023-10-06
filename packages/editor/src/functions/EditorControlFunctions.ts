@@ -64,6 +64,7 @@ import {
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
@@ -91,8 +92,8 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   for (let i = 0; i < nodes.length; i++) {
     const entity = nodes[i]
     if (typeof entity === 'string') continue
-    const enttiyUUID = getComponent(entity, UUIDComponent)
-    const componentData = newSnapshot.data.scene.entities[enttiyUUID].components
+    const entityUUID = getComponent(entity, UUIDComponent)
+    const componentData = newSnapshot.data.scene.entities[entityUUID].components
 
     if (add) {
       const tempEntity = createEntity()
@@ -111,7 +112,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
 }
 
-const modifyName = <C extends Component<any, any>>(nodes: EntityOrObjectUUID[], name: string) => {
+const modifyName = (nodes: EntityOrObjectUUID[], name: string) => {
   cancelGrabOrPlacement()
 
   const newSnapshot = EditorHistoryState.cloneCurrentSnapshot()
@@ -215,7 +216,7 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
 }
 
 const createObjectFromSceneElement = (
-  componentName: string,
+  componentJson: ComponentJson[] = [],
   parentEntity = getState(SceneState).sceneEntity as Entity,
   beforeEntity = null as Entity | null,
   updateSelection = true
@@ -223,20 +224,23 @@ const createObjectFromSceneElement = (
   cancelGrabOrPlacement()
 
   const newEntity = createEntity()
-  let childIndex = undefined as undefined | number
-  if (beforeEntity) {
+  let childIndex = 0
+  if (typeof beforeEntity === 'number') {
     const beforeNode = getComponent(beforeEntity, EntityTreeComponent)
     if (beforeNode?.parentEntity && hasComponent(beforeNode.parentEntity, EntityTreeComponent)) {
       childIndex = getComponent(beforeNode.parentEntity, EntityTreeComponent).children.indexOf(beforeEntity)
     }
+  } else {
+    const parentEntityTreeComponent = getComponent(parentEntity, EntityTreeComponent)
+    childIndex = parentEntityTreeComponent.children.length
   }
 
-  const entityUUID = MathUtils.generateUUID() as EntityUUID
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
-  setComponent(newEntity, UUIDComponent, entityUUID)
   setComponent(newEntity, SceneObjectComponent)
 
-  createNewEditorNode(newEntity, componentName)
+  createNewEditorNode(newEntity, componentJson)
+
+  const entityUUID = getComponent(newEntity, UUIDComponent)
 
   const serializedEntity = serializeEntity(newEntity)
 
@@ -254,8 +258,6 @@ const createObjectFromSceneElement = (
   }
 
   dispatchAction(EditorHistoryAction.createSnapshot(newSnapshot))
-
-  return newEntity
 }
 
 /**
@@ -722,7 +724,7 @@ const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
 
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
-    let index = selectedEntities.indexOf(node)
+    const index = selectedEntities.indexOf(node)
 
     if (index > -1) {
       selectedEntities.splice(index, 1)

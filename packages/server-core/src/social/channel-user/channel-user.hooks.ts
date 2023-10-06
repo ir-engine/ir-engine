@@ -42,8 +42,10 @@ import verifyScope from '../../hooks/verify-scope'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Forbidden } from '@feathersjs/errors'
-import { HookContext, Paginated } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import disallowId from '../../hooks/disallow-id'
+import { ChannelUserService } from './channel-user.class'
 import {
   channelUserDataResolver,
   channelUserExternalResolver,
@@ -57,22 +59,26 @@ import {
  * @param context
  * @returns
  */
-const addJoinedChannelMessage = async (context: HookContext) => {
-  const { app, result, params } = context
+const addJoinedChannelMessage = async (context: HookContext<ChannelUserService>) => {
+  const { app, params } = context
 
-  const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
-  await app.service(messagePath).create(
-    {
-      channelId: result.channelId,
-      text: `${user.name} joined the channel`,
-      isNotification: true
-    },
-    {
-      [identityProviderPath]: {
-        userId: result.userId
-      }
-    } as any
-  )
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as ChannelUserType[]
+
+  for (const item of result) {
+    const user = await app.service(userPath).get(item.userId, { ...params, query: {} })
+    await app.service(messagePath).create(
+      {
+        channelId: item.channelId,
+        text: `${user.name} joined the channel`,
+        isNotification: true
+      },
+      {
+        [identityProviderPath]: {
+          userId: item.userId
+        }
+      } as any
+    )
+  }
 
   return context
 }
@@ -82,15 +88,19 @@ const addJoinedChannelMessage = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const addLeftChannelMessage = async (context: HookContext) => {
-  const { app, params, result } = context
+const addLeftChannelMessage = async (context: HookContext<ChannelUserService>) => {
+  const { app, params } = context
 
-  const user = await app.service(userPath).get(result.userId, { ...params, query: {} })
-  await app.service(messagePath).create({
-    channelId: result.channelId,
-    text: `${user.name} left the channel`,
-    isNotification: true
-  })
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as ChannelUserType[]
+
+  for (const item of result) {
+    const user = await app.service(userPath).get(item.userId, { ...params, query: {} })
+    await app.service(messagePath).create({
+      channelId: item.channelId,
+      text: `${user.name} left the channel`,
+      isNotification: true
+    })
+  }
 
   return context
 }
@@ -100,20 +110,24 @@ const addLeftChannelMessage = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const removeEmptyNonInstanceChannel = async (context: HookContext) => {
-  const { app, result } = context
+const removeEmptyNonInstanceChannel = async (context: HookContext<ChannelUserService>) => {
+  const { app } = context
 
-  const channel = await app.service(channelPath).get(result.channelId)
-  if (channel.instanceId) return context
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as ChannelUserType[]
 
-  const channelUserCount = (await app.service(channelUserPath).find({
-    query: {
-      channelId: result.channelId
+  for (const item of result) {
+    const channel = await app.service(channelPath).get(item.channelId)
+    if (channel.instanceId) return context
+
+    const channelUserCount = (await app.service(channelUserPath).find({
+      query: {
+        channelId: item.channelId
+      }
+    })) as Paginated<ChannelUserType>
+
+    if (channelUserCount.data.length === 0) {
+      await app.service(channelPath).remove(item.channelId)
     }
-  })) as Paginated<ChannelUserType>
-
-  if (channelUserCount.data.length === 0) {
-    await app.service(channelPath).remove(result.channelId)
   }
 
   return context
@@ -124,9 +138,9 @@ const removeEmptyNonInstanceChannel = async (context: HookContext) => {
  * @param context
  * @returns
  */
-const ensureUserIsOwner = async (context: HookContext) => {
-  const userId = context.params.user.id
-  const channelId = context.params!.query!.channelId
+const ensureUserIsOwner = async (context: HookContext<ChannelUserService>) => {
+  const userId = context.params.user!.id
+  const channelId = context.params.query!.channelId
 
   const loggedInChannelUser = (await context.app.service(channelUserPath).find({
     query: {
