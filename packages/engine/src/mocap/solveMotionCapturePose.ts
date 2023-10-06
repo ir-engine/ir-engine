@@ -254,13 +254,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     if (mocapState.trackingLowerBody.value) {
       //dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
       //very quick dirty reset of legs
-      rig.localRig[VRMHumanBoneName.LeftUpperLeg]?.node.quaternion.identity()
-      rig.localRig[VRMHumanBoneName.LeftLowerLeg]?.node.quaternion.identity()
-      rig.localRig[VRMHumanBoneName.LeftFoot]?.node.quaternion.identity()
+      resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.LeftUpperLeg, VRMHumanBoneName.LeftLowerLeg)
+      resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.RightUpperLeg, VRMHumanBoneName.RightLowerLeg)
 
-      rig.localRig[VRMHumanBoneName.RightUpperLeg]?.node.quaternion.identity()
-      rig.localRig[VRMHumanBoneName.RightLowerLeg]?.node.quaternion.identity()
-      rig.localRig[VRMHumanBoneName.RightFoot]?.node.quaternion.identity()
       mocapState.trackingLowerBody.set(false)
     }
   }
@@ -519,6 +515,33 @@ export const solveLimb = (
   MotionCaptureRigComponent.rig[midTargetBoneName].w[entity] = midLocal.w
 
   rig.localRig[midTargetBoneName]?.node.quaternion.copy(midLocal)
+
+  rig.localRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
+  rig.localRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
+}
+
+export const resetLimb = (
+  entity: Entity,
+  parentTargetBoneName: VRMHumanBoneName,
+  startTargetBoneName: VRMHumanBoneName,
+  midTargetBoneName: VRMHumanBoneName
+) => {
+  // if (start.visibility! < threshhold || mid.visibility! < threshhold || end.visibility! < threshhold) return
+  const rig = getComponent(entity, AvatarRigComponent)
+
+  MotionCaptureRigComponent.rig[startTargetBoneName].x[entity] = 0
+  MotionCaptureRigComponent.rig[startTargetBoneName].y[entity] = 0
+  MotionCaptureRigComponent.rig[startTargetBoneName].z[entity] = 0
+  MotionCaptureRigComponent.rig[startTargetBoneName].w[entity] = 1
+
+  rig.localRig[startTargetBoneName]?.node.quaternion.identity()
+
+  MotionCaptureRigComponent.rig[midTargetBoneName].x[entity] = 0
+  MotionCaptureRigComponent.rig[midTargetBoneName].y[entity] = 0
+  MotionCaptureRigComponent.rig[midTargetBoneName].z[entity] = 0
+  MotionCaptureRigComponent.rig[midTargetBoneName].w[entity] = 1
+
+  rig.localRig[midTargetBoneName]?.node.quaternion.identity()
 
   rig.localRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
   rig.localRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
