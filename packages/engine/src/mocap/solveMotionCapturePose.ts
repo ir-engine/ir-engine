@@ -64,8 +64,6 @@ import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
 
-let lastLandmarks: NormalizedLandmarkList
-
 export const drawMocapDebug = () => {
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
 
@@ -131,8 +129,9 @@ export const drawMocapDebug = () => {
 }
 
 const drawDebug = drawMocapDebug()
+const drawDebugScreen = drawMocapDebug()
 
-export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID, entity) {
+export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screenlandmarks, entity) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
     return
@@ -144,6 +143,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
 
   if (avatarDebug) {
     drawDebug(landmarks)
+    drawDebugScreen(screenlandmarks)
   }
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
@@ -285,9 +285,7 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   // if (!hips) return
 
   const restSpine = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Spine]!
-  const restChest =
-    rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.UpperChest]! ??
-    rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Chest]!
+  const restChest = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Chest]!
   const restShoulderLeft = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.LeftUpperArm]!
   const restShoulderRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperArm]!
   const averageChestToShoulderHeight = (restShoulderLeft.position![1] + restShoulderRight.position![1]) / 2
