@@ -294,8 +294,7 @@ export default {
     ],
     find: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
-      iff(isProvider('external'), discardQuery('search')),
-      discardQuery('$sort.accountIdentifier')
+      iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier'))
     ],
     get: [],
     create: [

@@ -48,7 +48,7 @@ export class InviteCodeLookupService implements ServiceInterface<InviteCodeLooku
     const inviteCode = params?.query?.inviteCode
 
     if (inviteCode) {
-      const users = await this.app.service(userPath)._find({
+      const users = await this.app.service(userPath).find({
         query: {
           inviteCode
         },
