@@ -188,16 +188,16 @@ export const MediaInstanceProvisioning = () => {
 }
 
 export const MediaInstance = ({ id }: { id: InstanceID }) => {
-  const worldInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
+  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
 
   useEffect(() => {
     connectToNetwork(
       id,
-      worldInstance.ipAddress.value,
-      worldInstance.port.value,
+      mediaInstance.ipAddress.value,
+      mediaInstance.port.value,
       undefined,
-      worldInstance.channelId.value,
-      worldInstance.roomCode.value
+      mediaInstance.channelId.value,
+      mediaInstance.roomCode.value
     )
   }, [])
 
