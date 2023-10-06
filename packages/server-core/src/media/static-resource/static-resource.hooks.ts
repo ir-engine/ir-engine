@@ -36,9 +36,10 @@ import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 import { Forbidden, NotFound } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import { getStorageProvider } from '../storageprovider/storageprovider'
+import { StaticResourceService } from './static-resource.class'
 import {
   staticResourceDataResolver,
   staticResourceExternalResolver,
@@ -47,7 +48,12 @@ import {
   staticResourceResolver
 } from './static-resource.resolvers'
 
-const ensureResource = async (context: HookContext) => {
+/**
+ * Ensure static-resource with the specified id exists and user is creator of the resource
+ * @param context
+ * @returns
+ */
+const ensureResource = async (context: HookContext<StaticResourceService>) => {
   const resource = await context.app.service(staticResourcePath).get(context.id!)
 
   if (!resource) {

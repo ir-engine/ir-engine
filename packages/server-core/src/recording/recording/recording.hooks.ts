@@ -35,12 +35,13 @@ import {
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotFound } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import isAction from '../../hooks/is-action'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import verifyScope from '../../hooks/verify-scope'
+import { RecordingService } from './recording.class'
 import {
   recordingDataResolver,
   recordingExternalResolver,
@@ -49,7 +50,12 @@ import {
   recordingResolver
 } from './recording.resolvers'
 
-const sortByUserName = async (context: HookContext) => {
+/**
+ * Sort result by user name
+ * @param context
+ * @returns
+ */
+const sortByUserName = async (context: HookContext<RecordingService>) => {
   if (context.params.query?.$sort?.['user']) {
     const sort = context.params.query.$sort['user']
     delete context.params.query.$sort['user']
@@ -64,7 +70,12 @@ const sortByUserName = async (context: HookContext) => {
   }
 }
 
-const ensureRecording = async (context: HookContext) => {
+/**
+ * Ensure recording with the specified id exists
+ * @param context
+ * @returns
+ */
+const ensureRecording = async (context: HookContext<RecordingService>) => {
   const recording = context.app.service(recordingPath).get(context.id!)
   if (!recording) {
     throw new NotFound('Unable to find recording with this id')
