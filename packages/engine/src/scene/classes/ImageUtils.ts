@@ -151,12 +151,11 @@ export const ScreenshotSettings = defineState({
 
 const ktx2write = new KTX2Encoder()
 
-export const convertCubemapToKTX2 = async (
+export const convertCubemapToImageData = (
   renderer: WebGLRenderer,
   source: CubeTexture,
   width: number,
-  height: number,
-  returnAsBlob: boolean
+  height: number
 ) => {
   const scene = new Scene()
   const material = new RawShaderMaterial({
@@ -200,20 +199,42 @@ export const convertCubemapToKTX2 = async (
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
   renderer.outputColorSpace = originalColorSpace
 
-  let imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+  return new ImageData(new Uint8ClampedArray(pixels), width, height)
+}
+
+export const convertImageDataToKTX2Blob = async (imageData: ImageData) => {
+  const ktx2texture = (await ktx2write.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
+  return new Blob([ktx2texture])
+}
+
+export const blurAndScaleImageData = (
+  imageData: ImageData,
+  width: number,
+  height: number,
+  blur = 0,
+  newSize = 0 // 0 is no scaling
+) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
   canvas.width = width
   canvas.height = height
   ctx.putImageData(imageData, 0, 0)
 
-  const ktx2texture = (await ktx2write.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
-
-  if (returnAsBlob) {
-    return new Blob([ktx2texture])
+  if (blur > 0) {
+    ctx.filter = `blur(${blur}px)`
+    ctx.drawImage(canvas, 0, 0)
   }
 
-  return ktx2texture
+  if (newSize > 0) {
+    const scaledCanvas = document.createElement('canvas')
+    const scaledCtx = scaledCanvas.getContext('2d') as CanvasRenderingContext2D
+    scaledCanvas.width = newSize
+    scaledCanvas.height = newSize
+    scaledCtx.drawImage(canvas, 0, 0, newSize, newSize)
+    return scaledCtx.getImageData(0, 0, newSize, newSize)
+  } else {
+    return ctx.getImageData(0, 0, width, height)
+  }
 }
 
 //convert Cubemap To Equirectangular map
