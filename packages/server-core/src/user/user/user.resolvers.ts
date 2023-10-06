@@ -145,8 +145,8 @@ export const userDataResolver = resolve<UserType, HookContext>({
   inviteCode: async (inviteCode) => {
     return inviteCode || Math.random().toString(36).slice(2)
   },
-  avatar: async (inviteCode) => {
-    return inviteCode || undefined
+  avatarId: async (avatarId) => {
+    return avatarId || undefined
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
