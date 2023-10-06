@@ -34,9 +34,11 @@ import {
   InstanceAttendanceType,
   instanceAttendancePath
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import {
   IdentityProviderType,
@@ -64,14 +66,25 @@ export const userResolver = resolve<UserType, HookContext>({
     })) as ScopeType[]
   }),
   instanceAttendance: virtual(async (user, context) => {
-    if (context.params.user?.id === context.id)
-      return (await context.app.service(instanceAttendancePath).find({
+    if (context.params.user?.id === context.id) {
+      const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
         query: {
           userId: user.id,
           ended: false
         },
         paginate: false
       })) as InstanceAttendanceType[]
+
+      for (const attendance of instanceAttendance || []) {
+        if (attendance.instanceId)
+          attendance.instance = await context.app.service(instancePath).get(attendance.instanceId)
+        if (attendance.instance && attendance.instance.locationId) {
+          attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
+        }
+      }
+
+      return instanceAttendance
+    }
 
     return []
   }),

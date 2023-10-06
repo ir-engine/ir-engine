@@ -35,9 +35,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -58,28 +56,6 @@ import {
   userQueryResolver,
   userResolver
 } from './user.resolvers'
-
-/**
- * Adds the instance & location to the instance attendance
- * @returns
- */
-const addInstanceAttendanceLocation = async (context: HookContext<UserService>) => {
-  const process = async (item: UserType) => {
-    for (const attendance of item.instanceAttendance || []) {
-      if (attendance.instanceId)
-        attendance.instance = await context.app.service(instancePath).get(attendance.instanceId)
-      if (attendance.instance && attendance.instance.locationId) {
-        attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
-      }
-    }
-  }
-
-  Array.isArray(context.result)
-    ? await Promise.all(context.result.map(process)) // If it was an array
-    : context.result && context.result['data'] && Array.isArray(context.result['data'])
-    ? await Promise.all(context.result['data'].map(process)) // If it was paginated
-    : await process(context.result as UserType) // If it was single object
-}
 
 /**
  * Restricts patching of user data to admins and the user itself
@@ -319,8 +295,8 @@ export default {
 
   after: {
     all: [],
-    find: [addInstanceAttendanceLocation],
-    get: [addInstanceAttendanceLocation],
+    find: [],
+    get: [],
     create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
     update: [],
     patch: [updateInviteCode],
