@@ -29,13 +29,9 @@ import {
   StaticResourceQuery,
   StaticResourceType
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import { Forbidden, NotFound } from '@feathersjs/errors'
-import { NullableId, Params } from '@feathersjs/feathers'
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
-import { Application } from '../../../declarations'
+import { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 import { RootParams } from '../../api/root-params'
-import verifyScope from '../../hooks/verify-scope'
-import { getStorageProvider } from '../storageprovider/storageprovider'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface StaticResourceParams extends RootParams<StaticResourceQuery> {}
@@ -43,50 +39,4 @@ export interface StaticResourceParams extends RootParams<StaticResourceQuery> {}
 export class StaticResourceService<
   T = StaticResourceType,
   ServiceParams extends Params = StaticResourceParams
-> extends KnexAdapter<StaticResourceType, StaticResourceData, StaticResourceParams, StaticResourcePatch> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  // gets the static resource from the database, including the variants
-  async get(id: string, params?: StaticResourceParams) {
-    return super._get(id, params)
-  }
-
-  async create(data: StaticResourceData, params?: StaticResourceParams) {
-    return super._create({
-      ...data,
-      userId: params?.user?.id
-    })
-  }
-
-  async find(params?: StaticResourceParams) {
-    return super._find(params)
-  }
-
-  async patch(id: NullableId, data: StaticResourcePatch, params?: StaticResourceParams) {
-    return super._patch(id, data, params)
-  }
-
-  async remove(id: string, params?: StaticResourceParams) {
-    const resource = await super._get(id)
-
-    if (!resource) {
-      throw new NotFound('Unable to find specified resource id.')
-    }
-
-    if (!resource.userId) {
-      if (params?.provider) await verifyScope('admin', 'admin')({ app: this.app, params } as any)
-    } else if (params?.provider && resource.userId !== params?.user?.id)
-      throw new Forbidden('You are not the creator of this resource')
-
-    if (resource.key) {
-      const storageProvider = getStorageProvider()
-      await storageProvider.deleteResources([resource.key])
-    }
-    return await super._remove(id)
-  }
-}
+> extends KnexService<StaticResourceType, StaticResourceData, StaticResourceParams, StaticResourcePatch> {}

@@ -28,13 +28,18 @@ import { disallow } from 'feathers-hooks-common'
 import {
   staticResourceDataValidator,
   staticResourcePatchValidator,
+  staticResourcePath,
   staticResourceQueryValidator
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
-import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import { Forbidden, NotFound } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
+import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
+import { getStorageProvider } from '../storageprovider/storageprovider'
+import { StaticResourceService } from './static-resource.class'
 import {
   staticResourceDataResolver,
   staticResourceExternalResolver,
@@ -42,6 +47,25 @@ import {
   staticResourceQueryResolver,
   staticResourceResolver
 } from './static-resource.resolvers'
+
+/**
+ * Ensure static-resource with the specified id exists and user is creator of the resource
+ * @param context
+ * @returns
+ */
+const ensureResource = async (context: HookContext<StaticResourceService>) => {
+  const resource = await context.app.service(staticResourcePath).get(context.id!)
+
+  if (!resource.userId) {
+    if (context.params?.provider) await verifyScope('admin', 'admin')(context as any)
+  } else if (context.params?.provider && resource.userId !== context.params?.user?.id)
+    throw new Forbidden('You are not the creator of this resource')
+
+  if (resource.key) {
+    const storageProvider = getStorageProvider()
+    await storageProvider.deleteResources([resource.key])
+  }
+}
 
 export default {
   around: {
@@ -60,6 +84,7 @@ export default {
     get: [disallow('external')],
     create: [
       authenticate(),
+      setLoggedinUserInBody('userId'),
       verifyScope('admin', 'admin'),
       () => schemaHooks.validateData(staticResourceDataValidator),
       schemaHooks.resolveData(staticResourceDataResolver)
@@ -74,7 +99,7 @@ export default {
     remove: [
       authenticate(),
       // iff(isProvider('external'), verifyScope('admin', 'admin') as any),
-      attachOwnerIdInQuery('userId')
+      ensureResource
     ]
   },
 
