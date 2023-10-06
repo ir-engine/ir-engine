@@ -56,10 +56,6 @@ import {
 const ensureResource = async (context: HookContext<StaticResourceService>) => {
   const resource = await context.app.service(staticResourcePath).get(context.id!)
 
-  if (!resource) {
-    throw new NotFound('Unable to find specified resource id.')
-  }
-
   if (!resource.userId) {
     if (context.params?.provider) await verifyScope('admin', 'admin')(context as any)
   } else if (context.params?.provider && resource.userId !== context.params?.user?.id)
