@@ -60,10 +60,9 @@ const checkExistingScopes = async (context: HookContext<ScopeService>) => {
   }
 
   const data: ScopeData[] = Array.isArray(context.data) ? context.data : [context.data]
-  const queryParams = { userId: data[0].userId }
 
   const oldScopes = (await context.app.service(scopePath).find({
-    query: queryParams,
+    query: { userId: data[0].userId },
     paginate: false
   })) as any as ScopeType[]
 
