@@ -35,7 +35,7 @@ import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-anal
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
-import { Forbidden, NotFound } from '@feathersjs/errors'
+import { Forbidden } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import { getStorageProvider } from '../storageprovider/storageprovider'
