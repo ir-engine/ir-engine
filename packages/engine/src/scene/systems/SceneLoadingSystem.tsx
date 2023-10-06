@@ -91,6 +91,12 @@ export const createNewEditorNode = (
   componentJson: Array<ComponentJson>,
   parentEntity = getState(SceneState).sceneEntity as Entity
 ): void => {
+  if (componentJson.length === 0) {
+    componentJson.push({
+      name: 'Entity'
+    })
+  }
+
   const components = [
     ...componentJson,
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
