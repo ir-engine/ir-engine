@@ -400,7 +400,7 @@ function UVOL2Reactor() {
 
   const fetchGeometry = () => {
     const currentBufferLength = geometryBufferHealth.current - currentTime.current
-    if (currentBufferLength >= bufferThreshold || pendingGeometryRequests.current > 0) {
+    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingGeometryRequests.current > 0) {
       return
     }
     const target = component.geometryTarget.value
