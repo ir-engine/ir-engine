@@ -290,7 +290,7 @@ export default {
       addUserScopes,
       discard('scopes')
     ],
-    remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove, removeApiKey)]
+    remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
   },
 
   after: {
