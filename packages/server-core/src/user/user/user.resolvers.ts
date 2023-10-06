@@ -103,7 +103,7 @@ export const userResolver = resolve<UserType, HookContext>({
     })) as ScopeType[]
   }),
   instanceAttendance: virtual(async (user, context) => {
-    if (context.params.user?.id === context.arguments[0])
+    if (context.params.user?.id === context.id)
       return (await context.app.service(instanceAttendancePath).find({
         query: {
           userId: user.id,
@@ -128,6 +128,12 @@ export const userDataResolver = resolve<UserType, HookContext>({
   },
   name: async (name) => {
     return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)
+  },
+  inviteCode: async (inviteCode) => {
+    return inviteCode || Math.random().toString(36).slice(2)
+  },
+  avatar: async (inviteCode) => {
+    return inviteCode || undefined
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
