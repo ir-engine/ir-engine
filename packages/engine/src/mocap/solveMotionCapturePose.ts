@@ -56,7 +56,7 @@ import {
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { solveTwoBoneIK } from '../avatar/animation/TwoBoneIKSolver'
-import { V_010, V_100, V_111 } from '../common/constants/MathConstants'
+import { V_010, V_111 } from '../common/constants/MathConstants'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
@@ -248,7 +248,13 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     VRMHumanBoneName.LeftFoot
   )
 
-  solveHead(entity, landmarks[POSE_LANDMARKS.LEFT_EAR], landmarks[POSE_LANDMARKS.RIGHT_EAR])
+  solveHead(
+    entity,
+    landmarks[POSE_LANDMARKS.RIGHT_EAR],
+    landmarks[POSE_LANDMARKS.LEFT_EAR],
+    landmarks[POSE_LANDMARKS.LEFT_EYE_INNER],
+    landmarks[POSE_LANDMARKS.RIGHT_EYE_INNER]
+  )
 
   // if (!planeHelper1.parent) {
   //   Engine.instance.scene.add(planeHelper1)
@@ -577,23 +583,41 @@ export const solveFoot = (
   rig.localRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
-export const solveHead = (entity: Entity, leftEnd: NormalizedLandmark, rightEnd: NormalizedLandmark) => {
+const headRotation = new Quaternion()
+const leftEarVec3 = new Vector3()
+const rightEarVec3 = new Vector3()
+const eyeCenterVec3 = new Vector3()
+const parentRotation = new Quaternion()
+
+const rotate90degreesAroundXAxis = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
+
+export const solveHead = (
+  entity: Entity,
+  leftEar: NormalizedLandmark,
+  rightEar: NormalizedLandmark,
+  leftEye: NormalizedLandmark,
+  rightEye: NormalizedLandmark
+) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
-  const leftPos = new Vector3(leftEnd.x, leftEnd.y, leftEnd.z)
-  const rightPos = new Vector3(rightEnd.x, rightEnd.y, rightEnd.z)
-  const horizontalDirection = new Vector3().subVectors(leftPos, rightPos)
-  const parentRotation = rig.localRig[VRMHumanBoneName.Neck]!.node.getWorldQuaternion(new Quaternion())
-  const rotation = new Quaternion()
-    .setFromUnitVectors(V_100, horizontalDirection.normalize())
-    .premultiply(parentRotation.clone().invert())
+  leftEarVec3.set(leftEar.x, -leftEar.y, leftEar.z)
+  rightEarVec3.set(rightEar.x, -rightEar.y, rightEar.z)
+  eyeCenterVec3.addVectors(leftEye as Vector3, rightEye as Vector3).multiplyScalar(0.5)
+  eyeCenterVec3.y = -eyeCenterVec3.y
 
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].x[entity] = rotation.x
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].y[entity] = rotation.y
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].z[entity] = rotation.z
-  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].w[entity] = rotation.w
+  getQuaternionFromPointsAlongPlane(rightEarVec3, leftEarVec3, eyeCenterVec3, headRotation, false)
 
-  rig.localRig[VRMHumanBoneName.Head]?.node.quaternion.copy(rotation)
+  headRotation.multiply(rotate90degreesAroundXAxis)
+
+  rig.localRig[VRMHumanBoneName.Neck]!.node.getWorldQuaternion(parentRotation)
+  headRotation.premultiply(parentRotation.invert())
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].x[entity] = headRotation.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].y[entity] = headRotation.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].z[entity] = headRotation.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].w[entity] = headRotation.w
+
+  rig.localRig[VRMHumanBoneName.Head]?.node.quaternion.copy(headRotation)
 }
 
 const plane = new Plane()
@@ -615,6 +639,3 @@ const getQuaternionFromPointsAlongPlane = (
   rotationMatrix.makeBasis(directionVector, thirdVector, orthogonalVector)
   return target.setFromRotationMatrix(rotationMatrix)
 }
-
-// from vector is V_010
-// to vector is shoulderCenter minus hipcenter
