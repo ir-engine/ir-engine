@@ -177,7 +177,7 @@ export const sendInvite = async (app: Application, result: InviteType, params: I
       await generateSMS(app, result, token, inviteType, authUser.name, targetObjectId)
     } else if (result.inviteeId != null) {
       if (inviteType === 'friend') {
-        const existingRelationshipStatus = await app.service(userRelationshipPath)._find({
+        const existingRelationshipStatus = await app.service(userRelationshipPath).find({
           query: {
             $or: [
               {
