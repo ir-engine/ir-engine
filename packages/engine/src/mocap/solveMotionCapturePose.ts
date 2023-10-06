@@ -56,7 +56,7 @@ import {
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { solveTwoBoneIK } from '../avatar/animation/TwoBoneIKSolver'
-import { V_010, V_111 } from '../common/constants/MathConstants'
+import { V_010, V_100, V_111 } from '../common/constants/MathConstants'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
@@ -247,6 +247,8 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     VRMHumanBoneName.LeftUpperLeg,
     VRMHumanBoneName.LeftFoot
   )
+
+  solveHead(entity, landmarks[POSE_LANDMARKS.LEFT_EAR], landmarks[POSE_LANDMARKS.RIGHT_EAR])
 
   // if (!planeHelper1.parent) {
   //   Engine.instance.scene.add(planeHelper1)
@@ -573,6 +575,25 @@ export const solveFoot = (
   rig.localRig[extentTargetBoneName]?.node.quaternion.copy(extentQuaternionLocal)
 
   rig.localRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
+}
+
+export const solveHead = (entity: Entity, leftEnd: NormalizedLandmark, rightEnd: NormalizedLandmark) => {
+  const rig = getComponent(entity, AvatarRigComponent)
+
+  const leftPos = new Vector3(leftEnd.x, leftEnd.y, leftEnd.z)
+  const rightPos = new Vector3(rightEnd.x, rightEnd.y, rightEnd.z)
+  const horizontalDirection = new Vector3().subVectors(leftPos, rightPos)
+  const parentRotation = rig.localRig[VRMHumanBoneName.Neck]!.node.getWorldQuaternion(new Quaternion())
+  const rotation = new Quaternion()
+    .setFromUnitVectors(V_100, horizontalDirection.normalize())
+    .premultiply(parentRotation.clone().invert())
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].x[entity] = rotation.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].y[entity] = rotation.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].z[entity] = rotation.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].w[entity] = rotation.w
+
+  rig.localRig[VRMHumanBoneName.Head]?.node.quaternion.copy(rotation)
 }
 
 const plane = new Plane()
