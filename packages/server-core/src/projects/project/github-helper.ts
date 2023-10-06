@@ -40,6 +40,7 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
+import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import {
   IdentityProviderType,
@@ -52,7 +53,7 @@ import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { toDateTimeSql } from '../../util/datetime-sql'
+import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { createExecutorJob, getProjectPushJobBody } from './project-helper'
@@ -166,6 +167,7 @@ export const pushProject = async (
   user: UserType,
   reset = false,
   commitSHA?: string,
+  jobId?: string,
   storageProviderName?: string
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
@@ -249,7 +251,22 @@ export const pushProject = async (
         githubIdentityProvider.data[0].oauthToken,
         app
       )
+    if (jobId) {
+      const date = await getDateTimeSql()
+      await app.service(apiJobPath).patch(jobId, {
+        status: 'succeeded',
+        endTime: date
+      })
+    }
   } catch (err) {
+    if (jobId) {
+      const date = await getDateTimeSql()
+      await app.service(apiJobPath).patch(jobId, {
+        status: 'failed',
+        returnData: err.toString(),
+        endTime: date
+      })
+    }
     logger.error(err)
     throw err
   }
@@ -262,14 +279,28 @@ export const pushProjectToGithub = async (
   reset = false,
   commitSHA?: string,
   storageProviderName?: string,
-  isJob = false
+  isJob = false,
+  jobId = undefined
 ) => {
-  if (!config.kubernetes.enabled || isJob) return pushProject(app, project, user, reset, commitSHA, storageProviderName)
+  if (!config.kubernetes.enabled || isJob)
+    return pushProject(app, project, user, reset, commitSHA, jobId, storageProviderName)
   else {
     const projectName = project.name.toLowerCase()
-    const jobBody = await getProjectPushJobBody(app, project, user, reset, commitSHA)
+
+    const date = await getDateTimeSql()
+    const newJob = await app.service(apiJobPath).create({
+      name: '',
+      startTime: date,
+      endTime: date,
+      returnData: '',
+      status: 'pending'
+    })
+    const jobBody = await getProjectPushJobBody(app, project, user, reset, newJob.id, commitSHA)
+    await app.service(apiJobPath).patch(newJob.id, {
+      name: jobBody.metadata!.name
+    })
     const jobLabelSelector = `etherealengine/projectField=${project.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/projectPusher=true`
-    const jobFinishedPromise = createExecutorJob(app, jobBody, jobLabelSelector, PUSH_TIMEOUT)
+    const jobFinishedPromise = createExecutorJob(app, jobBody, jobLabelSelector, PUSH_TIMEOUT, newJob.id)
     try {
       await jobFinishedPromise
       return

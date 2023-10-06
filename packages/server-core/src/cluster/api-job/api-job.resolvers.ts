@@ -23,26 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type, querySyntax } from '@feathersjs/typebox'
-
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve, virtual } from '@feathersjs/schema'
 
-export const archiverPath = 'archiver'
+import { ApiJobQuery, ApiJobType } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export const archiverMethods = ['get'] as const
+import { v4 } from 'uuid'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const archiverQueryProperties = Type.Object({
-  directory: Type.Optional(Type.String()),
-  storageProviderName: Type.Optional(Type.String()),
-  isJob: Type.Optional(Type.Boolean()),
-  jobId: Type.Optional(Type.String())
+export const apiJobResolver = resolve<ApiJobType, HookContext>({
+  startTime: virtual(async (apiJob) => fromDateTimeSql(apiJob.startTime)),
+  endTime: virtual(async (apiJob) => fromDateTimeSql(apiJob.endTime)),
+  createdAt: virtual(async (apiJob) => fromDateTimeSql(apiJob.createdAt)),
+  updatedAt: virtual(async (apiJob) => fromDateTimeSql(apiJob.updatedAt))
 })
-export const archiverQuerySchema = Type.Intersect(
-  [
-    querySyntax(archiverQueryProperties),
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
-)
-export type ArchiverQuery = Static<typeof archiverQuerySchema>
+
+export const apiJobExternalResolver = resolve<ApiJobType, HookContext>({})
+
+export const apiJobDataResolver = resolve<ApiJobType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const apiJobPatchResolver = resolve<ApiJobType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const apiJobQueryResolver = resolve<ApiJobQuery, HookContext>({})

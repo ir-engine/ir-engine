@@ -57,17 +57,18 @@ const options = cli.parse({
   userId: [false, 'ID of user updating project', 'string'],
   reset: [false, 'Whether to force reset the project', 'string'],
   commitSHA: [false, 'Commit SHA to use for project', 'string'],
-  storageProviderName: [false, 'Storage provider name', 'string']
+  storageProviderName: [false, 'Storage provider name', 'string'],
+  jobId: [false, 'ID of Job record', 'string']
 })
 
 cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    const { userId, projectId, reset, commitSHA, storageProviderName } = options
+    const { userId, projectId, reset, commitSHA, storageProviderName, jobId } = options
     const user = await app.service(userPath).get(userId)
     const project = await app.service(projectPath)._get(projectId)
-    await pushProjectToGithub(app, project, user, reset, commitSHA, storageProviderName || undefined, true)
+    await pushProjectToGithub(app, project, user, reset, commitSHA, storageProviderName || undefined, true, jobId)
     cli.exit(0)
   } catch (err) {
     console.log(err)
