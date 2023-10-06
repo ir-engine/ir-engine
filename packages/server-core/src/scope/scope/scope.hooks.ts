@@ -34,7 +34,8 @@ import {
   scopePath,
   scopeQueryValidator
 } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { HookContext } from '@feathersjs/feathers'
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
@@ -46,30 +47,30 @@ import {
   scopeQueryResolver,
   scopeResolver
 } from '../../scope/scope/scope.resolvers'
-
-const ensureDataIsArray = async (context: HookContext) => {
-  if (!Array.isArray(context.data)) {
-    context.data = [context.data]
-  }
-}
+import { ScopeService } from './scope.class'
 
 /**
  * Check and maintain existing scopes
  * @param context
  * @returns
  */
-const checkExistingScopes = async (context: HookContext) => {
-  const queryParams = { userId: context.data[0].userId }
+const checkExistingScopes = async (context: HookContext<ScopeService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ScopeData[] = Array.isArray(context.data) ? context.data : [context.data]
+  const queryParams = { userId: data[0].userId }
 
   const oldScopes = (await context.app.service(scopePath).find({
     query: queryParams,
     paginate: false
-  })) as ScopeType[]
+  })) as any as ScopeType[]
 
   const existingData: ScopeData[] = []
   const createData: ScopeData[] = []
 
-  for (const item of context.data) {
+  for (const item of data) {
     const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
     if (existingScope) {
       existingData.push(existingScope)
@@ -86,9 +87,16 @@ const checkExistingScopes = async (context: HookContext) => {
   }
 }
 
-const addExistingScopes = async (context: HookContext) => {
+/**
+ * Append existing scopes with the newly created scopes
+ * @param context
+ * @returns
+ */
+const addExistingScopes = async (context: HookContext<ScopeService>) => {
   if (context.existingData?.length > 0) {
-    context.result = [...context.result, ...context.existingData]
+    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeType[]
+    result = [...result, ...context.existingData]
+    context.result = result
   }
 }
 
@@ -108,7 +116,6 @@ export default {
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
       () => schemaHooks.validateData(scopeDataValidator),
       schemaHooks.resolveData(scopeDataResolver),
-      ensureDataIsArray,
       checkExistingScopes
     ],
     update: [disallow()],
