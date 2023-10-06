@@ -23,9 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ApiJob from './api-job/api-job'
-import BuildStatus from './build-status/build-status'
-import LogsApi from './logs-api/logs-api'
-import Pods from './pods/pods'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 
-export default [LogsApi, BuildStatus, Pods, ApiJob]
+import {
+  ApiJobData,
+  ApiJobPatch,
+  ApiJobQuery,
+  ApiJobType
+} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import { RootParams } from '../../api/root-params'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ApiJobParams extends RootParams<ApiJobQuery> {}
+
+export class ApiJobService<T = ApiJobType, ServiceParams extends Params = ApiJobParams> extends KnexService<
+  ApiJobType,
+  ApiJobData,
+  ApiJobParams,
+  ApiJobPatch
+> {}
