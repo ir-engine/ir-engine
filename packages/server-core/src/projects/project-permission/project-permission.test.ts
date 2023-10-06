@@ -351,8 +351,8 @@ describe('project-permission.test', () => {
             projectId: project1.id,
             userId: 'abcdefg' as UserID,
             type: 'owner'
-          },
-          params
+          }
+          // params
         )) as any as ProjectPermissionType
         assert.strictEqual(update.type, 'owner')
         assert.strictEqual(update.userId, user2.id)

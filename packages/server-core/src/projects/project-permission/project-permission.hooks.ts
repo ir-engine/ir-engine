@@ -31,6 +31,7 @@ import verifyProjectOwner from '../../hooks/verify-project-owner'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import {
+  ProjectPermissionData,
   ProjectPermissionType,
   projectPermissionDataValidator,
   projectPermissionPatchValidator,
@@ -40,7 +41,8 @@ import {
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { HookContext, Paginated } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ProjectPermissionService } from './project-permission.class'
 import {
@@ -52,26 +54,38 @@ import {
 } from './project-permission.resolvers'
 
 const ensureInviteCode = async (context: HookContext<ProjectPermissionService>) => {
-  if (context.data.inviteCode && USER_ID_REGEX.test(context.data.inviteCode)) {
-    context.data.userId = context.data.inviteCode as UserID
-    delete context.data.inviteCode
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
-  if (context.data.userId && INVITE_CODE_REGEX.test(context.data.userId)) {
-    context.data.inviteCode = context.data.userId
-    delete context.data.userId
+
+  const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
+
+  if (data[0].inviteCode && USER_ID_REGEX.test(data[0].inviteCode)) {
+    context.data[0].userId = data[0].inviteCode as UserID
+    delete context.data[0].inviteCode
+  }
+  if (data[0].userId && INVITE_CODE_REGEX.test(data[0].userId)) {
+    context.data[0].inviteCode = data[0].userId
+    delete context.data[0].userId
   }
 }
 
-const checkExistingPermissions = async (context: HookContext) => {
+const checkExistingPermissions = async (context: HookContext<ProjectPermissionService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
+
   const selfUser = context.params!.user!
   //
   try {
-    const searchParam = context.data.inviteCode
+    const searchParam = data[0].inviteCode
       ? {
-          inviteCode: context.data.inviteCode
+          inviteCode: data[0].inviteCode
         }
       : {
-          id: context.data.userId
+          id: data[0].userId
         }
     const users = (await context.app.service(userPath).find({
       query: searchParam
@@ -79,27 +93,27 @@ const checkExistingPermissions = async (context: HookContext) => {
     if (users.data.length === 0) throw new BadRequest('Invalid user ID and/or user invite code')
     const existing = (await context.app.service(projectPermissionPath).find({
       query: {
-        projectId: context.data.projectId,
+        projectId: data[0].projectId,
         userId: users.data[0].id
       }
     })) as Paginated<ProjectPermissionType>
     if (existing.total > 0) context.result = existing.data[0]
-    const project = await context.app.service(projectPath).get(context.data.projectId!)
+    const project = await context.app.service(projectPath).get(data[0].projectId!)
 
     if (!project) throw new BadRequest('Invalid project ID')
     const existingPermissionsCount = (await context.app.service(projectPermissionPath).find({
       query: {
-        projectId: context.data.projectId
+        projectId: data[0].projectId
       },
       paginate: false
-    })) as ProjectPermissionType[]
-    delete context.data.inviteCode
+    })) as any as ProjectPermissionType[]
+    delete data[0].inviteCode
 
     context.data = {
       ...context.data,
       userId: users.data[0].id,
       type:
-        context.data.type === 'owner' ||
+        data[0].type === 'owner' ||
         existingPermissionsCount.length === 0 ||
         (selfUser.scopes?.find((scope) => scope.type === 'admin:admin') && selfUser.id === users.data[0].id)
           ? 'owner'
@@ -111,12 +125,14 @@ const checkExistingPermissions = async (context: HookContext) => {
   }
 }
 
-const checkUser = async (context: HookContext<ProjectPermissionService>) => {
-  if (!context.params.user) throw new BadRequest('User missing from request')
+const checkUserScopes = async (context: HookContext<ProjectPermissionService>) => {
+  if (!context.params.user) return false
+  if (context.params.user.scopes.find((scope) => scope.type === 'admin:admin')) return false
+  return true
 }
 
-const checkPermissionStatus = async (context: HookContext) => {
-  if (context.params.query.projectId) {
+const checkPermissionStatus = async (context: HookContext<ProjectPermissionService>) => {
+  if (context.params.query?.projectId) {
     const permissionStatus = (await context.service._find({
       query: {
         projectId: context.params.query.projectId,
@@ -132,15 +148,22 @@ const checkPermissionStatus = async (context: HookContext) => {
 const ensureOwnership = async (context: HookContext<ProjectPermissionService>) => {
   const loggedInUser = context.params!.user!
   if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return context
-  if (context.result.userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectPermissionType[]
+  if (result[0].userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
 }
 
-const ensureUserInPatch = async (context: HookContext) => {
-  context.params = { ...context.params, query: { type: context.data.type === 'owner' ? 'owner' : 'user' } }
+const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>) => {
+  if (!context.data || context.method !== 'patch') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
+  context.data = { type: data[0].type === 'owner' ? 'owner' : 'user' }
 }
 
-const makeRandomProjectOwner = async (context: HookContext) => {
-  if (context.id && context.result) await context.service.makeRandomProjectOwnerIfNone(context.result.projectId)
+const makeRandomProjectOwner = async (context: HookContext<ProjectPermissionService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectPermissionType[]
+  if (context.id && context.result) await context.service.makeRandomProjectOwnerIfNone(result[0].projectId)
 }
 
 export default {
@@ -157,13 +180,7 @@ export default {
       () => schemaHooks.validateQuery(projectPermissionQueryValidator),
       schemaHooks.resolveQuery(projectPermissionQueryResolver)
     ],
-    find: [
-      checkUser,
-      iff(
-        (context) => context.params.user && !context.params.user.scopes?.find((scope) => scope.type === 'admin:admin'),
-        checkPermissionStatus
-      )
-    ],
+    find: [iff(checkUserScopes, checkPermissionStatus)],
     get: [],
     create: [
       iff(isProvider('external'), verifyProjectOwner()),
@@ -177,7 +194,7 @@ export default {
       iff(isProvider('external'), verifyProjectOwner()),
       () => schemaHooks.validateData(projectPermissionPatchValidator),
       schemaHooks.resolveData(projectPermissionPatchResolver),
-      ensureUserInPatch
+      ensureTypeInPatch
     ],
     remove: [iff(isProvider('external'), verifyProjectOwner())]
   },

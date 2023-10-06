@@ -236,7 +236,7 @@ const createAndUploadProject = async (context: HookContext) => {
 
   await uploadLocalProjectToProvider(context.service, projectName, false)
 
-  context.data = { name: projectName, needsRebuild: true }
+  context.data = { ...context.data, name: projectName, needsRebuild: true }
 }
 
 const linkGithubToProject = async (context: HookContext) => {
@@ -317,7 +317,7 @@ const removeLocationFromProject = async (context: HookContext) => {
   await context.app.service(locationPath).remove(null, {
     query: {
       sceneId: {
-        $like: `${name}/%`
+        $like: `${context.name}/%`
       }
     }
   })
@@ -326,7 +326,7 @@ const removeLocationFromProject = async (context: HookContext) => {
 const removeRouteFromProject = async (context: HookContext) => {
   await context.app.service(routePath).remove(null, {
     query: {
-      project: name
+      project: context.name
     }
   })
 }
@@ -334,7 +334,7 @@ const removeRouteFromProject = async (context: HookContext) => {
 const removeAvatarsFromProject = async (context: HookContext) => {
   const avatarItems = (await context.app.service(avatarPath).find({
     query: {
-      project: name
+      project: context.name
     },
     paginate: false
   })) as AvatarType[]
@@ -349,7 +349,7 @@ const removeAvatarsFromProject = async (context: HookContext) => {
 const removeStaticResourcesFromProject = async (context: HookContext) => {
   const staticResourceItems = (await context.app.service(staticResourcePath).find({
     query: {
-      project: name
+      project: context.name
     },
     paginate: false
   })) as StaticResourceType[]
