@@ -50,7 +50,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(userRelationshipPath, new UserRelationshipService(options, app), {
+  app.use(userRelationshipPath, new UserRelationshipService(options), {
     // A list of all methods this service exposes externally
     methods: userRelationshipMethods,
     // You can add additional custom events to be sent to clients here
@@ -63,7 +63,7 @@ export default (app: Application): void => {
 
   service.publish('created', async (data: UserRelationshipType): Promise<any> => {
     try {
-      const inverseRelationship = await app.service(userRelationshipPath)._find({
+      const inverseRelationship = await app.service(userRelationshipPath).find({
         query: {
           relatedUserId: data.userId,
           userId: data.relatedUserId
@@ -85,7 +85,7 @@ export default (app: Application): void => {
 
   service.publish('patched', async (data: UserRelationshipType): Promise<any> => {
     try {
-      const inverseRelationship = await app.service(userRelationshipPath)._find({
+      const inverseRelationship = await app.service(userRelationshipPath).find({
         query: {
           relatedUserId: data.userId,
           userId: data.relatedUserId
