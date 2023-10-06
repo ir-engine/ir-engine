@@ -117,19 +117,6 @@ const setColors = (image: HTMLImageElement) => {
   }
 }
 
-const blurTexture = (texture: Texture, blur = 4) => {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
-  canvas.width = texture.image.width
-  canvas.height = texture.image.height
-  ctx.drawImage(texture.image, 0, 0)
-  ctx.filter = `blur(${blur}px)`
-  ctx.drawImage(canvas, 0, 0)
-  texture.image = canvas
-  texture.needsUpdate = true
-  return texture
-}
-
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
   const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
@@ -156,9 +143,7 @@ function LoadingReactor() {
   /** Scene data changes */
   useEffect(() => {
     if (!sceneData.value) return
-    const envmapURL = sceneData.value.thumbnailUrl
-      .replace('thumbnail.jpeg', 'envmap.png')
-      .replace('thumbnail.ktx2', 'envmap.ktx2')
+    const envmapURL = sceneData.value.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()
@@ -168,16 +153,14 @@ function LoadingReactor() {
         envmapURL,
         {},
         (texture: Texture | CompressedTexture) => {
+          mesh.material.map = texture
           const compressedTexture = texture as CompressedTexture
           if (compressedTexture.isCompressedTexture) {
             try {
               createReadableTexture(compressedTexture).then((texture: Texture) => {
                 const image = texture.image
-                blurTexture(texture)
-                mesh.material.map = texture
-                texture.needsUpdate = true
                 setColors(image)
-                compressedTexture.dispose()
+                texture.dispose()
               })
             } catch (e) {
               console.error(e)
@@ -185,9 +168,6 @@ function LoadingReactor() {
             }
           } else {
             const image = texture.image
-            blurTexture(texture)
-            mesh.material.map = texture
-            texture.needsUpdate = true
             setColors(image)
           }
         },

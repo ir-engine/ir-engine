@@ -23,35 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { userApiKeyMethods, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { HookContext } from '@feathersjs/feathers'
 
-import { Application } from '../../../declarations'
-import { UserApiKeyService } from './user-api-key.class'
-import userApiKeyDocs from './user-api-key.docs'
-import hooks from './user-api-key.hooks'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [userApiKeyPath]: UserApiKeyService
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { Application } from '../../declarations'
+
+export default (currentType: string, scopeToVerify: string) => {
+  return async (context: HookContext<Application>) => {
+    if (context.params.isInternal) return true
+    const loggedInUser = context.params.user as UserType
+    if (!loggedInUser || !loggedInUser.id) return false
+    const scopes = (await context.app.service(scopePath).find({
+      query: {
+        userId: loggedInUser.id
+      },
+      paginate: false
+    })) as ScopeType[]
+    if (!scopes || scopes.length === 0) return false
+
+    const currentScopes = scopes.reduce<string[]>((result, sc) => {
+      if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
+      return result
+    }, [])
+    if (!currentScopes.includes(scopeToVerify)) {
+      return false
+    }
+    return true
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    name: userApiKeyPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(userApiKeyPath, new UserApiKeyService(options), {
-    // A list of all methods this service exposes externally
-    methods: userApiKeyMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: userApiKeyDocs
-  })
-
-  const service = app.service(userApiKeyPath)
-  service.hooks(hooks)
 }

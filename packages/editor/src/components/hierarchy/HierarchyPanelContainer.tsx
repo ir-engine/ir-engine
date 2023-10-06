@@ -32,7 +32,6 @@ import { FixedSizeList, areEqual } from 'react-window'
 import { Object3D } from 'three'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
@@ -543,11 +542,9 @@ export default function HierarchyPanel({
           </div>
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
-        {Engine.instance.scene && (
-          <div style={{ height: '100%' }}>
-            <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
-          </div>
-        )}
+        <div style={{ height: '100%', width: '100%' }}>
+          <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
+        </div>
         <Button
           variant="contained"
           // TODO see why we have to specify capitalize here

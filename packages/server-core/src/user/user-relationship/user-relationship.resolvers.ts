@@ -38,17 +38,18 @@ import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const userRelationshipResolver = resolve<UserRelationshipType, HookContext>({
+  createdAt: virtual(async (userRelationship) => fromDateTimeSql(userRelationship.createdAt)),
+  updatedAt: virtual(async (userRelationship) => fromDateTimeSql(userRelationship.updatedAt))
+})
+
+export const userRelationshipExternalResolver = resolve<UserRelationshipType, HookContext>({
   user: virtual(async (userRelationship, context) => {
     if (userRelationship.userId) return await context.app.service(userPath)._get(userRelationship.userId)
   }),
   relatedUser: virtual(async (userRelationship, context) => {
     if (userRelationship.relatedUserId) return await context.app.service(userPath)._get(userRelationship.relatedUserId)
-  }),
-  createdAt: virtual(async (userRelationship) => fromDateTimeSql(userRelationship.createdAt)),
-  updatedAt: virtual(async (userRelationship) => fromDateTimeSql(userRelationship.updatedAt))
+  })
 })
-
-export const userRelationshipExternalResolver = resolve<UserRelationshipType, HookContext>({})
 
 export const userRelationshipDataResolver = resolve<UserRelationshipType, HookContext>({
   id: async () => {

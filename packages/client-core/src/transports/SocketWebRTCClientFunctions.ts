@@ -236,6 +236,8 @@ export const connectToNetwork = async (
   channelId?: ChannelID | null,
   roomCode?: string | null
 ) => {
+  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationId, channelId, roomCode })
+
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
 
