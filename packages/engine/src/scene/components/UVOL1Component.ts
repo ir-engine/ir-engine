@@ -38,7 +38,6 @@ import {
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AudioState } from '../../audio/AudioState'
-import { AvatarDissolveComponent } from '../../avatar/components/AvatarDissolveComponent'
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -56,6 +55,7 @@ import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
+import { UVOLDissolveComponent } from './UVOLDissolveComponent'
 import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
 
 const decodeCorto = (url: string, start: number, end: number) => {
@@ -89,14 +89,13 @@ export const UVOL1Component = defineComponent({
     return {
       manifestPath: '',
       data: {} as ManifestSchema,
-      loadingEffectStarted: false
+      firstGeometryFrameLoaded: false,
+      loadingEffectStarted: false,
+      loadingEffectEnded: false
     }
   },
 
   onSet: (entity, component, json) => {
-    if (!hasComponent(entity, AvatarDissolveComponent)) {
-      setComponent(entity, AvatarDissolveComponent)
-    }
     if (!json) return
     if (json.manifestPath) {
       component.manifestPath.set(json.manifestPath)
@@ -156,8 +155,9 @@ function UVOL1Reactor() {
       loader.preload()
       Engine.instance.cortoLoader = loader
     }
-    const dissolveComponent = getMutableComponent(entity, AvatarDissolveComponent)
-    dissolveComponent.maxHeight.set(2.4)
+    if (volumetric.useLoadingEffect.value) {
+      setComponent(entity, UVOLDissolveComponent)
+    }
 
     video.src = component.manifestPath.value.replace('.manifest', '.mp4')
     video.load()
@@ -177,20 +177,57 @@ function UVOL1Reactor() {
   }, [])
 
   useEffect(() => {
+    if (component.loadingEffectStarted.value && !component.loadingEffectEnded.value) {
+      // Loading effect in progress. Let it finish
+      return
+    }
     // If autoplay is enabled, play the video irrespective of paused state
     if (volumetric.autoplay.value && volumetric.initialBuffersLoaded.value) {
-      addObjectToGroup(entity, mesh)
       handleAutoplay(audioContext, video, volumetric)
     }
-  }, [volumetric.autoplay, volumetric.initialBuffersLoaded])
+  }, [volumetric.autoplay, volumetric.initialBuffersLoaded, component.loadingEffectEnded])
 
   useEffect(() => {
     if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
       video.pause()
       return
     }
+    if (mesh.material !== material) {
+      mesh.material = material
+      mesh.material.needsUpdate = true
+    }
     handleAutoplay(audioContext, video, volumetric)
   }, [volumetric.paused])
+
+  useEffect(() => {
+    let timer = -1
+
+    const prepareMesh = () => {
+      if (video.buffered.length === 0) {
+        // Video is not loaded yet,
+        // wait for a bit and try again
+        clearTimeout(timer)
+        timer = window.setTimeout(prepareMesh, 200)
+        return
+      }
+
+      mesh.geometry = meshBuffer.get(0)!
+      mesh.geometry.attributes.position.needsUpdate = true
+
+      EngineRenderer.instance.renderer.initTexture(videoTexture)
+      videoTexture.needsUpdate = true
+
+      if (volumetric.useLoadingEffect.value) {
+        mesh.material = UVOLDissolveComponent.createDissolveMaterial(mesh)
+        mesh.material.needsUpdate = true
+        component.loadingEffectStarted.set(true)
+      }
+
+      addObjectToGroup(entity, mesh)
+    }
+
+    prepareMesh()
+  }, [component.firstGeometryFrameLoaded])
 
   useVideoFrameCallback(video, (now, metadata) => {
     if (!metadata) return
@@ -198,7 +235,7 @@ function UVOL1Reactor() {
      * sync mesh frame to video texture frame
      */
     const processFrame = (frameToPlay: number) => {
-      if (mesh.material instanceof ShaderMaterial && !hasComponent(entity, AvatarDissolveComponent)) {
+      if (mesh.material instanceof ShaderMaterial && !hasComponent(entity, UVOLDissolveComponent)) {
         const oldMaterial = mesh.material
         mesh.material = material
         mesh.material.needsUpdate = true
@@ -224,21 +261,17 @@ function UVOL1Reactor() {
     () => {
       const delta = getState(EngineState).deltaSeconds
 
-      if (video.buffered.length > 0 && meshBuffer.size > 0) {
-        if (volumetric.useLoadingEffect.value) {
-          if (hasComponent(entity, AvatarDissolveComponent)) {
-            if (!component.loadingEffectStarted.value) {
-              videoTexture.needsUpdate = true
-              EngineRenderer.instance.renderer.initTexture(videoTexture)
-              mesh.material = AvatarDissolveComponent.createDissolveMaterial(mesh)
-              mesh.material.needsUpdate = true
-              component.loadingEffectStarted.set(true)
-              addObjectToGroup(entity, mesh)
-            } else if (AvatarDissolveComponent.updateDissolveEffect([mesh.material as ShaderMaterial], entity, delta)) {
-              removeComponent(entity, AvatarDissolveComponent)
-            }
-          }
-        }
+      // @ts-ignore
+      if (
+        component.loadingEffectStarted.value &&
+        !component.loadingEffectEnded.value &&
+        UVOLDissolveComponent.updateDissolveEffect(entity, mesh, delta)
+      ) {
+        removeComponent(entity, UVOLDissolveComponent)
+        mesh.material = material
+        mesh.material.needsUpdate = true
+        component.loadingEffectEnded.set(true)
+        return
       }
 
       const numberOfFrames = component.data.value.frameData.length
@@ -267,11 +300,8 @@ function UVOL1Reactor() {
               meshBuffer.set(i, geometry)
               pendingRequests.current -= 1
 
-              if (mesh.geometry instanceof PlaneGeometry) {
-                // Setting the first frame to mesh.geometry, so that
-                // Loading effect uses this geometry
-                mesh.geometry = geometry
-                mesh.geometry.attributes.position.needsUpdate = true
+              if (i === 0) {
+                component.firstGeometryFrameLoaded.set(true)
               }
             })
             .catch((e) => {

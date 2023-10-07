@@ -41,7 +41,13 @@ import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getMutableComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { AnimationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useExecute } from '../../ecs/functions/SystemFunctions'
@@ -59,6 +65,7 @@ import {
 import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
+import { UVOLDissolveComponent } from './UVOLDissolveComponent'
 import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
 
 export const calculatePriority = (manifest: PlayerManifest) => {
@@ -106,7 +113,11 @@ export const UVOL2Component = defineComponent({
       geometryTarget: '',
       textureTarget: '',
       initialGeometryBuffersLoaded: false,
-      initialTextureBuffersLoaded: false
+      initialTextureBuffersLoaded: false,
+      firstGeometryFrameLoaded: false,
+      firstTextureFrameLoaded: false,
+      loadingEffectStarted: false,
+      loadingEffectEnded: false
     }
   },
 
@@ -144,7 +155,6 @@ const loadGeometryAsync = (url: string, targetData: DRACOTarget | GLBTarget | Un
 const uniformSolveVertexShader = `
 #include <common>
 #include <logdepthbuf_pars_vertex>
-#include <clipping_planes_pars_vertex>
 out vec2 vMapUv;
 
 attribute vec4 keyframeA;
@@ -154,9 +164,15 @@ uniform float mixRatio;
 uniform vec2 repeat;
 uniform vec2 offset;
 
+// HEADER_REPLACE_START
+// HEADER_REPLACE_END
+
 
 void main() {
-   vMapUv = uv * repeat + offset; 
+  // MAIN_REPLACE_START
+  // MAIN_REPLACE_END
+
+   vMapUv = uv * repeat + offset;
 
    vec4 localPosition = vec4(position, 1.0);
 
@@ -166,30 +182,25 @@ void main() {
 
    gl_Position = projectionMatrix * modelViewMatrix * localPosition;
    #include <logdepthbuf_vertex>
-   #include <fog_vertex>
 }`
 
 const uniformSolveFragmentShader = `
-#define OPAQUE
+#include <common>
 #include <logdepthbuf_pars_fragment>
 
 in vec2 vMapUv;
 uniform sampler2D map;
 
-#include <clipping_planes_pars_fragment>
+// HEADER_REPLACE_START
+// HEADER_REPLACE_END
 
 void main() {
   vec4 color = texture2D(map, vMapUv);
-  
-  /**
-   * We can directly pass color to gl_FragColor,
-   * but AvatarDissolveComponent expects output_fragment
-   * in the fragment shader.
-   */
-  vec3 outgoingLight = color.rgb;
-  vec4 diffuseColor = vec4(1);
-  #include <output_fragment>
-  
+  gl_FragColor = color;
+
+  // MAIN_REPLACE_START
+  // MAIN_REPLACE_END
+
   #include <logdepthbuf_fragment>
 }`
 
@@ -277,7 +288,6 @@ function UVOL2Reactor() {
             value: 0
           },
           map: {
-            // TODO: Change this to a dummy texture, if any trouble arises
             value: null
           }
         }
@@ -306,17 +316,29 @@ function UVOL2Reactor() {
   const currentTime = useRef(0) // in seconds
 
   useEffect(() => {
+    if (volumetric.useLoadingEffect.value) {
+      setComponent(entity, UVOLDissolveComponent)
+    }
+
     manifest.current = calculatePriority(component.data.get({ noproxy: true }))
     component.data.set(manifest.current)
     geometryTargets.current = Object.keys(manifest.current.geometry.targets)
+    geometryTargets.current.sort((a, b) => {
+      return manifest.current.geometry.targets[a].priority - manifest.current.geometry.targets[b].priority
+    })
+
     textureTargets.current = Object.keys(manifest.current.texture.baseColor.targets)
+    textureTargets.current.sort((a, b) => {
+      return (
+        manifest.current.texture.baseColor.targets[a].priority - manifest.current.texture.baseColor.targets[b].priority
+      )
+    })
 
     if (manifest.current.audio) {
       component.hasAudio.set(true)
       audio.src = resolvePath(manifest.current.audio.path, manifestPath, manifest.current.audio.formats[0])
       audio.playbackRate = manifest.current.audio.playbackRate
     }
-    // addObjectToGroup(entity, group)
     component.geometryTarget.set(geometryTargets.current[0])
     component.textureTarget.set(textureTargets.current[0])
     const intervalId = setInterval(bufferLoop, 3000)
@@ -358,8 +380,7 @@ function UVOL2Reactor() {
         geometryBufferHealth.current += 1 / targetData.frameRate
         pendingGeometryRequests.current--
         if (i === 0) {
-          setGeometry(target, 0)
-          addObjectToGroup(entity, group)
+          component.firstGeometryFrameLoaded.set(true)
         }
       })
     }
@@ -389,7 +410,7 @@ function UVOL2Reactor() {
           repeat.copy((model.material as MeshStandardMaterial).map?.repeat ?? repeat)
           offset.copy((model.material as MeshStandardMaterial).map?.offset ?? offset)
           mesh.material = material
-          addObjectToGroup(entity, group)
+          component.firstGeometryFrameLoaded.set(true)
         }
 
         geometryBufferHealth.current += segmentDuration
@@ -472,7 +493,7 @@ function UVOL2Reactor() {
           component.initialTextureBuffersLoaded.set(true)
         }
         if (i === 0) {
-          setTexture(target, 0)
+          component.firstTextureFrameLoaded.set(true)
         }
       })
     }
@@ -483,27 +504,63 @@ function UVOL2Reactor() {
     fetchTextures()
     const canPlay = geometryBufferHealth.current >= minBufferToPlay && textureBufferHealth.current >= minBufferToPlay
     if (canPlay && !volumetric.initialBuffersLoaded.value) {
-      addObjectToGroup(entity, group)
       volumetric.initialBuffersLoaded.set(true)
     }
   }
 
   useEffect(() => {
+    if (!component.firstGeometryFrameLoaded.value || !component.firstTextureFrameLoaded.value) {
+      return
+    }
+    setGeometry(component.geometryTarget.value, 0)
+    setTexture(component.textureTarget.value, 0)
+
+    if (volumetric.useLoadingEffect.value) {
+      const headerTemplate = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
+      const mainTemplate = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
+
+      mesh.material = UVOLDissolveComponent.createDissolveMaterial(
+        mesh,
+        headerTemplate,
+        mainTemplate,
+        headerTemplate,
+        mainTemplate
+      )
+      mesh.material.needsUpdate = true
+      component.loadingEffectStarted.set(true)
+    }
+
+    addObjectToGroup(entity, group)
+  }, [component.firstGeometryFrameLoaded, component.firstTextureFrameLoaded])
+
+  useEffect(() => {
+    if (component.loadingEffectStarted.value && !component.loadingEffectEnded.value) {
+      // Loading effect in progress. Let it finish
+      return
+    }
     // If autoplay is enabled, play the audio irrespective of paused state
     if (volumetric.autoplay.value && volumetric.initialBuffersLoaded.value) {
+      // Reset the loading effect's material
+      mesh.material = material
+      mesh.material.needsUpdate = true
+
       if (component.hasAudio.value) {
         handleAutoplay(audioContext, audio, volumetric)
       } else {
         volumetric.paused.set(false)
       }
     }
-  }, [volumetric.autoplay, volumetric.initialBuffersLoaded])
+  }, [volumetric.autoplay, volumetric.initialBuffersLoaded, component.loadingEffectEnded])
 
   useEffect(() => {
     if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
       if (component.hasAudio.value) {
         audio.pause()
       }
+    }
+    if (mesh.material !== material) {
+      mesh.material = material
+      mesh.material.needsUpdate = true
     }
     if (component.hasAudio.value) {
       handleAutoplay(audioContext, audio, volumetric)
@@ -637,6 +694,8 @@ function UVOL2Reactor() {
         if (mesh.material.uniforms.map.value !== texture) {
           mesh.material.uniforms.map.value = texture
           mesh.material.uniforms.map.value.needsUpdate = true
+          texture.repeat.copy(repeat)
+          texture.offset.copy(offset)
           mesh.material.uniforms.repeat.value = repeat
           mesh.material.uniforms.offset.value = offset
           textureBuffer.delete(oldTextureKey)
@@ -689,6 +748,20 @@ function UVOL2Reactor() {
 
   const update = () => {
     const delta = getState(EngineState).deltaSeconds
+
+    // @ts-ignore
+    if (
+      component.loadingEffectStarted.value &&
+      !component.loadingEffectEnded.value &&
+      UVOLDissolveComponent.updateDissolveEffect(entity, mesh, delta)
+    ) {
+      removeComponent(entity, UVOLDissolveComponent)
+      component.loadingEffectEnded.set(true)
+      mesh.material = material
+      mesh.material.needsUpdate = true
+      return
+    }
+
     if (volumetric.paused.value || !volumetric.initialBuffersLoaded.value) {
       return
     }
@@ -701,7 +774,6 @@ function UVOL2Reactor() {
       volumetric.ended.set(true)
       return
     }
-    console.log('BufferSizes: ', geometryBuffer.size, textureBuffer.size)
 
     if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
       updateUniformSolve(currentTime.current)
