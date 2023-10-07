@@ -40,7 +40,6 @@ import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInpu
 import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
-  AvatarInputSettingsAction,
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
@@ -133,11 +132,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {
-    dispatchAction(
-      AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
-        invertRotationAndMoveSticks: !invertRotationAndMoveSticks
-      })
-    )
+    getMutableState(AvatarInputSettingsState).invertRotationAndMoveSticks.set((value) => !value)
   }
 
   useLayoutEffect(() => {
@@ -258,11 +253,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-left-control-scheme')}
                       value={leftAxesControlScheme}
                       menu={controlSchemesMenu}
-                      onChange={(event) => {
-                        dispatchAction(
-                          AvatarInputSettingsAction.setLeftAxesControlScheme({ scheme: event.target.value })
-                        )
-                      }}
+                      onChange={(event) =>
+                        getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(event.target.value)
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -270,11 +263,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-right-control-scheme')}
                       value={rightAxesControlScheme}
                       menu={controlSchemesMenu}
-                      onChange={(event) => {
-                        dispatchAction(
-                          AvatarInputSettingsAction.setRightAxesControlScheme({ scheme: event.target.value })
-                        )
-                      }}
+                      onChange={(event) =>
+                        getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(event.target.value)
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -283,7 +274,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       value={preferredHand}
                       menu={handOptionsMenu}
                       onChange={(event) =>
-                        dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: event.target.value }))
+                        getMutableState(AvatarInputSettingsState).preferredHand.set(event.target.value)
                       }
                     />
                   </Grid>
