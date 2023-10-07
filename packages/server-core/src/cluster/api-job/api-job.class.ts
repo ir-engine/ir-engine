@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
+import type { Params } from '@feathersjs/feathers'
 import { KnexService } from '@feathersjs/knex'
 
-import { ScopeData, ScopePatch, ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-
+import {
+  ApiJobData,
+  ApiJobPatch,
+  ApiJobQuery,
+  ApiJobType
+} from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ScopeParams extends RootParams<ScopeQuery> {}
+export interface ApiJobParams extends RootParams<ApiJobQuery> {}
 
-/**
- * A class for Scope service
- */
-
-export class ScopeService<T = ScopeType, ServiceParams extends Params = ScopeParams> extends KnexService<
-  ScopeType | ScopeData,
-  ScopeData,
-  ScopeParams,
-  ScopePatch
+export class ApiJobService<T = ApiJobType, ServiceParams extends Params = ApiJobParams> extends KnexService<
+  ApiJobType,
+  ApiJobData,
+  ApiJobParams,
+  ApiJobPatch
 > {}

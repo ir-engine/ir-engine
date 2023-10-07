@@ -23,23 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { apiJobMethods, apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 
-import { ScopeData, ScopePatch, ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { Application } from '../../../declarations'
+import { ApiJobService } from './api-job.class'
+import apiJobDocs from './api-job.docs'
+import hooks from './api-job.hooks'
 
-import { RootParams } from '../../api/root-params'
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [apiJobPath]: ApiJobService
+  }
+}
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ScopeParams extends RootParams<ScopeQuery> {}
+export default (app: Application): void => {
+  const options = {
+    name: apiJobPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
 
-/**
- * A class for Scope service
- */
+  app.use(apiJobPath, new ApiJobService(options), {
+    // A list of all methods this service exposes externally
+    methods: apiJobMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: apiJobDocs
+  })
 
-export class ScopeService<T = ScopeType, ServiceParams extends Params = ScopeParams> extends KnexService<
-  ScopeType | ScopeData,
-  ScopeData,
-  ScopeParams,
-  ScopePatch
-> {}
+  const service = app.service(apiJobPath)
+  service.hooks(hooks)
+}

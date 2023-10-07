@@ -34,7 +34,8 @@ export const archiverMethods = ['get'] as const
 export const archiverQueryProperties = Type.Object({
   directory: Type.Optional(Type.String()),
   storageProviderName: Type.Optional(Type.String()),
-  isJob: Type.Optional(Type.Boolean())
+  isJob: Type.Optional(Type.Boolean()),
+  jobId: Type.Optional(Type.String())
 })
 export const archiverQuerySchema = Type.Intersect(
   [

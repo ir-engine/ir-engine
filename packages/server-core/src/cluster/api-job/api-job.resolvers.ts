@@ -25,21 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve, virtual } from '@feathersjs/schema'
-import { v4 } from 'uuid'
 
-import { ScopeQuery, ScopeType } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { ApiJobQuery, ApiJobType } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { v4 } from 'uuid'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const scopeResolver = resolve<ScopeType, HookContext>({})
-
-export const scopeExternalResolver = resolve<ScopeType, HookContext>({
-  createdAt: virtual(async (scope) => fromDateTimeSql(scope.createdAt)),
-  updatedAt: virtual(async (scope) => fromDateTimeSql(scope.updatedAt))
+export const apiJobResolver = resolve<ApiJobType, HookContext>({
+  startTime: virtual(async (apiJob) => fromDateTimeSql(apiJob.startTime)),
+  endTime: virtual(async (apiJob) => fromDateTimeSql(apiJob.endTime)),
+  createdAt: virtual(async (apiJob) => fromDateTimeSql(apiJob.createdAt)),
+  updatedAt: virtual(async (apiJob) => fromDateTimeSql(apiJob.updatedAt))
 })
 
-export const scopeDataResolver = resolve<ScopeType, HookContext>({
+export const apiJobExternalResolver = resolve<ApiJobType, HookContext>({})
+
+export const apiJobDataResolver = resolve<ApiJobType, HookContext>({
   id: async () => {
     return v4()
   },
@@ -47,8 +49,8 @@ export const scopeDataResolver = resolve<ScopeType, HookContext>({
   updatedAt: getDateTimeSql
 })
 
-export const scopePatchResolver = resolve<ScopeType, HookContext>({
+export const apiJobPatchResolver = resolve<ApiJobType, HookContext>({
   updatedAt: getDateTimeSql
 })
 
-export const scopeQueryResolver = resolve<ScopeQuery, HookContext>({})
+export const apiJobQueryResolver = resolve<ApiJobQuery, HookContext>({})

@@ -24,58 +24,64 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
-import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import { TypedString } from '../../common/types/TypeboxUtils'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { dataValidator, queryValidator } from '../validators'
 
-export const scopePath = 'scope'
+export const apiJobPath = 'api-job'
 
-export const scopeMethods = ['create', 'find', 'remove'] as const
+export const apiJobMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const scopeSchema = Type.Object(
+export const apiJobSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
-    type: Type.String(),
-    userId: TypedString<UserID>({
-      format: 'uuid'
-    }),
+    name: Type.String(),
+    startTime: Type.String({ format: 'date-time' }),
+    endTime: Type.String({ format: 'date-time' }),
+    status: Type.String(),
+    returnData: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'Scope', additionalProperties: false }
+  { $id: 'ApiJob', additionalProperties: false }
 )
-export type ScopeType = Static<typeof scopeSchema>
+export type ApiJobType = Static<typeof apiJobSchema>
 
 // Schema for creating new entries
-export const scopeDataSchema = Type.Pick(scopeSchema, ['type', 'userId'], {
-  $id: 'ScopeData'
+export const apiJobDataSchema = Type.Pick(apiJobSchema, ['name', 'startTime', 'endTime', 'status', 'returnData'], {
+  $id: 'ApiJobData'
 })
-export type ScopeData = Static<typeof scopeDataSchema>
+export type ApiJobData = Static<typeof apiJobDataSchema>
 
 // Schema for updating existing entries
-export const scopePatchSchema = Type.Partial(scopeSchema, {
-  $id: 'ScopePatch'
+export const apiJobPatchSchema = Type.Partial(apiJobSchema, {
+  $id: 'ApiJobPatch'
 })
-export type ScopePatch = Static<typeof scopePatchSchema>
+export type ApiJobPatch = Static<typeof apiJobPatchSchema>
 
 // Schema for allowed query properties
-export const scopeQueryProperties = Type.Pick(scopeSchema, ['id', 'type', 'userId'])
-export const scopeQuerySchema = Type.Intersect(
+export const apiJobQueryProperties = Type.Pick(apiJobSchema, [
+  'id',
+  'name',
+  'startTime',
+  'endTime',
+  'status',
+  'returnData'
+])
+export const apiJobQuerySchema = Type.Intersect(
   [
-    querySyntax(scopeQueryProperties),
+    querySyntax(apiJobQueryProperties),
     // Add additional query properties here
-    Type.Object({ paginate: Type.Optional(Type.Boolean()) }, { additionalProperties: false })
+    Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type ScopeQuery = Static<typeof scopeQuerySchema>
+export type ApiJobQuery = Static<typeof apiJobQuerySchema>
 
-export const scopeValidator = getValidator(scopeSchema, dataValidator)
-export const scopeDataValidator = getValidator(scopeDataSchema, dataValidator)
-export const scopePatchValidator = getValidator(scopePatchSchema, dataValidator)
-export const scopeQueryValidator = getValidator(scopeQuerySchema, queryValidator)
+export const apiJobValidator = getValidator(apiJobSchema, dataValidator)
+export const apiJobDataValidator = getValidator(apiJobDataSchema, dataValidator)
+export const apiJobPatchValidator = getValidator(apiJobPatchSchema, dataValidator)
+export const apiJobQueryValidator = getValidator(apiJobQuerySchema, queryValidator)

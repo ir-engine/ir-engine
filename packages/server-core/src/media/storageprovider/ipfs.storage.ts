@@ -293,6 +293,11 @@ export class IPFSStorage implements StorageProviderInterface {
     return results
   }
 
+  async getFolderSize(folderName: string): Promise<number> {
+    const folderContent = await this.listObjects(folderName, true)
+    return folderContent.Contents.reduce((accumulator, value) => accumulator + value.Size, 0)
+  }
+
   /**
    * Move or copy object from one place to another in the IPFS storage.
    * @param oldName Name of the old object.

@@ -163,7 +163,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       }
 
       if (invite.inviteType === 'friend') {
-        const inviter = await this.app.service(userPath)._get(invite.userId)
+        const inviter = await this.app.service(userPath).get(invite.userId)
 
         if (inviter == null) {
           await this.app.service(invitePath).remove(invite.id)
