@@ -749,10 +749,10 @@ function UVOL2Reactor() {
   const update = () => {
     const delta = getState(EngineState).deltaSeconds
 
-    // @ts-ignore
     if (
       component.loadingEffectStarted.value &&
       !component.loadingEffectEnded.value &&
+      // @ts-ignore
       UVOLDissolveComponent.updateDissolveEffect(entity, mesh, delta)
     ) {
       removeComponent(entity, UVOLDissolveComponent)
