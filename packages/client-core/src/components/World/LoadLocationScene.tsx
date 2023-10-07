@@ -27,11 +27,7 @@ import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  LocationAction,
-  LocationService,
-  LocationState
-} from '@etherealengine/client-core/src/social/services/LocationService'
+import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AppLoadingAction } from '@etherealengine/engine/src/common/AppLoadingService'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -45,7 +41,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
 
   useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName: props.locationName }))
+    LocationState.setLocationName(props.locationName)
   }, [])
 
   useEffect(() => {
@@ -83,7 +79,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName: `${props.projectName}/${props.sceneName}` }))
+    LocationState.setLocationName(`${props.projectName}/${props.sceneName}`)
     loadSceneJsonOffline(props.projectName, props.sceneName)
   }, [])
 }
@@ -104,7 +100,7 @@ export const useLoadLocationScene = () => {
 
     const isUserBanned =
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
-    dispatchAction(LocationAction.socialSelfUserBanned({ banned: isUserBanned }))
+    LocationState.socialSelfUserBanned(isUserBanned)
 
     if (
       !isUserBanned &&
