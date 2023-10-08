@@ -35,8 +35,10 @@ export const RenderSettingsComponent = defineComponent({
   name: 'RenderSettingsComponent',
   jsonID: 'render-settings',
 
-  onInit(entity) {
-    return JSON.parse(JSON.stringify(getState(RenderSettingsState))) as typeof RenderSettingsState._TYPE
+  onInit(entity): typeof RenderSettingsState._TYPE {
+    return typeof RenderSettingsState.initial === 'function'
+      ? (RenderSettingsState.initial as any)()
+      : JSON.parse(JSON.stringify(RenderSettingsState.initial))
   },
 
   onSet: (entity, component, json) => {
