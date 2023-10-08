@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { dispatchAction, getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import Box from '@mui/material/Box'
 
-import { EditorHelperAction, EditorHelperState } from '../../services/EditorHelperState'
+import { EditorHelperState } from '../../services/EditorHelperState'
 import BooleanInput from '../inputs/BooleanInput'
 import Dialog from './Dialog'
 
@@ -43,13 +43,10 @@ import Dialog from './Dialog'
  */
 export function SaveSceneDialog({ onConfirm, onCancel }) {
   const { t } = useTranslation()
-  const editorHelperState = useHookstate(getMutableState(EditorHelperState))
-  const state = useState({
-    isGenerateThumbnailsEnabled: editorHelperState.isGenerateThumbnailsEnabled.value
-  })
+  const state = useHookstate(getMutableState(EditorHelperState).isGenerateThumbnailsEnabled)
 
   const onChangeGenerateThumbnails = (value) => {
-    state.isGenerateThumbnailsEnabled.set(value)
+    state.set((enabled) => !enabled)
   }
 
   /**
@@ -60,16 +57,7 @@ export function SaveSceneDialog({ onConfirm, onCancel }) {
   const onConfirmCallback = useCallback(
     (e) => {
       e.preventDefault()
-
-      if (state.isGenerateThumbnailsEnabled.value !== editorHelperState.isGenerateThumbnailsEnabled.value) {
-        dispatchAction(
-          EditorHelperAction.changedGenerateThumbnails({
-            isGenerateThumbnailsEnabled: state.isGenerateThumbnailsEnabled.value
-          })
-        )
-      }
-
-      onConfirm({ generateThumbnails: state.isGenerateThumbnailsEnabled.value })
+      onConfirm(true)
     },
     [onConfirm]
   )
@@ -96,7 +84,7 @@ export function SaveSceneDialog({ onConfirm, onCancel }) {
       confirmLabel={t('editor:dialog.saveScene.lbl-confirm')}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', margin: '10px' }}>
-        <BooleanInput value={state.isGenerateThumbnailsEnabled.value} onChange={onChangeGenerateThumbnails} />
+        <BooleanInput value={state.value} onChange={onChangeGenerateThumbnails} />
         <label style={{ marginLeft: '10px' }}>{t('editor:dialog.saveScene.lbl-thumbnail')}</label>
       </Box>
     </Dialog>
