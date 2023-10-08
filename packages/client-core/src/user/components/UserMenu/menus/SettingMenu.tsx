@@ -37,7 +37,7 @@ import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
 import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
-import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
   AvatarInputSettingsState
@@ -47,7 +47,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -368,7 +368,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               label={t('user:usermenu.setting.use-positional-media')}
               checked={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
-                dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
+                getMutableState(AudioState).positionalMedia.set(value)
               }}
             />
 
@@ -380,7 +380,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.masterVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMasterVolume({ value }))
+                getMutableState(AudioState).masterVolume.set(value)
               }}
             />
 
@@ -392,7 +392,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.microphoneGain.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMicrophoneVolume({ value }))
+                getMutableState(AudioState).microphoneGain.set(value)
               }}
             />
 
@@ -416,7 +416,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.mediaStreamVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMediaStreamVolume({ value }))
+                getMutableState(AudioState).mediaStreamVolume.set(value)
               }}
             />
 
@@ -428,7 +428,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.notificationVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setNotificationVolume({ value }))
+                getMutableState(AudioState).notificationVolume.set(value)
               }}
             />
 
@@ -440,7 +440,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.soundEffectsVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value }))
+                getMutableState(AudioState).soundEffectsVolume.set(value)
               }}
             />
 
@@ -452,7 +452,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.backgroundMusicVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMusicVolume({ value }))
+                getMutableState(AudioState).backgroundMusicVolume.set(value)
               }}
             />
             {/* </>
