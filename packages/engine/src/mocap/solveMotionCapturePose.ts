@@ -236,8 +236,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
     entity,
     landmarks[POSE_LANDMARKS.RIGHT_EAR],
     landmarks[POSE_LANDMARKS.LEFT_EAR],
-    landmarks[POSE_LANDMARKS.LEFT_EYE_INNER],
-    landmarks[POSE_LANDMARKS.RIGHT_EYE_INNER]
+    landmarks[POSE_LANDMARKS.NOSE]
   )
 
   // if (!planeHelper1.parent) {
@@ -570,7 +569,7 @@ export const solveFoot = (
 const headRotation = new Quaternion()
 const leftEarVec3 = new Vector3()
 const rightEarVec3 = new Vector3()
-const eyeCenterVec3 = new Vector3()
+const noseVec3 = new Vector3()
 const parentRotation = new Quaternion()
 
 const rotate90degreesAroundXAxis = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
@@ -579,17 +578,15 @@ export const solveHead = (
   entity: Entity,
   leftEar: NormalizedLandmark,
   rightEar: NormalizedLandmark,
-  leftEye: NormalizedLandmark,
-  rightEye: NormalizedLandmark
+  nose: NormalizedLandmark
 ) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
   leftEarVec3.set(leftEar.x, -leftEar.y, leftEar.z)
   rightEarVec3.set(rightEar.x, -rightEar.y, rightEar.z)
-  eyeCenterVec3.addVectors(leftEye as Vector3, rightEye as Vector3).multiplyScalar(0.5)
-  eyeCenterVec3.y = -eyeCenterVec3.y
+  noseVec3.set(nose.x, -nose.y, nose.z)
 
-  getQuaternionFromPointsAlongPlane(rightEarVec3, leftEarVec3, eyeCenterVec3, headRotation, false)
+  getQuaternionFromPointsAlongPlane(rightEarVec3, leftEarVec3, noseVec3, headRotation, false)
 
   headRotation.multiply(rotate90degreesAroundXAxis)
 
