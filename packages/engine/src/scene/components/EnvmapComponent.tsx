@@ -203,7 +203,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const renderState = useHookstate(getMutableState(RendererState))
   const dynamicBoundingBox = useOptionalComponent(envmapEntity, BoundingBoxDynamicTag)
 
-  /** @todo add an unmount cleanup for appleBoxprojection */
+  /** @todo add an unmount cleanup for applyBoxprojection */
   useEffect(() => {
     AssetLoader.loadAsync(bakeComponent.envMapOrigin.value, {}).then((texture) => {
       if (texture) {
