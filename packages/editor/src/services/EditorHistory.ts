@@ -98,7 +98,7 @@ export const EditorHistoryState = defineState({
             sceneLoading: false,
             sceneLoaded: true
           })
-          dispatchAction(EngineActions.sceneLoaded({}))
+          if (!getState(EngineState).sceneLoaded) dispatchAction(EngineActions.sceneLoaded({}))
         }
       }
 
