@@ -225,7 +225,7 @@
         {
           "name": "render-settings",
           "props": {
-            "csm": true,
+            "csm": false,
             "toneMapping": 1,
             "toneMappingExposure": 0.8,
             "shadowMapType": 2
@@ -456,8 +456,8 @@
           "name": "directional-light",
           "props": {
             "color": 16777215,
-            "intensity": 0.6699999999999999,
-            "cameraFar": 2000,
+            "intensity": 1.0,
+            "cameraFar": 200,
             "castShadow": true,
             "shadowBias": -0.00001,
             "shadowRadius": 1,

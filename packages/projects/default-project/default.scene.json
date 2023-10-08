@@ -472,7 +472,7 @@
           "props": {
             "color": 16777215,
             "intensity": 1,
-            "cameraFar": 2000,
+            "cameraFar": 200,
             "castShadow": true,
             "shadowBias": -0.00001,
             "shadowRadius": 1,

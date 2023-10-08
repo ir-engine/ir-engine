@@ -106,12 +106,12 @@ export class CSM {
     this.cascades = data.cascades || 3
     this.maxFar = data.maxFar || 100
     this.mode = data.mode || CSMModes.PRACTICAL
-    this.shadowMapSize = data.shadowMapSize || 512
+    this.shadowMapSize = data.shadowMapSize || 2048
     this.shadowBias = -0.000003
     this.lightDirection = data.lightDirection || new Vector3(1, -1, 1).normalize()
     this.lightIntensity = data.lightIntensity || 1
-    this.lightNear = data.lightNear || 1
-    this.lightFar = data.lightFar || 2000
+    this.lightNear = data.lightNear || 0.01
+    this.lightFar = data.lightFar || 200
     this.lightMargin = data.lightMargin || 100
     this.customSplitsCallback = data.customSplitsCallback
     this.fade = true

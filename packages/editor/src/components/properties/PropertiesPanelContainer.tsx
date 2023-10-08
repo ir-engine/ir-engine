@@ -194,7 +194,7 @@ export const PropertiesPanelContainer = () => {
     )
   } else {
     const entity = nodeEntity as Entity
-    content = <EntityEditor entity={entity} multiEdit={multiEdit} />
+    content = <EntityEditor entity={entity} key={entity} multiEdit={multiEdit} />
   }
 
   return <div style={propertiesPanelContentStyle}>{content}</div>
