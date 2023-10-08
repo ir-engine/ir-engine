@@ -50,8 +50,8 @@ import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
   getMutableComponent,
-  hasComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
@@ -201,8 +201,9 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
   const renderState = useHookstate(getMutableState(RendererState))
-  const dynamicBoundingBox = hasComponent(envmapEntity, BoundingBoxDynamicTag)
+  const dynamicBoundingBox = useOptionalComponent(envmapEntity, BoundingBoxDynamicTag)
 
+  /** @todo add an unmount cleanup for appleBoxprojection */
   useEffect(() => {
     AssetLoader.loadAsync(bakeComponent.envMapOrigin.value, {}).then((texture) => {
       if (texture) {
