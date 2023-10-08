@@ -29,8 +29,8 @@ import { useTranslation } from 'react-i18next'
 
 import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AppLoadingAction } from '@etherealengine/engine/src/common/AppLoadingService'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { RouterState } from '../../common/services/RouterService'
@@ -46,7 +46,10 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {
-      dispatchAction(AppLoadingAction.setLoadingState({ state: 'FAIL' }))
+      getMutableState(AppLoadingState).merge({
+        state: AppLoadingStates.FAIL,
+        loaded: false
+      })
       WarningUIService.openWarning({
         title: t('common:instanceServer.invalidLocation'),
         body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
