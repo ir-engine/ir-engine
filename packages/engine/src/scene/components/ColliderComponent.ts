@@ -145,7 +145,16 @@ export const ColliderComponent = defineComponent({
   onRemove(entity, component) {},
 
   toJSON(entity, component) {
-    return component.get(NO_PROXY)
+    return {
+      bodyType: component.bodyType.value,
+      shapeType: component.shapeType.value,
+      isTrigger: component.isTrigger.value,
+      removeMesh: component.removeMesh.value,
+      collisionLayer: component.collisionLayer.value,
+      collisionMask: component.collisionMask.value,
+      restitution: component.restitution.value,
+      triggers: component.triggers.get(NO_PROXY)
+    }
   },
 
   reactor: function () {
