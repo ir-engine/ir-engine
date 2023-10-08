@@ -52,16 +52,17 @@ cli.enable('status')
 
 const options = cli.parse({
   directory: [false, 'Directory to archive', 'string'],
-  storageProviderName: [false, 'Storage Provider Name', 'string']
+  storageProviderName: [false, 'Storage Provider Name', 'string'],
+  jobId: [false, 'ID of Job record', 'string']
 })
 
 cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    const { directory, storageProviderName } = options
+    const { directory, jobId, storageProviderName } = options
     await app.service(archiverPath).get(null, {
-      query: { storageProviderName: storageProviderName || undefined, isJob: true, directory: directory }
+      query: { storageProviderName: storageProviderName || undefined, isJob: true, directory, jobId }
     })
     cli.exit(0)
   } catch (err) {

@@ -119,7 +119,7 @@ export class LocalStorage implements StorageProviderInterface {
   listObjects = async (
     prefix: string,
     recursive = false,
-    continuationToken: string
+    continuationToken?: string
   ): Promise<StorageListObjectInterface> => {
     const filePath = path.join(this.PATH_PREFIX, prefix)
     if (!fs.existsSync(filePath)) return { Contents: [] }
@@ -367,6 +367,11 @@ export class LocalStorage implements StorageProviderInterface {
 
     folder.push(...files)
     return folder
+  }
+
+  async getFolderSize(relativeDirStringPath: string): Promise<number> {
+    const folderContent = await this.listObjects(relativeDirStringPath, true)
+    return folderContent.Contents.reduce((accumulator, value) => accumulator + value.Size, 0)
   }
 
   /**

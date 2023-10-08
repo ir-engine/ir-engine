@@ -34,7 +34,7 @@ import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const channelUserResolver = resolve<ChannelUserType, HookContext>({
   user: virtual(async (channelUser, context) => {
-    if (channelUser.userId) return await context.app.service(userPath)._get(channelUser.userId)
+    if (channelUser.userId) return await context.app.service(userPath).get(channelUser.userId)
   }),
   createdAt: virtual(async (channel) => fromDateTimeSql(channel.createdAt)),
   updatedAt: virtual(async (channel) => fromDateTimeSql(channel.updatedAt))

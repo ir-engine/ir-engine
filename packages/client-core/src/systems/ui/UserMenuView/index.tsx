@@ -30,11 +30,11 @@ import { removeComponent } from '@etherealengine/engine/src/ecs/functions/Compon
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { XRUI, createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { defineState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
-import { PopupMenuActions } from '../../../user/components/UserMenu/PopupMenuService'
+import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarMenus } from '../../AvatarUISystem'
@@ -97,7 +97,7 @@ const AvatarContextMenu = () => {
       const tappedUser = Object.values(NetworkState.worldNetwork.peers).find(
         (peer) => peer.userId === detailState.id.value
       )
-      dispatchAction(PopupMenuActions.showPopupMenu({ id: AvatarMenus.AvatarContext, params: { user: tappedUser } }))
+      PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, { user: tappedUser })
     }
   }, [detailState.id])
 

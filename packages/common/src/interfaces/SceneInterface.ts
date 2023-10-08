@@ -32,7 +32,6 @@ export interface ComponentJson<T = any> {
 
 export interface EntityJson {
   name: EntityUUID | string
-  type?: string
   components: Array<ComponentJson>
   parent?: EntityUUID
   index?: number

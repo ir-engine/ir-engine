@@ -27,12 +27,10 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 const $index = lazy(() => import('@etherealengine/client/src/pages'))
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
@@ -47,13 +45,7 @@ function RouterComp({ route }: { route: string }) {
   const { t } = useTranslation()
 
   useEffect(() => {
-    addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(ProjectServiceReceptor)
     AuthService.doLoginAuto()
-    return () => {
-      removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(ProjectServiceReceptor)
-    }
   }, [])
 
   if (!customRoutes.length || !isLoggedIn.value) {
