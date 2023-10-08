@@ -31,22 +31,10 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/engine/src/common/functions/logger'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import {
-  addActionReceptor,
-  dispatchAction,
-  getMutableState,
-  getState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import {
-  AppLoadingAction,
-  AppLoadingServiceReceptor,
-  AppLoadingState,
-  AppLoadingStates
-} from '../../common/AppLoadingService'
+import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -282,8 +270,12 @@ export const removeSceneEntitiesFromOldJSON = () => {
 export const updateSceneFromJSON = async () => {
   const sceneState = getState(SceneState)
 
-  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
-    dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
+  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
+    getMutableState(AppLoadingState).merge({
+      state: AppLoadingStates.SCENE_LOADING,
+      loaded: false
+    })
+  }
 
   const sceneData = getState(SceneState).sceneData
 
@@ -483,13 +475,6 @@ const reactor = () => {
   useEffect(() => {
     updateSceneFromJSON()
   }, [sceneData])
-
-  useEffect(() => {
-    addActionReceptor(AppLoadingServiceReceptor)
-    return () => {
-      removeActionReceptor(AppLoadingServiceReceptor)
-    }
-  }, [])
 
   return null
 }

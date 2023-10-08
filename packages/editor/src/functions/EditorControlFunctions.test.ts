@@ -42,8 +42,6 @@ import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
-
-import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 class TempProp {
@@ -95,7 +93,6 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
-      registerEditorReceptors()
 
       Engine.instance.store.defaultDispatchDelay = () => 0
 
@@ -130,7 +127,6 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
-      registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
       rootNode = getState(SceneState).sceneEntity
@@ -146,7 +142,6 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
-      registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
       const world = getState(SceneState)
@@ -201,7 +196,6 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
-      registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
       const rootNode = getState(SceneState).sceneEntity
@@ -240,7 +234,6 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
-      registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
       const world = getState(SceneState)
@@ -281,7 +274,6 @@ describe.skip('EditorControlFunctions', () => {
 
     beforeEach(() => {
       createEngine()
-      registerEditorReceptors()
       Engine.instance.store.defaultDispatchDelay = () => 0
 
       const rootNode = getState(SceneState).sceneEntity

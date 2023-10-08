@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { VideoTexture } from 'three'
 
-import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -37,7 +37,7 @@ import { StandardCallbacks, setCallback } from '../../scene/components/CallbackC
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
 import { VolumetricComponent, endLoadingEffect } from '../../scene/components/VolumetricComponent'
-import { AudioSettingReceptor, AudioState } from '../AudioState'
+import { AudioState, useAudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
 export class AudioEffectPlayer {
@@ -189,59 +189,13 @@ const reactor = () => {
       EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
     }
 
-    const audioState = getMutableState(AudioState)
-    const currentTime = audioState.audioContext.currentTime.value
-
-    audioState.cameraGainNode.gain.value.setTargetAtTime(audioState.masterVolume.value, currentTime, 0.01)
-
-    /** create gain nodes for mix buses */
-    audioState.gainNodeMixBuses.mediaStreams.set(audioContext.createGain())
-    audioState.gainNodeMixBuses.mediaStreams.value.connect(audioState.cameraGainNode.value)
-    audioState.gainNodeMixBuses.mediaStreams.value.gain.setTargetAtTime(
-      audioState.mediaStreamVolume.value,
-      currentTime,
-      0.01
-    )
-
-    audioState.gainNodeMixBuses.notifications.set(audioContext.createGain())
-    audioState.gainNodeMixBuses.notifications.value.connect(audioState.cameraGainNode.value)
-    audioState.gainNodeMixBuses.notifications.value.gain.setTargetAtTime(
-      audioState.notificationVolume.value,
-      currentTime,
-      0.01
-    )
-
-    audioState.gainNodeMixBuses.music.set(audioContext.createGain())
-    audioState.gainNodeMixBuses.music.value.connect(audioState.cameraGainNode.value)
-    audioState.gainNodeMixBuses.music.value.gain.setTargetAtTime(
-      audioState.backgroundMusicVolume.value,
-      currentTime,
-      0.01
-    )
-
-    audioState.gainNodeMixBuses.soundEffects.set(audioContext.createGain())
-    audioState.gainNodeMixBuses.soundEffects.value.connect(audioState.cameraGainNode.value)
-    audioState.gainNodeMixBuses.soundEffects.value.gain.setTargetAtTime(
-      audioState.soundEffectsVolume.value,
-      currentTime,
-      0.01
-    )
-
-    addActionReceptor(AudioSettingReceptor)
-
     return () => {
-      audioState.gainNodeMixBuses.mediaStreams.value.disconnect()
-      audioState.gainNodeMixBuses.mediaStreams.set(null!)
-      audioState.gainNodeMixBuses.notifications.value.disconnect()
-      audioState.gainNodeMixBuses.notifications.set(null!)
-      audioState.gainNodeMixBuses.music.value.disconnect()
-      audioState.gainNodeMixBuses.music.set(null!)
-      audioState.gainNodeMixBuses.soundEffects.value.disconnect()
-      audioState.gainNodeMixBuses.soundEffects.set(null!)
-
       for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
     }
   }, [])
+
+  useAudioState()
+
   return null
 }
 

@@ -427,7 +427,7 @@ const EditorContainer = () => {
       return
     }
 
-    const result: { generateThumbnails: boolean } = (await new Promise((resolve) => {
+    const result = (await new Promise((resolve) => {
       setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
     })) as any
 
