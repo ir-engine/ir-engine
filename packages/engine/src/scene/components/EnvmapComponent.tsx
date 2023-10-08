@@ -47,8 +47,14 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getMutableComponent,
+  hasComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { RendererState } from '../../renderer/RendererState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
@@ -195,13 +201,14 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
   const group = useComponent(envmapEntity, GroupComponent)
   const renderState = useHookstate(getMutableState(RendererState))
+  const dynamicBoundingBox = hasComponent(envmapEntity, BoundingBoxDynamicTag)
 
   useEffect(() => {
     AssetLoader.loadAsync(bakeComponent.envMapOrigin.value, {}).then((texture) => {
       if (texture) {
         texture.mapping = EquirectangularReflectionMapping
         getMutableComponent(envmapEntity, EnvmapComponent).envmap.set(texture)
-        if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
+        if (bakeComponent.boxProjection.value && !dynamicBoundingBox) applyBoxProjection(bakeEntity, group.value)
         removeError(envmapEntity, EnvmapComponent, 'MISSING_FILE')
       } else {
         addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')

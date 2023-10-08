@@ -291,8 +291,8 @@ export class CSM {
 
   update(): void {
     if (this.needsUpdate) {
+      this.updateFrustums()
       for (const light of this.lights) {
-        this.updateFrustums()
         light.shadow.map?.dispose()
         light.shadow.map = null as any
         light.shadow.camera.updateProjectionMatrix()

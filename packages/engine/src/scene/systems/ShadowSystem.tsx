@@ -170,6 +170,8 @@ const EntityCSM = (props: { entity: Entity }) => {
     shadowMapResolution,
     directionalLightComponent?.useInCSM,
     directionalLightComponent?.shadowBias,
+    directionalLightComponent?.intensity,
+    directionalLightComponent?.color,
     directionalLightComponent?.castShadow,
     directionalLightComponent?.shadowRadius,
     directionalLightComponent?.cameraFar
