@@ -31,17 +31,15 @@ import { defineComponent, getComponent, useComponent } from '../../ecs/functions
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer, PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
-import { EffectPropsSchema } from '../constants/PostProcessing'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
   jsonID: 'postprocessing',
 
-  onInit(entity) {
-    return {
-      enabled: false,
-      effects: JSON.parse(JSON.stringify(getState(PostProcessingSettingsState).effects)) as EffectPropsSchema
-    }
+  onInit(entity): typeof PostProcessingSettingsState._TYPE {
+    return typeof PostProcessingSettingsState.initial === 'function'
+      ? (PostProcessingSettingsState.initial as any)()
+      : JSON.parse(JSON.stringify(PostProcessingSettingsState.initial))
   },
 
   onSet: (entity, component, json) => {
