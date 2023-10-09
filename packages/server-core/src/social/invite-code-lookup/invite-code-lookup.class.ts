@@ -23,41 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-
 import {
   InviteCodeLookupQuery,
   InviteCodeLookupType
 } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { ServiceInterface } from '@feathersjs/feathers'
+import { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InviteCodeLookupParams extends RootParams<InviteCodeLookupQuery> {}
 
-// export class InviteCodeLookupService extends KnexAdapter<InviteCodeLookupParams> {
-export class InviteCodeLookupService implements ServiceInterface<InviteCodeLookupType, InviteCodeLookupParams> {
-  app: Application
-
-  constructor(app: Application) {
-    this.app = app
-  }
-
-  async find(params?: InviteCodeLookupParams) {
-    const inviteCode = params?.query?.inviteCode
-
-    if (inviteCode) {
-      const users = await this.app.service(userPath).find({
-        query: {
-          inviteCode
-        },
-        paginate: false
-      })
-
-      return users.map((user) => ({ id: user.id }) as InviteCodeLookupType)
-    }
-
-    return []
-  }
-}
+export class InviteCodeLookupService<
+  T = InviteCodeLookupType,
+  ServiceParams extends Params = InviteCodeLookupParams
+> extends KnexService<InviteCodeLookupType, InviteCodeLookupParams> {}

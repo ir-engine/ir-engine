@@ -25,14 +25,40 @@ Ethereal Engine. All Rights Reserved.
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { inviteCodeLookupQueryValidator } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import {
+  InviteCodeLookupType,
+  inviteCodeLookupQueryValidator
+} from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
+import { InviteCodeLookupService } from './invite-code-lookup.class'
 import {
   inviteCodeLookupExternalResolver,
   inviteCodeLookupQueryResolver,
   inviteCodeLookupResolver
 } from './invite-code-lookup.resolvers'
+
+async function findUsersWithInviteCode(context: HookContext<InviteCodeLookupService>) {
+  const inviteCode = context.actualQuery?.inviteCode
+
+  if (!inviteCode) {
+    context.result = []
+    return
+  }
+
+  const { app } = context
+
+  const users = (await app.service(userPath).find({
+    query: {
+      inviteCode
+    },
+    paginate: false
+  })) as unknown as UserType[]
+
+  context.result = users.map((user) => ({ id: user.id }) as InviteCodeLookupType)
+}
 
 export default {
   around: {
@@ -48,7 +74,7 @@ export default {
       () => schemaHooks.validateQuery(inviteCodeLookupQueryValidator),
       schemaHooks.resolveQuery(inviteCodeLookupQueryResolver)
     ],
-    find: [],
+    find: [findUsersWithInviteCode],
     get: [],
     create: [],
     update: [],
