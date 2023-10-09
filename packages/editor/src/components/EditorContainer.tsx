@@ -436,6 +436,8 @@ const EditorContainer = () => {
       return
     }
 
+    console.log({ result })
+
     const abortController = new AbortController()
 
     setDialogComponent(
@@ -454,7 +456,7 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        if (result.generateThumbnails) {
+        if (result) {
           const blob = await takeScreenshot(512, 320, 'ktx2')
           const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
