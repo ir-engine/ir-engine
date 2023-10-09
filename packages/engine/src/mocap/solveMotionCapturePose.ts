@@ -158,12 +158,11 @@ export function solveMotionCapturePose(
   if (!prevLandmarks) prevLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
 
   const landmarks = newLandmarks.map((landmark, index) => {
-    const newLandmark = newLandmarks[index]
-    if (!newLandmark.visibility || newLandmark.visibility < 0.3) return prevLandmarks[index]
+    // if (!landmark.visibility || landmark.visibility < 0.3) return prevLandmarks[index]
     const prevLandmark = prevLandmarks[index]
-    const visibility = ((newLandmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
+    const visibility = ((landmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
     const deltaSeconds = getState(EngineState).deltaSeconds
-    const alpha = smootheLerpAlpha(0.3 * visibility, deltaSeconds)
+    const alpha = smootheLerpAlpha(5 + 15 * visibility, deltaSeconds)
     return {
       visibility,
       x: MathUtils.lerp(prevLandmark.x, landmark.x, alpha),
@@ -171,6 +170,8 @@ export function solveMotionCapturePose(
       z: MathUtils.lerp(prevLandmark.z, landmark.z, alpha)
     }
   })
+
+  prevLandmarks = landmarks
 
   if (avatarDebug) {
     drawDebug(newLandmarks)
