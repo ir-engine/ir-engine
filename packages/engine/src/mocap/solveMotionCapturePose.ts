@@ -138,9 +138,9 @@ const drawDebugScreen = drawMocapDebug()
 const drawDebugFinal = drawMocapDebug()
 
 export function solveMotionCapturePose(
-  newLandmarks: NormalizedLandmarkList,
-  newScreenlandmarks: NormalizedLandmarkList,
-  entity
+  entity,
+  newLandmarks?: NormalizedLandmarkList,
+  newScreenlandmarks?: NormalizedLandmarkList
 ) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
@@ -175,7 +175,7 @@ export function solveMotionCapturePose(
 
   if (avatarDebug) {
     drawDebug(newLandmarks)
-    drawDebugScreen(newScreenlandmarks)
+    newScreenlandmarks && drawDebugScreen(newScreenlandmarks)
     drawDebugFinal(landmarks)
   }
 
