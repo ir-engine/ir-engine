@@ -24,46 +24,66 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as authentication from '@feathersjs/authentication'
-import { HookContext, Paginated } from '@feathersjs/feathers'
+import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
 
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { isProvider } from 'feathers-hooks-common'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AsyncLocalStorage } from 'async_hooks'
 import config from '../appconfig'
 import { Application } from './../../declarations'
 
 const { authenticate } = authentication.hooks
 
-export default () => {
-  return async (context: HookContext<Application>): Promise<HookContext> => {
-    if (!context.params) context.params = {}
-    const { params } = context
+export const asyncLocalStorage = new AsyncLocalStorage<{ user: UserType }>()
 
-    // no need to authenticate if it's an internal call, but we still want to ensure the user is set
-    const isInternal = isProvider('server')(context)
-    if (isInternal) return context
+/**
+ * https://github.com/feathersjs-ecosystem/dataloader/blob/main/docs/guide.md
+ */
+export default async (context: HookContext<Application>, next: NextFunction): Promise<HookContext> => {
+  const store = asyncLocalStorage.getStore()
 
-    const authHeader = params.headers?.authorization
-    let authSplit
-    if (authHeader) authSplit = authHeader.split(' ')
-    let token, user
-    if (authSplit) token = authSplit[1]
-    if (token) {
-      const key = (await context.app.service(userApiKeyPath).find({
-        query: {
-          token: token
-        }
-      })) as Paginated<UserApiKeyType>
-      if (key.data.length > 0) user = await context.app.service(userPath).get(key.data[0].userId)
-    }
-    if (user) {
-      context.params.user = user
-      return context
-    }
-    context = await authenticate('jwt')(context as any)
-    // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
-    if (context.params[config.authentication.entity]?.userId)
-      context.params.user = await context.app.service(userPath).get(context.params[config.authentication.entity].userId)
-    return context
+  // If user param is already stored then we don't need to
+  // authenticate. This is typically an internal service call.
+  if (store && store.user && !context.params.user) {
+    context.params.user = store.user
+    return next()
   }
+
+  // Check authorization token in headers
+  const authHeader = context.params.headers?.authorization
+
+  let authSplit
+  if (authHeader) {
+    authSplit = authHeader.split(' ')
+  }
+
+  if (authSplit && authSplit.length > 1 && authSplit[1]) {
+    // We need to do underscore method call here, otherwise it will recursively call this hook
+    const key = (await context.app.service(userApiKeyPath)._find({
+      query: {
+        token: authSplit[1]
+      }
+    })) as Paginated<UserApiKeyType>
+
+    if (key.data.length > 0) {
+      // We need to do underscore method call here, otherwise it will recursively call this hook
+      const user = await context.app.service(userPath)._get(key.data[0].userId)
+      context.params.user = user
+      asyncLocalStorage.enterWith({ user })
+      return next()
+    }
+  }
+
+  // Check JWT token using feathers authentication
+  context = await authenticate('jwt')(context)
+
+  // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
+  if (context.params[config.authentication.entity]?.userId) {
+    // We need to do underscore method call here, otherwise it will recursively call this hook
+    const user = await context.app.service(userPath)._get(context.params[config.authentication.entity].userId)
+    context.params.user = user
+    asyncLocalStorage.enterWith({ user })
+  }
+
+  return next()
 }
