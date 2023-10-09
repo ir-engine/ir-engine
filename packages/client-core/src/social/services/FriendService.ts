@@ -27,9 +27,8 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import {
   userRelationshipPath,
@@ -52,25 +51,11 @@ export const FriendState = defineState({
   })
 })
 
-export const FriendServiceReceptor = (action) => {
-  const s = getMutableState(FriendState)
-  matches(action)
-    .when(FriendAction.fetchingFriendsAction.matches, () => {
-      return s.isFetching.set(true)
-    })
-    .when(FriendAction.loadedFriendsAction.matches, (action) => {
-      s.relationships.set(action.relationships)
-      s.updateNeeded.set(false)
-      s.isFetching.set(false)
-      return
-    })
-}
-
 //Service
 export const FriendService = {
   getUserRelationship: async (userId: UserID) => {
     try {
-      dispatchAction(FriendAction.fetchingFriendsAction({}))
+      getMutableState(FriendState).isFetching.set(true)
 
       const relationships = (await Engine.instance.api.service(userRelationshipPath).find({
         query: {
@@ -79,7 +64,7 @@ export const FriendService = {
         }
       })) as Paginated<UserRelationshipType>
 
-      dispatchAction(FriendAction.loadedFriendsAction({ relationships: relationships.data }))
+      getMutableState(FriendState).merge({ relationships: relationships.data, isFetching: false, updateNeeded: false })
     } catch (err) {
       logger.error(err)
     }
@@ -172,16 +157,4 @@ async function removeRelation(userId: UserID, relatedUserId: UserID) {
   } catch (err) {
     logger.error(err)
   }
-}
-
-//Action
-export class FriendAction {
-  static fetchingFriendsAction = defineAction({
-    type: 'ee.client.Friend.FETCHING_FRIENDS' as const
-  })
-
-  static loadedFriendsAction = defineAction({
-    type: 'ee.client.Friend.LOADED_FRIENDS' as const,
-    relationships: matches.object as Validator<unknown, UserRelationshipType[]>
-  })
 }

@@ -25,23 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer, PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
-import { EffectPropsSchema } from '../constants/PostProcessing'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
   jsonID: 'postprocessing',
 
-  onInit(entity) {
-    return {
-      enabled: false,
-      effects: JSON.parse(JSON.stringify(getState(PostProcessingSettingsState).effects)) as EffectPropsSchema
-    }
+  onInit(entity): typeof PostProcessingSettingsState._TYPE {
+    return typeof PostProcessingSettingsState.initial === 'function'
+      ? (PostProcessingSettingsState.initial as any)()
+      : JSON.parse(JSON.stringify(PostProcessingSettingsState.initial))
   },
 
   onSet: (entity, component, json) => {
@@ -56,10 +54,7 @@ export const PostProcessingComponent = defineComponent({
   },
 
   toJSON: (entity, component) => {
-    return {
-      enabled: component.enabled.value,
-      effects: component.effects.value
-    }
+    return component.get(NO_PROXY)
   },
 
   reactor: PostProcessingComponentReactor

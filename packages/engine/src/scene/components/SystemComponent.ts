@@ -62,8 +62,8 @@ export const SystemComponent = defineComponent({
       insertUUID: component.insertUUID.value,
       insertOrder: component.insertOrder.value,
       enableClient: component.enableClient.value,
-      enableServer: component.enableServer.value,
-      args: component.args.value
+      enableServer: component.enableServer.value
+      // args: component.args.get(NO_PROXY)
     }
   }
 })
