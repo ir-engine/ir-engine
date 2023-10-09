@@ -236,7 +236,10 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
       //very quick dirty reset of legs
       resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.LeftUpperLeg, VRMHumanBoneName.LeftLowerLeg)
       resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.RightUpperLeg, VRMHumanBoneName.RightLowerLeg)
-
+      resetBone(entity, VRMHumanBoneName.LeftFoot)
+      resetBone(entity, VRMHumanBoneName.RightFoot)
+      resetBone(entity, VRMHumanBoneName.LeftHand)
+      resetBone(entity, VRMHumanBoneName.RightHand)
       mocapState.trackingLowerBody.set(false)
     }
   }
@@ -521,6 +524,17 @@ export const resetLimb = (
 
   rig.localRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
   rig.localRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
+}
+
+export const resetBone = (entity: Entity, boneName: VRMHumanBoneName) => {
+  const rig = getComponent(entity, AvatarRigComponent)
+
+  MotionCaptureRigComponent.rig[boneName].x[entity] = 0
+  MotionCaptureRigComponent.rig[boneName].y[entity] = 0
+  MotionCaptureRigComponent.rig[boneName].z[entity] = 0
+  MotionCaptureRigComponent.rig[boneName].w[entity] = 1
+
+  rig.localRig[boneName]?.node.quaternion.identity()
 }
 
 export const solveHand = (
