@@ -27,7 +27,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validatePath } from '@etherealengine/common/src/utils/validatePath'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { setComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   AnimationSystemGroup,
   InputSystemGroup,
@@ -44,7 +44,7 @@ import ScriptInput from '../inputs/ScriptInput'
 import { SelectInput } from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperties } from './Util'
 
 const systemGroups = [
   {
@@ -130,9 +130,10 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
         <StringInput
-          onChange={updateProperty(SystemComponent, 'args') as any}
           value={systemComponent.args as any}
-          onRelease={commitProperty(SystemComponent, 'args') as any}
+          onRelease={(value) => {
+            setComponent(props.entity, SystemComponent, { args: value })
+          }}
         />
       </InputGroup>
     </NodeEditor>
