@@ -40,8 +40,11 @@ import {
   inviteCodeLookupResolver
 } from './invite-code-lookup.resolvers'
 
+/**
+ * populate the `result` with users having invite code
+ */
 async function findUsersWithInviteCode(context: HookContext<InviteCodeLookupService>) {
-  const inviteCode = context.actualQuery?.inviteCode
+  const inviteCode = context.query?.inviteCode
 
   if (!inviteCode) {
     context.result = []
