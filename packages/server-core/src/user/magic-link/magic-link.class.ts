@@ -34,9 +34,9 @@ import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/id
 import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import { smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { IdentityProviderService } from '../identity-provider/identity-provider.class'
 
@@ -55,7 +55,7 @@ export function getLink(type: string, hash: string, subscriptionId?: string): st
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface MagicLinkParams extends RootParams {}
+export interface MagicLinkParams extends KnexAdapterParams {}
 
 /**
  * A class for Magic Link service

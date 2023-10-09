@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   MatchInstanceData,
@@ -32,10 +32,9 @@ import {
   MatchInstanceQuery,
   MatchInstanceType
 } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface MatchInstanceParams extends RootParams<MatchInstanceQuery> {}
+export interface MatchInstanceParams extends KnexAdapterParams<MatchInstanceQuery> {}
 
 export class MatchInstanceService<
   T = MatchInstanceType,

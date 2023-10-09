@@ -55,12 +55,11 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter, KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { cleanString } from '../../util/cleanString'
 import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
@@ -94,7 +93,7 @@ export type ProjectUpdateParams = {
   jobId?: string
 }
 
-export interface ProjectParams extends RootParams<ProjectQuery>, ProjectUpdateParams {}
+export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {}
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
 
