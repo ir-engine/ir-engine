@@ -145,6 +145,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     return super._create(
       {
+        ...data,
         id: v4(),
         name: projectName,
         needsRebuild: true,
