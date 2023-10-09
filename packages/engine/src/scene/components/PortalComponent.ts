@@ -152,13 +152,13 @@ export const PortalComponent = defineComponent({
         x: component.spawnPosition.value.x,
         y: component.spawnPosition.value.y,
         z: component.spawnPosition.value.z
-      },
+      } as Vector3,
       spawnRotation: {
         x: component.spawnRotation.value.x,
         y: component.spawnRotation.value.y,
         z: component.spawnRotation.value.z,
         w: component.spawnRotation.value.w
-      }
+      } as Quaternion
     }
   },
 
