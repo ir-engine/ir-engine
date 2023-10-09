@@ -52,7 +52,7 @@ export class InstanceActiveService implements ServiceInterface<InstanceActiveTyp
     if (!sceneId) return []
 
     // get all locationIds for sceneId
-    const locations = (await this.app.service(locationPath)._find({
+    const locations = (await this.app.service(locationPath).find({
       query: {
         sceneId
       },
