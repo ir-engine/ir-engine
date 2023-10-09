@@ -36,7 +36,6 @@ import {
 
 import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
@@ -164,7 +163,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(channelUserQueryValidator),
       schemaHooks.resolveQuery(channelUserQueryResolver)
     ],

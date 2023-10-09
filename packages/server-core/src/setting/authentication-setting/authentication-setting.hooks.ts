@@ -32,7 +32,6 @@ import {
   authenticationSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   authenticationSettingDataResolver,
@@ -52,7 +51,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(authenticationSettingQueryValidator),
       schemaHooks.resolveQuery(authenticationSettingQueryResolver)
     ],

@@ -32,7 +32,6 @@ import {
   instanceAttendanceQueryValidator
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   instanceAttendanceDataResolver,
@@ -52,7 +51,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(instanceAttendanceQueryValidator),
       schemaHooks.resolveQuery(instanceAttendanceQueryResolver)

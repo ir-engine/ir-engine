@@ -39,7 +39,6 @@ import logger from '../../ServerLogger'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'
@@ -162,11 +161,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(avatarQueryValidator),
-      schemaHooks.resolveQuery(avatarQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(avatarQueryValidator), schemaHooks.resolveQuery(avatarQueryResolver)],
     find: [
       iffElse(isAction('admin'), verifyScope('admin', 'admin'), ensureUserAccessibleAvatars),
       discardQuery('action')

@@ -38,7 +38,6 @@ import {
   botQueryResolver,
   botResolver
 } from '../../bot/bot/bot.resolvers'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
@@ -48,7 +47,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(botQueryValidator),
       schemaHooks.resolveQuery(botQueryResolver)

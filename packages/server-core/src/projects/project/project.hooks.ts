@@ -31,7 +31,6 @@ import {
   projectPatchValidator,
   projectQueryValidator
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
@@ -66,11 +65,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(projectQueryValidator),
-      schemaHooks.resolveQuery(projectQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
     find: [],
     get: [],
     create: [

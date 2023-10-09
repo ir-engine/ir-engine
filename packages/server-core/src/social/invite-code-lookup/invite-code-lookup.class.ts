@@ -36,7 +36,6 @@ import { RootParams } from '../../api/root-params'
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InviteCodeLookupParams extends RootParams<InviteCodeLookupQuery> {}
 
-// export class InviteCodeLookupService extends KnexAdapter<InviteCodeLookupParams> {
 export class InviteCodeLookupService implements ServiceInterface<InviteCodeLookupType, InviteCodeLookupParams> {
   app: Application
 

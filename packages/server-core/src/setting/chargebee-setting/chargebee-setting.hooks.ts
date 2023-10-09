@@ -32,7 +32,6 @@ import {
   chargebeeSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   chargebeeSettingDataResolver,
@@ -52,7 +51,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(chargebeeSettingQueryValidator),
       schemaHooks.resolveQuery(chargebeeSettingQueryResolver)
