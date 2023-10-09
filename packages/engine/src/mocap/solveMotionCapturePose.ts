@@ -404,7 +404,7 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   shoulderObject.matrixWorld.decompose(shoulderObject.position, shoulderObject.quaternion, shoulderObject.scale)
 
   if (trackingLowerBody) {
-    hipObject.quaternion.copy(hipToShoulderQuaternion)
+    hipObject.quaternion.copy(shoulderWorldQuaternion)
     spineObject.quaternion.identity()
     shoulderObject.quaternion.identity()
   } else {
