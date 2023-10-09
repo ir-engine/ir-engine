@@ -27,7 +27,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validatePath } from '@etherealengine/common/src/utils/validatePath'
-import { setComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   AnimationSystemGroup,
   InputSystemGroup,
@@ -42,9 +42,8 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ScriptInput from '../inputs/ScriptInput'
 import { SelectInput } from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperties } from './Util'
+import { EditorComponentType, commitProperties, commitProperty } from './Util'
 
 const systemGroups = [
   {
@@ -86,8 +85,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
 
   const onChangePath = (path) => {
     if (validatePath(path)) {
-      updateProperties(SystemComponent, { filePath: path })
-
+      commitProperties(SystemComponent, { filePath: path })
       setPathValid(true)
     } else {
       setPathValid(false)
@@ -128,14 +126,14 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="enableServer" label={t('editor:properties.systemnode.lbl-enableServer')}>
         <BooleanInput onChange={commitProperty(SystemComponent, 'enableServer')} value={systemComponent.enableServer} />
       </InputGroup>
-      <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
+      {/* <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
         <StringInput
           value={systemComponent.args as any}
           onRelease={(value) => {
             setComponent(props.entity, SystemComponent, { args: value })
           }}
         />
-      </InputGroup>
+      </InputGroup> */}
     </NodeEditor>
   )
 }
