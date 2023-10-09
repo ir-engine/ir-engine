@@ -24,13 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, iff, isProvider } from 'feathers-hooks-common'
 
+import { BotCommandType, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import {
+  BotType,
   botDataValidator,
   botPatchValidator,
   botQueryValidator
 } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
 import {
   botDataResolver,
   botExternalResolver,
@@ -39,7 +44,29 @@ import {
   botResolver
 } from '../../bot/bot/bot.resolvers'
 import authenticate from '../../hooks/authenticate'
+import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
+import { BotService } from './bot.class'
+
+async function sanitizeInstanceId(context: HookContext<BotService>) {
+  if (Array.isArray(context.data) || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for single object create`)
+  }
+
+  context.data!.instanceId = context.data?.instanceId ?? ('' as InstanceID)
+}
+
+async function createAndPopulateBotCommands(context: HookContext<BotService>) {
+  const botCommands: BotCommandType[] = []
+  for (const commandData of context.actualData.botCommands) {
+    const command = await context.app.service(botCommandPath).create({
+      ...commandData,
+      botId: (context.result as BotType).id
+    })
+    botCommands.push(command)
+  }
+  ;(context.result as BotType).botCommands = botCommands
+}
 
 export default {
   around: {
@@ -55,7 +82,13 @@ export default {
     ],
     find: [],
     get: [],
-    create: [() => schemaHooks.validateData(botDataValidator), schemaHooks.resolveData(botDataResolver)],
+    create: [
+      () => schemaHooks.validateData(botDataValidator),
+      schemaHooks.resolveData(botDataResolver),
+      sanitizeInstanceId,
+      persistData,
+      discard('botCommands')
+    ],
     update: [disallow()],
     patch: [() => schemaHooks.validateData(botPatchValidator), schemaHooks.resolveData(botPatchResolver)],
     remove: []
@@ -65,7 +98,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [createAndPopulateBotCommands],
     update: [],
     patch: [],
     remove: []
