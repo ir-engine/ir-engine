@@ -33,6 +33,7 @@ import { defineQuery, getComponent, setComponent } from '../../ecs/functions/Com
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { MotionCaptureAction } from '../../mocap/MotionCaptureState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -49,11 +50,13 @@ import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
 const ikTargetSpawnQueue = defineActionQueue(AvatarNetworkAction.spawnIKTarget.matches)
 const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
+const mocapScopeChangedQueue = defineActionQueue(MotionCaptureAction.trackingScopeChanged.matches)
 
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
   const xrState = getState(XRState)
+
   const { localClientEntity } = Engine.instance
 
   for (const action of sessionChangedQueue()) {
@@ -78,6 +81,28 @@ const execute = () => {
     if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
     if (ikTargetRightFoot) removeEntity(ikTargetRightFoot)
     if (!action.active) setComponent(UUIDComponent.entitiesByUUID[action.$from], AvatarRigComponent, { ikOverride: '' })
+  }
+
+  for (const action of mocapScopeChangedQueue()) {
+    if (!localClientEntity || xrState.sessionActive) continue
+    const leftFootUUID = (Engine.instance.userID + ikTargets.leftFoot) as EntityUUID
+    const rightFootUUID = (Engine.instance.userID + ikTargets.rightFoot) as EntityUUID
+    const ikTargetLeftFoot = UUIDComponent.entitiesByUUID[leftFootUUID]
+    const ikTargetRightFoot = UUIDComponent.entitiesByUUID[rightFootUUID]
+    const position = getComponent(localClientEntity, TransformComponent).position
+    if (!action.trackingLowerBody) {
+      if (!ikTargetLeftFoot)
+        dispatchAction(
+          AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', position, blendWeight: 1 })
+        )
+      if (!ikTargetRightFoot)
+        dispatchAction(
+          AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', position, blendWeight: 1 })
+        )
+    } else {
+      if (ikTargetLeftFoot) removeEntity(ikTargetLeftFoot)
+      if (ikTargetRightFoot) removeEntity(ikTargetRightFoot)
+    }
   }
 
   for (const action of ikTargetSpawnQueue()) {
@@ -133,12 +158,10 @@ const execute = () => {
       dispatchAction(
         AvatarNetworkAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'rightHand', position, blendWeight: 1 })
       )
-
     if (!ikTargetLeftFoot)
       dispatchAction(
         AvatarNetworkAction.spawnIKTarget({ entityUUID: leftFootUUID, name: 'leftFoot', position, blendWeight: 1 })
       )
-
     if (!ikTargetRightFoot)
       dispatchAction(
         AvatarNetworkAction.spawnIKTarget({ entityUUID: rightFootUUID, name: 'rightFoot', position, blendWeight: 1 })
