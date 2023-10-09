@@ -52,6 +52,11 @@ import {
   clientSettingResolver
 } from './client-setting.resolvers'
 
+/**
+ * Updates web manifest
+ * @param context
+ * @returns
+ */
 const updateWebManifest = async (context: HookContext<ClientSettingService>) => {
   if (!context.data || context.method !== 'patch') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)

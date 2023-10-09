@@ -54,6 +54,11 @@ import {
   authenticationSettingSchemaToDb
 } from './authentication-setting.resolvers'
 
+/**
+ * Maps settings for admin
+ * @param context
+ * @returns
+ */
 const mapSettingsAdmin = async (context: HookContext<AuthenticationSettingService>) => {
   const auth = (Array.isArray(context.result) ? context.result : [context.result]) as AuthenticationSettingType[]
   const loggedInUser = context.params!.user!
@@ -89,6 +94,11 @@ const mapSettingsAdmin = async (context: HookContext<AuthenticationSettingServic
       }
 }
 
+/**
+ * Restricts from creating empty settings
+ * @param context
+ * @returns
+ */
 const ensureOAuth = async (context: HookContext<AuthenticationSettingService>) => {
   if (!context.data || context.method !== 'patch') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
@@ -125,6 +135,11 @@ const ensureOAuth = async (context: HookContext<AuthenticationSettingService>) =
   context.data[0] = authenticationSettingSchemaToDb(data[0]) as any
 }
 
+/**
+ * Refreshes API pods
+ * @param context
+ * @returns
+ */
 const refreshAPIPods = async (context: HookContext<AuthenticationSettingService>) => {
   const k8AppsClient = getState(ServerState).k8AppsClient
 
