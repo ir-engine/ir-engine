@@ -152,6 +152,14 @@ const loadGeometryAsync = (url: string, targetData: DRACOTarget | GLBTarget | Un
   })
 }
 
+const loadTextureAsync = (url: string) => {
+  return new Promise<CompressedTexture>((resolve, reject) => {
+    getState(AssetLoaderState).gltfLoader.ktx2Loader!.load(url, (texture) => {
+      resolve(texture)
+    })
+  })
+}
+
 const uniformSolveVertexShader = `
 #include <common>
 #include <logdepthbuf_pars_vertex>
@@ -369,11 +377,24 @@ function UVOL2Reactor() {
 
   const fetchNonUniformSolveGeometry = (startFrame: number, endFrame: number, target: string) => {
     const targetData = manifest.current.geometry.targets[target]
+    const promises: Promise<Mesh | BufferGeometry>[] = []
+
+    const oldBufferHealth = geometryBufferHealth.current
+    const startTime = Date.now()
 
     for (let i = startFrame; i <= endFrame; i++) {
       const frameURL = resolvePath(manifest.current.geometry.path, manifestPath, targetData.format, target, i)
       pendingGeometryRequests.current++
-      loadGeometryAsync(frameURL, targetData).then((model: BufferGeometry | Mesh) => {
+      promises.push(loadGeometryAsync(frameURL, targetData))
+    }
+
+    Promise.allSettled(promises).then((values) => {
+      values.forEach((result, j) => {
+        const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
+        if (!model) {
+          return
+        }
+        const i = j + startFrame
         const key = createKey(target, i)
         model.name = key
         geometryBuffer.set(createKey(target, i), model)
@@ -383,16 +404,34 @@ function UVOL2Reactor() {
           component.firstGeometryFrameLoaded.set(true)
         }
       })
-    }
+
+      const playTime = geometryBufferHealth.current - oldBufferHealth
+      const fetchTime = (Date.now() - startTime) / 1000
+      const metric = fetchTime / playTime
+      adjustGeometryTarget(metric)
+    })
   }
 
   const fetchUniformSolveGeometry = (startSegment: number, endSegment: number, target: string) => {
     const targetData = manifest.current.geometry.targets[target] as UniformSolveTarget
+    const promises: Promise<Mesh | BufferGeometry>[] = []
+
+    const oldBufferHealth = geometryBufferHealth.current
+    const startTime = Date.now()
 
     for (let i = startSegment; i <= endSegment; i++) {
       const segmentURL = resolvePath(manifest.current.geometry.path, manifestPath, targetData.format, target, i)
       pendingGeometryRequests.current++
-      loadGeometryAsync(segmentURL, targetData).then((model: Mesh) => {
+      promises.push(loadGeometryAsync(segmentURL, targetData))
+    }
+
+    Promise.allSettled(promises).then((values) => {
+      values.forEach((result, j) => {
+        const model = result.status === 'fulfilled' ? (result.value as Mesh) : null
+        if (!model) {
+          return
+        }
+        const i = j + startSegment
         const positionMorphAttributes = model.geometry.morphAttributes.position as InterleavedBufferAttribute[]
         const segmentDuration = positionMorphAttributes.length / targetData.frameRate
         const segmentOffset = i * targetData.segmentFrameCount
@@ -416,6 +455,43 @@ function UVOL2Reactor() {
         geometryBufferHealth.current += segmentDuration
         pendingGeometryRequests.current--
       })
+
+      const playTime = geometryBufferHealth.current - oldBufferHealth
+      const fetchTime = (Date.now() - startTime) / 1000
+      const metric = fetchTime / playTime
+      adjustGeometryTarget(metric)
+    })
+  }
+
+  const adjustGeometryTarget = (metric: number) => {
+    if (metric > 0.3) {
+      const currentTargetIndex = geometryTargets.current.indexOf(component.geometryTarget.value)
+      if (currentTargetIndex > 0) {
+        component.geometryTarget.set(geometryTargets.current[currentTargetIndex - 1])
+      }
+    } else if (0.1 <= metric && metric <= 0.3) {
+      return
+    } else {
+      const currentTargetIndex = geometryTargets.current.indexOf(component.geometryTarget.value)
+      if (currentTargetIndex < geometryTargets.current.length - 1) {
+        component.geometryTarget.set(geometryTargets.current[currentTargetIndex + 1])
+      }
+    }
+  }
+
+  const adjustTextureTarget = (metric: number) => {
+    if (metric > 0.3) {
+      const currentTargetIndex = textureTargets.current.indexOf(component.textureTarget.value)
+      if (currentTargetIndex > 0) {
+        component.textureTarget.set(textureTargets.current[currentTargetIndex - 1])
+      }
+    } else if (0.1 <= metric && metric <= 0.3) {
+      return
+    } else {
+      const currentTargetIndex = textureTargets.current.indexOf(component.textureTarget.value)
+      if (currentTargetIndex < textureTargets.current.length - 1) {
+        component.textureTarget.set(textureTargets.current[currentTargetIndex + 1])
+      }
     }
   }
 
@@ -455,7 +531,7 @@ function UVOL2Reactor() {
 
   const fetchTextures = () => {
     const currentBufferLength = textureBufferHealth.current - currentTime.current
-    if (currentBufferLength >= bufferThreshold || pendingTextureRequests.current > 0) {
+    if (currentBufferLength >= Math.min(bufferThreshold, maxBufferHealth) || pendingTextureRequests.current > 0) {
       return
     }
     const target = component.textureTarget.value
@@ -470,6 +546,14 @@ function UVOL2Reactor() {
     const framesToFetch = Math.round((maxBufferHealth - currentBufferLength) * frameRate)
     const endFrame = Math.min(startFrame + framesToFetch, targetData.frameCount - 1)
 
+    if (!getState(AssetLoaderState).gltfLoader.ktx2Loader) {
+      throw new Error('KTX2Loader not initialized')
+    }
+
+    const oldBufferHealth = geometryBufferHealth.current
+    const startTime = Date.now()
+    const promises: Promise<CompressedTexture>[] = []
+
     for (let i = startFrame; i <= endFrame; i++) {
       const textureURL = resolvePath(
         manifest.current.texture.baseColor.path,
@@ -479,10 +563,16 @@ function UVOL2Reactor() {
         i
       )
       pendingTextureRequests.current++
-      if (!getState(AssetLoaderState).gltfLoader.ktx2Loader) {
-        throw new Error('KTX2Loader not initialized')
-      }
-      getState(AssetLoaderState).gltfLoader.ktx2Loader!.load(textureURL, (texture) => {
+      promises.push(loadTextureAsync(textureURL))
+    }
+
+    Promise.allSettled(promises).then((values) => {
+      values.forEach((result, j) => {
+        const texture = result.status === 'fulfilled' ? (result.value as CompressedTexture) : null
+        if (!texture) {
+          return
+        }
+        const i = j + startFrame
         const key = createKey(target, i)
         texture.name = key
         pendingTextureRequests.current--
@@ -496,7 +586,12 @@ function UVOL2Reactor() {
           component.firstTextureFrameLoaded.set(true)
         }
       })
-    }
+
+      const playTime = textureBufferHealth.current - oldBufferHealth
+      const fetchTime = (Date.now() - startTime) / 1000
+      const metric = fetchTime / playTime
+      adjustTextureTarget(metric)
+    })
   }
 
   const bufferLoop = () => {
@@ -516,8 +611,13 @@ function UVOL2Reactor() {
     setTexture(component.textureTarget.value, 0)
 
     if (volumetric.useLoadingEffect.value) {
-      const headerTemplate = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
-      const mainTemplate = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
+      let headerTemplate: RegExp | undefined = /\/\/\sHEADER_REPLACE_START([\s\S]*?)\/\/\sHEADER_REPLACE_END/
+      let mainTemplate: RegExp | undefined = /\/\/\sMAIN_REPLACE_START([\s\S]*?)\/\/\sMAIN_REPLACE_END/
+
+      if (manifest.current.type !== UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+        headerTemplate = undefined
+        mainTemplate = undefined
+      }
 
       mesh.material = UVOLDissolveComponent.createDissolveMaterial(
         mesh,
@@ -573,7 +673,8 @@ function UVOL2Reactor() {
       const frameRate = manifest.current.geometry.targets[target].frameRate
       const targets = Object.keys(manifest.current.geometry.targets)
 
-      targets.forEach((_target) => {
+      for (let i = 0; i < targets.length; i++) {
+        const _target = targets[i]
         const _targetData = manifest.current.geometry.targets[_target]
         const _frameRate = _targetData.frameRate
         const _index = Math.round((index * _frameRate) / frameRate)
@@ -581,7 +682,7 @@ function UVOL2Reactor() {
           const attribute = geometryBuffer.get(createKey(_target, _index))! as InterleavedBufferAttribute
           return attribute
         }
-      })
+      }
     } else {
       const attribute = geometryBuffer.get(key)! as InterleavedBufferAttribute
       return attribute
