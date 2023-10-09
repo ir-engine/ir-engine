@@ -155,14 +155,15 @@ export const startFFMPEG = async (
   const cmdArgStr = [
     '-nostdin',
     '-protocol_whitelist pipe,file,rtp,udp',
-    '-analyzeduration 10M',
-    '-probesize 10M',
+    '-analyzeduration 2M',
+    '-probesize 2M',
     '-fflags +genpts',
+    '-flags low_delay',
     // convert input command to a base64 data url
-    `-i pipe:0`,
+    '-i pipe:0',
     cmdCodec,
     cmdFormat,
-    `-y pipe:1`
+    '-y pipe:1'
   ]
     .join(' ')
     .trim()
@@ -182,6 +183,10 @@ export const startFFMPEG = async (
 
   childProcess.on('exit', (code, signal) => {
     logger.info('Recording process exit, code: %d, signal: %s', code, signal)
+
+    if (code === 1) {
+      return onExit()
+    }
 
     if (!signal || signal === 'SIGINT') {
       logger.info('Recording stopped')

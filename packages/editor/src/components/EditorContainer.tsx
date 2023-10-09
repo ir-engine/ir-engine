@@ -56,7 +56,7 @@ import { loadProjectScene } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { getCursorSpawnPosition } from '../functions/screenSpaceFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
-import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
+import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
@@ -427,7 +427,7 @@ const EditorContainer = () => {
       return
     }
 
-    const result: { generateThumbnails: boolean } = (await new Promise((resolve) => {
+    const result = (await new Promise((resolve) => {
       setDialogComponent(<SaveSceneDialog onConfirm={resolve} onCancel={resolve} />)
     })) as any
 
@@ -458,7 +458,7 @@ const EditorContainer = () => {
           const blob = await takeScreenshot(512, 320, 'ktx2')
           const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 
-          await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
+          await uploadSceneBakeToServer()
           await saveScene(projectName.value, sceneName.value, file, abortController.signal)
         } else {
           await saveScene(projectName.value, sceneName.value, null, abortController.signal)

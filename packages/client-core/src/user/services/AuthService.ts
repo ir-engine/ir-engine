@@ -605,7 +605,15 @@ export const AuthService = {
   },
 
   async updateApiKey() {
-    const apiKey = (await API.instance.client.service(userApiKeyPath).patch(null, {})) as UserApiKeyType
+    const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
+
+    let apiKey: UserApiKeyType | undefined
+    if (userApiKey.data.length > 0) {
+      apiKey = await Engine.instance.api.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
+    } else {
+      apiKey = await Engine.instance.api.service(userApiKeyPath).create({})
+    }
+
     getMutableState(AuthState).user.merge({ apiKey })
   },
 

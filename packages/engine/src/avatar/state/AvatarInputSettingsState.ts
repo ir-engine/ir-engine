@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { defineState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 export const AvatarAxesControlScheme = {
   Move: 'AvatarControlScheme_Move' as const,
@@ -60,58 +59,3 @@ export const AvatarInputSettingsState = defineState({
     ])
   }
 })
-
-export function AvatarInputSettingsReceptor(action) {
-  const s = getMutableState(AvatarInputSettingsState)
-  matches(action)
-    .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
-      return s.controlType.set(action.controlType)
-    })
-    .when(AvatarInputSettingsAction.setLeftAxesControlScheme.matches, (action) => {
-      return s.leftAxesControlScheme.set(action.scheme)
-    })
-    .when(AvatarInputSettingsAction.setRightAxesControlScheme.matches, (action) => {
-      return s.rightAxesControlScheme.set(action.scheme)
-    })
-    .when(AvatarInputSettingsAction.setPreferredHand.matches, (action) => {
-      return s.preferredHand.set(action.handdedness)
-    })
-    .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
-      return s.invertRotationAndMoveSticks.set(action.invertRotationAndMoveSticks)
-    })
-    .when(AvatarInputSettingsAction.setShowAvatar.matches, (action) => {
-      return s.showAvatar.set(action.showAvatar)
-    })
-}
-
-export class AvatarInputSettingsAction {
-  static setControlType = defineAction({
-    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_CONTROL_TYPE' as const,
-    controlType: matches.string as Validator<unknown, (typeof AvatarControllerType)[keyof typeof AvatarControllerType]>
-  })
-
-  static setLeftAxesControlScheme = defineAction({
-    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_LEFT_CONTROL_SCHEME' as const,
-    scheme: matches.string as Validator<unknown, (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme]>
-  })
-
-  static setRightAxesControlScheme = defineAction({
-    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_RIGHT_CONTROL_SCHEME' as const,
-    scheme: matches.string as Validator<unknown, (typeof AvatarAxesControlScheme)[keyof typeof AvatarAxesControlScheme]>
-  })
-
-  static setPreferredHand = defineAction({
-    type: 'xre.avatar.AvatarInputSettings.AVATAR_SET_PREFERRED_HAND' as const,
-    handdedness: matches.string as Validator<unknown, 'left' | 'right'>
-  })
-
-  static setInvertRotationAndMoveSticks = defineAction({
-    type: 'xre.avatar.AvatarInputSettings.SET_INVERT_ROTATION_AND_MOVE_STICKS' as const,
-    invertRotationAndMoveSticks: matches.boolean
-  })
-
-  static setShowAvatar = defineAction({
-    type: 'xre.avatar.AvatarInputSettings.SET_SHOW_AVATAR' as const,
-    showAvatar: matches.boolean
-  })
-}
