@@ -95,7 +95,7 @@ const mapSettingsAdmin = async (context: HookContext<AuthenticationSettingServic
 }
 
 /**
- * Restricts from creating empty settings
+ * Updates OAuth in data
  * @param context
  * @returns
  */
