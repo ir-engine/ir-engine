@@ -42,9 +42,8 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ScriptInput from '../inputs/ScriptInput'
 import { SelectInput } from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty } from './Util'
 
 const systemGroups = [
   {
@@ -86,8 +85,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
 
   const onChangePath = (path) => {
     if (validatePath(path)) {
-      updateProperties(SystemComponent, { filePath: path })
-
+      commitProperties(SystemComponent, { filePath: path })
       setPathValid(true)
     } else {
       setPathValid(false)
@@ -128,13 +126,13 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="enableServer" label={t('editor:properties.systemnode.lbl-enableServer')}>
         <BooleanInput onChange={commitProperty(SystemComponent, 'enableServer')} value={systemComponent.enableServer} />
       </InputGroup>
-      <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
+      {/* <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
         <StringInput
           onChange={updateProperty(SystemComponent, 'args') as any}
           value={systemComponent.args as any}
           onRelease={commitProperty(SystemComponent, 'args') as any}
         />
-      </InputGroup>
+      </InputGroup> */}
     </NodeEditor>
   )
 }
