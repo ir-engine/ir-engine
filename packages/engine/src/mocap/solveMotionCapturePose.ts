@@ -32,6 +32,7 @@ import {
   Color,
   LineBasicMaterial,
   LineSegments,
+  MathUtils,
   Matrix4,
   Object3D,
   Plane,
@@ -45,6 +46,7 @@ import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
+import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
@@ -57,12 +59,15 @@ import {
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { solveTwoBoneIK } from '../avatar/animation/TwoBoneIKSolver'
 import { V_010, V_111 } from '../common/constants/MathConstants'
+import { EngineState } from '../ecs/classes/EngineState'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
+
+let prevLandmarks: NormalizedLandmarkList
 
 export const drawMocapDebug = () => {
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
@@ -130,20 +135,47 @@ export const drawMocapDebug = () => {
 
 const drawDebug = drawMocapDebug()
 const drawDebugScreen = drawMocapDebug()
+const drawDebugFinal = drawMocapDebug()
 
-export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screenlandmarks, entity) {
+export function solveMotionCapturePose(
+  newLandmarks: NormalizedLandmarkList,
+  newScreenlandmarks: NormalizedLandmarkList,
+  entity
+) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
     return
   }
 
-  if (!landmarks?.length) return
+  // const last = lastLandmarks
+
+  // lastLandmarks = landmarks
+
+  if (!newLandmarks?.length) return
 
   const avatarDebug = getState(RendererState).avatarDebug
 
+  if (!prevLandmarks) prevLandmarks = newLandmarks.map((landmark) => ({ ...landmark }))
+
+  const landmarks = newLandmarks.map((landmark, index) => {
+    const newLandmark = newLandmarks[index]
+    if (!newLandmark.visibility || newLandmark.visibility < 0.3) return prevLandmarks[index]
+    const prevLandmark = prevLandmarks[index]
+    const visibility = ((newLandmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
+    const deltaSeconds = getState(EngineState).deltaSeconds
+    const alpha = smootheLerpAlpha(0.3 * visibility, deltaSeconds)
+    return {
+      visibility,
+      x: MathUtils.lerp(prevLandmark.x, landmark.x, alpha),
+      y: MathUtils.lerp(prevLandmark.y, landmark.y, alpha),
+      z: MathUtils.lerp(prevLandmark.z, landmark.z, alpha)
+    }
+  })
+
   if (avatarDebug) {
-    drawDebug(landmarks)
-    drawDebugScreen(screenlandmarks)
+    drawDebug(newLandmarks)
+    drawDebugScreen(newScreenlandmarks)
+    drawDebugFinal(landmarks)
   }
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
