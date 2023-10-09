@@ -48,7 +48,6 @@ export const AvatarDissolveComponent = defineComponent({
   },
 
   createDissolveMaterial(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>): any {
-    const hasUV = object.geometry.hasAttribute('uv')
     const isShaderMaterial = object.material.type == 'ShaderMaterial'
     const material = object.material
     const hasTexture = !!material.map
@@ -101,13 +100,6 @@ export const AvatarDissolveComponent = defineComponent({
 
     uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
 
-    const vertexNonUVShader = `
-      #include <fog_vertex>
-      vec2 clipSpace = gl_Position.xy / gl_Position.w;
-      vUv3 = clipSpace * 0.5 + 0.5;
-      vPosition = position.y;
-    `
-
     const vertexUVShader = `
       #include <fog_vertex>
       vUv3 = uv;
@@ -153,7 +145,7 @@ export const AvatarDissolveComponent = defineComponent({
     `
 
     vertexShader = vertexShader.replace('#include <clipping_planes_pars_vertex>', vertexHeaderShader)
-    vertexShader = vertexShader.replace('#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
+    vertexShader = vertexShader.replace('#include <fog_vertex>', vertexUVShader)
     fragmentShader = fragmentShader.replace('#include <clipping_planes_pars_fragment>', fragmentHeaderShader)
     fragmentShader = fragmentShader.replace('#include <output_fragment>', fragmentTextureShader)
 
