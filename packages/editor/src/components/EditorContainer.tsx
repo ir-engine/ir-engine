@@ -436,8 +436,6 @@ const EditorContainer = () => {
       return
     }
 
-    console.log({ result })
-
     const abortController = new AbortController()
 
     setDialogComponent(
