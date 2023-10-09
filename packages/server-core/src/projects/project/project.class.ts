@@ -55,8 +55,6 @@ import {
 
 const UPDATE_JOB_TIMEOUT = 60 * 5 //5 minute timeout on project update jobs completing or failing
 
-const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
-
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
 export type ProjectUpdateParams = {

@@ -27,6 +27,7 @@ import { iff, isProvider } from 'feathers-hooks-common'
 
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
+  ProjectData,
   ProjectType,
   projectDataValidator,
   projectPatchValidator,
@@ -56,9 +57,10 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { HookContext, Paginated } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { Knex } from 'knex'
+import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import enableClientPagination from '../../hooks/enable-client-pagination'
@@ -79,6 +81,7 @@ import {
   updateProject,
   uploadLocalProjectToProvider
 } from './project-helper'
+import { ProjectService } from './project.class'
 import {
   projectDataResolver,
   projectExternalResolver,
@@ -91,7 +94,7 @@ const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/t
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
-const ensurePushStatus = async (context: HookContext) => {
+const ensurePushStatus = async (context: HookContext<ProjectService>) => {
   context.projectPushIds = []
   if (context.params?.query?.allowed) {
     // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
@@ -170,7 +173,7 @@ const ensurePushStatus = async (context: HookContext) => {
   }
 }
 
-const addLimitToParams = async (context: HookContext) => {
+const addLimitToParams = async (context: HookContext<ProjectService>) => {
   context.params.query = {
     ...context.params.query,
     $limit: context.params?.query?.$limit || 1000,
@@ -179,8 +182,9 @@ const addLimitToParams = async (context: HookContext) => {
   if (context.params?.query?.allowed) delete context.params.query.allowed
 }
 
-const addDataToProjectResult = async (context: HookContext) => {
-  const data: ProjectType[] = context.result['data'] ? context.result['data'] : context.result
+const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectType[]
+  const data: ProjectType[] = result['data'] ? result['data'] : result
   for (const item of data) {
     try {
       const packageJson = getProjectPackageJson(item.name)
@@ -201,13 +205,19 @@ const addDataToProjectResult = async (context: HookContext) => {
       : {
           data: data,
           total: data.length,
-          limit: context.params.query.$limit || 1000,
-          skip: context.params.query.$skip || 0
+          limit: context.params?.query?.$limit || 1000,
+          skip: context.params?.query?.$skip || 0
         }
 }
 
-const createAndUploadProject = async (context: HookContext) => {
-  const projectName = cleanString(context.data.name!)
+const createAndUploadProject = async (context: HookContext<ProjectService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
+
+  const projectName = cleanString(data[0].name!)
   const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
 
   const projectExists = (await context.app
@@ -236,14 +246,20 @@ const createAndUploadProject = async (context: HookContext) => {
   packageData.etherealEngine.version = getEnginePackageJson().version
   fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
-  await uploadLocalProjectToProvider(context.service, projectName, false)
+  await uploadLocalProjectToProvider(context.app, projectName, false)
 
   context.data = { ...context.data, name: projectName, needsRebuild: true }
 }
 
 const linkGithubToProject = async (context: HookContext) => {
-  if (context.data.repositoryPath) {
-    const repoPath = context.data.repositoryPath
+  if (!context.data || context.method !== 'patch') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
+
+  if (data[0].repositoryPath) {
+    const repoPath = data[0].repositoryPath
     const user = context.params!.user!
 
     const githubIdentityProvider = (await context.app.service(identityProviderPath).find({
@@ -278,20 +294,20 @@ const linkGithubToProject = async (context: HookContext) => {
   }
 }
 
-const getProjectName = async (context: HookContext) => {
+const getProjectName = async (context: HookContext<ProjectService>) => {
   if (!context.id) throw new BadRequest('You need to pass project id')
   context.name = ((await context.app.service(projectPath).get(context.id, context.params)) as ProjectType).name
 }
 
-const runProjectUninstallScript = async (context: HookContext) => {
+const runProjectUninstallScript = async (context: HookContext<ProjectService>) => {
   const projectConfig = getProjectConfig(context.name)
 
   if (projectConfig?.onEvent) {
-    await onProjectEvent(context.service, context.name, projectConfig.onEvent, 'onUninstall')
+    await onProjectEvent(context.app, context.name, projectConfig.onEvent, 'onUninstall')
   }
 }
 
-const removeProjectFiles = async (context: HookContext) => {
+const removeProjectFiles = async (context: HookContext<ProjectService>) => {
   if (fs.existsSync(path.resolve(projectsRootFolder, context.name))) {
     fs.rmSync(path.resolve(projectsRootFolder, context.name), { recursive: true })
   }
@@ -300,12 +316,14 @@ const removeProjectFiles = async (context: HookContext) => {
   await deleteProjectFilesInStorageProvider(context.name)
 }
 
-const createProjectPermission = async (context: HookContext) => {
+const createProjectPermission = async (context: HookContext<ProjectService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectType[]
+
   if (context.params?.user?.id) {
     const projectPermissionData = await projectPermissionDataResolver.resolve(
       {
         userId: context.params.user.id,
-        projectId: context.result.id,
+        projectId: result[0].id,
         type: 'owner'
       },
       context as any
@@ -315,7 +333,7 @@ const createProjectPermission = async (context: HookContext) => {
   return context
 }
 
-const removeLocationFromProject = async (context: HookContext) => {
+const removeLocationFromProject = async (context: HookContext<ProjectService>) => {
   await context.app.service(locationPath).remove(null, {
     query: {
       sceneId: {
@@ -325,7 +343,7 @@ const removeLocationFromProject = async (context: HookContext) => {
   })
 }
 
-const removeRouteFromProject = async (context: HookContext) => {
+const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
   await context.app.service(routePath).remove(null, {
     query: {
       project: context.name
@@ -333,13 +351,13 @@ const removeRouteFromProject = async (context: HookContext) => {
   })
 }
 
-const removeAvatarsFromProject = async (context: HookContext) => {
+const removeAvatarsFromProject = async (context: HookContext<ProjectService>) => {
   const avatarItems = (await context.app.service(avatarPath).find({
     query: {
       project: context.name
     },
     paginate: false
-  })) as AvatarType[]
+  })) as any as AvatarType[]
 
   await Promise.all(
     avatarItems.map(async (avatar) => {
@@ -348,21 +366,21 @@ const removeAvatarsFromProject = async (context: HookContext) => {
   )
 }
 
-const removeStaticResourcesFromProject = async (context: HookContext) => {
+const removeStaticResourcesFromProject = async (context: HookContext<ProjectService>) => {
   const staticResourceItems = (await context.app.service(staticResourcePath).find({
     query: {
       project: context.name
     },
     paginate: false
-  })) as StaticResourceType[]
+  })) as any as StaticResourceType[]
   staticResourceItems.length &&
     staticResourceItems.forEach(async (staticResource) => {
       await context.app.service(staticResourcePath).remove(staticResource.id)
     })
 }
 
-const removeProjectUpdate = async (context: HookContext) => {
-  await removeProjectUpdateJob(context.service, context.name)
+const removeProjectUpdate = async (context: HookContext<ProjectService>) => {
+  await removeProjectUpdateJob(context.app, context.name)
 }
 
 /**
