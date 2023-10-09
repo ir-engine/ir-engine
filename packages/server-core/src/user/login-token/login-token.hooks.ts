@@ -35,8 +35,9 @@ import crypto from 'crypto'
 import moment from 'moment'
 import config from '../../appconfig'
 
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import { toDateTimeSql } from '../../util/datetime-sql'
+import { LoginTokenService } from './login-token.class'
 import {
   loginTokenDataResolver,
   loginTokenExternalResolver,
@@ -45,7 +46,12 @@ import {
   loginTokenResolver
 } from './login-token.resolvers'
 
-const generateToken = async (context: HookContext) => {
+/**
+ * Generate token when creating a login token
+ * @param context
+ * @returns
+ */
+const generateToken = async (context: HookContext<LoginTokenService>) => {
   const token = crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
 
   context.data = { ...context.data, token, expiresAt: toDateTimeSql(moment().utc().add(2, 'days').toDate()) }
