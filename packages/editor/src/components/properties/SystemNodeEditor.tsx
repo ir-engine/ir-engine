@@ -44,7 +44,7 @@ import ScriptInput from '../inputs/ScriptInput'
 import { SelectInput } from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperties, commitProperty, updateProperty } from './Util'
 
 const systemGroups = [
   {
@@ -86,8 +86,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
 
   const onChangePath = (path) => {
     if (validatePath(path)) {
-      updateProperties(SystemComponent, { filePath: path })
-
+      commitProperties(SystemComponent, { filePath: path })
       setPathValid(true)
     } else {
       setPathValid(false)
