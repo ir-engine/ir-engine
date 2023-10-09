@@ -26,25 +26,28 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import { NodeTypes } from 'reactflow'
 
-import { NodeSpecJSON } from '@behave-graph/core'
-
 import { Node } from '../components/Node'
+import { NodeSpecGenerator } from './useNodeSpecGenerator'
 
-const getCustomNodeTypes = (allSpecs: NodeSpecJSON[]) => {
-  return allSpecs.reduce((nodes: NodeTypes, node) => {
-    nodes[node.type] = (props) => <Node spec={node} allSpecs={allSpecs} {...props} />
+const getCustomNodeTypes = (specGenerator: NodeSpecGenerator) => {
+  return specGenerator.getNodeTypes().reduce((nodes: NodeTypes, nodeType) => {
+    nodes[nodeType] = (props) => {
+      const spec = specGenerator.getNodeSpec(nodeType, props.data.configuration)
+
+      return <Node spec={spec} specGenerator={specGenerator} {...props} />
+    }
     return nodes
   }, {})
 }
 
-export const useCustomNodeTypes = ({ specJson }: { specJson: NodeSpecJSON[] | undefined }) => {
+export const useCustomNodeTypes = ({ specGenerator }: { specGenerator: NodeSpecGenerator | undefined }) => {
   const [customNodeTypes, setCustomNodeTypes] = useState<NodeTypes>()
   useEffect(() => {
-    if (!specJson) return
-    const customNodeTypes = getCustomNodeTypes(specJson)
+    if (!specGenerator) return
+    const customNodeTypes = getCustomNodeTypes(specGenerator)
 
     setCustomNodeTypes(customNodeTypes)
-  }, [specJson])
+  }, [specGenerator])
 
   return customNodeTypes
 }
