@@ -53,7 +53,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(userPath, new UserService(options, app), {
+  app.use(userPath, new UserService(options), {
     // A list of all methods this service exposes externally
     methods: userMethods,
     // You can add additional custom events to be sent to clients here

@@ -45,7 +45,6 @@ import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projec
 import EditorContainer from '../components/EditorContainer'
 import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
 import { EditorState } from '../services/EditorServices'
-import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorCameraSystem } from '../systems/EditorCameraSystem'
 import { EditorControlSystem } from '../systems/EditorControlSystem'
 import { EditorFlyControlSystem } from '../systems/EditorFlyControlSystem'
@@ -89,13 +88,6 @@ export const EditorPage = () => {
         dispatchAction(EngineActions.initializeEngine({ initialised: true }))
       })
     })
-  }, [])
-
-  useEffect(() => {
-    registerEditorReceptors()
-    return () => {
-      unregisterEditorReceptors()
-    }
   }, [])
 
   useEffect(() => {

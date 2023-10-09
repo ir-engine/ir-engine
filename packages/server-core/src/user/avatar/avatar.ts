@@ -63,7 +63,7 @@ export default (app: Application): void => {
       const { params } = context
       let targetIds = [params.user?.id]
       const usersWithAvatar = (
-        (await app.service(userPath)._find({
+        (await app.service(userPath).find({
           query: {
             avatarId: data.id
           }

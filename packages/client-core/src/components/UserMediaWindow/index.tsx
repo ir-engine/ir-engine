@@ -42,13 +42,13 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
@@ -306,7 +306,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const adjustVolume = (e, value) => {
     if (isSelf) {
-      dispatchAction(AudioSettingAction.setMicrophoneVolume({ value }))
+      getMutableState(AudioState).microphoneGain.set(value)
     } else {
       audioElement!.volume = value
     }

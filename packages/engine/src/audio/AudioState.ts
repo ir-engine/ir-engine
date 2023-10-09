@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
-  defineAction,
   defineState,
   getMutableState,
   getState,
-  syncStateWithLocalStorage
+  syncStateWithLocalStorage,
+  useHookstate
 } from '@etherealengine/hyperflux'
 
+import { useEffect } from 'react'
 import { MediaSettingsState } from '../networking/MediaSettingsState'
 
 /**
@@ -74,67 +74,105 @@ export const AudioState = defineState({
   }
 })
 
-export function AudioSettingReceptor(action) {
-  const s = getMutableState(AudioState)
-  matches(action)
-    .when(AudioSettingAction.setMasterVolume.matches, (action) => {
-      s.masterVolume.set(action.value)
-      s.cameraGainNode.value.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
-    })
-    .when(AudioSettingAction.setMicrophoneVolume.matches, (action) => {
-      s.microphoneGain.set(action.value)
-    })
-    .when(AudioSettingAction.setUsePositionalMedia.matches, (action) => {
-      s.positionalMedia.set(action.value)
-      getMutableState(MediaSettingsState).immersiveMedia.set(action.value)
-    })
-    .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
-      s.mediaStreamVolume.set(action.value)
-      s.gainNodeMixBuses.value.mediaStreams.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
-    })
-    .when(AudioSettingAction.setNotificationVolume.matches, (action) => {
-      s.notificationVolume.set(action.value)
-      s.gainNodeMixBuses.value.notifications.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
-    })
-    .when(AudioSettingAction.setSoundEffectsVolume.matches, (action) => {
-      s.soundEffectsVolume.set(action.value)
-      s.gainNodeMixBuses.value.soundEffects.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
-    })
-    .when(AudioSettingAction.setMusicVolume.matches, (action) => {
-      s.backgroundMusicVolume.set(action.value)
-      s.gainNodeMixBuses.value.music.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
-    })
-}
+export const useAudioState = () => {
+  const audioState = useHookstate(getMutableState(AudioState))
 
-export class AudioSettingAction {
-  static setMasterVolume = defineAction({
-    type: 'xre.audio.AudioSetting.MASTER_VOLUME' as const,
-    value: matches.number
-  })
-  static setMicrophoneVolume = defineAction({
-    type: 'xre.audio.AudioSetting.MICROPHONE_VOLUME' as const,
-    value: matches.number
-  })
-  static setUsePositionalMedia = defineAction({
-    type: 'xre.audio.AudioSetting.POSITIONAL_MEDIA' as const,
-    value: matches.boolean
-  })
-  static setMediaStreamVolume = defineAction({
-    type: 'xre.audio.AudioSetting.MEDIA_STREAM_VOLUME' as const,
-    value: matches.number
-  })
-  static setNotificationVolume = defineAction({
-    type: 'xre.audio.AudioSetting.NOTIFICATION_VOLUME' as const,
-    value: matches.number
-  })
-  static setSoundEffectsVolume = defineAction({
-    type: 'xre.audio.AudioSetting.SOUND_EFFECT_VOLUME' as const,
-    value: matches.number
-  })
-  static setMusicVolume = defineAction({
-    type: 'xre.audio.AudioSetting.BACKGROUND_MUSIC_VOLUME' as const,
-    value: matches.number
-  })
+  useEffect(() => {
+    const audioContext = getState(AudioState).audioContext
+
+    const audioState = getMutableState(AudioState)
+    const currentTime = audioState.audioContext.currentTime.value
+
+    audioState.cameraGainNode.gain.value.setTargetAtTime(audioState.masterVolume.value, currentTime, 0.01)
+
+    /** create gain nodes for mix buses */
+    audioState.gainNodeMixBuses.mediaStreams.set(audioContext.createGain())
+    audioState.gainNodeMixBuses.mediaStreams.value.connect(audioState.cameraGainNode.value)
+    audioState.gainNodeMixBuses.mediaStreams.value.gain.setTargetAtTime(
+      audioState.mediaStreamVolume.value,
+      currentTime,
+      0.01
+    )
+
+    audioState.gainNodeMixBuses.notifications.set(audioContext.createGain())
+    audioState.gainNodeMixBuses.notifications.value.connect(audioState.cameraGainNode.value)
+    audioState.gainNodeMixBuses.notifications.value.gain.setTargetAtTime(
+      audioState.notificationVolume.value,
+      currentTime,
+      0.01
+    )
+
+    audioState.gainNodeMixBuses.music.set(audioContext.createGain())
+    audioState.gainNodeMixBuses.music.value.connect(audioState.cameraGainNode.value)
+    audioState.gainNodeMixBuses.music.value.gain.setTargetAtTime(
+      audioState.backgroundMusicVolume.value,
+      currentTime,
+      0.01
+    )
+
+    audioState.gainNodeMixBuses.soundEffects.set(audioContext.createGain())
+    audioState.gainNodeMixBuses.soundEffects.value.connect(audioState.cameraGainNode.value)
+    audioState.gainNodeMixBuses.soundEffects.value.gain.setTargetAtTime(
+      audioState.soundEffectsVolume.value,
+      currentTime,
+      0.01
+    )
+
+    return () => {
+      audioState.gainNodeMixBuses.mediaStreams.value.disconnect()
+      audioState.gainNodeMixBuses.mediaStreams.set(null!)
+      audioState.gainNodeMixBuses.notifications.value.disconnect()
+      audioState.gainNodeMixBuses.notifications.set(null!)
+      audioState.gainNodeMixBuses.music.value.disconnect()
+      audioState.gainNodeMixBuses.music.set(null!)
+      audioState.gainNodeMixBuses.soundEffects.value.disconnect()
+      audioState.gainNodeMixBuses.soundEffects.set(null!)
+    }
+  }, [])
+
+  useEffect(() => {
+    audioState.cameraGainNode.value.gain.setTargetAtTime(
+      audioState.masterVolume.value,
+      audioState.audioContext.value.currentTime,
+      0.01
+    )
+  }, [audioState.masterVolume])
+
+  useEffect(() => {
+    audioState.gainNodeMixBuses.value.mediaStreams.gain.setTargetAtTime(
+      audioState.mediaStreamVolume.value,
+      audioState.audioContext.value.currentTime,
+      0.01
+    )
+  }, [audioState.mediaStreamVolume])
+
+  useEffect(() => {
+    audioState.gainNodeMixBuses.value.notifications.gain.setTargetAtTime(
+      audioState.notificationVolume.value,
+      audioState.audioContext.value.currentTime,
+      0.01
+    )
+  }, [audioState.notificationVolume])
+
+  useEffect(() => {
+    audioState.gainNodeMixBuses.value.soundEffects.gain.setTargetAtTime(
+      audioState.soundEffectsVolume.value,
+      audioState.audioContext.value.currentTime,
+      0.01
+    )
+  }, [audioState.soundEffectsVolume])
+
+  useEffect(() => {
+    audioState.gainNodeMixBuses.value.music.gain.setTargetAtTime(
+      audioState.backgroundMusicVolume.value,
+      audioState.audioContext.value.currentTime,
+      0.01
+    )
+  }, [audioState.backgroundMusicVolume])
+
+  useEffect(() => {
+    getMutableState(MediaSettingsState).immersiveMedia.set(audioState.positionalMedia.value)
+  }, [audioState.positionalMedia])
 }
 
 export const getPositionalMedia = () => {

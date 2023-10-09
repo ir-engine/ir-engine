@@ -28,11 +28,9 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
-import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
 import $404 from '../pages/404'
@@ -54,20 +52,12 @@ function PublicRouter() {
   const location = useLocation()
 
   useEffect(() => {
-    addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(ProjectServiceReceptor)
-
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
     // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
     // The client and auth settigns will not be needed on these routes
     if (!/auth\/oauth/.test(location.pathname)) {
       AuthService.doLoginAuto()
-    }
-
-    return () => {
-      removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(ProjectServiceReceptor)
     }
   }, [])
 

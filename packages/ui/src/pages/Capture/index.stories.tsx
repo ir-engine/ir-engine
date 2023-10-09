@@ -35,17 +35,10 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import {
-  ProjectService,
-  ProjectServiceReceptor,
-  ProjectState
-} from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import {
-  LocationAction,
-  LocationServiceReceptor
-} from '@etherealengine/client-core/src/social/services/LocationService'
+import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { AudioEffectPlayer, MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
@@ -138,7 +131,7 @@ const decorators = [
             .find()
             .then((projects) => {
               loadEngineInjection(projects).then((result) => {
-                dispatchAction(LocationAction.setLocationName({ locationName }))
+                LocationState.setLocationName(locationName)
                 initializeEngineForRecorder()
                 setProjectComponents(result)
               })
@@ -152,9 +145,6 @@ const decorators = [
     }, [selfUser.id])
 
     useEffect(() => {
-      addActionReceptor(LocationServiceReceptor)
-      addActionReceptor(ProjectServiceReceptor)
-
       // Oauth callbacks may be running when a guest identity-provider has been deleted.
       // This would normally cause doLoginAuto to make a guest user, which we do not want.
       // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
@@ -170,12 +160,6 @@ const decorators = [
         instanceID: true,
         roomID: false
       })
-
-      return () => {
-        // removeActionReceptor(RouterServiceReceptor)
-        removeActionReceptor(LocationServiceReceptor)
-        removeActionReceptor(ProjectServiceReceptor)
-      }
     }, [])
 
     AuthService.useAPIListeners()

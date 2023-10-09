@@ -62,6 +62,7 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 export type ProjectUpdateParams = {
   user?: UserType
   isJob?: boolean
+  jobId?: string
 }
 
 export interface ProjectParams extends RootParams<ProjectQuery>, ProjectUpdateParams {}

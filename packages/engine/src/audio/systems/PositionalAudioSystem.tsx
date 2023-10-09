@@ -27,7 +27,7 @@ import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { defineActionQueue, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -45,7 +45,7 @@ import {
 } from '../../networking/systems/MediasoupMediaProducerConsumerState'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AudioSettingAction, AudioState } from '../AudioState'
+import { AudioState } from '../AudioState'
 import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
@@ -61,8 +61,6 @@ const positionalAudioQuery = defineQuery([PositionalAudioComponent, MediaElement
  * Avatars
  */
 const networkedAvatarAudioQuery = defineQuery([AvatarComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)])
-
-const setMediaStreamVolumeActionQueue = defineActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
 
 /** Weak map entry is automatically GC'd when network object is removed */
 const avatarAudioStreams: WeakMap<ComponentType<typeof NetworkObjectComponent>, MediaStream> = new WeakMap()
@@ -151,19 +149,6 @@ const execute = () => {
     avatarAudioStreams.set(networkObject, stream)
   }
 
-  /**
-   * Update avatar volume when the value is changed
-   */
-  for (const action of setMediaStreamVolumeActionQueue()) {
-    for (const entity of networkedAvatarAudioEntities) {
-      const networkObject = getComponent(entity, NetworkObjectComponent)
-      const audioObj = avatarAudioStreams.get(networkObject)!
-      if (!audioObj) continue
-      const gain = AudioNodeGroups.get(audioObj)?.gain!
-      if (gain) gain.gain.setTargetAtTime(action.value, audioContext.currentTime, 0.01)
-    }
-  }
-
   const endTime = audioContext.currentTime + getState(EngineState).deltaSeconds
 
   /**
@@ -230,6 +215,23 @@ const PositionalAudioPanner = createQueryReactor(
 )
 
 const reactor = () => {
+  const mediaStreamVolume = useHookstate(getMutableState(AudioState).mediaStreamVolume)
+
+  /**
+   * Update avatar volume when the value is changed
+   */
+  useEffect(() => {
+    const audioContext = getState(AudioState).audioContext
+
+    for (const entity of networkedAvatarAudioQuery()) {
+      const networkObject = getComponent(entity, NetworkObjectComponent)
+      const audioObj = avatarAudioStreams.get(networkObject)!
+      if (!audioObj) continue
+      const gain = AudioNodeGroups.get(audioObj)?.gain!
+      if (gain) gain.gain.setTargetAtTime(mediaStreamVolume.value, audioContext.currentTime, 0.01)
+    }
+  }, [mediaStreamVolume])
+
   return <PositionalAudioPanner />
 }
 

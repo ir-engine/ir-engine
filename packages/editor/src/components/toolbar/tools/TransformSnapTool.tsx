@@ -27,13 +27,13 @@ import React from 'react'
 
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 
 import { useTranslation } from 'react-i18next'
 import { toggleSnapMode } from '../../../functions/transformFunctions'
-import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -65,24 +65,24 @@ const TransformSnapTool = () => {
 
   const onChangeTranslationSnap = (snapValue: number) => {
     InfiniteGridHelper.instance.setSize(snapValue)
-    dispatchAction(EditorHelperAction.changeTranslationSnap({ translationSnap: snapValue }))
+    getMutableState(EditorHelperState).translationSnap.set(snapValue)
 
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
+      getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
     }
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
-    dispatchAction(EditorHelperAction.changeRotationSnap({ rotationSnap: snapValue }))
+    getMutableState(EditorHelperState).rotationSnap.set(snapValue)
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
+      getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
     }
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
-  //   dispatchAction(EditorHelperAction.changeScaleSnap({ scaleSnap: snapValue }))
+  //   getMutableState(EditorHelperState).scaleSnap.set(snapValue)
   //   if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-  //     dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
+  //     getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
   //   }
   // }
 

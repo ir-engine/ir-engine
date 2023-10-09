@@ -46,6 +46,8 @@ export const DirectionalLightComponent = defineComponent({
     light.target.position.set(0, 0, 1)
     light.target.name = 'light-target'
     light.add(light.target)
+    light.shadow.camera.near = 0.01
+    light.shadow.camera.updateProjectionMatrix()
     return {
       light,
       color: new Color(),
@@ -53,7 +55,7 @@ export const DirectionalLightComponent = defineComponent({
       castShadow: false,
       shadowBias: -0.00001,
       shadowRadius: 1,
-      cameraFar: 2000,
+      cameraFar: 200,
       useInCSM: true,
       helper: null as EditorDirectionalLightHelper | null
     }
@@ -69,7 +71,7 @@ export const DirectionalLightComponent = defineComponent({
     /** backwards compat */
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
-    if (matches.number.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
+    if (matches.boolean.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
 
     /**
      * we need to put this here in case the CSM needs to grab the values, which can sometimes happen before the component reactor hooks
@@ -124,6 +126,7 @@ export const DirectionalLightComponent = defineComponent({
 
     useEffect(() => {
       light.light.value.shadow.camera.far = light.cameraFar.value
+      light.light.shadow.camera.value.updateProjectionMatrix()
     }, [light.cameraFar])
 
     useEffect(() => {
@@ -136,10 +139,7 @@ export const DirectionalLightComponent = defineComponent({
 
     useEffect(() => {
       if (light.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
-        light.light.value.shadow.mapSize.set(
-          renderState.shadowMapResolution.value,
-          renderState.shadowMapResolution.value
-        )
+        light.light.value.shadow.mapSize.setScalar(renderState.shadowMapResolution.value)
         light.light.value.shadow.map?.dispose()
         light.light.value.shadow.map = null as any
         light.light.value.shadow.camera.updateProjectionMatrix()

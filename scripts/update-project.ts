@@ -61,18 +61,19 @@ const options = cli.parse({
   commitSHA: [false, 'Commit SHA to use for project', 'string'],
   sourceBranch: [false, 'Branch to use for project source', 'string'],
   updateType: [false, 'Type of updating for project', 'string'],
-  updateSchedule: [false, 'Schedule for auto-updating project', 'string']
+  updateSchedule: [false, 'Schedule for auto-updating project', 'string'],
+  jobId: [false, 'ID of Job record', 'string']
 })
 
 cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    const { userId, ...data } = options
+    const { userId, jobId, ...data } = options
     data.reset = data.reset === 'true'
     data.needsRebuild = data.needsRebuild === true
     const user = await app.service(userPath).get(userId)
-    await app.service(projectPath).update('', data, { user: user, isJob: true })
+    await app.service(projectPath).update('', data, { user: user, isJob: true, jobId })
     cli.exit(0)
   } catch (err) {
     console.log(err)

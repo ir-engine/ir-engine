@@ -64,8 +64,6 @@ import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
 
-let lastLandmarks: NormalizedLandmarkList
-
 export const drawMocapDebug = () => {
   const debugMeshes = {} as Record<string, Mesh<SphereGeometry, MeshBasicMaterial>>
 
@@ -131,8 +129,9 @@ export const drawMocapDebug = () => {
 }
 
 const drawDebug = drawMocapDebug()
+const drawDebugScreen = drawMocapDebug()
 
-export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID, entity) {
+export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screenlandmarks, entity) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
     return
@@ -144,6 +143,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
 
   if (avatarDebug) {
     drawDebug(landmarks)
+    drawDebugScreen(screenlandmarks)
   }
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
@@ -232,6 +232,13 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, userID
     VRMHumanBoneName.LeftFoot
   )
 
+  solveHead(
+    entity,
+    landmarks[POSE_LANDMARKS.RIGHT_EAR],
+    landmarks[POSE_LANDMARKS.LEFT_EAR],
+    landmarks[POSE_LANDMARKS.NOSE]
+  )
+
   // if (!planeHelper1.parent) {
   //   Engine.instance.scene.add(planeHelper1)
   //   Engine.instance.scene.add(planeHelper2)
@@ -277,9 +284,7 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   // if (!hips) return
 
   const restSpine = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Spine]!
-  const restChest =
-    rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.UpperChest]! ??
-    rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Chest]!
+  const restChest = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.Chest]!
   const restShoulderLeft = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.LeftUpperArm]!
   const restShoulderRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperArm]!
   const averageChestToShoulderHeight = (restShoulderLeft.position![1] + restShoulderRight.position![1]) / 2
@@ -561,6 +566,41 @@ export const solveFoot = (
   rig.localRig[extentTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
+const headRotation = new Quaternion()
+const leftEarVec3 = new Vector3()
+const rightEarVec3 = new Vector3()
+const noseVec3 = new Vector3()
+const parentRotation = new Quaternion()
+
+const rotate90degreesAroundXAxis = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
+
+export const solveHead = (
+  entity: Entity,
+  leftEar: NormalizedLandmark,
+  rightEar: NormalizedLandmark,
+  nose: NormalizedLandmark
+) => {
+  const rig = getComponent(entity, AvatarRigComponent)
+
+  leftEarVec3.set(leftEar.x, -leftEar.y, leftEar.z)
+  rightEarVec3.set(rightEar.x, -rightEar.y, rightEar.z)
+  noseVec3.set(nose.x, -nose.y, nose.z)
+
+  getQuaternionFromPointsAlongPlane(rightEarVec3, leftEarVec3, noseVec3, headRotation, false)
+
+  headRotation.multiply(rotate90degreesAroundXAxis)
+
+  rig.localRig[VRMHumanBoneName.Neck]!.node.getWorldQuaternion(parentRotation)
+  headRotation.premultiply(parentRotation.invert())
+
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].x[entity] = headRotation.x
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].y[entity] = headRotation.y
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].z[entity] = headRotation.z
+  MotionCaptureRigComponent.rig[VRMHumanBoneName.Head].w[entity] = headRotation.w
+
+  rig.localRig[VRMHumanBoneName.Head]?.node.quaternion.copy(headRotation)
+}
+
 const plane = new Plane()
 const directionVector = new Vector3()
 const thirdVector = new Vector3()
@@ -580,6 +620,3 @@ const getQuaternionFromPointsAlongPlane = (
   rotationMatrix.makeBasis(directionVector, thirdVector, orthogonalVector)
   return target.setFromRotationMatrix(rotationMatrix)
 }
-
-// from vector is V_010
-// to vector is shoulderCenter minus hipcenter

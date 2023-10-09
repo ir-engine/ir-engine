@@ -86,6 +86,51 @@ const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
   )
 }
 
+const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
+  const { entity, multiEdit } = props
+
+  const [{ isDragging }, dropRef] = useDrop({
+    accept: [ItemTypes.Component],
+    drop: (item: { componentJsonID: string }) => {
+      const component = ComponentJSONIDMap.get(item.componentJsonID)
+      if (!component || hasComponent(entity, component)) return
+      EditorControlFunctions.addOrRemoveComponent([entity], component, true)
+      dispatchAction(SelectionAction.forceUpdate({}))
+    },
+    collect: (monitor) => {
+      if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
+
+      const component = ComponentJSONIDMap.get(monitor.getItem().componentJsonID)
+      if (!component) return { isDragging: false }
+
+      return {
+        isDragging: !hasComponent(entity, component)
+      }
+    }
+  })
+
+  const uuid = useOptionalComponent(entity, UUIDComponent)
+
+  if (!uuid) return null
+
+  const components = getAllComponents(entity as Entity).filter((c) => EntityNodeEditor.has(c))
+
+  return (
+    <div
+      ref={dropRef}
+      style={{
+        pointerEvents: 'all',
+        border: isDragging ? '2px solid lightgrey' : 'none'
+      }}
+    >
+      <CoreNodeEditor entity={entity} key={entity} />
+      {components.map((c, i) => (
+        <EntityComponentEditor key={`${entity}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
+      ))}
+    </div>
+  )
+}
+
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  *
@@ -105,51 +150,32 @@ export const PropertiesPanelContainer = () => {
   }, [selectionState.objectChangeCounter])
 
   const materialLibrary = getState(MaterialLibraryState)
+
   //rendering editor views for customization of element properties
   let content
+
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
-  let nodeEntity = lockedNode
+
+  const nodeEntity = lockedNode
     ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
+
   const isMaterial =
     typeof nodeEntity === 'string' &&
     (!!materialLibrary.materials[nodeEntity] ||
       Object.values(materialLibrary.materials)
         .map(({ material }) => material.uuid)
         .includes(nodeEntity))
+
   const isObject3D = typeof nodeEntity === 'string' && !isMaterial
+
   const node = isMaterial
     ? materialLibrary.materials[nodeEntity as string] ??
       Object.values(materialLibrary.materials).find(({ material }) => material.uuid === nodeEntity)
     : isObject3D
     ? Engine.instance.scene.getObjectByProperty('uuid', nodeEntity as string)
     : nodeEntity
-
-  const [{ isDragging }, dropRef] = useDrop({
-    accept: [ItemTypes.Component],
-    drop: (item: { componentJsonID: string }) => {
-      if (isObject3D) return
-      const component = ComponentJSONIDMap.get(item.componentJsonID)
-      const entity = node as Entity
-      if (!component || hasComponent(entity, component)) return
-      EditorControlFunctions.addOrRemoveComponent([entity], component, true)
-      dispatchAction(SelectionAction.forceUpdate({}))
-    },
-    collect: (monitor) => {
-      if (isObject3D) return { isDragging: false }
-      if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
-
-      const component = ComponentJSONIDMap.get(monitor.getItem().componentJsonID)
-      if (!component) return { isDragging: false }
-
-      const entity = node as Entity
-
-      return {
-        isDragging: !hasComponent(entity, component)
-      }
-    }
-  })
 
   if (!nodeEntity || !node) {
     content = <div style={noNodeSelectedMessageStyle}>{t('editor:properties.noNodeSelected')}</div>
@@ -167,23 +193,8 @@ export const PropertiesPanelContainer = () => {
       </div>
     )
   } else {
-    nodeEntity = nodeEntity as Entity
-    const components = getAllComponents(nodeEntity as Entity).filter((c) => EntityNodeEditor.has(c))
-
-    content = (
-      <div
-        ref={dropRef}
-        style={{
-          pointerEvents: 'all',
-          border: isDragging ? '2px solid lightgrey' : 'none'
-        }}
-      >
-        <CoreNodeEditor entity={node as Entity} key={node as Entity} />
-        {components.map((c, i) => (
-          <EntityComponentEditor key={`${nodeEntity}-${c.name}`} multiEdit={multiEdit} entity={node} component={c} />
-        ))}
-      </div>
-    )
+    const entity = nodeEntity as Entity
+    content = <EntityEditor entity={entity} key={entity} multiEdit={multiEdit} />
   }
 
   return <div style={propertiesPanelContentStyle}>{content}</div>

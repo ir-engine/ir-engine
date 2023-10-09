@@ -35,6 +35,7 @@ import {
   serializeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
+import { sceneRelativePathIdentifier } from '../../common/functions/parseSceneJSON'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -163,7 +164,6 @@ export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
 export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
   const cacheRe = new RegExp(`${config.client.fileServer}\/projects`)
   const symbolRe = /__\$project\$__/
-  const pathSymbol = '__$project$__'
   const frontier = [...gltf.scenes, ...gltf.nodes]
   while (frontier.length > 0) {
     const elt = frontier.pop()
@@ -174,7 +174,7 @@ export const handleScenePaths = (gltf: any, mode: 'encode' | 'decode') => {
         }
         if (mode === 'encode') {
           if (typeof v === 'string' && cacheRe.test(v)) {
-            elt[k] = v.replace(cacheRe, pathSymbol)
+            elt[k] = v.replace(cacheRe, sceneRelativePathIdentifier)
           }
         }
         if (mode === 'decode') {

@@ -41,6 +41,7 @@ import verifyScope from '../../hooks/verify-scope'
 import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
 
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
+import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -62,6 +63,7 @@ import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import { cleanString } from '../../util/cleanString'
+import { getDateTimeSql } from '../../util/datetime-sql'
 import { copyFolderRecursiveSync } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { checkAppOrgStatus, checkUserOrgWriteStatus, checkUserRepoWriteStatus } from './github-helper'
@@ -382,9 +384,20 @@ const updateProjectJob = async (context: HookContext) => {
     projectName = projectName.toLowerCase()
     if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
     if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
-    const jobBody = await getProjectUpdateJobBody(context.data, context.service, context.params!.user!.id)
+    const date = await getDateTimeSql()
+    const newJob = await context.app.service(apiJobPath).create({
+      name: '',
+      startTime: date,
+      endTime: date,
+      returnData: '',
+      status: 'pending'
+    })
+    const jobBody = await getProjectUpdateJobBody(context.data, context.service, context.params!.user!.id, newJob.id)
+    await context.app.service(apiJobPath).patch(newJob.id, {
+      name: jobBody.metadata!.name
+    })
     const jobLabelSelector = `etherealengine/projectField=${context.data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
-    const jobFinishedPromise = createExecutorJob(context.service, jobBody, jobLabelSelector, 1000)
+    const jobFinishedPromise = createExecutorJob(context.service, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
       const result = (await context.app.service(projectPath).find({
