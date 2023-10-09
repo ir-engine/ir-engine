@@ -55,7 +55,6 @@ const ArrayInputGroup = ({
   acceptDropItems
 }: ArrayInputGroupProp) => {
   const addInput = (count = 1) => {
-    console.log(`HeyAppu: Adding ${count} inputs`)
     const valuesCopy = [...values]
     for (let i = 0; i < count; i++) {
       valuesCopy.push('')
