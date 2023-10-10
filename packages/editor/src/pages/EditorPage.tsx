@@ -28,7 +28,6 @@ import { useParams } from 'react-router-dom'
 
 import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { startClientSystems } from '@etherealengine/client-core/src/world/startClientSystems'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -62,26 +61,17 @@ const editorSystems = () => {
   })
 }
 
-export const EditorPage = () => {
-  const params = useParams()
-  const projectState = useHookstate(getMutableState(ProjectState))
-  const editorState = useHookstate(getMutableState(EditorState))
-  const isEditor = useHookstate(getMutableState(EngineState).isEditor)
-  const authState = useHookstate(getMutableState(AuthState))
-  const authUser = authState.authUser
-  const user = authState.user
-  const [isAuthenticated, setAuthenticated] = useState(false)
-  const [clientInitialized, setClientInitialized] = useState(false)
-  const [engineReady, setEngineReady] = useState(true)
+export const useStudioEditor = () => {
+  const [engineReady, setEngineReady] = useState(false)
 
   useEffect(() => {
-    // TODO: This is a hack to prevent the editor from loading the engine twice
-    if (isEditor.value) return
-    isEditor.set(true)
+    if (engineReady) return
+    getMutableState(EngineState).isEditor.set(true)
     const projects = Engine.instance.api.service(projectsPath).find()
     startClientSystems()
 
     editorSystems()
+    if (engineReady) return
     projects.then((proj) => {
       loadEngineInjection(proj).then(() => {
         setEngineReady(true)
@@ -90,24 +80,18 @@ export const EditorPage = () => {
     })
   }, [])
 
-  useEffect(() => {
-    const _isAuthenticated =
-      authUser.accessToken.value != null && authUser.accessToken.value.length > 0 && user.id.value != null
+  return engineReady
+}
 
-    if (isAuthenticated !== _isAuthenticated) setAuthenticated(_isAuthenticated)
-  }, [authUser.accessToken, user.id, isAuthenticated])
+export const EditorPage = () => {
+  const params = useParams()
+  const projectState = useHookstate(getMutableState(ProjectState))
+  const editorState = useHookstate(getMutableState(EditorState))
 
   useEffect(() => {
     const { projectName, sceneName } = params
     getMutableState(EditorState).merge({ projectName: projectName ?? null, sceneName: sceneName ?? null })
   }, [params])
 
-  useEffect(() => {
-    if (clientInitialized || projectState.projects.value.length <= 0) return
-    setClientInitialized(true)
-  }, [projectState.projects.value])
-
-  return (
-    <>{clientInitialized && editorState.projectName.value && isAuthenticated && engineReady && <EditorContainer />}</>
-  )
+  return <>{projectState.projects.value.length && editorState.projectName.value && <EditorContainer />}</>
 }

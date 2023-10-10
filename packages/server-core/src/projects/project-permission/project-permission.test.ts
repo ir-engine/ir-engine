@@ -165,7 +165,7 @@ describe('project-permission.test', () => {
           {
             name: newProjectName1
           },
-          params
+          { ...params }
         )
         const projectPermission = (await app.service(projectPermissionPath).find({
           query: {

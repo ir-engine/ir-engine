@@ -36,7 +36,6 @@ import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -59,6 +58,7 @@ import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadSceneBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
+import { EditorHistoryState } from '../services/EditorHistory'
 import { EditorState } from '../services/EditorServices'
 import './EditorContainer.css'
 import { AppContext } from './Search/context'
@@ -297,7 +297,7 @@ const EditorContainer = () => {
     editorState.sceneModified.set(false)
     editorState.projectName.set(null)
     editorState.sceneName.set(null)
-    getMutableState(SceneState).sceneData.set(null)
+    EditorHistoryState.unloadScene()
     RouterState.navigate('/studio')
   }
 
@@ -454,7 +454,7 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        if (result.generateThumbnails) {
+        if (result) {
           const blob = await takeScreenshot(512, 320, 'ktx2')
           const file = new File([blob!], editorState.sceneName + '.thumbnail.ktx2')
 

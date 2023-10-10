@@ -248,7 +248,7 @@ const createAndUploadProject = async (context: HookContext<ProjectService>) => {
 
   await uploadLocalProjectToProvider(context.app, projectName, false)
 
-  context.data = { ...context.data, name: projectName, needsRebuild: true }
+  context.data = { name: projectName, needsRebuild: true }
 }
 
 const linkGithubToProject = async (context: HookContext) => {
