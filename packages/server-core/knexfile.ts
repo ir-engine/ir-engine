@@ -59,7 +59,7 @@ if (currentFolderName === 'server-core') {
 
 parseDirectory(serverCoreSrc)
 
-const projectsDirectory = '../projects/projects'
+const projectsDirectory = path.join(appRootPath.path, '/packages/projects/projects')
 const projectsExists = fs.existsSync(projectsDirectory)
 
 if (projectsExists) {

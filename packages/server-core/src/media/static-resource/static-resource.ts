@@ -46,7 +46,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(staticResourcePath, new StaticResourceService(options, app), {
+  app.use(staticResourcePath, new StaticResourceService(options), {
     // A list of all methods this service exposes externally
     methods: staticResourceMethods,
     // You can add additional custom events to be sent to clients here

@@ -45,7 +45,7 @@ import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
   NormalizedLandmarkList,
@@ -55,12 +55,12 @@ import {
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { solveTwoBoneIK } from '../avatar/animation/TwoBoneIKSolver'
 import { V_010, V_111 } from '../common/constants/MathConstants'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
+import { MotionCaptureState } from './MotionCaptureState'
 
 const grey = new Color(0.5, 0.5, 0.5)
 
@@ -131,6 +131,17 @@ export const drawMocapDebug = () => {
 const drawDebug = drawMocapDebug()
 const drawDebugScreen = drawMocapDebug()
 
+export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], threshold = 0.5) => {
+  const hipsVisibility =
+    (landmarks[POSE_LANDMARKS.RIGHT_HIP].visibility! + landmarks[POSE_LANDMARKS.LEFT_HIP].visibility!) * 0.5 >
+    threshhold
+  const feetVisibility =
+    (landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE].visibility! + landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE].visibility!) *
+      0.5 >
+    threshhold
+  return hipsVisibility && feetVisibility
+}
+
 export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screenlandmarks, entity) {
   const rig = getComponent(entity, AvatarRigComponent)
   if (!rig || !rig.localRig || !rig.localRig.hips || !rig.localRig.hips.node) {
@@ -147,7 +158,8 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
   }
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
-
+  const estimatingLowerBody = shouldEstimateLowerBody(landmarks)
+  const mocapState = getMutableState(MotionCaptureState)
   solveSpine(entity, lowestWorldY, landmarks)
   solveLimb(
     entity,
@@ -171,28 +183,67 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
     VRMHumanBoneName.RightUpperArm,
     VRMHumanBoneName.RightLowerArm
   )
-  solveLimb(
-    entity,
-    lowestWorldY,
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-    new Vector3(0, 1, 0),
-    VRMHumanBoneName.Hips,
-    VRMHumanBoneName.LeftUpperLeg,
-    VRMHumanBoneName.LeftLowerLeg
-  )
-  solveLimb(
-    entity,
-    lowestWorldY,
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-    new Vector3(0, 1, 0),
-    VRMHumanBoneName.Hips,
-    VRMHumanBoneName.RightUpperLeg,
-    VRMHumanBoneName.RightLowerLeg
-  )
+  if (estimatingLowerBody) {
+    solveLimb(
+      entity,
+      lowestWorldY,
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HIP],
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_KNEE],
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      new Vector3(0, 1, 0),
+      VRMHumanBoneName.Hips,
+      VRMHumanBoneName.LeftUpperLeg,
+      VRMHumanBoneName.LeftLowerLeg
+    )
+    solveLimb(
+      entity,
+      lowestWorldY,
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_HIP],
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_KNEE],
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      new Vector3(0, 1, 0),
+      VRMHumanBoneName.Hips,
+      VRMHumanBoneName.RightUpperLeg,
+      VRMHumanBoneName.RightLowerLeg
+    )
+    solveFoot(
+      entity,
+      lowestWorldY,
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
+      landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
+      VRMHumanBoneName.RightUpperLeg,
+      VRMHumanBoneName.RightFoot
+    )
+    solveFoot(
+      entity,
+      lowestWorldY,
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
+      landmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
+      VRMHumanBoneName.LeftUpperLeg,
+      VRMHumanBoneName.LeftFoot
+    )
+    //check state, if we are still not set to track lower body, update that
+    if (!mocapState.trackingLowerBody.value) {
+      //dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
+
+      mocapState.trackingLowerBody.set(true)
+    }
+  } else {
+    if (mocapState.trackingLowerBody.value) {
+      //dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
+      //very quick dirty reset of legs
+      resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.LeftUpperLeg, VRMHumanBoneName.LeftLowerLeg)
+      resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.RightUpperLeg, VRMHumanBoneName.RightLowerLeg)
+      resetBone(entity, VRMHumanBoneName.LeftFoot)
+      resetBone(entity, VRMHumanBoneName.RightFoot)
+      resetBone(entity, VRMHumanBoneName.LeftHand)
+      resetBone(entity, VRMHumanBoneName.RightHand)
+      mocapState.trackingLowerBody.set(false)
+    }
+  }
+
   solveHand(
     entity,
     lowestWorldY,
@@ -213,31 +264,12 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
     VRMHumanBoneName.LeftLowerArm,
     VRMHumanBoneName.LeftHand
   )
-  solveFoot(
-    entity,
-    lowestWorldY,
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_ANKLE],
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_HEEL],
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_FOOT_INDEX],
-    VRMHumanBoneName.RightUpperLeg,
-    VRMHumanBoneName.RightFoot
-  )
-  solveFoot(
-    entity,
-    lowestWorldY,
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_ANKLE],
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_HEEL],
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_FOOT_INDEX],
-    VRMHumanBoneName.LeftUpperLeg,
-    VRMHumanBoneName.LeftFoot
-  )
 
   solveHead(
     entity,
     landmarks[POSE_LANDMARKS.RIGHT_EAR],
     landmarks[POSE_LANDMARKS.LEFT_EAR],
-    landmarks[POSE_LANDMARKS.LEFT_EYE_INNER],
-    landmarks[POSE_LANDMARKS.RIGHT_EYE_INNER]
+    landmarks[POSE_LANDMARKS.NOSE]
   )
 
   // if (!planeHelper1.parent) {
@@ -267,6 +299,7 @@ const vec3 = new Vector3()
  */
 
 export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList) => {
+  const trackingLowerBody = getState(MotionCaptureState).trackingLowerBody
   const rig = getComponent(entity, AvatarRigComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]
@@ -294,9 +327,18 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   const restLegRight = rig.vrm.humanoid.normalizedRestPose[VRMHumanBoneName.RightUpperLeg]!
   const averageHipToLegHeight = (restLegLeft.position![1] + restLegRight.position![1]) / 2
 
-  const hipleft = new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
-  const hipright = new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
-  const hipcenter = new Vector3().copy(hipleft).add(hipright).multiplyScalar(0.5)
+  const offset = 0
+  const legLength = rig.upperLegLength + rig.lowerLegLength * 2 - offset
+
+  const hipleft = trackingLowerBody
+    ? new Vector3(rightHip.x, lowestWorldY - rightHip.y, rightHip.z)
+    : new Vector3(0, legLength, 0)
+  const hipright = trackingLowerBody
+    ? new Vector3(leftHip.x, lowestWorldY - leftHip.y, leftHip.z)
+    : new Vector3(0, legLength, 0)
+  const hipcenter = trackingLowerBody
+    ? new Vector3().copy(hipleft).add(hipright).multiplyScalar(0.5)
+    : new Vector3(0, legLength, 0)
 
   const shoulderLeft = new Vector3(rightShoulder.x, lowestWorldY - rightShoulder.y, rightShoulder.z)
   const shoulderRight = new Vector3(leftShoulder.x, lowestWorldY - leftShoulder.y, leftShoulder.z)
@@ -363,21 +405,14 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   )
   shoulderObject.matrixWorld.decompose(shoulderObject.position, shoulderObject.quaternion, shoulderObject.scale)
 
-  solveTwoBoneIK(
-    hipObject,
-    spineObject,
-    shoulderObject,
-    shoulderPositionAlongPlane, // target position
-    shoulderWorldQuaternion, // target quaternion
-    null,
-    null,
-    null,
-    null,
-    null,
-    1,
-    1,
-    1
-  )
+  if (trackingLowerBody) {
+    hipObject.quaternion.copy(shoulderWorldQuaternion)
+    spineObject.quaternion.identity()
+    shoulderObject.quaternion.identity()
+  } else {
+    hipObject.quaternion.identity()
+    spineObject.quaternion.copy(hipToShoulderQuaternion)
+  }
 
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].x[entity] = hipObject.quaternion.x
   MotionCaptureRigComponent.rig[VRMHumanBoneName.Hips].y[entity] = hipObject.quaternion.y
@@ -463,6 +498,44 @@ export const solveLimb = (
   rig.localRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
 }
 
+export const resetLimb = (
+  entity: Entity,
+  parentTargetBoneName: VRMHumanBoneName,
+  startTargetBoneName: VRMHumanBoneName,
+  midTargetBoneName: VRMHumanBoneName
+) => {
+  // if (start.visibility! < threshhold || mid.visibility! < threshhold || end.visibility! < threshhold) return
+  const rig = getComponent(entity, AvatarRigComponent)
+
+  MotionCaptureRigComponent.rig[startTargetBoneName].x[entity] = 0
+  MotionCaptureRigComponent.rig[startTargetBoneName].y[entity] = 0
+  MotionCaptureRigComponent.rig[startTargetBoneName].z[entity] = 0
+  MotionCaptureRigComponent.rig[startTargetBoneName].w[entity] = 1
+
+  rig.localRig[startTargetBoneName]?.node.quaternion.identity()
+
+  MotionCaptureRigComponent.rig[midTargetBoneName].x[entity] = 0
+  MotionCaptureRigComponent.rig[midTargetBoneName].y[entity] = 0
+  MotionCaptureRigComponent.rig[midTargetBoneName].z[entity] = 0
+  MotionCaptureRigComponent.rig[midTargetBoneName].w[entity] = 1
+
+  rig.localRig[midTargetBoneName]?.node.quaternion.identity()
+
+  rig.localRig[startTargetBoneName]!.node.updateWorldMatrix(false, false)
+  rig.localRig[midTargetBoneName]!.node.updateWorldMatrix(false, false)
+}
+
+export const resetBone = (entity: Entity, boneName: VRMHumanBoneName) => {
+  const rig = getComponent(entity, AvatarRigComponent)
+
+  MotionCaptureRigComponent.rig[boneName].x[entity] = 0
+  MotionCaptureRigComponent.rig[boneName].y[entity] = 0
+  MotionCaptureRigComponent.rig[boneName].z[entity] = 0
+  MotionCaptureRigComponent.rig[boneName].w[entity] = 1
+
+  rig.localRig[boneName]?.node.quaternion.identity()
+}
+
 export const solveHand = (
   entity: Entity,
   lowestWorldY: number,
@@ -531,8 +604,6 @@ export const solveFoot = (
 ) => {
   if (!extent || !ref1 || !ref2) return
 
-  // if (extent.visibility! < threshhold || ref1.visibility! < threshhold || ref2.visibility! < threshhold) return
-
   const rig = getComponent(entity, AvatarRigComponent)
 
   const parentQuaternion = rig.localRig[parentTargetBoneName]!.node.getWorldQuaternion(new Quaternion())
@@ -570,7 +641,7 @@ export const solveFoot = (
 const headRotation = new Quaternion()
 const leftEarVec3 = new Vector3()
 const rightEarVec3 = new Vector3()
-const eyeCenterVec3 = new Vector3()
+const noseVec3 = new Vector3()
 const parentRotation = new Quaternion()
 
 const rotate90degreesAroundXAxis = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
@@ -579,17 +650,15 @@ export const solveHead = (
   entity: Entity,
   leftEar: NormalizedLandmark,
   rightEar: NormalizedLandmark,
-  leftEye: NormalizedLandmark,
-  rightEye: NormalizedLandmark
+  nose: NormalizedLandmark
 ) => {
   const rig = getComponent(entity, AvatarRigComponent)
 
   leftEarVec3.set(leftEar.x, -leftEar.y, leftEar.z)
   rightEarVec3.set(rightEar.x, -rightEar.y, rightEar.z)
-  eyeCenterVec3.addVectors(leftEye as Vector3, rightEye as Vector3).multiplyScalar(0.5)
-  eyeCenterVec3.y = -eyeCenterVec3.y
+  noseVec3.set(nose.x, -nose.y, nose.z)
 
-  getQuaternionFromPointsAlongPlane(rightEarVec3, leftEarVec3, eyeCenterVec3, headRotation, false)
+  getQuaternionFromPointsAlongPlane(rightEarVec3, leftEarVec3, noseVec3, headRotation, false)
 
   headRotation.multiply(rotate90degreesAroundXAxis)
 

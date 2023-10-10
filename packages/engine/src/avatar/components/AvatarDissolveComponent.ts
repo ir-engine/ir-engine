@@ -99,6 +99,10 @@ export const AvatarDissolveComponent = defineComponent({
       })
     }
 
+    if ('map' in uniforms) {
+      uniforms['origin_texture'] = uniforms['map']
+    }
+
     uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
 
     const vertexNonUVShader = `

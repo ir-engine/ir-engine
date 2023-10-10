@@ -43,6 +43,7 @@ import {
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { useHookstate } from '@etherealengine/hyperflux'
 
+import config from '@etherealengine/common/src/config'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
@@ -73,7 +74,7 @@ export const ImageComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      source: '__$project$__/default-project/assets/sample_etc1s.ktx2',
+      source: `${config.client.fileServer}/projects/default-project/assets/sample_etc1s.ktx2`,
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,

@@ -66,7 +66,7 @@ describe('instance.test', () => {
         isLobby: false,
         isFeatured: false
       },
-      params
+      { ...params }
     )
 
     testInstance = {

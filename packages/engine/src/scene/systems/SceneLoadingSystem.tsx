@@ -31,22 +31,10 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/engine/src/common/functions/logger'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import {
-  addActionReceptor,
-  dispatchAction,
-  getMutableState,
-  getState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import {
-  AppLoadingAction,
-  AppLoadingServiceReceptor,
-  AppLoadingState,
-  AppLoadingStates
-} from '../../common/AppLoadingService'
+import { AppLoadingState, AppLoadingStates } from '../../common/AppLoadingService'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -60,10 +48,11 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
+  serializeComponent,
   setComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import {
   EntityTreeComponent,
   addEntityNodeChild,
@@ -72,6 +61,7 @@ import {
 } from '../../ecs/functions/EntityTree'
 import { SystemDefinitions, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { GroupComponent } from '../components/GroupComponent'
@@ -282,8 +272,12 @@ export const removeSceneEntitiesFromOldJSON = () => {
 export const updateSceneFromJSON = async () => {
   const sceneState = getState(SceneState)
 
-  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
-    dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
+  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS) {
+    getMutableState(AppLoadingState).merge({
+      state: AppLoadingStates.SCENE_LOADING,
+      loaded: false
+    })
+  }
 
   const sceneData = getState(SceneState).sceneData
 
@@ -334,8 +328,6 @@ export const updateSceneFromJSON = async () => {
       startSystem(system.systemUUID, { [system.insertOrder]: system.insertUUID })
     }
   }
-
-  console.log('setting entties')
 
   /** 4. update scene entities with new data, and load new ones */
   setComponent(sceneState.sceneEntity, EntityTreeComponent, { parentEntity: null!, uuid: sceneData.scene.root })
@@ -452,6 +444,48 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
   setComponent(entity, Component, component.props)
 }
 
+export const migrateSceneData = (sceneData: SceneData) => {
+  const migratedSceneData = JSON.parse(JSON.stringify(sceneData)) as SceneData
+
+  for (const [key, value] of Object.entries(migratedSceneData.scene.entities)) {
+    const tempEntity = createEntity()
+    for (const comp of Object.values(value.components)) {
+      const { name, props } = comp
+      const component = ComponentJSONIDMap.get(name)
+      if (!component) {
+        console.warn(`Component ${name} not found`)
+        continue
+      }
+      setComponent(tempEntity, component, props)
+      const data = serializeComponent(tempEntity, component)
+      comp.props = data
+    }
+    /** ensure all scenes have all setting components */
+    if (key === migratedSceneData.scene.root) {
+      const ensureComponent = (component: any) => {
+        if (!value.components.find((comp) => comp.name === component.jsonID)) {
+          setComponent(tempEntity, component)
+          value.components.push({
+            name: component.jsonID,
+            props: serializeComponent(tempEntity, component)
+          })
+          console.log(`Added ${component.jsonID} to scene root`)
+        }
+      }
+      ;[
+        CameraSettingsComponent,
+        PostProcessingComponent,
+        FogSettingsComponent,
+        MediaSettingsComponent,
+        RenderSettingsComponent
+      ].map(ensureComponent)
+    }
+    removeEntity(tempEntity)
+  }
+
+  return JSON.parse(JSON.stringify(migratedSceneData))
+}
+
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 const reactor = () => {
@@ -481,15 +515,9 @@ const reactor = () => {
   }, [sceneAssetPendingTagQuery.length, assetLoadingState])
 
   useEffect(() => {
-    updateSceneFromJSON()
+    /** editor loading is done in  EditorHistory via snapshots */
+    if (!getState(EngineState).isEditor) updateSceneFromJSON()
   }, [sceneData])
-
-  useEffect(() => {
-    addActionReceptor(AppLoadingServiceReceptor)
-    return () => {
-      removeActionReceptor(AppLoadingServiceReceptor)
-    }
-  }, [])
 
   return null
 }

@@ -24,86 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import {
   RecordingData,
-  RecordingID,
   RecordingPatch,
   RecordingQuery,
   RecordingType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import { NotFound } from '@feathersjs/errors'
-import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RecordingParams extends RootParams<RecordingQuery> {}
 
-export class RecordingService<T = RecordingType, ServiceParams extends Params = RecordingParams> extends KnexAdapter<
+export class RecordingService<T = RecordingType, ServiceParams extends Params = RecordingParams> extends KnexService<
   RecordingType,
   RecordingData,
   RecordingParams,
   RecordingPatch
-> {
-  app: Application
-
-  constructor(options: KnexAdapterOptions, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async get(id: RecordingID, params?: RecordingParams) {
-    return await super._get(id, params)
-  }
-
-  async find(params?: RecordingParams) {
-    let paramsWithoutExtras = {
-      ...params,
-      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
-      query: params?.query ? JSON.parse(JSON.stringify(params?.query)) : {}
-    }
-    paramsWithoutExtras = { ...paramsWithoutExtras, query: { ...paramsWithoutExtras.query, userId: params?.user?.id } }
-
-    if (params && params.user && params.query) {
-      const admin = await checkScope(params.user, 'admin', 'admin')
-      if (admin && params.query.action === 'admin') {
-        // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
-        if (paramsWithoutExtras.query?.userId || paramsWithoutExtras.query?.userId === '')
-          delete paramsWithoutExtras.query.userId
-      }
-    }
-
-    // Remove recording username sort
-    if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query?.$sort['user']) {
-      delete paramsWithoutExtras.query.$sort['user']
-    }
-
-    // Remove extra params
-    if (paramsWithoutExtras.query?.action || paramsWithoutExtras.query?.action === '')
-      delete paramsWithoutExtras.query.action
-
-    return super._find(paramsWithoutExtras)
-  }
-
-  async create(data: RecordingData, params?: RecordingParams) {
-    return super._create({
-      ...data,
-      userId: params?.user?.id
-    })
-  }
-
-  async remove(id: RecordingID) {
-    const recording = super._get(id)
-    if (!recording) {
-      throw new NotFound('Unable to find recording with this id')
-    }
-    return super._remove(id)
-  }
-
-  async patch(id: RecordingID, data: RecordingPatch, params?: RecordingParams) {
-    return await super._patch(id, data, params)
-  }
-}
+> {}

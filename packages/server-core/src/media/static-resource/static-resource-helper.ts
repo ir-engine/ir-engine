@@ -36,6 +36,7 @@ import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInt
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
+import { sceneRelativePathIdentifier } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
@@ -106,7 +107,6 @@ export const downloadResourceAndMetadata = async (
   }
 }
 
-const pathSymbol = '__$project$__'
 const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/projects')
 
 export const isAssetFromProject = (url: string, project: string) => {
@@ -147,7 +147,7 @@ export const addAssetFromProject = async (
   download = config.server.cloneProjectStaticResources
 ) => {
   // console.log('addAssetsFromProject', url, project, download)
-  const mainURL = decodeURI(url.replace(pathSymbol, absoluteProjectPath))
+  const mainURL = decodeURI(url.replace(sceneRelativePathIdentifier, absoluteProjectPath))
 
   const isFromProject = isAssetFromProject(mainURL, project)
 

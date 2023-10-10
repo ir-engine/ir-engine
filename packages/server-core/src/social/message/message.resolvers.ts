@@ -41,7 +41,7 @@ export const messageResolver = resolve<MessageType, HookContext>({
 export const messageExternalResolver = resolve<MessageType, HookContext>({
   sender: virtual(async (message, context) => {
     if (message.senderId) {
-      return await context.app.service(userPath)._get(message.senderId)
+      return await context.app.service(userPath).get(message.senderId)
     }
   })
 })
