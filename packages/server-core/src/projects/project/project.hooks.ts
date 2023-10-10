@@ -28,6 +28,7 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
   ProjectData,
+  ProjectPatch,
   ProjectType,
   projectDataValidator,
   projectPatchValidator,
@@ -309,11 +310,10 @@ const linkGithubToProject = async (context: HookContext) => {
   if (!context.data || context.method !== 'patch') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
+  const data: ProjectPatch = context.data as ProjectPatch
 
-  const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
-
-  if (data[0].repositoryPath) {
-    const repoPath = data[0].repositoryPath
+  if (data.repositoryPath) {
+    const repoPath = data.repositoryPath
     const user = context.params!.user!
 
     const githubIdentityProvider = (await context.app.service(identityProviderPath).find({
@@ -329,7 +329,7 @@ const linkGithubToProject = async (context: HookContext) => {
     if (githubIdentityProvider.data.length === 0)
       throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
     const split = githubPathRegexExec[2].split('/')
-    const org = split[0]
+    const org = split
     const repo = split[1].replace('.git', '')
     const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
     if (!appOrgAccess)
@@ -496,12 +496,12 @@ const updateProjectJob = async (context: HookContext) => {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const data: ProjectBuildUpdateItemType[] = Array.isArray(context.data) ? context.data : [context.data]
+  const data: ProjectBuildUpdateItemType = context.data as ProjectBuildUpdateItemType
   if (!config.kubernetes.enabled || context.params?.isJob)
     context.result = updateProject(context.service, context.data[0], context.params)
   else {
-    const urlParts = data[0].sourceURL.split('/')
-    let projectName = data[0].name || urlParts.pop()
+    const urlParts = data.sourceURL.split('/')
+    let projectName = data.name || urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
     projectName = projectName.toLowerCase()
     if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
@@ -514,11 +514,11 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
-    const jobBody = await getProjectUpdateJobBody(data[0], context.service, context.params!.user!.id, newJob.id)
+    const jobBody = await getProjectUpdateJobBody(data, context.service, context.params!.user!.id, newJob.id)
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${data[0].name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.service, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
@@ -532,7 +532,7 @@ const updateProjectJob = async (context: HookContext) => {
       let returned = {} as ProjectType
       if (result.total > 0) returned = result.data[0]
       else throw new BadRequest('Project did not exist after update')
-      returned.needsRebuild = typeof data[0].needsRebuild === 'boolean' ? data[0].needsRebuild : true
+      returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
       context.result = returned
     } catch (err) {
       console.log('Error: project did not exist after completing update', projectName, err)

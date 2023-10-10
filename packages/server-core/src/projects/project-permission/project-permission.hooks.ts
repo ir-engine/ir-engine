@@ -32,6 +32,7 @@ import verifyProjectOwner from '../../hooks/verify-project-owner'
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import {
   ProjectPermissionData,
+  ProjectPermissionPatch,
   ProjectPermissionType,
   projectPermissionDataValidator,
   projectPermissionPatchValidator,
@@ -187,8 +188,8 @@ const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>)
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
-  context.data = { type: data[0].type === 'owner' ? 'owner' : 'user' }
+  const data: ProjectPermissionPatch = context.data as ProjectPermissionPatch
+  context.data = { type: data.type === 'owner' ? 'owner' : 'user' }
 }
 
 /**
