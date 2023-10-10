@@ -33,7 +33,8 @@ import {
   migrateSceneData,
   removeSceneEntitiesFromOldJSON,
   updateSceneEntitiesFromJSON,
-  updateSceneEntity
+  updateSceneEntity,
+  updateSceneFromJSON
 } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import { Topic, defineActionQueue, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -63,6 +64,15 @@ export const EditorHistoryState = defineState({
   cloneCurrentSnapshot: () => {
     const state = getState(EditorHistoryState)
     return JSON.parse(JSON.stringify(state.history[state.index])) as EditorStateSnapshot
+  },
+
+  unloadScene: () => {
+    getMutableState(SceneState).sceneData.set(null)
+    getMutableState(EditorHistoryState).set({
+      index: 0,
+      history: []
+    })
+    updateSceneFromJSON()
   },
 
   resetHistory: () => {

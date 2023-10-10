@@ -28,17 +28,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
-import { NodeSpecJSON, OutputSocketSpecJSON } from '@behave-graph/core'
+import { OutputSocketSpecJSON } from '@behave-graph/core'
 
+import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { colors, valueTypeColorMap } from '../util/colors'
 import { isValidConnection } from '../util/isValidConnection'
 
 export type OutputSocketProps = {
   connected: boolean
-  specJSON: NodeSpecJSON[]
+  specGenerator: NodeSpecGenerator
 } & OutputSocketSpecJSON
 
-export default function OutputSocket({ specJSON, connected, valueType, name }: OutputSocketProps) {
+export default function OutputSocket({ specGenerator, connected, valueType, name }: OutputSocketProps) {
   const instance = useReactFlow()
   const isFlowSocket = valueType === 'flow'
   let colorName = valueTypeColorMap[valueType]
@@ -77,7 +78,7 @@ export default function OutputSocket({ specJSON, connected, valueType, name }: O
           height: '10px',
           right: '-12px'
         }}
-        isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specJSON)}
+        isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specGenerator)}
       />
     </div>
   )
