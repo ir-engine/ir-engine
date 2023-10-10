@@ -183,8 +183,7 @@ const addLimitToParams = async (context: HookContext<ProjectService>) => {
 }
 
 const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
-  const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectType[]
-  const data: ProjectType[] = result['data'] ? result['data'] : result
+  const data: ProjectType[] = context.result!['data'] ? context.result!['data'] : context.result
   for (const item of data) {
     try {
       const packageJson = getProjectPackageJson(item.name)
