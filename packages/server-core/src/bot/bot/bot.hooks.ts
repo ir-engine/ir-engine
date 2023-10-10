@@ -26,15 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discard, iff, isProvider } from 'feathers-hooks-common'
 
-import { BotCommandType, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import {
+  BotCommandData,
+  BotCommandType,
+  botCommandPath
+} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import {
   BotType,
   botDataValidator,
   botPatchValidator,
   botQueryValidator
 } from '@etherealengine/engine/src/schemas/bot/bot.schema'
-import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
-import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
 import {
   botDataResolver,
@@ -48,24 +50,24 @@ import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
 import { BotService } from './bot.class'
 
-async function sanitizeInstanceId(context: HookContext<BotService>) {
-  if (Array.isArray(context.data) || context.method !== 'create') {
-    throw new BadRequest(`${context.path} service only works for single object create`)
+async function addBotCommands(context: HookContext<BotService>) {
+  const process = async (bot: BotType, botCommandData: BotCommandData[]) => {
+    const botCommands: BotCommandType[] = await Promise.all(
+      botCommandData.map((commandData) =>
+        context.app.service(botCommandPath).create({
+          ...commandData,
+          botId: bot.id
+        })
+      )
+    )
+    bot.botCommands = botCommands
   }
 
-  context.data!.instanceId = context.data?.instanceId ?? ('' as InstanceID)
-}
-
-async function createAndPopulateBotCommands(context: HookContext<BotService>) {
-  const botCommands: BotCommandType[] = []
-  for (const commandData of context.actualData.botCommands) {
-    const command = await context.app.service(botCommandPath).create({
-      ...commandData,
-      botId: (context.result as BotType).id
-    })
-    botCommands.push(command)
+  if (Array.isArray(context.result)) {
+    await Promise.all(context.result.map((bot, idx) => process(bot, context.actualData[idx].botCommands)))
+  } else {
+    await process(context.result as BotType, context.actualData.botCommands)
   }
-  ;(context.result as BotType).botCommands = botCommands
 }
 
 export default {
@@ -85,7 +87,6 @@ export default {
     create: [
       () => schemaHooks.validateData(botDataValidator),
       schemaHooks.resolveData(botDataResolver),
-      sanitizeInstanceId,
       persistData,
       discard('botCommands')
     ],
@@ -98,7 +99,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [createAndPopulateBotCommands],
+    create: [addBotCommands],
     update: [],
     patch: [],
     remove: []

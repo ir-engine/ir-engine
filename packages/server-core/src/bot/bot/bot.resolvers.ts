@@ -35,7 +35,7 @@ import {
   BotCommandType,
   botCommandPath
 } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 import { botCommandDataResolver } from '../bot-command/bot-command.resolvers'
@@ -67,6 +67,9 @@ export const botExternalResolver = resolve<BotType, HookContext>({
 export const botDataResolver = resolve<BotType, HookContext>({
   id: async () => {
     return v4()
+  },
+  instanceId: async (instanceId) => {
+    return instanceId ?? ('' as InstanceID)
   },
   botCommands: async (value, bot, context) => {
     const botCommands: BotCommandData[] = []
