@@ -36,7 +36,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { MotionCaptureState } from '../../mocap/MotionCaptureState'
+import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RendererState } from '../../renderer/RendererState'
@@ -193,7 +193,7 @@ const execute = () => {
       }
     }
 
-    if (!getState(MotionCaptureState).trackingLowerBody || getState(XRState).sessionActive) {
+    if (!MotionCaptureRigComponent.solvingLowerBody[entity] || getState(XRState).sessionActive) {
       hipsForward.set(0, 0, 1)
 
       //calculate world positions

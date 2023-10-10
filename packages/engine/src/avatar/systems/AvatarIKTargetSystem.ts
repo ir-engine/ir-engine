@@ -33,7 +33,7 @@ import { defineQuery, getComponent, setComponent } from '../../ecs/functions/Com
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { MotionCaptureAction } from '../../mocap/MotionCaptureState'
+import { MotionCaptureAction } from '../../mocap/MotionCaptureActions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'

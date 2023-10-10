@@ -45,7 +45,7 @@ import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
   NormalizedLandmarkList,
@@ -60,7 +60,6 @@ import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
-import { MotionCaptureState } from './MotionCaptureState'
 
 const grey = new Color(0.5, 0.5, 0.5)
 
@@ -159,7 +158,6 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
 
   const lowestWorldY = landmarks.reduce((a, b) => (a.y > b.y ? a : b)).y
   const estimatingLowerBody = shouldEstimateLowerBody(landmarks)
-  const mocapState = getMutableState(MotionCaptureState)
   solveSpine(entity, lowestWorldY, landmarks)
   solveLimb(
     entity,
@@ -225,13 +223,13 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
       VRMHumanBoneName.LeftFoot
     )
     //check state, if we are still not set to track lower body, update that
-    if (!mocapState.trackingLowerBody.value) {
+    if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
       //dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
 
-      mocapState.trackingLowerBody.set(true)
+      MotionCaptureRigComponent.solvingLowerBody[entity] = 1
     }
   } else {
-    if (mocapState.trackingLowerBody.value) {
+    if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
       //dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
       //very quick dirty reset of legs
       resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.LeftUpperLeg, VRMHumanBoneName.LeftLowerLeg)
@@ -240,7 +238,7 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
       resetBone(entity, VRMHumanBoneName.RightFoot)
       resetBone(entity, VRMHumanBoneName.LeftHand)
       resetBone(entity, VRMHumanBoneName.RightHand)
-      mocapState.trackingLowerBody.set(false)
+      MotionCaptureRigComponent.solvingLowerBody[entity] = 0
     }
   }
 
@@ -299,7 +297,7 @@ const vec3 = new Vector3()
  */
 
 export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLandmarkList) => {
-  const trackingLowerBody = getState(MotionCaptureState).trackingLowerBody
+  const trackingLowerBody = MotionCaptureRigComponent.solvingLowerBody[entity]
   const rig = getComponent(entity, AvatarRigComponent)
 
   const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP]

@@ -39,7 +39,9 @@ export const MotionCaptureRigComponent = defineComponent({
       VRMHumanBoneName,
       typeof QuaternionSchema
     >,
-    hipPosition: Vector3Schema
+    hipPosition: Vector3Schema,
+    hipRotation: QuaternionSchema,
+    solvingLowerBody: 'ui8'
   },
 
   reactor: function () {
