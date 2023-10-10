@@ -60,38 +60,30 @@ import {
  * @returns
  */
 const mapSettingsAdmin = async (context: HookContext<AuthenticationSettingService>) => {
-  const auth = (Array.isArray(context.result) ? context.result : [context.result]) as AuthenticationSettingType[]
   const loggedInUser = context.params!.user!
-  const data = auth.map((el) => {
-    if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
+  if (context.result && (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))) {
+    const auth: AuthenticationSettingType[] = context.result['data'] ? context.result['data'] : context.result
+    const data = auth.map((el) => {
       return {
         id: el.id,
         entity: el.entity,
         service: el.service,
         authStrategies: el.authStrategies,
         createdAt: el.createdAt,
-        updatedAt: el.updatedAt
+        updatedAt: el.updatedAt,
+        secret: ''
       }
-
-    return {
-      ...el,
-      authStrategies: el.authStrategies,
-      jwtOptions: el.jwtOptions,
-      bearerToken: el.bearerToken,
-      callback: el.callback,
-      oauth: {
-        ...el.oauth
-      }
-    }
-  })
-  return context.params.paginate === false
-    ? data
-    : {
-        total: auth.length,
-        limit: context.params.query!.$limit,
-        skip: context.params.query!.$skip,
-        data
-      }
+    })
+    context.result =
+      context.params.paginate === false
+        ? data
+        : {
+            data: data,
+            total: data.length,
+            limit: context.params?.query?.$limit || 0,
+            skip: context.params?.query?.$skip || 0
+          }
+  }
 }
 
 /**
