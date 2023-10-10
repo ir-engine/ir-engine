@@ -30,7 +30,7 @@ import { useComponent } from '@etherealengine/engine/src/ecs/functions/Component
 import { LoadVolumeComponent, LoadVolumeTarget } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import { Button, Grid } from '@mui/material'
@@ -52,7 +52,7 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
             {
               name: value,
               components: [] as ComponentJson[]
-            }
+            } as EntityJson
           ]
         }
       })
@@ -67,13 +67,8 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
         {
           uuid: '' as EntityUUID,
           loaded: true,
-          entities: [
-            {
-              name: '' as EntityUUID,
-              components: [] as ComponentJson[]
-            }
-          ]
-        }
+          entities: []
+        } as LoadVolumeTarget
       ]
       commitProperties(LoadVolumeComponent, { targets }, [props.entity])
     }

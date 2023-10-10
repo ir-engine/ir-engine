@@ -114,8 +114,8 @@ export const TransformComponent = defineComponent({
       const parentEntity = entityTree.parentEntity
       const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
       if (parentTransform) {
-        const localMatrix = matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
-        localMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+        localTransform.matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
+        localTransform.matrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
       }
     }
   },
@@ -152,9 +152,22 @@ export const LocalTransformComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      position: component.position.value,
-      rotation: component.rotation.value,
-      scale: component.scale.value
+      position: {
+        x: component.position.value.x,
+        y: component.position.value.y,
+        z: component.position.value.z
+      } as Vector3,
+      rotation: {
+        x: component.rotation.value.x,
+        y: component.rotation.value.y,
+        z: component.rotation.value.z,
+        w: component.rotation.value.w
+      } as Quaternion,
+      scale: {
+        x: component.scale.value.x,
+        y: component.scale.value.y,
+        z: component.scale.value.z
+      } as Vector3
     }
   },
 
