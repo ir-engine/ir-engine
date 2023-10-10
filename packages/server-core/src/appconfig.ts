@@ -35,6 +35,7 @@ import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept
 import { discordBotAuthPath } from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
 import { githubRepoAccessWebhookPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-webhook.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
@@ -258,13 +259,16 @@ const authentication = {
     numBytes: 16
   },
   whiteList: [
+    'auth',
+    'oauth/:provider',
     'authentication',
     oembedPath,
     githubRepoAccessWebhookPath,
     { path: identityProviderPath, methods: ['create'] },
     { path: routePath, methods: ['find'] },
     { path: acceptInvitePath, methods: ['get'] },
-    { path: discordBotAuthPath, methods: ['find'] }
+    { path: discordBotAuthPath, methods: ['find'] },
+    { path: loginPath, methods: ['get'] }
   ] as (string | WhiteListItem)[],
   callback: {
     discord: process.env.DISCORD_CALLBACK_URL || `${client.url}/auth/oauth/discord`,
