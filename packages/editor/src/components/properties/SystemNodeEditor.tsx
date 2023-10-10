@@ -128,9 +128,10 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       {/* <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
         <StringInput
-          onChange={updateProperty(SystemComponent, 'args') as any}
           value={systemComponent.args as any}
-          onRelease={commitProperty(SystemComponent, 'args') as any}
+          onRelease={(value) => {
+            setComponent(props.entity, SystemComponent, { args: value })
+          }}
         />
       </InputGroup> */}
     </NodeEditor>

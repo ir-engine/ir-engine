@@ -27,28 +27,27 @@ import { MouseEvent as ReactMouseEvent, useCallback, useEffect, useState } from 
 import { Connection, Node, OnConnectStartParams, XYPosition } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
-import { NodeSpecJSON } from '@behave-graph/core'
-
 import { calculateNewEdge } from '../util/calculateNewEdge'
 import { getNodePickerFilters } from '../util/getPickerFilters'
 import { useBehaveGraphFlow } from './useBehaveGraphFlow'
+import { NodeSpecGenerator } from './useNodeSpecGenerator'
 
 type BehaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
 
 const useNodePickFilters = ({
   nodes,
   lastConnectStart,
-  specJSON
+  specGenerator
 }: {
   nodes: Node[]
   lastConnectStart: OnConnectStartParams | undefined
-  specJSON: NodeSpecJSON[] | undefined
+  specGenerator: NodeSpecGenerator | undefined
 }) => {
-  const [nodePickFilters, setNodePickFilters] = useState(getNodePickerFilters(nodes, lastConnectStart, specJSON))
+  const [nodePickFilters, setNodePickFilters] = useState(getNodePickerFilters(nodes, lastConnectStart, specGenerator))
 
   useEffect(() => {
-    setNodePickFilters(getNodePickerFilters(nodes, lastConnectStart, specJSON))
-  }, [nodes, lastConnectStart, specJSON])
+    setNodePickFilters(getNodePickerFilters(nodes, lastConnectStart, specGenerator))
+  }, [nodes, lastConnectStart, specGenerator])
 
   return nodePickFilters
 }
@@ -57,10 +56,10 @@ export const useFlowHandlers = ({
   onEdgesChange,
   onNodesChange,
   nodes,
-  specJSON
+  specGenerator
 }: Pick<BehaveGraphFlow, 'onEdgesChange' | 'onNodesChange'> & {
   nodes: Node[]
-  specJSON: NodeSpecJSON[] | undefined
+  specGenerator: NodeSpecGenerator | undefined
 }) => {
   const [lastConnectStart, setLastConnectStart] = useState<OnConnectStartParams>()
   const [nodePickerVisibility, setNodePickerVisibility] = useState<XYPosition>()
@@ -99,7 +98,7 @@ export const useFlowHandlers = ({
         id: uuidv4(),
         type: nodeType,
         position,
-        data: {}
+        data: { configuration: {}, values: {} } //fill with default values here
       }
       onNodesChange([
         {
@@ -113,15 +112,15 @@ export const useFlowHandlers = ({
       // add an edge if we started on a socket
       const originNode = nodes.find((node) => node.id === lastConnectStart.nodeId)
       if (originNode === undefined) return
-      if (!specJSON) return
+      if (!specGenerator) return
       onEdgesChange([
         {
           type: 'add',
-          item: calculateNewEdge(originNode, nodeType, newNode.id, lastConnectStart, specJSON)
+          item: calculateNewEdge(originNode, nodeType, newNode.id, lastConnectStart, specGenerator)
         }
       ])
     },
-    [closeNodePicker, lastConnectStart, nodes, onEdgesChange, onNodesChange, specJSON]
+    [closeNodePicker, lastConnectStart, nodes, onEdgesChange, onNodesChange, specGenerator]
   )
 
   const handleStartConnect = useCallback((e: ReactMouseEvent, params: OnConnectStartParams) => {
@@ -150,7 +149,7 @@ export const useFlowHandlers = ({
   const nodePickFilters = useNodePickFilters({
     nodes,
     lastConnectStart,
-    specJSON
+    specGenerator
   })
 
   return {
