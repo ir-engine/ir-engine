@@ -99,6 +99,7 @@ export const TransformComponent = defineComponent({
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
     component.matrixInverse.value.copy(component.matrix.value).invert()
 
+    /** Update local transform */
     const localTransform = getOptionalComponent(entity, LocalTransformComponent)
     const entityTree = getOptionalComponent(entity, EntityTreeComponent)
     if (localTransform && entityTree?.parentEntity) {
@@ -193,5 +194,3 @@ export const LocalTransformComponent = defineComponent({
     component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
   }
 })
-
-globalThis.TransformComponent = TransformComponent
