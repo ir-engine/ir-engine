@@ -72,7 +72,9 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
     }
   }
 
-  // Check JWT token using feathers authentication
+  // Check JWT token using feathers authentication.
+  // It will throw if authentication information is not set for external requests.
+  // https://feathersjs.com/api/authentication/hook.html#authenticate-hook
   context = await authenticate('jwt')(context)
 
   // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
