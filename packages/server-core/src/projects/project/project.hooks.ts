@@ -44,6 +44,7 @@ import { projectPermissionDataResolver } from '../project-permission/project-per
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { ProjectBuildUpdateItemType } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -491,11 +492,16 @@ const removeProjectUpdate = async (context: HookContext<ProjectService>) => {
  * @returns
  */
 const updateProjectJob = async (context: HookContext) => {
+  if (!context.data || context.method !== 'update') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ProjectBuildUpdateItemType[] = Array.isArray(context.data) ? context.data : [context.data]
   if (!config.kubernetes.enabled || context.params?.isJob)
-    context.result = updateProject(context.service, context.data, context.params)
+    context.result = updateProject(context.service, context.data[0], context.params)
   else {
-    const urlParts = context.data.sourceURL.split('/')
-    let projectName = context.data.name || urlParts.pop()
+    const urlParts = data[0].sourceURL.split('/')
+    let projectName = data[0].name || urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
     projectName = projectName.toLowerCase()
     if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
@@ -508,11 +514,11 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
-    const jobBody = await getProjectUpdateJobBody(context.data, context.service, context.params!.user!.id, newJob.id)
+    const jobBody = await getProjectUpdateJobBody(data[0], context.service, context.params!.user!.id, newJob.id)
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
-    const jobLabelSelector = `etherealengine/projectField=${context.data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
+    const jobLabelSelector = `etherealengine/projectField=${data[0].name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
     const jobFinishedPromise = createExecutorJob(context.service, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
@@ -526,7 +532,7 @@ const updateProjectJob = async (context: HookContext) => {
       let returned = {} as ProjectType
       if (result.total > 0) returned = result.data[0]
       else throw new BadRequest('Project did not exist after update')
-      returned.needsRebuild = typeof context.data.needsRebuild === 'boolean' ? context.data.needsRebuild : true
+      returned.needsRebuild = typeof data[0].needsRebuild === 'boolean' ? data[0].needsRebuild : true
       context.result = returned
     } catch (err) {
       console.log('Error: project did not exist after completing update', projectName, err)
