@@ -94,6 +94,11 @@ const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/t
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
+/**
+ * Checks whether the user has push access to the project
+ * @param context
+ * @returns
+ */
 const ensurePushStatus = async (context: HookContext<ProjectService>) => {
   context.projectPushIds = []
   if (context.params?.query?.allowed) {
@@ -173,6 +178,11 @@ const ensurePushStatus = async (context: HookContext<ProjectService>) => {
   }
 }
 
+/**
+ * Adds limit and sort to the query if one is not already present
+ * @param context
+ * @returns
+ */
 const addLimitToParams = async (context: HookContext<ProjectService>) => {
   context.params.query = {
     ...context.params.query,
@@ -182,6 +192,11 @@ const addLimitToParams = async (context: HookContext<ProjectService>) => {
   if (context.params?.query?.allowed) delete context.params.query.allowed
 }
 
+/**
+ * Adds data to the result
+ * @param context
+ * @returns
+ */
 const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
   const data: ProjectType[] = context.result!['data'] ? context.result!['data'] : context.result
   for (const item of data) {
@@ -209,25 +224,47 @@ const addDataToProjectResult = async (context: HookContext<ProjectService>) => {
         }
 }
 
-const createAndUploadProject = async (context: HookContext<ProjectService>) => {
+/**
+ * Checks whether the project already exists
+ * @param context
+ * @returns
+ */
+const checkIfProjectExists = async (context: HookContext<ProjectService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
   const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  const projectName = cleanString(data[0].name!)
-  const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
+  context.projectName = cleanString(data[0].name!)
 
   const projectExists = (await context.service._find({
-    query: { name: projectName, $limit: 1 }
+    query: { name: context.projectName, $limit: 1 }
   })) as Paginated<ProjectType>
 
-  if (projectExists.total > 0) throw new Error(`[Projects]: Project with name ${projectName} already exists`)
+  if (projectExists.total > 0) throw new Error(`[Projects]: Project with name ${context.projectName} already exists`)
+}
 
-  if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
-    throw new Error(`[Projects]: Project name ${projectName} not allowed`)
+/**
+ * Checks whether the project name is valid
+ * @param context
+ * @returns
+ */
+const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
+  if (
+    (!config.db.forceRefresh && context.projectName === 'default-project') ||
+    context.projectName === 'template-project'
+  )
+    throw new Error(`[Projects]: Project name ${context.projectName} not allowed`)
+}
 
+/**
+ * Uploads the local project to the storage provider
+ * @param context
+ * @returns
+ */
+const uploadLocalProject = async (context: HookContext<ProjectService>) => {
+  const projectLocalDirectory = path.resolve(projectsRootFolder, context.projectName)
   copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
   fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
 
@@ -241,16 +278,32 @@ const createAndUploadProject = async (context: HookContext<ProjectService>) => {
   }
 
   const packageData = Object.assign({}, templateProjectJson) as any
-  packageData.name = projectName
+  packageData.name = context.projectName
   packageData.etherealEngine.version = getEnginePackageJson().version
   fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
-  await uploadLocalProjectToProvider(context.app, projectName, false)
-
-  context.data = { ...data[0], name: projectName, needsRebuild: true }
-  const a = context.data
+  await uploadLocalProjectToProvider(context.app, context.projectName, false)
 }
 
+/**
+ * Updates the data to be created
+ * @param context
+ * @returns
+ */
+const updateCreateData = async (context: HookContext<ProjectService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ProjectData[] = Array.isArray(context.data) ? context.data : [context.data]
+  context.data = { ...data[0], name: context.projectName, needsRebuild: true }
+}
+
+/**
+ * Links the project to a GitHub repo
+ * @param context
+ * @returns
+ */
 const linkGithubToProject = async (context: HookContext) => {
   if (!context.data || context.method !== 'patch') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
@@ -294,11 +347,21 @@ const linkGithubToProject = async (context: HookContext) => {
   }
 }
 
+/**
+ * Gets the name of a project
+ * @param context
+ * @returns
+ */
 const getProjectName = async (context: HookContext<ProjectService>) => {
   if (!context.id) throw new BadRequest('You need to pass project id')
   context.name = ((await context.app.service(projectPath).get(context.id, context.params)) as ProjectType).name
 }
 
+/**
+ * Runs the project uninstall script
+ * @param context
+ * @returns
+ */
 const runProjectUninstallScript = async (context: HookContext<ProjectService>) => {
   const projectConfig = getProjectConfig(context.name)
 
@@ -307,6 +370,11 @@ const runProjectUninstallScript = async (context: HookContext<ProjectService>) =
   }
 }
 
+/**
+ * Removes the project files
+ * @param context
+ * @returns
+ */
 const removeProjectFiles = async (context: HookContext<ProjectService>) => {
   if (fs.existsSync(path.resolve(projectsRootFolder, context.name))) {
     fs.rmSync(path.resolve(projectsRootFolder, context.name), { recursive: true })
@@ -316,6 +384,11 @@ const removeProjectFiles = async (context: HookContext<ProjectService>) => {
   await deleteProjectFilesInStorageProvider(context.name)
 }
 
+/**
+ * Creates project permissions
+ * @param context
+ * @returns
+ */
 const createProjectPermission = async (context: HookContext<ProjectService>) => {
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectType[]
 
@@ -333,6 +406,11 @@ const createProjectPermission = async (context: HookContext<ProjectService>) => 
   return context
 }
 
+/**
+ * Removes location from a project
+ * @param context
+ * @returns
+ */
 const removeLocationFromProject = async (context: HookContext<ProjectService>) => {
   await context.app.service(locationPath).remove(null, {
     query: {
@@ -343,6 +421,11 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
   })
 }
 
+/**
+ * Removes route from a project
+ * @param context
+ * @returns
+ */
 const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
   await context.app.service(routePath).remove(null, {
     query: {
@@ -351,6 +434,11 @@ const removeRouteFromProject = async (context: HookContext<ProjectService>) => {
   })
 }
 
+/**
+ * Removes avatars from a project
+ * @param context
+ * @returns
+ */
 const removeAvatarsFromProject = async (context: HookContext<ProjectService>) => {
   const avatarItems = (await context.app.service(avatarPath).find({
     query: {
@@ -366,6 +454,11 @@ const removeAvatarsFromProject = async (context: HookContext<ProjectService>) =>
   )
 }
 
+/**
+ * Removes static resources from a project
+ * @param context
+ * @returns
+ */
 const removeStaticResourcesFromProject = async (context: HookContext<ProjectService>) => {
   const staticResourceItems = (await context.app.service(staticResourcePath).find({
     query: {
@@ -379,6 +472,11 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
     })
 }
 
+/**
+ * Removes the project update job
+ * @param context
+ * @returns
+ */
 const removeProjectUpdate = async (context: HookContext<ProjectService>) => {
   await removeProjectUpdateJob(context.app, context.name)
 }
@@ -454,7 +552,10 @@ export default {
       iff(isProvider('external'), verifyScope('editor', 'write')),
       () => schemaHooks.validateData(projectDataValidator),
       schemaHooks.resolveData(projectDataResolver),
-      createAndUploadProject
+      checkIfProjectExists,
+      checkIfNameIsValid,
+      uploadLocalProject,
+      updateCreateData
     ],
     update: [
       iff(isProvider('external'), verifyScope('editor', 'write')),

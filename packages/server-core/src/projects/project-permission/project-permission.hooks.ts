@@ -53,6 +53,11 @@ import {
   projectPermissionResolver
 } from './project-permission.resolvers'
 
+/**
+ * Updates the inviteCode and userId fields to match the correct types
+ * @param context
+ * @returns
+ */
 const ensureInviteCode = async (context: HookContext<ProjectPermissionService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
@@ -70,6 +75,11 @@ const ensureInviteCode = async (context: HookContext<ProjectPermissionService>) 
   }
 }
 
+/**
+ * Checks if the user already has permissions for the project
+ * @param context
+ * @returns
+ */
 const checkExistingPermissions = async (context: HookContext<ProjectPermissionService>) => {
   if (!context.data || context.method !== 'create') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
@@ -125,12 +135,22 @@ const checkExistingPermissions = async (context: HookContext<ProjectPermissionSe
   }
 }
 
+/**
+ * Checks if the user has scopes to create a project permission
+ * @param context
+ * @returns
+ */
 const checkUserScopes = async (context: HookContext<ProjectPermissionService>) => {
   if (!context.params.user) return false
   if (context.params.user.scopes.find((scope) => scope.type === 'admin:admin')) return false
   return true
 }
 
+/**
+ * Checks if the user has permissions for the project
+ * @param context
+ * @returns
+ */
 const checkPermissionStatus = async (context: HookContext<ProjectPermissionService>) => {
   if (context.params.query?.projectId) {
     const permissionStatus = (await context.service._find({
@@ -145,6 +165,11 @@ const checkPermissionStatus = async (context: HookContext<ProjectPermissionServi
   }
 }
 
+/**
+ * Checks if the user owns the project
+ * @param context
+ * @returns
+ */
 const ensureOwnership = async (context: HookContext<ProjectPermissionService>) => {
   const loggedInUser = context.params!.user!
   if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return context
@@ -152,6 +177,11 @@ const ensureOwnership = async (context: HookContext<ProjectPermissionService>) =
   if (result[0].userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
 }
 
+/**
+ * Ensures that the type field is present in the patch data
+ * @param context
+ * @returns
+ */
 const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>) => {
   if (!context.data || context.method !== 'patch') {
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
@@ -161,6 +191,11 @@ const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>)
   context.data = { type: data[0].type === 'owner' ? 'owner' : 'user' }
 }
 
+/**
+ * Makes a random user the owner of the project if there are no owners
+ * @param context
+ * @returns
+ */
 const makeRandomProjectOwner = async (context: HookContext<ProjectPermissionService>) => {
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as ProjectPermissionType[]
   if (context.id && context.result) await context.service.makeRandomProjectOwnerIfNone(result[0].projectId)
