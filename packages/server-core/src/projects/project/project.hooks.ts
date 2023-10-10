@@ -498,7 +498,7 @@ const updateProjectJob = async (context: HookContext) => {
 
   const data: ProjectBuildUpdateItemType = context.data as ProjectBuildUpdateItemType
   if (!config.kubernetes.enabled || context.params?.isJob)
-    context.result = updateProject(context.service, context.data[0], context.params)
+    context.result = updateProject(context.app, context.data, context.params)
   else {
     const urlParts = data.sourceURL.split('/')
     let projectName = data.name || urlParts.pop()
@@ -514,12 +514,12 @@ const updateProjectJob = async (context: HookContext) => {
       returnData: '',
       status: 'pending'
     })
-    const jobBody = await getProjectUpdateJobBody(data, context.service, context.params!.user!.id, newJob.id)
+    const jobBody = await getProjectUpdateJobBody(data, context.app, context.params!.user!.id, newJob.id)
     await context.app.service(apiJobPath).patch(newJob.id, {
       name: jobBody.metadata!.name
     })
     const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
-    const jobFinishedPromise = createExecutorJob(context.service, jobBody, jobLabelSelector, 1000, newJob.id)
+    const jobFinishedPromise = createExecutorJob(context.app, jobBody, jobLabelSelector, 1000, newJob.id)
     try {
       await jobFinishedPromise
       const result = (await context.app.service(projectPath).find({
