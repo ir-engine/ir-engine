@@ -381,7 +381,7 @@ const removeProjectFiles = async (context: HookContext<ProjectService>) => {
     fs.rmSync(path.resolve(projectsRootFolder, context.name), { recursive: true })
   }
 
-  logger.info(`[Projects]: removing project id "${context.id}", name: "${name}".`)
+  logger.info(`[Projects]: removing project id "${context.id}", name: "${context.name}".`)
   await deleteProjectFilesInStorageProvider(context.name)
 }
 
