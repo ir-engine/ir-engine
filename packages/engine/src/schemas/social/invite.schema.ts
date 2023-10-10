@@ -133,11 +133,20 @@ export const inviteQueryProperties = Type.Pick(inviteSchema, [
   'makeAdmin',
   'spawnType',
   'timed',
-  'userId'
+  'userId',
+  'inviteType',
+  'inviteeId'
 ])
 export const inviteQuerySchema = Type.Intersect(
   [
-    querySyntax(inviteQueryProperties),
+    querySyntax(inviteQueryProperties, {
+      inviteType: {
+        $like: Type.String()
+      },
+      passcode: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
     Type.Object(
       {

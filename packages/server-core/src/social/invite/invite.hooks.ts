@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invite-remove-authenticate'
 import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
@@ -31,12 +31,23 @@ import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-logg
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
+  InviteQuery,
+  InviteType,
   inviteDataValidator,
   invitePatchValidator,
   inviteQueryValidator
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { Paginated } from '@feathersjs/feathers'
+import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
+import { sendInvite } from '../../hooks/send-invite'
 import verifyScope from '../../hooks/verify-scope'
+import { InviteService } from './invite.class'
 import {
   inviteDataResolver,
   inviteExternalResolver,
@@ -45,6 +56,73 @@ import {
   inviteResolver
 } from './invite.resolvers'
 
+async function addSearch(context: HookContext<InviteService>) {
+  if (!context.params.query || !context.params.query.search) {
+    return
+  }
+
+  const search = context.params.query.search
+
+  context.params.query = {
+    ...context.params.query,
+    $or: [
+      {
+        inviteType: {
+          $like: '%' + search + '%'
+        }
+      },
+      {
+        passcode: {
+          $like: '%' + search + '%'
+        }
+      }
+    ]
+  }
+}
+
+function checkQueryType(type: InviteQuery['type']) {
+  return (context: HookContext<InviteService>) => context.params.query?.type === type
+}
+
+async function addInvitesReceived(context: HookContext<InviteService>) {
+  const identityProviders = (await context.app.service(identityProviderPath).find({
+    query: {
+      userId: context.params.query!.userId
+    }
+  })) as Paginated<IdentityProviderType>
+  const identityProviderTokens = identityProviders.data.map((provider) => provider.token)
+
+  context.params.query = {
+    ...context.params.query,
+    $or: [
+      {
+        inviteeId: context.params.query!.userId
+      },
+      {
+        token: {
+          $in: identityProviderTokens
+        }
+      }
+    ]
+  }
+}
+
+async function addInvitesSent(context: HookContext<InviteService>) {
+  context.params.query = {
+    ...context.params.query,
+    userId: context.params.query!.userId
+  }
+}
+
+async function removeFriend(context: HookContext<InviteService>) {
+  if (!context.id) return
+  const invite = await context.service.get(context.id)
+  if (invite.inviteType === 'friend' && invite.inviteeId && !context.params?.preventUserRelationshipRemoval) {
+    const relatedUserId = invite.userId === context.params.user!.id ? invite.inviteeId : invite.userId
+    await context.app.service(userRelationshipPath).remove(relatedUserId, context.params as any)
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(inviteExternalResolver), schemaHooks.resolveResult(inviteResolver)]
@@ -52,7 +130,18 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
-    find: [authenticate(), attachOwnerIdInQuery('userId')],
+    find: [
+      authenticate(),
+      attachOwnerIdInQuery('userId'),
+      addSearch,
+      discardQuery('search'),
+      iffElse(
+        (context) => !!context.params.query?.type,
+        [iff(checkQueryType('received'), addInvitesReceived), iff(checkQueryType('sent'), addInvitesSent)],
+        [verifyScope('admin', 'admin')]
+      ),
+      discardQuery('type')
+    ],
     get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId'))],
     create: [
       authenticate(),
@@ -66,14 +155,16 @@ export default {
       () => schemaHooks.validateData(invitePatchValidator),
       schemaHooks.resolveData(invitePatchResolver)
     ],
-    remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate())]
+    remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate()), removeFriend]
   },
 
   after: {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [
+      (context: HookContext<InviteService>) => sendInvite(context.app, context.result as InviteType, context.params)
+    ],
     update: [],
     patch: [],
     remove: []
