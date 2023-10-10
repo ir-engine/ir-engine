@@ -27,7 +27,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  AuthenticationSettingData,
+  AuthenticationSettingPatch,
   AuthenticationSettingType,
   authenticationSettingDataValidator,
   authenticationSettingPatchValidator,
@@ -96,35 +96,21 @@ const ensureOAuth = async (context: HookContext<AuthenticationSettingService>) =
     throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
   }
 
-  const data: AuthenticationSettingData[] = Array.isArray(context.data) ? context.data : [context.data]
+  const data: AuthenticationSettingPatch = context.data as AuthenticationSettingPatch
   const authSettings = await context.app.service(authenticationSettingPath).get(context.id!)
 
-  if (typeof data[0].oauth === 'string') {
-    context.data[0].oauth = JSON.parse(data[0].oauth)
-  }
-
-  const newOAuth = data[0].oauth!
-  context.data[0].callback = authSettings.callback
-
-  if (typeof data[0].callback === 'string') {
-    context.data[0].callback = JSON.parse(data[0].callback)
-
-    // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-    // was serialized multiple times, therefore we need to parse it twice.
-    if (typeof data[0].callback === 'string') {
-      context.data[0].callback = JSON.parse(data[0].callback)
-    }
-  }
+  const newOAuth = data.oauth!
+  data.callback = authSettings.callback
 
   for (const key of Object.keys(newOAuth)) {
     if (config.authentication.oauth[key]?.scope) newOAuth[key].scope = config.authentication.oauth[key].scope
     if (config.authentication.oauth[key]?.custom_data)
       newOAuth[key].custom_data = config.authentication.oauth[key].custom_data
-    if (key !== 'defaults' && data[0].callback && !data[0].callback[key])
-      context.data[0].callback[key] = `${config.client.url}/auth/oauth/${key}`
+    if (key !== 'defaults' && data.callback && !data.callback[key])
+      data.callback[key] = `${config.client.url}/auth/oauth/${key}`
   }
 
-  context.data[0] = authenticationSettingSchemaToDb(data[0]) as any
+  context.data = authenticationSettingSchemaToDb(data) as any
 }
 
 /**
