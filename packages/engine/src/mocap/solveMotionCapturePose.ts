@@ -148,7 +148,6 @@ export const shouldEstimateLowerBody = (landmarks: NormalizedLandmark[], thresho
   return hipsVisibility && feetVisibility
 }
 
-
 export function solveMotionCapturePose(
   entity,
   newLandmarks?: NormalizedLandmarkList,
@@ -174,7 +173,7 @@ export function solveMotionCapturePose(
     const prevLandmark = prevLandmarks[index]
     const visibility = ((landmark.visibility ?? 0) + (prevLandmark.visibility ?? 0)) / 2
     const deltaSeconds = getState(EngineState).deltaSeconds
-    const alpha = smootheLerpAlpha(5 + 15 * visibility, deltaSeconds)
+    const alpha = smootheLerpAlpha(5 + 20 * visibility, deltaSeconds)
     return {
       visibility,
       x: MathUtils.lerp(prevLandmark.x, landmark.x, alpha),
