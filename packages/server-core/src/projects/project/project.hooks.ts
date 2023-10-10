@@ -220,9 +220,9 @@ const createAndUploadProject = async (context: HookContext<ProjectService>) => {
   const projectName = cleanString(data[0].name!)
   const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
 
-  const projectExists = (await context.app
-    .service(projectPath)
-    .find({ query: { name: projectName, $limit: 1 } })) as Paginated<ProjectType>
+  const projectExists = (await context.service._find({
+    query: { name: projectName, $limit: 1 }
+  })) as Paginated<ProjectType>
 
   if (projectExists.total > 0) throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
@@ -248,7 +248,8 @@ const createAndUploadProject = async (context: HookContext<ProjectService>) => {
 
   await uploadLocalProjectToProvider(context.app, projectName, false)
 
-  context.data = { name: projectName, needsRebuild: true }
+  context.data = { ...data[0], name: projectName, needsRebuild: true }
+  const a = context.data
 }
 
 const linkGithubToProject = async (context: HookContext) => {
