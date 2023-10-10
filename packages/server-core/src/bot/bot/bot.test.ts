@@ -36,7 +36,7 @@ import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-describe('bot service', () => {
+describe('bot.service', () => {
   let app: Application
   let testInstance: InstanceType
   let testLocation: LocationType
