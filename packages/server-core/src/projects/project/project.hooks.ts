@@ -558,10 +558,7 @@ export default {
       iff(isProvider('external'), verifyScope('editor', 'write')),
       () => schemaHooks.validateData(projectDataValidator),
       schemaHooks.resolveData(projectDataResolver),
-      checkIfProjectExists,
-      checkIfNameIsValid,
-      uploadLocalProject,
-      updateCreateData
+      iff(isProvider('external'), checkIfProjectExists, checkIfNameIsValid, uploadLocalProject, updateCreateData)
     ],
     update: [
       iff(isProvider('external'), verifyScope('editor', 'write')),
@@ -574,7 +571,7 @@ export default {
       projectPermissionAuthenticate(false),
       () => schemaHooks.validateData(projectPatchValidator),
       schemaHooks.resolveData(projectPatchResolver),
-      linkGithubToProject
+      iff(isProvider('external'), linkGithubToProject)
     ],
     remove: [
       iff(isProvider('external'), verifyScope('editor', 'write')),
