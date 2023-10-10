@@ -34,9 +34,9 @@ import { Readable } from 'stream'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
+import { sceneRelativePathIdentifier } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
@@ -107,19 +107,25 @@ export const downloadResourceAndMetadata = async (
   }
 }
 
-const pathSymbol = '__$project$__'
 const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/projects')
 
 export const isAssetFromProject = (url: string, project: string) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
-  return url.includes(storageProviderPath) || url.includes(path.join(absoluteProjectPath, project))
+  const originPath = path.join(storageProvider.originURLs[0], 'projects/', project)
+  return (
+    url.includes(storageProviderPath) ||
+    url.includes(originPath) ||
+    url.includes(path.join(absoluteProjectPath, project))
+  )
 }
 
 export const getKeyForAsset = (url: string, project: string, isFromProject: boolean) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = 'https://' + path.join(storageProvider.cacheDomain, 'projects/', project)
+  const originPath = 'https://' + path.join(storageProvider.originURLs[0], 'projects/', project)
   const projectPath = url
+    .replace(originPath, '')
     .replace(storageProviderPath, '')
     .replace(path.join(absoluteProjectPath, project), '')
     .split('/')
@@ -141,7 +147,7 @@ export const addAssetFromProject = async (
   download = config.server.cloneProjectStaticResources
 ) => {
   // console.log('addAssetsFromProject', url, project, download)
-  const mainURL = decodeURI(url.replace(pathSymbol, absoluteProjectPath))
+  const mainURL = decodeURI(url.replace(sceneRelativePathIdentifier, absoluteProjectPath))
 
   const isFromProject = isAssetFromProject(mainURL, project)
 
@@ -281,43 +287,14 @@ export const getImageStats = async (
   mimeType: string
 ): Promise<{ width: number; height: number }> => {
   if (mimeType === 'image/ktx2') {
-    const loader = new KTX2Loader()
-    return new Promise<{ width: number; height: number }>((resolve, reject) => {
-      if (typeof file === 'string') {
-        loader.load(
-          file,
-          (texture) => {
-            const { width, height } = texture.source.data
-            resolve({
-              width,
-              height
-            })
-          },
-          () => {},
-          (err) => {
-            logger.error('error parsing ktx2')
-            logger.error(err)
-            reject(err)
-          }
-        )
-      } else {
-        loader.parse(
-          file,
-          (texture) => {
-            const { width, height } = texture.source.data
-            resolve({
-              width,
-              height
-            })
-          },
-          (err) => {
-            logger.error('error parsing ktx2')
-            logger.error(err)
-            reject(err)
-          }
-        )
-      }
-    })
+    if (typeof file === 'string')
+      file = Buffer.from(await (await fetch(file, { headers: { range: 'bytes=0-28' } })).arrayBuffer())
+    const widthBuffer = file.slice(20, 24)
+    const heightBuffer = file.slice(24, 28)
+    return {
+      height: heightBuffer.readUInt32LE(),
+      width: widthBuffer.readUInt32LE()
+    }
   } else {
     if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
     const stream = new Readable()

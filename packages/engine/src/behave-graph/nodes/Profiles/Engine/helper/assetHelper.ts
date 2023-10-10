@@ -26,49 +26,38 @@ Ethereal Engine. All Rights Reserved.
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { ImageComponent } from '../../../../../scene/components/ImageComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { ModelComponent } from '../../../../../scene/components/ModelComponent'
-import { PrefabComponent } from '../../../../../scene/components/PrefabComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../../../../scene/components/VolumetricComponent'
 import { addEntityToScene } from './entityHelper'
 
 export async function addMediaComponent(url: string, parent?: Entity | null, before?: Entity | null) {
-  console.log(url)
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-  let componentName: string | null = null
-  let updateFunc = null! as any
 
-  let node: Entity | null = null
-
-  if (contentType.startsWith('prefab/')) {
-    componentName = PrefabComponent.name
-    updateFunc = () => setComponent(node!, PrefabComponent, { src: url })
-  } else if (contentType.startsWith('model/')) {
-    componentName = ModelComponent.name
-    updateFunc = () => setComponent(node!, ModelComponent, { src: url })
+  if (contentType.startsWith('model/')) {
+    addEntityToScene([{ name: ModelComponent.jsonID, props: { src: url } }], parent!, before)
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    componentName = VideoComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
+    addEntityToScene(
+      [{ name: VideoComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
+      parent!,
+      before
+    )
   } else if (contentType.startsWith('image/')) {
-    componentName = ImageComponent.name
-    updateFunc = () => setComponent(node!, ImageComponent, { source: url })
+    addEntityToScene([{ name: ImageComponent.jsonID, props: { source: url } }], parent!, before)
   } else if (contentType.startsWith('audio/')) {
-    componentName = PositionalAudioComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
+    addEntityToScene(
+      [{ name: PositionalAudioComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
+      parent!,
+      before
+    )
   } else if (url.includes('.uvol')) {
-    componentName = VolumetricComponent.name
-    updateFunc = () => setComponent(node!, MediaComponent, { resources: [url] })
+    addEntityToScene(
+      [{ name: VolumetricComponent.jsonID }, { name: MediaComponent.jsonID, props: { resources: [url] } }],
+      parent!,
+      before
+    )
   }
-
-  if (componentName) {
-    node = addEntityToScene(componentName, parent || undefined, before || undefined)
-
-    if (node) updateFunc()
-  }
-
-  return node
 }

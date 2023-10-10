@@ -79,7 +79,7 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { InputState } from '@etherealengine/engine/src/input/state/InputState'
@@ -96,8 +96,8 @@ import {
   toggleTransformSpace
 } from '../functions/transformFunctions'
 import { EditorErrorState } from '../services/EditorErrorServices'
-import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
-import { EditorHistoryAction, EditorHistoryReceptorSystem } from '../services/EditorHistory'
+import { EditorHelperState } from '../services/EditorHelperState'
+import { EditorHistoryAction, EditorHistoryReceptorSystem, EditorHistoryState } from '../services/EditorHistory'
 import { EditorSelectionReceptorSystem, SelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
@@ -224,9 +224,12 @@ const onKeyX = () => {
 
 const onKeyZ = (control: boolean, shift: boolean) => {
   if (control) {
+    const state = getState(EditorHistoryState)
     if (shift) {
+      if (state.index >= state.history.length - 1) return
       dispatchAction(EditorHistoryAction.redo({ count: 1 }))
     } else {
+      if (state.index <= 0) return
       dispatchAction(EditorHistoryAction.undo({ count: 1 }))
     }
   } else {
@@ -349,10 +352,8 @@ const doZoom = (zoom) => {
 const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
 
 const gizmoObj = getComponent(gizmoEntity, TransformGizmoComponent)
-const changedTransformMode = defineActionQueue(EditorHelperAction.changedTransformMode.matches)
 
 const execute = () => {
-  for (const action of changedTransformMode()) gizmoObj.setTransformMode(action.mode)
   if (Engine.instance.localClientEntity) return
 
   const selectionState = getState(SelectionState)
@@ -644,7 +645,7 @@ const execute = () => {
       setTransformMode(shift ? TransformMode.Placement : editorHelperState.transformModeOnCancel)
     } else if (transformMode === TransformMode.Placement) {
       if (shift) {
-        EditorControlFunctions.duplicateObject([])
+        // todo
       } else {
         setTransformMode(editorHelperState.transformModeOnCancel)
       }
@@ -652,7 +653,7 @@ const execute = () => {
       if (selectStartPosition.distanceTo(cursorPosition) < SELECT_SENSITIVITY) {
         const result = getIntersectingNodeOnScreen(raycaster, cursorPosition)
         if (result) {
-          if (result.node) {
+          if (result.node && (typeof result.node === 'string' || hasComponent(result.node, SceneObjectComponent))) {
             if (shift) {
               EditorControlFunctions.toggleSelection([result.node])
             } else {
@@ -724,6 +725,7 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
 
 const reactor = () => {
   const sceneObjectEntities = useQuery([SceneObjectComponent])
+  const transformMode = useHookstate(getMutableState(EditorHelperState).transformMode)
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -735,6 +737,10 @@ const reactor = () => {
       window.removeEventListener('paste', paste)
     }
   }, [])
+
+  useEffect(() => {
+    gizmoObj.setTransformMode(transformMode.value)
+  }, [transformMode])
 
   return (
     <>

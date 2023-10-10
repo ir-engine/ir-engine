@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import matches, { Validator } from 'ts-matches'
+import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -31,76 +31,105 @@ import {
   defineComponent,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { useEffect } from 'react'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent, iterateEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { serializeEntity } from '../functions/serializeWorld'
 import { updateSceneEntity } from '../systems/SceneLoadingSystem'
 import { CallbackComponent, setCallback } from './CallbackComponent'
+import { NameComponent } from './NameComponent'
 import { UUIDComponent } from './UUIDComponent'
 
 export type LoadVolumeTarget = {
   uuid: EntityUUID
-  entityJson: EntityJson
+  entities: (EntityJson & { uuid: EntityUUID })[]
   loaded: boolean
 }
 
 export type LoadVolumeComponentType = {
-  targets: Record<EntityUUID, LoadVolumeTarget>
+  targets: LoadVolumeTarget[]
 }
 
 export const LoadVolumeComponent = defineComponent({
   name: 'EE_load_volume',
   jsonID: 'load-volume',
-  onInit: (entity) => ({ targets: {} }) as LoadVolumeComponentType,
+  onInit: (entity) => ({ targets: [] }) as LoadVolumeComponentType,
   toJSON: (entity, component) => {
     return component.value
   },
   onSet: (entity, component, json) => {
     if (!json) return
 
-    if ((matches.object as Validator<unknown, Record<EntityUUID, LoadVolumeTarget>>).test(json.targets)) {
+    if (
+      matches
+        .arrayOf(
+          matches.shape({
+            uuid: matches.string,
+            entities: matches.arrayOf(
+              matches.partial({
+                uuid: matches.string,
+                name: matches.string,
+                parent: matches.string,
+                components: matches.any
+              })
+            ),
+            loaded: matches.boolean
+          })
+        )
+        .test(json.targets)
+    ) {
       component.targets.set(json.targets)
     }
-
-    function doLoad() {
-      Object.values(component.targets.value).map(({ uuid, loaded, entityJson }) => {
-        if (loaded) return
-        updateSceneEntity(entityJson.name as EntityUUID, entityJson)
-        component.targets
-      })
-      component.targets.merge((_targets) => {
-        Object.keys(_targets).map((_uuid) => {
-          _targets[_uuid] = { ..._targets[_uuid], loaded: true }
+  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, LoadVolumeComponent)
+    useEffect(() => {
+      function doLoad() {
+        component.targets.value.map(({ uuid, loaded, entities }, index) => {
+          if (loaded) return
+          for (const entityJson of entities) {
+            const { name, parent, components } = entityJson
+            const nuJson = JSON.parse(JSON.stringify({ name, parent, components }))
+            updateSceneEntity(entityJson.uuid, nuJson)
+          }
+          component.targets[index].loaded.set(true)
         })
-        return _targets
-      })
-    }
+      }
 
-    function doUnload() {
-      Object.values(component.targets.value).map(({ uuid, loaded, entityJson: oldEJson }) => {
-        if (!loaded) return
-        const targetEntity = UUIDComponent.entitiesByUUID[uuid]
-        const parent = getComponent(targetEntity, EntityTreeComponent)
-        const parentNode = parent.parentEntity!
-        const clearChildren = () => removeEntityNodeRecursively(targetEntity)
-        const componentJson = serializeEntity(targetEntity)
-        clearChildren()
-        const entityJson: EntityJson = {
-          name: uuid,
-          parent: getComponent(parentNode, UUIDComponent),
-          components: componentJson
-        }
-        component.targets[uuid].set({ uuid, loaded: false, entityJson })
-      })
-    }
+      function doUnload() {
+        component.targets.value.map(({ uuid, loaded }, index) => {
+          if (!loaded) return
+          const rootEntity = UUIDComponent.entitiesByUUID[uuid]
+          const entities = iterateEntityNode(rootEntity, (targetEntity) => {
+            const entityTreeNode = getComponent(targetEntity, EntityTreeComponent)
+            const parentNode = entityTreeNode.parentEntity!
+            const componentJson = serializeEntity(targetEntity)
+            const entityJson: EntityJson & { uuid: EntityUUID } = {
+              uuid: getComponent(targetEntity, UUIDComponent),
+              name: getComponent(targetEntity, NameComponent),
+              parent: getComponent(parentNode, UUIDComponent),
+              components: componentJson
+            }
+            return entityJson
+          })
+          component.targets[index].set({ uuid, loaded: false, entities })
+          removeEntityNodeRecursively(rootEntity)
+        })
+      }
 
-    if (hasComponent(entity, CallbackComponent)) {
-      removeComponent(entity, CallbackComponent)
-    }
+      if (hasComponent(entity, CallbackComponent)) {
+        removeComponent(entity, CallbackComponent)
+      }
 
-    setCallback(entity, 'doLoad', doLoad)
-    setCallback(entity, 'doUnload', doUnload)
+      setCallback(entity, 'doLoad', doLoad)
+      setCallback(entity, 'doUnload', doUnload)
+    }, [component.targets])
+
+    return null
   }
 })

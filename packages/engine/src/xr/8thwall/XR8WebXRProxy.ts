@@ -71,8 +71,9 @@ export class XRHitTestResultProxy {
   getPose(baseSpace: XRSpace) {
     const _pos = new Vector3()
     const _rot = new Quaternion()
-    _mat4.decompose(_pos, _rot, _scale)
-    return (getState(XRState).xrFrame! as any as XRFrameProxy).getPose(baseSpace, new XRSpace(_pos, _rot))
+    this._mat4.decompose(_pos, _rot, _scale)
+    if (!XRFrameProxy._lastFrame) throw new Error('XRFrameProxy._lastFrame is null')
+    return XRFrameProxy._lastFrame.getPose(new XRSpace(_pos, _rot), baseSpace)
   }
 
   /** @todo */
@@ -197,9 +198,25 @@ const _scale = new Vector3()
  * currently, the hit test proxy only supports viewer space
  */
 export class XRFrameProxy {
+  _viewerPose: XRViewerPose | null = null
+  static _lastFrame: XRFrameProxy | null = null
+
+  constructor() {
+    const sessionActive = getState(XRState).sessionActive
+    const xr8scene = XR8.Threejs.xrScene()
+    if (sessionActive && xr8scene) {
+      const { camera } = xr8scene
+      this._viewerPose = new XRViewerPose(new XRRigidTransform(camera.position, camera.quaternion))
+    }
+    XRFrameProxy._lastFrame = this
+  }
+
   getHitTestResults(source: XRHitTestSource) {
     const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position as Vector3, rotation as Quaternion))
+    return hits.map(
+      ({ position, rotation }) =>
+        new XRHitTestResultProxy(position as Vector3, new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w))
+    )
   }
 
   get session() {
@@ -213,7 +230,6 @@ export class XRFrameProxy {
   }
 
   getViewerPose(space: XRReferenceSpace) {
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-    return new XRViewerPose(new XRRigidTransform(camera.position, camera.quaternion))
+    return this._viewerPose
   }
 }

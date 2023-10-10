@@ -42,6 +42,7 @@ import fs from 'fs'
 import { PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
 import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/src/schemas/projects/project-check-source-destination-match.schema'
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
@@ -152,42 +153,36 @@ export const updateBuilder = async (
         builderLabelSelector
       )
 
-      if (builderJob && builderJob.body.items.length > 0) {
-        const jobName = builderJob.body.items[0].metadata!.name
-        if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
-          await execAsync(
-            `kubectl delete job --ignore-not-found=true ${jobName} && helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-          )
-        else {
-          const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
-          const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
-          if (builderChartVersion)
-            await execAsync(
-              `kubectl delete job --ignore-not-found=true ${jobName} && helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-            )
-        }
-      } else {
-        const builderDeployments = await k8sAppsClient.listNamespacedDeployment(
-          'default',
-          undefined,
-          false,
-          undefined,
-          undefined,
-          builderLabelSelector
+      const builderDeployments = await k8sAppsClient.listNamespacedDeployment(
+        'default',
+        undefined,
+        false,
+        undefined,
+        undefined,
+        builderLabelSelector
+      )
+
+      const isJob = builderJob && builderJob.body.items.length > 0
+      const isDeployment = builderDeployments && builderDeployments.body.items.length > 0
+
+      if (isJob)
+        await execAsync(`kubectl delete job --ignore-not-found=true ${builderJob.body.items[0].metadata!.name}`)
+      else if (isDeployment)
+        await execAsync(
+          `kubectl delete deployment --ignore-not-found=true ${builderDeployments.body.items[0].metadata!.name}`
         )
-        const deploymentName = builderDeployments.body.items[0].metadata!.name
-        if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+
+      if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+        await execAsync(
+          `helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+        )
+      else {
+        const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
+        const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)![1]
+        if (builderChartVersion)
           await execAsync(
-            `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+            `helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
           )
-        else {
-          const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
-          const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
-          if (builderChartVersion)
-            await execAsync(
-              `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-            )
-        }
       }
     } catch (err) {
       logger.error(err)
@@ -917,7 +912,8 @@ export async function getProjectUpdateJobBody(
     updateSchedule: string
   },
   app: Application,
-  userId: string
+  userId: string,
+  jobId: string
 ): Promise<k8s.V1Job> {
   const apiPods = await getPodsData(
     `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
@@ -947,7 +943,9 @@ export async function getProjectUpdateJobBody(
     '--updateType',
     data.updateType,
     '--updateSchedule',
-    data.updateSchedule
+    data.updateSchedule,
+    '--jobId',
+    jobId
   ]
   if (data.commitSHA) {
     command.push('--commitSHA')
@@ -1005,6 +1003,7 @@ export async function getProjectPushJobBody(
   project: ProjectType,
   user: UserType,
   reset = false,
+  jobId: string,
   commitSHA?: string,
   storageProviderName?: string
 ): Promise<k8s.V1Job> {
@@ -1026,7 +1025,9 @@ export async function getProjectPushJobBody(
     `--userId`,
     user.id,
     '--projectId',
-    project.id
+    project.id,
+    '--jobId',
+    jobId
   ]
   if (commitSHA) {
     command.push('--commitSHA')
@@ -1141,8 +1142,9 @@ export async function getDirectoryArchiveJobBody(
   app: Application,
   directory: string,
   projectName: string,
+  jobId: string,
   storageProviderName?: string
-): Promise<object> {
+): Promise<k8s.V1Job> {
   const apiPods = await getPodsData(
     `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
     'api',
@@ -1152,7 +1154,17 @@ export async function getDirectoryArchiveJobBody(
 
   const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
 
-  const command = ['npx', 'cross-env', 'ts-node', '--swc', 'scripts/archive-directory.ts', `--directory`, directory]
+  const command = [
+    'npx',
+    'cross-env',
+    'ts-node',
+    '--swc',
+    'scripts/archive-directory.ts',
+    `--directory`,
+    directory,
+    '--jobId',
+    jobId
+  ]
   if (storageProviderName) {
     command.push('--storageProviderName')
     command.push(storageProviderName)
@@ -1163,7 +1175,7 @@ export async function getDirectoryArchiveJobBody(
       labels: {
         'etherealengine/directoryArchiver': 'true',
         'etherealengine/directoryField': projectName,
-        'etherealengine/release': process.env.RELEASE_NAME
+        'etherealengine/release': process.env.RELEASE_NAME || ''
       }
     },
     spec: {
@@ -1172,7 +1184,7 @@ export async function getDirectoryArchiveJobBody(
           labels: {
             'etherealengine/directoryArchiver': 'true',
             'etherealengine/directoryField': projectName,
-            'etherealengine/release': process.env.RELEASE_NAME
+            'etherealengine/release': process.env.RELEASE_NAME || ''
           }
         },
         spec: {
@@ -1300,7 +1312,8 @@ export const createExecutorJob = async (
   app: Application,
   jobBody: k8s.V1Job,
   jobLabelSelector: string,
-  timeout: number
+  timeout: number,
+  jobId: string
 ) => {
   const k8BatchClient = getState(ServerState).k8BatchClient
 
@@ -1310,30 +1323,25 @@ export const createExecutorJob = async (
   } catch (err) {
     console.log('Old job did not exist, continuing...')
   }
+
   await k8BatchClient.createNamespacedJob('default', jobBody)
   let counter = 0
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
       counter++
 
-      const updateJob = await k8BatchClient.listNamespacedJob(
-        'default',
-        undefined,
-        false,
-        undefined,
-        undefined,
-        jobLabelSelector
-      )
-
-      if (updateJob && updateJob.body.items.length > 0) {
-        const succeeded = updateJob.body.items.filter((item) => item.status && item.status.succeeded === 1)
-        const failed = updateJob.body.items.filter((item) => item.status && item.status.failed === 1)
-        if (succeeded.length > 0 || failed.length > 0) clearInterval(interval)
-        if (succeeded.length > 0) resolve(null)
-        if (failed.length > 0) reject()
-      }
+      const job = await app.service(apiJobPath).get(jobId)
+      console.log('job to be checked on', job, job.status)
+      if (job.status !== 'pending') clearInterval(interval)
+      if (job.status === 'succeeded') resolve(job.returnData)
+      if (job.status === 'failed') reject()
       if (counter >= timeout) {
         clearInterval(interval)
+        const date = await getDateTimeSql()
+        await app.service(apiJobPath).patch(jobId, {
+          status: 'failed',
+          endTime: date
+        })
         reject('Job timed out; try again later or check error logs of job')
       }
     }, 1000)
@@ -1393,6 +1401,13 @@ export const updateProject = async (
   if (data.sourceURL === 'default-project') {
     copyDefaultProject()
     await uploadLocalProjectToProvider(app, 'default-project')
+    if (params?.jobId) {
+      const date = await getDateTimeSql()
+      await app.service(apiJobPath).patch(params.jobId as string, {
+        status: 'succeeded',
+        endTime: date
+      })
+    }
     return (
       (await app.service(projectPath).find({
         query: {
@@ -1460,6 +1475,14 @@ export const updateProject = async (
       await git.checkoutLocalBranch(branchName)
     } else await git.checkout(branchName)
   } catch (err) {
+    if (params?.jobId) {
+      const date = await getDateTimeSql()
+      await app.service(apiJobPath).patch(params.jobId as string, {
+        status: 'failed',
+        returnData: err.toString(),
+        endTime: date
+      })
+    }
     logger.error(err)
     throw err
   }
@@ -1551,6 +1574,14 @@ export const updateProject = async (
     await createOrUpdateProjectUpdateJob(app, projectName)
   } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
     await removeProjectUpdateJob(app, projectName)
+
+  if (params?.jobId) {
+    const date = await getDateTimeSql()
+    await app.service(apiJobPath).patch(params.jobId as string, {
+      status: 'succeeded',
+      endTime: date
+    })
+  }
 
   return returned
 }

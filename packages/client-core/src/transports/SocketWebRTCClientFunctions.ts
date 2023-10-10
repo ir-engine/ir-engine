@@ -236,6 +236,8 @@ export const connectToNetwork = async (
   channelId?: ChannelID | null,
   roomCode?: string | null
 ) => {
+  logger.info('Connecting to instance type: %o', { instanceID, ipAddress, port, locationId, channelId, roomCode })
+
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
 
@@ -317,7 +319,7 @@ export const connectToNetwork = async (
 
 export const getChannelIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = getState(MediaInstanceState)
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
   const currentChannelInstanceConnection = mediaNetwork && channelConnectionState.instances[mediaNetwork.id]
   const isWorldConnection = network.topic === NetworkTopics.world
   return isWorldConnection ? null : currentChannelInstanceConnection?.channelId
@@ -798,9 +800,6 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
           }
         }, 100)
       })
-      if (mediaStreamState.videoPaused.value) await mediaStreamState.camVideoProducer.value!.pause()
-      else if (mediaStreamState.camVideoProducer.value)
-        resumeProducer(network, mediaStreamState.camVideoProducer.value!)
     } catch (err) {
       logger.error(err, 'Error producing video')
     }
@@ -852,10 +851,6 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
           }
         }, 100)
       })
-
-      if (mediaStreamState.audioPaused.value) mediaStreamState.camAudioProducer.value!.pause()
-      else if (mediaStreamState.camAudioProducer.value)
-        resumeProducer(network, mediaStreamState.camAudioProducer.value!)
     } catch (err) {
       logger.error(err, 'Error producing video')
     }
@@ -1065,7 +1060,7 @@ export const toggleFaceTracking = async () => {
     stopFaceTracking()
     stopLipsyncTracking()
   } else {
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(['video', 'audio'])) {
       mediaStreamState.faceTracking.set(true)
       startFaceTracking()
@@ -1076,7 +1071,7 @@ export const toggleFaceTracking = async () => {
 
 export const toggleMicrophonePaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['audio'])) {
     if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
     else {
@@ -1091,7 +1086,7 @@ export const toggleMicrophonePaused = async () => {
 export const toggleWebcamPaused = async () => {
   console.log('toggleWebcamPaused')
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (await configureMediaTransports(['video'])) {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
@@ -1106,14 +1101,14 @@ export const toggleWebcamPaused = async () => {
 
 export const toggleScreenshare = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   if (mediaStreamState.screenVideoProducer.value) await stopScreenshare(mediaNetwork)
   else await startScreenshare(mediaNetwork)
 }
 
 export const toggleScreenshareAudioPaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   const audioPaused = mediaStreamState.screenShareAudioPaused.value
   if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   else pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
@@ -1122,7 +1117,7 @@ export const toggleScreenshareAudioPaused = async () => {
 
 export const toggleScreenshareVideoPaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+  const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
   const videoPaused = mediaStreamState.screenShareVideoPaused.value
   if (videoPaused) await startScreenshare(mediaNetwork)
   else await stopScreenshare(mediaNetwork)
@@ -1144,8 +1139,8 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork) {
       getMutableState(NetworkState).hostIds.world.set(none)
       getMutableState(LocationInstanceState).instances[network.id].set(none)
       // if world has a media server connection
-      if (Engine.instance.mediaNetwork) {
-        leaveNetwork(Engine.instance.mediaNetwork as SocketWebRTCClientNetwork)
+      if (NetworkState.mediaNetwork) {
+        leaveNetwork(NetworkState.mediaNetwork as SocketWebRTCClientNetwork)
       }
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams

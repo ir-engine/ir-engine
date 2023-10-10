@@ -25,7 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 
+import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
+import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../transform/components/DistanceComponents'
 import { Entity } from './classes/Entity'
+import { Query } from './functions/ComponentFunctions'
 import { entityExists } from './functions/EntityFunctions'
 
 export const createPriorityQueue = (args: { accumulationBudget: number }) => {
@@ -76,4 +79,59 @@ export const createPriorityQueue = (args: { accumulationBudget: number }) => {
   }
 
   return queue
+}
+
+const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
+
+const filterFrustumCulledEntities = (entity: Entity) =>
+  !(
+    DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr &&
+    FrustumCullCameraComponent.isCulled[entity]
+  )
+
+export const createSortAndApplyPriorityQueue = (query: Query, comparisonFunction) => {
+  let sortAccumulator = 0
+
+  return (
+    priorityQueue: ReturnType<typeof createPriorityQueue>,
+    sortedTransformEntities: Entity[],
+    deltaSeconds: number
+  ) => {
+    let needsSorting = false
+    sortAccumulator += deltaSeconds
+    if (sortAccumulator > 1) {
+      needsSorting = true
+      sortAccumulator = 0
+    }
+
+    for (const entity of query.enter()) {
+      sortedTransformEntities.push(entity)
+      needsSorting = true
+    }
+
+    for (const entity of query.exit()) {
+      const idx = sortedTransformEntities.indexOf(entity)
+      idx > -1 && sortedTransformEntities.splice(idx, 1)
+      needsSorting = true
+      priorityQueue.removeEntity(entity)
+    }
+
+    if (needsSorting && sortedTransformEntities.length > 1) {
+      insertionSort(sortedTransformEntities, comparisonFunction)
+    }
+
+    const filteredSortedTransformEntities: Array<Entity> = []
+    for (let i = 0; i < sortedTransformEntities.length; i++) {
+      if (filterFrustumCulledEntities(sortedTransformEntities[i]))
+        filteredSortedTransformEntities.push(sortedTransformEntities[i])
+    }
+
+    for (let i = 0; i < filteredSortedTransformEntities.length; i++) {
+      const entity = filteredSortedTransformEntities[i]
+      const accumulation = Math.min(Math.exp(1 / (i + 1)) / 3, 1)
+      priorityQueue.addPriority(entity, accumulation * accumulation)
+    }
+
+    priorityQueue.update()
+  }
 }

@@ -34,7 +34,7 @@ import { ImageComponent } from '@etherealengine/engine/src/scene/components/Imag
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 const mapValue = (v) => ({ label: v, value: v })
 const imageProjectionOptions = Object.values(ImageProjection).map(mapValue)
@@ -73,7 +73,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           key={props.entity}
           options={imageTransparencyOptions}
           value={imageComponent.alphaMode.value}
-          onChange={updateProperty(ImageComponent, 'alphaMode')}
+          onChange={commitProperty(ImageComponent, 'alphaMode')}
         />
       </InputGroup>
       {imageComponent.alphaMode.value === ImageAlphaMode.Mask && (
@@ -88,6 +88,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           largeStep={0.25}
           value={imageComponent.alphaCutoff.value}
           onChange={updateProperty(ImageComponent, 'alphaCutoff')}
+          onRelease={commitProperty(ImageComponent, 'alphaCutoff')}
         />
       )}
       <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')}>
@@ -95,7 +96,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           key={props.entity}
           options={imageProjectionOptions}
           value={imageComponent.projection.value}
-          onChange={updateProperty(ImageComponent, 'projection')}
+          onChange={commitProperty(ImageComponent, 'projection')}
         />
       </InputGroup>
       <InputGroup name="Side" label={t('editor:properties.image.lbl-side')}>
@@ -103,7 +104,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           key={props.entity}
           options={ImageProjectionSideOptions}
           value={imageComponent.side.value}
-          onChange={updateProperty(ImageComponent, 'side')}
+          onChange={commitProperty(ImageComponent, 'side')}
         />
       </InputGroup>
     </>

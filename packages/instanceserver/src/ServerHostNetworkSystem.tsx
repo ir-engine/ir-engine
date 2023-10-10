@@ -35,6 +35,7 @@ import { RecordingID } from '@etherealengine/engine/src/schemas/recording/record
 import { getMutableState, none } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
@@ -43,7 +44,7 @@ import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
   for (const [peerID, client] of Object.entries(network.peers)) {
     if (client.userId === Engine.instance.userID) continue
-    if (Date.now() - client.lastSeenTs > 5000) {
+    if (Date.now() - client.lastSeenTs > 10000) {
       NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
       updatePeers(network)
     }
@@ -51,7 +52,7 @@ export async function validateNetworkObjects(network: SocketWebRTCServerNetwork)
 }
 
 const execute = () => {
-  const worldNetwork = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
+  const worldNetwork = NetworkState.worldNetwork as SocketWebRTCServerNetwork
   if (worldNetwork) {
     if (worldNetwork.isHosting) validateNetworkObjects(worldNetwork)
   }
@@ -74,7 +75,7 @@ export const uploadRecordingStaticResource = async (props: {
 
   const provider = getStorageProvider()
   const url = getCachedURL(props.key, provider.cacheDomain)
-  const hash = createStaticResourceHash(props.body, { assetURL: props.key })
+  const hash = createStaticResourceHash(props.body, { mimeType: props.mimeType, assetURL: props.key })
 
   const staticResource = await api.service(staticResourcePath).create(
     {

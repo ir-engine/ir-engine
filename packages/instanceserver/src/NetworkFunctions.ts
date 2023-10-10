@@ -96,7 +96,7 @@ export const setupIPs = async () => {
     announcedIp
   }
 
-  localConfig.mediasoup.recording.ip = announcedIp
+  localConfig.mediasoup.recording.ip = config.kubernetes.enabled ? '127.0.0.1' : announcedIp
 }
 
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
@@ -329,7 +329,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
           'identity-provider': {
             userId: userId
           }
-        }
+        } as any
       )
 
     NetworkPeerFunctions.destroyPeer(network, peerID)

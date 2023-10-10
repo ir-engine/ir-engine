@@ -32,7 +32,7 @@ import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAncho
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -46,7 +46,11 @@ export const PersistentAnchorNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.persistent-anchor.description')}
     >
       <InputGroup name="Volume" label={t('editor:properties.persistent-anchor.lbl-name')}>
-        <StringInput value={anchor.name.value} onChange={updateProperty(PersistentAnchorComponent, 'name')} />
+        <StringInput
+          value={anchor.name.value}
+          onChange={updateProperty(PersistentAnchorComponent, 'name')}
+          onRelease={commitProperty(PersistentAnchorComponent, 'name')}
+        />
       </InputGroup>
     </NodeEditor>
   )

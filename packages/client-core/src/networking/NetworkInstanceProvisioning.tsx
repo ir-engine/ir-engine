@@ -37,7 +37,6 @@ import {
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -57,18 +56,18 @@ export const WorldInstanceProvisioning = () => {
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useHookstate(getMutableState(EngineState))
 
-  const worldNetwork = Engine.instance.worldNetwork
+  const worldNetwork = NetworkState.worldNetwork
   const worldNetworkState = useWorldNetwork()
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
 
   ChannelService.useAPIListeners()
 
-  const locationInstance = useHookstate(getMutableState(LocationInstanceState))
+  const locationInstances = useHookstate(getMutableState(LocationInstanceState).instances)
   const instance = useWorldInstance()
 
   // Once we have the location, provision the instance server
   useEffect(() => {
-    if (!engineState.sceneLoaded.value || locationInstance.instances.keys.length) return
+    if (!engineState.sceneLoaded.value || locationInstances.keys.length) return
 
     const currentLocation = locationState.currentLocation.location
     const hasJoined = !!worldNetwork
@@ -77,9 +76,7 @@ export const WorldInstanceProvisioning = () => {
       currentLocation.id?.value &&
       !isUserBanned &&
       !hasJoined &&
-      !Object.values(locationInstance.instances).find(
-        (instance) => instance.locationId.value === currentLocation.id?.value
-      )
+      !Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
     ) {
       const search = window.location.search
       let instanceId
@@ -106,7 +103,7 @@ export const WorldInstanceProvisioning = () => {
         )
       }
     }
-  }, [engineState.sceneLoaded, locationState.currentLocation.location, locationInstance.keys])
+  }, [engineState.sceneLoaded, locationState.currentLocation.location, locationInstances.keys])
 
   // Populate the URL with the room code and instance id
   useEffect(() => {
@@ -125,11 +122,11 @@ export const WorldInstanceProvisioning = () => {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
-  }, [worldNetworkState?.connected, locationInstance.instances.keys.length, networkConfigState])
+  }, [worldNetworkState?.connected, locationInstances.keys.length, networkConfigState])
 
   return (
     <>
-      {locationInstance.instances.keys.map((instanceId: InstanceID) => (
+      {locationInstances.keys.map((instanceId: InstanceID) => (
         <WorldInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -156,15 +153,15 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
 export const MediaInstanceProvisioning = () => {
   const channelState = useHookstate(getMutableState(ChannelState))
 
-  const worldNetworkId = Engine.instance.worldNetwork?.id
+  const worldNetworkId = NetworkState.worldNetwork?.id
   const worldNetwork = useWorldNetwork()
 
   MediaInstanceConnectionService.useAPIListeners()
-  const mediaInstance = useHookstate(getMutableState(MediaInstanceState))
+  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances)
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (mediaInstance.instances.keys.length) return
+    if (mediaInstance.keys.length) return
     if (channelState.channels.channels?.value.length) {
       const currentChannel =
         channelState.targetChannelId.value === ''
@@ -175,13 +172,13 @@ export const MediaInstanceProvisioning = () => {
   }, [
     channelState.channels.channels?.length,
     worldNetwork?.connected,
-    mediaInstance.instances.keys.length,
+    mediaInstance.keys.length,
     channelState.targetChannelId
   ])
 
   return (
     <>
-      {mediaInstance.instances.keys.map((instanceId: InstanceID) => (
+      {mediaInstance.keys.map((instanceId: InstanceID) => (
         <MediaInstance key={instanceId} id={instanceId} />
       ))}
     </>
@@ -189,16 +186,16 @@ export const MediaInstanceProvisioning = () => {
 }
 
 export const MediaInstance = ({ id }: { id: InstanceID }) => {
-  const worldInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
+  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
 
   useEffect(() => {
     connectToNetwork(
       id,
-      worldInstance.ipAddress.value,
-      worldInstance.port.value,
+      mediaInstance.ipAddress.value,
+      mediaInstance.port.value,
       undefined,
-      worldInstance.channelId.value,
-      worldInstance.roomCode.value
+      mediaInstance.channelId.value,
+      mediaInstance.roomCode.value
     )
   }, [])
 

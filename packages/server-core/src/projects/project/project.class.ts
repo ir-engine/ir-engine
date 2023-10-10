@@ -40,6 +40,7 @@ import {
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
+import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
@@ -90,6 +91,7 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 export type ProjectUpdateParams = {
   user?: UserType
   isJob?: boolean
+  jobId?: string
 }
 
 export interface ProjectParams extends RootParams<ProjectQuery>, ProjectUpdateParams {}
@@ -143,6 +145,7 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
 
     return super._create(
       {
+        ...data,
         id: v4(),
         name: projectName,
         needsRebuild: true,
@@ -186,9 +189,21 @@ export class ProjectService<T = ProjectType, ServiceParams extends Params = Proj
       projectName = projectName.toLowerCase()
       if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
       if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
-      const jobBody = await getProjectUpdateJobBody(data, this.app, params!.user!.id)
+
+      const date = await getDateTimeSql()
+      const newJob = await this.app.service(apiJobPath).create({
+        name: '',
+        startTime: date,
+        endTime: date,
+        returnData: '',
+        status: 'pending'
+      })
+      const jobBody = await getProjectUpdateJobBody(data, this.app, params!.user!.id, newJob.id)
+      await this.app.service(apiJobPath).patch(newJob.id, {
+        name: jobBody.metadata!.name
+      })
       const jobLabelSelector = `etherealengine/projectField=${data.name},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/autoUpdate=false`
-      const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, 1000)
+      const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, 1000, newJob.id)
       try {
         await jobFinishedPromise
         const result = (await super._find({

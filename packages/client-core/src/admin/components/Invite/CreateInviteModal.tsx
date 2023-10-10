@@ -106,19 +106,15 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     textValue.set((event.target as HTMLInputElement).value)
   }
 
-  const locationMenu: InputMenuItem[] = adminLocations.map((el) => {
-    return {
-      value: `${el.id}`,
-      label: `${el.name} (${el.sceneId})`
-    }
-  })
+  const locationMenu: InputMenuItem[] = adminLocations.map((el) => ({
+    value: `${el.id}`,
+    label: `${el.name} (${el.sceneId})`
+  }))
 
-  const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
-    return {
-      value: `${el.id}`,
-      label: `${el.id} (${el.location?.name})`
-    }
-  })
+  const instanceMenu: InputMenuItem[] = adminInstances.map((el) => ({
+    value: `${el.id}`,
+    label: `${el.id} (${el.location?.name})`
+  }))
 
   const userMenu: InputMenuItem[] = adminUsers.map((el) => ({
     value: `${el.inviteCode}`,
@@ -180,11 +176,16 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         const inviteType = INVITE_TYPE_TAB_MAP[inviteTypeTab.value]
         const isPhone = PHONE_REGEX.test(target)
         const isEmail = EMAIL_REGEX.test(target)
+
+        let targetObjectId: string | null = null
+        targetObjectId = inviteType === INVITE_TYPE_TAB_MAP[1] ? locationId.value : targetObjectId
+        targetObjectId = inviteType === INVITE_TYPE_TAB_MAP[2] ? instanceId.value : targetObjectId
+
         let inviteCode = ''
         const sendData = {
           inviteType,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
-          targetObjectId: instanceId.value || locationId.value || null,
+          targetObjectId,
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
         } as InviteData

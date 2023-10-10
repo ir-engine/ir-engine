@@ -66,7 +66,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={euler.x.value * RAD2DEG}
         onChange={onSetEuler('x')}
-        onCommit={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -81,7 +81,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={euler.y.value * RAD2DEG}
         onChange={onSetEuler('y')}
-        onCommit={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -96,7 +96,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={euler.z.value * RAD2DEG}
         onChange={onSetEuler('z')}
-        onCommit={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber

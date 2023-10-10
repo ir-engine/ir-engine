@@ -34,26 +34,22 @@ import {
 } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const userRelationshipResolver = resolve<UserRelationshipType, HookContext>({
-  user: virtual(async (userRelationship, context) => {
-    if (userRelationship.userId) {
-      const user = await context.app.service('user')._get(userRelationship.userId)
-      return user
-    }
-  }),
-  relatedUser: virtual(async (userRelationship, context) => {
-    if (userRelationship.relatedUserId) {
-      const relatedUser = await context.app.service('user')._get(userRelationship.relatedUserId)
-      return relatedUser
-    }
-  }),
   createdAt: virtual(async (userRelationship) => fromDateTimeSql(userRelationship.createdAt)),
   updatedAt: virtual(async (userRelationship) => fromDateTimeSql(userRelationship.updatedAt))
 })
 
-export const userRelationshipExternalResolver = resolve<UserRelationshipType, HookContext>({})
+export const userRelationshipExternalResolver = resolve<UserRelationshipType, HookContext>({
+  user: virtual(async (userRelationship, context) => {
+    if (userRelationship.userId) return await context.app.service(userPath).get(userRelationship.userId)
+  }),
+  relatedUser: virtual(async (userRelationship, context) => {
+    if (userRelationship.relatedUserId) return await context.app.service(userPath).get(userRelationship.relatedUserId)
+  })
+})
 
 export const userRelationshipDataResolver = resolve<UserRelationshipType, HookContext>({
   id: async () => {

@@ -415,7 +415,9 @@ export class S3Provider implements StorageProviderInterface {
         CallerReference: Date.now().toString(),
         Paths: {
           Quantity: invalidationItems.length,
-          Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
+          Items: invalidationItems.map((item) =>
+            item[0] !== '/' ? `/${item.replaceAll(' ', '%20')}` : item.replaceAll(' ', '%20')
+          )
         }
       }
     }
@@ -649,11 +651,13 @@ export class S3Provider implements StorageProviderInterface {
       promises.push(
         new Promise(async (resolve) => {
           const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
+          const size = await this.getFolderSize(key)
           const cont: FileBrowserContentType = {
             key,
             url: `${this.bucketAssetURL}/${key}`,
             name: key.split('/').pop()!,
-            type: 'folder'
+            type: 'folder',
+            size
           }
           resolve(cont)
         })
@@ -682,6 +686,11 @@ export class S3Provider implements StorageProviderInterface {
     }
 
     return await Promise.all(promises)
+  }
+
+  async getFolderSize(folderName: string): Promise<number> {
+    const folderContent = await this.listObjects(folderName, true)
+    return folderContent.Contents.reduce((accumulator, value) => accumulator + value.Size, 0)
   }
 
   /**

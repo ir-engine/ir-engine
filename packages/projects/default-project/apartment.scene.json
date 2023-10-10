@@ -52,6 +52,184 @@
             "envMapOrigin": "__$project$__/default-project/apartment.envmap.ktx2",
             "boxProjection": false
           }
+        },
+        {
+          "name": "camera-settings",
+          "props": {
+            "fov": 50,
+            "cameraNearClip": 0.01,
+            "cameraFarClip": 10000,
+            "projectionType": 1,
+            "minCameraDistance": 1,
+            "maxCameraDistance": 50,
+            "startCameraDistance": 3,
+            "cameraMode": 5,
+            "cameraModeDefault": 2,
+            "minPhi": -70,
+            "maxPhi": 85
+          }
+        },
+        {
+          "name": "postprocessing",
+          "props": {
+            "enabled": false,
+            "effects": {
+              "SSAOEffect": {
+                "isActive": false,
+                "blendFunction": 21,
+                "distanceScaling": true,
+                "depthAwareUpsampling": true,
+                "samples": 16,
+                "rings": 7,
+                "distanceThreshold": 0.125,
+                "distanceFalloff": 0.02,
+                "minRadiusScale": 1,
+                "bias": 0.25,
+                "radius": 0.01,
+                "intensity": 2,
+                "fade": 0.05
+              },
+              "SSREffect": {
+                "isActive": false,
+                "distance": 10,
+                "thickness": 10,
+                "autoThickness": false,
+                "maxRoughness": 1,
+                "blend": 0.9,
+                "denoiseIterations": 1,
+                "denoiseKernel": 2,
+                "denoiseDiffuse": 10,
+                "denoiseSpecular": 10,
+                "depthPhi": 2,
+                "normalPhi": 50,
+                "roughnessPhi": 1,
+                "envBlur": 0.5,
+                "importanceSampling": true,
+                "directLightMultiplier": 1,
+                "steps": 20,
+                "refineSteps": 5,
+                "spp": 1,
+                "resolutionScale": 1,
+                "missedRays": false
+              },
+              "DepthOfFieldEffect": {
+                "isActive": false,
+                "blendFunction": 23,
+                "focusDistance": 0.02,
+                "focalLength": 0.5,
+                "bokehScale": 1
+              },
+              "BloomEffect": {
+                "isActive": true,
+                "blendFunction": 28,
+                "kernelSize": 2,
+                "luminanceThreshold": 1,
+                "luminanceSmoothing": 0.1,
+                "intensity": 0.2
+              },
+              "ToneMappingEffect": {
+                "isActive": false,
+                "blendFunction": 23,
+                "adaptive": true,
+                "resolution": 512,
+                "middleGrey": 0.6,
+                "maxLuminance": 32,
+                "averageLuminance": 1,
+                "adaptationRate": 2
+              },
+              "BrightnessContrastEffect": {
+                "isActive": false,
+                "brightness": 0.05,
+                "contrast": 0.1
+              },
+              "HueSaturationEffect": {
+                "isActive": false,
+                "hue": 0,
+                "saturation": -0.15
+              },
+              "ColorDepthEffect": {
+                "isActive": false,
+                "bits": 16
+              },
+              "LinearTosRGBEffect": {
+                "isActive": false
+              },
+              "SSGIEffect": {
+                "isActive": false,
+                "distance": 10,
+                "thickness": 10,
+                "autoThickness": false,
+                "maxRoughness": 1,
+                "blend": 0.9,
+                "denoiseIterations": 1,
+                "denoiseKernel": 2,
+                "denoiseDiffuse": 10,
+                "denoiseSpecular": 10,
+                "depthPhi": 2,
+                "normalPhi": 50,
+                "roughnessPhi": 1,
+                "envBlur": 0.5,
+                "importanceSampling": true,
+                "directLightMultiplier": 1,
+                "steps": 20,
+                "refineSteps": 5,
+                "spp": 1,
+                "resolutionScale": 1,
+                "missedRays": false
+              },
+              "TRAAEffect": {
+                "isActive": false,
+                "blend": 0.8,
+                "constantBlend": true,
+                "dilation": true,
+                "blockySampling": false,
+                "logTransform": false,
+                "depthDistance": 10,
+                "worldDistance": 5,
+                "neighborhoodClamping": true
+              },
+              "MotionBlurEffect": {
+                "isActive": false,
+                "intensity": 1,
+                "jitter": 1,
+                "samples": 16
+              }
+            }
+          }
+        },
+        {
+          "name": "fog",
+          "props": {
+            "type": "disabled",
+            "color": "#FFFFFF",
+            "density": 0.005,
+            "near": 1,
+            "far": 1000,
+            "timeScale": 1,
+            "height": 0.05
+          }
+        },
+        {
+          "name": "media-settings",
+          "props": {
+            "immersiveMedia": false,
+            "refDistance": 20,
+            "rolloffFactor": 1,
+            "maxDistance": 10000,
+            "distanceModel": "linear",
+            "coneInnerAngle": 360,
+            "coneOuterAngle": 0,
+            "coneOuterGain": 0
+          }
+        },
+        {
+          "name": "render-settings",
+          "props": {
+            "csm": false,
+            "toneMapping": 1,
+            "toneMappingExposure": 0.8,
+            "shadowMapType": 2
+          }
         }
       ],
       "name": "apartment"
@@ -278,10 +456,9 @@
           "name": "directional-light",
           "props": {
             "color": 16777215,
-            "intensity": 0.6699999999999999,
-            "cameraFar": 2000,
+            "intensity": 1.0,
+            "cameraFar": 200,
             "castShadow": true,
-            "shadowMapResolution": 512,
             "shadowBias": -0.00001,
             "shadowRadius": 1,
             "useInCSM": true
@@ -325,6 +502,23 @@
             "src": "__$project$__/default-project/assets/apartment.glb",
             "generateBVH": true,
             "avoidCameraOcclusion": false
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "hasAvatarAnimations": false,
+            "activeClipIndex": -1,
+            "animationPack": "",
+            "paused": false,
+            "time": 0,
+            "timeScale": 1,
+            "blendMode": 2500,
+            "loop": 2201,
+            "clampWhenFinished": false,
+            "zeroSlopeAtStart": true,
+            "zeroSlopeAtEnd": true,
+            "weight": 1
           }
         },
         {
@@ -386,7 +580,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -430,7 +625,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -474,7 +670,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -518,7 +715,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -562,7 +760,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -606,7 +805,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -650,7 +850,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -694,7 +895,8 @@
             "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7,
-            "restitution": 1
+            "restitution": 1,
+            "triggers": []
           }
         }
       ],
@@ -745,10 +947,14 @@
             "removeMesh": true,
             "collisionLayer": 8,
             "collisionMask": 2,
-            "restitution": 1,
-            "onEnter": "teleport",
-            "onExit": null,
-            "target": ""
+            "restitution": 0,
+            "triggers": [
+              {
+                "onEnter": "teleport",
+                "onExit": null,
+                "target": ""
+              }
+            ]
           }
         },
         {
@@ -809,14 +1015,15 @@
           "name": "media",
           "props": {
             "controls": false,
-            "paused": false,
+            "autoplay": true,
             "resources": [
               "__$project$__/default-project/assets/apartment-ambience.mp3"
             ],
             "volume": 1,
             "synchronize": true,
             "playMode": "loop",
-            "isMusic": false
+            "isMusic": false,
+            "seekTime": 0
           }
         },
         {
@@ -873,9 +1080,13 @@
             "collisionLayer": 1,
             "collisionMask": 7,
             "restitution": 1,
-            "onEnter": "activate",
-            "onExit": "",
-            "target": "Self"
+            "triggers": [
+              {
+                "onEnter": null,
+                "onExit": null,
+                "target": null
+              }
+            ]
           }
         }
       ],
@@ -920,9 +1131,13 @@
             "collisionLayer": 1,
             "collisionMask": 8,
             "restitution": 1,
-            "onEnter": "activate",
-            "onExit": "",
-            "target": "Self"
+            "triggers": [
+              {
+                "onEnter": null,
+                "onExit": null,
+                "target": null
+              }
+            ]
           }
         }
       ],
@@ -969,7 +1184,24 @@
           "props": {
             "src": "__$project$__/default-project/assets/keycard.glb",
             "generateBVH": true,
-            "avoidCameraOcclusion": false
+            "avoidCameraOcclusion": true
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "hasAvatarAnimations": false,
+            "activeClipIndex": -1,
+            "animationPack": "",
+            "paused": false,
+            "time": 0,
+            "timeScale": 1,
+            "blendMode": 2500,
+            "loop": 2201,
+            "clampWhenFinished": false,
+            "zeroSlopeAtStart": true,
+            "zeroSlopeAtEnd": true,
+            "weight": 1
           }
         },
         {
@@ -979,6 +1211,7 @@
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
+            "envMapSourceEntityUUID": "",
             "envMapIntensity": 1
           }
         }
@@ -1024,9 +1257,13 @@
             "collisionLayer": 1,
             "collisionMask": 8,
             "restitution": 1,
-            "onEnter": "receiveVc",
-            "onExit": "",
-            "target": "Self"
+            "triggers": [
+              {
+                "onEnter": null,
+                "onExit": null,
+                "target": null
+              }
+            ]
           }
         }
       ],

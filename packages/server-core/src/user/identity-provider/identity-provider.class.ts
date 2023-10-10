@@ -175,12 +175,10 @@ export class IdentityProviderService<
       userId = uuidv1()
     }
 
-    const userService = this.app.service(userPath)
-
     // check if there is a user with userId
     let foundUser
     try {
-      foundUser = await userService.get(userId)
+      foundUser = await this.app.service(userPath).get(userId)
     } catch (err) {
       //
     }
@@ -198,7 +196,7 @@ export class IdentityProviderService<
 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
-    const adminCount = (await this.app.service(scopePath)._find({
+    const adminCount = (await this.app.service(scopePath).find({
       query: {
         type: 'admin:admin'
       }

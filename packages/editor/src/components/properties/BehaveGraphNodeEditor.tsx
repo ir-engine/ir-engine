@@ -34,7 +34,7 @@ import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstruct
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  *
@@ -53,11 +53,11 @@ export const BehaveGraphNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Disable Graph" label="Disable Graph">
         <BooleanInput
           value={behaveGraphComponent.disabled.value}
-          onChange={updateProperty(BehaveGraphComponent, 'disabled')}
+          onChange={commitProperty(BehaveGraphComponent, 'disabled')}
         />
       </InputGroup>
       <InputGroup name="Play Graph" label="Play Graph">
-        <BooleanInput value={behaveGraphComponent.run.value} onChange={updateProperty(BehaveGraphComponent, 'run')} />
+        <BooleanInput value={behaveGraphComponent.run.value} onChange={commitProperty(BehaveGraphComponent, 'run')} />
       </InputGroup>
     </NodeEditor>
   )

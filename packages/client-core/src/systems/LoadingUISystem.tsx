@@ -75,7 +75,7 @@ const LoadingUISystemState = defineState({
 
     const mesh = new Mesh(
       new SphereGeometry(10),
-      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false, color: 'white' })
+      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
     )
 
     // flip inside out
@@ -97,9 +97,29 @@ const LoadingUISystemState = defineState({
 const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
 const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
 
+/** Scene Colors */
+function setDefaultPalette() {
+  const uiState = getState(LoadingUISystemState).ui.state
+  const colors = uiState.colors
+  colors.main.set('black')
+  colors.background.set('white')
+  colors.alternate.set('black')
+}
+
+const setColors = (image: HTMLImageElement) => {
+  const uiState = getState(LoadingUISystemState).ui.state
+  const colors = uiState.colors
+  const palette = getImagePalette(image)
+  if (palette) {
+    colors.main.set(palette.color)
+    colors.background.set(palette.backgroundColor)
+    colors.alternate.set(palette.alternativeColor)
+  }
+}
+
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
-  const engineState = useHookstate(getMutableState(EngineState))
+  const loadingProgress = useHookstate(getMutableState(EngineState).loadingProgress)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const mesh = state.mesh.value
@@ -108,7 +128,6 @@ function LoadingReactor() {
   /** Handle loading state changes */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    console.log('metadataLoaded', metadataLoaded.value)
     if (
       loadingState.state.value === AppLoadingStates.SCENE_LOADING &&
       transition.state === 'OUT' &&
@@ -121,34 +140,10 @@ function LoadingReactor() {
     }
   }, [loadingState.state, metadataLoaded])
 
-  /** Scene Colors */
-  function setDefaultPalette() {
-    const uiState = getState(LoadingUISystemState).ui.state
-    const colors = uiState.colors
-    colors.main.set('black')
-    colors.background.set('white')
-    colors.alternate.set('black')
-  }
-
-  const setColors = (texture: Texture) => {
-    const image = texture.image as HTMLImageElement
-    const uiState = getState(LoadingUISystemState).ui.state
-    const colors = uiState.colors
-    const palette = getImagePalette(image)
-    if (palette) {
-      colors.main.set(palette.color)
-      colors.background.set(palette.backgroundColor)
-      colors.alternate.set(palette.alternativeColor)
-      console.log('palette', palette)
-    }
-  }
-
   /** Scene data changes */
   useEffect(() => {
     if (!sceneData.value) return
-    const envmapURL = sceneData.value.thumbnailUrl
-      .replace('thumbnail.jpeg', 'envmap.png')
-      .replace('thumbnail.ktx2', 'envmap.ktx2')
+    const envmapURL = sceneData.value.thumbnailUrl.replace('thumbnail.ktx2', 'loadingscreen.ktx2')
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()
@@ -159,12 +154,12 @@ function LoadingReactor() {
         {},
         (texture: Texture | CompressedTexture) => {
           mesh.material.map = texture
-
           const compressedTexture = texture as CompressedTexture
           if (compressedTexture.isCompressedTexture) {
             try {
               createReadableTexture(compressedTexture).then((texture: Texture) => {
-                setColors(texture)
+                const image = texture.image
+                setColors(image)
                 texture.dispose()
               })
             } catch (e) {
@@ -172,7 +167,8 @@ function LoadingReactor() {
               setDefaultPalette()
             }
           } else {
-            setColors(texture)
+            const image = texture.image
+            setColors(image)
           }
         },
         undefined,
@@ -189,13 +185,17 @@ function LoadingReactor() {
     const progressBar = xrui.getObjectByName('progress-container') as WebLayer3D | undefined
     if (!progressBar) return
 
-    if (progressBar.position.lengthSq() <= 0) progressBar.shouldApplyDOMLayout = 'once'
-    const percentage = engineState.loadingProgress.value
+    const percentage = loadingProgress.value
     const scaleMultiplier = 0.01
     const centerOffset = 0.05
-    progressBar.scale.setX(percentage * scaleMultiplier)
-    progressBar.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
-  }, [engineState.loadingProgress])
+
+    progressBar.onBeforeApplyLayout = () => {
+      progressBar.domLayout.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
+      progressBar.domLayout.scale.setX(percentage * scaleMultiplier)
+    }
+
+    progressBar.updateMatrixWorld(true)
+  }, [loadingProgress])
 
   return null
 }
@@ -275,7 +275,8 @@ const execute = () => {
     mat.opacity = opacity
     mat.visible = ready
     layer.visible = ready
-    mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
+    // mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
+    mat.color.copy(mainThemeColor)
   })
   setVisibleComponent(ui.entity, ready)
 }

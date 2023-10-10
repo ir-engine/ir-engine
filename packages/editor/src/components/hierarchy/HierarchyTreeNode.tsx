@@ -56,7 +56,6 @@ import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
-import { addSceneComponentElement } from '../element/ElementList'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
@@ -208,9 +207,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           return
         }
 
-        if (item.type === ItemTypes.Prefab) {
-          const createdEntity = addSceneComponentElement(item, parentNode, beforeNode!)
-          EditorControlFunctions.reparentObject([createdEntity], beforeNode, parentNode)
+        if (item.type === ItemTypes.Component) {
+          EditorControlFunctions.createObjectFromSceneElement([{ name: item!.componentJsonID }], parentNode, beforeNode)
           return
         }
       }
@@ -257,7 +255,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }
 
   const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
     drop: dropItem(node, 'Before'),
     canDrop: canDropItem((node.entityNode as Entity) ?? node.obj3d!),
     collect: (monitor) => ({
@@ -267,7 +265,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
     drop: dropItem(node, 'After'),
     canDrop: canDropItem((node.entityNode as Entity) ?? node.obj3d!),
     collect: (monitor) => ({
@@ -277,7 +275,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Component, ...SupportedFileTypes],
     drop: dropItem(node, 'On'),
     canDrop: canDropItem((node.entityNode as Entity) ?? node.obj3d!, true),
     collect: (monitor) => ({

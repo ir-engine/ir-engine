@@ -30,6 +30,7 @@ import { useEffect } from 'react'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
+  NetworkState,
   PeerMediaType,
   screenshareAudioDataChannelType,
   webcamAudioDataChannelType,
@@ -124,7 +125,7 @@ export const startMediaRecordingPair = async (
   mediaType: 'webcam' | 'screenshare',
   tracks: MediaTrackPair
 ) => {
-  const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
+  const network = NetworkState.mediaNetwork as SocketWebRTCServerNetwork
 
   const promises = [] as Promise<any>[]
 
@@ -247,7 +248,7 @@ export const uploadMediaStaticResource = async (props: onUploadPartArgs) => {
 
 // todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
 export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchemaType['peers']) => {
-  const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
+  const network = NetworkState.mediaNetwork as SocketWebRTCServerNetwork
 
   const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>
 
@@ -287,9 +288,13 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     const format = recording.format === 'mp3' ? 'audio/opus' : recording.format === 'vp8' ? 'video/webm' : 'video/mp4'
     const ext = recording.format === 'mp3' ? 'mp3' : recording.format === 'vp8' ? 'webm' : 'mp4'
     const key = `recordings/${recordingID}/${recording.peerID}-${recording.mediaType}.${ext}`
-    const hash = createHash('sha3-256').update(key.split('/').pop()!.split('.')[0]).digest('hex')
+    const hash = createHash('sha3-256')
+      .update(stream.readableLength.toString())
+      .update(key.split('/').pop()!)
+      .update(format)
+      .digest('hex')
 
-    const upload = uploadMediaStaticResource({
+    return uploadMediaStaticResource({
       recordingID,
       key,
       body: stream,
@@ -298,9 +303,9 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     }).then(() => {
       logger.info('Uploaded media file' + key)
     })
-
-    return upload
   })
+
+  logger.info('media recording started')
 
   return {
     recordings,

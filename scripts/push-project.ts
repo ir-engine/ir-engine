@@ -28,6 +28,7 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { pushProjectToGithub } from '@etherealengine/server-core/src/projects/project/github-helper'
@@ -56,17 +57,18 @@ const options = cli.parse({
   userId: [false, 'ID of user updating project', 'string'],
   reset: [false, 'Whether to force reset the project', 'string'],
   commitSHA: [false, 'Commit SHA to use for project', 'string'],
-  storageProviderName: [false, 'Storage provider name', 'string']
+  storageProviderName: [false, 'Storage provider name', 'string'],
+  jobId: [false, 'ID of Job record', 'string']
 })
 
 cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    const { userId, projectId, reset, commitSHA, storageProviderName } = options
-    const user = await app.service('user').get(userId)
+    const { userId, projectId, reset, commitSHA, storageProviderName, jobId } = options
+    const user = await app.service(userPath).get(userId)
     const project = await app.service(projectPath)._get(projectId)
-    await pushProjectToGithub(app, project, user, reset, commitSHA, storageProviderName || undefined, true)
+    await pushProjectToGithub(app, project, user, reset, commitSHA, storageProviderName || undefined, true, jobId)
     cli.exit(0)
   } catch (err) {
     console.log(err)

@@ -32,11 +32,7 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
-import {
-  AppLoadingAction,
-  AppLoadingState,
-  AppLoadingStates
-} from '@etherealengine/engine/src/common/AppLoadingService'
+import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -49,7 +45,11 @@ import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/
 import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import {
+  PortalComponent,
+  PortalEffects,
+  PortalState
+} from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -172,7 +172,7 @@ export const usePortalTeleport = () => {
   useEffect(() => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
-      const activePortalEntity = Engine.instance.activePortalEntity
+      const activePortalEntity = getState(PortalState).activePortalEntity
 
       if (!activePortalEntity) return
 
@@ -185,7 +185,7 @@ export const usePortalTeleport = () => {
           activePortal.remoteSpawnPosition
           // activePortal.remoteSpawnRotation
         )
-        Engine.instance.activePortalEntity = UndefinedEntity
+        getState(PortalState).activePortalEntity = UndefinedEntity
         dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
         return
       }
@@ -200,13 +200,16 @@ export const usePortalTeleport = () => {
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too
-      leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
+      leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
 
       setAvatarToLocationTeleportingState()
       if (activePortal.effectType !== 'None') {
         addComponent(Engine.instance.localClientEntity!, PortalEffects.get(activePortal.effectType), true)
       } else {
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.START_STATE }))
+        getMutableState(AppLoadingState).merge({
+          state: AppLoadingStates.START_STATE,
+          loaded: false
+        })
       }
     }
   }, [engineState.isTeleporting])
@@ -226,7 +229,10 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
 
   useEffect(() => {
     if (engineState.sceneLoaded.value && appState.value !== AppLoadingStates.SUCCESS) {
-      dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+      getMutableState(AppLoadingState).merge({
+        state: AppLoadingStates.SUCCESS,
+        loaded: true
+      })
       window.dispatchEvent(new Event('load'))
     }
   }, [engineState.sceneLoaded, engineState.loadingProgress])
@@ -266,7 +272,7 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
       addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       NetworkPeerFunctions.createPeer(
-        Engine.instance.worldNetwork as Network,
+        NetworkState.worldNetwork as Network,
         peerID,
         peerIndex,
         userId,

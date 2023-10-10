@@ -163,14 +163,14 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       }
 
       if (invite.inviteType === 'friend') {
-        const inviter = await this.app.service(userPath)._get(invite.userId)
+        const inviter = await this.app.service(userPath).get(invite.userId)
 
         if (inviter == null) {
           await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid user ID')
         }
 
-        const existingRelationshipResult = await this.app.service(userRelationshipPath)._find({
+        const existingRelationshipResult = await this.app.service(userRelationshipPath).find({
           query: {
             $or: [
               {
@@ -204,7 +204,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           )
         }
 
-        const relationshipToPatch = await this.app.service(userRelationshipPath)._find({
+        const relationshipToPatch = await this.app.service(userRelationshipPath).find({
           query: {
             $or: [
               {
@@ -230,7 +230,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       } else if (invite.inviteType === 'channel') {
         const channel = (await this.app
           .service(channelPath)
-          ._find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
+          .find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
 
         if (channel.total === 0) {
           await this.app.service(invitePath).remove(invite.id)
