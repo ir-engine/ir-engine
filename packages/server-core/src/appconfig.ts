@@ -29,6 +29,11 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
+import { oembedPath } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { discordBotAuthPath } from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
+import { githubRepoAccessWebhookPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-webhook.schema'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import multiLogger from './ServerLogger'
 
@@ -233,6 +238,11 @@ const email = {
   smsNameCharacterLimit: 20
 }
 
+type WhiteListItem = {
+  path: string
+  methods: string[]
+}
+
 /**
  * Authentication
  */
@@ -247,6 +257,15 @@ const authentication = {
   bearerToken: {
     numBytes: 16
   },
+  whiteList: [
+    'authentication',
+    oembedPath,
+    githubRepoAccessWebhookPath,
+    { path: identityProviderPath, methods: ['create'] },
+    { path: routePath, methods: ['find'] },
+    { path: acceptInvitePath, methods: ['get'] },
+    { path: discordBotAuthPath, methods: ['find'] }
+  ] as (string | WhiteListItem)[],
   callback: {
     discord: process.env.DISCORD_CALLBACK_URL || `${client.url}/auth/oauth/discord`,
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,

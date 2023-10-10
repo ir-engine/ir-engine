@@ -29,6 +29,7 @@ import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AsyncLocalStorage } from 'async_hooks'
+import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'
 import { Application } from './../../declarations'
 
@@ -44,8 +45,23 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
   // If user param is already stored then we don't need to
   // authenticate. This is typically an internal service call.
-  if (store && store.user && !context.params.user) {
-    context.params.user = store.user
+  if (store && store.user) {
+    if (!context.params.user) {
+      context.params.user = store.user
+    }
+
+    return next()
+  }
+
+  // No need to authenticate if it's an internal call.
+  const isInternal = isProvider('server')(context)
+  if (isInternal) {
+    return next()
+  }
+
+  // Ignore whitelisted services & methods
+  const isWhitelisted = checkWhitelist(context)
+  if (isWhitelisted) {
     return next()
   }
 
@@ -85,4 +101,22 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
   }
 
   return next()
+}
+
+/**
+ * A method to check if the service requesting is whitelisted.
+ * In that scenario we dont need to perform authentication check.
+ * @param context
+ * @returns
+ */
+const checkWhitelist = (context: HookContext<Application>): boolean => {
+  for (const item of config.authentication.whiteList) {
+    if (typeof item === 'string' && context.path === item) {
+      return true
+    } else if (typeof item === 'object' && context.path === item.path && item.methods.includes(context.method)) {
+      return true
+    }
+  }
+
+  return false
 }
