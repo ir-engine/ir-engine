@@ -94,7 +94,7 @@ export const useGraphRunner = ({
     }
 
     ;(async () => {
-      if (eventEmitter.startEvent.listenerCount > 0) {
+      if (eventEmitter.startEvent.listenerCount) {
         eventEmitter.startEvent.emit()
 
         await engine.executeAllAsync(5)
