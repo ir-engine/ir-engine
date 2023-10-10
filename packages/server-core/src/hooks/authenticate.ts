@@ -58,16 +58,14 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
   }
 
   if (authSplit && authSplit.length > 1 && authSplit[1]) {
-    // We need to do underscore method call here, otherwise it will recursively call this hook
-    const key = (await context.app.service(userApiKeyPath)._find({
+    const key = (await context.app.service(userApiKeyPath).find({
       query: {
         token: authSplit[1]
       }
     })) as Paginated<UserApiKeyType>
 
     if (key.data.length > 0) {
-      // We need to do underscore method call here, otherwise it will recursively call this hook
-      const user = await context.app.service(userPath)._get(key.data[0].userId)
+      const user = await context.app.service(userPath).get(key.data[0].userId)
       context.params.user = user
       asyncLocalStorage.enterWith({ user })
       return next()
@@ -79,8 +77,7 @@ export default async (context: HookContext<Application>, next: NextFunction): Pr
 
   // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
   if (context.params[config.authentication.entity]?.userId) {
-    // We need to do underscore method call here, otherwise it will recursively call this hook
-    const user = await context.app.service(userPath)._get(context.params[config.authentication.entity].userId)
+    const user = await context.app.service(userPath).get(context.params[config.authentication.entity].userId)
     context.params.user = user
     asyncLocalStorage.enterWith({ user })
   }
