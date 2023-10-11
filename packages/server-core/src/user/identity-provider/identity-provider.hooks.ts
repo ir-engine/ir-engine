@@ -52,57 +52,51 @@ import {
   identityProviderResolver
 } from './identity-provider.resolvers'
 
-const checkIdentityProvider = (): any => {
-  return async (context: HookContext): Promise<HookContext> => {
-    if (context.id) {
-      // If trying to CRUD a specific identity-provider, throw 404 if the user doesn't own it
-      const thisIdentityProvider = (await context.app
-        .service(identityProviderPath)
-        .get(context.id)) as IdentityProviderType
-      if (
-        !context.params.user ||
-        !thisIdentityProvider ||
-        (context.params.user && thisIdentityProvider && context.params.user.id !== thisIdentityProvider.userId)
-      )
-        throw new NotFound()
-    } else {
-      // If trying to CRUD multiple identity-providers, e.g. patch all IP's belonging to a user, make params.query.userId
-      // the ID of the calling user, so no one can alter anyone else's IPs.
-      const userId = context.params[identityProviderPath]?.userId
-      if (!userId) throw new NotFound()
-      if (!context.params.query) context.params.query = {}
-      context.params.query.userId = userId
-    }
-    if (context.data) context.data = { password: context.data.password } //If patching externally, should only be able to change password
-    return context
-  }
-}
-
-const checkOnlyIdentityProvider = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    if (!context.id) {
-      // do not allow to remove identity providers in bulk
-      throw new MethodNotAllowed('Cannot remove multiple providers together')
-    }
+async function checkIdentityProvider(context: HookContext): Promise<HookContext> {
+  if (context.id) {
+    // If trying to CRUD a specific identity-provider, throw 404 if the user doesn't own it
     const thisIdentityProvider = (await context.app
       .service(identityProviderPath)
       .get(context.id)) as IdentityProviderType
-
-    if (!thisIdentityProvider) throw new Forbidden('You do not have any identity provider')
-
-    // we only want to disallow removing the last identity provider if it is not a guest
-    // since the guest user will be destroyed once they log in
-    if (thisIdentityProvider.type === 'guest') return context
-
-    const providers = await context.app
-      .service(identityProviderPath)
-      .find({ query: { userId: thisIdentityProvider.userId } })
-
-    if (providers.total <= 1) {
-      throw new MethodNotAllowed('Cannot remove the only identity provider on a user')
-    }
-    return context
+    if (
+      !context.params.user ||
+      !thisIdentityProvider ||
+      (context.params.user && thisIdentityProvider && context.params.user.id !== thisIdentityProvider.userId)
+    )
+      throw new NotFound()
+  } else {
+    // If trying to CRUD multiple identity-providers, e.g. patch all IP's belonging to a user, make params.query.userId
+    // the ID of the calling user, so no one can alter anyone else's IPs.
+    const userId = context.params[identityProviderPath]?.userId
+    if (!userId) throw new NotFound()
+    if (!context.params.query) context.params.query = {}
+    context.params.query.userId = userId
   }
+  if (context.data) context.data = { password: context.data.password } //If patching externally, should only be able to change password
+  return context
+}
+
+async function checkOnlyIdentityProvider(context: HookContext): Promise<HookContext> {
+  if (!context.id) {
+    // do not allow to remove identity providers in bulk
+    throw new MethodNotAllowed('Cannot remove multiple providers together')
+  }
+  const thisIdentityProvider = (await context.app.service(identityProviderPath).get(context.id)) as IdentityProviderType
+
+  if (!thisIdentityProvider) throw new Forbidden('You do not have any identity provider')
+
+  // we only want to disallow removing the last identity provider if it is not a guest
+  // since the guest user will be destroyed once they log in
+  if (thisIdentityProvider.type === 'guest') return context
+
+  const providers = await context.app
+    .service(identityProviderPath)
+    .find({ query: { userId: thisIdentityProvider.userId } })
+
+  if (providers.total <= 1) {
+    throw new MethodNotAllowed('Cannot remove the only identity provider on a user')
+  }
+  return context
 }
 
 function addUserId(key: 'data' | 'query') {
@@ -207,7 +201,7 @@ export default {
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
     find: [addUserId('query')],
-    get: [iff(isProvider('external'), checkIdentityProvider())],
+    get: [iff(isProvider('external'), checkIdentityProvider)],
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver),
@@ -216,13 +210,13 @@ export default {
       iff((context: HookContext) => !context.existingUser, createNewUser),
       addUserId('data')
     ],
-    update: [iff(isProvider('external'), checkIdentityProvider())],
+    update: [iff(isProvider('external'), checkIdentityProvider)],
     patch: [
-      iff(isProvider('external'), checkIdentityProvider()),
+      iff(isProvider('external'), checkIdentityProvider),
       () => schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],
-    remove: [iff(isProvider('external'), checkIdentityProvider()), checkOnlyIdentityProvider()]
+    remove: [iff(isProvider('external'), checkIdentityProvider), checkOnlyIdentityProvider]
   },
   after: {
     all: [],
