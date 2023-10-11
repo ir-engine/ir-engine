@@ -31,7 +31,6 @@ import {
   messagePatchValidator,
   messageQueryValidator
 } from '@etherealengine/engine/src/schemas/social/message.schema'
-import authenticate from '../../hooks/authenticate'
 import channelPermissionAuthenticate from '../../hooks/channel-permission-authenticate'
 import messagePermissionAuthenticate from '../../hooks/message-permission-authenticate'
 import {
@@ -128,11 +127,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(messageQueryValidator),
-      schemaHooks.resolveQuery(messageQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(messageQueryValidator), schemaHooks.resolveQuery(messageQueryResolver)],
     find: [iff(isProvider('external'), channelPermissionAuthenticate())],
     get: [],
     create: [

@@ -33,18 +33,18 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 
-export class DiscordBotAuthService implements ServiceInterface<UserType, RootParams> {
+export class DiscordBotAuthService implements ServiceInterface<UserType, KnexAdapterParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async find(params?: RootParams) {
+  async find(params?: KnexAdapterParams) {
     const url = `https://discord.com/api/users/@me`
     try {
       const authResponse = await fetch(url, {

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   AuthenticationSettingData,
@@ -33,10 +33,8 @@ import {
   AuthenticationSettingType
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 
-import { RootParams } from '../../api/root-params'
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AuthenticationSettingParams extends RootParams<AuthenticationSettingQuery> {}
+export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {}
 
 /**
  * A class for AuthenticationSetting service

@@ -35,7 +35,6 @@ import {
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
 import { UserApiKeyService } from './user-api-key.class'
 import {
@@ -93,11 +92,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(userApiKeyQueryValidator),
-      schemaHooks.resolveQuery(userApiKeyQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(userApiKeyQueryValidator), schemaHooks.resolveQuery(userApiKeyQueryResolver)],
     find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     create: [

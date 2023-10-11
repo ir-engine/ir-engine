@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   ClientSettingData,
@@ -33,10 +33,8 @@ import {
   ClientSettingType
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
-import { RootParams } from '../../api/root-params'
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ClientSettingParams extends RootParams<ClientSettingQuery> {}
+export interface ClientSettingParams extends KnexAdapterParams<ClientSettingQuery> {}
 
 /**
  * A class for ClientSetting service

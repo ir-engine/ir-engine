@@ -42,7 +42,6 @@ import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import config from '../../appconfig'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { AuthenticationSettingService } from './authentication-setting.class'
 import {
@@ -167,7 +166,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(authenticationSettingQueryValidator),
       schemaHooks.resolveQuery(authenticationSettingQueryResolver)
     ],

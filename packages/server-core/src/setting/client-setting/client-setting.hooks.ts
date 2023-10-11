@@ -38,7 +38,6 @@ import path from 'path'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
@@ -134,26 +133,18 @@ export default {
     find: [],
     get: [],
     create: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(clientSettingDataValidator),
       schemaHooks.resolveData(clientSettingDataResolver)
     ],
-    update: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))
-    ],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))],
     patch: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(clientSettingPatchValidator),
       schemaHooks.resolveData(clientSettingPatchResolver),
       updateWebManifest
     ],
-    remove: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))
-    ]
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))]
   },
 
   after: {

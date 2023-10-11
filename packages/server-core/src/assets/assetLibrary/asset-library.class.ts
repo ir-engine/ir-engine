@@ -29,11 +29,11 @@ import fs from 'fs'
 import path from 'path'
 
 import { Application } from '@etherealengine/server-core/declarations'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import appRootPath from 'app-root-path'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AssetLibraryParams extends RootParams {
+export interface AssetLibraryParams extends KnexAdapterParams {
   path: string
 }
 
