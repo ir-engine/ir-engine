@@ -273,6 +273,7 @@ function CameraReactor() {
 
   useEffect(() => {
     if (!cameraSettings?.cameraNearClip) return
+    getMutableState(EngineState).userReady.set(true)
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent) as PerspectiveCamera
     if (camera?.isPerspectiveCamera) {
       camera.near = cameraSettings.cameraNearClip.value
