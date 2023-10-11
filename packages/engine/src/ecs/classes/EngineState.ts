@@ -36,6 +36,8 @@ export const EngineState = defineState({
     frameTime: Date.now(),
     simulationTime: Date.now(),
 
+    userReady: false,
+
     deltaSeconds: 0,
     elapsedSeconds: 0,
 
@@ -108,10 +110,5 @@ export class EngineActions {
     type: 'xre.engine.Engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity.optional(),
     handedness: matches.string as Validator<unknown, XRHandedness>
-  })
-
-  static avatarModelChanged = defineAction({
-    type: 'xre.engine.Engine.AVATAR_MODEL_CHANGED' as const,
-    entity: matchesEntity
   })
 }
