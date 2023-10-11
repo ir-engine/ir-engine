@@ -79,7 +79,7 @@ export class InstanceService<T = InstanceType, ServiceParams extends Params = In
       if (!isAdmin) throw new Forbidden('Must be system admin to execute this action')
 
       const foundLocations = search
-        ? ((await this.app.service(locationPath)._find({
+        ? ((await this.app.service(locationPath).find({
             query: { name: { $like: `%${search}%` } },
             paginate: false
           })) as any as LocationType[])
