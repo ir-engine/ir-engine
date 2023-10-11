@@ -38,11 +38,10 @@ import {
   ProjectType
 } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { KnexAdapterOptions, KnexService } from '@feathersjs/knex'
+import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 import { v4 } from 'uuid'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 import { getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 import {
   deleteProjectFilesInStorageProvider,
@@ -63,7 +62,7 @@ export type ProjectUpdateParams = {
   jobId?: string
 }
 
-export interface ProjectParams extends RootParams<ProjectQuery>, ProjectUpdateParams {}
+export interface ProjectParams extends KnexAdapterParams<ProjectQuery>, ProjectUpdateParams {}
 
 export type ProjectParamsClient = Omit<ProjectParams, 'user'>
 

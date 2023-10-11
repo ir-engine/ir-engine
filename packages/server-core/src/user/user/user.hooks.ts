@@ -43,7 +43,6 @@ import {
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
 import disallowNonId from '../../hooks/disallow-non-id'
 import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
@@ -88,7 +87,7 @@ const restrictUserPatch = (context: HookContext<UserService>) => {
     return data
   }
 
-  context.data = Array.isArray(context.data) ? context.data.map(process) : process(context.result as UserType)
+  context.data = Array.isArray(context.data) ? context.data.map(process) : process(context.data as UserType)
 }
 
 /**
@@ -263,11 +262,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(userQueryValidator),
-      schemaHooks.resolveQuery(userQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
     find: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
       iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier'))

@@ -32,7 +32,6 @@ import {
   helmSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   helmSettingDataResolver,
@@ -49,7 +48,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(helmSettingQueryValidator),
       schemaHooks.resolveQuery(helmSettingQueryResolver)

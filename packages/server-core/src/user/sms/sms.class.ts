@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { ServiceInterface } from '@feathersjs/feathers'
 
 import { SmsData } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import { sendSmsWithAWS } from './awssns'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface SmsParams extends RootParams {}
+export interface SmsParams extends KnexAdapterParams {}
 
 /**
  * A class for Github Repo Access Webhook service

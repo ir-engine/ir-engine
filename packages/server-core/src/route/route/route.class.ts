@@ -25,15 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import type { NullableId, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
-import { KnexAdapter } from '@feathersjs/knex'
-import { RootParams } from '../../api/root-params'
+import { KnexAdapter, KnexAdapterParams } from '@feathersjs/knex'
 
 import { RouteData, RoutePatch, RouteQuery, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { Id } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RouteParams extends RootParams<RouteQuery> {}
+export interface RouteParams extends KnexAdapterParams<RouteQuery> {}
 
 export class RouteService<T = RouteType, ServiceParams extends Params = RouteParams> extends KnexAdapter<
   RouteType,

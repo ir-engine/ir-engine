@@ -36,12 +36,12 @@ import {
 
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AnalyticsParams extends RootParams<AnalyticsQuery> {}
+export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
 
 /**
  * A class for Analytics service

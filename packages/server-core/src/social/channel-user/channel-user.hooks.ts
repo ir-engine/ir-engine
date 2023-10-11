@@ -36,10 +36,8 @@ import {
 
 import { channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
-import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
@@ -66,18 +64,11 @@ const addJoinedChannelMessage = async (context: HookContext<ChannelUserService>)
 
   for (const item of result) {
     const user = await app.service(userPath).get(item.userId, { ...params, query: {} })
-    await app.service(messagePath).create(
-      {
-        channelId: item.channelId,
-        text: `${user.name} joined the channel`,
-        isNotification: true
-      },
-      {
-        [identityProviderPath]: {
-          userId: item.userId
-        }
-      } as any
-    )
+    await app.service(messagePath).create({
+      channelId: item.channelId,
+      text: `${user.name} joined the channel`,
+      isNotification: true
+    })
   }
 
   return context
@@ -164,7 +155,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(channelUserQueryValidator),
       schemaHooks.resolveQuery(channelUserQueryResolver)
     ],
