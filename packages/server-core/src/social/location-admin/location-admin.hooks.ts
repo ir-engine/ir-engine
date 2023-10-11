@@ -33,7 +33,6 @@ import {
 } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   locationAdminDataResolver,
@@ -50,7 +49,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(locationAdminQueryValidator),
       schemaHooks.resolveQuery(locationAdminQueryResolver)
     ],

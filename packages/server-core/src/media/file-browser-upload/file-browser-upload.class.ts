@@ -27,11 +27,11 @@ import { ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FileBrowserUploadParams extends RootParams {
+export interface FileBrowserUploadParams extends KnexAdapterParams {
   files: UploadFile[]
 }
 

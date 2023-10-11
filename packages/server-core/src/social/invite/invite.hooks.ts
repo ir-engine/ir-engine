@@ -131,7 +131,6 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
     find: [
-      authenticate(),
       attachOwnerIdInQuery('userId'),
       addSearch,
       discardQuery('search'),
@@ -142,20 +141,19 @@ export default {
       ),
       discardQuery('type')
     ],
-    get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId'))],
+    get: [iff(isProvider('external'), authenticate as any, attachOwnerIdInQuery('userId'))],
     create: [
-      authenticate(),
       attachOwnerIdInBody('userId'),
       () => schemaHooks.validateData(inviteDataValidator),
       schemaHooks.resolveData(inviteDataResolver)
     ],
-    update: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin'))],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     patch: [
-      iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(invitePatchValidator),
       schemaHooks.resolveData(invitePatchResolver)
     ],
-    remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate()), removeFriend]
+    remove: [iff(isProvider('external'), inviteRemoveAuthenticate(), removeFriend)]
   },
 
   after: {
