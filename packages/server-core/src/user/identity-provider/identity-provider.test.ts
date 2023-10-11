@@ -34,13 +34,12 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
 let userId: UserID
 
-describe('identity-provider service', () => {
+describe('identity-provider.service', () => {
   let app: Application
   let providers: IdentityProviderType[] = []
 
@@ -53,94 +52,84 @@ describe('identity-provider service', () => {
     return destroyEngine()
   })
 
-  it('registered the service', async () => {
-    const service = await app.service(identityProviderPath)
-    assert.ok(service, 'Registered the service')
-  })
-
   it('should create an identity provider for guest', async () => {
     const type = 'guest'
     const token = v1()
 
-    const item = await app.service(identityProviderPath).create(
-      {
-        type,
-        token,
-        userId: '' as UserID
-      },
-      {}
-    )
+    const createdIdentityProvider = await app.service(identityProviderPath).create({
+      type,
+      token,
+      userId: '' as UserID
+    })
 
-    providers.push(item)
+    providers.push(createdIdentityProvider)
 
-    userId = item.userId
+    userId = createdIdentityProvider.userId
 
-    assert.equal(item.type, type)
-    assert.equal(item.token, token)
-    assert.ok(item.userId)
+    assert.equal(createdIdentityProvider.type, type)
+    assert.equal(createdIdentityProvider.token, token)
+    assert.ok(createdIdentityProvider.accessToken)
+    assert.ok(createdIdentityProvider.userId)
   })
 
   it('should create an identity provider for email', async () => {
     const type = 'email'
     const token = v1()
 
-    const item = await app.service(identityProviderPath).create(
-      {
-        type,
-        token,
-        userId
-      },
-      {}
-    )
+    const createdIdentityProvider = await app.service(identityProviderPath).create({
+      type,
+      token,
+      userId
+    })
 
-    providers.push(item)
+    providers.push(createdIdentityProvider)
 
-    assert.equal(item.type, type)
-    assert.equal(item.token, token)
-    assert.ok(item.userId)
+    assert.equal(createdIdentityProvider.type, type)
+    assert.equal(createdIdentityProvider.token, token)
+    assert.ok(createdIdentityProvider.accessToken)
+    assert.ok(createdIdentityProvider.userId)
   })
 
   it('should create an identity provider for password', async () => {
     const type = 'password'
     const token = v1()
 
-    const item = await app.service(identityProviderPath).create(
-      {
-        type,
-        token,
-        userId
-      },
-      {}
-    )
+    const createdIdentityProvider = await app.service(identityProviderPath).create({
+      type,
+      token,
+      userId
+    })
 
-    providers.push(item)
+    providers.push(createdIdentityProvider)
 
-    assert.equal(item.type, type)
-    assert.equal(item.token, token)
-    assert.ok(item.userId)
+    assert.equal(createdIdentityProvider.type, type)
+    assert.equal(createdIdentityProvider.token, token)
+    assert.ok(createdIdentityProvider.accessToken)
+    assert.ok(createdIdentityProvider.userId)
   })
 
   it('should find identity providers', async () => {
-    const item = (await app.service(identityProviderPath).find({
+    const foundIdentityProviders = await app.service(identityProviderPath).find({
       query: {
         userId
-      }
-    })) as Paginated<IdentityProviderType>
+      },
+      isInternal: true
+    })
 
-    assert.ok(item, 'Identity provider item is found')
-    assert.equal(item.total, providers.length)
+    assert.ok(foundIdentityProviders)
+    assert.equal(foundIdentityProviders.total, providers.length)
   })
 
   it('should remove an identity provider by id', async () => {
     await app.service(identityProviderPath).remove(providers[0].id)
 
-    const item = (await app.service(identityProviderPath).find({
+    const foundIdentityProviders = await app.service(identityProviderPath).find({
       query: {
         id: providers[0].id
       }
-    })) as Paginated<IdentityProviderType>
+    })
 
-    assert.equal(item.total, 0)
+    assert.equal(foundIdentityProviders.total, 0)
   })
 
   it('should not be able to remove identity providers by user id', async () => {
@@ -161,7 +150,7 @@ describe('identity-provider service', () => {
     const type = 'guest'
     const token = v1()
 
-    const item = await app.service(identityProviderPath).create(
+    const foundIdentityProvider = await app.service(identityProviderPath).create(
       {
         type,
         token,
@@ -170,14 +159,14 @@ describe('identity-provider service', () => {
       {}
     )
 
-    assert.ok(() => app.service(identityProviderPath).remove(item.id))
+    assert.ok(() => app.service(identityProviderPath).remove(foundIdentityProvider.id))
   })
 
   it('should not be able to remove the only identity provider as a user', async () => {
     const type = 'user'
     const token = v1()
 
-    const item = await app.service(identityProviderPath).create(
+    const foundIdentityProvider = await app.service(identityProviderPath).create(
       {
         type,
         token,
@@ -186,7 +175,7 @@ describe('identity-provider service', () => {
       {}
     )
 
-    assert.rejects(() => app.service(identityProviderPath).remove(item.id), {
+    assert.rejects(() => app.service(identityProviderPath).remove(foundIdentityProvider.id), {
       name: 'MethodNotAllowed'
     })
   })
