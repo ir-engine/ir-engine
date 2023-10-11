@@ -266,24 +266,26 @@ const checkIfNameIsValid = async (context: HookContext<ProjectService>) => {
  */
 const uploadLocalProject = async (context: HookContext<ProjectService>) => {
   const projectLocalDirectory = path.resolve(projectsRootFolder, context.projectName)
-  copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
-  fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
+  if (!fs.existsSync(projectLocalDirectory)) {
+    copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
+    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), projectLocalDirectory)
 
-  fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
+    fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
 
-  const git = useGit(path.resolve(projectLocalDirectory, '.git'))
-  try {
-    await git.init(true)
-  } catch (e) {
-    logger.warn(e)
+    const git = useGit(path.resolve(projectLocalDirectory, '.git'))
+    try {
+      await git.init(true)
+    } catch (e) {
+      logger.warn(e)
+    }
+
+    const packageData = Object.assign({}, templateProjectJson) as any
+    packageData.name = context.projectName
+    packageData.etherealEngine.version = getEnginePackageJson().version
+    fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
+
+    await uploadLocalProjectToProvider(context.app, context.projectName, false)
   }
-
-  const packageData = Object.assign({}, templateProjectJson) as any
-  packageData.name = context.projectName
-  packageData.etherealEngine.version = getEnginePackageJson().version
-  fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
-
-  await uploadLocalProjectToProvider(context.app, context.projectName, false)
 }
 
 /**
@@ -328,7 +330,7 @@ const linkGithubToProject = async (context: HookContext) => {
     if (githubIdentityProvider.data.length === 0)
       throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
     const split = githubPathRegexExec[2].split('/')
-    const org = split
+    const org = split[0]
     const repo = split[1].replace('.git', '')
     const appOrgAccess = await checkAppOrgStatus(org, githubIdentityProvider.data[0].oauthToken)
     if (!appOrgAccess)
@@ -485,9 +487,7 @@ const removeProjectUpdate = async (context: HookContext<ProjectService>) => {
  * 1. Clones the repo to the local FS
  * 2. If in production mode, uploads it to the storage provider
  * 3. Creates a database entry
- * @param data
- * @param placeholder This is where data normally goes, but we've put data as the first parameter
- * @param params
+ * @param context Hook context
  * @returns
  */
 const updateProjectJob = async (context: HookContext) => {
@@ -497,7 +497,7 @@ const updateProjectJob = async (context: HookContext) => {
 
   const data: ProjectBuildUpdateItemType = context.data as ProjectBuildUpdateItemType
   if (!config.kubernetes.enabled || context.params?.isJob)
-    context.result = updateProject(context.app, context.data, context.params)
+    context.result = await updateProject(context.app, context.data, context.params)
   else {
     const urlParts = data.sourceURL.split('/')
     let projectName = data.name || urlParts.pop()
@@ -559,21 +559,18 @@ export default {
       updateCreateData
     ],
     update: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
-      projectPermissionAuthenticate(false),
+      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
       () => schemaHooks.validateData(projectPatchValidator),
       updateProjectJob
     ],
     patch: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
-      projectPermissionAuthenticate(false),
+      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
       () => schemaHooks.validateData(projectPatchValidator),
       schemaHooks.resolveData(projectPatchResolver),
       iff(isProvider('external'), linkGithubToProject)
     ],
     remove: [
-      iff(isProvider('external'), verifyScope('editor', 'write')),
-      projectPermissionAuthenticate(false),
+      iff(isProvider('external'), verifyScope('editor', 'write'), projectPermissionAuthenticate(false)),
       getProjectName,
       runProjectUninstallScript,
       removeProjectFiles,

@@ -48,7 +48,6 @@ import { ProjectCheckSourceDestinationMatchType } from '@etherealengine/engine/s
 import { ProjectCheckUnfetchedCommitType } from '@etherealengine/engine/src/schemas/projects/project-check-unfetched-commit.schema'
 import { ProjectCommitType } from '@etherealengine/engine/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@etherealengine/engine/src/schemas/projects/project-destination-check.schema'
-import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 import {
   projectPath,
   ProjectSettingType,
@@ -1509,7 +1508,7 @@ export const updateProject = async (
 
   const returned = !existingProject
     ? // Add to DB
-      await app.service(projectPath)._create(
+      await app.service(projectPath).create(
         {
           id: v4(),
           name: projectName,
@@ -1527,24 +1526,21 @@ export const updateProject = async (
         },
         params || {}
       )
-    : await app.service(projectPath).patch(existingProject.id, {
-        commitSHA,
-        commitDate: toDateTimeSql(commitDate),
-        sourceRepo: data.sourceURL,
-        sourceBranch: data.sourceBranch,
-        updateType: data.updateType,
-        updateSchedule: data.updateSchedule,
-        updateUserId: userId
-      })
+    : await app.service(projectPath).patch(
+        existingProject.id,
+        {
+          commitSHA,
+          commitDate: toDateTimeSql(commitDate),
+          sourceRepo: data.sourceURL,
+          sourceBranch: data.sourceBranch,
+          updateType: data.updateType,
+          updateSchedule: data.updateSchedule,
+          updateUserId: userId
+        },
+        params
+      )
 
   returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
-
-  if (!existingProject) {
-    await app.service(projectPermissionPath).create({
-      projectId: returned.id,
-      userId
-    })
-  }
 
   if (returned.name !== projectName)
     await app.service(projectPath).patch(existingProject!.id, {
@@ -1558,10 +1554,14 @@ export const updateProject = async (
     await git.raw(['lfs', 'fetch', '--all'])
     await git.push('destination', branchName, ['-f', '--tags'])
     const { commitSHA, commitDate } = await getCommitSHADate(projectName)
-    await app.service(projectPath).patch(returned.id, {
-      commitSHA,
-      commitDate: toDateTimeSql(commitDate)
-    })
+    await app.service(projectPath).patch(
+      returned.id,
+      {
+        commitSHA,
+        commitDate: toDateTimeSql(commitDate)
+      },
+      params
+    )
   }
   // run project install script
   if (projectConfig.onEvent) {
@@ -1570,9 +1570,9 @@ export const updateProject = async (
 
   const k8BatchClient = getState(ServerState).k8BatchClient
 
-  if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
+  if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit'))
     await createOrUpdateProjectUpdateJob(app, projectName)
-  } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
+  else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
     await removeProjectUpdateJob(app, projectName)
 
   if (params?.jobId) {

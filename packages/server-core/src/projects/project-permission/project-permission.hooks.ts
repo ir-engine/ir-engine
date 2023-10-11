@@ -66,13 +66,14 @@ const ensureInviteCode = async (context: HookContext<ProjectPermissionService>) 
   const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
 
   if (data[0].inviteCode && USER_ID_REGEX.test(data[0].inviteCode)) {
-    context.data[0].userId = data[0].inviteCode as UserID
-    delete context.data[0].inviteCode
+    data[0].userId = data[0].inviteCode as UserID
+    delete data[0].inviteCode
   }
   if (data[0].userId && INVITE_CODE_REGEX.test(data[0].userId)) {
-    context.data[0].inviteCode = data[0].userId
-    delete context.data[0].userId
+    data[0].inviteCode = data[0].userId
+    delete data[0].userId
   }
+  context.data = data[0]
 }
 
 /**
