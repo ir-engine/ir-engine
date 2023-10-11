@@ -32,7 +32,6 @@ import {
   githubRepoAccessQueryValidator
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   githubRepoAccessDataResolver,
@@ -52,7 +51,7 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(githubRepoAccessQueryValidator),
       schemaHooks.resolveQuery(githubRepoAccessQueryResolver)
     ],

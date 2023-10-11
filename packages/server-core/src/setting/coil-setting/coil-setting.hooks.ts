@@ -32,7 +32,6 @@ import {
   coilSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   coilSettingDataResolver,
@@ -49,7 +48,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(coilSettingQueryValidator),
       schemaHooks.resolveQuery(coilSettingQueryResolver)
     ],

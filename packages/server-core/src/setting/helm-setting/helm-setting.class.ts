@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   HelmSettingData,
@@ -32,10 +32,9 @@ import {
   HelmSettingQuery,
   HelmSettingType
 } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface HelmSettingParams extends RootParams<HelmSettingQuery> {}
+export interface HelmSettingParams extends KnexAdapterParams<HelmSettingQuery> {}
 
 export class HelmSettingService<
   T = HelmSettingType,

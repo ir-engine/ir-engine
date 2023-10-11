@@ -27,7 +27,6 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import { inviteCodeLookupQueryValidator } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
 
-import authenticate from '../../hooks/authenticate'
 import {
   inviteCodeLookupExternalResolver,
   inviteCodeLookupQueryResolver,
@@ -44,7 +43,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(inviteCodeLookupQueryValidator),
       schemaHooks.resolveQuery(inviteCodeLookupQueryResolver)
     ],

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   LocationAuthorizedUserData,
@@ -32,10 +32,9 @@ import {
   LocationAuthorizedUserQuery,
   LocationAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LocationAuthorizedUserParams extends RootParams<LocationAuthorizedUserQuery> {}
+export interface LocationAuthorizedUserParams extends KnexAdapterParams<LocationAuthorizedUserQuery> {}
 
 export class LocationAuthorizedUserService<
   T = LocationAuthorizedUserType,
