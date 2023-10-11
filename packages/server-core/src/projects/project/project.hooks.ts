@@ -560,7 +560,8 @@ export default {
       schemaHooks.resolveData(projectDataResolver),
       checkIfProjectExists,
       checkIfNameIsValid,
-      iff(isProvider('external'), uploadLocalProject, updateCreateData)
+      uploadLocalProject,
+      updateCreateData
     ],
     update: [
       iff(isProvider('external'), verifyScope('editor', 'write')),

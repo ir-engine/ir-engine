@@ -1509,7 +1509,7 @@ export const updateProject = async (
 
   const returned = !existingProject
     ? // Add to DB
-      await app.service(projectPath).create(
+      await app.service(projectPath)._create(
         {
           id: v4(),
           name: projectName,
