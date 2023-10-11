@@ -20,8 +20,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { NullableId, ServiceInterface } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import { pushProjectToGithub } from '../project/github-helper'
 
 export class ProjectGithubPushService implements ServiceInterface<void> {
@@ -31,7 +31,7 @@ export class ProjectGithubPushService implements ServiceInterface<void> {
     this.app = app
   }
 
-  async patch(id: NullableId, data: any, params?: RootParams): Promise<void> {
+  async patch(id: NullableId, data: any, params?: KnexAdapterParams): Promise<void> {
     const project = await this.app.service(projectPath)._get(id!)
     return pushProjectToGithub(this.app, project, params!.user!)
   }
