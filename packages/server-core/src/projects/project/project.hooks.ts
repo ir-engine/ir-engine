@@ -558,7 +558,9 @@ export default {
       iff(isProvider('external'), verifyScope('editor', 'write')),
       () => schemaHooks.validateData(projectDataValidator),
       schemaHooks.resolveData(projectDataResolver),
-      iff(isProvider('external'), checkIfProjectExists, checkIfNameIsValid, uploadLocalProject, updateCreateData)
+      checkIfProjectExists,
+      checkIfNameIsValid,
+      iff(isProvider('external'), uploadLocalProject, updateCreateData)
     ],
     update: [
       iff(isProvider('external'), verifyScope('editor', 'write')),
