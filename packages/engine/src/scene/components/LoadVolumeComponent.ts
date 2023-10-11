@@ -70,7 +70,7 @@ export const LoadVolumeComponent = defineComponent({
           matches.shape({
             uuid: matches.string,
             entities: matches.arrayOf(
-              matches.shape({
+              matches.partial({
                 uuid: matches.string,
                 name: matches.string,
                 parent: matches.string,

@@ -28,8 +28,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
-import { InputSocketSpecJSON, NodeSpecJSON } from '@behave-graph/core'
+import { InputSocketSpecJSON } from '@behave-graph/core'
 
+import { NodeSpecGenerator } from '../hooks/useNodeSpecGenerator'
 import { colors, valueTypeColorMap } from '../util/colors'
 import { isValidConnection } from '../util/isValidConnection'
 import { AutoSizeInput } from './AutoSizeInput'
@@ -38,7 +39,7 @@ export type InputSocketProps = {
   connected: boolean
   value: any | undefined
   onChange: (key: string, value: any) => void
-  specJSON: NodeSpecJSON[]
+  specGenerator: NodeSpecGenerator
 } & InputSocketSpecJSON
 
 const InputFieldForValue = ({
@@ -130,7 +131,7 @@ const InputFieldForValue = ({
   )
 }
 
-const InputSocket: React.FC<InputSocketProps> = ({ connected, specJSON, ...rest }) => {
+const InputSocket: React.FC<InputSocketProps> = ({ connected, specGenerator, ...rest }) => {
   const { name, valueType } = rest
   const instance = useReactFlow()
   const isFlowSocket = valueType === 'flow'
@@ -172,7 +173,7 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specJSON, ...rest 
           height: '10px',
           left: '-12px'
         }}
-        isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specJSON)}
+        isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specGenerator)}
       />
     </div>
   )
