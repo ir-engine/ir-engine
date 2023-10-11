@@ -104,7 +104,7 @@ describe('instance.test', () => {
   })
 
   it('should get that instance', async () => {
-    const instance = await app.service(instancePath)._get(testInstance.id)
+    const instance = await app.service(instancePath).get(testInstance.id)
 
     assert.ok(instance)
     assert.ok(instance.roomCode)

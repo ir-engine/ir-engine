@@ -51,7 +51,7 @@ export class InstanceFriendsService implements ServiceInterface<InstanceType, In
   async find(params?: InstanceFriendsParams) {
     if (params!.user) throw new Error('User not found')
     try {
-      const instances = (await this.app.service(instancePath)._find({
+      const instances = (await this.app.service(instancePath).find({
         query: {
           ended: false
         },
