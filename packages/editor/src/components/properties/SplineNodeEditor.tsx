@@ -32,6 +32,7 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import ClearIcon from '@mui/icons-material/Clear'
 import TimelineIcon from '@mui/icons-material/Timeline'
 
+import { NO_PROXY } from '@etherealengine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { PropertiesPanelButton } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
@@ -57,7 +58,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         <PropertiesPanelButton
           onClick={() => {
             const elem = { position: new Vector3(), quaternion: new Quaternion() }
-            const newElements = [...elements.value, elem]
+            const newElements = [...elements.get(NO_PROXY), elem]
             commitProperty(SplineComponent, 'elements')(newElements)
           }}
         >
@@ -70,7 +71,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
           <div style={{ display: 'flex-row' }}>
             <ClearIcon
               onClick={() => {
-                const newElements = [...elements.value].filter((_, i) => i !== index)
+                const newElements = [...elements.get(NO_PROXY)].filter((_, i) => i !== index)
                 commitProperty(SplineComponent, 'elements')(newElements)
               }}
               style={{ color: 'white' }}
@@ -82,7 +83,10 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                 smallStep={0.01}
                 mediumStep={0.1}
                 largeStep={1}
-                onChange={commitProperty(SplineComponent, `elements.${index}.position` as any)}
+                onChange={(position) => {
+                  const changePosition = commitProperty(SplineComponent, `elements.${index}.position` as any)
+                  changePosition(new Vector3(position.x, position.y, position.z))
+                }}
               />
             </InputGroup>
             <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')} ${index + 1}`}>
@@ -90,7 +94,10 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                 //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
                 quaternion={elem.quaternion.value}
                 unit="°"
-                onChange={commitProperty(SplineComponent, `elements.${index}.quaternion` as any)}
+                onChange={(euler) => {
+                  const changeEuler = commitProperty(SplineComponent, `elements.${index}.quaternion` as any)
+                  changeEuler(new Quaternion().setFromEuler(euler))
+                }}
               />
             </InputGroup>
           </div>

@@ -65,23 +65,9 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
   })
 
   // @todo allow these to be passed in or remove this capability
-  const onChange = () => {}
-  const onRelease = () => {}
 
   const setAlpha = (value) => {
     component.alpha.set(value)
-  }
-
-  const setRunning = (value) => {
-    component.loop.set(component.loop.value ? false : true)
-  }
-
-  const setVelocity = (value) => {
-    component.velocity.set(value)
-  }
-
-  const setRoll = () => {
-    component.enableRotation.set(component.enableRotation.value ? false : true)
   }
 
   return (
@@ -97,9 +83,16 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Velocity" label={t('editor:properties.splinetrack.lbl-velocity')}>
         <NumericInput
           value={velocity.value}
-          onChange={setVelocity}
-          onRelease={onRelease}
-          prefix={<Vector3Scrubber tag="div" value={velocity.value} onChange={setVelocity} onPointerUp={onRelease} />}
+          onChange={commitProperty(SplineTrackComponent, 'velocity')}
+          onRelease={commitProperty(SplineTrackComponent, 'velocity')}
+          prefix={
+            <Vector3Scrubber
+              tag="div"
+              value={velocity.value}
+              onChange={commitProperty(SplineTrackComponent, 'velocity')}
+              onPointerUp={commitProperty(SplineTrackComponent, 'velocity')}
+            />
+          }
         />
       </InputGroup>
       <InputGroup name="Enable Rotation" label={t('editor:properties.splinetrack.lbl-enableRotation')}>
