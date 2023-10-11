@@ -45,7 +45,6 @@ import {
   botQueryResolver,
   botResolver
 } from '../../bot/bot/bot.resolvers'
-import authenticate from '../../hooks/authenticate'
 import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
 import { BotService } from './bot.class'
@@ -77,7 +76,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(botQueryValidator),
       schemaHooks.resolveQuery(botQueryResolver)

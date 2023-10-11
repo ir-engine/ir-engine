@@ -30,9 +30,9 @@ import fetch from 'node-fetch'
 import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
 import { ArchiverQuery } from '@etherealengine/engine/src/schemas/media/archiver.schema'
 import { BadRequest } from '@feathersjs/errors'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
 import { getDateTimeSql } from '../../util/datetime-sql'
@@ -45,7 +45,7 @@ const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
  */
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ArchiverParams extends RootParams<ArchiverQuery> {}
+export interface ArchiverParams extends KnexAdapterParams<ArchiverQuery> {}
 
 const archive = async (app: Application, directory, params?: ArchiverParams): Promise<string> => {
   if (directory.at(0) === '/') directory = directory.slice(1)

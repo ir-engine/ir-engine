@@ -19,7 +19,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import authenticate from '../../hooks/authenticate'
 
 import { projectBuildPatchValidator } from '@etherealengine/engine/src/schemas/projects/project-build.schema'
 import verifyScope from '../../hooks/verify-scope'
@@ -36,14 +35,13 @@ export default {
 
   before: {
     all: [],
-    find: [authenticate(), verifyScope('admin', 'admin')],
+    find: [verifyScope('admin', 'admin')],
     get: [],
     create: [],
     update: [],
     patch: [
       () => schemaHooks.validateData(projectBuildPatchValidator),
       schemaHooks.resolveData(projectBuildPatchResolver),
-      authenticate(),
       verifyScope('admin', 'admin')
     ],
     remove: []

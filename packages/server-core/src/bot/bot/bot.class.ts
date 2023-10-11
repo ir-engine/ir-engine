@@ -28,10 +28,10 @@ import { KnexService } from '@feathersjs/knex'
 
 import { BotData, BotPatch, BotQuery, BotType } from '@etherealengine/engine/src/schemas/bot/bot.schema'
 
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface BotParams extends RootParams<BotQuery> {}
+export interface BotParams extends KnexAdapterParams<BotQuery> {}
 
 export class BotService<T = BotType, ServiceParams extends Params = BotParams> extends KnexService<
   BotType,

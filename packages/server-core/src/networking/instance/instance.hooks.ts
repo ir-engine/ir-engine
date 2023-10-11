@@ -27,7 +27,6 @@ import { HookContext, NextFunction } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 import {
@@ -87,11 +86,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(instanceQueryValidator),
-      schemaHooks.resolveQuery(instanceQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(instanceQueryValidator), schemaHooks.resolveQuery(instanceQueryResolver)],
     find: [],
     get: [],
     create: [
