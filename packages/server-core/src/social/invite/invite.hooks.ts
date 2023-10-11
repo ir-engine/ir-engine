@@ -31,8 +31,6 @@ import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-logg
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
-  InviteQuery,
-  InviteType,
   inviteDataValidator,
   invitePatchValidator,
   inviteQueryValidator
@@ -44,7 +42,7 @@ import {
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { Paginated } from '@feathersjs/feathers'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
+import isAction from '../../hooks/is-action'
 import { sendInvite } from '../../hooks/send-invite'
 import verifyScope from '../../hooks/verify-scope'
 import { InviteService } from './invite.class'
@@ -80,14 +78,10 @@ async function addSearch(context: HookContext<InviteService>) {
   }
 }
 
-function checkQueryType(type: InviteQuery['type']) {
-  return (context: HookContext<InviteService>) => context.params.query?.type === type
-}
-
-async function addInvitesReceived(context: HookContext<InviteService>) {
+async function handleInvitee(context: HookContext<InviteService>) {
   const identityProviders = (await context.app.service(identityProviderPath).find({
     query: {
-      userId: context.params.query!.userId
+      userId: context.params.user!.id
     }
   })) as Paginated<IdentityProviderType>
   const identityProviderTokens = identityProviders.data.map((provider) => provider.token)
@@ -96,7 +90,7 @@ async function addInvitesReceived(context: HookContext<InviteService>) {
     ...context.params.query,
     $or: [
       {
-        inviteeId: context.params.query!.userId
+        inviteeId: context.params.user!.id
       },
       {
         token: {
@@ -104,13 +98,6 @@ async function addInvitesReceived(context: HookContext<InviteService>) {
         }
       }
     ]
-  }
-}
-
-async function addInvitesSent(context: HookContext<InviteService>) {
-  context.params.query = {
-    ...context.params.query,
-    userId: context.params.query!.userId
   }
 }
 
@@ -131,17 +118,16 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
     find: [
-      attachOwnerIdInQuery('userId'),
       addSearch,
       discardQuery('search'),
       iffElse(
-        (context) => !!context.params.query?.type,
-        [iff(checkQueryType('received'), addInvitesReceived), iff(checkQueryType('sent'), addInvitesSent)],
+        (context) => !!context.params.query?.action,
+        [iff(isAction('received'), handleInvitee), iff(isAction('sent'), attachOwnerIdInQuery('userId'))],
         [verifyScope('admin', 'admin')]
       ),
-      discardQuery('type')
+      discardQuery('action')
     ],
-    get: [iff(isProvider('external'), authenticate as any, attachOwnerIdInQuery('userId'))],
+    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     create: [
       attachOwnerIdInBody('userId'),
       () => schemaHooks.validateData(inviteDataValidator),
@@ -160,9 +146,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [
-      (context: HookContext<InviteService>) => sendInvite(context.app, context.result as InviteType, context.params)
-    ],
+    create: [sendInvite],
     update: [],
     patch: [],
     remove: []

@@ -41,10 +41,9 @@ import { SmsData, smsPath } from '@etherealengine/engine/src/schemas/user/sms.sc
 import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
-import { Application } from '../../declarations'
+import { Application, HookContext } from '../../declarations'
 import logger from '../ServerLogger'
 import config from '../appconfig'
-import { InviteParams } from '../social/invite/invite.class'
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
 
@@ -158,7 +157,8 @@ async function generateSMS(
 }
 
 // This will attach the owner ID in the contact while creating/updating list item
-export const sendInvite = async (app: Application, result: InviteType, params: InviteParams) => {
+export const sendInvite = async (context: HookContext) => {
+  const { app, result, params } = context
   try {
     let token = ''
     if (result.identityProviderType === 'email' || (result.identityProviderType === 'sms' && result.token)) {

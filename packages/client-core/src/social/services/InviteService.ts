@@ -171,7 +171,7 @@ export const InviteService = {
       const inviteResult = (await Engine.instance.api.service(invitePath).find({
         query: {
           $sort: sortData,
-          type: 'received',
+          action: 'received',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit,
           search: search
@@ -216,7 +216,7 @@ export const InviteService = {
       const inviteResult = (await Engine.instance.api.service(invitePath).find({
         query: {
           $sort: sortData,
-          type: 'sent',
+          action: 'sent',
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit,
           search: search
