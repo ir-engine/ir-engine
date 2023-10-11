@@ -36,8 +36,6 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 import appConfig from '../../appconfig'
 
-import authenticate from '../../hooks/authenticate'
-
 import { isDev } from '@etherealengine/common/src/config'
 import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
@@ -208,8 +206,8 @@ export default {
       () => schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [iff(isProvider('external'), authenticate() as any), addUserId('query')],
-    get: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
+    find: [addUserId('query')],
+    get: [iff(isProvider('external'), checkIdentityProvider())],
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
       schemaHooks.resolveData(identityProviderDataResolver),
@@ -218,13 +216,13 @@ export default {
       iff((context: HookContext) => !context.existingUser, createNewUser),
       addUserId('data')
     ],
-    update: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
+    update: [iff(isProvider('external'), checkIdentityProvider())],
     patch: [
-      iff(isProvider('external'), authenticate() as any, checkIdentityProvider()),
+      iff(isProvider('external'), checkIdentityProvider()),
       () => schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],
-    remove: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider()), checkOnlyIdentityProvider()]
+    remove: [iff(isProvider('external'), checkIdentityProvider()), checkOnlyIdentityProvider()]
   },
   after: {
     all: [],

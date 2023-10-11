@@ -30,11 +30,10 @@ import {
   StaticResourceType
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface StaticResourceParams extends RootParams<StaticResourceQuery> {}
+export interface StaticResourceParams extends KnexAdapterParams<StaticResourceQuery> {}
 
 export class StaticResourceService<
   T = StaticResourceType,

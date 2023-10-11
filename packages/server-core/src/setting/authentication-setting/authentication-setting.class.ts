@@ -37,15 +37,15 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { getState } from '@etherealengine/hyperflux'
 
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import { authenticationSettingSchemaToDb } from './authentication-setting.resolvers'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AuthenticationSettingParams extends RootParams<AuthenticationSettingQuery> {}
+export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {}
 
 /**
  * A class for AuthenticationSetting service

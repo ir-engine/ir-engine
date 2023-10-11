@@ -34,13 +34,13 @@ import {
   identityProviderPath,
   IdentityProviderType
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import { getUserRepos } from '../../projects/project/github-helper'
 import logger from '../../ServerLogger'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessRefreshParams extends RootParams {}
+export interface GithubRepoAccessRefreshParams extends KnexAdapterParams {}
 
 /**
  * A class for Github Repo Access Refresh service

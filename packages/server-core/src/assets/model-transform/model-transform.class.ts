@@ -30,11 +30,11 @@ import path from 'path'
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { Application } from '@etherealengine/server-core/declarations'
 
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { transformModel } from './model-transform.helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ModelTransformParams extends RootParams {
+export interface ModelTransformParams extends KnexAdapterParams {
   src: string
   transformParameters: ModelTransformParameters
   filter?: string

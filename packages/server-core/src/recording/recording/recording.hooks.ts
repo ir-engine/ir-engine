@@ -36,7 +36,6 @@ import {
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotFound } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
 import isAction from '../../hooks/is-action'
 import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
 import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
@@ -88,11 +87,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(recordingQueryValidator),
-      schemaHooks.resolveQuery(recordingQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(recordingQueryValidator), schemaHooks.resolveQuery(recordingQueryResolver)],
     find: [
       iff(isProvider('external'), verifyScope('recording', 'read')),
       iff(
