@@ -133,7 +133,7 @@ const insertLocationData = async (context: HookContext<LocationService>) => {
 
       item.slugifiedName = slugify(item.name, { lower: true })
 
-      const insertData = JSON.parse(JSON.stringify(data))
+      const insertData = JSON.parse(JSON.stringify(item))
       delete insertData.locationSetting
       delete insertData.locationAdmin
 
@@ -173,7 +173,7 @@ const insertLocationData = async (context: HookContext<LocationService>) => {
     }
   }
 
-  context.result = result
+  context.result = result.length === 1 ? result[0] : result
 }
 
 const updateLocation = async (context: HookContext<LocationService>) => {
