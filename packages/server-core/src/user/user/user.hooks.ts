@@ -88,7 +88,7 @@ const restrictUserPatch = (context: HookContext<UserService>) => {
     return data
   }
 
-  context.data = Array.isArray(context.data) ? context.data.map(process) : process(context.result as UserType)
+  context.data = Array.isArray(context.data) ? context.data.map(process) : process(context.data as UserType)
 }
 
 /**
