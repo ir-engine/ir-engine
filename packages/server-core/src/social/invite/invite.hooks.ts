@@ -35,7 +35,6 @@ import {
   invitePatchValidator,
   inviteQueryValidator
 } from '@etherealengine/engine/src/schemas/social/invite.schema'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   inviteDataResolver,
@@ -52,21 +51,20 @@ export default {
 
   before: {
     all: [() => schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
-    find: [authenticate(), attachOwnerIdInQuery('userId')],
-    get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId'))],
+    find: [attachOwnerIdInQuery('userId')],
+    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     create: [
-      authenticate(),
       attachOwnerIdInBody('userId'),
       () => schemaHooks.validateData(inviteDataValidator),
       schemaHooks.resolveData(inviteDataResolver)
     ],
-    update: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin'))],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     patch: [
-      iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin')),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateData(invitePatchValidator),
       schemaHooks.resolveData(invitePatchResolver)
     ],
-    remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate())]
+    remove: [iff(isProvider('external'), inviteRemoveAuthenticate())]
   },
 
   after: {

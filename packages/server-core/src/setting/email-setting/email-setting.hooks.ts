@@ -32,7 +32,6 @@ import {
   emailSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   emailSettingDataResolver,
@@ -49,7 +48,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(emailSettingQueryValidator),
       schemaHooks.resolveQuery(emailSettingQueryResolver)
