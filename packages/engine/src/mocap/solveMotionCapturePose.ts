@@ -55,7 +55,7 @@ import {
   POSE_LANDMARKS_RIGHT
 } from '@mediapipe/pose'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { V_010, V_111 } from '../common/constants/MathConstants'
+import { V_010, V_100, V_111 } from '../common/constants/MathConstants'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
@@ -381,9 +381,9 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
   // planeHelper2.updateMatrixWorld()
 
   // rather than applying shoulderWorldRotation, we need to apply a rotation that moves it towards the hips
-  const shoulderPositionAlongPlane = new Vector3(0, -averageChestToShoulderHeight, 0)
-    .applyQuaternion(shoulderToHipQuaternion)
-    .add(shoulderCenter)
+  // const shoulderPositionAlongPlane = new Vector3(0, -averageChestToShoulderHeight, 0)
+  //   .applyQuaternion(shoulderToHipQuaternion)
+  //   .add(shoulderCenter)
 
   // get ratio of each spine bone, and apply that ratio of rotation such that the shoulders are in the correct position
   hipObject.matrixWorld.compose(hipPositionAlongPlane, hipWorldQuaterion, V_111)
@@ -407,8 +407,21 @@ export const solveSpine = (entity: Entity, lowestWorldY, landmarks: NormalizedLa
     hipObject.quaternion.copy(shoulderWorldQuaternion)
     spineObject.quaternion.identity()
     shoulderObject.quaternion.identity()
+    const hipDirection = new Quaternion().setFromUnitVectors(
+      V_100,
+      new Vector3().subVectors(hipright, hipleft).normalize()
+    )
+    MotionCaptureRigComponent.hipRotation.x[entity] = hipDirection.x
+    MotionCaptureRigComponent.hipRotation.y[entity] = hipDirection.y
+    MotionCaptureRigComponent.hipRotation.z[entity] = hipDirection.z
+    MotionCaptureRigComponent.hipRotation.w[entity] = hipDirection.w
   } else {
-    hipObject.quaternion.identity()
+    hipObject.quaternion.set(
+      MotionCaptureRigComponent.hipRotation.x[entity],
+      MotionCaptureRigComponent.hipRotation.y[entity],
+      MotionCaptureRigComponent.hipRotation.z[entity],
+      MotionCaptureRigComponent.hipRotation.w[entity]
+    )
     spineObject.quaternion.copy(hipToShoulderQuaternion)
   }
 
