@@ -24,13 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-const dotenv = require('dotenv')
-const fs = require('fs')
-const knex = require('knex')
-const { staticResourcePath } = require('@etherealengine/engine/src/media/static-resource.schema')
-const { S3Client } = require('@aws-sdk/client-s3')
-const { nanoid } = require('nanoid')
-const { v4 } = require('uuid')
+import { HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import dotenv from 'dotenv'
+import fs from 'fs'
+import knex from 'knex'
+import { nanoid } from 'nanoid'
+import { v4 } from 'uuid'
+import { staticResourcePath } from '../../engine/src/schemas/media/static-resource.schema'
+dotenv.config()
 
 // TODO: check for existing avatar on S3
 
@@ -39,8 +40,8 @@ const forceS3Upload = process.argv.includes('--force-s3-upload')
 
 const s3 = new S3Client({
   credentials: {
-    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET
+    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!
   },
   region: process.env.STORAGE_S3_REGION
 })
@@ -86,30 +87,32 @@ const THUMBNAIL_RESOURCE_TYPE = 'user-thumbnail'
 
 const uploadFile = (Key, Body) => {
   return new Promise((resolve) => {
-    s3.headObject(
-      {
-        Bucket: BUCKET,
-        Key: Key
-      },
-      (err, data) => {
-        if (forceS3Upload || (err && err.code === 'NotFound')) {
-          s3.putObject(
-            {
-              Body,
-              Bucket: BUCKET,
-              Key,
-              ACL: 'public-read'
-            },
-            (err, data) => {
+    const headObjectCommand = new HeadObjectCommand({
+      Bucket: BUCKET,
+      Key: Key
+    })
+    s3.send(headObjectCommand)
+      .then((data) => {
+        console.log('Object Already Exist hence Skipping => ', Key)
+        resolve(data)
+      })
+      .catch((err) => {
+        if (forceS3Upload || err.code === 'NotFound') {
+          const putObjectCommand = new PutObjectCommand({
+            Body,
+            Bucket: BUCKET,
+            Key,
+            ACL: 'public-read'
+          })
+          s3.send(putObjectCommand)
+            .then((data) => {
               resolve(data)
-            }
-          )
-        } else {
-          console.log('Object Already Exist hence Skipping => ', Key)
-          resolve(data)
+            })
+            .catch((err) => {
+              console.error(err)
+            })
         }
-      }
-    )
+      })
   })
 }
 
