@@ -33,10 +33,10 @@ import {
   LoginTokenType
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LoginTokenParams extends RootParams<LoginTokenQuery> {}
+export interface LoginTokenParams extends KnexAdapterParams<LoginTokenQuery> {}
 
 /**
  * A class for LoginToken service

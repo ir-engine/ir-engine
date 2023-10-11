@@ -23,14 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
-
-import authenticate from '../../hooks/authenticate'
-
 export default {
   before: {
     all: [],
-    find: [iff(isProvider('external'), authenticate() as any)],
+    find: [],
     get: [],
     create: [],
     update: [],

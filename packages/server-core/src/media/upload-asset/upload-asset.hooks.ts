@@ -29,8 +29,6 @@ import { SYNC } from 'feathers-sync'
 import logRequest from '@etherealengine/server-core/src/hooks/log-request'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
-import authenticate from '../../hooks/authenticate'
-
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
@@ -38,7 +36,7 @@ export default {
     all: [logRequest()],
     find: [disallow()],
     get: [],
-    create: [authenticate(), setLoggedInUser('userId')],
+    create: [setLoggedInUser('userId')],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]

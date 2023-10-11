@@ -47,7 +47,7 @@ const NodeContainer: React.FC<PropsWithChildren<NodeProps>> = ({
   if (colorName === undefined) {
     colorName = 'red'
   }
-  let [backgroundColor, borderColor, textColor] = colors[colorName]
+  const [backgroundColor, borderColor, textColor] = colors[colorName]
   const titleStyle = {
     backgroundColor,
     color: textColor

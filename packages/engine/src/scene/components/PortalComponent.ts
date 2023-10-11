@@ -148,8 +148,17 @@ export const PortalComponent = defineComponent({
       effectType: component.effectType.value,
       previewType: component.previewType.value,
       previewImageURL: component.previewImageURL.value,
-      spawnPosition: component.spawnPosition.value,
-      spawnRotation: component.spawnRotation.value
+      spawnPosition: {
+        x: component.spawnPosition.value.x,
+        y: component.spawnPosition.value.y,
+        z: component.spawnPosition.value.z
+      } as Vector3,
+      spawnRotation: {
+        x: component.spawnRotation.value.x,
+        y: component.spawnRotation.value.y,
+        z: component.spawnRotation.value.z,
+        w: component.spawnRotation.value.w
+      } as Quaternion
     }
   },
 
