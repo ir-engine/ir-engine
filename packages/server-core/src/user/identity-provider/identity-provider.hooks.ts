@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hooks as schemaHooks } from '@feathersjs/schema'
-import { iff, isProvider } from 'feathers-hooks-common'
-
 import {
   IdentityProviderType,
   identityProviderDataValidator,
@@ -35,9 +32,20 @@ import {
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { iff, isProvider } from 'feathers-hooks-common'
+import appConfig from '../../appconfig'
 
 import authenticate from '../../hooks/authenticate'
 
+import { isDev } from '@etherealengine/common/src/config'
+import { checkScope } from '@etherealengine/engine/src/common/functions/checkScope'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { random } from 'lodash'
+import { Application } from '../../../declarations'
+import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import {
   identityProviderDataResolver,
   identityProviderExternalResolver,
@@ -99,6 +107,94 @@ const checkOnlyIdentityProvider = () => {
   }
 }
 
+function addUserId(key: 'data' | 'query') {
+  return (context: HookContext) => {
+    if (key === 'data') {
+      context.data.userId = context.existingUser!.id
+    } else {
+      if (context.params.provider) context.params.query.userId = context.params.user!.id
+    }
+  }
+}
+
+/** (BEFORE) CREATE HOOKS **/
+
+// async function validateAuthParams(context:HookContext<IdentityProviderService>) {
+async function validateAuthParams(context: HookContext) {
+  let userId = context.data.userId
+
+  if (context.params.authentication) {
+    const authResult = await (context.app.service('authentication') as any).strategies.jwt.authenticate(
+      { accessToken: context.params.authentication.accessToken },
+      {}
+    )
+    userId = userId || authResult[appConfig.authentication.entity]?.userId
+  }
+
+  if (!userId) {
+    return
+  }
+
+  const user = await context.app.service(userPath).get(userId)
+
+  context.existingUser = user
+}
+
+async function addIdentityProviderType(context: HookContext) {
+  const isAdmin = context.existingUser && (await checkScope(context.existingUser, 'admin', 'admin'))
+  if (!isAdmin && context.params!.provider && !['password', 'email', 'sms'].includes(context.data.type)) {
+    context.data.type = 'guest'
+  }
+
+  const adminScopes = await context.app.service(scopePath).find({
+    query: {
+      type: 'admin:admin'
+    }
+  })
+
+  if (adminScopes.total === 0 && isDev && context.data.type !== 'guest') {
+    // doubt here - it should be the first if condition
+    context.data.type = 'admin'
+  }
+}
+
+async function createNewUser(context: HookContext) {
+  const isGuest = context.data.type === 'guest'
+  const avatars = await context.app.service(avatarPath).find({ isInternal: true, query: { $limit: 1000 } } as any)
+
+  const newUser = await context.app.service(userPath).create({
+    isGuest,
+    avatarId: avatars.data[random(avatars.data.length - 1)].id
+  })
+
+  context.existingUser = newUser
+}
+
+/** (AFTER) CREATE HOOKS **/
+
+async function addScopes(context: HookContext) {
+  if (context.data.type === 'guest' && appConfig.scopes.guest.length) {
+    const data = appConfig.scopes.guest.map((el) => ({
+      type: el,
+      userId: context.existingUser!.id
+    }))
+    await context.app.service(scopePath).create(data)
+  }
+
+  if (isDev && context.data.type === 'admin') {
+    const data = scopeTypeSeed.map(({ type }) => ({ userId: context.existingUser!.id, type }))
+    await context.app.service(scopePath).create(data)
+  }
+}
+
+async function createAccessToken(context: HookContext) {
+  if (!context.result!.accessToken) {
+    context.result.accessToken = await (context.app as Application)
+      .service('authentication')
+      .createAccessToken({}, { subject: context.result.id.toString() })
+  }
+}
+
 export default {
   around: {
     all: [
@@ -112,11 +208,15 @@ export default {
       () => schemaHooks.validateQuery(identityProviderQueryValidator),
       schemaHooks.resolveQuery(identityProviderQueryResolver)
     ],
-    find: [iff(isProvider('external'), authenticate() as any)],
+    find: [iff(isProvider('external'), authenticate() as any), addUserId('query')],
     get: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
     create: [
       () => schemaHooks.validateData(identityProviderDataValidator),
-      schemaHooks.resolveData(identityProviderDataResolver)
+      schemaHooks.resolveData(identityProviderDataResolver),
+      validateAuthParams,
+      addIdentityProviderType,
+      iff((context: HookContext) => !context.existingUser, createNewUser),
+      addUserId('data')
     ],
     update: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
     patch: [
@@ -130,7 +230,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addScopes, createAccessToken],
     update: [],
     patch: [],
     remove: []
