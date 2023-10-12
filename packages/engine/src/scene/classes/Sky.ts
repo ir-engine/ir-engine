@@ -386,6 +386,5 @@ export class Sky {
 
   dispose() {
     this.skyScene.traverse(disposeObject3D)
-    this.cubeCamera.renderTarget.dispose()
   }
 }

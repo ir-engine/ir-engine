@@ -308,6 +308,8 @@ export class CSM {
 
       const texelWidth = (shadowCam.right - shadowCam.left) / light.shadow.mapSize.x
       const texelHeight = (shadowCam.top - shadowCam.bottom) / light.shadow.mapSize.y
+      shadowCam.far = this.lightFar
+      shadowCam.near = this.lightNear
 
       light.shadow.camera.updateMatrixWorld(true)
       _cameraToLightMatrix.multiplyMatrices(light.shadow.camera.matrixWorldInverse, camera.matrixWorld)

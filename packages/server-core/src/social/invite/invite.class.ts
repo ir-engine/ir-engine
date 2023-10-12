@@ -46,11 +46,11 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { Forbidden } from '@feathersjs/errors'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InviteParams extends RootParams<InviteQuery> {
+export interface InviteParams extends KnexAdapterParams<InviteQuery> {
   preventUserRelationshipRemoval?: boolean
 }
 

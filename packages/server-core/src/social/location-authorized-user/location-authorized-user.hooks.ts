@@ -33,7 +33,6 @@ import {
 } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
-import authenticate from '../../hooks/authenticate'
 import {
   locationAuthorizedUserDataResolver,
   locationAuthorizedUserExternalResolver,
@@ -51,7 +50,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(locationAuthorizedUserQueryValidator),
       schemaHooks.resolveQuery(locationAuthorizedUserQueryResolver)
     ],

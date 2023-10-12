@@ -221,6 +221,7 @@ const createObjectFromSceneElement = (
   beforeEntity = null as Entity | null,
   updateSelection = true
 ) => {
+  parentEntity = parentEntity ?? getState(SceneState).sceneEntity
   cancelGrabOrPlacement()
 
   const newEntity = createEntity()

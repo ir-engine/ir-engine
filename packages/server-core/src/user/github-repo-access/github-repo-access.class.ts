@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   GithubRepoAccessData,
@@ -32,10 +32,9 @@ import {
   GithubRepoAccessQuery,
   GithubRepoAccessType
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
-import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessParams extends RootParams<GithubRepoAccessQuery> {}
+export interface GithubRepoAccessParams extends KnexAdapterParams<GithubRepoAccessQuery> {}
 
 export class GithubRepoAccessService<
   T = GithubRepoAccessType,

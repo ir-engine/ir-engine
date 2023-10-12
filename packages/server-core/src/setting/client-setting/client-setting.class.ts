@@ -35,16 +35,16 @@ import {
   ClientSettingType
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getContentType } from '../../util/fileUtils'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ClientSettingParams extends RootParams<ClientSettingQuery> {}
+export interface ClientSettingParams extends KnexAdapterParams<ClientSettingQuery> {}
 
 /**
  * A class for ClientSetting service

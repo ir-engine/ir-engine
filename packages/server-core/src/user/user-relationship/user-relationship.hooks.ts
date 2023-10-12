@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
-
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
@@ -209,7 +207,6 @@ export default {
 
   before: {
     all: [
-      iff(isProvider('external'), authenticate() as any),
       () => schemaHooks.validateQuery(userRelationshipQueryValidator),
       schemaHooks.resolveQuery(userRelationshipQueryResolver)
     ],

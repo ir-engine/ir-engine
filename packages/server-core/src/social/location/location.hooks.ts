@@ -28,7 +28,6 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import authenticate from '../../hooks/authenticate'
 
 import {
   LocationData,
@@ -271,11 +270,7 @@ export default {
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(locationQueryValidator),
-      schemaHooks.resolveQuery(locationQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(locationQueryValidator), schemaHooks.resolveQuery(locationQueryResolver)],
     find: [sortByLocationSetting, addSearchParams],
     get: [],
     create: [
