@@ -52,11 +52,11 @@ import {
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, State, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
-import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { AuthState } from '../user/services/AuthService'
@@ -100,7 +100,7 @@ function LoadingReactor() {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const userReady = useHookstate(getMutableState(EngineState).userReady)
   const state = useHookstate(getMutableState(LoadingUISystemState))
-  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const sceneData = useHookstate(getMutableState(SceneState).sceneData) as State<SceneData>
   const mesh = state.mesh.value
 
   /** Handle loading state changes */
@@ -146,9 +146,7 @@ function LoadingReactor() {
   /** Scene data changes */
   useEffect(() => {
     if (!sceneData.value) return
-    const envmapURL = sceneData.value.thumbnailUrl
-      .replace('thumbnail.jpeg', 'envmap.png')
-      .replace('thumbnail.ktx2', 'envmap.ktx2')
+    const envmapURL = sceneData.value.thumbnailUrl.split('/').slice(0, -1).join('/') + '/loadingscreen.ktx2'
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()
@@ -164,7 +162,7 @@ function LoadingReactor() {
           if (compressedTexture.isCompressedTexture) {
             try {
               createReadableTexture(compressedTexture).then((texture: Texture) => {
-                setColors(texture)
+                // setColors(texture)
                 texture.dispose()
               })
             } catch (e) {
@@ -172,7 +170,7 @@ function LoadingReactor() {
               setDefaultPalette()
             }
           } else {
-            setColors(texture)
+            // setColors(texture)
           }
         },
         undefined,
@@ -182,7 +180,7 @@ function LoadingReactor() {
         }
       )
     }
-  }, [sceneData])
+  }, [sceneData?.thumbnailUrl])
 
   useEffect(() => {
     const xrui = getComponent(state.ui.entity.value, XRUIComponent)
@@ -244,26 +242,27 @@ const execute = () => {
   //   // todo: figure out how to make this work properly for VR #7256
   // }
 
-  mainThemeColor.set(ui.state.colors.alternate.value)
+  // mainThemeColor.set(ui.state.colors.alternate.value)
 
   transition.update(engineState.deltaSeconds, (opacity) => {
     getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
   })
 
-  const opacity = getState(LoadingSystemState).loadingScreenOpacity
-  const ready = opacity > 0
+  setVisibleComponent(ui.entity, false)
+  // const opacity = getState(LoadingSystemState).loadingScreenOpacity
+  // const ready = opacity > 0
 
-  mesh.material.opacity = opacity
-  mesh.visible = ready
+  // mesh.material.opacity = opacity
+  // mesh.visible = ready
 
-  xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-    const mat = layer.contentMesh.material as MeshBasicMaterial
-    mat.opacity = opacity
-    mat.visible = ready
-    layer.visible = ready
-    mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
-  })
-  setVisibleComponent(ui.entity, ready && !getState(XRState).sessionActive)
+  // xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+  //   const mat = layer.contentMesh.material as MeshBasicMaterial
+  //   mat.opacity = opacity
+  //   mat.visible = ready
+  //   layer.visible = ready
+  //   mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
+  // })
+  // setVisibleComponent(ui.entity, ready && !getState(XRState).sessionActive)
 }
 
 const reactor = () => {
