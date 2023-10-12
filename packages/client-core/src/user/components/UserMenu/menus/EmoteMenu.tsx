@@ -26,14 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
-import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
+import { animationStates, defaultAnimationPath } from '@etherealengine/engine/src/avatar/animation/Util'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkActions'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { dispatchAction } from '@etherealengine/hyperflux'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
 
@@ -57,67 +60,61 @@ export const useEmoteMenuHooks = () => {
     {
       body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.WAVE)
+        onClick: () => runAnimation(animationStates.wave)
       }
     },
     {
       body: <img src="/static/clap1.svg" alt="Clap" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.CLAP)
+        onClick: () => runAnimation(animationStates.clap)
       }
     },
     {
       body: <img src="/static/Dance1.svg" alt="Dance 1" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE1)
+        onClick: () => runAnimation(animationStates.dance1)
       }
     },
     {
       body: <img src="/static/Dance2.svg" alt="Dance 2" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE2)
+        onClick: () => runAnimation(animationStates.dance2)
       }
     },
     {
       body: <img src="/static/Dance3.svg" alt="Dance 3" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE3)
+        onClick: () => runAnimation(animationStates.dance3)
       }
     },
     {
       body: <img src="/static/Dance4.svg" alt="Dance 4" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE4)
+        onClick: () => runAnimation(animationStates.dance4)
       }
     },
     {
       body: <img src="/static/Kiss.svg" alt="Kiss" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.KISS)
+        onClick: () => runAnimation(animationStates.kiss)
       }
     },
     {
       body: <img src="/static/Cry.svg" alt="Cry" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.CRY)
+        onClick: () => runAnimation(animationStates.cry)
       }
     },
     {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.LAUGH)
+        onClick: () => runAnimation(animationStates.laugh)
       }
     },
     {
       body: <img src="/static/Defeat.svg" alt="Defeat" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DEFEAT)
-      }
-    },
-    {
-      body: <img src="/static/restart.svg" alt="Reset" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.LOCOMOTION)
+        onClick: () => runAnimation(animationStates.defeat)
       }
     }
   ])
@@ -147,7 +144,14 @@ export const useEmoteMenuHooks = () => {
 
   const runAnimation = (stateName: string) => {
     const entity = Engine.instance.localClientEntity
-    changeAvatarAnimationState(entity, stateName)
+    dispatchAction(
+      AvatarNetworkAction.setAnimationState({
+        filePath: defaultAnimationPath + stateName + '.fbx',
+        loop: false,
+        layer: 0,
+        entityUUID: getComponent(entity, UUIDComponent)
+      })
+    )
     // close Menu after playing animation
     PopupMenuServices.showPopupMenu()
   }

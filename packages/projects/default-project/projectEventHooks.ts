@@ -24,34 +24,34 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers/lib'
 import path from 'path'
 
-import { Location } from '@etherealengine/common/src/interfaces/Location'
-import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
+import { OembedType } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
 
-const avatarsFolder = path.resolve(__dirname, 'public/avatars')
+const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
-const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OEmbed) => {
+const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OembedType) => {
   const isLocation = /^\/location\//.test(url.pathname)
   const isAdminPanel = /^\/admin/.test(url.pathname)
   const isEditor = /^\/studio/.test(url.pathname)
   if (isLocation) {
     const locationName = url.pathname.replace(/\/location\//, '')
-    const locationResult = (await app.service('location').find({
+    const locationResult = (await app.service(locationPath).find({
       query: {
         slugifiedName: locationName
-      }
-    })) as Paginated<Location>
-    if (locationResult.total === 0) throw new BadRequest('Invalid location name')
-    const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
+      },
+      pagination: false
+    } as any)) as any as LocationType[]
+    if (locationResult.length === 0) throw new BadRequest('Invalid location name')
+    const [projectName, sceneName] = locationResult[0].sceneId.split('/')
     const storageProvider = getStorageProvider()
-    currentOEmbed.title = `${locationResult.data[0].name} - ${currentOEmbed.title}`
-    currentOEmbed.description = `Join others in VR at ${locationResult.data[0].name}, directly from the web browser`
+    currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
+    currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
     currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
     currentOEmbed.height = 320
@@ -73,15 +73,16 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
     }
 
     if (subPath.includes('/')) {
-      const locationResult = (await app.service('location').find({
+      const locationResult = (await app.service(locationPath).find({
         query: {
           sceneId: subPath
-        }
-      })) as Paginated<Location>
-      if (locationResult.total > 0) {
-        const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
+        },
+        pagination: false
+      } as any)) as any as LocationType[]
+      if (locationResult.length > 0) {
+        const [projectName, sceneName] = locationResult[0].sceneId.split('/')
         const storageProvider = getStorageProvider()
-        currentOEmbed.title = `${locationResult.data[0].name} Studio - ${currentOEmbed.title}`
+        currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
         currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
         currentOEmbed.height = 320

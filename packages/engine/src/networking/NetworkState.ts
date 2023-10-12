@@ -23,42 +23,64 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
-
-import { DataChannelType, Network } from './classes/Network'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { defineAction, defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { Validator, matches } from '../common/functions/MatchesUtils'
+import { InstanceID } from '../schemas/networking/instance.schema'
+import { ChannelID } from '../schemas/social/channel.schema'
+import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 
-type RegistryFunction = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => void
+export class NetworkActions {
+  static updatePeers = defineAction({
+    type: 'ee.engine.network.UPDATE_PEERS',
+    peers: matches.array as Validator<unknown, PeersUpdateType[]>
+  })
+}
 
 export const NetworkState = defineState({
   name: 'NetworkState',
   initial: {
     hostIds: {
-      media: null as UserId | null,
-      world: null as UserId | null
+      media: null as InstanceID | null,
+      world: null as InstanceID | null
     },
     // todo - move to Network.schemas
     networkSchema: {} as { [key: string]: SerializationSchema },
-    networks: {} as { [key: UserId]: Network },
+    networks: {} as { [key: InstanceID]: Network },
     config: {
       /** Allow connections to a world instance server */
       world: false,
       /** Allow connections to a media instance server */
       media: false,
-      /** Allow connections to party media instances and friend functionality */
+      /** Allow connections to channel media instances and friend functionality */
       friends: false,
       /** Use instance IDs in url */
       instanceID: false,
       /** Use room IDs in url */
       roomID: false
     }
+  },
+
+  get worldNetwork() {
+    const state = getState(NetworkState)
+    return state.networks[state.hostIds.world!]!
+  },
+
+  get worldNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.world!]!
+  },
+
+  get mediaNetwork() {
+    const state = getState(NetworkState)
+    return state.networks[state.hostIds.media!]!
+  },
+
+  get mediaNetworkState() {
+    return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 })
-
-export const dataChannelRegistry = new Map<DataChannelType, RegistryFunction[]>()
 
 export const webcamVideoDataChannelType = 'ee.core.webcamVideo.dataChannel' as DataChannelType
 export const webcamAudioDataChannelType = 'ee.core.webcamAudio.dataChannel' as DataChannelType
@@ -80,15 +102,16 @@ export type MediaStreamAppData = {
   mediaTag: MediaTagType
   peerID: PeerID
   direction: TransportDirection
-  channelType: ChannelType
-  channelId: string
+  channelId: ChannelID
   clientDirection?: 'recv' | 'send'
 }
 
 export type PeerMediaType = {
+  /** @deprecated - use ProducersConsumerState instead */
   paused: boolean
-  producerId: string
+  /** @deprecated - use ProducersConsumerState instead */
   globalMute: boolean
+  producerId: string
   encodings: Array<{
     mimeType: 'video/rtx' | 'video/vp8' | 'video/h264' | 'video/vp9' | 'audio/opus' | 'audio/pcmu' | 'audio/pcma'
     payloadType: number
@@ -96,47 +119,24 @@ export type PeerMediaType = {
     parameters: any
     rtcpFeedback: any[]
   }>
-  channelType: ChannelType
-  channelId: string
+  /** @deprecated */
+  channelId: ChannelID
 }
 
 export type TransportDirection = 'send' | 'receive'
 
 export const addNetwork = (network: Network) => {
-  getMutableState(NetworkState).networks[network.hostId].set(network)
-}
-
-export const updateNetwork = (network: Network) => {
-  getMutableState(NetworkState).networks[network.hostId].set(network)
+  getMutableState(NetworkState).networks[network.id].set(network)
 }
 
 export const removeNetwork = (network: Network) => {
-  getMutableState(NetworkState).networks[network.hostId].set(none)
+  getMutableState(NetworkState).networks[network.id].set(none)
 }
 
-export const addDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
-  if (!dataChannelRegistry.has(dataChannelType)) {
-    dataChannelRegistry.set(dataChannelType, [])
-  }
-  dataChannelRegistry.get(dataChannelType)!.push(handler)
-}
-
-export const removeDataChannelHandler = (dataChannelType: DataChannelType, handler: RegistryFunction) => {
-  if (!dataChannelRegistry.has(dataChannelType)) return
-
-  const index = dataChannelRegistry.get(dataChannelType)!.indexOf(handler)
-  if (index === -1) return
-
-  dataChannelRegistry.get(dataChannelType)!.splice(index, 1)
-
-  if (dataChannelRegistry.get(dataChannelType)!.length === 0) {
-    dataChannelRegistry.delete(dataChannelType)
-  }
-}
-
-export const updateNetworkID = (network: Network, newHostId: UserId) => {
+export const updateNetworkID = (network: Network, newID: InstanceID) => {
   const state = getMutableState(NetworkState)
-  state.networks[network.hostId].set(none)
-  state.networks[newHostId].set(network)
-  state.networks[newHostId].hostId.set(newHostId)
+  state.networks[network.id].set(none)
+  state.networks[newID].set(network)
+  state.networks[newID].hostId.set(newID as any)
+  state.networks[newID].id.set(newID)
 }

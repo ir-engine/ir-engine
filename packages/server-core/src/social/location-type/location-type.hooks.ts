@@ -23,16 +23,46 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
+import {
+  locationTypeDataValidator,
+  locationTypePatchValidator,
+  locationTypeQueryValidator
+} from '@etherealengine/engine/src/schemas/social/location-type.schema'
+
+import {
+  locationTypeDataResolver,
+  locationTypeExternalResolver,
+  locationTypePatchResolver,
+  locationTypeQueryResolver,
+  locationTypeResolver
+} from './location-type.resolvers'
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(locationTypeExternalResolver), schemaHooks.resolveResult(locationTypeResolver)]
+  },
+
   before: {
-    all: [],
+    all: [
+      () => schemaHooks.validateQuery(locationTypeQueryValidator),
+      schemaHooks.resolveQuery(locationTypeQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [disallow('external')],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(locationTypeDataValidator),
+      schemaHooks.resolveData(locationTypeDataResolver)
+    ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(locationTypePatchValidator),
+      schemaHooks.resolveData(locationTypePatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

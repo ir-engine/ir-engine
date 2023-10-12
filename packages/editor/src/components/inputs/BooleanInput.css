@@ -1,0 +1,25 @@
+.StyledBooleanInput {
+  display: none;
+}
+
+.checkbox .BooleanInputLabel {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.BooleanInputLabel:disabled {
+  opacity: 0.8;
+  filter: grayscale(0.8);
+  cursor: initial;
+}
+
+.BooleanCheck {
+  width: 100%;
+  height: auto;
+  color: var(--buttonTextColor);
+}

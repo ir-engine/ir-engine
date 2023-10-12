@@ -30,21 +30,19 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
-import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ServerPodInfoType, podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
-import { AdminServerInfoState, ServerInfoService } from '../../services/ServerInfoService'
-import { ServerLogsService } from '../../services/ServerLogsService'
+import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
-
-const logger = multiLogger.child({ component: 'client-core:ServerTable' })
+import { ServerLogsInputsType } from './ServerLogs'
 
 TimeAgo.addDefaultLocale(en)
 
@@ -52,24 +50,30 @@ const timeAgo = new TimeAgo('en-US')
 
 interface Props {
   selectedCard: string
+  setServerLogsInputs: (inputs: ServerLogsInputsType) => void
 }
 
-const ServerTable = ({ selectedCard }: Props) => {
+const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
   const { t } = useTranslation()
   const openConfirm = useHookstate(false)
   const autoRefresh = useHookstate('60')
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
-  const selectedPod = useHookstate<ServerPodInfo | null>(null)
-  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
+  const selectedPod = useHookstate<ServerPodInfoType | null>(null)
+
+  const serverInfoQuery = useServerInfoFind()
+  const removeServerInfo = useMutation(podsPath).remove
 
   useEffect(() => {
     if (autoRefresh.value !== '0') {
-      const interval = setInterval(() => {
-        handleRefreshServerInfo()
-      }, parseInt(autoRefresh.value) * 1000)
+      const interval = setInterval(
+        () => {
+          handleRefreshServerInfo()
+        },
+        parseInt(autoRefresh.value) * 1000
+      )
       intervalTimer.set(interval)
       return () => {
-        if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+        if (interval) clearInterval(interval)
       }
     } else if (intervalTimer.value) {
       clearInterval(intervalTimer.value)
@@ -77,7 +81,7 @@ const ServerTable = ({ selectedCard }: Props) => {
     }
   }, [autoRefresh.value])
 
-  const createData = (el: ServerPodInfo): ServerPodData => {
+  const createData = (el: ServerPodInfoType): ServerPodData => {
     return {
       el,
       name: el.name,
@@ -124,7 +128,7 @@ const ServerTable = ({ selectedCard }: Props) => {
         <div style={{ float: 'right' }}>
           <a
             className={styles.actionStyle}
-            onClick={() => ServerLogsService.fetchServerLogs(el.name, el.containers[el.containers.length - 1].name)}
+            onClick={() => setServerLogsInputs({ podName: el.name, containerName: el.containers.at(-1)?.name })}
           >
             <span className={styles.spanWhite}>{t('admin:components.server.logs')}</span>
           </a>
@@ -143,8 +147,7 @@ const ServerTable = ({ selectedCard }: Props) => {
   }
 
   const handleRefreshServerInfo = () => {
-    logger.info('Refreshing server info.')
-    ServerInfoService.fetchServerInfo()
+    serverInfoQuery.refetch()
   }
 
   const handleAutoRefreshServerInfoChange = (e) => {
@@ -158,7 +161,7 @@ const ServerTable = ({ selectedCard }: Props) => {
       return
     }
 
-    await ServerInfoService.removePod(selectedPod.value.name)
+    await removeServerInfo(selectedPod.value.name)
     openConfirm.set(false)
   }
 
@@ -202,7 +205,7 @@ const ServerTable = ({ selectedCard }: Props) => {
       id: 'action',
       label: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {serverInfo.value.retrieving === false && (
+          {serverInfoQuery.data && (
             <IconButton
               title={t('admin:components.common.refresh')}
               className={styles.iconButton}
@@ -212,7 +215,7 @@ const ServerTable = ({ selectedCard }: Props) => {
             />
           )}
 
-          {serverInfo.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
+          {!serverInfoQuery.data && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
 
           <InputSelect
             name="autoRefresh"
@@ -228,26 +231,16 @@ const ServerTable = ({ selectedCard }: Props) => {
     }
   ]
 
-  const rows = serverInfo.servers
-    .get({ noproxy: true })
-    .find((item) => item.id === selectedCard)!
-    .pods.map((el) => {
-      return createData(el)
-    })
+  const matchingData = serverInfoQuery.data.find((item) => item.id === selectedCard)
+  const rows = matchingData
+    ? matchingData.pods.map((el) => {
+        return createData(el)
+      })
+    : []
 
   return (
     <>
-      <TableComponent
-        allowSort={false}
-        rows={rows}
-        column={serverInfoDataColumns}
-        page={0}
-        count={rows.length}
-        rowsPerPage={rows.length}
-        handlePageChange={() => {}}
-        handleRowsPerPageChange={() => {}}
-      />
-
+      <TableComponent query={serverInfoQuery} rows={rows} column={serverInfoDataColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.value?.name}'?`}

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AxesHelper, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants/MathConstants'
@@ -40,45 +40,40 @@ import {
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { StandardGamepadButton, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
-import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
 } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
 import {
   LocalTransformComponent,
-  setLocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { isMobileXRHeadset, ReferenceSpace } from '@etherealengine/engine/src/xr/XRState'
+import { isMobileXRHeadset, ReferenceSpace, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
+  RegisteredWidgets,
   WidgetAppActions,
+  WidgetAppService,
   WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { defineActionQueue, defineState, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import {
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
-import { createMediaWidget } from './createMediaWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
-// import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
-// import { createChatWidget } from './createChatWidget'
-// import { createEmoteWidget } from './createEmoteWidget'
-// import { createLocationMenuWidget } from './createLocationMenuWidget'
-// import { createMediaSessionMenuWidget } from './createMediaSessionMenuWidget'
-// import { createProfileWidget } from './createProfileWidget'
-// import { createReadyPlayerWidget } from './createReadyPlayerWidget'
-// import { createSelectAvatarWidget } from './createSelectAvatarWidget'
-// import { createSettingsWidget } from './createSettingsWidget'
-// import { createShareLocationWidget } from './createShareLocationWidget'
-// import { createSocialsMenuWidget } from './createSocialsMenuWidget'
-// import { createUploadAvatarWidget } from './createUploadAvatarWidget'
+// import { createMediaWidget } from './createMediaWidget'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { createRecordingsWidget } from './createRecordingsWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
@@ -97,6 +92,7 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
+    setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: null })
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')
@@ -110,36 +106,14 @@ const WidgetUISystemState = defineState({
   }
 })
 
-// lazily create XRUI widgets to speed up initial page loading time
-let createdWidgets = false
-const showWidgetMenu = (show: boolean) => {
-  // temporarily only allow widgets on non hmd for local dev
-  if (!createdWidgets && (isMobileXRHeadset || isDev)) {
-    createdWidgets = true
-    createAnchorWidget()
-    // createMediaWidget()
-    // createHeightAdjustmentWidget()
-    // createProfileWidget()
-    // createSettingsWidget()
-    // createSocialsMenuWidget()
-    // createLocationMenuWidget()
-    // createAdminControlsMenuWidget()
-    // createMediaSessionMenuWidget()
-    // createEmoteWidget()
-    // createChatWidget()
-    // createShareLocationWidget()
-    // createSelectAvatarWidget()
-    // createUploadAvatarWidget()
-
-    // TODO: Something in createReadyPlayerWidget is loading /location/undefined
-    // This is causing the engine to be created again, or at least to start being
-    // created again, which is not right. This will need to be fixed when this is
-    // restored.
-    // createReadyPlayerWidget()
-  }
+const createWidgetMenus = () => {
+  createAnchorWidget()
+  createRecordingsWidget()
+  // createHeightAdjustmentWidget
+  // createMediaWidget
 }
 
-const toggleWidgetsMenu = (handedness?: 'left' | 'right') => {
+const toggleWidgetsMenu = (handedness: 'left' | 'right' = getState(WidgetAppState).handedness) => {
   const widgetState = getState(WidgetAppState)
   const state = widgetState.widgets
   const openWidget = Object.entries(state).find(([id, widget]) => widget.visible)
@@ -178,18 +152,19 @@ const execute = () => {
   }
 
   for (const action of showWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
+    const widget = RegisteredWidgets.get(action.id)!
     setVisibleComponent(widget.ui.entity, action.shown)
     if (action.shown) {
       if (typeof widget.onOpen === 'function') widget.onOpen()
     } else if (typeof widget.onClose === 'function') widget.onClose()
   }
   for (const action of registerWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
-    setLocalTransformComponent(widget.ui.entity, widgetMenuUI.entity)
+    const widget = RegisteredWidgets.get(action.id)!
+    setComponent(widget.ui.entity, LocalTransformComponent)
+    setComponent(widget.ui.entity, EntityTreeComponent, { parentEntity: widgetMenuUI.entity })
   }
   for (const action of unregisterWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
+    const widget = RegisteredWidgets.get(action.id)!
     removeComponent(widget.ui.entity, LocalTransformComponent)
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
@@ -202,7 +177,7 @@ const execute = () => {
   if (activeInputSourceEntity) {
     const activeInputSource = getComponent(activeInputSourceEntity, InputSourceComponent)?.source
     const referenceSpace = ReferenceSpace.origin!
-    const pose = Engine.instance.xrFrame!.getPose(
+    const pose = getState(XRState).xrFrame?.getPose(
       activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,
       referenceSpace
     )
@@ -226,10 +201,9 @@ const execute = () => {
   }
 
   const widgetMenuShown = widgetState.widgetsMenuOpen
-  showWidgetMenu(widgetMenuShown)
   setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
-  for (const [id, widget] of Engine.instance.widgets) {
+  for (const [id, widget] of RegisteredWidgets) {
     if (!widgetState.widgets[id]) continue
     const widgetEnabled = widgetState.widgets[id].enabled
     if (widgetEnabled && typeof widget.system === 'function') {
@@ -239,10 +213,18 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const xrState = useHookstate(getMutableState(XRState))
   useEffect(() => {
+    if (!xrState.sessionActive.value) {
+      WidgetAppService.closeWidgets()
+      const widgetState = getState(WidgetAppState)
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false, handedness: widgetState.handedness }))
+    }
+  }, [xrState.sessionActive])
+  useEffect(() => {
+    createWidgetMenus()
     return () => {
       const { widgetMenuUI } = getState(WidgetUISystemState)
-      removeActionQueue(showWidgetQueue)
       removeEntity(widgetMenuUI.entity)
     }
   }, [])

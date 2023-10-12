@@ -1,0 +1,22 @@
+/* toolButtonStyles.css */
+
+.toolButton {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border: none;
+  color: var(--iconButtonColor);
+  cursor: pointer;
+  position: relative;
+  background-color: var(--toolbar);
+}
+
+.isSelected {
+  background-color: var(--iconButtonHoverColor);
+}
+
+.toolButton:hover {
+  background-color: var(--iconButtonHoverColor);
+}
+

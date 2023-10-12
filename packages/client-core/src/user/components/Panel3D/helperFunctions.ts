@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import { AnimationMixer, Box3, Camera, Mesh, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
+import { AnimationMixer, Box3, Camera, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
 
 import { MAX_ALLOWED_TRIANGLES } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { loadAvatarModelAsset, setupAvatarModel } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
+import { loadAvatarModelAsset } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { addObjectToGroup, removeGroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
@@ -38,7 +38,7 @@ import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectL
 
 export const validate = (obj: Object3D, renderer: WebGLRenderer, scene: Scene, camera: Camera) => {
   const objBoundingBox = new Box3().setFromObject(obj)
-  let maxBB = new Vector3(2, 3, 2)
+  const maxBB = new Vector3(2, 3, 2)
 
   let bone = false
   let skinnedMesh = false
@@ -65,15 +65,14 @@ export const resetAnimationLogic = (entity: Entity) => {
   setComponent(entity, AnimationComponent, {
     // empty object3d as the mixer gets replaced when model is loaded
     mixer: new AnimationMixer(new Object3D()),
-    animations: [],
-    animationSpeed: 1
+    animations: []
   })
   setComponent(entity, AvatarAnimationComponent, {
     animationGraph: {
-      states: {},
-      transitionRules: {},
-      currentState: null!,
-      stateChanged: null!
+      blendAnimation: undefined,
+      fadingOut: false,
+      blendStrength: 0,
+      layer: 0
     },
     rootYRatio: 1,
     locomotion: new Vector3()
@@ -82,15 +81,38 @@ export const resetAnimationLogic = (entity: Entity) => {
 }
 
 export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
-  const parent = await loadAvatarModelAsset(avatarURL)
+  //Quick fix to make sure we're always getting the .scene property regardless of VRM/Object3D return type.
+  //This won't be necessary if we decide to return only VRM
+  const loaded = (await loadAvatarModelAsset(avatarURL)) as any
+  if (!loaded) return
+  let scene = undefined! as Object3D
+  if (loaded.scene) scene = loaded.scene
+  else scene = loaded
+
+  //setupAvatarModel(entity)(loaded)
+  removeGroupComponent(entity)
+
+  if (scene) addObjectToGroup(entity, scene)
+  scene.traverse((obj: Object3D) => {
+    obj.layers.set(ObjectLayers.Panel)
+  })
+  scene.removeFromParent()
+
+  // face the camera
+  scene.rotateY(Math.PI)
+
+  return scene
+}
+
+export const loadModelForPreview = async (entity: Entity, avatarURL: string) => {
+  const avatar = await loadAvatarModelAsset(avatarURL)
+  const parent = avatar?.scene
   if (!parent) return
-  setupAvatarModel(entity)(parent)
   removeGroupComponent(entity)
   addObjectToGroup(entity, parent)
   parent.traverse((obj: Object3D) => {
     obj.layers.set(ObjectLayers.Panel)
   })
   parent.removeFromParent()
-  // animateModel(entity)
   return parent
 }

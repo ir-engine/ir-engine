@@ -27,7 +27,6 @@ import fs from 'fs'
 import path from 'path'
 
 import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { analyticsSeeds } from './analytics/seeder-config'
@@ -36,7 +35,7 @@ import { networkingSeeds } from './networking/seeder-config'
 import { projectSeeds } from './projects/seeder-config'
 import { routeSeeds } from './route/seeder-config'
 import { scopeSeeds } from './scope/seeder-config'
-import { settingSeeds, settingSequelizeSeeds } from './setting/seeder-config'
+import { settingSeeds } from './setting/seeder-config'
 import { socialSeeds } from './social/seeder-config'
 import { userSeeds } from './user/seeder-config'
 
@@ -46,8 +45,8 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => {
         try {
-          const config: ProjectConfigInterface =
-            require(`../../projects/projects/${dirent.name}/xrengine.config.ts`).default
+          const configPath = `../../projects/projects/${dirent.name}/xrengine.config.ts`
+          const config: ProjectConfigInterface = require(configPath).default
           if (!config.databaseSeed) return null
           return path.join(dirent.name, config.databaseSeed)
         } catch (e) {
@@ -59,15 +58,15 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       .flat()
   : []
 
-export const sequelizeSeeds: Array<ServicesSeedConfig> = [
+export const knexSeeds: Array<KnexSeed> = [
+  ...routeSeeds,
+  ...analyticsSeeds,
+  ...settingSeeds,
+  ...scopeSeeds,
+  ...userSeeds,
+  ...socialSeeds,
+  ...projectSeeds,
   ...mediaSeeds,
   ...networkingSeeds,
-  ...socialSeeds,
-  ...userSeeds,
-  ...scopeSeeds,
-  ...settingSequelizeSeeds,
-  ...projectSeeds,
   ...installedProjects
 ]
-
-export const knexSeeds: Array<KnexSeed> = [...routeSeeds, ...analyticsSeeds, ...settingSeeds]

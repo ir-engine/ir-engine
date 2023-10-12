@@ -23,10 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
+import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 
-import { scopeTypeSeed } from './scope-type/scope-type.seed'
+import * as scopeTypeSeed from './scope-type/scope-type.seed'
 
-export const scopeSeeds: Array<ServicesSeedConfig> = [scopeTypeSeed]
-
-export default scopeSeeds
+export const scopeSeeds: Array<KnexSeed> = [scopeTypeSeed]

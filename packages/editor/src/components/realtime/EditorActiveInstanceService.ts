@@ -23,25 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LocationInstanceConnectionAction } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LocationInstanceState } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import logger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import logger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-
-export type ActiveInstance = {
-  id: string
-  location: string
-  currentUsers: number
-  // todo: assignedAt so we can sort by most recent?
-}
+import {
+  InstanceActiveType,
+  instanceActivePath
+} from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { instanceProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-provision.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export const EditorActiveInstanceState = defineState({
   name: 'EditorActiveInstanceState',
   initial: () => ({
-    activeInstances: [] as ActiveInstance[],
+    activeInstances: [] as InstanceActiveType[],
     fetching: false
   })
 })
@@ -59,10 +57,10 @@ export const EditorActiveInstanceServiceReceptor = (action): any => {
 
 //Service
 export const EditorActiveInstanceService = {
-  provisionServer: async (locationId: string, instanceId: string, sceneId: string) => {
+  provisionServer: async (locationId: string, instanceId: InstanceID, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server Editor')
     const token = getState(AuthState).authUser.accessToken
-    const provisionResult = await Engine.instance.api.service('instance-provision').find({
+    const provisionResult = await Engine.instance.api.service(instanceProvisionPath).find({
       query: {
         locationId: locationId,
         instanceId: instanceId,
@@ -71,24 +69,23 @@ export const EditorActiveInstanceService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatchAction(
-        LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserId,
+      getMutableState(LocationInstanceState).instances.merge({
+        [provisionResult.id]: {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
-          roomCode: provisionResult.roomCode,
-          locationId: locationId!,
-          sceneId: sceneId!
-        })
-      )
+          locationId: locationId,
+          sceneId: sceneId,
+          roomCode: provisionResult.roomCode
+        }
+      })
     }
   },
   getActiveInstances: async (sceneId: string) => {
-    dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances({}))
-    const activeInstances = await Engine.instance.api.service('instances-active').find({
+    getMutableState(EditorActiveInstanceState).merge({ fetching: true })
+    const activeInstances = await Engine.instance.api.service(instanceActivePath).find({
       query: { sceneId }
     })
-    dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))
+    getMutableState(EditorActiveInstanceState).merge({ activeInstances, fetching: false })
   }
 }
 
@@ -100,6 +97,6 @@ export class EditorActiveInstanceAction {
 
   static fetchedActiveInstances = defineAction({
     type: 'ee.editor.EditorActiveInstance.FETCHED_ACTIVE_INSTANCES' as const,
-    activeInstances: matches.array as Validator<unknown, ActiveInstance[]>
+    activeInstances: matches.array as Validator<unknown, InstanceActiveType[]>
   })
 }

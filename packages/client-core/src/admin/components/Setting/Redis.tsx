@@ -23,33 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthState } from '../../../user/services/AuthService'
-import { AdminRedisSettingsState, RedisSettingService } from '../../services/Setting/RedisSettingService'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Redis = () => {
   const { t } = useTranslation()
-  const redisSettingState = useHookstate(getMutableState(AdminRedisSettingsState))
-  const [redisSetting] = redisSettingState?.redisSettings?.get({ noproxy: true }) || []
-  const user = useHookstate(getMutableState(AuthState).user)
-
+  const redisSetting = useFind(redisSettingPath).data.at(0)
   const enabled = useHookstate(true)
-
-  useEffect(() => {
-    if (user?.id?.value != null && redisSettingState?.updateNeeded?.value) {
-      RedisSettingService.fetchRedisSetting()
-    }
-  }, [user?.id?.value, redisSettingState?.updateNeeded?.value])
 
   return (
     <Box>

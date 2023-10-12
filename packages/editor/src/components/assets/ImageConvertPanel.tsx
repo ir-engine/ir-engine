@@ -33,6 +33,7 @@ import { Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
+import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import styles from './styles.module.scss'
 
@@ -97,9 +98,31 @@ export default function ImageConvertPanel({
             onChange={(val: boolean) => convertProperties.resize.set(val)}
           />
         </Grid>
-        <Grid item xs={12}>
-          <Button onClick={convertImage}> Convert </Button>
-        </Grid>
+        {convertProperties.resize.value && (
+          <>
+            <Grid item xs={4}>
+              <Typography className={styles.secondaryText}>Width</Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <NumericInput
+                value={convertProperties.width.value}
+                onChange={(val: number) => convertProperties.width.set(val)}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <Typography className={styles.secondaryText}>Height</Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <NumericInput
+                value={convertProperties.height.value}
+                onChange={(val: number) => convertProperties.height.set(val)}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button onClick={convertImage}> Convert </Button>
+            </Grid>
+          </>
+        )}
       </Grid>
     </Dialog>
   )

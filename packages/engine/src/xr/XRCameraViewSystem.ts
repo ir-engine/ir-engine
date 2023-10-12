@@ -23,13 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-
-import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { XRRendererState } from './WebXRManager'
-import { ReferenceSpace } from './XRState'
-import { XRSystem } from './XRSystem'
 
 /**
  * https://github.com/immersive-web/raw-camera-access/blob/main/explainer.md
@@ -54,8 +48,8 @@ declare global {
 
 // const execute = () => {
 // const xrRendererState = getState(XRRendererState)
-//   if (Engine.instance.xrFrame && ReferenceSpace.localFloor) {
-//     const viewer = Engine.instance.xrFrame.getViewerPose(ReferenceSpace.localFloor)
+//   if (getState(XRState).xrFrame && ReferenceSpace.localFloor) {
+//     const viewer = getState(XRState).xrFrame.getViewerPose(ReferenceSpace.localFloor)
 //     if (viewer) {
 //       for (const view of viewer.views) {
 //         // console.log('XRCamera supported:', view.camera !== null && xrRendererState.glBinding !== null)

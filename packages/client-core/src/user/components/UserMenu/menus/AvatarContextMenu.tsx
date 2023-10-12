@@ -31,9 +31,8 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
@@ -41,10 +40,8 @@ import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
-import { InviteService } from '../../../../social/services/InviteService'
-import { PartyState } from '../../../../social/services/PartyService'
 import { AvatarUIContextMenuState } from '../../../../systems/ui/UserMenuView'
-import { getUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -55,36 +52,40 @@ interface Props {
 
 const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const partyState = useHookstate(getMutableState(PartyState))
   const friendState = useHookstate(getMutableState(FriendState))
   const worldState = useHookstate(getMutableState(WorldState))
   const avatarUIContextMenuState = useHookstate(getMutableState(AvatarUIContextMenuState))
-  const userId = avatarUIContextMenuState.id.value as UserId
+  const userId = avatarUIContextMenuState.id.value as UserID
 
   const authState = useHookstate(getMutableState(AuthState))
   const selfId = authState.user.id?.value ?? ''
 
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
-  const partyOwner = partyState.party?.partyUsers?.value
-    ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
-    : null
-
-  const isFriend = friendState.relationships.friend.get({ noproxy: true }).find((item) => item.id === userId)
-  const isRequested = friendState.relationships.requested.get({ noproxy: true }).find((item) => item.id === userId)
-  const isPending = friendState.relationships.pending.get({ noproxy: true }).find((item) => item.id === userId)
-  const isBlocked = friendState.relationships.blocked.get({ noproxy: true }).find((item) => item.id === userId)
-  const isBlocking = friendState.relationships.blocking.get({ noproxy: true }).find((item) => item.id === userId)
+  const isFriend = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'friend')
+  const isRequested = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'requested')
+  const isPending = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'pending')
+  const isBlocked = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'blocked')
+  const isBlocking = friendState.relationships
+    .get({ noproxy: true })
+    .find((item) => item.relatedUserId === userId && item.userRelationshipType === 'blocking')
 
   const userName = isFriend
-    ? isFriend.name
+    ? isFriend.relatedUser.name
     : isRequested
-    ? isRequested.name
+    ? isRequested.relatedUser.name
     : isPending
-    ? isPending.name
+    ? isPending.relatedUser.name
     : isBlocked
-    ? isBlocked.name
+    ? isBlocked.relatedUser.name
     : isBlocking
-    ? isBlocking.name
+    ? isBlocking.relatedUser.name
     : worldState.userNames[userId].value ?? 'A user'
 
   useEffect(() => {
@@ -93,23 +94,12 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
     }
   }, [friendState.updateNeeded.value])
 
-  const inviteToParty = () => {
-    if (authState.user?.partyId?.value && userId) {
-      const partyId = authState.user?.partyId?.value ?? ''
-      const sendData = {
-        inviteType: 'party',
-        inviteeId: userId,
-        targetObjectId: partyId,
-        token: null
-      } as SendInvite
-      InviteService.sendInvite(sendData)
-    }
-  }
-
   const handleMute = () => {
     console.log('Mute pressed')
     NotificationService.dispatchNotify('Mute Pressed', { variant: 'info' })
   }
+
+  const userThumbnail = useUserAvatarThumbnail(userId)
 
   return (
     <Menu
@@ -125,20 +115,11 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
     >
       {userId && (
         <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
-          <Avatar imageSrc={getUserAvatarThumbnail(userId)} size={150} sx={{ margin: '0 auto' }} />
+          <Avatar imageSrc={userThumbnail} size={150} sx={{ margin: '0 auto' }} />
 
           <Text variant="h6" align="center" mt={2} mb={1}>
             {userName}
           </Text>
-
-          {partyState?.party?.id?.value != null &&
-            partyOwner?.userId != null &&
-            partyOwner.userId === authState.user.id?.value &&
-            !partyState.party?.partyUsers.get({ noproxy: true })?.find((partyUser) => partyUser.userId === userId) && (
-              <Button type="gradientRounded" width="70%" onClick={inviteToParty}>
-                {t('user:personMenu.inviteToParty')}
-              </Button>
-            )}
 
           {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
             <Button

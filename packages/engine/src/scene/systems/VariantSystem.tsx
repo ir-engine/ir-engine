@@ -23,13 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Vector3 } from 'three'
-
 import { getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getMutableComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent } from '../components/ModelComponent'

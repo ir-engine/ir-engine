@@ -36,7 +36,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 const FogTypeOptions = [
   {
@@ -72,7 +72,7 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
         <SelectInput
           options={FogTypeOptions}
           value={fogState.type.value}
-          onChange={(val: FogType) => fogState.type.set(val)}
+          onChange={commitProperty(FogSettingsComponent, 'type')}
         />
       </InputGroup>
       {fogState.type.value !== FogType.Disabled && (
@@ -80,7 +80,9 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
           <InputGroup name="Fog Color" label={t('editor:properties.fog.lbl-fogColor')}>
             <ColorInput
               value={new Color(fogState.color.value)}
-              onSelect={(val: Color) => fogState.color.set('#' + val.getHexString())}
+              onSelect={(val) => updateProperty(FogSettingsComponent, 'color')('#' + val.getHexString())}
+              onChange={(val) => updateProperty(FogSettingsComponent, 'color')('#' + val.getHexString())}
+              onRelease={(val) => commitProperty(FogSettingsComponent, 'color')('#' + val.getHexString())}
             />
           </InputGroup>
           {fogState.type.value === FogType.Linear ? (
@@ -93,7 +95,8 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
                 largeStep={10}
                 min={0}
                 value={fogState.near.value}
-                onChange={(val) => fogState.near.set(val)}
+                onChange={updateProperty(FogSettingsComponent, 'near')}
+                onRelease={commitProperty(FogSettingsComponent, 'near')}
               />
               <NumericInputGroup
                 name="Fog Far Distance"
@@ -103,7 +106,8 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
                 largeStep={1000}
                 min={0}
                 value={fogState.far.value}
-                onChange={(val) => fogState.far.set(val)}
+                onChange={updateProperty(FogSettingsComponent, 'far')}
+                onRelease={commitProperty(FogSettingsComponent, 'far')}
               />
             </>
           ) : (
@@ -116,7 +120,8 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
                 largeStep={0.25}
                 min={0}
                 value={fogState.density.value}
-                onChange={(val) => fogState.density.set(val)}
+                onChange={updateProperty(FogSettingsComponent, 'density')}
+                onRelease={commitProperty(FogSettingsComponent, 'density')}
               />
               {fogState.type.value !== FogType.Exponential && (
                 <NumericInputGroup
@@ -127,7 +132,8 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
                   largeStep={0.25}
                   min={0}
                   value={fogState.height.value}
-                  onChange={(val) => fogState.height.set(val)}
+                  onChange={updateProperty(FogSettingsComponent, 'height')}
+                  onRelease={commitProperty(FogSettingsComponent, 'height')}
                 />
               )}
               {fogState.type.value === FogType.Brownian && (
@@ -139,7 +145,8 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
                   largeStep={0.25}
                   min={0.001}
                   value={fogState.timeScale.value}
-                  onChange={(val) => fogState.timeScale.set(val)}
+                  onChange={updateProperty(FogSettingsComponent, 'timeScale')}
+                  onRelease={commitProperty(FogSettingsComponent, 'timeScale')}
                 />
               )}
             </>

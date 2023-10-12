@@ -1,0 +1,31 @@
+:root {
+  --border-color-default: var(--inputOutline);
+  --border-color-canDrop: var(--blue);
+  --border-color-error: var(--error);
+}
+
+.Input {
+  background-color: var(--inputBackground);
+  border-radius: 4px;
+  border: 1px solid var(--inputOutline);
+  color: var(--textColor);
+  height: 24px;
+  padding: 6px 8px;
+}
+
+.Input:hover {
+  border-color: var(--blueHover);
+}
+
+.Input:focus {
+  border-color: var(--blue);
+}
+
+.Input:disabled {
+  background-color: var(--disabled);
+  color: var(--disabledText);
+}
+
+.Input:focus-visible {
+  outline: none;
+}

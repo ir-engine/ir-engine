@@ -23,28 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-const accessControls = {
-  admin: {
-    listScope: 'all',
-    createScope: 'all',
-    readScope: 'all',
-    updateScope: 'all',
-    deleteScope: 'all'
-  },
-  user: {
-    listScope: 'all',
-    createScope: 'self',
-    readScope: 'all',
-    updateScope: 'self',
-    deleteScope: 'self'
-  },
-  guest: {
-    listScope: 'all',
-    createScope: 'none',
-    readScope: 'all',
-    updateScope: 'none',
-    deleteScope: 'none'
+import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
+import Mailer from 'feathers-mailer'
+import smtpTransport from 'nodemailer-smtp-transport'
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import hooks from './email.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [emailPath]: Mailer
   }
 }
 
-export default accessControls
+export default (app: Application): void => {
+  app.use(emailPath, Mailer(smtpTransport({ ...config.email.smtp })))
+
+  const service = app.service(emailPath)
+  service.hooks(hooks)
+}

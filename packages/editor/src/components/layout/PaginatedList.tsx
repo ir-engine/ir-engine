@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { JSXElementConstructor, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
-import { any } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 
-import { Grid, Stack } from '@mui/material'
+import { Grid } from '@mui/material'
 
 import { Button } from '../inputs/Button'
 import Well from './Well'
@@ -39,7 +38,7 @@ export default function PaginatedList<T>({
   options
 }: {
   ['list']: T[] | State<T[]>
-  ['element']: (index: T | State<T>) => JSX.Element
+  ['element']: (val: T | State<T>, _index: number) => JSX.Element
   ['options']?: {
     ['countPerPage']?: number
   }
@@ -105,8 +104,8 @@ export default function PaginatedList<T>({
           </Grid>
         </Grid>
       </Well>
-      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((index, _index) => {
-        return <div key={`${_index}`}>{element(index)}</div>
+      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((val, index) => {
+        return <div key={`${index}`}>{element(val, index)}</div>
       })}
     </>
   )

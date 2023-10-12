@@ -28,14 +28,12 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import { Not } from 'bitecs'
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
-import { Engine } from '../ecs/classes/Engine'
 import { defineQuery } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { GroupComponent, GroupQueryReactor } from '../scene/components/GroupComponent'
@@ -282,10 +280,11 @@ function DepthOcclusionReactor({ obj }) {
 }
 
 const execute = () => {
-  const xrFrame = Engine.instance.xrFrame as XRFrame & getDepthInformationType
-  depthSupported = typeof xrFrame?.getDepthInformation === 'function'
+  const xrFrame = getState(XRState).xrFrame
+  const xrFrameD = xrFrame as XRFrame & getDepthInformationType
+  depthSupported = typeof xrFrameD?.getDepthInformation === 'function'
   if (!depthSupported) return
-  XRDepthOcclusion.updateDepthMaterials(Engine.instance.xrFrame as any, ReferenceSpace.origin!, depthTexture)
+  XRDepthOcclusion.updateDepthMaterials(xrFrame as any, ReferenceSpace.origin!, depthTexture)
 }
 
 const reactor = () => {

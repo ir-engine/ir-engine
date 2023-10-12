@@ -39,10 +39,10 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
-import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
@@ -122,7 +122,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
 
-    addEntityNodeChild(e, entity, mesh.uuid as EntityUUID)
+    addEntityNodeChild(e, entity, undefined, mesh.uuid as EntityUUID)
 
     if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
 
@@ -132,7 +132,11 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData.name
 
     // setTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
-    setLocalTransformComponent(e, entity, mesh.position, mesh.quaternion, mesh.scale)
+    setComponent(e, LocalTransformComponent, {
+      position: mesh.position,
+      rotation: mesh.quaternion,
+      scale: mesh.scale
+    })
     computeLocalTransformMatrix(entity)
     computeTransformMatrix(entity)
 
@@ -161,7 +165,6 @@ export const parseGLTFModel = (entity: Entity) => {
     if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
     setComponent(entity, AnimationComponent, {
       mixer: new AnimationMixer(scene),
-      animationSpeed: 1,
       animations: scene.animations
     })
   }

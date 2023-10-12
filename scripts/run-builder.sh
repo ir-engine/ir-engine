@@ -12,7 +12,7 @@ mkdir -pv ~/.docker
 cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
 bash ./scripts/setup_helm.sh
-bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY $EKS_AWS_SECRET $AWS_REGION $CLUSTER_NAME
+bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY_ID $EKS_AWS_ACCESS_KEY_SECRET $AWS_REGION $CLUSTER_NAME
 npx cross-env ts-node --swc scripts/check-db-exists.ts
 npm run prepare-database
 npm run create-build-status
@@ -112,10 +112,19 @@ bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
 
 END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Started build at $START_TIME, deployed image to K8s at $DEPLOY_TIME, ended at $END_TIME"
-sleep 5m
+sleep 3m
 if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then
   npx cross-env ts-node --swc scripts/delete-old-s3-files.ts;
   echo "Deleted old client files from S3"
 fi
 
-sleep infinity
+echo $(kubectl get jobs | grep $RELEASE_NAME-builder-etherealengine-builder)
+if [ -z "$(kubectl get jobs | grep $RELEASE_NAME-builder-etherealengine-builder)" ]
+then
+  echo "Non-job builder, sleeping"
+  sleep infinity
+else
+  echo "Job-based builder, killing docker container"
+  pkill dockerd
+  pkill docker-init
+fi

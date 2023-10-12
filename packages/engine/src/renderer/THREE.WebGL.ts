@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
-import { Engine } from '../ecs/classes/Engine'
-
 export default class WEBGL {
   static EVENTS = {
     webglDisconnected: defineAction({

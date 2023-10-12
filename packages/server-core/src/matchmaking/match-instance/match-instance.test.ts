@@ -28,10 +28,15 @@ import nock from 'nock'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -54,11 +59,17 @@ describe.skip('matchmaking match-instance service', () => {
   const gameMode = 'test-private-test'
   const tier = 'bronze'
 
-  const commonLocationSettings = {
+  const commonlocationSetting = {
+    id: '',
     locationType: 'public',
     videoEnabled: false,
-    audioEnabled: false
-  }
+    audioEnabled: false,
+    screenSharingEnabled: false,
+    faceStreamingEnabled: false,
+    locationId: '',
+    createdAt: '',
+    updatedAt: ''
+  } as LocationSettingType
 
   let location
 
@@ -87,32 +98,32 @@ describe.skip('matchmaking match-instance service', () => {
         return { id: 'tst' + Math.random().toString() }
       })
 
-    await app.service('location').Model.destroy({
-      where: {
+    await app.service(locationPath).remove(null, {
+      query: {
         slugifiedName: `game-${gameMode}`
       }
     })
 
-    location = await app.service('location').create(
-      {
-        name: `game-${gameMode}`,
-        slugifiedName: `game-${gameMode}`,
-        maxUsersPerInstance: 30,
-        sceneId: `test/game-${gameMode}`,
-        location_settings: commonLocationSettings as any,
-        isLobby: false,
-        isFeatured: false
-      } as any,
-      {}
-    )
+    location = await app.service(locationPath).create({
+      name: `game-${gameMode}`,
+      slugifiedName: `game-${gameMode}`,
+      maxUsersPerInstance: 30,
+      sceneId: `test/game-${gameMode}`,
+      locationSetting: commonlocationSetting,
+      isLobby: false,
+      isFeatured: false
+    })
 
     const usersPromises: Promise<any>[] = []
     const ticketsPromises: Promise<any>[] = []
     connections.forEach((connection) => {
       for (let i = 0; i < ticketsNumber; i++) {
-        const userPromise = app.service('user').create({
+        const userPromise = app.service(userPath).create({
           name: 'Test #' + Math.random(),
-          isGuest: true
+          isGuest: true,
+          avatarId: '',
+          inviteCode: '',
+          scopes: []
         })
         usersPromises.push(userPromise)
 
@@ -133,11 +144,11 @@ describe.skip('matchmaking match-instance service', () => {
     })
     users.push(...(await Promise.all(usersPromises)))
 
-    // apiKey = await app.service('user-api-key').create({
+    // apiKey = await app.service(userApiKeyPath).create({
     //     userId: user.id
     // })
     //
-    // apiKey = await app.service('user-api-key').find({
+    // apiKey = await app.service(userApiKeyPath).find({
     //   query: {
     //     userId: user.id
     //   }
@@ -159,11 +170,11 @@ describe.skip('matchmaking match-instance service', () => {
     tickets.length = 0
 
     users.map((user) => {
-      cleanupPromises.push(app.service('user').remove(user.id))
+      cleanupPromises.push(app.service(userPath).remove(user.id))
     })
     users.length = 0
 
-    cleanupPromises.push(app.service('location').remove(location.id, {}))
+    cleanupPromises.push(app.service(locationPath).remove(location.id, {}))
 
     await Promise.all(cleanupPromises)
     return destroyEngine()
@@ -187,7 +198,7 @@ describe.skip('matchmaking match-instance service', () => {
     // made with promise all to make all request work asynchronous
     const assignments = await Promise.all(
       connectionTickets.map((ticket, index) => {
-        return assignmentService.get(ticket.id, { 'identity-provider': { userId: ticket.user.id } } as any)
+        return assignmentService.get(ticket.id, { [identityProviderPath]: { userId: ticket.user.id } } as any)
       })
     )
 
@@ -203,7 +214,7 @@ describe.skip('matchmaking match-instance service', () => {
     // test cleanup
     await app.service(matchInstancePath).remove(matchInstance[0].id)
 
-    const instanceServerInstance = await app.service('instance').get(matchInstance[0].instanceServer!)
+    const instanceServerInstance = await app.service(instancePath).get(matchInstance[0].instanceServer!)
     assert(instanceServerInstance)
     assert(!instanceServerInstance.ended)
 
@@ -213,7 +224,7 @@ describe.skip('matchmaking match-instance service', () => {
     assert((assignments[0] as any).locationName)
 
     // cleanup created instance
-    await app.service('instance').remove(instanceServerInstance.id)
+    await app.service(instancePath)._remove(instanceServerInstance.id)
   })
 
   // it will create null:null instance server on localhost for second match
@@ -229,7 +240,7 @@ describe.skip('matchmaking match-instance service', () => {
     // made with promise all to make all request work asynchronous
     await Promise.all(
       tickets.map((ticket, index) => {
-        return assignmentService.get(ticket.id, { 'identity-provider': { userId: ticket.user.id } } as any)
+        return assignmentService.get(ticket.id, { [identityProviderPath]: { userId: ticket.user.id } } as any)
       })
     )
 
@@ -245,7 +256,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     // test cleanup
     await Promise.all(matchInstance.map((mi) => app.service(matchInstancePath).remove(mi.id)))
-    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.instanceServer!)))
+    await Promise.all(matchInstance.map((mi) => app.service(instancePath)._remove(mi.instanceServer!)))
   })
 
   it('does not assign players if match is not found', async () => {
@@ -258,7 +269,7 @@ describe.skip('matchmaking match-instance service', () => {
     // made with promise all to make all request work asynchronous
     await Promise.all(
       tickets.map((ticket, index) => {
-        return assignmentService.get(ticket.id, { 'identity-provider': { userId: users[index].id } } as any)
+        return assignmentService.get(ticket.id, { [identityProviderPath]: { userId: users[index].id } } as any)
       })
     )
 

@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { matches, matchesWithDefault } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import {
   addActionReceptor,
@@ -37,7 +37,6 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
-  getState,
   registerState,
   removeActionReceptor
 } from '..'
@@ -311,7 +310,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.cached.length, 4)
     assert.equal(store.actions.history.at(-1)!['greeting'], 'welcome')
 
-    dispatchAction(greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true } }))
+    dispatchAction(greet({ $from: 'differentUser' as UserID, $cache: { removePrevious: true } }))
     applyIncomingActions()
     assert.equal(receivedCount, 12)
     assert.equal(store.actions.cached.length, 5)
@@ -321,7 +320,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(receivedCount, 13)
     assert.equal(store.actions.cached.length, 1)
 
-    dispatchAction(greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true, disable: true } }))
+    dispatchAction(greet({ $from: 'differentUser' as UserID, $cache: { removePrevious: true, disable: true } }))
     applyIncomingActions()
     assert.equal(receivedCount, 14)
     assert.equal(store.actions.cached.length, 0)

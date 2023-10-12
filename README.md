@@ -45,7 +45,7 @@ technology and shared simulations should be as easy and natural as making a webs
 - Modular- Use the engine, server, client, editor and scalable devops infrastructure as needed
 - OAuth login with Facebook, Google, Steam, Github or instant login with email or phone
 - WebGL client deployable to iOS, Android and desktop
-- Free, open source, MIT and Apache 2.0-licensed
+- Free, open source, CPAL licensed
 
 ## Demos
 

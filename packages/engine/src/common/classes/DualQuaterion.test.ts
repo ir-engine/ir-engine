@@ -75,7 +75,10 @@ describe('DualQuaternion', () => {
   })
 
   it('should be able to invert', () => {
-    const m = new Matrix4().makeRotationFromEuler(new Euler(1, 2, 3)).setPosition(10, 30, 90).invert()
+    const m = new Matrix4()
+      .makeRotationFromEuler(new Euler(1, 2, 3))
+      .setPosition(10, 30, 90)
+      .invert()
     const dq = new DualQuaternion()
       .makeFromRotationTranslation(new Quaternion().setFromEuler(new Euler(1, 2, 3)), new Vector3(10, 30, 90))
       .invert()

@@ -27,9 +27,14 @@ import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { ActionRecipients, addActionReceptor, applyIncomingActions, getState } from '@etherealengine/hyperflux'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import {
+  ActionRecipients,
+  addActionReceptor,
+  applyIncomingActions,
+  getMutableState,
+  getState
+} from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -60,7 +65,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       /* mock */
       const action = WorldNetworkAction.spawnObject({
-        $from: '0' as UserId,
+        $from: '0' as UserID,
         prefab: '',
         // incoming action from future
         $time: 2,
@@ -91,7 +96,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     it('should immediately apply incoming action from the past or present', () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
-        $from: '0' as UserId,
+        $from: '0' as UserID,
         prefab: '',
         // incoming action from past
         $time: -1,
@@ -117,7 +122,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     it('should cache actions where $cache = true', () => {
       /* mock */
       const action = WorldNetworkAction.spawnObject({
-        $from: '0' as UserId,
+        $from: '0' as UserID,
         prefab: '',
         // incoming action from past
         $time: 0,

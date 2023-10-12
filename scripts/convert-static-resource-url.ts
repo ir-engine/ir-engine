@@ -25,100 +25,60 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 import appRootPath from 'app-root-path'
+import knex from 'knex'
+/* eslint-disable @typescript-eslint/no-var-requires */
+import {
+  StaticResourceDatabaseType,
+  staticResourcePath
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
-import Sequelize, { DataTypes, Op } from 'sequelize'
-
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
-import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
   path: appRootPath.path,
   silent: true
 })
-const db = {
-  username: process.env.MYSQL_USER ?? 'server',
-  password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrengine',
-  host: process.env.MYSQL_HOST ?? '127.0.0.1',
-  port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql',
-  url: ''
-}
-
-db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 cli.enable('status')
 
 cli.main(async () => {
   try {
+    const knexClient = knex({
+      client: 'mysql',
+      connection: {
+        user: process.env.MYSQL_USER ?? 'server',
+        password: process.env.MYSQL_PASSWORD ?? 'password',
+        host: process.env.MYSQL_HOST ?? '127.0.0.1',
+        port: parseInt(process.env.MYSQL_PORT || '3306'),
+        database: process.env.MYSQL_DATABASE ?? 'xengine',
+        charset: 'utf8mb4'
+      }
+    })
+
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
 
-    // @ts-ignore
-    const sequelizeClient = new Sequelize({
-      ...db,
-      logging: console.log,
-      define: {
-        freezeTableName: true
-      }
-    })
+    type UpdatedStaticResourceType = StaticResourceDatabaseType & {
+      LOD0_url: string
+    }
 
-    await sequelizeClient.sync()
-
-    const StaticResource = sequelizeClient.define('static_resource', {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      sid: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      url: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true
-      },
-      name: DataTypes.STRING,
-      key: DataTypes.STRING,
-      mimeType: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
-      metadata: {
-        type: DataTypes.JSON,
-        allowNull: true
-      },
-      LOD0_url: {
-        type: DataTypes.STRING,
-        allowNull: true
-      }
-    })
-
-    const staticResources = await StaticResource.findAll({
-      paginate: false,
-      where: {
-        url: null
-      }
-    })
+    const staticResources = await knexClient.from<UpdatedStaticResourceType>(staticResourcePath).whereNull('url')
 
     console.log('static resources', staticResources)
 
     for (const resource of staticResources) {
       if (resource.LOD0_url && resource.url == null)
-        await app.service('static-resource').Model.update(
-          {
+        await knexClient
+          .from<StaticResourceDatabaseType>(staticResourcePath)
+          .where({
+            id: resource.id
+          } as any)
+          .update({
             url: resource.LOD0_url
-          },
-          {
-            where: {
-              id: resource.id
-            }
-          }
-        )
+          })
     }
     cli.ok(`All static resources updated`)
 

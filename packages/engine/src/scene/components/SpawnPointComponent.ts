@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BoxGeometry, BoxHelper, Mesh, Scene } from 'three'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { NO_PROXY, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -46,7 +46,7 @@ export const SpawnPointComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      permissionedUsers: [] as UserId[],
+      permissionedUsers: [] as UserID[],
       helper: null as Scene | null,
       helperBox: null as BoxHelper | null
     }
@@ -59,7 +59,7 @@ export const SpawnPointComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      permissionedUsers: component.permissionedUsers.value
+      permissionedUsers: component.permissionedUsers.get(NO_PROXY)
     }
   },
 

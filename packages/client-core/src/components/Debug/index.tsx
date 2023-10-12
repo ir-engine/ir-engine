@@ -47,9 +47,10 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import ActionsPanel from './ActionsPanel'
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
@@ -72,38 +73,50 @@ const convertSystemTypeToDesiredType = (system: System): DesiredType => {
     enabled: Engine.instance.activeSystems.has(system.uuid)
   }
   if (preSystems.length > 0) {
-    desired.preSystems = preSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.preSystems = preSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (system.uuid === RootSystemGroup) {
     desired.simulation = convertSystemTypeToDesiredType(SystemDefinitions.get(SimulationSystemGroup)!)
   }
   if (subSystems.length > 0) {
-    desired.subSystems = subSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.subSystems = subSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (postSystems.length > 0) {
-    desired.postSystems = postSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.postSystems = postSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (system.uuid === RootSystemGroup) delete desired.enabled
   return desired
 }
 
-export const Debug = ({ showingStateRef }) => {
+export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
   useHookstate(getMutableState(EngineState).frameTime).value
   const rendererState = useHookstate(getMutableState(RendererState))
   const engineState = useHookstate(getMutableState(EngineState))
+
+  engineState.frameTime.value // make Engine.instance data reactive in the render tree
+
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
     Engine.instance.localClientEntity &&
-    engineState.joinedWorld.value &&
+    engineState.connectedWorld.value &&
     hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   const networks = getMutableState(NetworkState).networks
@@ -113,7 +126,11 @@ export const Debug = ({ showingStateRef }) => {
   }
 
   const toggleDebug = () => {
-    rendererState.debugEnable.set(!rendererState.debugEnable.value)
+    rendererState.physicsDebug.set(!rendererState.physicsDebug.value)
+  }
+
+  const toggleAvatarDebug = () => {
+    rendererState.avatarDebug.set(!rendererState.avatarDebug.value)
   }
 
   const renderEntityTreeRoots = () => {
@@ -208,10 +225,18 @@ export const Debug = ({ showingStateRef }) => {
             <button
               type="button"
               onClick={toggleDebug}
-              className={styles.flagBtn + (rendererState.debugEnable.value ? ' ' + styles.active : '')}
+              className={styles.flagBtn + (rendererState.physicsDebug.value ? ' ' + styles.active : '')}
               title={t('common:debug.debug')}
             >
               <Icon type="SquareFoot" fontSize="small" />
+            </button>
+            <button
+              type="button"
+              onClick={toggleAvatarDebug}
+              className={styles.flagBtn + (rendererState.avatarDebug.value ? ' ' + styles.active : '')}
+              title={t('common:debug.debug')}
+            >
+              <Icon type="Person" fontSize="small" />
             </button>
             <button
               type="button"
@@ -247,10 +272,6 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <StatsPanel show={showingStateRef.current} />
       <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.get({ noproxy: true })} />
-      </div>
-      <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
         <JSONTree
           data={entityTree.value}
@@ -261,26 +282,30 @@ export const Debug = ({ showingStateRef }) => {
         />
       </div>
       <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.entities')}</h1>
+        <JSONTree data={namedEntities.get(NO_PROXY)} />
+      </div>
+      <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
-          postprocessValue={(v: any) => (v?.value && v?.get({ noproxy: true })) ?? v}
+          postprocessValue={(v: any) => (v?.value && v.get(NO_PROXY)) ?? v}
         />
       </div>
+      <ActionsPanel />
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.systems')}</h1>
         <JSONTree
           data={dag}
           labelRenderer={(raw, ...keyPath) => {
             const label = raw[0]
-            if (label === 'preSystems') return <span style={{ color: 'red' }}>{t('common:debug.preSystems')}</span>
-            if (label === 'simulation') return <span style={{ color: 'green' }}>{t('common:debug.simulation')}</span>
-            if (label === 'subSystems') return <span style={{ color: 'red' }}>{t('common:debug.subSystems')}</span>
-            if (label === 'postSystems') return <span style={{ color: 'red' }}>{t('common:debug.postSystems')}</span>
+            if (label === 'preSystems' || label === 'simulation' || label === 'subSystems' || label === 'postSystems')
+              return <span style={{ color: 'green' }}>{t(`common:debug.${label}`)}</span>
             return <span style={{ color: 'black' }}>{label}</span>
           }}
           valueRenderer={(raw, value, ...keyPath) => {
             const system = SystemDefinitions.get((keyPath[0] === 'enabled' ? keyPath[1] : keyPath[0]) as SystemUUID)!
+            const systemReactor = system ? Engine.instance.activeSystemReactors.get(system.uuid) : undefined
             return (
               <>
                 <input
@@ -294,6 +319,11 @@ export const Debug = ({ showingStateRef }) => {
                     }
                   }}
                 ></input>
+                {systemReactor?.error && (
+                  <span style={{ color: 'red' }}>
+                    {systemReactor.error.name}: {systemReactor.error.message}
+                  </span>
+                )}
               </>
             )
           }}

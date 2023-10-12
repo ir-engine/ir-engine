@@ -25,19 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { getState } from '@etherealengine/hyperflux'
 import { Entity } from '../../ecs/classes/Entity'
 import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { createAvatarCollider } from './spawnAvatarReceptor'
 
-const vec3 = new Vector3()
-const vec3_2 = new Vector3()
+const vec3 = new Vector3(),
+  vec3_2 = new Vector3(),
+  vec3_3 = new Vector3()
 
 export const resizeAvatar = (entity: Entity, height: number, center: Vector3) => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -47,17 +49,21 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
 
   avatar.avatarHeight = height
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
-  rig.Hips.updateWorldMatrix(true, true)
-  rigComponent.handRadius =
-    rig.LeftHand.getWorldPosition(vec3).distanceTo(rig.LeftHandIndex1.getWorldPosition(vec3_2)) / 2
-  rigComponent.torsoLength = rig.Head.getWorldPosition(vec3).y - rig.Hips.getWorldPosition(vec3).y
-  rigComponent.upperLegLength = rig.Hips.getWorldPosition(vec3).y - rig.LeftLeg.getWorldPosition(vec3).y
-  rigComponent.lowerLegLength = rig.LeftLeg.getWorldPosition(vec3).y - rig.LeftFoot.getWorldPosition(vec3).y
-  rigComponent.footHeight = rig.LeftFoot.getWorldPosition(vec3).y - transform.position.y
 
+  if (!rig.hips?.node) return console.warn('No hips node found on rig', entity)
+  rig.hips.node.updateWorldMatrix(true, true)
+  rigComponent.torsoLength = rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y
+  rigComponent.upperLegLength = rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
+  rigComponent.lowerLegLength =
+    rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y
+  rigComponent.footHeight = rig.leftFoot.node.getWorldPosition(vec3).y - transform.position.y
+  rigComponent.armLength = rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
+  rigComponent.footGap = vec3_2
+    .subVectors(rig.leftFoot.node.getWorldPosition(vec3_2), rig.rightFoot.node.getWorldPosition(vec3_3))
+    .length()
   if (!hasComponent(entity, RigidBodyComponent)) return
 
-  Physics.removeCollidersFromRigidBody(entity, Engine.instance.physicsWorld)
+  Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
 
   const collider = createAvatarCollider(entity)
 

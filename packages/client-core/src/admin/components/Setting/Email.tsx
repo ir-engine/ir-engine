@@ -29,21 +29,20 @@ import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthState } from '../../../user/services/AuthService'
-import { AdminEmailSettingsState, EmailSettingService } from '../../services/Setting/EmailSettingService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { emailSettingPath } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Email = () => {
   const { t } = useTranslation()
-  const emailSettingState = useHookstate(getMutableState(AdminEmailSettingsState))
-  const [emailSetting] = emailSettingState?.email?.get({ noproxy: true }) || []
+  const emailSetting = useFind(emailSettingPath).data.at(0)
   const id = emailSetting?.id
   const showPassword = useHookstate(false)
   const smsNameCharacterLimit = useHookstate(emailSetting?.smsNameCharacterLimit)
@@ -52,7 +51,7 @@ const Email = () => {
   const from = useHookstate(emailSetting?.from)
   const subject = useHookstate(emailSetting?.subject)
 
-  const user = useHookstate(getMutableState(AuthState).user)
+  const patchEmailSetting = useMutation(emailSettingPath).patch
 
   const handleSmtpSecure = (event) => {
     smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: event.target.checked })
@@ -80,45 +79,30 @@ const Email = () => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && emailSettingState?.updateNeeded?.value === true) {
-      EmailSettingService.fetchedEmailSettings()
-    }
-  }, [user?.id?.value, emailSettingState?.updateNeeded?.value])
-
-  useEffect(() => {
     if (emailSetting) {
-      const tempSmtp = emailSetting?.smtp
-      const tempAuth = emailSetting?.smtp?.auth
-      const tempSubject = emailSetting?.subject
-
-      smtp.set(tempSmtp)
-      auth.set(tempAuth)
-      subject.set(tempSubject)
+      smtp.set(emailSetting?.smtp)
+      auth.set(emailSetting?.smtp?.auth)
+      subject.set(emailSetting?.subject)
       from.set(emailSetting?.from)
     }
-  }, [emailSettingState?.updateNeeded?.value])
+  }, [emailSetting])
 
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    EmailSettingService.patchEmailSetting(
-      {
-        smtp: { ...smtp.value, auth: auth.value },
-        from: from.value,
-        subject: subject.value
-      },
-      id
-    )
+    if (!id || !smtp.value || !auth.value || !from.value || !subject.value) return
+
+    patchEmailSetting(id, {
+      smtp: { ...smtp.value, auth: auth.value },
+      from: from.value,
+      subject: subject.value
+    })
   }
 
   const handleCancel = () => {
-    const tempSmtp = emailSetting?.smtp
-    const tempAuth = emailSetting?.smtp?.auth
-    const tempSubject = emailSetting?.subject
-
-    smtp.set(tempSmtp)
-    auth.set(tempAuth)
-    subject.set(tempSubject)
+    smtp.set(emailSetting?.smtp)
+    auth.set(emailSetting?.smtp?.auth)
+    subject.set(emailSetting?.subject)
     from.set(emailSetting?.from)
     smsNameCharacterLimit.set(emailSetting?.smsNameCharacterLimit)
   }
@@ -208,17 +192,10 @@ const Email = () => {
           />
 
           <InputText
-            name="group"
-            label={t('admin:components.setting.group')}
-            value={subject?.value?.group || ''}
-            onChange={(e) => handleUpdateSubject(e, 'group')}
-          />
-
-          <InputText
-            name="party"
-            label={t('admin:components.setting.party')}
-            value={subject?.value?.party || ''}
-            onChange={(e) => handleUpdateSubject(e, 'party')}
+            name="channel"
+            label={t('admin:components.setting.channel')}
+            value={subject?.value?.channel || ''}
+            onChange={(e) => handleUpdateSubject(e, 'channel')}
           />
 
           <InputText

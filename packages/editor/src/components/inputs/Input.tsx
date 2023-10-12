@@ -22,8 +22,9 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import React from 'react'
 
-import styled from 'styled-components'
+import './Input.css'
 
 /**
  * BorderColor used to return border color.
@@ -31,46 +32,31 @@ import styled from 'styled-components'
  * @param  {object} props
  * @param  {string} defaultColor
  */
-function borderColor(props, defaultColor) {
+function borderColor(props) {
   if (props.canDrop) {
-    return 'var(--blue)'
+    return 'var(--border-color-canDrop)'
   } else if (props.error) {
-    return 'var(--error)'
+    return 'var(--border-color-error)'
   } else {
-    return defaultColor
+    return 'var(--border-color-default)'
   }
 }
 
 /**
  * Used to provide styles for input field.
  *
- * @type {styled component}
+ * @type {Component}
  */
-const Input = styled.input`
-  background-color: ${(props) => (props.disabled ? 'var(--disabled)' : 'var(--inputBackground)')};
-  border-radius: 4px;
-  border: 1px solid ${(props) => borderColor(props, 'var(--inputOutline)')};
-  color: ${(props) => (props.disabled ? 'var(--disabledText)' : 'var(--textColor)')};
-  height: 24px;
-  padding: 6px 8px;
-
-  &:hover {
-    border-color: 'var(--blueHover)';
+function Input(props) {
+  const { disabled, canDrop, error, children, ...rest } = props
+  const inputClass = `Input ${disabled ? 'disabled' : ''}`
+  const inputStyle = {
+    borderColor: borderColor({ canDrop, error }) // Set border color based on props
   }
 
-  &:focus {
-    border-color: 'var(--blue)';
-  }
+  return <input className={inputClass} style={inputStyle} {...rest} />
+}
 
-  &:disabled {
-    background-color: 'var(--disabled)';
-    color: 'var(--disabledText)';
-  }
-
-  &:focus-visible {
-    outline: none;
-  }
-`
 /**
  * Used to render component view.
  */

@@ -25,9 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 export type DeepReadonly<T> = T extends (infer R)[]
   ? DeepReadonlyArray<R>
-  : T extends Function
+  : // eslint-disable-next-line @typescript-eslint/ban-types
+  T extends Function
   ? T
-  : T extends { constructor: Function }
+  : // eslint-disable-next-line @typescript-eslint/ban-types
+  T extends { constructor: Function }
   ? T
   : T extends number | string | boolean
   ? T
@@ -35,6 +37,7 @@ export type DeepReadonly<T> = T extends (infer R)[]
   ? DeepReadonlyObject<T>
   : T
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface DeepReadonlyArray<T> extends ReadonlyArray<DeepReadonly<T>> {}
 
 export type DeepReadonlyObject<T> = {

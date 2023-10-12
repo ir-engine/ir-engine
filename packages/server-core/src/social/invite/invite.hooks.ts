@@ -23,47 +23,48 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow } from 'feathers-hooks-common'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invite-remove-authenticate'
 import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import addAssociations from '../../hooks/add-associations'
-import authenticate from '../../hooks/authenticate'
+import {
+  inviteDataValidator,
+  invitePatchValidator,
+  inviteQueryValidator
+} from '@etherealengine/engine/src/schemas/social/invite.schema'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  inviteDataResolver,
+  inviteExternalResolver,
+  invitePatchResolver,
+  inviteQueryResolver,
+  inviteResolver
+} from './invite.resolvers'
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(inviteExternalResolver), schemaHooks.resolveResult(inviteResolver)]
+  },
+
   before: {
-    all: [],
-    find: [
-      authenticate(),
-      attachOwnerIdInQuery('userId'),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'user'
-          }
-        ]
-      })
+    all: [() => schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
+    find: [attachOwnerIdInQuery('userId')],
+    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
+    create: [
+      attachOwnerIdInBody('userId'),
+      () => schemaHooks.validateData(inviteDataValidator),
+      schemaHooks.resolveData(inviteDataResolver)
     ],
-    get: [
-      iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'user'
-          }
-        ]
-      })
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    patch: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(invitePatchValidator),
+      schemaHooks.resolveData(invitePatchResolver)
     ],
-    create: [authenticate(), attachOwnerIdInBody('userId')],
-    update: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
-    patch: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
-    remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate() as any)]
+    remove: [iff(isProvider('external'), inviteRemoveAuthenticate())]
   },
 
   after: {

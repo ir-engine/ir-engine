@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import {
   AdditiveBlending,
+  Blending,
   BufferGeometry,
   Material,
   MeshBasicMaterial,
@@ -823,7 +824,7 @@ export const ParticleSystemComponent = defineComponent({
       const dudMaterial = new MeshBasicMaterial({
         color: 0xffffff,
         transparent: component.systemParameters.transparent ?? true,
-        blending: component.systemParameters.blending
+        blending: component.systemParameters.blending as Blending
       })
       metadata.materials['dud'] = dudMaterial
 

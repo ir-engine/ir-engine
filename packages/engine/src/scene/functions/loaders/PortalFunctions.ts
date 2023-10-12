@@ -23,49 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { AvatarStates } from '../../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
-import { SpawnPoseComponent } from '../../../avatar/components/SpawnPoseComponent'
 import { teleportAvatar } from '../../../avatar/functions/moveAvatar'
 import { switchCameraMode } from '../../../avatar/functions/switchCameraMode'
-import { AvatarNetworkAction } from '../../../avatar/state/AvatarNetworkState'
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
-import { Entity } from '../../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { PortalComponent } from '../../components/PortalComponent'
+import { EntityNetworkState } from '../../../networking/state/EntityNetworkState'
+import { PortalComponent, PortalState } from '../../components/PortalComponent'
 import { UUIDComponent } from '../../components/UUIDComponent'
 
 export const setAvatarToLocationTeleportingState = () => {
   switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
   getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = false
-  dispatchAction(
+  /*dispatchAction(
     AvatarNetworkAction.setAnimationState({
       animationState: AvatarStates.FALL_IDLE,
       entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent)
     })
   )
+  */
 }
 
 export const revertAvatarToMovingStateFromTeleport = () => {
   const localClientEntity = Engine.instance.localClientEntity
-  getComponent(localClientEntity, SpawnPoseComponent).position.copy(Engine.instance.activePortal!.remoteSpawnPosition)
+  const activePortal = getComponent(getState(PortalState).activePortalEntity, PortalComponent)
+  getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
+    activePortal!.remoteSpawnPosition
+  )
   getComponent(localClientEntity, AvatarControllerComponent).movementEnabled = true
 
   // teleport player to where the portal spawn position is
-  teleportAvatar(localClientEntity, Engine.instance.activePortal!.remoteSpawnPosition)
+  teleportAvatar(localClientEntity, activePortal!.remoteSpawnPosition)
 
-  Engine.instance.activePortal = null
+  getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
   dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
 }
 
 export const portalTriggerEnter = (triggerEntity: Entity) => {
   if (!getState(EngineState).isTeleporting && getComponent(triggerEntity, PortalComponent)) {
     const portalComponent = getComponent(triggerEntity, PortalComponent)
-    Engine.instance.activePortal = portalComponent
+    getMutableState(PortalState).activePortalEntity.set(triggerEntity)
     dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
     return
   }

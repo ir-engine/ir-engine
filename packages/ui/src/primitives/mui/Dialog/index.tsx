@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogContent from '@etherealengine/ui/src/primitives/mui/DialogContent'
@@ -32,7 +32,7 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import { DialogProps, Dialog as MuiDialog } from '@mui/material'
 
 const Dialog = ({ children, classes, ...props }: DialogProps & { classes?: any }) => (
-  <MuiDialog className={classes} {...props}>
+  <MuiDialog classes={classes} {...props}>
     {children}
   </MuiDialog>
 )

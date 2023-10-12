@@ -27,7 +27,7 @@ import { Paginated } from '@feathersjs/feathers'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Location, LocationSeed } from '@etherealengine/common/src/interfaces/Location'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import InputAdornment from '@etherealengine/ui/src/primitives/mui/InputAdornment'
@@ -41,14 +41,15 @@ import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { API } from '../../../../API'
+import { LocationSeed } from '../../../../social/services/LocationService'
 import styles from '../index.module.scss'
 
 interface Props {
-  changeActiveLocation: (location: Location) => void
+  changeActiveLocation: (location: LocationType) => void
 }
 const LocationMenu = (props: Props) => {
   const [page, setPage] = useState(0)
-  const [locationDetails, setLocationsDetails] = useState<Paginated<Location>>(null!)
+  const [locationDetails, setLocationsDetails] = useState<Paginated<LocationType>>(null!)
   const ROWS_PER_PAGE = 10
   const { t } = useTranslation()
   const tableHeaders = [
@@ -68,7 +69,7 @@ const LocationMenu = (props: Props) => {
 
   const fetchLocations = (page: number, rows: number, search?: string) => {
     API.instance.client
-      .service('location')
+      .service(locationPath)
       .find({
         query: {
           $limit: rows,
@@ -77,7 +78,7 @@ const LocationMenu = (props: Props) => {
           search
         }
       })
-      .then((res: Paginated<Location>) => {
+      .then((res: Paginated<LocationType>) => {
         setLocationsDetails(res)
       })
   }

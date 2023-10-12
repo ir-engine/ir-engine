@@ -29,7 +29,6 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
@@ -42,7 +41,7 @@ import {
 import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
-import { LoadState, PrefabComponent } from '../components/PrefabComponent'
+import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 
 export const serializeEntity = (entity: Entity) => {
@@ -80,6 +79,8 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => 
   iterateEntityNode(
     traverseNode,
     (entity, index) => {
+      if (!hasComponent(entity, SceneObjectComponent)) return
+
       const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
       if (ignoreComponents?.includes('entity')) return
@@ -101,13 +102,6 @@ export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => 
       entityJson.name = getComponent(entity, NameComponent)
 
       entityJson.components = serializeEntity(entity)
-
-      if (hasComponent(entity, PrefabComponent)) {
-        const asset = getComponent(entity, PrefabComponent)
-        if (asset.loaded === LoadState.LOADED) {
-          asset.roots.map((root) => loadedAssets.add(root))
-        }
-      }
     },
     (node) => !loadedAssets.has(node),
     true

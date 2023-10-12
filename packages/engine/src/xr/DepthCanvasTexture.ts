@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CanvasTexture, Matrix4, Vector2, Vector4 } from 'three'
+import { CanvasTexture } from 'three'
 
 import { XRCPUDepthInformation } from './XRTypes'
 

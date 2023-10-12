@@ -25,14 +25,39 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location, LocationSeed } from '@etherealengine/common/src/interfaces/Location'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
+
+export const LocationSeed: LocationType = {
+  id: '',
+  name: '',
+  slugifiedName: '',
+  maxUsersPerInstance: 10,
+  sceneId: '',
+  isLobby: false,
+  isFeatured: false,
+  locationSetting: {
+    id: '',
+    locationId: '',
+    audioEnabled: false,
+    screenSharingEnabled: false,
+    faceStreamingEnabled: false,
+    locationType: 'private',
+    videoEnabled: false,
+    createdAt: '',
+    updatedAt: ''
+  },
+  locationAuthorizedUsers: [],
+  locationBans: [],
+  createdAt: '',
+  updatedAt: ''
+}
 
 export const LocationState = defineState({
   name: 'LocationState',
@@ -40,8 +65,8 @@ export const LocationState = defineState({
     offline: false,
     locationName: null! as string,
     currentLocation: {
-      location: LocationSeed as Location,
-      bannedUsers: [] as UserId[],
+      location: LocationSeed as LocationType,
+      bannedUsers: [] as string[],
       selfUserBanned: false,
       selfNotAuthorized: false
     },
@@ -49,116 +74,111 @@ export const LocationState = defineState({
     currentLocationUpdateNeeded: true,
     fetchingCurrentLocation: false,
     invalidLocation: false
-  })
-})
+  }),
 
-export const LocationServiceReceptor = (action) => {
-  const s = getMutableState(LocationState)
-  matches(action)
-    .when(LocationAction.setLocationName.matches, (action) => {
-      return s.merge({
-        locationName: action.locationName
-      })
+  setLocationName: (locationName: string) => {
+    getMutableState(LocationState).merge({ locationName })
+  },
+
+  fetchingCurrentSocialLocation: () => {
+    getMutableState(LocationState).merge({
+      fetchingCurrentLocation: true,
+      currentLocation: {
+        location: LocationSeed as LocationType,
+        bannedUsers: [] as string[],
+        selfUserBanned: false,
+        selfNotAuthorized: false
+      },
+      updateNeeded: true,
+      currentLocationUpdateNeeded: true
     })
-    .when(LocationAction.fetchingCurrentSocialLocation.matches, () => {
-      return s.merge({
-        fetchingCurrentLocation: true,
-        currentLocation: {
-          location: LocationSeed as Location,
-          bannedUsers: [] as UserId[],
-          selfUserBanned: false,
-          selfNotAuthorized: false
+  },
+
+  socialLocationRetrieved: (location: LocationType) => {
+    let bannedUsers = [] as string[]
+    location.locationBans.forEach((ban) => {
+      bannedUsers.push(ban.userId)
+    })
+    bannedUsers = [...new Set(bannedUsers)]
+    getMutableState(LocationState).merge({
+      currentLocation: {
+        location: {
+          ...location
         },
-        updateNeeded: true,
-        currentLocationUpdateNeeded: true
-      })
+        bannedUsers,
+        selfUserBanned: false,
+        selfNotAuthorized: false
+      },
+      currentLocationUpdateNeeded: false,
+      fetchingCurrentLocation: false
     })
-    .when(LocationAction.socialLocationRetrieved.matches, (action) => {
-      let bannedUsers = [] as UserId[]
-      ;(action.location as any)?.location_bans?.forEach((ban) => {
-        bannedUsers.push(ban.userId)
-      })
-      bannedUsers = [...new Set(bannedUsers)]
-      return s.merge({
-        currentLocation: {
-          location: {
-            ...action.location,
-            locationSetting: (action.location as any).location_setting
-          },
-          bannedUsers,
-          selfUserBanned: false,
-          selfNotAuthorized: false
-        },
-        currentLocationUpdateNeeded: false,
-        fetchingCurrentLocation: false
-      })
+  },
+
+  socialLocationNotFound: () => {
+    getMutableState(LocationState).merge({
+      currentLocation: {
+        location: LocationSeed,
+        bannedUsers: [],
+        selfUserBanned: false,
+        selfNotAuthorized: false
+      },
+      currentLocationUpdateNeeded: false,
+      fetchingCurrentLocation: false,
+      invalidLocation: true
     })
-    .when(LocationAction.socialLocationNotFound.matches, () => {
-      return s.merge({
-        currentLocation: {
-          location: LocationSeed,
-          bannedUsers: [],
-          selfUserBanned: false,
-          selfNotAuthorized: false
-        },
-        currentLocationUpdateNeeded: false,
-        fetchingCurrentLocation: false,
-        invalidLocation: true
-      })
-    })
-    .when(LocationAction.socialLocationBanCreated.matches, () => {
-      return s.merge({ currentLocationUpdateNeeded: true })
-    })
-    .when(LocationAction.socialSelfUserBanned.matches, (action) => {
-      s.merge({ currentLocationUpdateNeeded: true })
-      s.currentLocation.merge({ selfUserBanned: action.banned })
-      return
-    })
-    .when(LocationAction.socialLocationNotAuthorized.matches, (action) => {
-      s.merge({ currentLocationUpdateNeeded: true })
-      return s.currentLocation.merge({ selfNotAuthorized: true })
-    })
-}
+  },
+
+  socialLocationBanCreated: () => {
+    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
+  },
+
+  socialSelfUserBanned: (banned: boolean) => {
+    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
+    getMutableState(LocationState).currentLocation.merge({ selfUserBanned: banned })
+  },
+
+  socialLocationNotAuthorized: () => {
+    getMutableState(LocationState).merge({ currentLocationUpdateNeeded: true })
+    getMutableState(LocationState).currentLocation.merge({ selfNotAuthorized: true })
+  }
+})
 
 export const LocationService = {
   getLocation: async (locationId: string) => {
     try {
-      dispatchAction(LocationAction.fetchingCurrentSocialLocation({}))
-      const location = await API.instance.client.service('location').get(locationId)
-      dispatchAction(LocationAction.socialLocationRetrieved({ location }))
+      LocationState.fetchingCurrentSocialLocation()
+      const location = await API.instance.client.service(locationPath).get(locationId)
+      LocationState.socialLocationRetrieved(location)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   getLocationByName: async (locationName: string) => {
-    dispatchAction(LocationAction.fetchingCurrentSocialLocation({}))
-    const locationResult = (await API.instance.client.service('location').find({
+    LocationState.fetchingCurrentSocialLocation()
+    const locationResult = (await API.instance.client.service(locationPath).find({
       query: {
-        slugifiedName: locationName,
-        joinableLocations: true
+        slugifiedName: locationName
       }
-    })) as Paginated<Location>
+    })) as Paginated<LocationType>
 
     if (locationResult && locationResult.total > 0) {
       if (
-        locationResult.data[0].location_setting?.locationType === 'private' &&
-        !locationResult.data[0].location_authorized_users?.find(
-          (authUser) => authUser.userId === Engine.instance.userId
-        )
+        locationResult.data[0].locationSetting?.locationType === 'private' &&
+        !locationResult.data[0].locationAuthorizedUsers?.find((authUser) => authUser.userId === Engine.instance.userID)
       ) {
-        dispatchAction(LocationAction.socialLocationNotAuthorized({ location: locationResult.data[0] }))
-      } else dispatchAction(LocationAction.socialLocationRetrieved({ location: locationResult.data[0] }))
+        LocationState.socialLocationNotAuthorized()
+      } else LocationState.socialLocationRetrieved(locationResult.data[0])
     } else {
-      dispatchAction(LocationAction.socialLocationNotFound({}))
+      LocationState.socialLocationNotFound()
     }
   },
   getLobby: async () => {
-    const lobbyResult = (await API.instance.client.service('location').find({
+    const lobbyResult = (await API.instance.client.service(locationPath).find({
       query: {
         isLobby: true,
         $limit: 1
       }
-    })) as Paginated<Location>
+    })) as Paginated<LocationType>
 
     if (lobbyResult && lobbyResult.total > 0) {
       return lobbyResult.data[0]
@@ -166,50 +186,15 @@ export const LocationService = {
       return null
     }
   },
-  banUserFromLocation: async (userId: string, locationId: string) => {
+  banUserFromLocation: async (userId: UserID, locationId: string) => {
     try {
-      await API.instance.client.service('location-ban').create({
+      await API.instance.client.service(locationBanPath).create({
         userId: userId,
         locationId: locationId
       })
-      dispatchAction(LocationAction.socialLocationBanCreated({}))
+      LocationState.socialLocationBanCreated()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-//Action
-export class LocationAction {
-  static setLocationName = defineAction({
-    type: 'ee.client.Location.LOCATION_NAME_SET' as const,
-    locationName: matches.string
-  })
-
-  static socialLocationRetrieved = defineAction({
-    type: 'ee.client.Location.LOCATION_RETRIEVED' as const,
-    location: matches.object as Validator<unknown, Location>
-  })
-
-  static socialLocationBanCreated = defineAction({
-    type: 'ee.client.Location.LOCATION_BAN_CREATED' as const
-  })
-
-  static fetchingCurrentSocialLocation = defineAction({
-    type: 'ee.client.Location.FETCH_CURRENT_LOCATION' as const
-  })
-
-  static socialLocationNotFound = defineAction({
-    type: 'ee.client.Location.LOCATION_NOT_FOUND' as const
-  })
-
-  static socialLocationNotAuthorized = defineAction({
-    type: 'ee.client.Location.LOCATION_NOT_AUTHORIZED' as const,
-    location: matches.object as Validator<unknown, Location>
-  })
-
-  static socialSelfUserBanned = defineAction({
-    type: 'ee.client.Location.LOCATION_LOCAL_USER_BANNED' as const,
-    banned: matches.boolean
-  })
 }

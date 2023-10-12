@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+
 export type AvatarUploadArgsType = {
   avatarName: string
   avatarId: string
@@ -32,14 +34,14 @@ export type AvatarUploadArgsType = {
 export type AvatarUploadType = {
   type: 'user-avatar-upload'
   files: (Blob | Buffer)[]
-  userId?: string
+  userId?: UserID
   args: string | AvatarUploadArgsType
 }
 
 export type AdminAssetUploadArgumentsType = {
   id?: string
   path: string
-  userId?: string
+  userId?: UserID
   name?: string
   project?: string
   hash?: string
@@ -52,7 +54,7 @@ export type AdminAssetUploadType = {
   files: Blob[]
   args: AdminAssetUploadArgumentsType
   variants: boolean
-  userId?: string
+  userId?: UserID
 }
 
 export type AssetUploadType = AvatarUploadType | AdminAssetUploadType

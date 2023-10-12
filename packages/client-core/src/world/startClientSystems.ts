@@ -31,10 +31,10 @@ import {
   AvatarSimulationSystemGroup
 } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
 import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
+import { BehaveGraphSystem } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/CameraInputSystem'
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
-import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
   AnimationSystemGroup,
   InputSystemGroup,
@@ -44,15 +44,18 @@ import {
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { ButtonCleanupSystem } from '@etherealengine/engine/src/input/systems/ButtonCleanupSystem'
 import { ClientInputSystem } from '@etherealengine/engine/src/input/systems/ClientInputSystem'
-import { EquippableSystem } from '@etherealengine/engine/src/interaction/systems/EquippableSystem'
+import { GrabbableSystem } from '@etherealengine/engine/src/interaction/systems/GrabbableSystem'
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MediaControlSystem } from '@etherealengine/engine/src/interaction/systems/MediaControlSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
+import { MediasoupDataProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupDataProducerConsumerState'
+import { MediasoupMediaProducerConsumerStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { MediasoupTransportStateSystem } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
-import { WorldNetworkActionSystem } from '@etherealengine/engine/src/networking/systems/WorldNetworkActionSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
-import { HighlightSystem } from '@etherealengine/engine/src/renderer/HighlightSystem'
+import { ECSRecordingSystem } from '@etherealengine/engine/src/recording/ECSRecordingSystem'
 import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 import { PortalSystem } from '@etherealengine/engine/src/scene/systems/PortalSystem'
@@ -64,12 +67,12 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const startClientSystems = () => {
   /** Input */
-  startSystems([XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem], {
+  startSystems([XRSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem], {
     with: InputSystemGroup
   })
 
   /** Fixed */
-  startSystems([IncomingNetworkSystem, WorldNetworkActionSystem, EquippableSystem, AvatarSimulationSystemGroup], {
+  startSystems([IncomingNetworkSystem, EntityNetworkStateSystem, GrabbableSystem, AvatarSimulationSystemGroup], {
     with: SimulationSystemGroup
   })
 
@@ -78,7 +81,14 @@ export const startClientSystems = () => {
 
   /** Avatar / Animation */
   startSystems(
-    [ReferenceSpaceTransformSystem, XRAnchorSystem, AnimationSystem, CameraSystem, AvatarAnimationSystemGroup],
+    [
+      ReferenceSpaceTransformSystem,
+      XRAnchorSystem,
+      AnimationSystem,
+      MotionCaptureSystem,
+      CameraSystem,
+      AvatarAnimationSystemGroup
+    ],
     {
       with: AnimationSystemGroup
     }
@@ -88,7 +98,7 @@ export const startClientSystems = () => {
   startSystems([XRUISystem, InteractiveSystem, MediaControlSystem], { before: TransformSystem })
 
   /** Post Transform / Pre Render */
-  startSystems([HighlightSystem, MediaSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
+  startSystems([MediaSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
     before: PresentationSystemGroup
   })
 
@@ -98,7 +108,19 @@ export const startClientSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ButtonCleanupSystem, PortalSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup], {
-    after: PresentationSystemGroup
-  })
+  startSystems(
+    [
+      ButtonCleanupSystem,
+      PortalSystem,
+      PositionalAudioSystem,
+      SceneSystemLoadGroup,
+      ECSRecordingSystem,
+      MediasoupTransportStateSystem,
+      MediasoupMediaProducerConsumerStateSystem,
+      MediasoupDataProducerConsumerStateSystem
+    ],
+    {
+      after: PresentationSystemGroup
+    }
+  )
 }

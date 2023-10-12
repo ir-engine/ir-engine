@@ -117,7 +117,7 @@ const PAGE_HEIGHT = 800
  *
  */
 export default function normalizeWheel(event) {
-  var sX = 0,
+  let sX = 0,
     sY = 0, // spinX, spinY
     pX = 0,
     pY = 0 // pixelX, pixelY

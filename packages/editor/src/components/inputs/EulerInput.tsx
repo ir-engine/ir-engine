@@ -23,11 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hookstate, useHookstate, useState } from '@hookstate/core'
+import { useState } from '@hookstate/core'
 import React, { useCallback, useEffect } from 'react'
-import { MathUtils as _Math, Euler, Quaternion } from 'three'
-
-import { defineState, NO_PROXY } from '@etherealengine/hyperflux'
+import { Euler, Quaternion, MathUtils as _Math } from 'three'
 
 import NumericInput from './NumericInput'
 import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
@@ -68,7 +66,7 @@ export const EulerInput = (props: EulerInputProps) => {
       <NumericInput
         value={euler.x.value * RAD2DEG}
         onChange={onSetEuler('x')}
-        onCommit={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -77,15 +75,13 @@ export const EulerInput = (props: EulerInputProps) => {
             onChange={onSetEuler('x')}
             axis="x"
             onPointerUp={props.onRelease}
-          >
-            X
-          </Vector3Scrubber>
+          />
         }
       />
       <NumericInput
         value={euler.y.value * RAD2DEG}
         onChange={onSetEuler('y')}
-        onCommit={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -94,15 +90,13 @@ export const EulerInput = (props: EulerInputProps) => {
             onChange={onSetEuler('y')}
             axis="y"
             onPointerUp={props.onRelease}
-          >
-            Y
-          </Vector3Scrubber>
+          />
         }
       />
       <NumericInput
         value={euler.z.value * RAD2DEG}
         onChange={onSetEuler('z')}
-        onCommit={() => props.onRelease?.()}
+        onRelease={() => props.onRelease?.()}
         unit={props.unit}
         prefix={
           <Vector3Scrubber
@@ -111,9 +105,7 @@ export const EulerInput = (props: EulerInputProps) => {
             onChange={onSetEuler('z')}
             axis="z"
             onPointerUp={props.onRelease}
-          >
-            Z
-          </Vector3Scrubber>
+          />
         }
       />
     </Vector3InputContainer>

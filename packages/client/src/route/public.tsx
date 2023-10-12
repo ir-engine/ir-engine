@@ -25,24 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { lazy, Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
 
-import {
-  AuthSettingsService,
-  AuthSettingsServiceReceptor,
-  AuthSettingsState
-} from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
-import {
-  AdminClientSettingsState,
-  ClientSettingsServiceReceptor
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
-import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { RouterServiceReceptor, useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
+import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 const $index = lazy(() => import('@etherealengine/client/src/pages'))
 const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
@@ -53,46 +41,14 @@ const $location = lazy(() => import('@etherealengine/client/src/pages/location/l
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
 function RouterComp({ route }: { route: string }) {
   const customRoutes = useCustomRoutes()
-  const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
-  const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
-  const location = useLocation()
-  const routesReady = useHookstate(false)
+  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const { t } = useTranslation()
 
   useEffect(() => {
-    addActionReceptor(RouterServiceReceptor)
-    addActionReceptor(ClientSettingsServiceReceptor)
-    addActionReceptor(AuthSettingsServiceReceptor)
-    addActionReceptor(AuthServiceReceptor)
-    addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(ProjectServiceReceptor)
-
-    // Oauth callbacks may be running when a guest identity-provider has been deleted.
-    // This would normally cause doLoginAuto to make a guest user, which we do not want.
-    // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
-    // The client and auth settigns will not be needed on these routes
-    if (!/auth\/oauth/.test(location.pathname)) {
-      AuthService.doLoginAuto()
-      AuthSettingsService.fetchAuthSetting()
-    }
-    return () => {
-      removeActionReceptor(RouterServiceReceptor)
-      removeActionReceptor(ClientSettingsServiceReceptor)
-      removeActionReceptor(AuthSettingsServiceReceptor)
-      removeActionReceptor(AuthServiceReceptor)
-      removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(ProjectServiceReceptor)
-    }
+    AuthService.doLoginAuto()
   }, [])
 
-  useEffect(() => {
-    // For the same reason as above, we will not need to load the client and auth settings for these routes
-    if (/auth\/oauth/.test(location.pathname) && customRoutes) return routesReady.set(true)
-    if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
-      return routesReady.set(true)
-  }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
-
-  if (!routesReady.value) {
+  if (!customRoutes.length || !isLoggedIn.value) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 

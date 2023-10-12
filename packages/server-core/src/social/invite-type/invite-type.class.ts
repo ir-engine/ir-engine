@@ -23,20 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { InviteType as InviteTypeInterface } from '@etherealengine/common/src/interfaces/InviteType'
+import {
+  InviteTypeData,
+  InviteTypePatch,
+  InviteTypeQuery,
+  InviteTypeType
+} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InviteTypeParams extends KnexAdapterParams<InviteTypeQuery> {}
 
-export type InviteTypeDataType = InviteTypeInterface
-
-/**
- * A class for invite type service
- */
-export class InviteType<T = InviteTypeDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export class InviteTypeService<T = InviteTypeType, ServiceParams extends Params = InviteTypeParams> extends KnexService<
+  InviteTypeType,
+  InviteTypeData,
+  InviteTypeParams,
+  InviteTypePatch
+> {}

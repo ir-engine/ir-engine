@@ -24,15 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { sha3_256 } from 'js-sha3'
-import { Event, LoaderUtils, Mesh, Object3D } from 'three'
-import { generateUUID } from 'three/src/math/MathUtils'
+import { Event, LoaderUtils, MathUtils, Mesh, Object3D } from 'three'
 import matches, { Validator } from 'ts-matches'
 
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { AssetLoader } from '../../../classes/AssetLoader'
-import { getFileName, getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
+import { getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -101,7 +100,7 @@ export default class BufferHandlerExtension extends ExporterExtension implements
   writeImage(image: HTMLImageElement | HTMLCanvasElement, imageDef: { [key: string]: any }) {
     //only execute when images are not embedded
     if (this.writer.options.embedImages) return
-    const name = generateUUID()
+    const name = MathUtils.generateUUID()
     const projectName = this.projectName
     const modelName = this.modelName
     let buffer: ArrayBuffer

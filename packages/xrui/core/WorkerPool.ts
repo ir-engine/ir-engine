@@ -29,9 +29,9 @@ Ethereal Engine. All Rights Reserved.
 
 export class WorkerPool {
   limit: number
-  queue = [] as Array<{ resolve: Function; msg: any; transfer: Transferable[] }>
+  queue = [] as Array<{ resolve: any; msg: any; transfer: Transferable[] }>
   workers = [] as Worker[]
-  workersResolve = [] as Array<Function>
+  workersResolve = [] as Array<any>
   workerStatus = 0
 
   private workerCreator?: () => Worker

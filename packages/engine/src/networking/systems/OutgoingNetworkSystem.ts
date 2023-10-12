@@ -30,9 +30,9 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { NetworkState } from '../NetworkState'
 import { Network } from '../classes/Network'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { createDataWriter } from '../serialization/DataWriter'
 import { ecsDataChannelType } from './IncomingNetworkSystem'
 
@@ -50,8 +50,8 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   const ents = getState(EngineState).isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
-    const userID = Engine.instance.userId
-    const network = Engine.instance.worldNetwork as Network
+    const userID = Engine.instance.userID
+    const network = NetworkState.worldNetwork as Network
     const peerID = Engine.instance.peerID
     const data = serialize(network, userID, peerID, ents)
 
@@ -60,7 +60,7 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
     if (data.byteLength > 0) {
       // side effect - network IO
       // delay until end of frame
-      Promise.resolve().then(() => network.transport.bufferToPeer(ecsDataChannelType, network.hostPeerID, data))
+      Promise.resolve().then(() => network.transport.bufferToPeer(ecsDataChannelType, peerID, network.hostPeerID, data))
     }
   }
 }
@@ -68,7 +68,7 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
 const serialize = createDataWriter()
 
 const execute = () => {
-  Engine.instance.worldNetwork && serializeAndSend(serialize)
+  NetworkState.worldNetwork && serializeAndSend(serialize)
 }
 
 export const OutgoingNetworkSystem = defineSystem({

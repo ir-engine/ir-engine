@@ -46,7 +46,6 @@ export async function up(knex: Knex): Promise<void> {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.json('keys').nullable()
-      table.json('route53').nullable()
       table.json('s3').nullable()
       table.json('cloudfront').nullable()
       table.json('sms').nullable()
@@ -61,9 +60,15 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(awsSettingPath)
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await trx.schema.hasTable(awsSettingPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(awsSettingPath)
+    await trx.schema.dropTable(awsSettingPath)
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }

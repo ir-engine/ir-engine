@@ -22,40 +22,76 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
+import { projectPermissionPath } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import {
+  projectDataValidator,
+  projectPatchValidator,
+  projectQueryValidator
+} from '@etherealengine/engine/src/schemas/projects/project.schema'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import { projectPermissionDataResolver } from '../project-permission/project-permission.resolvers'
+
+import { HookContext } from '@feathersjs/feathers'
+import {
+  projectDataResolver,
+  projectExternalResolver,
+  projectPatchResolver,
+  projectQueryResolver,
+  projectResolver
+} from './project.resolvers'
+
+const createProjectPermission = async (context: HookContext) => {
+  if (context.params?.user?.id) {
+    const projectPermissionData = await projectPermissionDataResolver.resolve(
+      {
+        userId: context.params.user.id,
+        projectId: context.result.id,
+        type: 'owner'
+      },
+      context as any
+    )
+    return context.app.service(projectPermissionPath).create(projectPermissionData)
+  }
+  return context
+}
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(projectExternalResolver), schemaHooks.resolveResult(projectResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [() => schemaHooks.validateQuery(projectQueryValidator), schemaHooks.resolveQuery(projectQueryResolver)],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    update: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)],
-    patch: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)],
-    remove: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)]
+    create: [
+      iff(isProvider('external'), verifyScope('editor', 'write')),
+      () => schemaHooks.validateData(projectDataValidator),
+      schemaHooks.resolveData(projectDataResolver)
+    ],
+    update: [
+      iff(isProvider('external'), verifyScope('editor', 'write')),
+      projectPermissionAuthenticate(false),
+      () => schemaHooks.validateData(projectPatchValidator)
+    ],
+    patch: [
+      iff(isProvider('external'), verifyScope('editor', 'write')),
+      projectPermissionAuthenticate(false),
+      () => schemaHooks.validateData(projectPatchValidator),
+      schemaHooks.resolveData(projectPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('editor', 'write')), projectPermissionAuthenticate(false)]
   },
 
   after: {
     all: [],
     find: [],
     get: [],
-    create: [
-      (context: HookContext) => {
-        return context.params?.user?.id
-          ? context.app.service('project-permission').create({
-              userId: context.params.user.id,
-              projectId: context.result.id,
-              type: 'owner'
-            })
-          : context
-      }
-    ],
+    create: [createProjectPermission],
     update: [],
     patch: [],
     remove: []

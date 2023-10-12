@@ -31,16 +31,21 @@ import {
   Property,
   PropertyType,
   ReaderContext,
+  Texture,
   TextureInfo,
   WriterContext
 } from '@gltf-transform/core'
 
-import { prototypeFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { initializeMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { KHRTextureTransform } from '@gltf-transform/extensions'
 
 const EXTENSION_NAME = 'EE_material'
 
-interface IEEMaterialArgs extends IProperty {
+interface IEEArgEntry extends IProperty {
+  type: string
+  contents: any
+}
+
+interface IEEArgs extends IProperty {
   [field: string]: any
 }
 
@@ -49,22 +54,38 @@ interface IEEMaterial extends IProperty {
   name: string
   prototype: string
   args: EEMaterialArgs
+  plugins: string[]
+}
+
+interface EEArgsDef {
+  type?: string
+  contents?: any
+}
+
+interface EEArgs {
+  [field: string]: EEArgsDef
 }
 
 interface EEMaterialDef {
   uuid?: string
   name?: string
   prototype?: string
-  args?: Record<string, any>
+  args?: EEArgs
+  plugins?: string[]
 }
 
-export class EEMaterialArgs extends Property<IEEMaterialArgs> {
-  public declare propertyType: 'EEMaterial-Arguments'
-  protected init(): Nullable<IEEMaterialArgs> {
-    return {
-      name: '',
+export class EEMaterialArgs extends Property<IEEArgs> {
+  public declare propertyType: 'EEMaterialArgs'
+  public declare parentTypes: ['EEMaterial']
+  protected init(): void {
+    this.propertyType = 'EEMaterialArgs'
+    this.parentTypes = ['EEMaterial']
+  }
+
+  protected getDefaults(): Nullable<IEEArgs> {
+    return Object.assign(super.getDefaults() as IProperty, {
       extras: {}
-    }
+    })
   }
 
   public getProp(field: string) {
@@ -80,6 +101,37 @@ export class EEMaterialArgs extends Property<IEEMaterialArgs> {
   }
   public setPropRef(field: string, value: any) {
     this.setRef(field, value)
+  }
+}
+
+export class EEArgEntry extends Property<IEEArgEntry> {
+  public declare propertyType: 'EEMaterialArgEntry'
+  public declare parentTypes: ['EEMaterialArgs']
+  protected init(): void {
+    this.propertyType = 'EEMaterialArgEntry'
+    this.parentTypes = ['EEMaterialArgs']
+  }
+
+  protected getDefaults(): Nullable<IEEArgEntry> {
+    return Object.assign(super.getDefaults() as IProperty, {
+      name: '',
+      type: '',
+      contents: null,
+      extras: {}
+    })
+  }
+
+  public get type() {
+    return this.get('type')
+  }
+  public set type(val: string) {
+    this.set('type', val)
+  }
+  public get contents() {
+    return this.get('contents')
+  }
+  public set contents(val) {
+    this.set('contents', val)
   }
 }
 
@@ -100,7 +152,8 @@ export class EEMaterial extends ExtensionProperty<IEEMaterial> {
       uuid: '',
       name: '',
       prototype: '',
-      args: null
+      args: null,
+      plugins: []
     })
   }
 
@@ -128,15 +181,24 @@ export class EEMaterial extends ExtensionProperty<IEEMaterial> {
   public set args(val) {
     this.setRef('args', val)
   }
+  public get plugins() {
+    return this.get('plugins')
+  }
+  public set plugins(val: string[]) {
+    this.set('plugins', val)
+  }
 }
 
 export class EEMaterialExtension extends Extension {
   public readonly extensionName = EXTENSION_NAME
   public static readonly EXTENSION_NAME = EXTENSION_NAME
 
+  textureInfoMap: Map<string, TextureInfo> = new Map()
+  materialInfoMap: Map<string, string[]> = new Map()
   public read(readerContext: ReaderContext): this {
-    initializeMaterialLibrary()
     const materialDefs = readerContext.jsonDoc.json.materials || []
+    let textureUuidIndex = 0
+    let materialUuidIndex = 0
     materialDefs.map((def, idx) => {
       if (def.extensions?.[EXTENSION_NAME]) {
         const eeMaterial = new EEMaterial(this.document.getGraph())
@@ -156,18 +218,45 @@ export class EEMaterialExtension extends Extension {
         if (eeDef.args) {
           //eeMaterial.args = eeDef.args
           const processedArgs = new EEMaterialArgs(this.document.getGraph())
-          const defaultArgs = prototypeFromId(eeDef.prototype!).arguments
-          Object.entries(eeDef.args).map(([field, value]) => {
-            if (!defaultArgs[field]) {
-              return //ignore deprecated fields
-            }
-            if (defaultArgs[field].type === 'texture') {
-              processedArgs.setPropRef(field, value ? readerContext.textures[value.index] : null)
+          const materialArgsInfo = Object.keys(eeDef.args)
+          const materialUuid = materialUuidIndex.toString()
+          materialUuidIndex++
+          this.materialInfoMap.set(materialUuid, materialArgsInfo)
+          processedArgs.setExtras({ uuid: materialUuid })
+          Object.entries(eeDef.args).map(([field, argDef]) => {
+            const nuArgDef = new EEArgEntry(this.document.getGraph())
+            nuArgDef.type = argDef.type!
+            if (argDef.type === 'texture') {
+              const value = argDef.contents
+              const texture = value ? readerContext.textures[value.index] : null
+              if (texture) {
+                const textureInfo = new TextureInfo(this.document.getGraph())
+                readerContext.setTextureInfo(textureInfo, value)
+                if (texture && value.extensions?.KHR_texture_transform) {
+                  const extensionData = value.extensions.KHR_texture_transform
+                  const transform = new KHRTextureTransform(this.document).createTransform()
+                  extensionData.offset && transform.setOffset(extensionData.offset)
+                  extensionData.scale && transform.setScale(extensionData.scale)
+                  extensionData.rotation && transform.setRotation(extensionData.rotation)
+                  extensionData.texCoord && transform.setTexCoord(extensionData.texCoord)
+                  textureInfo.setExtension('KHR_texture_transform', transform)
+                }
+                const uuid = textureUuidIndex.toString()
+                textureUuidIndex++
+                texture.setExtras({ uuid })
+                this.textureInfoMap.set(uuid, textureInfo)
+              }
+              nuArgDef.contents = texture
+              processedArgs.setPropRef(field, nuArgDef)
             } else {
-              processedArgs.setProp(field, value)
+              nuArgDef.contents = argDef.contents
+              processedArgs.setProp(field, nuArgDef)
             }
           })
           eeMaterial.args = processedArgs
+        }
+        if (eeDef.plugins) {
+          eeMaterial.plugins = eeDef.plugins
         }
       }
     })
@@ -187,23 +276,40 @@ export class EEMaterialExtension extends Extension {
           const extensionDef: EEMaterialDef = {
             uuid: eeMaterial.uuid,
             name: eeMaterial.name,
-            prototype: eeMaterial.prototype
+            prototype: eeMaterial.prototype,
+            plugins: eeMaterial.plugins
           }
           const matArgs = eeMaterial.args
           if (matArgs) {
             extensionDef.args = {}
-            const defaultArgs = prototypeFromId(eeMaterial.prototype).arguments
-            Object.entries(defaultArgs).map(([field, value]) => {
+            const materialArgsInfo = this.materialInfoMap.get(matArgs.getExtras().uuid as string)!
+            materialArgsInfo.map((field) => {
+              let value: EEArgEntry
+              try {
+                value = matArgs.getPropRef(field) as EEArgEntry
+              } catch (e) {
+                value = matArgs.getProp(field) as EEArgEntry
+              }
               if (value.type === 'texture') {
-                const texture = matArgs.getPropRef(field)
+                const argEntry = new EEArgEntry(this.document.getGraph())
+                argEntry.type = 'texture'
+                const texture = value.contents as Texture
                 if (texture) {
-                  const textureInfo = new TextureInfo(this.document.getGraph())
-                  extensionDef.args![field] = writerContext.createTextureInfoDef(texture, textureInfo)
+                  const uuid = texture.getExtras().uuid as string
+                  const textureInfo = this.textureInfoMap.get(uuid)!
+                  argEntry.contents = writerContext.createTextureInfoDef(texture, textureInfo)
                 } else {
-                  extensionDef.args![field] = null
+                  argEntry.contents = null
+                }
+                extensionDef.args![field] = {
+                  type: argEntry.type,
+                  contents: argEntry.contents
                 }
               } else {
-                extensionDef.args![field] = matArgs.getProp(field)
+                extensionDef.args![field] = {
+                  type: value.type,
+                  contents: value.contents
+                }
               }
             })
           }

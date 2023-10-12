@@ -29,17 +29,20 @@ import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import {
+  AuthenticationSettingType,
+  authenticationSettingPath
+} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { initialAuthState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthState } from '../../../user/services/AuthService'
-import { AuthSettingsService, AuthSettingsState } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const OAUTH_TYPES = {
@@ -54,18 +57,17 @@ const OAUTH_TYPES = {
 const Account = () => {
   const { t } = useTranslation()
 
-  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
-  const [authSetting] = authSettingState?.authSettings?.get({ noproxy: true }) || []
+  const authSetting = useFind(authenticationSettingPath).data.at(0) as AuthenticationSettingType
   const id = authSetting?.id
   const state = useHookstate(initialAuthState)
   const holdAuth = useHookstate(initialAuthState)
   const keySecret = useHookstate({
-    discord: authSetting?.oauth.discord,
-    github: authSetting?.oauth.github,
-    google: authSetting?.oauth.google,
-    twitter: authSetting?.oauth.twitter,
-    linkedin: authSetting?.oauth.linkedin,
-    facebook: authSetting?.oauth.facebook
+    discord: authSetting?.oauth?.discord,
+    github: authSetting?.oauth?.github,
+    google: authSetting?.oauth?.google,
+    twitter: authSetting?.oauth?.twitter,
+    linkedin: authSetting?.oauth?.linkedin,
+    facebook: authSetting?.oauth?.facebook
   })
   const showPassword = useHookstate({
     discord: {
@@ -77,7 +79,6 @@ const Account = () => {
       secret: false
     },
     github: {
-      appid: false,
       key: false,
       secret: false
     },
@@ -94,6 +95,7 @@ const Account = () => {
       secret: false
     }
   })
+  const patchAuthSettings = useMutation(authenticationSettingPath).patch
 
   const handleShowPassword = (key) => {
     const [social, value] = key.split('-')
@@ -106,38 +108,30 @@ const Account = () => {
     })
   }
 
-  const user = useHookstate(getMutableState(AuthState).user)
-
-  useEffect(() => {
-    if (user?.id?.value && authSettingState?.updateNeeded?.value) {
-      AuthSettingsService.fetchAuthSetting()
-    }
-  }, [user?.id?.value, authSettingState?.updateNeeded?.value])
-
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const tempAuthState = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
-          temp[strategyName] = strategy
+          tempAuthState[strategyName] = strategy
         })
       })
-      state.set(temp)
-      holdAuth.set(temp)
+      state.set(tempAuthState)
+      holdAuth.set(tempAuthState)
 
-      let tempKeySecret = JSON.parse(
+      const tempKeySecret = JSON.parse(
         JSON.stringify({
-          discord: authSetting?.oauth.discord,
-          github: authSetting?.oauth.github,
-          google: authSetting?.oauth.google,
-          twitter: authSetting?.oauth.twitter,
-          linkedin: authSetting?.oauth.linkedin,
-          facebook: authSetting?.oauth.facebook
+          discord: authSetting?.oauth?.discord,
+          github: authSetting?.oauth?.github,
+          google: authSetting?.oauth?.google,
+          twitter: authSetting?.oauth?.twitter,
+          linkedin: authSetting?.oauth?.linkedin,
+          facebook: authSetting?.oauth?.facebook
         })
       )
       keySecret.set(tempKeySecret)
     }
-  }, [authSettingState?.updateNeeded?.value])
+  }, [authSetting])
 
   const handleSubmit = () => {
     const auth = Object.keys(state.value)
@@ -147,46 +141,36 @@ const Account = () => {
 
     const oauth = { ...authSetting.oauth, ...keySecret.value }
 
-    for (let key of Object.keys(oauth)) {
-      oauth[key] = JSON.stringify(oauth[key])
+    for (const key of Object.keys(oauth)) {
+      oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
     }
 
-    AuthSettingsService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
+    patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
     NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
       variant: 'warning'
     })
   }
 
   const handleCancel = () => {
-    let temp = { ...initialAuthState }
+    const temp = { ...initialAuthState }
     authSetting?.authStrategies?.forEach((el) => {
       Object.entries(el).forEach(([strategyName, strategy]) => {
         temp[strategyName] = strategy
       })
     })
 
-    let tempKeySecret = JSON.parse(
+    const tempKeySecret = JSON.parse(
       JSON.stringify({
-        discord: authSetting?.oauth.discord,
-        github: authSetting?.oauth.github,
-        google: authSetting?.oauth.google,
-        twitter: authSetting?.oauth.twitter,
-        linkedin: authSetting?.oauth.linkedin,
-        facebook: authSetting?.oauth.facebook
+        discord: authSetting?.oauth?.discord,
+        github: authSetting?.oauth?.github,
+        google: authSetting?.oauth?.google,
+        twitter: authSetting?.oauth?.twitter,
+        linkedin: authSetting?.oauth?.linkedin,
+        facebook: authSetting?.oauth?.facebook
       })
     )
     keySecret.set(tempKeySecret)
     state.set(temp)
-  }
-
-  const handleOnChangeAppId = (event, type) => {
-    keySecret.set({
-      ...JSON.parse(JSON.stringify(keySecret.value)),
-      [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value)),
-        appid: event.target.value
-      }
-    })
   }
 
   const handleOnChangeKey = (event, type) => {
@@ -412,25 +396,6 @@ const Account = () => {
           {holdAuth?.github?.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.github')}</Typography>
-
-              <InputText
-                name="appid"
-                label={t('admin:components.setting.appId')}
-                value={keySecret?.value?.github?.appid || ''}
-                type={showPassword.value.github.appid ? 'text' : 'password'}
-                endAdornment={
-                  <IconButton
-                    onClick={() => handleShowPassword('github-appid')}
-                    icon={
-                      <Icon
-                        icon={showPassword.value.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                        color="orange"
-                      />
-                    }
-                  />
-                }
-                onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
-              />
 
               <InputText
                 name="key"

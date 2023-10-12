@@ -28,31 +28,30 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
-import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
-import config from '@etherealengine/common/src/config'
-import { AuthStrategies } from '@etherealengine/common/src/interfaces/AuthStrategies'
-import { AuthUser, AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
-import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
-import {
-  resolveUser,
-  resolveWalletUser,
-  UserInterface,
-  UserSeed,
-  UserSetting
-} from '@etherealengine/common/src/interfaces/User'
-import { UserApiKey } from '@etherealengine/common/src/interfaces/UserApiKey'
-import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import {
-  defineAction,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  syncStateWithLocalStorage,
-  useState
-} from '@etherealengine/hyperflux'
+import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
+import { magicLinkPath } from '@etherealengine/engine/src/schemas/user/magic-link.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import {
+  UserSettingID,
+  UserSettingPatch,
+  UserSettingType,
+  userSettingPath
+} from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
@@ -61,7 +60,57 @@ import { userPatched } from '../functions/userPatched'
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
 
-// State
+export const UserSeed: UserType = {
+  id: '' as UserID,
+  name: '',
+  isGuest: true,
+  avatarId: '',
+  avatar: {
+    id: '',
+    name: '',
+    isPublic: true,
+    userId: '' as UserID,
+    modelResourceId: '',
+    thumbnailResourceId: '',
+    identifierName: '',
+    project: '',
+    createdAt: '',
+    updatedAt: ''
+  },
+  apiKey: {
+    id: '',
+    token: '',
+    userId: '' as UserID,
+    createdAt: '',
+    updatedAt: ''
+  },
+  userSetting: {
+    id: '' as UserSettingID,
+    themeModes: {},
+    userId: '' as UserID,
+    createdAt: '',
+    updatedAt: ''
+  },
+  scopes: [],
+  identityProviders: [],
+  locationAdmins: [],
+  locationBans: [],
+  instanceAttendance: [],
+  createdAt: '',
+  updatedAt: ''
+}
+
+const resolveWalletUser = (credentials: any): UserType => {
+  return {
+    ...UserSeed,
+    name: credentials.user.displayName,
+    isGuest: true,
+    avatarId: credentials.user.id,
+    // avatarUrl: credentials.user.icon,
+    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserID }
+  }
+}
+
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
@@ -94,176 +143,6 @@ export interface LinkedInLoginForm {
   email: string
 }
 
-export const AuthServiceReceptor = (action) => {
-  const s = getMutableState(AuthState)
-  matches(action)
-    .when(AuthAction.actionProcessing.matches, (action) => {
-      return s.merge({ isProcessing: action.processing, error: '' })
-    })
-    .when(AuthAction.loginUserSuccessAction.matches, (action) => {
-      return s.merge({ authUser: action.authUser })
-    })
-    .when(AuthAction.loadedUserDataAction.matches, (action) => {
-      return s.merge({ isLoggedIn: true, user: action.user })
-    })
-    .when(AuthAction.loginUserErrorAction.matches, (action) => {
-      return s.merge({ error: action.message })
-    })
-    .when(AuthAction.loginUserByGithubSuccessAction.matches, (action) => {
-      return s
-    })
-    .when(AuthAction.loginUserByLinkedinSuccessAction.matches, (action) => {
-      return s
-    })
-    .when(AuthAction.loginUserByGithubErrorAction.matches, (action) => {
-      return s.merge({ error: action.message })
-    })
-    .when(AuthAction.loginUserByLinkedinErrorAction.matches, (action) => {
-      return s.merge({ error: action.message })
-    })
-    .when(AuthAction.registerUserByEmailSuccessAction.matches, (action) => {
-      return s.authUser.merge({ identityProvider: action.identityProvider })
-    })
-    .when(AuthAction.registerUserByEmailErrorAction.matches, (action) => {
-      return s
-    })
-    .when(AuthAction.didLogoutAction.matches, () => {
-      return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
-    })
-    .when(AuthAction.didVerifyEmailAction.matches, (action) => {
-      return s.authUser.identityProvider.merge({ isVerified: action.result })
-    })
-    .when(AuthAction.avatarUpdatedAction.matches, (action) => {
-      return s.user.merge({ avatarUrl: action.url })
-    })
-    .when(AuthAction.usernameUpdatedAction.matches, (action) => {
-      return s.user.merge({ name: action.name })
-    })
-    .when(AuthAction.apiKeyUpdatedAction.matches, (action) => {
-      return s.user.merge({ apiKey: action.apiKey })
-    })
-    .when(AuthAction.userAvatarIdUpdatedAction.matches, (action) => {
-      return s.user.merge({ avatarId: action.avatarId })
-    })
-    .when(AuthAction.userUpdatedAction.matches, (action) => {
-      return s.merge({ user: action.user })
-    })
-    .when(AuthAction.userPatchedAction.matches, (action) => {
-      return userPatched(action.params)
-    })
-    .when(AuthAction.updatedUserSettingsAction.matches, (action) => {
-      return s.user.user_setting.merge(action.data)
-    })
-}
-
-export class AuthAction {
-  static actionProcessing = defineAction({
-    type: 'ee.client.Auth.ACTION_PROCESSING' as const,
-    processing: matches.boolean
-  })
-
-  static loginUserSuccessAction = defineAction({
-    type: 'ee.client.Auth.LOGIN_USER_SUCCESS' as const,
-    authUser: matches.object as Validator<unknown, AuthUser>,
-    message: matches.string
-  })
-
-  static loginUserErrorAction = defineAction({
-    type: 'ee.client.Auth.LOGIN_USER_ERROR' as const,
-    message: matches.string
-  })
-
-  static loginUserByGithubSuccessAction = defineAction({
-    type: 'ee.client.Auth.LOGIN_USER_BY_GITHUB_SUCCESS' as const,
-    message: matches.string
-  })
-
-  static loginUserByGithubErrorAction = defineAction({
-    type: 'ee.client.Auth.LOGIN_USER_BY_GITHUB_ERROR' as const,
-    message: matches.string
-  })
-
-  static loginUserByLinkedinSuccessAction = defineAction({
-    type: 'ee.client.Auth.LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
-    message: matches.string
-  })
-
-  static loginUserByLinkedinErrorAction = defineAction({
-    type: 'ee.client.Auth.LOGIN_USER_BY_LINKEDIN_ERROR' as const,
-    message: matches.string
-  })
-
-  static didLogoutAction = defineAction({
-    type: 'ee.client.Auth.LOGOUT_USER' as const
-  })
-
-  static registerUserByEmailSuccessAction = defineAction({
-    type: 'ee.client.Auth.REGISTER_USER_BY_EMAIL_SUCCESS' as const,
-    identityProvider: matches.object as Validator<unknown, IdentityProvider>,
-    message: matches.string
-  })
-
-  static registerUserByEmailErrorAction = defineAction({
-    type: 'ee.client.Auth.REGISTER_USER_BY_EMAIL_ERROR' as const,
-    message: matches.string
-  })
-
-  static didVerifyEmailAction = defineAction({
-    type: 'ee.client.Auth.DID_VERIFY_EMAIL' as const,
-    result: matches.boolean
-  })
-
-  static didResendVerificationEmailAction = defineAction({
-    type: 'ee.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
-    result: matches.boolean
-  })
-
-  static didCreateMagicLinkAction = defineAction({
-    type: 'ee.client.Auth.DID_CREATE_MAGICLINK' as const,
-    result: matches.boolean
-  })
-
-  static loadedUserDataAction = defineAction({
-    type: 'ee.client.Auth.LOADED_USER_DATA' as const,
-    user: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static updatedUserSettingsAction = defineAction({
-    type: 'ee.client.Auth.UPDATE_USER_SETTINGS' as const,
-    data: matches.object as Validator<unknown, UserSetting>
-  })
-
-  static avatarUpdatedAction = defineAction({
-    type: 'ee.client.Auth.AVATAR_UPDATED' as const,
-    url: matches.any
-  })
-
-  static usernameUpdatedAction = defineAction({
-    type: 'ee.client.Auth.USERNAME_UPDATED' as const,
-    name: matches.string
-  })
-
-  static userAvatarIdUpdatedAction = defineAction({
-    type: 'ee.client.Auth.USERAVATARID_UPDATED' as const,
-    avatarId: matches.string
-  })
-
-  static userPatchedAction = defineAction({
-    type: 'ee.client.Auth.USER_PATCHED' as const,
-    params: matches.any
-  })
-
-  static userUpdatedAction = defineAction({
-    type: 'ee.client.Auth.USER_UPDATED' as const,
-    user: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static apiKeyUpdatedAction = defineAction({
-    type: 'ee.client.Auth.USER_API_KEY_UPDATED' as const,
-    apiKey: matches.object as Validator<unknown, UserApiKey>
-  })
-}
-
 /**
  * Resets the current user's accessToken to a new random guest token.
  */
@@ -271,9 +150,10 @@ async function _resetToGuestToken(options = { reset: true }) {
   if (options.reset) {
     await API.instance.client.authentication.reset()
   }
-  const newProvider = await API.instance.client.service('identity-provider').create({
+  const newProvider = await Engine.instance.api.service(identityProviderPath).create({
     type: 'guest',
-    token: v1()
+    token: v1(),
+    userId: '' as UserID
   })
   const accessToken = newProvider.accessToken!
   console.log(`Created new guest accessToken: ${accessToken}`)
@@ -281,12 +161,11 @@ async function _resetToGuestToken(options = { reset: true }) {
   return accessToken
 }
 
-// Service
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
+    const authState = getMutableState(AuthState)
     try {
-      const authData = getMutableState(AuthState)
-      let accessToken = !forceClientAuthReset && authData?.authUser?.accessToken?.value
+      const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) {
         await API.instance.client.authentication.reset()
@@ -297,12 +176,12 @@ export const AuthService = {
         await _resetToGuestToken({ reset: false })
       }
 
-      let res
+      let res: AuthenticationResult
       try {
         res = await API.instance.client.reAuthenticate()
       } catch (err) {
         if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
-          await dispatchAction(AuthAction.didLogoutAction({}))
+          authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
           res = await API.instance.client.reAuthenticate()
         } else {
@@ -311,23 +190,23 @@ export const AuthService = {
         }
       }
       if (res) {
+        const identityProvider = res[identityProviderPath] as IdentityProviderType
         // Response received form reAuthenticate(), but no `id` set.
-        if (!res['identity-provider']?.id) {
-          await dispatchAction(AuthAction.didLogoutAction({}))
+        if (!identityProvider?.id) {
+          authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
           res = await API.instance.client.reAuthenticate()
         }
         const authUser = resolveAuthUser(res)
         // authUser is now { accessToken, authentication, identityProvider }
-
-        dispatchAction(AuthAction.loginUserSuccessAction({ authUser, message: '' }))
+        authState.merge({ authUser })
         await AuthService.loadUserData(authUser.identityProvider?.userId)
       } else {
         logger.warn('No response received from reAuthenticate()!')
       }
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
-      dispatchAction(AuthAction.didLogoutAction({}))
+      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
 
       // if (window.location.pathname !== '/') {
       //   window.location.href = '/';
@@ -335,23 +214,22 @@ export const AuthService = {
     }
   },
 
-  async loadUserData(userId: string) {
+  async loadUserData(userId: UserID) {
     try {
       const client = API.instance.client
-      const res: any = await client.service('user').get(userId)
-      if (!res.user_setting) {
+      const user = await client.service(userPath).get(userId)
+      if (!user.userSetting) {
         const settingsRes = (await client
-          .service('user-settings')
-          .find({ query: { userId: userId } })) as Paginated<UserSetting>
+          .service(userSettingPath)
+          .find({ query: { userId: userId } })) as Paginated<UserSettingType>
 
         if (settingsRes.total === 0) {
-          res.user_setting = await client.service('user-settings').create({ userId: userId })
+          user.userSetting = await client.service(userSettingPath).create({ userId: userId })
         } else {
-          res.user_setting = settingsRes.data[0]
+          user.userSetting = settingsRes.data[0]
         }
       }
-      const user = resolveUser(res)
-      dispatchAction(AuthAction.loadedUserDataAction({ user }))
+      getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
     }
@@ -366,8 +244,8 @@ export const AuthService = {
 
       return
     }
-
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+    const authState = getMutableState(AuthState)
+    authState.merge({ isProcessing: true, error: '' })
 
     try {
       const authenticationResult = await API.instance.client.authenticate({
@@ -377,23 +255,14 @@ export const AuthService = {
       })
       const authUser = resolveAuthUser(authenticationResult)
 
-      if (!authUser.identityProvider?.isVerified) {
-        await API.instance.client.logout()
-        dispatchAction(
-          AuthAction.registerUserByEmailSuccessAction({ identityProvider: authUser.identityProvider, message: '' })
-        )
-        window.location.href = '/auth/confirm'
-        return
-      }
-
-      dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
+      authState.merge({ authUser })
       await AuthService.loadUserData(authUser.identityProvider.userId)
       window.location.href = '/'
     } catch (err) {
-      dispatchAction(AuthAction.loginUserErrorAction({ message: i18n.t('common:error.login-error') }))
+      authState.merge({ error: i18n.t('common:error.login-error') })
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
     }
   },
 
@@ -419,8 +288,9 @@ export const AuthService = {
    * @param vprResult {object} - VPR Query result from a user's wallet.
    */
   async loginUserByXRWallet(vprResult: any) {
+    const authState = getMutableState(AuthState)
     try {
-      dispatchAction(AuthAction.actionProcessing({ processing: true }))
+      authState.merge({ isProcessing: true, error: '' })
 
       const credentials: any = parseUserWalletCredentials(vprResult)
       console.log(credentials)
@@ -430,26 +300,26 @@ export const AuthService = {
         accessToken: '',
         authentication: { strategy: 'did-auth' },
         identityProvider: {
-          id: 0,
+          id: '',
           token: '',
           type: 'didWallet',
-          isVerified: true,
-          userId: walletUser.id
+          userId: walletUser.id,
+          createdAt: '',
+          updatedAt: ''
         }
       }
 
       // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = getState(AuthState).user.id
+      const oldId = authState.user.id.value
       walletUser.id = oldId
 
       // loadXRAvatarForUpdatedUser(walletUser)
-      dispatchAction(AuthAction.loadedUserDataAction({ user: walletUser }))
-      dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
+      authState.merge({ isLoggedIn: true, user: walletUser, authUser })
     } catch (err) {
-      dispatchAction(AuthAction.loginUserErrorAction({ message: i18n.t('common:error.login-error') }))
+      authState.merge({ error: i18n.t('common:error.login-error') })
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
     }
   },
 
@@ -459,7 +329,7 @@ export const AuthService = {
    * @param location {object} - `useLocation()` from 'react-router-dom'
    */
   async loginUserByOAuth(service: string, location: any) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+    getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
     const instanceId = new URL(window.location.href).searchParams.get('instanceId')
@@ -473,34 +343,36 @@ export const AuthService = {
   },
 
   async removeUserOAuth(service: string) {
-    const ipResult = (await API.instance.client.service('identity-provider').find()) as any
+    const ipResult = (await Engine.instance.api.service(identityProviderPath).find()) as Paginated<IdentityProviderType>
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
         NotificationService.dispatchNotify('You can not remove your last login method.', { variant: 'warning' })
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
-        const newToken = await API.instance.client.service('generate-token').create({
-          type: otherIp.type,
-          token: otherIp.token
+        const newTokenResult = await Engine.instance.api.service(generateTokenPath).create({
+          type: otherIp!.type,
+          token: otherIp!.token
         })
 
-        if (newToken) {
-          dispatchAction(AuthAction.actionProcessing({ processing: true }))
-          await API.instance.client.authentication.setAccessToken(newToken as string)
+        if (newTokenResult?.token) {
+          getMutableState(AuthState).merge({ isProcessing: true, error: '' })
+          await API.instance.client.authentication.setAccessToken(newTokenResult.token)
           const res = await API.instance.client.reAuthenticate(true)
           const authUser = resolveAuthUser(res)
-          await API.instance.client.service('identity-provider').remove(ipToRemove.id)
-          dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
+          await Engine.instance.api.service(identityProviderPath).remove(ipToRemove.id)
+          const authState = getMutableState(AuthState)
+          authState.merge({ authUser })
           await AuthService.loadUserData(authUser.identityProvider.userId)
-          dispatchAction(AuthAction.actionProcessing({ processing: false }))
+          authState.merge({ isProcessing: false, error: '' })
         }
       }
     }
   },
 
   async loginUserByJwt(accessToken: string, redirectSuccess: string, redirectError: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+    const authState = getMutableState(AuthState)
+    authState.merge({ isProcessing: true, error: '' })
     try {
       await API.instance.client.authentication.setAccessToken(accessToken as string)
       const res = await API.instance.client.authenticate({
@@ -509,17 +381,16 @@ export const AuthService = {
       })
 
       const authUser = resolveAuthUser(res)
-
-      dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
+      authState.merge({ authUser })
       await AuthService.loadUserData(authUser.identityProvider?.userId)
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
       let timeoutTimer = 0
       // The new JWT does not always get stored in localStorage successfully by this point, and if the user is
       // redirected to redirectSuccess now, they will still have an old JWT, which can cause them to not be logged
       // in properly. This interval waits to make sure the token has been updated before redirecting
       const waitForTokenStored = setInterval(() => {
         timeoutTimer += TIMEOUT_INTERVAL
-        const authData = getMutableState(AuthState)
+        const authData = authState
         const storedToken = authData.authUser?.accessToken?.value
         if (storedToken === accessToken) {
           clearInterval(waitForTokenStored)
@@ -530,18 +401,18 @@ export const AuthService = {
         if (timeoutTimer > 3000) window.location.href = redirectSuccess
       }, TIMEOUT_INTERVAL)
     } catch (err) {
-      dispatchAction(AuthAction.loginUserErrorAction({ message: i18n.t('common:error.login-error') }))
+      authState.merge({ error: i18n.t('common:error.login-error') })
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
       window.location.href = `${redirectError}?error=${err.message}`
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
     }
   },
 
   async loginUserMagicLink(token, redirectSuccess, redirectError) {
     try {
-      const res = await API.instance.client.service('login').get(token)
-      await AuthService.loginUserByJwt(res.token, '/', '/')
+      const res = await Engine.instance.api.service(loginPath).get(token)
+      await AuthService.loginUserByJwt(res.token!, '/', '/')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
@@ -550,79 +421,46 @@ export const AuthService = {
   },
 
   async logoutUser() {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+    const authState = getMutableState(AuthState)
+    authState.merge({ isProcessing: true, error: '' })
     try {
       await API.instance.client.logout()
-      dispatchAction(AuthAction.didLogoutAction({}))
+      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } catch (_) {
-      dispatchAction(AuthAction.didLogoutAction({}))
+      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
       AuthService.doLoginAuto(true)
     }
   },
 
   async registerUserByEmail(form: EmailRegistrationForm) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+    const authState = getMutableState(AuthState)
+    authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider: any = await API.instance.client.service('identity-provider').create({
+      const identityProvider: any = await Engine.instance.api.service(identityProviderPath).create({
         token: form.email,
-        password: form.password,
-        type: 'password'
+        type: 'password',
+        userId: '' as UserID
       })
-      dispatchAction(AuthAction.registerUserByEmailSuccessAction({ identityProvider, message: '' }))
+      authState.authUser.merge({ identityProvider })
       window.location.href = '/auth/confirm'
     } catch (err) {
       logger.warn(err, 'Error registering user by email')
-      dispatchAction(AuthAction.registerUserByEmailErrorAction({ message: err.message }))
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
     }
   },
 
-  async verifyEmail(token: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
-
-    try {
-      const { accessToken } = API.instance.client.service('authManagement').create({
-        action: 'verifySignupLong',
-        value: token
-      })
-      dispatchAction(AuthAction.didVerifyEmailAction({ result: true }))
-      await AuthService.loginUserByJwt(accessToken, '/', '/')
-    } catch (err) {
-      dispatchAction(AuthAction.didVerifyEmailAction({ result: false }))
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
-    }
-  },
-
-  async resendVerificationEmail(email: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
-
-    try {
-      await API.instance.client.service('authManagement').create({
-        action: 'resendVerifySignup',
-        value: { token: email, type: 'password' }
-      })
-      dispatchAction(AuthAction.didResendVerificationEmailAction({ result: true }))
-    } catch (err) {
-      logger.warn(err, 'Error resending verification email')
-      dispatchAction(AuthAction.didResendVerificationEmailAction({ result: false }))
-    } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
-    }
-  },
-
-  async createMagicLink(emailPhone: string, authState: AuthStrategies, linkType?: 'email' | 'sms') {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+  async createMagicLink(emailPhone: string, authData: AuthStrategiesType, linkType?: 'email' | 'sms') {
+    const authState = getMutableState(AuthState)
+    authState.merge({ isProcessing: true, error: '' })
 
     let type = 'email'
     let paramName = 'email'
-    const enableEmailMagicLink = authState?.emailMagicLink
-    const enableSmsMagicLink = authState?.smsMagicLink
+    const enableEmailMagicLink = authData?.emailMagicLink
+    const enableSmsMagicLink = authData?.smsMagicLink
 
     if (linkType === 'email') {
       type = 'email'
@@ -659,44 +497,43 @@ export const AuthService = {
     }
 
     try {
-      await API.instance.client.service('magic-link').create({ type, [paramName]: emailPhone })
-      dispatchAction(AuthAction.didCreateMagicLinkAction({ result: true }))
+      await Engine.instance.api.service(magicLinkPath).create({ type, [paramName]: emailPhone })
       NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.success-msg'), { variant: 'success' })
     } catch (err) {
-      dispatchAction(AuthAction.didCreateMagicLinkAction({ result: false }))
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
     }
   },
 
-  async addConnectionByPassword(form: EmailLoginForm, userId: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+  async addConnectionByPassword(form: EmailLoginForm, userId: UserID) {
+    const authState = getMutableState(AuthState)
+    authState.merge({ isProcessing: true, error: '' })
 
     try {
-      const identityProvider = await API.instance.client.service('identity-provider').create({
+      const identityProvider = await Engine.instance.api.service(identityProviderPath).create({
         token: form.email,
-        password: form.password,
         type: 'password',
-        userId
+        userId: '' as UserID
       })
       return AuthService.loadUserData(identityProvider.userId)
     } catch (err) {
       logger.warn(err, 'Error adding connection by password')
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
     }
   },
 
-  async addConnectionByEmail(email: string, userId: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+  async addConnectionByEmail(email: string, userId: UserID) {
+    const authState = getMutableState(AuthState)
+    authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider = (await API.instance.client.service('magic-link').create({
+      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
         email,
         type: 'email',
         userId
-      })) as IdentityProvider
+      })) as IdentityProviderType
       if (identityProvider.userId) {
         NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg'), { variant: 'success' })
         return AuthService.loadUserData(identityProvider.userId)
@@ -704,12 +541,13 @@ export const AuthService = {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
     }
   },
 
-  async addConnectionBySms(phone: string, userId: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+  async addConnectionBySms(phone: string, userId: UserID) {
+    const authState = getMutableState(AuthState)
+    authState.merge({ isProcessing: true, error: '' })
 
     let sendPhone = phone.replace(/-/g, '')
     if (sendPhone.length === 10) {
@@ -717,11 +555,11 @@ export const AuthService = {
     }
 
     try {
-      const identityProvider = (await API.instance.client.service('magic-link').create({
+      const identityProvider = (await Engine.instance.api.service(magicLinkPath).create({
         mobile: sendPhone,
         type: 'sms',
         userId
-      })) as IdentityProvider
+      })) as IdentityProviderType
       if (identityProvider.userId) {
         NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg'), { variant: 'error' })
         return AuthService.loadUserData(identityProvider.userId)
@@ -729,77 +567,84 @@ export const AuthService = {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      authState.merge({ isProcessing: false, error: '' })
     }
   },
 
   async addConnectionByOauth(
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
-    userId: string
+    userId: UserID
   ) {
     window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
 
-  async removeConnection(identityProviderId: number, userId: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
+  async removeConnection(identityProviderId: number, userId: UserID) {
+    getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
-      await API.instance.client.service('identity-provider').remove(identityProviderId)
+      await Engine.instance.api.service(identityProviderPath)._remove(identityProviderId)
       return AuthService.loadUserData(userId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
+      getMutableState(AuthState).merge({ isProcessing: false, error: '' })
     }
   },
 
-  refreshConnections(userId: string) {
+  refreshConnections(userId: UserID) {
     AuthService.loadUserData(userId)
   },
 
-  async updateUserSettings(id: any, data: any) {
-    const res = (await API.instance.client.service('user-settings').patch(id, data)) as UserSetting
-    dispatchAction(AuthAction.updatedUserSettingsAction({ data: res }))
+  async updateUserSettings(id: UserSettingID, data: UserSettingPatch) {
+    const response = await Engine.instance.api.service(userSettingPath).patch(id, data)
+    getMutableState(AuthState).user.userSetting.merge(response)
   },
 
-  async removeUser(userId: string) {
-    await API.instance.client.service('user').remove(userId)
+  async removeUser(userId: UserID) {
+    await Engine.instance.api.service(userPath).remove(userId)
     AuthService.logoutUser()
   },
 
   async updateApiKey() {
-    const apiKey = (await API.instance.client.service('user-api-key').patch(null, {})) as UserApiKey
-    dispatchAction(AuthAction.apiKeyUpdatedAction({ apiKey }))
+    const userApiKey = (await Engine.instance.api.service(userApiKeyPath).find()) as Paginated<UserApiKeyType>
+
+    let apiKey: UserApiKeyType | undefined
+    if (userApiKey.data.length > 0) {
+      apiKey = await Engine.instance.api.service(userApiKeyPath).patch(userApiKey.data[0].id, {})
+    } else {
+      apiKey = await Engine.instance.api.service(userApiKeyPath).create({})
+    }
+
+    getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: string, name: string) {
-    const { name: updatedName } = await API.instance.client.service('user').patch(userId, { name: name })
+  async updateUsername(userId: UserID, name: string) {
+    const { name: updatedName } = (await Engine.instance.api
+      .service(userPath)
+      .patch(userId, { name: name })) as UserType
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
-    dispatchAction(AuthAction.usernameUpdatedAction({ name: updatedName }))
+    getMutableState(AuthState).user.merge({ name: updatedName })
   },
 
   useAPIListeners: () => {
     useEffect(() => {
-      const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
+      const userPatchedListener = (user: UserType) => userPatched(user)
       const locationBanCreatedListener = async (params) => {
         const selfUser = getState(AuthState).user
         const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
         if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-          // TODO: Decouple and reenable me!
-          // endVideoChat({ leftParty: true });
-          // leave(true);
           const userId = selfUser.id ?? ''
-          const user = resolveUser(await API.instance.client.service('user').get(userId))
-          dispatchAction(AuthAction.userUpdatedAction({ user }))
+          const user = await Engine.instance.api.service(userPath).get(userId)
+          getMutableState(AuthState).merge({ user })
         }
       }
 
-      API.instance.client.service('user').on('patched', userPatchedListener)
-      API.instance.client.service('location-ban').on('created', locationBanCreatedListener)
+      Engine.instance.api.service(userPath).on('patched', userPatchedListener)
+      Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
-        API.instance.client.service('user').off('patched', userPatchedListener)
-        API.instance.client.service('location-ban').off('created', locationBanCreatedListener)
+        Engine.instance.api.service(userPath).off('patched', userPatchedListener)
+        Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])
   }

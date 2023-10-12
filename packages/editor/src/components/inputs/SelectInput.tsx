@@ -26,17 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import Autocomplete from '@mui/material/Autocomplete'
 import FormControl from '@mui/material/FormControl'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-import TextField from '@mui/material/TextField'
 
+import { InfoTooltip } from '../layout/Tooltip'
 import styles from './selectInput.module.scss'
 
 interface SelectInputProp<T> {
   value: T | string
-  options: Array<{ label: string; value: T }>
+  options: Array<{ label: string; value: T; info?: string }>
   onChange?: (value: T | string) => void
   placeholder?: string
   disabled?: boolean
@@ -44,6 +43,7 @@ interface SelectInputProp<T> {
   className?: string
   isSearchable?: boolean
 }
+
 export function SelectInput<T extends string | ReadonlyArray<string> | number | undefined>({
   value,
   options,
@@ -53,56 +53,58 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
   creatable,
   isSearchable
 }: SelectInputProp<T>) {
-  const [valueSelected, setValue] = React.useState(value)
-  const [valueAutoSelected, setAutoValue] = React.useState(options.find((el) => el.value === value)?.label)
+  // const autoComponentValue = options.find((el) => el.value === value)!.label
 
   const handleChange = (event: SelectChangeEvent<T>) => {
-    setValue(event.target.value)
     onChange?.(event.target.value)
   }
 
-  const onValueChanged = (event, values) => {
-    setAutoValue(values.label)
-    onChange?.(values.value)
+  const onValueChanged = (event, label, ...args) => {
+    const value = options.find((el) => el.value === value)!.value
+    onChange?.(value)
   }
 
+  // TODO - fix autocomplete
+  isSearchable = false
+
   const Component = isSearchable ? (
-    <Autocomplete
-      options={options.map(({ label }) => label)}
-      onChange={onValueChanged}
-      freeSolo={creatable}
-      disablePortal
-      value={valueAutoSelected}
-      fullWidth
-      size="small"
-      classes={{
-        root: styles.autoComplete,
-        input: styles.inputfield,
-        inputRoot: styles.inputWrapper,
-        endAdornment: styles.adornmentContainer,
-        popupIndicator: styles.adornment,
-        clearIndicator: styles.adornment,
-        popper: styles.popper,
-        paper: styles.paper,
-        option: styles.option
-      }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          variant="outlined"
-          disabled={disabled}
-          classes={{
-            root: styles.inputfieldContainer
-          }}
-        />
-      )}
-    />
+    <></>
   ) : (
+    // <Autocomplete
+    //   options={options.map((option) => option.label)}
+    //   onChange={onValueChanged}
+    //   freeSolo={creatable}
+    //   disablePortal
+    //   value={autoComponentValue}
+    //   fullWidth
+    //   size="small"
+    //   classes={{
+    //     root: styles.autoComplete,
+    //     input: styles.inputfield,
+    //     inputRoot: styles.inputWrapper,
+    //     endAdornment: styles.adornmentContainer,
+    //     popupIndicator: styles.adornment,
+    //     clearIndicator: styles.adornment,
+    //     popper: styles.popper,
+    //     paper: styles.paper,
+    //     option: styles.option
+    //   }}
+    //   renderInput={(params) => (
+    //     <TextField
+    //       {...params}
+    //       variant="outlined"
+    //       disabled={disabled}
+    //       classes={{
+    //         root: styles.inputfieldContainer
+    //       }}
+    //     />
+    //   )}
+    // />
     <FormControl fullWidth>
       <Select
         labelId="select-label"
         id="select"
-        value={valueSelected}
+        value={value}
         onChange={handleChange}
         placeholder={placeholder}
         size="small"
@@ -123,8 +125,14 @@ export function SelectInput<T extends string | ReadonlyArray<string> | number | 
         IconComponent={ExpandMoreIcon}
       >
         {options.map((option, index) => (
-          <MenuItem value={option.value} key={String(option.value) + String(index)} classes={{ root: styles.menuItem }}>
-            {option.label}
+          <MenuItem key={`${option.value}${index}`} value={option.value}>
+            {option.info ? (
+              <InfoTooltip title={option.info} placement="right">
+                <span>{option.label}</span>
+              </InfoTooltip>
+            ) : (
+              option.label
+            )}
           </MenuItem>
         ))}
       </Select>

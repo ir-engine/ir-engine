@@ -25,13 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getState } from '@etherealengine/hyperflux'
 
 import { EditorHelperState } from '../services/EditorHelperState'
-import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
 /**
@@ -95,17 +93,4 @@ export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()
   position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
   position.y = ((mousePos.y - rect.top) / rect.height) * -2 + 1
   return getScreenSpacePosition(position, target)
-}
-
-/**
- * Function reparentToSceneAtCursorPosition used to reparent scene at cursor position.
- *
- * @param objects
- * @param mousePos
- */
-export function reparentToSceneAtCursorPosition(objects, mousePos) {
-  const newPosition = new Vector3()
-  getCursorSpawnPosition(mousePos, newPosition)
-  EditorControlFunctions.reparentObject(objects)
-  EditorControlFunctions.positionObject(objects, [newPosition])
 }

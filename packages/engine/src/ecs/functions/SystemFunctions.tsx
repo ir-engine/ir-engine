@@ -28,13 +28,14 @@ Ethereal Engine. All Rights Reserved.
 import React, { Component, ErrorInfo, FC, memo, Suspense, useEffect, useMemo } from 'react'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import multiLogger from '@etherealengine/common/src/logger'
-import { getState, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import { getState, startReactor } from '@etherealengine/hyperflux'
 
+import { MathUtils } from 'three'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { Entity, UndefinedEntity } from '../classes/Entity'
+import { Entity } from '../classes/Entity'
 import { QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityContext } from './EntityFunctions'
 
@@ -66,7 +67,9 @@ export function executeSystem(systemUUID: SystemUUID) {
 
   if (!Engine.instance.activeSystems.has(systemUUID)) return
 
-  system.preSystems.forEach(executeSystem)
+  for (let i = 0; i < system.preSystems.length; i++) {
+    executeSystem(system.preSystems[i])
+  }
 
   if (getState(EngineState).systemPerformanceProfilingEnabled) {
     const startTime = nowMilliseconds()
@@ -100,8 +103,12 @@ export function executeSystem(systemUUID: SystemUUID) {
     }
   }
 
-  system.subSystems.forEach(executeSystem)
-  system.postSystems.forEach(executeSystem)
+  for (let i = 0; i < system.subSystems.length; i++) {
+    executeSystem(system.subSystems[i])
+  }
+  for (let i = 0; i < system.postSystems.length; i++) {
+    executeSystem(system.postSystems[i])
+  }
 }
 
 /**
@@ -198,6 +205,29 @@ export const startSystems = (
   for (const system of systems) {
     startSystem(system, insert)
   }
+}
+
+/**
+ *
+ *
+ *
+ */
+
+export const useExecute = (
+  execute: () => void,
+  insert: {
+    before?: SystemUUID
+    with?: SystemUUID
+    after?: SystemUUID
+  }
+) => {
+  useEffect(() => {
+    const handle = defineSystem({ uuid: MathUtils.generateUUID(), execute })
+    startSystem(handle, insert)
+    return () => {
+      disableSystem(handle)
+    }
+  }, [])
 }
 
 /**

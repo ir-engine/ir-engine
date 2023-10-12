@@ -25,11 +25,48 @@ Ethereal Engine. All Rights Reserved.
 
 import Process from 'child_process'
 import ffmpeg from 'ffmpeg-static'
-import Stream from 'stream'
+import Stream, { Readable } from 'stream'
 
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
+import { Consumer } from 'mediasoup/node/lib/Consumer'
 
 const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
+
+function pipeStringToProcess(stringToConvert: string, childProcess: Process.ChildProcessWithoutNullStreams) {
+  const stream = new Readable()
+  stream._read = () => {}
+  stream.push(stringToConvert)
+  stream.push(null)
+  stream.resume()
+  stream.pipe(childProcess.stdin)
+}
+
+const createVP8sdp = (audioPort: number, audioPortRtcp: number, videoPort: number, videoPortRtcp: number) => `v=0
+o=- 0 0 IN IP4 127.0.0.1
+s=-
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio ${audioPort} RTP/AVPF 111
+a=rtcp:${audioPortRtcp}
+a=rtpmap:111 opus/48000/2
+a=fmtp:111 minptime=10;useinbandfec=1
+m=video ${videoPort} RTP/AVPF 96
+a=rtcp:${videoPortRtcp}
+a=rtpmap:96 VP8/90000`
+
+const createH264sdp = (audioPort: number, audioPortRtcp: number, videoPort: number, videoPortRtcp: number) => `v=0
+o=- 0 0 IN IP4 127.0.0.1
+s=-
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio ${audioPort} RTP/AVPF 111
+a=rtcp:${audioPortRtcp}
+a=rtpmap:111 opus/48000/2
+a=fmtp:111 minptime=10;useinbandfec=1
+m=video ${videoPort} RTP/AVPF 125
+a=rtcp:${videoPortRtcp}
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f`
 
 /**
  * @todo
@@ -51,49 +88,58 @@ const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
  * @param useH264
  * @returns
  */
-export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: () => void, useH264: boolean) => {
+export const startFFMPEG = async (
+  audioConsumer: Consumer | undefined,
+  videoConsumer: Consumer | undefined,
+  onExit: () => void,
+  useH264: boolean,
+  startPort: number
+) => {
   // require on demand as not to unnecessary slow down instance server
   if (!ffmpeg) throw new Error('FFmpeg not found')
+
+  logger.info('Using ffmpeg: ' + ffmpeg)
 
   // Ensure correct FFmpeg version is installed
   const ffmpegOut = Process.execSync(ffmpeg + ' -version', {
     encoding: 'utf8'
   })
-  const ffmpegVerMatch = /ffmpeg version (\d+)\.(\d+)\.(\d+)/.exec(ffmpegOut)
+  logger.info('FFmpeg output: %s', ffmpegOut)
+
   let ffmpegOk = false
   if (ffmpegOut.startsWith('ffmpeg version git')) {
     // Accept any Git build (it's up to the developer to ensure that a recent
     // enough version of the FFmpeg source code has been built)
     ffmpegOk = true
-  } else if (ffmpegVerMatch) {
+  } else {
+    // ffmpegOut looks like this:
+    // ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers
+    // and this
+    // ffmpeg version 5.0.1-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2022 the FFmpeg developers
+
+    // create an version regex to match it
+    const ffmpegVerMatch = /ffmpeg version (\d+)\./.exec(ffmpegOut)
+    if (!ffmpegVerMatch) throw new Error('FFmpeg version not found')
     const ffmpegVerMajor = parseInt(ffmpegVerMatch[1], 10)
-    if (ffmpegVerMajor >= 4) {
-      ffmpegOk = true
-    }
+    if (ffmpegVerMajor < 4) throw new Error('FFmpeg >= 4.0.0 not found in $PATH; please install it')
   }
 
   const stream = new Stream.PassThrough()
 
-  if (!ffmpegOk) {
-    throw new Error('FFmpeg >= 4.0.0 not found in $PATH; please install it')
-  }
-
   /** Init codec & args */
 
-  let cmdInputPath = `${__dirname}/recording/input-vp8.sdp`
-  let cmdOutputPath = `${__dirname}/recording/output-ffmpeg-vp8.webm`
+  let cmdInput = undefined as string | undefined
   let cmdCodec = ''
   let cmdFormat = '-f webm -flags +global_header'
 
-  if (useAudio) {
+  if (audioConsumer) {
     cmdCodec += ' -map 0:a:0 -c:a copy'
   }
-  if (useVideo) {
+  if (videoConsumer) {
     cmdCodec += ' -map 0:v:0 -c:v copy'
 
     if (useH264) {
-      cmdInputPath = `${__dirname}/recording/input-h264.sdp`
-      cmdOutputPath = `${__dirname}/recording/output-ffmpeg-h264.mp4`
+      cmdInput = createH264sdp(startPort, startPort + 1, startPort + 2, startPort + 3)
 
       // "-strict experimental" is required to allow storing
       // OPUS audio into MP4 container
@@ -101,17 +147,23 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     }
   }
 
+  if (!cmdInput) {
+    cmdInput = createVP8sdp(startPort, startPort + 1, startPort + 2, startPort + 3)
+  }
+
   // Run process
   const cmdArgStr = [
     '-nostdin',
-    '-protocol_whitelist file,rtp,udp',
-    '-analyzeduration 10M',
-    '-probesize 10M',
+    '-protocol_whitelist pipe,file,rtp,udp',
+    '-analyzeduration 2M',
+    '-probesize 2M',
     '-fflags +genpts',
-    `-i ${cmdInputPath}`,
+    '-flags low_delay',
+    // convert input command to a base64 data url
+    '-i pipe:0',
     cmdCodec,
     cmdFormat,
-    `-y pipe:1`
+    '-y pipe:1'
   ]
     .join(' ')
     .trim()
@@ -121,6 +173,7 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   const childProcess = Process.spawn(ffmpeg, cmdArgStr.split(/\s+/))
 
   childProcess.on('error', (err) => {
+    console.error(err)
     logger.error('Recording process error:', err)
   })
 
@@ -131,21 +184,43 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   childProcess.on('exit', (code, signal) => {
     logger.info('Recording process exit, code: %d, signal: %s', code, signal)
 
-    onExit()
+    if (code === 1) {
+      return onExit()
+    }
 
     if (!signal || signal === 'SIGINT') {
       logger.info('Recording stopped')
     } else {
       logger.warn("Recording process didn't exit cleanly, output file might be corrupt")
+      onExit()
     }
   })
 
-  const stop = () => {
-    childProcess.kill('SIGINT')
+  pipeStringToProcess(cmdInput, childProcess)
+
+  const stop = async () => {
+    /**
+     * @todo - https://trac.ffmpeg.org/ticket/9009
+     * this seems to corrupt the file, so instead we wait for the
+     * transport to timeout and let ffmpeg handle closing itself
+     */
+    // childProcess.kill('SIGINT') // SIGINT is graceful exit
   }
   childProcess.stdout.pipe(stream, { end: true })
 
-  await new Promise<void>((resolve, reject) => {
+  /** resume consumers */
+  if (videoConsumer) {
+    logger.info('Resuming recording video consumer')
+    await videoConsumer.resume()
+    logger.info('Resumed recording video consumer')
+  }
+  if (audioConsumer) {
+    logger.info('Resuming recording audio consumer')
+    await audioConsumer.resume()
+    logger.info('Resumed recording audio consumer')
+  }
+
+  await new Promise<void>(async (resolve, reject) => {
     // FFmpeg writes its logs to stderr
     childProcess.stderr.on('data', (chunk) => {
       chunk
@@ -155,9 +230,8 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
         .forEach((line) => {
           logger.info(line)
           if (line.startsWith('ffmpeg version')) {
-            setTimeout(() => {
-              resolve()
-            }, 1000)
+            logger.info('Recording started')
+            resolve()
           }
         })
     })

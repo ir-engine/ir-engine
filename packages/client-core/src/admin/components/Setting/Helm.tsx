@@ -23,34 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
-import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { AwsCloudFrontType, AwsSmsType } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import InputSelect, { InputMenuItem } from '../../../common/components/InputSelect'
-import { AuthState } from '../../../user/services/AuthService'
-import { AwsSettingService } from '../../services/Setting/AwsSettingService'
-import { AdminHelmSettingsState, HelmSettingService } from '../../services/Setting/HelmSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Helm = () => {
   const { t } = useTranslation()
-  const helmSettingState = useHookstate(getMutableState(AdminHelmSettingsState))
-  const [helmSetting] = helmSettingState?.helmSettings?.get({ noproxy: true }) || []
+
+  const helmSetting = useFind(helmSettingPath).data.at(0)
   const id = helmSetting?.id
-  const helmMainVersions = helmSettingState?.mainVersions?.get({ noproxy: true }) || []
-  const helmBuilderVersions = helmSettingState?.builderVersions?.get({ noproxy: true }) || []
-  const user = useHookstate(getMutableState(AuthState).user)
-  const selectedMainVersion = useHookstate('')
-  const selectedBuilderVersion = useHookstate('')
+
+  const helmMainVersions = useFind('helm-main-version').data
+  const helmBuilderVersions = useFind('helm-builder-version').data
+
+  const selectedMainVersion = useHookstate(helmSetting?.main)
+  const selectedBuilderVersion = useHookstate(helmSetting?.builder)
+
+  const patchHelmSetting = useMutation(helmSettingPath).patch
 
   const handleMainVersionChange = async (e) => {
     console.log('changeMainVersion', e, e.target.value)
@@ -77,26 +76,15 @@ const Helm = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    HelmSettingService.patchHelmSetting({ main: selectedMainVersion.value, builder: selectedBuilderVersion.value }, id)
+    if (!id || !selectedMainVersion.value || !selectedBuilderVersion.value) return
+
+    patchHelmSetting(id, { main: selectedMainVersion.value, builder: selectedBuilderVersion.value })
   }
 
   const handleCancel = () => {
     selectedMainVersion.set(helmSetting?.main)
     selectedBuilderVersion.set(helmSetting?.builder)
   }
-
-  useEffect(() => {
-    if (user?.id?.value != null && helmSettingState?.updateNeeded?.value) {
-      HelmSettingService.fetchHelmSetting()
-      HelmSettingService.fetchMainHelmVersions()
-      HelmSettingService.fetchBuilderHelmVersions()
-    }
-  }, [user?.id?.value, helmSettingState?.updateNeeded?.value])
-
-  useEffect(() => {
-    if (helmSetting?.main) selectedMainVersion.set(helmSetting.main)
-    if (helmSetting?.builder) selectedBuilderVersion.set(helmSetting.builder)
-  }, [helmSetting])
 
   return (
     <Box>

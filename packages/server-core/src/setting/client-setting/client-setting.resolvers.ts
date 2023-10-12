@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -36,9 +36,7 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
-
-export const clientSettingResolver = resolve<ClientSettingType, HookContext>({})
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSettingType => {
   let appSocialLinks = JSON.parse(rawData.appSocialLinks) as ClientSocialLinkType[]
@@ -73,8 +71,11 @@ export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSett
   }
 }
 
-export const clientSettingExternalResolver = resolve<ClientSettingType, HookContext>(
-  {},
+export const clientSettingResolver = resolve<ClientSettingType, HookContext>(
+  {
+    createdAt: virtual(async (clientSetting) => fromDateTimeSql(clientSetting.createdAt)),
+    updatedAt: virtual(async (clientSetting) => fromDateTimeSql(clientSetting.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -82,6 +83,8 @@ export const clientSettingExternalResolver = resolve<ClientSettingType, HookCont
     }
   }
 )
+
+export const clientSettingExternalResolver = resolve<ClientSettingType, HookContext>({})
 
 export const clientSettingDataResolver = resolve<ClientSettingDatabaseType, HookContext>(
   {

@@ -30,7 +30,6 @@ import EEMaterialExporterExtension from '../exporters/gltf/extensions/EEMaterial
 import GPUInstancingExporterExtension from '../exporters/gltf/extensions/GPUInstancingExporterExtension'
 import ImageProcessingExtension from '../exporters/gltf/extensions/ImageProcessingExtension'
 import ResourceIDExtension from '../exporters/gltf/extensions/ResourceIDExtension'
-import URLResolutionExtension from '../exporters/gltf/extensions/URLResolutionExtension'
 import { GLTFExporter, GLTFWriter } from '../exporters/gltf/GLTFExporter'
 
 export default function createGLTFExporter() {

@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
-import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
@@ -36,6 +36,8 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
+  const { t } = useTranslation()
+
   const rendererState = useHookstate(getMutableState(RendererState))
 
   const onToggleGridVisible = () => {
@@ -48,7 +50,7 @@ const GridTool = () => {
 
   return (
     <div id="transform-grid" className={styles.toolbarInputGroup}>
-      <InfoTooltip title="Toggle Grid Visibility">
+      <InfoTooltip title={t('editor:toolbar.grid.info-toggleGridVisibility')}>
         <button
           onClick={onToggleGridVisible}
           className={styles.toolButton + ' ' + (rendererState.gridVisibility.value ? styles.selected : '')}
@@ -56,18 +58,23 @@ const GridTool = () => {
           <GridOnIcon fontSize="small" />
         </button>
       </InfoTooltip>
-      <NumericStepperInput
-        className={styles.toolbarNumericStepperInput}
-        value={rendererState.gridHeight.value}
-        onChange={onChangeGridHeight}
-        precision={0.01}
-        smallStep={0.5}
-        mediumStep={1}
-        largeStep={5}
-        unit="m"
-        incrementTooltip="[-] Increment Grid Height"
-        decrementTooltip="[=] Decrement Grid Height"
-      />
+      <InfoTooltip title={t('editor:toolbar.grid.info-gridSpacing')} placement="right">
+        <div>
+          <NumericStepperInput
+            style={{ width: '120px' }}
+            className={styles.toolbarNumericStepperInput}
+            value={rendererState.gridHeight.value}
+            onChange={onChangeGridHeight}
+            precision={0.01}
+            smallStep={0.5}
+            mediumStep={1}
+            largeStep={5}
+            unit="m"
+            incrementTooltip={t('editor:toolbar.grid.info-incrementHeight')}
+            decrementTooltip={t('editor:toolbar.grid.info-decrementHeight')}
+          />
+        </div>
+      </InfoTooltip>
     </div>
   )
 }

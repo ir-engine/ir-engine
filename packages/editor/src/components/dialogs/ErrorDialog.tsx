@@ -24,47 +24,40 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
-import Dialog, { DialogContent } from './Dialog'
+const dialogContainerStyles = {
+  display: 'flex',
+  flexDirection: 'column',
+  borderRadius: '4px',
+  backgroundColor: '#282c31',
+  maxWidth: '600px'
+}
 
-/**
- * ErrorDialogContainer used as wrapper element for ErrorMessage.
- *
- * @param {any} styled
- * @type {Styled component}
- */
-const ErrorDialogContainer = (styled as any)(Dialog)`
-  max-width: 600px;
+const dialogContentStyles = {
+  padding: '0'
+}
 
-  ${DialogContent} {
-    padding: 0;
-  }
-`
+const errorMessageStyles = {
+  whiteSpace: 'pre-wrap',
+  overflowWrap: 'break-word',
+  overflowX: 'hidden',
+  overflowY: 'auto',
+  padding: '16px',
+  color: 'var(--red)'
+}
 
-/**
- * ErrorMessage used to provide styles for error message content.
- *
- * @type {Styled component}
- */
-const ErrorMessage = styled.code`
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 16px;
-  color: var(--red);
-`
+const ErrorDialogContainer = (props) => (
+  <div style={{ ...dialogContainerStyles, ...props.style }}>
+    <div style={dialogContentStyles}>{props.children}</div>
+  </div>
+)
 
-/**
- * ErrorDialog is used to render error message.
- *
- * @type {Object}
- */
-export function ErrorDialog(props) {
+const ErrorMessage = (props) => <code style={errorMessageStyles as React.CSSProperties}>{props.children}</code>
+
+const ErrorDialog = (props) => {
   if (!props) return null
   return (
-    <ErrorDialogContainer {...props}>
+    <ErrorDialogContainer style={props.style}>
       <ErrorMessage>{props?.message}</ErrorMessage>
     </ErrorDialogContainer>
   )

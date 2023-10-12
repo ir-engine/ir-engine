@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const emailSettingPath = 'email-setting'
 
@@ -38,8 +39,7 @@ export const emailSubjectSchema = Type.Object(
     instance: Type.String(),
     login: Type.String(),
     friend: Type.String(),
-    group: Type.String(),
-    party: Type.String()
+    channel: Type.String()
   },
   { $id: 'EmailSubject', additionalProperties: false }
 )
@@ -117,3 +117,11 @@ export const emailSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type EmailSettingQuery = Static<typeof emailSettingQuerySchema>
+
+export const emailSubjectValidator = getValidator(emailSubjectSchema, dataValidator)
+export const emailAuthValidator = getValidator(emailAuthSchema, dataValidator)
+export const emailSmtpValidator = getValidator(emailSmtpSchema, dataValidator)
+export const emailSettingValidator = getValidator(emailSettingSchema, dataValidator)
+export const emailSettingDataValidator = getValidator(emailSettingDataSchema, dataValidator)
+export const emailSettingPatchValidator = getValidator(emailSettingPatchSchema, dataValidator)
+export const emailSettingQueryValidator = getValidator(emailSettingQuerySchema, queryValidator)

@@ -26,9 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 
 import ColorInput from '../inputs/ColorInput'
@@ -38,7 +41,9 @@ import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
+
+import { SportsBarTwoTone } from '@mui/icons-material'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -64,6 +69,13 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
 
+  const bakeEntities = useQuery([EnvMapBakeComponent]).map((entity) => {
+    return {
+      label: getComponent(entity, NameComponent),
+      value: getComponent(entity, UUIDComponent)
+    }
+  })
+
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
     if (directory !== envmapComponent.envMapSourceURL) {
@@ -71,7 +83,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
     }
   }, [])
 
-  let envmapComponent = useComponent(entity, EnvmapComponent)
+  const envmapComponent = useComponent(entity, EnvmapComponent)
 
   const errors = getEntityErrors(props.entity, EnvmapComponent)
 
@@ -87,7 +99,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={EnvMapSourceOptions}
           value={envmapComponent.type.value}
-          onChange={updateProperty(EnvmapComponent, 'type')}
+          onChange={commitProperty(EnvmapComponent, 'type')}
         />
       </InputGroup>
       {envmapComponent.type.value === EnvMapSourceType.Color && (
@@ -95,6 +107,16 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           <ColorInput
             value={envmapComponent.envMapSourceColor.value}
             onChange={updateProperty(EnvmapComponent, 'envMapSourceColor')}
+            onRelease={commitProperty(EnvmapComponent, 'envMapSourceColor')}
+          />
+        </InputGroup>
+      )}
+      {envmapComponent.type.value === EnvMapSourceType.Bake && (
+        <InputGroup name="EnvMapBake" label="EnvMap Bake">
+          <SelectInput
+            options={bakeEntities}
+            value={envmapComponent.envMapSourceEntityUUID.value}
+            onChange={commitProperty(EnvmapComponent, 'envMapSourceEntityUUID')}
           />
         </InputGroup>
       )}
@@ -105,7 +127,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               key={props.entity}
               options={EnvMapTextureOptions}
               value={envmapComponent.envMapTextureType.value}
-              onChange={updateProperty(EnvmapComponent, 'envMapTextureType')}
+              onChange={commitProperty(EnvmapComponent, 'envMapTextureType')}
             />
           </InputGroup>
           <InputGroup name="Texture URL" label="Texture URL">
@@ -132,11 +154,12 @@ export const EnvMapEditor: EditorComponentType = (props) => {
             max={20}
             value={envmapComponent.envMapIntensity.value}
             onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
+            onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
           />
         </InputGroup>
       )}
     </NodeEditor>
   )
 }
-
+EnvMapEditor.iconComponent = SportsBarTwoTone
 export default EnvMapEditor

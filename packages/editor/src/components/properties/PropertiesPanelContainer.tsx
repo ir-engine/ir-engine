@@ -26,49 +26,110 @@ Ethereal Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 import { Object3D } from 'three'
 
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getAllComponents } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import {
+  ComponentJSONIDMap,
+  getAllComponents,
+  hasComponent,
+  useOptionalComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EntityNodeEditor } from '../../functions/PrefabEditors'
+import { useDrop } from 'react-dnd'
+import { ItemTypes } from '../../constants/AssetTypes'
+import { EntityNodeEditor } from '../../functions/ComponentEditors'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { SelectionState } from '../../services/SelectionServices'
+import { SelectionAction, SelectionState } from '../../services/SelectionServices'
 import MaterialEditor from '../materials/MaterialEditor'
 import { CoreNodeEditor } from './CoreNodeEditor'
 import Object3DNodeEditor from './Object3DNodeEditor'
 
-const StyledNodeEditor = styled.div``
-
 /**
  * PropertiesPanelContent used as container element contains content of editor view.
- * @type {Styled Component}
+ * @type {Style}
  */
-const PropertiesPanelContent = styled.div`
-  overflow-y: auto;
-  height: 100%;
-`
-
+const propertiesPanelContentStyle: React.CSSProperties = {
+  overflowY: 'auto',
+  height: '100%'
+}
 /**
  * NoNodeSelectedMessage used to show the message when no selected no is there.
  *
- * @type {Styled component}
+ * @type {Style}
  */
-const NoNodeSelectedMessage = styled.div`
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--textColor);
-`
+const noNodeSelectedMessageStyle: React.CSSProperties = {
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  color: 'var(--textColor)'
+}
+
+const EntityComponentEditor = (props: { entity; component; multiEdit }) => {
+  const { entity, component, multiEdit } = props
+  const componentMounted = useOptionalComponent(entity as Entity, component)
+  const Editor = EntityNodeEditor.get(component)!
+  if (!componentMounted) return null
+  // nodeEntity is used as key here to signal to React when the entity has changed,
+  // and to prevent state from being recycled between editor instances, which
+  // can cause hookstate to throw errors.
+  return (
+    <Editor key={`${entity}-${Editor.name}`} multiEdit={multiEdit} entity={entity as Entity} component={component} />
+  )
+}
+
+const EntityEditor = (props: { entity: Entity; multiEdit: boolean }) => {
+  const { entity, multiEdit } = props
+
+  const [{ isDragging }, dropRef] = useDrop({
+    accept: [ItemTypes.Component],
+    drop: (item: { componentJsonID: string }) => {
+      const component = ComponentJSONIDMap.get(item.componentJsonID)
+      if (!component || hasComponent(entity, component)) return
+      EditorControlFunctions.addOrRemoveComponent([entity], component, true)
+      dispatchAction(SelectionAction.forceUpdate({}))
+    },
+    collect: (monitor) => {
+      if (monitor.getItem() === null || !monitor.canDrop() || !monitor.isOver()) return { isDragging: false }
+
+      const component = ComponentJSONIDMap.get(monitor.getItem().componentJsonID)
+      if (!component) return { isDragging: false }
+
+      return {
+        isDragging: !hasComponent(entity, component)
+      }
+    }
+  })
+
+  const uuid = useOptionalComponent(entity, UUIDComponent)
+
+  if (!uuid) return null
+
+  const components = getAllComponents(entity as Entity).filter((c) => EntityNodeEditor.has(c))
+
+  return (
+    <div
+      ref={dropRef}
+      style={{
+        pointerEvents: 'all',
+        border: isDragging ? '2px solid lightgrey' : 'none'
+      }}
+    >
+      <CoreNodeEditor entity={entity} key={entity} />
+      {components.map((c, i) => (
+        <EntityComponentEditor key={`${entity}-${c.name}`} multiEdit={multiEdit} entity={entity} component={c} />
+      ))}
+    </div>
+  )
+}
 
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
@@ -87,21 +148,28 @@ export const PropertiesPanelContainer = () => {
   useEffect(() => {
     forceUpdate()
   }, [selectionState.objectChangeCounter])
+
   const materialLibrary = getState(MaterialLibraryState)
+
   //rendering editor views for customization of element properties
   let content
+
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
-  let nodeEntity = lockedNode
+
+  const nodeEntity = lockedNode
     ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
+
   const isMaterial =
     typeof nodeEntity === 'string' &&
     (!!materialLibrary.materials[nodeEntity] ||
       Object.values(materialLibrary.materials)
         .map(({ material }) => material.uuid)
         .includes(nodeEntity))
+
   const isObject3D = typeof nodeEntity === 'string' && !isMaterial
+
   const node = isMaterial
     ? materialLibrary.materials[nodeEntity as string] ??
       Object.values(materialLibrary.materials).find(({ material }) => material.uuid === nodeEntity)
@@ -110,41 +178,26 @@ export const PropertiesPanelContainer = () => {
     : nodeEntity
 
   if (!nodeEntity || !node) {
-    content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
+    content = <div style={noNodeSelectedMessageStyle}>{t('editor:properties.noNodeSelected')}</div>
   } else if (isObject3D) {
     content = (
-      <StyledNodeEditor>
+      <div>
         {/* @todo these types are incorrect */}
         <Object3DNodeEditor multiEdit={multiEdit} obj3d={node as Object3D} />
-      </StyledNodeEditor>
+      </div>
     )
   } else if (isMaterial) {
     content = (
-      <StyledNodeEditor>
+      <div>
         <MaterialEditor key={`${nodeEntity}-MaterialEditor`} material={(node as MaterialComponentType).material} />
-      </StyledNodeEditor>
+      </div>
     )
   } else {
-    nodeEntity = nodeEntity as Entity
-    const components = getAllComponents(nodeEntity as Entity).filter((c) => EntityNodeEditor.has(c))
-
-    content = (
-      <StyledNodeEditor>
-        <CoreNodeEditor entity={node as Entity} key={node as Entity} />
-        {components.map((c, i) => {
-          const Editor = EntityNodeEditor.get(c)!
-          // nodeEntity is used as key here to signal to React when the entity has changed,
-          // and to prevent state from being recycled between editor instances, which
-          // can cause hookstate to throw errors.
-          return (
-            <Editor key={`${nodeEntity}-${Editor.name}`} multiEdit={multiEdit} entity={node as Entity} component={c} />
-          )
-        })}
-      </StyledNodeEditor>
-    )
+    const entity = nodeEntity as Entity
+    content = <EntityEditor entity={entity} key={entity} multiEdit={multiEdit} />
   }
 
-  return <PropertiesPanelContent>{content}</PropertiesPanelContent>
+  return <div style={propertiesPanelContentStyle}>{content}</div>
 }
 
 export default PropertiesPanelContainer

@@ -33,6 +33,7 @@
     "./tests/**/*.ts"
   ],
   "include": [
+    "../../../../__global.d.ts",
     "../../../server-core/src/*",
     "./**/*.ts",
     "./**/*.tsx"

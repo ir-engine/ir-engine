@@ -16,6 +16,12 @@
     opacity: 0.8;
   }
 
+  & > .containerCircle {
+    margin-right: 0 !important;
+    margin-left: 5px;
+    margin-top: -2px;
+  }
+
   @media (max-width: 900px) {
     font-size: 0.7rem;
   }
@@ -659,6 +665,10 @@
 
 .containerRed {
   background-color: red;
+}
+
+.containerYellow {
+  background-color: yellow;
 }
 
 .projectMismatchWarning,

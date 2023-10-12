@@ -106,6 +106,7 @@ function sortPluginsByPriority(a: PluginType, b: PluginType): number {
 const onBeforeCompile = {
   get: function (this: CustomMaterial) {
     if (!this._onBeforeCompile.toString) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this
 
       this._onBeforeCompile.toString = function () {
@@ -142,9 +143,14 @@ const onBeforeCompile = {
       this.plugins.unshift(plugin)
       this.plugins.sort(sortPluginsByPriority)
 
-      // Invalidate the cache for the shader cache
       const key = Math.random()
       this.customProgramCacheKey = () => key.toString()
+      // this.customProgramCacheKey = () => {
+      //   if (typeof this._onBeforeCompile.toString === 'function')
+      //     return this._onBeforeCompile.toString()
+      //   else
+      //     return this.onBeforeCompile.toString()
+      // }
     } else {
       console.error('Invalid type "%s" assigned to onBeforeCompile', typeof plugins)
     }

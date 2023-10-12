@@ -23,19 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
+import { Matrix4 } from 'three'
 
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import {
-  compareDistanceToCamera,
   compareDistanceToLocalClient,
-  DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'

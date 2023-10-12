@@ -25,17 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { InviteType } from '@etherealengine/common/src/interfaces/InviteType'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { inviteTypePath, InviteTypeType } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -43,7 +36,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 const InviteTypeState = defineState({
   name: 'InviteTypeState',
   initial: () => ({
-    invitesType: [] as Array<InviteType>,
+    invitesType: [] as Array<InviteTypeType>,
     skip: 0,
     limit: 5,
     total: 0
@@ -67,7 +60,7 @@ export const InviteTypeService = {
   retrieveInvites: async () => {
     dispatchAction(InviteTypeAction.fetchingInvitesTypes({}))
     try {
-      const inviteTypeResult = (await API.instance.client.service('invite-type').find()) as Paginated<InviteType>
+      const inviteTypeResult = (await API.instance.client.service(inviteTypePath).find()) as Paginated<InviteTypeType>
       dispatchAction(
         InviteTypeAction.retrievedInvitesTypes({
           invitesType: inviteTypeResult,
@@ -88,7 +81,7 @@ export class InviteTypeAction {
     type: 'ee.client.InviteType.LOAD_INVITE_TYPE' as const,
     total: matches.number,
     limit: matches.number,
-    invitesType: matches.any as Validator<unknown, Paginated<InviteType>>,
+    invitesType: matches.any as Validator<unknown, Paginated<InviteTypeType>>,
     skip: matches.number
   })
 

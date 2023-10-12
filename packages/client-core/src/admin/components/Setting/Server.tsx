@@ -24,27 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Icon } from '@iconify/react'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthState } from '../../../user/services/AuthService'
-import { AdminServerSettingsState, ServerSettingService } from '../../services/Setting/ServerSettingService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { serverSettingPath } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Server = () => {
   const { t } = useTranslation()
 
-  const user = useHookstate(getMutableState(AuthState).user)
-  const serverSettingState = useHookstate(getMutableState(AdminServerSettingsState))
-  const [serverSetting] = serverSettingState?.server?.get({ noproxy: true }) || []
+  const serverSetting = useFind(serverSettingPath).data.at(0)
   const id = serverSetting?.id
 
   const gaTrackingId = useHookstate(serverSetting?.gaTrackingId)
@@ -53,35 +51,21 @@ const Server = () => {
   const dryRun = useHookstate(true)
   const local = useHookstate(true)
 
-  useEffect(() => {
-    if (serverSetting) {
-      gaTrackingId.set(serverSetting?.gaTrackingId)
-      githubWebhookSecret.set(serverSetting?.githubWebhookSecret)
-      instanceserverUnreachableTimeoutSeconds.set(serverSetting?.instanceserverUnreachableTimeoutSeconds)
-    }
-  }, [serverSettingState?.updateNeeded?.value])
+  const patchServerSetting = useMutation(serverSettingPath).patch
 
   const handleSubmit = (event) => {
-    ServerSettingService.patchServerSetting(
-      {
-        gaTrackingId: gaTrackingId.value,
-        githubWebhookSecret: githubWebhookSecret.value,
-        instanceserverUnreachableTimeoutSeconds: instanceserverUnreachableTimeoutSeconds.value
-      },
-      id
-    )
+    if (!id) return
+    patchServerSetting(id, {
+      gaTrackingId: gaTrackingId.value,
+      githubWebhookSecret: githubWebhookSecret.value,
+      instanceserverUnreachableTimeoutSeconds: instanceserverUnreachableTimeoutSeconds.value
+    })
   }
 
   const handleCancel = () => {
     gaTrackingId.set(serverSetting?.gaTrackingId)
     githubWebhookSecret.set(serverSetting?.githubWebhookSecret)
   }
-
-  useEffect(() => {
-    if (user?.id?.value != null && serverSettingState?.updateNeeded?.value === true) {
-      ServerSettingService.fetchServerSettings()
-    }
-  }, [user?.id?.value, serverSettingState?.updateNeeded?.value])
 
   return (
     <Box>

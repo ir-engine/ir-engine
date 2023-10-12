@@ -23,61 +23,88 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { InstanceID, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
+import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { instanceUsersColumns } from '../../common/variables/instance'
-import {
-  AdminInstanceUserService,
-  AdminInstanceUserState,
-  INSTANCE_USERS_PAGE_LIMIT
-} from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  selectedInstance?: Instance
+  selectedInstance?: InstanceType
   onClose: () => void
 }
 
 const INFINITY = 'INFINITY'
 
+const useUsersInInstance = (instanceId: InstanceID) => {
+  const instanceAttendances = useFind(instanceAttendancePath, {
+    query: {
+      instanceId
+    }
+  })
+
+  const userIds = instanceAttendances.data.map((d: any) => d.userId)
+  return useFind(userPath, {
+    query: {
+      id: {
+        $in: userIds
+      },
+      $sort: {
+        createdAt: 1
+      },
+      $limit: 10
+    }
+  })
+}
+
+const useKickUser = () => {
+  const createUserKick = useMutation(userKickPath).create
+
+  return (kickData: { userId: UserID; instanceId: InstanceID; duration: string }) => {
+    const duration = new Date()
+    if (kickData.duration === 'INFINITY') {
+      duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years
+    } else {
+      duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
+    }
+    createUserKick({ ...kickData, duration: toDateTimeSql(duration) })
+    NotificationService.dispatchNotify(`user was kicked`, { variant: 'default' })
+  }
+}
+
 const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(INSTANCE_USERS_PAGE_LIMIT)
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('createdAt')
+  const { t } = useTranslation()
 
   const openKickDialog = useHookstate(false)
   const kickData = useHookstate({
-    userId: '' as UserInterface['id'],
-    instanceId: '',
+    userId: '' as UserID,
+    instanceId: '' as InstanceID,
     duration: '8'
   })
 
-  const { t } = useTranslation()
+  const instanceUsersQuery = useUsersInInstance(selectedInstance?.id ?? ('' as InstanceID))
+  const kickUser = useKickUser()
 
-  const adminInstanceUserState = useHookstate(getMutableState(AdminInstanceUserState))
-
-  useEffect(() => {
-    if (!selectedInstance) return
-    AdminInstanceUserService.fetchUsersInInstance(selectedInstance.id)
-  }, [selectedInstance])
-
-  const createData = (id: UserInterface['id'], name: UserInterface['name']) => ({
+  const createData = (id: UserID, name: string) => ({
     id,
     name,
     action: (
@@ -108,34 +135,21 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
     if (!kickData.value.duration || !selectedInstance) {
       return
     }
-    await AdminInstanceUserService.kickUser({ ...kickData.value })
-    await AdminInstanceUserService.fetchUsersInInstance(selectedInstance.id)
+    await kickUser(kickData.value)
     openKickDialog.set(false)
     if (kickData.value.duration === INFINITY) {
       kickData.merge({ duration: '8' })
     }
   }
 
-  const rows = adminInstanceUserState.value.users.map((el) => createData(el.id, el.name))
+  const rows = instanceUsersQuery.data.map((el) => createData(el.id, el.name))
 
   return (
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>{selectedInstance?.ipAddress}</DialogTitle>
         <Grid container spacing={5} className={styles.mb15px}>
-          <TableComponent
-            allowSort={false}
-            fieldOrder={fieldOrder.value}
-            setSortField={sortField.set}
-            setFieldOrder={fieldOrder.set}
-            rows={rows}
-            column={instanceUsersColumns}
-            page={page.value}
-            rowsPerPage={rowsPerPage.value}
-            count={adminInstanceUserState.total.value}
-            handlePageChange={() => {}}
-            handleRowsPerPageChange={() => {}}
-          />
+          <TableComponent query={instanceUsersQuery} rows={rows} column={instanceUsersColumns} />
         </Grid>
       </Container>
       <ConfirmDialog

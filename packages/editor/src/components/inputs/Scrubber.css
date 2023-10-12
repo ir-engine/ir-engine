@@ -1,0 +1,10 @@
+.Cursor {
+  position: absolute;
+  width: 20px;
+}
+
+.Cursor path {
+  stroke: white;
+  stroke-width: 20px;
+  fill: black;
+}

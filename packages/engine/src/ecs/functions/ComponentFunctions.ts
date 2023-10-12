@@ -25,12 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Subscribable, subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
-import React, { startTransition, use, useEffect, useLayoutEffect, useMemo } from 'react'
+// tslint:disable:ordered-imports
 import type from 'react/experimental'
+import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { HookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
 import { getNestedObject } from '@etherealengine/common/src/utils/getNestedProperty'
 import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
@@ -53,14 +54,14 @@ globalThis.ComponentJSONIDMap = ComponentJSONIDMap
 
 type PartialIfObject<T> = T extends object ? Partial<T> : T
 
-type OnInitValidateNotState<T> = T extends State<any, {}> ? 'onAdd must not return a State object' : T
+type OnInitValidateNotState<T> = T extends State<any, object | unknown> ? 'onInit must not return a State object' : T
 
 type SomeStringLiteral = 'a' | 'b' | 'c' // just a dummy string literal union
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 
 export interface ComponentPartial<
   ComponentType = any,
-  Schema extends bitECS.ISchema = {},
+  Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = never
@@ -77,7 +78,7 @@ export interface ComponentPartial<
 }
 export interface Component<
   ComponentType = any,
-  Schema extends bitECS.ISchema = {},
+  Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
   ErrorTypes = string
@@ -93,7 +94,7 @@ export interface Component<
   reactor?: HookableFunction<React.FC>
   reactorMap: Map<Entity, ReactorRoot>
   existenceMap: Readonly<Record<Entity, boolean>>
-  existenceMapState: State<Record<Entity, boolean>, Subscribable>
+  existenceMapState: State<Record<Entity, boolean>>
   existenceMapPromiseResolver: Record<Entity, { promise: Promise<void>; resolve: () => void }>
   stateMap: Record<Entity, State<ComponentType, Subscribable> | undefined>
   valueMap: Record<Entity, ComponentType>
@@ -108,7 +109,7 @@ export type ComponentErrorsType<C extends Component> = C['errors'][number]
 
 export const defineComponent = <
   ComponentType = true,
-  Schema extends bitECS.ISchema = {},
+  Schema extends bitECS.ISchema = Record<string, any>,
   JSON = ComponentType,
   ComponentExtras = unknown,
   SetJSON = PartialIfObject<DeepReadonly<JSON>>,
@@ -133,11 +134,14 @@ export const defineComponent = <
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.existenceMap = {}
-  Component.existenceMapState = hookstate(Component.existenceMap, subscribable())
+  Component.existenceMapState = hookstate(Component.existenceMap)
   Component.existenceMapPromiseResolver = {}
   Component.stateMap = {}
   Component.valueMap = {}
-  if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
+  if (Component.jsonID) {
+    ComponentJSONIDMap.set(Component.jsonID, Component)
+    console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
+  }
   ComponentMap.set(Component.name, Component)
 
   return Component as typeof Component & { _TYPE: ComponentType }
@@ -146,7 +150,10 @@ export const defineComponent = <
 /**
  * @deprecated use `defineComponent`
  */
-export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.ISchema = {}>(
+export const createMappedComponent = <
+  ComponentType = object | unknown,
+  Schema extends bitECS.ISchema = Record<string, any>
+>(
   name: string,
   schema?: Schema
 ) => {
@@ -163,7 +170,7 @@ export const createMappedComponent = <ComponentType = {}, Schema extends bitECS.
 
 export const getOptionalMutableComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>
+  component: Component<ComponentType, Record<string, any>, unknown>
 ): State<ComponentType, Subscribable> | undefined => {
   // if (entity === UndefinedEntity) return undefined
   if (component.existenceMap[entity]) return component.stateMap[entity]
@@ -177,7 +184,7 @@ export const getOptionalComponentState = getOptionalMutableComponent
 
 export const getMutableComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>
+  component: Component<ComponentType, Record<string, any>, unknown>
 ): State<ComponentType, Subscribable> => {
   const componentState = getOptionalMutableComponent(entity, component)!
   // TODO: uncomment the following after enabling es-lint no-unnecessary-condition rule
@@ -192,14 +199,14 @@ export const getComponentState = getMutableComponent
 
 export const getOptionalComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>
+  component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType | undefined => {
   return component.valueMap[entity] as ComponentType | undefined
 }
 
 export const getComponent = <ComponentType>(
   entity: Entity,
-  component: Component<ComponentType, {}, unknown>
+  component: Component<ComponentType, Record<string, any>, unknown>
 ): ComponentType => {
   return component.valueMap[entity] as ComponentType
 }
@@ -345,7 +352,12 @@ export const removeComponent = async <C extends Component>(entity: Entity, compo
   if (root?.isRunning) await root?.stop()
   // NOTE: we may need to perform cleanup after a timeout here in case there
   // are other reactors also referencing this state in their cleanup functions
-  if (!hasComponent(entity, component)) component.stateMap[entity]?.set(undefined)
+  if (!hasComponent(entity, component)) {
+    component.stateMap[entity]?.set(none)
+    // Can not get the full destroy to function without widespread errors in our core systems
+    //component.stateMap[entity]?.destroy
+    //delete component.stateMap[entity]
+  }
 }
 
 export const getAllComponents = (entity: Entity): Component[] => {
@@ -391,7 +403,7 @@ export const serializeComponent = <C extends Component<any, any, any>>(entity: E
 }
 
 export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
-  const query = bitECS.defineQuery([...components, bitECS.Not(EntityRemovedComponent)]) as bitECS.Query
+  const query = bitECS.defineQuery(components) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
 
@@ -517,14 +529,12 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
  */
 export function useOptionalComponent<C extends Component<any>>(entity: Entity, Component: C) {
   const hasComponent = useHookstate(Component.existenceMapState[entity]).value
-  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined)
+  if (!Component.stateMap[entity]) Component.stateMap[entity] = hookstate(undefined) //in the case that this is called before a component is set we need a hookstate present for react
   const component = useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
   return hasComponent ? component : undefined
 }
 
 export type Query = ReturnType<typeof defineQuery>
-
-export const EntityRemovedComponent = defineComponent({ name: 'EntityRemovedComponent' })
 
 globalThis.EE_getComponent = getComponent
 globalThis.EE_getAllComponents = getAllComponents

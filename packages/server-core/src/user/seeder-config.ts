@@ -23,10 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
+import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 
-import { userRelationshipTypeSeed } from './user-relationship-type/user-relationship-type.seed'
+import * as userRelationshipTypeSeed from './user-relationship-type/user-relationship-type.seed'
 
-export const userSeeds: Array<ServicesSeedConfig> = [userRelationshipTypeSeed]
-
-export default userSeeds
+export const userSeeds: Array<KnexSeed> = [userRelationshipTypeSeed]

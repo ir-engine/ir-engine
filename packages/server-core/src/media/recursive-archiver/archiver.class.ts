@@ -23,78 +23,155 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServiceMethods } from '@feathersjs/feathers/lib/declarations'
-import appRootPath from 'app-root-path'
+import { NullableId, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import JSZip from 'jszip'
 import fetch from 'node-fetch'
-import path from 'path/posix'
 
+import { apiJobPath } from '@etherealengine/engine/src/schemas/cluster/api-job.schema'
+import { ArchiverQuery } from '@etherealengine/engine/src/schemas/media/archiver.schema'
+import { BadRequest } from '@feathersjs/errors'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { UserParams } from '../../user/user/user.class'
+import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { createExecutorJob, getDirectoryArchiveJobBody } from '../../projects/project/project-helper'
+import { getDateTimeSql } from '../../util/datetime-sql'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
-export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
+const DIRECTORY_ARCHIVE_TIMEOUT = 60 * 10 //10 minutes
 
 /**
  * A class for Managing files in FileBrowser
  */
 
-export class Archiver implements Partial<ServiceMethods<any>> {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ArchiverParams extends KnexAdapterParams<ArchiverQuery> {}
+
+const archive = async (app: Application, directory, params?: ArchiverParams): Promise<string> => {
+  if (directory.at(0) === '/') directory = directory.slice(1)
+  if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
+    return Promise.reject(new Error('Cannot archive non-project directories'))
+  }
+
+  const split = directory.split('/')
+  let projectName
+  if (split[split.length - 1].length === 0) projectName = split[split.length - 2]
+  else projectName = split[split.length - 1]
+  projectName = projectName.toLowerCase()
+
+  if (!params) params = {}
+  if (!params.query) params.query = {}
+  const storageProviderName = params.query.storageProviderName?.toString()
+
+  delete params.query.storageProviderName
+
+  const storageProvider = getStorageProvider(storageProviderName)
+
+  logger.info(`Archiving ${directory} using ${storageProviderName}`)
+
+  const result = await storageProvider.listFolderContent(directory)
+
+  const zip = new JSZip()
+
+  for (let i = 0; i < result.length; i++) {
+    if (result[i].type == 'folder') {
+      const content = await storageProvider.listFolderContent(result[i].key + '/')
+      content.forEach((f) => {
+        result.push(f)
+      })
+    }
+
+    if (result[i].type == 'folder') continue
+
+    const blobPromise = await fetch(result[i].url, { method: 'GET' }).then((r) => {
+      if (r.status === 200) return r.arrayBuffer()
+      return Promise.reject(new Error(r.statusText))
+    })
+
+    logger.info(`Added ${result[i].key} to archive`)
+
+    const dir = result[i].key.substring(result[i].key.indexOf('/') + 1)
+    zip.file(dir, blobPromise)
+  }
+
+  const generated = await zip.generateAsync({ type: 'blob', streamFiles: true })
+
+  const zipOutputDirectory = `temp/${projectName}.zip`
+
+  logger.info(`Uploading ${zipOutputDirectory} to storage provider`)
+
+  await storageProvider.putObject({
+    Key: zipOutputDirectory,
+    Body: Buffer.from(await generated.arrayBuffer()),
+    ContentType: 'archive/zip'
+  })
+
+  logger.info(`Archived ${directory} to ${zipOutputDirectory}`)
+
+  if (params.query.jobId) {
+    const date = await getDateTimeSql()
+    await app.service(apiJobPath).patch(params.query.jobId as string, {
+      status: 'succeeded',
+      returnData: zipOutputDirectory,
+      endTime: date
+    })
+  }
+
+  return zipOutputDirectory
+}
+
+export class ArchiverService implements ServiceInterface<string, ArchiverParams> {
   app: Application
 
   constructor(app: Application) {
     this.app = app
   }
 
-  async setup(app: Application, path: string) {}
+  async get(id: NullableId, params?: ArchiverParams) {
+    if (!params) throw new BadRequest('No directory specified')
 
-  async get(directory: string, params?: UserParams): Promise<string> {
-    if (directory[0] === '/') directory = directory.slice(1)
-    if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
-      return Promise.reject(new Error('Cannot archive non-project directories'))
-    }
+    const directory = params?.query?.directory!.toString()
+    delete params.query?.directory
 
-    if (!params) params = {}
-    if (!params.query) params.query = {}
-    const { storageProviderName } = params.query
+    if (!config.kubernetes.enabled || params?.query?.isJob) return archive(this.app, directory, params)
+    else {
+      const split = directory!.split('/')
+      let projectName
+      if (split[split.length - 1].length === 0) projectName = split[split.length - 2]
+      else projectName = split[split.length - 1]
+      projectName = projectName.toLowerCase()
 
-    delete params.query.storageProviderName
-
-    const storageProvider = getStorageProvider(storageProviderName)
-
-    let result = await storageProvider.listFolderContent(directory)
-
-    const zip = new JSZip()
-
-    for (let i = 0; i < result.length; i++) {
-      if (result[i].type == 'folder') {
-        let content = await storageProvider.listFolderContent(result[i].key)
-        content.forEach((f) => {
-          result.push(f)
-        })
-      }
-
-      if (result[i].type == 'folder') continue
-
-      const blobPromise = await fetch(result[i].url, { method: 'GET' }).then((r) => {
-        if (r.status === 200) return r.arrayBuffer()
-        return Promise.reject(new Error(r.statusText))
+      const date = await getDateTimeSql()
+      const newJob = await this.app.service(apiJobPath).create({
+        name: '',
+        startTime: date,
+        endTime: date,
+        returnData: '',
+        status: 'pending'
       })
+      const jobBody = await getDirectoryArchiveJobBody(this.app, directory!, projectName, newJob.id)
+      await this.app.service(apiJobPath).patch(newJob.id, {
+        name: jobBody.metadata!.name
+      })
+      const jobLabelSelector = `etherealengine/directoryField=${projectName},etherealengine/release=${process.env.RELEASE_NAME},etherealengine/directoryArchiver=true`
+      const jobFinishedPromise = createExecutorJob(
+        this.app,
+        jobBody,
+        jobLabelSelector,
+        DIRECTORY_ARCHIVE_TIMEOUT,
+        newJob.id
+      )
+      try {
+        await jobFinishedPromise
+        const job = await this.app.service(apiJobPath).get(newJob.id)
 
-      const dir = result[i].key.substring(result[i].key.indexOf('/') + 1)
-      zip.file(dir, blobPromise)
+        logger.info(`Archived ${directory} to ${job.returnData}`)
+
+        return job.returnData
+      } catch (err) {
+        console.log('Error: Directory was not properly archived', directory, err)
+        throw new BadRequest('Directory was not properly archived')
+      }
     }
-
-    const generated = await zip.generateAsync({ type: 'blob', streamFiles: true })
-
-    const zipOutputDirectory = `'temp'${directory.substring(directory.lastIndexOf('/'))}.zip`
-
-    await storageProvider.putObject({
-      Key: zipOutputDirectory,
-      Body: Buffer.from(await generated.arrayBuffer()),
-      ContentType: 'archive/zip'
-    })
-
-    return zipOutputDirectory
   }
 }

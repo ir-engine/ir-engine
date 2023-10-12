@@ -25,14 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
@@ -40,26 +39,28 @@ import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../
 import { NetworkState } from '../NetworkState'
 import {
   compress,
+  flatten,
+  getVector4IndexBasedComponentValue,
   QUAT_MAX_RANGE,
   QUAT_PRECISION_MULT,
   SerializationSchema,
   VEC3_MAX_RANGE,
-  VEC3_PRECISION_MULT
+  VEC3_PRECISION_MULT,
+  Vector3SoA,
+  Vector4SoA
 } from './Utils'
-import { flatten, getVector4IndexBasedComponentValue, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
   rewindViewCursor,
   sliceViewCursor,
-  spaceUint8,
   spaceUint16,
   spaceUint32,
   spaceUint64,
+  spaceUint8,
   ViewCursor,
   writeFloat64,
   writePropIfChanged,
-  writeUint32,
-  writeUint64
+  writeUint32
 } from './ViewCursor'
 
 /**
@@ -261,12 +262,14 @@ export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, 
 export const writeEntity = (
   v: ViewCursor,
   networkId: NetworkId,
+  ownerIndex: number,
   entity: Entity,
   serializationSchema: SerializationSchema[]
 ) => {
   const rewind = rewindViewCursor(v)
 
   const writeNetworkId = spaceUint32(v)
+  const writeOwnerIndex = spaceUint32(v)
 
   const writeChangeMask = spaceUint8(v)
   let changeMask = 0
@@ -276,10 +279,13 @@ export const writeEntity = (
     changeMask |= component.write(v, entity) ? 1 << b++ : b++ && 0
   }
 
-  return (changeMask > 0 && writeNetworkId(networkId) && writeChangeMask(changeMask)) || rewind()
+  return (
+    (changeMask > 0 && writeNetworkId(networkId) && writeOwnerIndex(ownerIndex) && writeChangeMask(changeMask)) ||
+    rewind()
+  )
 }
 
-export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
+export const writeEntities = (v: ViewCursor, network: Network, entities: Entity[]) => {
   const entitySchema = Object.values(getState(NetworkState).networkSchema)
 
   const writeCount = spaceUint32(v)
@@ -288,25 +294,28 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
   for (let i = 0, l = entities.length; i < l; i++) {
     const entity = entities[i]
     const networkId = NetworkObjectComponent.networkId[entity] as NetworkId
-    count += writeEntity(v, networkId, entity, entitySchema) ? 1 : 0
+    const ownerId = getComponent(entity, NetworkObjectComponent).ownerId
+    const ownerIndex = network.userIDToUserIndex[ownerId]!
+
+    count += writeEntity(v, networkId, ownerIndex, entity, entitySchema) ? 1 : 0
   }
 
   if (count > 0) writeCount(count)
   else v.cursor = 0 // nothing written
 }
 
-export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID) => {
-  writeUint32(v, network.userIDToUserIndex.get(userId)!)
-  writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
+export const writeMetadata = (v: ViewCursor, network: Network, userId: UserID, peerID: PeerID) => {
+  writeUint32(v, network.userIDToUserIndex[userId])
+  writeUint32(v, network.peerIDToPeerIndex[peerID])
   writeFloat64(v, getState(EngineState).simulationTime)
 }
 
-export const createDataWriter = (size: number = 100000) => {
+export const createDataWriter = (size = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
-  return (network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
+  return (network: Network, userId: UserID, peerID: PeerID, entities: Entity[]) => {
     writeMetadata(view, network, userId, peerID)
-    writeEntities(view, entities)
+    writeEntities(view, network, entities)
     return sliceViewCursor(view)
   }
 }

@@ -25,70 +25,47 @@ Ethereal Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 import React from 'react'
-import styled from 'styled-components'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
-import ProgressBar from '../inputs/ProgressBar'
 import Dialog from './Dialog'
 
-/**
- * ProgressContainer used as a wrapper element for the ProgressMessage and ProgressBar components.
- *
- * @type {Styled component}
- */
-const ProgressContainer = (styled as any).div`
-  color: var(--textColor);
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  /* This forces firefox to give the contents a proper height. */
-  overflow: hidden;
-  padding: 8px;
-`
+const progressContainerStyles = {
+  color: 'var(--textColor)',
+  display: 'flex',
+  flex: '1',
+  flexDirection: 'column',
+  overflow: 'hidden',
+  padding: '8px'
+}
 
-/**
- * ProgressMessage used to provide styles to the message content on ProgressDialog.
- *
- * @type {styled component}
- */
-const ProgressMessage = (styled as any).div`
-  margin: auto;
-  white-space: pre;
-`
+const progressMessageStyles = {
+  margin: 'auto',
+  whiteSpace: 'pre'
+}
 
 interface Props {
   cancelable?: boolean
   message: string
-  tag?
-  title?
-  bottomNav?
-  children?
-  cancelLabel?
-  confirmLabel?
-  onCancel?
-  onConfirm?
+  tag?: any
+  title?: string
+  bottomNav?: any
+  children?: any
+  cancelLabel?: string
+  confirmLabel?: string
+  onCancel?: any
+  onConfirm?: any
 }
 
-/**
- * ProgressDialog component used to render view.
- *
- * @param       {string} message    [content to be shown on the ProgressDialog]
- * @param       {function} onConfirm
- * @param       {boolean} cancelable
- * @param       {function} onCancel
- * @param       {any} props
- * @constructor
- */
 export function ProgressDialog(props: Props) {
   if (!props) return null
   return (
     <Dialog onCancel={props.cancelable ? props.onCancel : null} {...props}>
-      <ProgressContainer>
-        <ProgressMessage>{props.message}</ProgressMessage>
+      <div style={progressContainerStyles as React.CSSProperties}>
+        <div style={progressMessageStyles as React.CSSProperties}>{props.message}</div>
         <CircularProgress style={{ margin: 'auto' }} />
         {/* <ProgressBar /> */}
-      </ProgressContainer>
+      </div>
     </Dialog>
   )
 }
@@ -99,3 +76,5 @@ ProgressDialog.defaultProps = {
   cancelable: false,
   cancelLabel: i18n.t('editor:dialog.progress.lbl-cancel') || 'Cancel'
 }
+
+export default ProgressDialog

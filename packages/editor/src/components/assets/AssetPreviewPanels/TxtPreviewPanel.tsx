@@ -24,21 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
 
-const TxtPreview = (styled as any).div`
-  margin-left: auto;
-  margin-right: auto;
-  color: #fff;
-  padding: 10px;
-  height: 100%;
-  overflow: auto;
-`
+const txtPreviewStyle = {
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  color: '#fff',
+  padding: '10px',
+  height: '100%',
+  overflow: 'auto'
+}
 
 /**
  * @param props
  */
-
 export const TxtPreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
   const [txt, setTxt] = useState('')
@@ -57,5 +55,5 @@ export const TxtPreviewPanel = (props) => {
     loadTxt()
   }, [])
 
-  return <TxtPreview>{txt}</TxtPreview>
+  return <div style={txtPreviewStyle}>{txt}</div>
 }

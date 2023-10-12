@@ -23,22 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { InstanceAttendanceInterface } from '@etherealengine/common/src/dbmodels/InstanceAttendance'
+import {
+  InstanceAttendanceData,
+  InstanceAttendancePatch,
+  InstanceAttendanceQuery,
+  InstanceAttendanceType
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InstanceAttendanceParams extends KnexAdapterParams<InstanceAttendanceQuery> {}
 
-export type InstanceAttendanceDataType = InstanceAttendanceInterface
-
-/**
- * A class for Intance service
- */
-export class InstanceAttendance<T = InstanceAttendanceDataType> extends Service<T> {
-  app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class InstanceAttendanceService<
+  T = InstanceAttendanceType,
+  ServiceParams extends Params = InstanceAttendanceParams
+> extends KnexService<
+  InstanceAttendanceType,
+  InstanceAttendanceData,
+  InstanceAttendanceParams,
+  InstanceAttendancePatch
+> {}

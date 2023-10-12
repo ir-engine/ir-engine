@@ -26,14 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import {
   Extension,
   ExtensionProperty,
-  GLTF,
   IProperty,
   Nullable,
   PropertyType,
   ReaderContext,
-  Texture,
-  TextureInfo,
-  vec2,
   WriterContext
 } from '@gltf-transform/core'
 

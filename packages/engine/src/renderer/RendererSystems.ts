@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HighlightSystem } from './HighlightSystem'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
 
-export const RendererSystems = () => [HighlightSystem, WebGLRendererSystem]
+export const RendererSystems = () => [WebGLRendererSystem]

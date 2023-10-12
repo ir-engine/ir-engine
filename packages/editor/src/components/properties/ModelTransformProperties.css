@@ -1,0 +1,51 @@
+.TransformContainer {
+  color: var(--textColor);
+  text-align: -webkit-center;
+  margin-top: 2em;
+  margin-bottom: 4em;
+  background-color: var(--background2);
+  overflow: scroll;
+}
+
+.FilterToggle {
+  color: var(--textColor);
+}
+
+@keyframes glowing {
+  0% {
+    background-color: #f00;
+    box-shadow: 0 0 5px #f00;
+  }
+  16% {
+    background-color: #ff0;
+    box-shadow: 0 0 20px #ff0;
+  }
+  33% {
+    background-color: #0f0;
+    box-shadow: 0 0 5px #0f0;
+  }
+  50% {
+    background-color: #0ff;
+    box-shadow: 0 0 20px #0ff;
+  }
+  66% {
+    background-color: #00f;
+    box-shadow: 0 0 5px #00f;
+  }
+  83% {
+    background-color: #f0f;
+    box-shadow: 0 0 20px #f0f;
+  }
+  100% {
+    background-color: #f00;
+    box-shadow: 0 0 5px #f00;
+  }
+}
+
+.OptimizeButton {
+  animation: glowing 5000ms infinite;
+}
+
+.OptimizeButton:hover {
+  animation: glowing 250ms infinite;
+}

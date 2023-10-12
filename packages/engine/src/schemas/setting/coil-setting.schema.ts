@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const coilSettingPath = 'coil-setting'
 
@@ -75,3 +76,8 @@ export const coilSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type CoilSettingQuery = Static<typeof coilSettingQuerySchema>
+
+export const coilSettingValidator = getValidator(coilSettingSchema, dataValidator)
+export const coilSettingDataValidator = getValidator(coilSettingDataSchema, dataValidator)
+export const coilSettingPatchValidator = getValidator(coilSettingPatchSchema, dataValidator)
+export const coilSettingQueryValidator = getValidator(coilSettingQuerySchema, queryValidator)

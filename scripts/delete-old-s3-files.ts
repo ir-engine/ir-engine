@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import cli from 'cli'
-import fs from 'fs'
 
 import {
   createDefaultStorageProvider,

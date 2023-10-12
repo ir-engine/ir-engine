@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const helmSettingPath = 'helm-setting'
 export const helmMainVersionPath = 'helm-main-version'
@@ -72,3 +73,8 @@ export const helmSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type HelmSettingQuery = Static<typeof helmSettingQuerySchema>
+
+export const helmSettingValidator = getValidator(helmSettingSchema, dataValidator)
+export const helmSettingDataValidator = getValidator(helmSettingDataSchema, dataValidator)
+export const helmSettingPatchValidator = getValidator(helmSettingPatchSchema, dataValidator)
+export const helmSettingQueryValidator = getValidator(helmSettingQuerySchema, queryValidator)

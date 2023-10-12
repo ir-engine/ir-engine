@@ -24,23 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
 import NumericInput, { NumericInputProp } from './NumericInput'
 import Slider from './Slider'
-
-/**
- * StyledCompoundNumericInput used to provide styles for CompoundNumericInput.
- *
- * @type {Styled component}
- */
-const StyledCompoundNumericInput = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-`
 
 /**
  * CompoundNumericInput used to render the view of component.
@@ -53,16 +39,28 @@ const StyledCompoundNumericInput = styled.div`
 export function CompoundNumericInput({
   value,
   onChange,
+  onRelease,
   ...extras
 }: NumericInputProp & { step: number; style?: React.CSSProperties }) {
   const { min, max, step, style } = extras
+
+  const compoundNumericInputStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    ...style // Merge the external styles with the inline styles
+  }
+
   return (
-    <StyledCompoundNumericInput style={style}>
-      <Slider min={min} max={max} value={value} step={step} onChange={onChange} />
-      <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} />
-    </StyledCompoundNumericInput>
+    <div style={compoundNumericInputStyle}>
+      <Slider min={min} max={max} value={value} step={step} onChange={onChange} onRelease={onRelease} />
+      <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} onRelease={onRelease} />
+    </div>
   )
 }
+
 CompoundNumericInput.defaultProps = {
   value: 0,
   onChange: () => {},

@@ -23,15 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import Sequelize, { Op } from 'sequelize'
+import { Id, Params } from '@feathersjs/feathers'
+import { KnexAdapter, type KnexAdapterOptions } from '@feathersjs/knex'
 
-import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
+import {
+  InstanceData,
+  InstancePatch,
+  InstanceQuery,
+  InstanceType
+} from '@etherealengine/engine/src/schemas/networking/instance.schema'
 
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { Forbidden } from '@feathersjs/errors'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-
-export type InstanceDataType = InstanceInterface
 
 const roomCodeCharacters = '123456789'
 
@@ -41,13 +46,22 @@ const generateRoomCode = () => {
   return code
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InstanceParams extends KnexAdapterParams<InstanceQuery> {}
+
 /**
- * A class for Intance service
+ * A class for Instance service
  */
-export class Instance<T = InstanceDataType> extends Service<T> {
+
+export class InstanceService<T = InstanceType, ServiceParams extends Params = InstanceParams> extends KnexAdapter<
+  InstanceType,
+  InstanceData,
+  InstanceParams,
+  InstancePatch
+> {
   app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
@@ -57,55 +71,56 @@ export class Instance<T = InstanceDataType> extends Service<T> {
    * @param params of query with an acton or user role
    * @returns user object
    */
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
-    const action = params?.query?.action
-    const search = params?.query?.search
-    const skip = params?.query?.$skip ? params.query.$skip : 0
-    const limit = params?.query?.$limit ? params.query.$limit : 10
-    const sort = params?.query?.$sort
-    if (action === 'admin') {
-      //TODO: uncomment here
-      // const loggedInUser = params.user as UserInterface
-      // const user = await super.get(loggedInUser.userId);
-      // console.log(user);
-      // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
-      let ip = {}
-      let name = {}
-      if (!isNaN(search)) {
-        ip = search ? { ipAddress: { [Op.like]: `%${search}%` } } : {}
-      } else {
-        name = search ? { name: { [Op.like]: `%${search}%` } } : {}
-      }
-      const order: any[] = []
-      if (sort != null)
-        Object.keys(sort).forEach((name, val) => {
-          if (name === 'locationId') {
-            order.push([Sequelize.literal('`location.name`'), sort[name] === 0 ? 'DESC' : 'ASC'])
-          } else {
-            order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
-          }
-        })
-      const foundLocation = await this.app.service('instance').Model.findAndCountAll({
-        offset: skip,
-        limit: limit,
-        include: {
-          model: this.app.service('location').Model,
-          required: true,
-          where: { ...name }
-        },
-        nest: false,
-        where: { ended: false, ...ip }
-      })
+  async find(params: InstanceParams) {
+    const { action, search } = params.query || {}
 
-      return {
-        skip: skip,
-        limit: limit,
-        total: foundLocation.count,
-        data: foundLocation.rows
+    if (action === 'admin') {
+      const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
+      if (!isAdmin) throw new Forbidden('Must be system admin to execute this action')
+
+      const foundLocations = search
+        ? ((await this.app.service(locationPath)._find({
+            query: { name: { $like: `%${search}%` } },
+            paginate: false
+          })) as any as LocationType[])
+        : []
+
+      params.query = {
+        ...params.query,
+        ended: false,
+        $or: [
+          {
+            ipAddress: {
+              $like: `%${search}%`
+            }
+          },
+          {
+            locationId: {
+              $in: foundLocations.map((item) => item.id)
+            }
+          }
+        ]
       }
-    } else {
-      return super.find(params)
     }
+
+    const paramsWithoutExtras = {
+      ...params,
+      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+      query: params.query ? JSON.parse(JSON.stringify(params.query)) : {}
+    }
+
+    // Remove extra params
+    if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
+      delete paramsWithoutExtras.query.search
+    if (paramsWithoutExtras.query?.action || paramsWithoutExtras.query?.action === '')
+      delete paramsWithoutExtras.query.action
+
+    // Remove instance locationName sort
+    if (paramsWithoutExtras.query?.$sort && paramsWithoutExtras.query?.$sort['locationName']) {
+      delete paramsWithoutExtras.query.$sort['locationName']
+    }
+
+    return super._find(paramsWithoutExtras)
   }
 
   /**
@@ -115,19 +130,33 @@ export class Instance<T = InstanceDataType> extends Service<T> {
    * @param params of query
    * @returns instance object
    */
-  async create(data: any, params?: Params): Promise<T | T[]> {
-    let existingInstances = ''
+  async create(data: InstanceData, params?: InstanceParams) {
+    let existingInstances: InstanceType[] = []
 
     do {
       data.roomCode = generateRoomCode()
-      existingInstances = await this.app.service('instance').Model.count({
-        where: {
+      // We need to have unique room codes therefore checking if room code already exists
+      existingInstances = (await super._find({
+        query: {
           roomCode: data.roomCode,
           ended: false
-        }
-      })
-    } while (existingInstances === '0')
+        },
+        paginate: false
+      })) as any as InstanceType[]
+    } while (existingInstances.length > 0)
 
-    return super.create(data)
+    return super._create(data)
+  }
+
+  async patch(id: Id, data: InstancePatch, params?: InstanceParams) {
+    return await super._patch(id, data, params)
+  }
+
+  async get(id: Id, params?: InstanceParams) {
+    return super._get(id, params)
+  }
+
+  async remove(id: Id, params?: InstanceParams) {
+    return super._remove(id, params)
   }
 }

@@ -27,9 +27,9 @@ import { createState, SetInitialStateAction, State, useHookstate } from '@hookst
 import type { Function, Object, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
-import multiLogger from '@etherealengine/common/src/logger'
 import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 
 import {
   Action,
@@ -37,8 +37,7 @@ import {
   ActionQueueDefinition,
   ActionShape,
   defineActionQueue,
-  removeActionQueue,
-  ResolvedActionType
+  removeActionQueue
 } from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
@@ -63,10 +62,10 @@ export type StateDefinition<S> = {
 
 const StateDefinitions = new Set<string>()
 
-export function defineState<S>(definition: StateDefinition<S>) {
+export function defineState<S, StateExtras = unknown>(definition: StateDefinition<S> & StateExtras) {
   if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
   StateDefinitions.add(definition.name)
-  return definition as StateDefinition<S> & { _TYPE: S }
+  return definition as StateDefinition<S> & { _TYPE: S } & StateExtras
 }
 
 export function registerState<S>(StateDefinition: StateDefinition<S>) {
@@ -74,7 +73,7 @@ export function registerState<S>(StateDefinition: StateDefinition<S>) {
 
   const initial =
     typeof StateDefinition.initial === 'function'
-      ? (StateDefinition.initial as Function)()
+      ? (StateDefinition.initial as any)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
   HyperFlux.store.valueMap[StateDefinition.name] = initial
   HyperFlux.store.stateMap[StateDefinition.name] = createState(initial)

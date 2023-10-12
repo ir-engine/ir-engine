@@ -23,19 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { UserRelationshipTypeInterface } from '@etherealengine/common/src/dbmodels/UserRelationshipType'
+import {
+  UserRelationshipTypeData,
+  UserRelationshipTypePatch,
+  UserRelationshipTypeQuery,
+  UserRelationshipTypeType
+} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UserRelationshipTypeParams extends KnexAdapterParams<UserRelationshipTypeQuery> {}
 
-export type UserRelationshipTypeDataType = UserRelationshipType
-/**
- * A class for User Relationship Type service
- */
-export class UserRelationshipType<T = UserRelationshipTypeDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export class UserRelationshipTypeService<
+  T = UserRelationshipTypeType,
+  ServiceParams extends Params = UserRelationshipTypeParams
+> extends KnexService<
+  UserRelationshipTypeType,
+  UserRelationshipTypeData,
+  UserRelationshipTypeParams,
+  UserRelationshipTypePatch
+> {}

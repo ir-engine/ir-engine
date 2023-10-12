@@ -29,7 +29,7 @@ import { v4 } from 'uuid'
 import { analyticsPath, AnalyticsType } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { getDateTimeSql } from '../../util/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig

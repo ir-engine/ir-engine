@@ -22,8 +22,3 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
-import assert from 'assert'
-
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { matches, matchesWithDefault } from '@etherealengine/engine/src/common/functions/MatchesUtils'

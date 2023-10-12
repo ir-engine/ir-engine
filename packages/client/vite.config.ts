@@ -27,12 +27,12 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
-import fsExtra from 'fs-extra'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
-import { defineConfig, UserConfig } from 'vite'
+import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
 
@@ -67,6 +67,12 @@ const parseModuleName = (moduleName: string) => {
   if (moduleName.includes('react-dom')) {
     return `vendor_react-dom_${moduleName.toString().split('react-dom/')[1].split('/')[0].toString()}`
   }
+
+  // chunk react-icons
+  if (moduleName.includes('react-icons')) {
+    return `vendor_react-icons_${moduleName.toString().split('react-icons/')[1].split('/')[0].toString()}`
+  }
+
   // chunk react-color
   if (moduleName.includes('react-color')) {
     return `vendor_react-color_${moduleName.toString().split('react-color/')[1].split('/')[0].toString()}`
@@ -85,8 +91,8 @@ const parseModuleName = (moduleName: string) => {
     if (moduleName.includes('quarks/dist')) {
       return `vendor_three_quarks_${moduleName.toString().split('dist/')[1].split('/')[0].toString()}`
     }
-    if (moduleName.includes('three/build')) {
-      return `vendor_three_build_${moduleName.toString().split('build/')[1].split('/')[0].toString()}`
+    if (moduleName.includes('three')) {
+      return `vendor_three_build_${moduleName.toString().split('/')[1].split('/')[0].toString()}`
     }
   }
   // chunk mui
@@ -123,24 +129,6 @@ require('ts-node').register({
   project: './tsconfig.json'
 })
 
-/** @deprecated */
-const copyProjectDependencies = () => {
-  if (!fs.existsSync(path.resolve(__dirname, '../projects/projects/'))) {
-    // create directory
-    fs.mkdirSync(path.resolve(__dirname, '../projects/projects/'))
-  }
-  const projects = fs
-    .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name)
-  for (const project of projects) {
-    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'public')
-    if (fs.existsSync(staticPath)) {
-      fsExtra.copySync(staticPath, path.resolve(__dirname, `public/projects`, project))
-    }
-  }
-}
-
 const getProjectConfigExtensions = async (config: UserConfig) => {
   const projects = fs
     .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
@@ -169,15 +157,16 @@ function mediapipe_workaround() {
     name: 'mediapipe_workaround',
     load(id) {
       const MEDIAPIPE_EXPORT_NAMES = {
-        'holistic.js': [
-          'FACEMESH_TESSELATION',
-          'HAND_CONNECTIONS',
-          'Holistic',
-          'POSE_CONNECTIONS',
+        'pose.js': [
           'POSE_LANDMARKS',
-          'Holistic',
+          'POSE_CONNECTIONS',
+          'POSE_LANDMARKS_LEFT',
+          'POSE_LANDMARKS_RIGHT',
+          'POSE_LANDMARKS_NEUTRAL',
+          'Pose',
           'VERSION'
         ],
+        'hands.js': ['VERSION', 'HAND_CONNECTIONS', 'Hands'],
         'camera_utils.js': ['Camera'],
         'drawing_utils.js': ['drawConnectors', 'drawLandmarks', 'lerp'],
         'control_utils.js': [
@@ -233,18 +222,7 @@ const resetSWFiles = () => {
   deleteDirFilesUsingPattern(/service-/, './public/')
   // Delete old workbox files
   deleteDirFilesUsingPattern(/workbox-/, './public/')
-
-  if (process.env.APP_ENV !== 'development') {
-    // Write empty service worker file
-    const swPath = path.resolve(packageRoot.path, 'packages/client/public/service-worker.js')
-    if (!fs.existsSync(swPath)) {
-      fs.writeFileSync(swPath, 'if(!self.define){}')
-    }
-  }
 }
-
-// this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
-if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER !== 'true') copyProjectDependencies()
 
 export default defineConfig(async () => {
   dotenv.config({
@@ -304,6 +282,7 @@ export default defineConfig(async () => {
     plugins: [
       PkgConfig(), // must be in front of optimizationPersist
       OptimizationPersist(),
+      nodePolyfills(),
       mediapipe_workaround(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
       ViteEjsPlugin({
@@ -350,7 +329,6 @@ export default defineConfig(async () => {
         warnOnError: true
       },
       rollupOptions: {
-        external: ['dotenv-flow'],
         output: {
           dir: 'dist',
           format: 'es', // 'commonjs' | 'esm' | 'module' | 'systemjs'

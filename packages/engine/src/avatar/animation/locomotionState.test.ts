@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { Vector2, Vector3 } from 'three'
 

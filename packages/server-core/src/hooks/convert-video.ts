@@ -380,7 +380,7 @@ export {}
 //   } else {
 //     console.log('Regex for ' + url + ' did not match anything known');
 //
-//     await app.service('static-resource').remove(result.id);
+//     await app.service(staticResourcePath).remove(result.id);
 //
 //     throw new BadRequest('Invalid URL');
 //   }

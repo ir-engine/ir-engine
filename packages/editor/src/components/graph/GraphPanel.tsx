@@ -23,44 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
-import AutoSizer from 'react-virtualized-auto-sizer'
-
-import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
-
-import { SelectionState } from '../../services/SelectionServices'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
-import BehaveFlow from './ee-behave-flow/BehaveFlow'
+import BehaveFlow from './BehaveFlow'
 
-export default function GraphPanel() {
-  const selectionState = useHookstate(getMutableState(SelectionState))
-  const entity = selectionState.selectedEntities[0]?.value
-  const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
-  const graphState = useOptionalComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
+export const GraphPanel = () => {
   return (
     <>
       <div className={hierarchyStyles.panelContainer}>
         <div className={hierarchyStyles.panelSection}>
-          <AutoSizer>
-            {({ width, height }) => (
-              <div style={{ width, height }}>
-                {validEntity && (
-                  <BehaveFlow graphJSON={graphState?.graph.value ?? {}} onChangeGraph={graphState?.graph.set} />
-                )}
-              </div>
-            )}
-          </AutoSizer>
+          <BehaveFlow />
         </div>
       </div>
     </>
   )
 }
+export default GraphPanel

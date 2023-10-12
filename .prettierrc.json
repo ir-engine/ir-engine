@@ -12,8 +12,6 @@
   "arrowParens": "always",
   "proseWrap": "never",
   "endOfLine": "lf",
-  "importOrder": ["<THIRD_PARTY_MODULES>", "^@etherealengine/(.*)$", "^@mui/(.*)$", "^[./]"],
-  "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
-  "importOrderCaseInsensitive": true
+  "importOrder": ["<THIRD_PARTY_MODULES>", "", "^@etherealengine/(.*)$", "", "^@mui/(.*)$", "", "^[./]"],
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-organize-imports"]
 }

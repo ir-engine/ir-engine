@@ -257,7 +257,8 @@
       },
       "userIdCopied": "User ID copied",
       "apiKeyCopied": "API Key copied",
-      "refreshApiKey": "Refresh API Key"
+      "refreshApiKey": "Refresh API Key",
+      "privacyPolicy": "Privacy Policy"
     },
     "oauth": {
       "authenticating": "Authenticating...",
@@ -280,7 +281,7 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "feeds": "Feeds",
-    "instance": "Instance",
+    "instances": "Instances",
     "locations": "Locations",
     "routes": "Routes",
     "projects": "Projects",
@@ -297,7 +298,8 @@
     "bots": "Bots",
     "setting": "Settings",
     "server": "Server",
-    "recordings": "Recordings"
+    "recordings": "Recordings",
+    "channels": "Channels"
   },
   "resource": {
     "createResource": "Create Resource"
@@ -356,6 +358,27 @@
     "enterThumbnailUrl": "Enter Thumbnail URL",
     "avatarName": "Avatar Name"
   },
+  "menu": {
+    "settings": "Profile",
+    "sendLocation": "Share",
+    "emote": "Emote",
+    "friends": "Friends",
+    "toggleMute": "Microphone",
+    "toggleVideo": "Camera",
+    "cycleCamera": "Cycle Camera",
+    "poseTracking": "Motion Capture",
+    "shareScreen": "Screenshare",
+    "enterVR": "VR",
+    "enterAR": "AR",
+    "exitSpectate": "Exit Spectate",
+    "startRecording": "Start Recording",
+    "stopRecording": "Stop Recording",
+    "toggleChat": "Toggle Chat",
+    "enterFullScreen": "Enter FullScreen",
+    "exitFullScreen": "Exit FullScreen",
+    "hide": "Hide",
+    "show": "Show"
+  },
   "personMenu": {
     "inviteToParty": "Invite To Party",
     "addAsFriend": "Add As Friend",
@@ -383,9 +406,11 @@
   "friends": {
     "find": "Find",
     "friends": "Friends",
+    "messages": "Messages",
     "blocked": "Blocked",
     "message": "Message",
     "profile": "Profile",
+    "call": "Call",
     "accept": "Accept",
     "decline": "Decline",
     "unblock": "Unblock",
@@ -394,6 +419,9 @@
     "noUsers": "No users to display",
     "requestReceived": "has requested to be your friend",
     "requestAccepted": "has accepted your request to be friends"
+  },
+  "messages": {
+    "enterMessage": "Enter Message"
   },
   "roomMenu": {
     "createRoom": "Create a room",

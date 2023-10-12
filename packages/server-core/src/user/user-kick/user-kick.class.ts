@@ -23,26 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { CreateUserKick, UserKick as UserKickInterface } from '@etherealengine/common/src/interfaces/User'
+import {
+  UserKickData,
+  UserKickPatch,
+  UserKickQuery,
+  UserKickType
+} from '@etherealengine/engine/src/schemas/user/user-kick.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UserKickParams extends KnexAdapterParams<UserKickQuery> {}
 
-/**
- * A class for User Kick service
- */
-export class UserKick extends Service {
-  app: Application
-  docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async create(data: CreateUserKick, params?: Params): Promise<UserKickInterface> {
-    return super.create(data, params)
-  }
-}
+export class UserKickService<T = UserKickType, ServiceParams extends Params = UserKickParams> extends KnexService<
+  UserKickType,
+  UserKickData,
+  UserKickParams,
+  UserKickPatch
+> {}

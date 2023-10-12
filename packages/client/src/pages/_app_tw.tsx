@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
+
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -31,9 +32,10 @@ import {
   AdminClientSettingsState,
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
+
 import { API } from '@etherealengine/client-core/src/API'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
+import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import {
   NotificationAction,
   NotificationActions
@@ -51,14 +53,14 @@ import EngineTW from '../engine_tw'
 import PublicRouter from '../route/public_tw'
 import { ThemeContextProvider } from '../themes/themeContext'
 
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import 'daisyui/dist/full.css'
 import 'tailwindcss/tailwind.css'
 import '../themes/base.css'
 import '../themes/components.css'
 import '../themes/utilities.css'
-import 'daisyui/dist/full.css'
 
 const AppPage = () => {
-  const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
@@ -70,6 +72,53 @@ const AppPage = () => {
     initGA()
     logPageView()
   }, [])
+
+  useEffect(initApp, [])
+
+  // useEffect(() => {
+  //   chapiWalletPolyfill
+  //     .loadOnce()
+  //     .then(() => console.log('CHAPI wallet polyfill loaded.'))
+  //     .catch((e) => console.error('Error loading polyfill:', e))
+  // }, [])
+
+  useEffect(() => {
+    if (selfUser?.id.value && projectState.updateNeeded.value) {
+      ProjectService.fetchProjects()
+      if (!fetchedProjectComponents) {
+        setFetchedProjectComponents(true)
+        API.instance.client
+          .service(projectsPath)
+          .find()
+          .then((projects) => {
+            loadWebappInjection(projects).then((result) => {
+              setProjectComponents(result)
+            })
+          })
+      }
+    }
+  }, [selfUser, projectState.updateNeeded.value])
+
+  useEffect(() => {
+    Engine.instance.userID = selfUser.id.value
+  }, [selfUser.id])
+
+  useEffect(() => {
+    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
+  }, [clientSettingState?.updateNeeded?.value])
+
+  return (
+    <>
+      <PublicRouter />
+      {projectComponents.map((Component, i) => (
+        <Component key={i} />
+      ))}
+    </>
+  )
+}
+
+const TailwindPage = () => {
+  const notistackRef = useRef<SnackbarProvider>()
 
   useEffect(() => {
     const receptor = (action): any => {
@@ -89,60 +138,18 @@ const AppPage = () => {
     }
   }, [])
 
-  useEffect(initApp, [])
-
-  // useEffect(() => {
-  //   chapiWalletPolyfill
-  //     .loadOnce()
-  //     .then(() => console.log('CHAPI wallet polyfill loaded.'))
-  //     .catch((e) => console.error('Error loading polyfill:', e))
-  // }, [])
-
-  useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) {
-      ProjectService.fetchProjects()
-      if (!fetchedProjectComponents) {
-        setFetchedProjectComponents(true)
-        API.instance.client
-          .service('projects')
-          .find()
-          .then((projects) => {
-            loadWebappInjection(projects).then((result) => {
-              setProjectComponents(result)
-            })
-          })
-      }
-    }
-  }, [selfUser, projectState.updateNeeded.value])
-
-  useEffect(() => {
-    Engine.instance.userId = selfUser.id.value
-  }, [selfUser.id])
-
-  useEffect(() => {
-    authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
-  }, [authState.isLoggedIn])
-
-  useEffect(() => {
-    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
-  }, [clientSettingState?.updateNeeded?.value])
-
-  return (
-    <>
-      <PublicRouter />
-      {projectComponents.map((Component, i) => (
-        <Component key={i} />
-      ))}
-    </>
-  )
-}
-
-const TailwindPage = () => {
   return (
     <EngineTW>
       <ThemeContextProvider>
-        <AppPage />
-        <Debug />
+        <SnackbarProvider
+          ref={notistackRef as any}
+          maxSnack={7}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          action={defaultAction}
+        >
+          <AppPage />
+          <Debug />
+        </SnackbarProvider>
       </ThemeContextProvider>
     </EngineTW>
   )

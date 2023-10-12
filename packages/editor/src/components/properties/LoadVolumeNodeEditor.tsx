@@ -23,58 +23,86 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { range } from 'lodash'
 import React from 'react'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Button } from '@etherealengine/editor/src/components/inputs/Button'
-import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
-import { SceneObjectInput } from '@etherealengine/editor/src/components/inputs/SceneObjectInput'
-import PaginatedList from '@etherealengine/editor/src/components/layout/PaginatedList'
-import Well from '@etherealengine/editor/src/components/layout/Well'
-import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
-import { EditorComponentType, updateProperty } from '@etherealengine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperties } from '@etherealengine/editor/src/components/properties/Util'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { LoadVolumeComponent, LoadVolumeTarget } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
-import { Grid } from '@mui/material'
+import { Button, Grid } from '@mui/material'
+import InputGroup from '../inputs/InputGroup'
+import { SceneObjectInput } from '../inputs/SceneObjectInput'
+import Well from '../layout/Well'
+import NodeEditor from './NodeEditor'
 
 const LoadVolumeNodeEditor: EditorComponentType = (props) => {
   const loadVolumeComponent = useComponent(props.entity, LoadVolumeComponent)
-  const targets = loadVolumeComponent.targets.value
-  /*function onEditTargets(index) {
-    return (value) => {
-      const nuTargets = [...targets.values()].map(({ uuid, entityJson, loaded }, i) => {
-        if (i !== index) return [uuid, { uuid, entityJson, loaded }]
-        return [value, { uuid: value }]
-      }) as [EntityUUID, LoadVolumeTarget][]
-      loadVolumeComponent.targets = new Map(nuTargets)
+  function onEditTargets(index) {
+    return (value: EntityUUID) => {
+      const nuTargets = loadVolumeComponent.targets.value.map(({ uuid, entities, loaded }, i) => {
+        if (i !== index) return { uuid, entities, loaded }
+        return {
+          uuid: value,
+          loaded: true,
+          entities: [
+            {
+              name: value,
+              components: [] as ComponentJson[]
+            } as EntityJson
+          ]
+        }
+      })
+      commitProperties(LoadVolumeComponent, { targets: JSON.parse(JSON.stringify(nuTargets)) }, [props.entity])
     }
   }
 
   function onAddTarget() {
     return () => {
-      const nuTargets = [...targets.entries(), ['', {}] as [EntityUUID, LoadVolumeTarget]]
-      loadVolumeComponent.targets = new Map(nuTargets)
+      const targets: LoadVolumeTarget[] = [
+        ...JSON.parse(JSON.stringify(loadVolumeComponent.targets.value)),
+        {
+          uuid: '' as EntityUUID,
+          loaded: true,
+          entities: []
+        } as LoadVolumeTarget
+      ]
+      commitProperties(LoadVolumeComponent, { targets }, [props.entity])
     }
   }
 
   function onRemoveTarget(index) {
     return () => {
-      const nuTargets = [...targets.entries()].filter((_, i) => i !== index)
-      loadVolumeComponent.targets = new Map(nuTargets)
+      const targets = [...JSON.parse(JSON.stringify(loadVolumeComponent.targets.value))]
+      targets.splice(index, 1)
+      commitProperties(LoadVolumeComponent, { targets }, [props.entity])
     }
-  }*/
-  /*
+  }
+
   return (
     <NodeEditor description={'Description'} {...props}>
-      <PaginatedList
-        list={range(0, targets.size)}
-        element={(i) => {
-          const { uuid } = targets[i]
+      <Button
+        onClick={() => {
+          getCallback(props.entity, 'doLoad')!()
+        }}
+      >
+        Load All
+      </Button>
+      <Button
+        onClick={() => {
+          getCallback(props.entity, 'doUnload')!()
+        }}
+      >
+        Unload All
+      </Button>
+      <div key={`load-volume-component-${props.entity}-targets`}>
+        {loadVolumeComponent.targets.map((target, i) => {
+          const { uuid } = loadVolumeComponent.targets[i].value
           return (
-            <Well key={`${props.node.uuid}-load-volume-targets-${i}`}>
+            <Well key={`${props.entity}-load-volume-targets-${i}`}>
               <Grid container spacing={0.5}>
                 <Grid item xs={1}>
                   <Button onClick={onRemoveTarget(i)} style={{ backgroundColor: '#e33', width: 'auto' }}>
@@ -89,12 +117,11 @@ const LoadVolumeNodeEditor: EditorComponentType = (props) => {
               </Grid>
             </Well>
           )
-        }}
-      />
+        })}
+      </div>
       <Button onClick={onAddTarget()}>Add Target</Button>
     </NodeEditor>
-  )*/
-  return <></>
+  )
 }
 
 LoadVolumeNodeEditor.iconComponent = CloudSyncIcon

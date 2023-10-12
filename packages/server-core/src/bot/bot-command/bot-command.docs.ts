@@ -23,36 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    'bot-command': {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          description: ''
-        },
-        description: {
-          type: 'string',
-          description: ''
-        },
-        botId: {
-          type: 'string',
-          description: 'reference for bot id'
-        }
-      }
-    },
-    'bot-command_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/bot-command' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  botCommandDataSchema,
+  botCommandPatchSchema,
+  botCommandQuerySchema,
+  botCommandSchema
+} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    botCommandDataSchema,
+    botCommandPatchSchema,
+    botCommandQuerySchema,
+    botCommandSchema
+  },
+  docs: {
+    description: 'Bot command service description',
+    securities: ['all']
   }
-  // securities: ['create', 'update', 'patch', 'remove'],
-  // operations: {
-  //   find: {
-  //     security: [
-  //       { bearer: [] }
-  //     ]
-  //   }
-  // }
-}
+})

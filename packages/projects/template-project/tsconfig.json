@@ -29,10 +29,11 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "**/node_modules/**",
-    "./tests/**/*.ts"
+    "../projects/projects/**",
+    "**/node_modules/**"
   ],
   "include": [
+    "../../../../__global.d.ts",
     "../../../server-core/src/*",
     "./**/*.ts",
     "./**/*.tsx"

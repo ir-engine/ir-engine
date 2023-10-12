@@ -23,31 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthState } from '../../../user/services/AuthService'
-import { AdminCoilSettingService, AdminCoilSettingsState } from '../../services/Setting/CoilSettingService'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { coilSettingPath } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Coil = () => {
   const { t } = useTranslation()
-  const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
-  const [coil] = coilSettingState?.coil?.get({ noproxy: true }) || []
-
-  const user = useHookstate(getMutableState(AuthState).user)
-
-  useEffect(() => {
-    if (user?.id?.value && coilSettingState?.updateNeeded?.value) {
-      AdminCoilSettingService.fetchCoil()
-    }
-  }, [user?.id?.value, coilSettingState?.updateNeeded?.value])
+  const coil = useFind(coilSettingPath).data.at(0)
 
   return (
     <Box>

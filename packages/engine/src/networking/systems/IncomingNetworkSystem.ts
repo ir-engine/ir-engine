@@ -26,15 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { RingBuffer } from '../../common/classes/RingBuffer'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { DataChannelType, Network } from '../classes/Network'
-import { JitterBufferEntry } from '../classes/Network'
-import { addDataChannelHandler, removeDataChannelHandler } from '../NetworkState'
+import { NetworkState } from '../NetworkState'
+import { JitterBufferEntry, Network } from '../classes/Network'
 import { readDataPacket } from '../serialization/DataReader'
+import { addDataChannelHandler, removeDataChannelHandler } from './DataChannelRegistry'
 
 const toArrayBuffer = (buf) => {
   const ab = new ArrayBuffer(buf.length)
@@ -45,23 +46,33 @@ const toArrayBuffer = (buf) => {
   return ab
 }
 
-export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
+export const IncomingNetworkState = defineState({
+  name: 'ee.core.network.IncomingNetworkState',
+  initial: () => ({
+    jitterBufferTaskList: [] as JitterBufferEntry[],
+    jitterBufferDelay: 100,
+    incomingMessageQueueUnreliableIDs: new RingBuffer<PeerID>(100),
+    incomingMessageQueueUnreliable: new RingBuffer<any>(100)
+  })
+})
 
+export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
 const handleNetworkdata = (
   network: Network,
   dataChannel: DataChannelType,
   fromPeerID: PeerID,
   message: ArrayBufferLike
 ) => {
+  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = getState(IncomingNetworkState)
   if (network.isHosting) {
-    network.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
-    network.incomingMessageQueueUnreliableIDs.add(fromPeerID)
+    incomingMessageQueueUnreliable.add(toArrayBuffer(message))
+    incomingMessageQueueUnreliableIDs.add(fromPeerID)
     // forward data to clients in world immediately
     // TODO: need to include the userId (or index), so consumers can validate
-    network.transport.bufferToAll(ecsDataChannelType, message)
+    network.transport.bufferToAll(ecsDataChannelType, fromPeerID, message)
   } else {
-    network.incomingMessageQueueUnreliable.add(message)
-    network.incomingMessageQueueUnreliableIDs.add(fromPeerID) // todo, assume it
+    incomingMessageQueueUnreliable.add(message)
+    incomingMessageQueueUnreliableIDs.add(fromPeerID)
   }
 }
 
@@ -71,29 +82,29 @@ function oldestFirstComparator(a: JitterBufferEntry, b: JitterBufferEntry) {
 
 const execute = () => {
   const engineState = getState(EngineState)
-  if (!engineState.isEngineInitialized) return
 
-  const network = Engine.instance.worldNetwork
+  const { jitterBufferTaskList, jitterBufferDelay, incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } =
+    getState(IncomingNetworkState)
+
+  const network = NetworkState.worldNetwork
   if (!network) return
-
-  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = network
 
   while (incomingMessageQueueUnreliable.getBufferLength() > 0) {
     // we may need producer IDs at some point, likely for p2p netcode, for now just consume it
     incomingMessageQueueUnreliableIDs.pop()
     const packet = incomingMessageQueueUnreliable.pop()
 
-    readDataPacket(network, packet)
+    readDataPacket(network, packet, jitterBufferTaskList)
   }
 
-  network.jitterBufferTaskList.sort(oldestFirstComparator)
+  jitterBufferTaskList.sort(oldestFirstComparator)
 
-  const targetFixedTime = engineState.simulationTime + network.jitterBufferDelay
+  const targetFixedTime = engineState.simulationTime + jitterBufferDelay
 
-  for (const [index, { simulationTime, read }] of network.jitterBufferTaskList.slice().entries()) {
+  for (const [index, { simulationTime, read }] of jitterBufferTaskList.slice().entries()) {
     if (simulationTime <= targetFixedTime) {
       read()
-      network.jitterBufferTaskList.splice(index, 1)
+      jitterBufferTaskList.splice(index, 1)
     }
   }
 }

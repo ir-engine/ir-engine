@@ -27,16 +27,27 @@ Ethereal Engine. All Rights Reserved.
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkActions'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
-import { NetworkTopics } from '../classes/Network'
 import { WorldState } from '../interfaces/WorldState'
+import { WorldNetworkAction } from './WorldNetworkAction'
+
+export enum AuthError {
+  MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',
+  USER_NOT_FOUND = 'USER_NOT_FOUND',
+  USER_NOT_AUTHORIZED = 'USER_NOT_AUTHORIZED',
+  INTERNAL_ERROR = 'INTERNAL_ERROR'
+}
+
+export type AuthTask = {
+  status: 'success' | 'fail' | 'pending'
+  routerRtpCapabilities?: any
+  cachedActions?: Required<Action>[]
+  error?: AuthError
+}
 
 export type JoinWorldRequestData = {
   inviteCode?: string
@@ -44,7 +55,6 @@ export type JoinWorldRequestData = {
 
 export type JoinWorldProps = {
   peerIndex: number
-  routerRtpCapabilities: any
   cachedActions: Required<Action>[]
 }
 
@@ -58,27 +68,13 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const { avatarSpawnPose, avatarID, name } = props
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID, name)
   const worldState = getMutableState(WorldState)
-  const entityUUID = Engine.instance.userId as string as EntityUUID
-  worldState.userNames[Engine.instance.userId].set(name)
+  const entityUUID = Engine.instance.userID as string as EntityUUID
+  worldState.userNames[Engine.instance.userID].set(name)
   dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, entityUUID }))
   dispatchAction(AvatarNetworkAction.setAvatarID({ avatarID, entityUUID }))
-}
-
-export const receiveJoinWorld = (props: JoinWorldProps) => {
-  if (!props) return
-  const { cachedActions } = props
-  console.log('RECEIVED JOIN WORLD RESPONSE', cachedActions)
-
-  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
-
-  const spectateUserId = getSearchParamFromURL('spectate')
-  if (spectateUserId) {
-    dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
-  }
-
-  dispatchAction(EngineActions.joinedWorld({}))
-
-  Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
-    ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history
+  dispatchAction(
+    WorldNetworkAction.spawnCamera({
+      entityUUID: ('camera_' + entityUUID) as EntityUUID
+    })
   )
 }

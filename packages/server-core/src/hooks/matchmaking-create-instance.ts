@@ -25,13 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { Location as LocationType } from '@etherealengine/common/src/interfaces/Location'
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { InstanceData, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
 import logger from '../ServerLogger'
+import { toDateTimeSql } from '../util/datetime-sql'
 
 export default (): Hook => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
@@ -50,7 +51,7 @@ export default (): Hook => {
     }
 
     const locationName = 'game-' + gameMode
-    const location = (await app.service('location').find({
+    const location = (await app.service(locationPath).find({
       query: {
         name: locationName
       }
@@ -62,13 +63,13 @@ export default (): Hook => {
 
     const freeInstance = await getFreeInstanceserver({ app, iteration: 0, locationId: location.data[0].id })
     try {
-      const existingInstance = (await app.service('instance').find({
+      const existingInstance = (await app.service(instancePath).find({
         query: {
           ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
           locationId: location.data[0].id,
           ended: false
         }
-      })) as Paginated<Instance>
+      })) as Paginated<InstanceType>
 
       let instanceId
       if (existingInstance.total === 0) {
@@ -77,9 +78,10 @@ export default (): Hook => {
           currentUsers: 0,
           locationId: location.data[0].id,
           assigned: true,
-          assignedAt: new Date()
-        }
-        const newInstanceResult = (await app.service('instance').create(newInstance)) as Instance
+          assignedAt: toDateTimeSql(new Date()),
+          roomCode: ''
+        } as InstanceData
+        const newInstanceResult = await app.service(instancePath).create(newInstance)
         instanceId = newInstanceResult.id
       } else {
         instanceId = existingInstance.data[0].id

@@ -24,99 +24,43 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ConfirmProvider } from 'material-ui-confirm'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import Search from '../../common/Search'
-import { AdminInviteService } from '../../services/InviteService'
-import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import AdminInvites from './AdminInvites'
 import CreateInviteModal from './CreateInviteModal'
 
-interface TabPanelProps {
-  children?: React.ReactNode
-  index: number
-  value: number
-}
-
-const TabPanel = ({ children, value, index }: TabPanelProps) => {
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-    >
-      {value === index && (
-        <Box p={3} className={styles.tabpanelRoot}>
-          {children}
-        </Box>
-      )}
-    </div>
-  )
-}
-const a11yProps = (index: number) => {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`
-  }
-}
-
 const InvitesConsole = () => {
-  const [refetch, setRefetch] = React.useState(false)
-  const [value, setValue] = React.useState(0)
-  const [search, setSearch] = React.useState('')
-  const [createInviteModalOpen, setCreateInviteModalOpen] = React.useState(false)
-  const [deleteMultiInviteModalOpen, setDeleteMultiInviteModalOpen] = React.useState(false)
-  const [selectedInviteIds, setSelectedInviteIds] = useState(() => new Set<string>())
+  const search = useHookstate('')
+  const createInviteModalOpen = useHookstate(false)
+  const deleteMultiInviteModalOpen = useHookstate(false)
+  const selectedInviteIds = useHookstate(() => new Set<string>())
 
-  const handeCloseInviteModal = () => setCreateInviteModalOpen(false)
-  const handleCloseDeleteMultiInviteModal = () => setDeleteMultiInviteModalOpen(false)
+  const handeCloseInviteModal = () => createInviteModalOpen.set(false)
+  const handleCloseDeleteMultiInviteModal = () => deleteMultiInviteModalOpen.set(false)
 
-  const adminUserState = useHookstate(getMutableState(AdminUserState))
-  const authState = useHookstate(getMutableState(AuthState))
-  const user = authState.user
   const { t } = useTranslation()
+  const removeInvite = useMutation(invitePath).remove
 
   const confirmMultiInviteDelete = () => {
-    for (let id of selectedInviteIds) AdminInviteService.removeInvite(id)
+    Promise.all(Array.from(selectedInviteIds.value).map(async (id) => removeInvite(id)))
     handleCloseDeleteMultiInviteModal()
   }
 
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setValue(newValue)
-  }
-
-  const fetchTick = () => {
-    setTimeout(() => {
-      setRefetch(true)
-      fetchTick()
-    }, 5000)
-  }
-
-  useEffect(() => {
-    fetchTick()
-  }, [])
-
-  useEffect(() => {
-    if (user?.id.value != null && (adminUserState.updateNeeded.value === true || refetch)) {
-      AdminUserService.fetchUsersAsAdmin()
-    }
-    setRefetch(false)
-  }, [authState.value, adminUserState.updateNeeded.value, refetch])
-
   const handleSearchChange = (e: any) => {
-    setSearch(e.target.value)
+    search.set(e.target.value)
   }
 
   return (
@@ -134,18 +78,17 @@ const InvitesConsole = () => {
                 type="button"
                 variant="contained"
                 color="primary"
-                onClick={() => setCreateInviteModalOpen(true)}
+                onClick={() => createInviteModalOpen.set(true)}
               >
                 {t('admin:components.invite.create')}
               </Button>
-
-              {selectedInviteIds.size > 0 && (
+              {selectedInviteIds.size.value > 0 && (
                 <IconButton
                   className={styles.filterButton}
                   sx={{ ml: 1 }}
                   size="small"
                   title={t('admin:components.invite.deleteSelected')}
-                  onClick={() => setDeleteMultiInviteModalOpen(true)}
+                  onClick={() => deleteMultiInviteModalOpen.set(true)}
                   icon={<Icon type="Delete" color="info" fontSize="large" />}
                 />
               )}
@@ -154,15 +97,15 @@ const InvitesConsole = () => {
         </Grid>
         <div className={styles.rootTableWithSearch}>
           <AdminInvites
-            search={search}
-            selectedInviteIds={selectedInviteIds}
-            setSelectedInviteIds={setSelectedInviteIds}
+            search={search.value}
+            selectedInviteIds={selectedInviteIds.value}
+            setSelectedInviteIds={selectedInviteIds.set}
           />
         </div>
       </ConfirmProvider>
-      <CreateInviteModal open={createInviteModalOpen} onClose={handeCloseInviteModal} />
+      <CreateInviteModal open={createInviteModalOpen.value} onClose={handeCloseInviteModal} />
       <ConfirmDialog
-        open={deleteMultiInviteModalOpen}
+        open={deleteMultiInviteModalOpen.value}
         description={t('admin:components.invite.confirmMultiInviteDelete')}
         onClose={handleCloseDeleteMultiInviteModal}
         onSubmit={confirmMultiInviteDelete}

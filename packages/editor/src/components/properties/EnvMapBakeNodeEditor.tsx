@@ -24,18 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'
-import { dispatchAction } from '@etherealengine/hyperflux'
 
 import SportsGolfIcon from '@mui/icons-material/SportsGolf'
 
 import { uploadBPCEMBakeToServer } from '../../functions/uploadEnvMapBake'
-import { EditorHistoryAction } from '../../services/EditorHistory'
-import { EditorAction } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -43,7 +39,7 @@ import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import { EnvMapBakeProperties } from './EnvMapBakeProperties'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { commitProperty, updateProperty } from './Util'
 
 export const enum BakePropertyTypes {
   'Boolean',
@@ -52,18 +48,6 @@ export const enum BakePropertyTypes {
   'Resolution',
   'Vector'
 }
-
-const TitleLabel = (styled as any).div`
-  display: flex;
-  flex-direction: row;
-  align-items: left;
-  font-weight: bold;
-  color: var(--textColor);
-  padding: 0 8px 8px;
-  :last-child {
-    margin-left: auto;
-  }
-`
 
 const DefaultEnvMapBakeSettings = [
   {
@@ -116,7 +100,21 @@ const DefaultEnvMapBakeSettings = [
 
 const bakeResolutionTypes = [256, 512, 1024, 2048]
 
-export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
+const titleLabelStyle = {
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'left',
+  fontWeight: 'bold',
+  color: 'var(--textColor)',
+  padding: '0 8px 8px',
+  ':last-child': {
+    marginLeft: 'auto'
+  }
+}
+
+const envMapBakeNodeEditorStyle = {}
+
+export const EnvMapBakeNodeEditor = (props) => {
   const bakeComponent = useComponent(props.entity, EnvMapBakeComponent)
   const renderEnvMapBakeProperties = () => {
     const renderedProperty = DefaultEnvMapBakeSettings.map((element, id) => {
@@ -124,7 +122,13 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
         return <div key={id + 'Realtime'} />
       }
 
-      const renderProp = element.label ? [<TitleLabel key={id + 'title'}>{element.label}</TitleLabel>] : []
+      const renderProp = element.label
+        ? [
+            <div style={titleLabelStyle as React.CSSProperties} key={id + 'title'}>
+              {element.label}
+            </div>
+          ]
+        : []
 
       element.options?.forEach((property, propertyid) => {
         renderProp.push(
@@ -152,13 +156,26 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor {...props} name="EnvMap Bake" description="For Adding EnvMap bake in your scene">
+    <NodeEditor
+      style={envMapBakeNodeEditorStyle}
+      {...props}
+      name="EnvMap Bake"
+      description="For Adding EnvMap bake in your scene"
+    >
       <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.entity)}>Bake</PropertiesPanelButton>
       <InputGroup name="Position" label="Position Offset">
-        <Vector3Input value={bakeComponent.bakePositionOffset.value} onChange={onChangePosition} />
+        <Vector3Input
+          value={bakeComponent.bakePositionOffset.value}
+          onChange={updateProperty(EnvMapBakeComponent, 'bakePositionOffset')}
+          onRelease={commitProperty(EnvMapBakeComponent, 'bakePositionOffset')}
+        />
       </InputGroup>
       <InputGroup name="Scale" label="Scale">
-        <Vector3Input value={bakeComponent.bakeScale.value} onChange={onChangeScale} />
+        <Vector3Input
+          value={bakeComponent.bakeScale.value}
+          onChange={updateProperty(EnvMapBakeComponent, 'bakeScale')}
+          onRelease={commitProperty(EnvMapBakeComponent, 'bakeScale')}
+        />
       </InputGroup>
       <InputGroup name="Type" label="Bake Type">
         <SelectInput
@@ -168,7 +185,7 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
           ]}
           key={props.entity}
           value={bakeComponent.bakeType.value}
-          onChange={updateProperty(EnvMapBakeComponent, 'bakeType')}
+          onChange={commitProperty(EnvMapBakeComponent, 'bakeType')}
         />
       </InputGroup>
       <InputGroup name="Bake Resolution" label="Bake Resolution">
@@ -176,13 +193,13 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
           options={bakeResolutionTypes.map((resolution) => ({ label: resolution.toString(), value: resolution }))}
           key={props.entity}
           value={bakeComponent.resolution.value}
-          onChange={updateProperty(EnvMapBakeComponent, 'bakeType')}
+          onChange={commitProperty(EnvMapBakeComponent, 'resolution')}
         />
       </InputGroup>
       <InputGroup name="Box Projection" label="Box Projection">
         <BooleanInput
           value={bakeComponent.boxProjection.value}
-          onChange={updateProperty(EnvMapBakeComponent, 'boxProjection')}
+          onChange={commitProperty(EnvMapBakeComponent, 'boxProjection')}
         />
       </InputGroup>
     </NodeEditor>

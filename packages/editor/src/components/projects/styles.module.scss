@@ -94,13 +94,13 @@
       }
 
       .btn {
-        margin: 0;
-        height: 40px;
-        width: 90px;
-        font-size: 16px;
-        flex-shrink: 0;
-        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-        color: var(--textColor);
+        margin: 0 !important;
+        height: 40px !important;
+        width: 90px !important;
+        font-size: 16px !important;
+        flex-shrink: 0 !important;
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd)) !important;
+        color: var(--textColor) !important;
       }
 
       .searchInputRoot {
@@ -113,12 +113,12 @@
         margin: 0 30px;
 
         button {
-          color: var(--textColor);
-          padding: 10px;
+          color: var(--textColor) !important;
+          padding: 10px !important;
 
           &:hover,
           &:focus-visible {
-            color: var(--textColor);
+            color: var(--textColor) !important;
           }
         }
 
@@ -141,9 +141,9 @@
           right: 0;
 
           .btn {
-            height: 35px;
-            width: 75px;
-            font-size: 14px;
+            height: 35px !important;
+            width: 75px !important;
+            font-size: 14px !important;
           }
         }
       }
@@ -181,9 +181,9 @@
           height: 30px;
 
           button {
-            padding: 0;
-            color: var(--textColor);
-            margin-left: -16px;
+            padding: 0 !important;
+            color: var(--textColor) !important;
+            margin-left: -16px !important;
 
             svg {
               width: 40px;
@@ -210,18 +210,20 @@
       }
 
       .listContainer {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        justify-content: center;
+        align-items: center;
+        grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
         gap: 15px;
 
         .itemContainer {
-          width: 232px;
           padding: 10px;
           flex-shrink: 0;
           background: var(--dropdownMenuBackground);
           border-radius: 3px;
           position: relative;
           overflow: hidden;
+          height: 205px;
 
           a {
             text-decoration: none;
@@ -240,9 +242,9 @@
           .thumbnailContainer {
             width: 100%;
             height: 125px;
-            background-size: contain;
+            background-size: cover;
             background-repeat: no-repeat;
-            background-position-y: 50%;
+            background-position: center center;
           }
 
           .headerContainer {
@@ -257,9 +259,9 @@
             }
 
             button {
-              width: 24px;
-              height: 24px;
-              padding: 0;
+              width: 24px !important;
+              height: 24px !important;
+              padding: 0 !important;
 
               svg {
                 width: 22px;
@@ -299,9 +301,10 @@
             margin-top: 8px;
             color: var(--textColor);
             opacity: 0.9;
-            height: 45px;
             overflow: hidden;
             position: relative;
+            text-overflow: ellipsis;
+            white-space: nowrap;
 
             &::after {
               content: "";
@@ -339,10 +342,10 @@
     }
 
     button {
-      margin-right: 0;
-      margin-top: 30px;
-      height: 35px;
-      width: 135px;
+      margin-right: 0 !important;
+      margin-top: 30px !important;
+      height: 35px !important;
+      width: 135px !important;
     }
   }
 }
@@ -404,11 +407,11 @@
   }
 
   .btn {
-    margin-top: 10px;
-    height: 35px;
-    width: 85px;
-    font-size: 15px;
-    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    margin-top: 10px !important;
+    height: 35px !important;
+    width: 85px !important;
+    font-size: 15px !important;
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd)) !important;
 
     &:disabled {
       cursor: not-allowed;
@@ -513,15 +516,15 @@
   }
 
   .btn {
-    margin-top: 10px;
-    height: 35px;
-    width: 85px;
-    font-size: 15px;
-    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    margin-top: 10px !important;
+    height: 35px !important;
+    width: 85px !important;
+    font-size: 15px !important;
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd)) !important;
 
     &:disabled {
-      cursor: not-allowed;
-      background: var(--disabled);
+      cursor: not-allowed !important;
+      background: var(--disabled) !important;
     }
   }
 
@@ -564,37 +567,37 @@
     justify-content: center;
 
     .cancelBtn {
-      margin: 0 10px;
-      height: 35px;
-      width: 85px;
-      font-size: 14px;
-      background: transparent;
-      color: var(--blue);
+      margin: 0 10px !important;
+      height: 35px !important;
+      width: 85px !important;
+      font-size: 14px !important;
+      background: transparent !important;
+      color: var(--blue) !important;
 
       &:hover,
       &:focus-visible {
-        background: var(--blue);
-        color: var(--textColor);
+        background: var(--blue) !important;
+        color: var(--textColor) !important;
       }
     }
 
     .confirmBtn {
-      margin: 0 10px;
-      height: 35px;
-      width: 85px;
-      font-size: 14px;
-      background: var(--red);
+      margin: 0 10px !important;
+      height: 35px !important;
+      width: 85px !important;
+      font-size: 14px !important;
+      background: var(--red) !important;
 
       &:hover,
       &:focus-visible {
-        opacity: 0.8;
+        opacity: 0.8 !important;
       }
     }
 
     .confirmBtn[disabled] {
-      background: var(--disabledText);
-      color: var(--textColor);
-      cursor: initial;
+      background: var(--disabledText) !important;
+      color: var(--textColor) !important;
+      cursor: initial !important;
       opacity: 1 !important;
     }
   }
@@ -610,10 +613,6 @@
 
 [class*="MuiDrawer-modal"] {
   z-index: 1400;
-}
-
-#menu-projectURL {
-  z-index: 1500;
 }
 
 .refreshGHBtn {

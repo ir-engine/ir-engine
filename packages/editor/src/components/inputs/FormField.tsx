@@ -24,40 +24,30 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { ReactNode } from 'react'
-import styled from 'styled-components'
 
 /**
  * BlockFormField used to provide styles for block FormField div.
- *
- * @type {styled component}
  */
-const BlockFormField = (styled as any).div`
-  margin-bottom: 16px;
-
-  label {
-    display: block;
-    margin-bottom: 8px;
-  }
-`
+const blockFormFieldStyle = {
+  marginBottom: '16px'
+}
 
 /**
  * InlineFormField used to provide styles for inline FormField div.
- *
- * @type {styled component}
  */
-const InlineFormField = (styled as any).div`
-  display: flex;
-  justify-content: space-between;
+const inlineFormFieldStyle = {
+  display: 'flex',
+  justifyContent: 'space-between'
+}
 
-  & > * {
-    margin-left: 30px;
-    align-self: center;
-  }
+const inlineFormFieldChildStyle = {
+  marginLeft: '30px',
+  alignSelf: 'center'
+}
 
-  & > :first-child {
-    margin-left: 0;
-  }
-`
+const firstChildStyle = {
+  marginLeft: '0'
+}
 
 interface FormFieldProp {
   inline?: any
@@ -74,10 +64,20 @@ interface FormFieldProp {
  */
 export function FormField({ inline, children, ...rest }: FormFieldProp) {
   if (inline) {
-    return <InlineFormField {...rest}>{children}</InlineFormField>
+    return (
+      <div style={{ ...inlineFormFieldStyle, ...rest }}>
+        {React.Children.map(children, (child, index) => {
+          return (
+            <div style={index === 0 ? { ...inlineFormFieldChildStyle, ...firstChildStyle } : inlineFormFieldChildStyle}>
+              {child}
+            </div>
+          )
+        })}
+      </div>
+    )
   }
 
-  return <BlockFormField {...rest}>{children}</BlockFormField>
+  return <div style={{ ...blockFormFieldStyle, ...rest }}>{children}</div>
 }
 
 export default FormField

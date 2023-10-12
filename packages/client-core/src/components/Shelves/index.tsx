@@ -23,65 +23,54 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import {
-  addActionReceptor,
-  dispatchAction,
-  getMutableState,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { AppAction, AppServiceReceptor, AppState } from '../../common/services/AppService'
+import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
+import { useTranslation } from 'react-i18next'
+import { AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'
 
 export const Shelves = () => {
+  const { t } = useTranslation()
+
   const appState = useHookstate(getMutableState(AppState))
   const showTopShelf = appState.showTopShelf.value
   const showBottomShelf = appState.showBottomShelf.value
 
-  useEffect(() => {
-    addActionReceptor(AppServiceReceptor)
-    return () => {
-      removeActionReceptor(AppServiceReceptor)
-    }
-  }, [])
-
   const handleShowMediaIcons = () => {
-    dispatchAction(AppAction.showTopShelf({ show: !appState.showTopShelf.value }))
+    appState.showTopShelf.set((prevValue) => !prevValue)
   }
 
   const handleShowBottomIcons = () => {
-    dispatchAction(AppAction.showBottomShelf({ show: !appState.showBottomShelf.value }))
+    appState.showBottomShelf.set((prevValue) => !prevValue)
   }
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
-      <button
-        type="button"
-        className={`${showTopShelf ? styles.btn : styles.smBtn} ${showTopShelf ? styles.rotate : styles.rotateBack} ${
-          styles.showIconMedia
-        } `}
+      <IconButtonWithTooltip
+        className={`${showTopShelf ? styles.btn : styles.smBtn} ${showTopShelf ? styles.rotate : styles.rotateBack}`}
+        tooltipClassName={styles.showIconMedia}
+        title={showTopShelf ? t('user:menu.hide') : t('user:menu.show')}
         onClick={handleShowMediaIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-      >
-        <Icon type={showTopShelf ? 'KeyboardDoubleArrowUp' : 'KeyboardDoubleArrowDown'} />
-      </button>
-      <button
-        type="button"
+        icon={<Icon type={showTopShelf ? 'KeyboardDoubleArrowUp' : 'KeyboardDoubleArrowDown'} />}
+      />
+      <IconButtonWithTooltip
         className={`${showBottomShelf ? styles.btn : styles.smBtn} ${
           showBottomShelf ? styles.rotate : styles.rotateBack
-        } ${styles.showIcon} `}
+        } `}
+        tooltipClassName={styles.showIcon}
+        title={showBottomShelf ? t('user:menu.hide') : t('user:menu.show')}
         onClick={handleShowBottomIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-      >
-        <Icon type={showBottomShelf ? 'KeyboardDoubleArrowDown' : 'KeyboardDoubleArrowUp'} />
-      </button>
+        icon={<Icon type={showBottomShelf ? 'KeyboardDoubleArrowDown' : 'KeyboardDoubleArrowUp'} />}
+      />
     </div>
   )
 }

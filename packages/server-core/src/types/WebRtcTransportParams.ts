@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
 // Types borrowed from Mediasoup
@@ -42,9 +41,8 @@ type SctpCapabilities = {
   numStreams: NumSctpStreams
 }
 export type WebRtcTransportParams = {
-  peerID?: PeerID
+  peerID: PeerID
   direction: 'recv' | 'send'
   sctpCapabilities: SctpCapabilities
-  channelType: ChannelType
-  channelId?: string
+  channelId: string
 }

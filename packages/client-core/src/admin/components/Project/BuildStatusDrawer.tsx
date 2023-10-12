@@ -23,21 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { BuildStatusType, buildStatusPath } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { buildStatusColumns } from '../../common/variables/buildStatus'
-import { AdminBuildStatusState, BuildStatusService } from '../../services/BuildStatusService'
 import styles from '../../styles/admin.module.scss'
 import BuildStatusLogsModal from './BuildStatusLogsModal'
 
@@ -59,16 +59,13 @@ const defaultBuildStatus: BuildStatusType = {
 
 const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const { t } = useTranslation()
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(10)
+
   const selectedStatusId = useHookstate(0)
   const logsModalOpen = useHookstate(false)
 
-  const fieldOrder = useHookstate('desc')
-  const sortField = useHookstate('id')
-
-  const buildStatusState = useHookstate(getMutableState(AdminBuildStatusState))
-  const buildStatuses = buildStatusState.buildStatuses.value
+  const buildStatusesQuery = useFind(buildStatusPath, {
+    query: { $limit: 10, $sort: { id: -1 } }
+  })
 
   const handleOpenLogsModal = (buildStatus: BuildStatusType) => {
     selectedStatusId.set(buildStatus.id)
@@ -143,43 +140,17 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
     }
   }
 
-  const rows = buildStatuses.map((el) => {
+  const rows = buildStatusesQuery.data.map((el) => {
     return createData(el)
   })
 
-  const selectedStatus = buildStatuses.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    BuildStatusService.fetchBuildStatus(newPage * 10)
-    page.set(newPage)
-  }
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
-
-  useEffect(() => {
-    BuildStatusService.fetchBuildStatus(0)
-  }, [])
+  const selectedStatus = buildStatusesQuery.data.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
 
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>{t('admin:components.project.buildStatus')}</DialogTitle>
-        <TableComponent
-          allowSort={false}
-          fieldOrder={fieldOrder.value}
-          setSortField={sortField.set}
-          setFieldOrder={fieldOrder.set}
-          rows={rows}
-          column={buildStatusColumns}
-          page={page.value}
-          rowsPerPage={rowsPerPage.value}
-          count={buildStatusState.total.value}
-          handlePageChange={handlePageChange}
-          handleRowsPerPageChange={handleRowsPerPageChange}
-        />
+        <TableComponent query={buildStatusesQuery} rows={rows} column={buildStatusColumns} />
         <BuildStatusLogsModal open={logsModalOpen.value} onClose={handleCloseLogsModal} buildStatus={selectedStatus} />
       </Container>
     </DrawerView>

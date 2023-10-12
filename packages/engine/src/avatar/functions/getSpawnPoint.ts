@@ -25,15 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
-export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { position: Vector3; rotation: Quaternion } {
+export function getSpawnPoint(spawnPointNodeId: string, userId: UserID): { position: Vector3; rotation: Quaternion } {
   const entity = UUIDComponent.entitiesByUUID[spawnPointNodeId]
   if (entity) {
     const spawnTransform = getComponent(entity, TransformComponent)
@@ -56,7 +55,7 @@ const randomPositionCentered = (area: Vector3) => {
 
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
-export function getRandomSpawnPoint(userId: UserId): { position: Vector3; rotation: Quaternion } {
+export function getRandomSpawnPoint(userId: UserID): { position: Vector3; rotation: Quaternion } {
   const spawnPoints = spawnPointQuery()
   const spawnPointForUser = spawnPoints.find((entity) =>
     getComponent(entity, SpawnPointComponent).permissionedUsers.includes(userId)

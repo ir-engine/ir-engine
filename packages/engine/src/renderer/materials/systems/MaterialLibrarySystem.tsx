@@ -23,17 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ReactElement, useEffect } from 'react'
-import React from 'react'
+import React, { ReactElement, useEffect } from 'react'
 
-import { defineActionQueue, getMutableState, removeActionQueue, useState } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../../../ecs/functions/SystemFunctions'
+import { MaterialLibraryState, initializeMaterialLibrary } from '../MaterialLibrary'
 import { NoiseOffsetSystem } from '../constants/plugins/NoiseOffsetPlugin'
-import { registerMaterial, registerMaterialPrototype } from '../functions/MaterialLibraryFunctions'
+import {
+  protoIdToFactory,
+  registerMaterial,
+  replaceMaterial,
+  unregisterMaterial
+} from '../functions/MaterialLibraryFunctions'
 import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/MaterialPluginFunctions'
-import { initializeMaterialLibrary, MaterialLibraryState } from '../MaterialLibrary'
-import { VegetationPluginSystem } from './VegetationSystem'
 
 function MaterialReactor({ materialId }: { materialId: string }) {
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -51,12 +54,6 @@ function MaterialReactor({ materialId }: { materialId: string }) {
 function PluginReactor({ pluginId }: { pluginId: string }) {
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
   const component = materialLibrary.plugins[pluginId]
-  useEffect(() => {
-    component.instances.value.forEach((material) => {
-      material.needsUpdate = true
-    })
-  }, [component.parameters])
-
   return null
 }
 
@@ -74,6 +71,29 @@ function reactor(): ReactElement {
   }, [])
 
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
+
+  useEffect(() => {
+    const materialIds = materialLibrary.materials.keys
+    for (const materialId of materialIds) {
+      const component = materialLibrary.materials[materialId]
+      //if the material is missing, check if its prototype is present now
+      if (component.status.value === 'MISSING' && !!materialLibrary.prototypes[component.prototype.value]) {
+        //if the prototype is present, create the material
+        const material = component.material.get(NO_PROXY)
+        const parms = material.userData.args
+        const factory = protoIdToFactory(component.prototype.value)
+        const newMaterial = factory(parms)
+        replaceMaterial(material, newMaterial)
+        newMaterial.userData = material.userData
+        delete newMaterial.userData.args
+        const comp = component.get(NO_PROXY)
+        const src = JSON.parse(JSON.stringify(component.src.value))
+        registerMaterial(newMaterial, src)
+        unregisterMaterial(material)
+      }
+    }
+  }, [materialLibrary.prototypes])
+
   const plugins = materialLibrary.plugins
   return (
     <>
@@ -90,5 +110,5 @@ function reactor(): ReactElement {
 export const MaterialLibrarySystem = defineSystem({
   uuid: 'ee.engine.scene.MaterialLibrarySystem',
   reactor,
-  subSystems: [VegetationPluginSystem, NoiseOffsetSystem]
+  subSystems: [NoiseOffsetSystem]
 })

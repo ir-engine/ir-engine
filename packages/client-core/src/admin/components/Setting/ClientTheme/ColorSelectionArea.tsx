@@ -40,8 +40,8 @@ interface ColorSelectionAreaProps {
   mode: string
   colorModes: string[]
   theme: ClientThemeOptionsType
-  onChangeMode: Function
-  onChangeColor: Function
+  onChangeMode: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChangeColor: (name: string, color: string) => void
 }
 
 const ColorSelectionArea = ({ mode, colorModes, theme, onChangeMode, onChangeColor }: ColorSelectionAreaProps) => {

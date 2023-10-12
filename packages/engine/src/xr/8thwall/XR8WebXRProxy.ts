@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventDispatcher, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { EventDispatcher, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_111 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRState } from '../XRState'
 import { XR8 } from './XR8'
 
@@ -46,7 +48,7 @@ export class XRView {
 
   constructor(transform: XRRigidTransform) {
     this.transform = transform
-    const camera = Engine.instance.camera as PerspectiveCamera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     this.projectionMatrix = camera.projectionMatrix.toArray()
   }
 }
@@ -69,8 +71,9 @@ export class XRHitTestResultProxy {
   getPose(baseSpace: XRSpace) {
     const _pos = new Vector3()
     const _rot = new Quaternion()
-    _mat4.decompose(_pos, _rot, _scale)
-    return (Engine.instance.xrFrame! as any as XRFrameProxy).getPose(baseSpace, new XRSpace(_pos, _rot))
+    this._mat4.decompose(_pos, _rot, _scale)
+    if (!XRFrameProxy._lastFrame) throw new Error('XRFrameProxy._lastFrame is null')
+    return XRFrameProxy._lastFrame.getPose(new XRSpace(_pos, _rot), baseSpace)
   }
 
   /** @todo */
@@ -100,7 +103,7 @@ export class XRReferenceSpace extends XRSpace {
 
   private _listeners = {}
 
-  addEventListener(eventName: string | number, listener: Function) {
+  addEventListener(eventName: string | number, listener: any) {
     const listeners = this._listeners
     if (listeners[eventName] === undefined) {
       listeners[eventName] = []
@@ -111,7 +114,7 @@ export class XRReferenceSpace extends XRSpace {
     }
   }
 
-  removeEventListener(eventName: string | number, listener: Function): void {
+  removeEventListener(eventName: string | number, listener: any): void {
     const listenerArray = this._listeners[eventName]
     if (listenerArray !== undefined) {
       const index = listenerArray.indexOf(listener)
@@ -195,9 +198,25 @@ const _scale = new Vector3()
  * currently, the hit test proxy only supports viewer space
  */
 export class XRFrameProxy {
+  _viewerPose: XRViewerPose | null = null
+  static _lastFrame: XRFrameProxy | null = null
+
+  constructor() {
+    const sessionActive = getState(XRState).sessionActive
+    const xr8scene = XR8.Threejs.xrScene()
+    if (sessionActive && xr8scene) {
+      const { camera } = xr8scene
+      this._viewerPose = new XRViewerPose(new XRRigidTransform(camera.position, camera.quaternion))
+    }
+    XRFrameProxy._lastFrame = this
+  }
+
   getHitTestResults(source: XRHitTestSource) {
     const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT'])
-    return hits.map(({ position, rotation }) => new XRHitTestResultProxy(position as Vector3, rotation as Quaternion))
+    return hits.map(
+      ({ position, rotation }) =>
+        new XRHitTestResultProxy(position as Vector3, new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w))
+    )
   }
 
   get session() {
@@ -211,6 +230,6 @@ export class XRFrameProxy {
   }
 
   getViewerPose(space: XRReferenceSpace) {
-    return new XRViewerPose(new XRRigidTransform(Engine.instance.camera.position, Engine.instance.camera.quaternion))
+    return this._viewerPose
   }
 }

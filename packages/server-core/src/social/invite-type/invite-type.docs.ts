@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'invite-type': {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string'
-        }
-      }
-    },
-    'invite-type_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/invite-type' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  inviteTypeDataSchema,
+  inviteTypePatchSchema,
+  inviteTypeQuerySchema,
+  inviteTypeSchema
+} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    inviteTypeDataSchema,
+    inviteTypePatchSchema,
+    inviteTypeQuerySchema,
+    inviteTypeSchema
+  },
+  docs: {
+    description: 'Invite type service description',
+    securities: ['all']
   }
-}
+})

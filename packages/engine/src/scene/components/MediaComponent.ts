@@ -27,18 +27,16 @@ import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { State, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetClass } from '../../assets/enum/AssetClass'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  ComponentType,
   defineComponent,
+  getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
@@ -49,6 +47,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
@@ -129,13 +128,17 @@ export const MediaComponent = defineComponent({
     return {
       controls: false,
       synchronize: true,
-      paths: [] as string[],
-      paused: true,
+      autoplay: true,
       volume: 1,
       resources: [] as string[],
       playMode: PlayMode.loop as PlayMode,
       isMusic: false,
+      /**@deprecated */
+      paths: [] as string[],
       // runtime props
+      paused: true,
+      ended: true,
+      seekTime: 0,
       waiting: false,
       track: 0,
       trackDurations: [] as number[],
@@ -158,22 +161,22 @@ export const MediaComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       controls: component.controls.value,
-      paused: component.paused.value,
-      paths: component.paths.value,
-      resources: component.resources.value,
+      autoplay: component.autoplay.value,
+      resources: component.resources.value.filter(Boolean), // filter empty strings
       volume: component.volume.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
-      isMusic: component.isMusic.value
+      isMusic: component.isMusic.value,
+      seekTime: component.seekTime.value // we can start media from a specific point if needed
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
     startTransition(() => {
-      if (typeof json.paths === 'object') {
+      if (typeof (json as any).paths === 'object') {
         // backwards-compat: update uvol paths to point to the video files
-        const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
+        const paths = (json as any).paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
         component.resources.set(paths)
       }
       if (typeof json.resources === 'object') {
@@ -216,8 +219,10 @@ export const MediaComponent = defineComponent({
         component.isMusic.set(json.isMusic)
 
       // @ts-ignore deprecated autoplay field
-      if (typeof json.autoplay === 'boolean') component.paused.set(!json.autoplay)
-      if (typeof json.paused === 'boolean') component.paused.set(json.paused)
+      if (typeof json.paused === 'boolean') component.autoplay.set(!json.paused)
+      if (typeof json.seekTime === 'number') component.seekTime.set(json.seekTime)
+
+      if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
     })
   },
 
@@ -232,6 +237,46 @@ export function MediaReactor() {
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
+
+  if (!isClient) return null
+
+  useEffect(() => {
+    // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
+    // in order to ensure media will play programmatically
+    const handleAutoplay = () => {
+      const mediaComponent = getComponent(entity, MediaElementComponent)
+      // handle when we dont have autoplay enabled but have programatically started playback
+      if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.play()
+      // handle when we have autoplay enabled but have paused playback
+      if (media.autoplay.value && media.paused.value) media.paused.set(false)
+      // handle when we have autoplay and mediaComponent is paused
+      if (media.autoplay.value && !media.paused.value && mediaComponent?.element.paused) mediaComponent.element.play()
+      window.removeEventListener('pointerup', handleAutoplay)
+      window.removeEventListener('keypress', handleAutoplay)
+      window.removeEventListener('touchend', handleAutoplay)
+      document.body.removeEventListener('pointerup', handleAutoplay)
+      document.body.removeEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
+    }
+    window.addEventListener('pointerup', handleAutoplay)
+    window.addEventListener('keypress', handleAutoplay)
+    window.addEventListener('touchend', handleAutoplay)
+    document.body.addEventListener('pointerup', handleAutoplay)
+    document.body.addEventListener('touchend', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+    EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
+
+    return () => {
+      window.removeEventListener('pointerup', handleAutoplay)
+      window.removeEventListener('keypress', handleAutoplay)
+      window.removeEventListener('touchend', handleAutoplay)
+      document.body.removeEventListener('pointerup', handleAutoplay)
+      document.body.removeEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
+    }
+  }, [])
 
   useEffect(
     function updatePlay() {
@@ -251,6 +296,15 @@ export function MediaReactor() {
   )
 
   useEffect(
+    function updateSeekTime() {
+      if (!mediaElement) return
+      setTime(mediaElement.element, media.seekTime.value)
+      if (!mediaElement.element.paused.value) mediaElement.element.value.play() // if not paused, start play again
+    },
+    [media.seekTime, mediaElement]
+  )
+
+  useEffect(
     function updateTrackMetadata() {
       clearErrors(entity, MediaComponent)
 
@@ -258,7 +312,7 @@ export function MediaReactor() {
 
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
-        if (assetClass !== 'audio' && assetClass !== 'video') {
+        if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
           return addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
         }
       }
@@ -266,6 +320,7 @@ export function MediaReactor() {
       const metadataListeners = [] as Array<{ tempElement: HTMLMediaElement; listener: () => void }>
 
       for (const [i, path] of paths.entries()) {
+        if (path === '') continue
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
         const tempElement = document.createElement(assetClass) as HTMLMediaElement
         const listener = () => media.trackDurations[i].set(tempElement.duration)
@@ -289,10 +344,19 @@ export function MediaReactor() {
 
   useEffect(
     function updateMediaElement() {
+      if (!media.ended.value) {
+        // If current track is not ended, don't change the track
+        return
+      }
+
       if (!isClient) return
 
       const track = media.track.value
-      const path = media.resources[track].value
+      const nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
+
+      if (nextTrack === -1) return
+
+      const path = media.resources[nextTrack].value
       if (!path) {
         if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
         return
@@ -306,6 +370,9 @@ export function MediaReactor() {
         addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
         return
       }
+
+      media.ended.set(false)
+      media.track.set(nextTrack)
 
       if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
         setComponent(entity, MediaElementComponent, {
@@ -335,7 +402,7 @@ export function MediaReactor() {
           'error',
           (err) => {
             addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            if (!media.paused.value) media.track.set(getNextTrack(media.value))
+            media.ended.set(true)
             media.waiting.set(false)
           },
           { signal }
@@ -344,8 +411,7 @@ export function MediaReactor() {
         element.addEventListener(
           'ended',
           () => {
-            if (media.playMode.value === PlayMode.single) return
-            media.track.set(getNextTrack(media.value))
+            media.ended.set(true)
             media.waiting.set(false)
           },
           { signal }
@@ -365,15 +431,19 @@ export function MediaReactor() {
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)
-
+      mediaElementState.element.value.crossOrigin = 'anonymous'
       if (isHLS(path)) {
         mediaElementState.hls.set(setupHLS(entity, path))
         mediaElementState.hls.value!.attachMedia(mediaElementState.element.value)
       } else {
         mediaElementState.element.src.set(path)
       }
+
+      if (!media.paused.value) {
+        mediaElementState.value.element.play()
+      }
     },
-    [media.resources, media.track]
+    [media.resources, media.ended, media.playMode]
   )
 
   useEffect(
@@ -461,21 +531,24 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
   return hls
 }
 
-export function getNextTrack(media: ComponentType<typeof MediaComponent>) {
-  const currentTrack = media.track
-  const numTracks = media.resources.length
+export function setTime(element: State<HTMLMediaElement>, time: number) {
+  if (!element.value || time < 0 || element.value.currentTime === time) return
+  element.currentTime.set(time)
+}
+
+export function getNextTrack(currentTrack: number, trackCount: number, currentMode: PlayMode) {
+  if (currentMode === PlayMode.single || trackCount === 0) return -1
+
   let nextTrack = 0
 
-  if (media.playMode == PlayMode.random) {
+  if (currentMode == PlayMode.random) {
     // todo: smart random, i.e., lower probability of recently played tracks
-    nextTrack = Math.floor(Math.random() * numTracks)
-  } else if (media.playMode == PlayMode.single) {
-    nextTrack = (currentTrack + 1) % numTracks
-  } else if (media.playMode == PlayMode.singleloop) {
+    nextTrack = Math.floor(Math.random() * trackCount)
+  } else if (currentMode == PlayMode.singleloop) {
     nextTrack = currentTrack
   } else {
     //PlayMode.Loop
-    nextTrack = (currentTrack + 1) % numTracks
+    nextTrack = (currentTrack + 1) % trackCount
   }
 
   return nextTrack

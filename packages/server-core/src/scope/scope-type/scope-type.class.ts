@@ -23,20 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { AdminScopeType as ScopeTypeInterface } from '@etherealengine/common/src/interfaces/AdminScopeType'
+import {
+  ScopeTypeData,
+  ScopeTypePatch,
+  ScopeTypeQuery,
+  ScopeTypeType
+} from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ScopeTypeParams extends KnexAdapterParams<ScopeTypeQuery> {}
 
-export type ScopeTypeDataType = ScopeTypeInterface
-
-export class ScopeType<T = ScopeTypeDataType> extends Service<T> {
-  app: Application
-  docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class ScopeTypeService<T = ScopeTypeType, ServiceParams extends Params = ScopeTypeParams> extends KnexService<
+  ScopeTypeType,
+  ScopeTypeData,
+  ScopeTypeParams,
+  ScopeTypePatch
+> {}

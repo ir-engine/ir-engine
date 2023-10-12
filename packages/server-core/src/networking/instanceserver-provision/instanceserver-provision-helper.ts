@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { LocationDataType } from '../../social/location/location.class'
 import { getFreeInstanceserver } from '../instance-provision/instance-provision.class'
 
 type Props = {
@@ -39,11 +40,11 @@ export const patchInstanceserverLocation =
   (app: Application) =>
   async ({ locationId, count }: Props, params?: Params) => {
     try {
-      const location = (await app.service('location').find({
+      const location = (await app.service(locationPath).find({
         query: {
           id: locationId
         }
-      })) as Paginated<LocationDataType>
+      })) as Paginated<LocationType>
 
       if (!location.data.length) {
         const message = `Failed to patch instanceserver. (Location for id '${locationId}' is not found.)`

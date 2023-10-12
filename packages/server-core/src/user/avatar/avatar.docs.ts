@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    avatar: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string'
-        }
-      }
-    },
-    avatar_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/avatar' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  avatarDataSchema,
+  avatarPatchSchema,
+  avatarQuerySchema,
+  avatarSchema
+} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    avatarDataSchema,
+    avatarPatchSchema,
+    avatarQuerySchema,
+    avatarSchema
+  },
+  docs: {
+    description: 'Avatar service description',
+    securities: ['all']
   }
-}
+})

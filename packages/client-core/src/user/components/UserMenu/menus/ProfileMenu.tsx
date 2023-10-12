@@ -34,7 +34,6 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '@etherealengine/client-core/src/common/components/Icons/FacebookIcon'
-import { GithubIcon } from '@etherealengine/client-core/src/common/components/Icons/GithubIcon'
 import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '@etherealengine/client-core/src/common/components/Icons/TwitterIcon'
@@ -42,16 +41,15 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
-import multiLogger from '@etherealengine/common/src/logger'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettingService'
+import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
@@ -59,8 +57,6 @@ import { AuthService, AuthState } from '../../../services/AuthService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-
-const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
 interface Props {
   className?: string
@@ -85,9 +81,8 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
 
-  const engineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
-  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
-  const [authSetting] = authSettingState?.authSettings?.value || []
+  const authSetting = useFind(authenticationSettingPath).data.at(0)
+  const clientSetting = useFind(clientSettingPath).data.at(0)
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
@@ -99,7 +94,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -107,7 +102,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       })
       authState.set(temp)
     }
-  }, [authSettingState?.updateNeeded?.value])
+  }, [authSetting])
 
   let type = ''
   const addMoreSocial =
@@ -142,7 +137,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   useEffect(() => {
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
     if (selfUser.identityProviders.get({ noproxy: true }))
-      for (let ip of selfUser.identityProviders.get({ noproxy: true })!) {
+      for (const ip of selfUser.identityProviders.get({ noproxy: true })!) {
         switch (ip.type) {
           case 'discord':
             oauthConnectedState.merge({ discord: true })
@@ -360,7 +355,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={avatarThumbnail}
-            showChangeButton={!!engineInitialized.value}
+            showChangeButton={true}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />
 
@@ -643,6 +638,9 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
             )}
           </>
         )}
+        <div className={styles.center}>
+          <a href={clientSetting?.privacyPolicy}>{t('user:usermenu.profile.privacyPolicy')}</a>
+        </div>
       </Box>
     </Menu>
   )

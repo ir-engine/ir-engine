@@ -23,23 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
 import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  getMutableState,
-  getState,
-  NO_PROXY,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AdminClientSettingsState, ClientSettingService } from '../../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
 
 export const AppThemeState = defineState({
@@ -48,36 +36,14 @@ export const AppThemeState = defineState({
     mode: 'auto' as 'auto' | 'profile' | 'custom',
     customTheme: null as ClientThemeOptionsType | null,
     customThemeName: null as string | null
-  })
-})
-
-export const AppThemeServiceReceptor = (action) => {
-  const s = getMutableState(AppThemeState)
-  matches(action).when(AppThemeActions.setCustomTheme.matches, (action) => {
-    return s.merge({
-      customTheme: action.theme,
-      customThemeName: action.themeName,
-      mode: action.themeName ? 'custom' : 'auto'
-    })
-  })
-}
-
-export class AppThemeActions {
-  static setCustomTheme = defineAction({
-    type: 'ee.client.AppTheme.setCustomTheme' as const,
-    theme: matches.object.optional() as Validator<unknown, ClientThemeOptionsType>,
-    themeName: matches.string.optional()
-  })
-}
-
-export const AppThemeFunctions = {
+  }),
   setTheme: (theme?: ClientThemeOptionsType, themeName?: string) => {
     const themeState = getMutableState(AppThemeState)
     themeState.customTheme.set(theme ?? null)
     themeState.customThemeName.set(themeName ?? null)
     themeState.mode.set(themeName ? 'custom' : 'auto')
   }
-}
+})
 
 export const useAppThemeName = (): string => {
   const themeState = useHookstate(getMutableState(AppThemeState))
@@ -85,7 +51,7 @@ export const useAppThemeName = (): string => {
 
   if (themeState.mode.value === 'custom' && themeState.customThemeName.value) return themeState.customThemeName.value
 
-  return getCurrentTheme(authState.user?.user_setting?.value?.themeModes)
+  return getCurrentTheme(authState.user?.userSetting?.value?.themeModes)
 }
 
 export const getAppThemeName = (): string => {
@@ -94,7 +60,7 @@ export const getAppThemeName = (): string => {
 
   if (themeState.mode.value === 'custom' && themeState.customThemeName.value) return themeState.customThemeName.value
 
-  return getCurrentTheme(authState.user?.user_setting?.value?.themeModes)
+  return getCurrentTheme(authState.user?.userSetting?.value?.themeModes)
 }
 
 export const getAppTheme = () => {
@@ -102,7 +68,7 @@ export const getAppTheme = () => {
   if (themeState.mode === 'custom' && themeState.customTheme) return themeState.customTheme
 
   const authState = getState(AuthState)
-  const theme = getCurrentTheme(authState.user?.user_setting?.themeModes)
+  const theme = getCurrentTheme(authState.user?.userSetting?.themeModes)
   const clientSettingState = getState(AdminClientSettingsState)
   const themeSettings = clientSettingState?.client?.[0]?.themeSettings
   if (themeSettings) return themeSettings[theme]

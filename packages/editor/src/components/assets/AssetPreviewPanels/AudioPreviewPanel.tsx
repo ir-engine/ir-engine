@@ -24,27 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
-const AudioPreview = styled.audio`
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top:300px
-  max-width:500px
-`
+const audioStyles = {
+  display: 'block',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  marginTop: '300px',
+  maxWidth: '500px'
+}
 
 /**
  * @param props
  * @returns
  */
-
 export const AudioPreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
 
   return (
-    <AudioPreview src={url} controls={true}>
+    <audio src={url} controls={true} style={audioStyles}>
       Your browser doesn't support Audio
-    </AudioPreview>
+    </audio>
   )
 }

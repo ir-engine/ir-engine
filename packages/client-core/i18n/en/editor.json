@@ -25,6 +25,7 @@
   "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
   "envMapError": "Error loading cubemap images {{files}}",
   "lbl-return": "Return",
+  "loadingScenes": "Loading Scenes",
   "menubar": {
     "newScene": "New Scene",
     "saveScene": "Save Scene",
@@ -97,10 +98,38 @@
     }
   },
   "toolbar": {
-    "lbl-advanced": "Advanced",
-    "info-advanced": "Enables advanced editing mode",
     "lbl-publish": "Publish",
     "lbl-published": "Published",
+    "gizmo": {
+      "description": "Transform Gizmo",
+      "translate": "[T] Translate",
+      "rotate": "[R] Rotate",
+      "scale": "[S] Scale"
+    },
+    "transformSpace": {
+      "description": "Sets your transform control to be oriented to the object(selection) or world",
+      "lbl-world": "World",
+      "info-world": "World space relates to the entire scene’s orientation",
+      "lbl-selection": "Object",
+      "info-selection": "Object Space (your selection) relates to transforms made to a specific object in relationship to the world space",
+      "lbl-toggleTransformSpace": "[Z] Toggle Transform Space"
+    },
+    "transformPivot": {
+      "toggleTransformPivot" : "[X] Toggle Transform Pivot",
+      "lbl-selection": "Selection",
+      "info-selection": "The center pivot of the final asset you selected in the sequence.",
+      "lbl-center": "Center",
+      "info-center": "A pivot that sits at an equal distance between all selections.",
+      "lbl-bottom": "Bottom",
+      "info-bottom": "A pivot that sits equally between all selections and at the bottom of your final selection in the sequence.",
+      "lbl-origin": "Origin",
+      "info-origin": "Sets pivot mode to the world origin (0,0,0)"
+    },
+    "transformSnapTool": {
+      "toggleSnapMode": "[C] Toggle Snap Mode",
+      "info-translate": "Translate objects by a unit of measurement.",
+      "info-rotate": "Rotate objects by a specific degrees."
+    },
     "command": {
       "translate": "Translate",
       "rotate": "Rotate",
@@ -111,17 +140,50 @@
       "toggleGrid": "Toggle Grid Visibility",
       "increaseGridSize": "Increase Grid Size",
       "descreaseGridSize": "Decrease Grid Size",
-      "stopPreview": "Stop Previewing Scene",
-      "playPreview": "Preview Scene"
+      "lbl-stopPreview": "Stop Previewing Scene",
+      "info-stopPreview": "Remove your avatar from scene",
+      "lbl-playPreview": "Preview Scene",
+      "info-playPreview": "Spawns you into the scene"
     },
     "instance": {
       "none": "None",
       "users": "Users",
       "user": "User"
+    },
+    "render-settings":{
+      "lbl": "Render Settings",
+      "info": "How you view materials in the Engine",
+      "lbl-usePostProcessing":"Use Post Processing",
+      "info-usePostProcessing":"Enables post processing",
+      "lbl-shadowMapResolution":"Shadow Map Resolution",
+      "info-shadowMapResolution":"Set shadowmap resolution",
+      "lbl-renderMode":"Render Mode",
+      "info-renderMode":"Choose render mode"
+    },
+    "grid": {
+      "info-toggleGridVisibility": "Toggle Grid Visibility",
+      "info-gridSpacing": "Set grid spacing meters",
+      "info-incrementHeight": "Increment Grid Height",
+      "info-decrementHeight": "Decrement Grid Height"
+    },
+    "stats": {
+      "lbl": "Toggle Stats",
+      "info": "Show stats about the scene and gives you a clue as to how optimized your scene is."
+    },
+    "helpersToggle": {
+      "lbl-helpers": "Toggle Helpers",
+      "info-helpers": "View hidden information about your scene, ie: colliders",
+      "lbl-nodeHelpers": "Toggle Node Helpers",
+      "info-nodeHelpers": "Helper geometry that helps components have visibility in the scene when inactive."
+    },
+    "sceneScreenshot": {
+      "lbl": "Screenshot",
+      "info": "Takes a screenshot of your scene at the current view."
     }
   },
   "properties": {
     "title": "Properties",
+    "info": "Propeties let you access and edit detailed information about objects in your scene.",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
     "lbl-dynamicLoad": "Load Children Dynamically",
@@ -162,14 +224,17 @@
       "playmode": "Play Mode",
       "playtitle": "Play",
       "pausetitle": "Pause",
+      "resettitle": "Reset",
       "lbl-controls": "controls",
       "info-controls": "Toggle the visibility of the media controls.",
-      "lbl-paused": "Paused",
-      "info-paused": "Indicates whether the media is currently playing or paused",
+      "lbl-autoplay": "Autoplay",
+      "info-autoplay": "Toggle whether this video autoplays",
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
-      "lbl-isMusic": "Is Music"
+      "lbl-isMusic": "Is Music",
+      "lbl-size": "Size",
+      "seektime": "Start Time"
     },
     "audio": {
       "name": "Positional Audio",
@@ -233,14 +298,11 @@
       "lbl-receiveShadow": "Receive Shadow",
       "lbl-generateNavmesh": "Generate Navmesh"
     },
-    "link": {
-      "description": "Link to a room or a website.",
-      "lbl-url": "URL"
-    },
     "loopAnimation": {
       "title": "Loop Animation",
       "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
-      "lbl-loopAnimation": "Loop Animation"
+      "lbl-loopAnimation": "Loop Animation",
+      "lbl-timeScale": "Time Scale"
     },
     "variant": {
       "name": "Variant",
@@ -260,6 +322,12 @@
     "map": {
       "description": "3D geospatial map of e.g. a city."
     },
+    "shadow":{
+      "name": "Shadows",
+      "description": "Shadow properties for the model",
+      "lbl-castShadow": "Cast Shadow",
+      "lbl-receiveShadow": "Receive Shadow"
+    },
     "model": {
       "title": "Model",
       "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
@@ -271,11 +339,9 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-animationSpeed": "Animation Speed",
-      "lbl-isAvatar": "Is Avatar",
+      "lbl-isAvatar": "Force Avatar Animations",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isEquippable": "Is Equippable",
-      "lbl-castShadow": "Cast Shadow",
-      "lbl-receiveShadow": "Receive Shadow",
       "lbl-interactable": "Interactable",
       "lbl-generateBVH": "Generate BVH",
       "lbl-avoidCameraOcclusion": "Avoid Camera Occlusion",
@@ -288,6 +354,7 @@
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
       "transform": {
+        "compress": "Compress",
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
@@ -301,16 +368,36 @@
         "join": "Join Meshes",
         "palette": "Generate Palette Textures",
         "flipY": "Flip Y",
+        "flipYTooltip": "If checked, the source images will be Y flipped before compression",
         "instance": "Instance Identical Meshes",
-        "linear": "Linear Color Space",
+        "srgb": "Linear Color Space",
+        "srgbTooltip": "If checked, the provided map is assumed to be in sRGB space",
         "textureCompressionType": "Texture Compression Type",
         "ktx2Quality": "Compression Quality",
         "weldVertices": "Weld Vertices",
         "weldThreshold": "Weld Threshold",
+        "split": "Split Multi-Material Meshes",
+        "combineMaterials": "Combine Duplicate Materials",
         "removeDuplicates": "Remove Duplicates",
         "pruneUnused": "Prune Unused",
         "reorder": "Reorder",
-        "resourceOverrides": "Resource Overrides"
+        "resourceOverrides": "Resource Overrides",
+        "quality": "Quality",
+        "qualityTooltip": "Sets the ETC1S encoder's quality level, which controls the file size vs. quality tradeoff",
+        "mode": "Mode",
+        "modeTooltip": "If checked, the encoder will output a UASTC texture, otherwise a ETC1S texture",
+        "mipmaps": "Mipmaps",
+        "mipmapsTooltip": "If checked, the encoder will generate mipmaps",
+        "compressionLevel": "Compression Level",
+        "compressionLevelTooltip": "The compression level parameter controls the encoder perf vs. file size tradeoff for ETC1S files. It does not directly control file size vs. quality (see Quality)",
+        "uastcFlags": "UASTC Flags",
+        "uastcFlagsTooltip": "Sets the UASTC encoding performance vs. quality tradeoff, and other lesser used UASTC encoder flags. This is a combination of flags",
+        "normalMap": "Normal Map",
+        "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps",
+        "uastcZstandard": "UASTC Zstandard",
+        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression",
+        "useMeshoptimizer": "Use Meshoptimizer",
+        "maxCodebooks": "Max Codebooks"
       },
       "lods": {
         "label": "Level of Detail",
@@ -547,6 +634,10 @@
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
       "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-usePostProcessing": "Use Post Processing",
+      "info-usePostProcessing": "Enables post processing",
+      "lbl-useShadows": "Use Shadows",
+      "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
       "lbl-toneMapping": "Tone Mapping",
@@ -585,6 +676,14 @@
       "name": "Spawn Point",
       "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
     },
+    "linkComp": {
+      "title": "link Component",
+      "lbl-url": "Link URL",
+      "lbl-navigateScene": "Scene navigation",
+      "lbl-projname": "Project Name",
+      "lbl-scenename": "Scene Name",
+      "description": "Adds an interactable that opens links or navigates scene"
+    },
     "spotLight": {
       "description": "A light which emits along a direction, illuminating objects within a cone.",
       "lbl-color": "Color",
@@ -596,11 +695,11 @@
     },
     "transform": {
       "title": "Transform",
-      "lbl-postition": "Position",
+      "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale"
     },
-    "triggereVolume": {
+    "triggerVolume": {
       "description": "Sets a property on the target object on enter and leave.",
       "lbl-target": "Object",
       "lbl-onenter": "On Enter",
@@ -625,8 +724,18 @@
       "lbl-useLoadingEffect": "Use Loading Effect"
     },
     "spline": {
-      "description": "Dynamically create and customize curves.",
-      "lbl-addNode": "Add node to curve."
+      "name": "Spline",
+      "description": "Create and customize curves.",
+      "lbl-addNode": "Add node to curve"
+    },
+    "splinetrack": {
+      "name": "Spline Track",
+      "description": "Have an entity follow a Spline",
+      "lbl-spline": "Source Spline",
+      "lbl-velocity": "Velocity",
+      "lbl-enableRotation": "Enable Rotation",
+      "lbl-lockXZ": "Lock To XZ Plane",
+      "lbl-loop": "Loop"
     },
     "systemnode": {
       "description": "Attach script.",
@@ -704,7 +813,34 @@
       "placeObjectAtOrigin": "Place Object at Origin",
       "copyURL": "Copy URL",
       "openInNewTab": "Open URL in New Tab",
-      "deleteAsset": "Delete Asset"
+      "deleteAsset": "Delete Asset",
+      "tooltip": {
+        "EE_model": "Creates objects in the hierarchy. Drag a model from the assets folder into the URL box or drag assets directly from project files into the hierarchy.",
+        "EE_volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
+        "EE_video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
+        "EE_positionalAudio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
+        "EE_image": "Imports an image into the scene",
+        "GroundPlaneComponent": "Create collision ground plane.",
+        "GroupComponent": "Collection of models or assets.",
+        "ColliderComponent": "Creates a collision ball, cuboid, capsule, or cylinder to be manually placement.",
+        "SpawnPointComponent": "A point where people will appear when they enter your scene.",
+        "PortalComponent": "A portal to teleport a player to a port in a different location.",
+        "AmbientLightComponent": "A combination of direct and indirect light, provides general lighting to all assets.",
+        "PointLightComponent": "A light which emits in all directions from a single point.",
+        "SpotLightComponent": "Creates a light that shines in a specific direction.",
+        "DirectionalLightComponent": "Creates a light that emits evenly in a single direction.",
+        "HemisphereLightComponent": "A light which illuminates the scene from directly overhead.",
+        "EE_ParticleSystem": "Creates a particle emitter.",
+        "SystemComponent": "Inserts code into the scene by creating a new Entity Component System based on the provided .ts file",
+        "EE_behaveGraph": "Customizes state and behavior of entities through a node graph connection.",
+        "EnvMapBakeComponent": "Add Env Mapbake to your scene.",
+        "EE_scenePreviewCamera": "A preview camera which generates a scene thumbnail and the starting position.",
+        "SkyboxComponent": "Sets the area outside your map (skybox) with a specific sky type.",
+        "SplineTrackComponent": "Creates a spline track.",
+        "SplineComponent": "Create and customize curves.",
+        "EnvmapComponent": "Add environment map to your scene",
+        "PostProcessingComponent":"Add postprocessing effects to your scene"
+      }
     },
     "filebrowser": {
       "addNewFolder": "Add New Folder",
@@ -717,10 +853,19 @@
       "back": "Back",
       "loadingFiles": "Loading files",
       "compress": "Compress",
-      "convert": "Convert"
+      "convert": "Convert",
+      "downloadProject": "Download Project",
+      "fileProperties": {
+        "name": "Name:",
+        "type": "Type:",
+        "size": "Size:",
+        "url": "URL:"
+      }
     }
   },
   "hierarchy": {
+    "lbl": "Hierarchy",
+    "info": "The scene Hierarchy contains all element currently in your scene (assets, lighting, items from the tool menu, etc).",
     "lbl-rename": "Rename",
     "lbl-duplicate": "Duplicate",
     "lbl-group": "Group",
@@ -728,7 +873,12 @@
     "lbl-expandAll": "Expand All",
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
+    "lbl-addEntity": "Add Entity",
     "isseus": "Issues:"
+  },
+  "materialLibrary": {
+    "lbl": "Material Library",
+    "info": "Location of an assets materials and where you can select and edit them."
   },
   "dnd": {
     "nodes": "{{count}} Nodes Selected",
@@ -800,7 +950,7 @@
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
     },
-    "confirmContentDelete": "Do you want to delete this",
+    "confirmContentDelete": "Do you want to delete",
     "file": "file",
     "folder": "folder"
   },

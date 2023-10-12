@@ -28,10 +28,16 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
-import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import {
+  ProjectPermissionType,
+  projectPermissionPath
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -42,8 +48,10 @@ const cleanup = async (app: Application) => {
   const project1Dir = path.resolve(appRootPath.path, `packages/projects/projects/${newProjectName1}/`)
   deleteFolderRecursive(project1Dir)
   try {
-    await app.service('project').Model.destroy({ where: { name: newProjectName1 } })
-  } catch (e) {}
+    await app.service(projectPath)._remove(null, { query: { name: newProjectName1 } })
+  } catch (e) {
+    //
+  }
 }
 
 /**
@@ -57,78 +65,85 @@ const cleanup = async (app: Application) => {
 
 describe('project-permission.test', () => {
   let app: Application
-  let user1: UserInterface
-  let user2: UserInterface
-  let user3: UserInterface
-  let user4: UserInterface
+  let user1: UserType
+  let user2: UserType
+  let user3: UserType
+  let user4: UserType
   let project1, project1Permission1, project1Permission2, project1Permission4
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
-    const avatarName = 'CyberbotGreen'
 
-    const avatar = await app.service('avatar').create({
-      name: avatarName
+    user1 = await app.service(userPath).create({
+      name: `Test #${Math.random()}`,
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })
-
-    user1 = (await app.service('user').create({
+    user2 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
-      isGuest: false
-    })) as UserInterface
-    user2 = (await app.service('user').create({
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
+    user3 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
-      isGuest: false
-    })) as UserInterface
-    user3 = (await app.service('user').create({
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
+    user4 = await app.service(userPath).create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
-      isGuest: false
-    })) as UserInterface
-    user4 = (await app.service('user').create({
-      name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
-      isGuest: false
-    })) as UserInterface
-    user1.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+      isGuest: false,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
+    })
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user1.id
       }
-    })
-    user2.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user1.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user1.apiKey
+    const user2ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user2.id
       }
-    })
-    user3.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user2.apiKey = user2ApiKeys.data.length > 0 ? user2ApiKeys.data[0] : user2.apiKey
+    const user3ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user3.id
       }
-    })
-    user4.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user3.apiKey = user3ApiKeys.data.length > 0 ? user3ApiKeys.data[0] : user3.apiKey
+    const user4ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user4.id
       }
-    })
-    await app.service('scope').create({
+    })) as Paginated<UserApiKeyType>
+    user4.apiKey = user4ApiKeys.data.length > 0 ? user4ApiKeys.data[0] : user4.apiKey
+    await app.service(scopePath).create({
       type: 'editor:write',
       userId: user1.id
     })
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'editor:write',
       userId: user2.id
     })
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'editor:write',
       userId: user3.id
     })
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'editor:write',
       userId: user4.id
     })
-    await app.service('scope').create({
+    await app.service(scopePath).create({
       type: 'admin:admin',
       userId: user4.id
     })
@@ -146,19 +161,19 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        project1 = await app.service('project').create(
+        project1 = await app.service(projectPath).create(
           {
             name: newProjectName1
           },
-          params
+          { ...params }
         )
-        const projectPermission = (await app.service('project-permission').find({
+        const projectPermission = (await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id,
             userId: user1.id
           },
           ...params
-        })) as Paginated<ProjectPermissionInterface>
+        })) as Paginated<ProjectPermissionType>
         project1Permission1 = projectPermission.data[0]
         assert.strictEqual(projectPermission.total, 1)
         assert.strictEqual(project1Permission1.userId, user1.id)
@@ -173,13 +188,13 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        project1Permission2 = (await app.service('project-permission').create(
+        project1Permission2 = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
             userId: user2.id
           },
           params
-        )) as ProjectPermissionInterface
+        )
         assert.ok(project1Permission2)
         assert.strictEqual(project1Permission2.userId, user2.id)
         assert.strictEqual(project1Permission2.projectId, project1.id)
@@ -193,13 +208,13 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        const duplicate = (await app.service('project-permission').create(
+        const duplicate = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
             userId: user2.id
           },
           params
-        )) as ProjectPermissionInterface
+        )
         assert.ok(duplicate)
         assert.strictEqual(project1Permission2.id, duplicate.id)
       })
@@ -214,7 +229,7 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            await app.service('project-permission').create(
+            await app.service(projectPermissionPath).create(
               {
                 projectId: 'abcdefg',
                 userId: user2.id
@@ -236,10 +251,10 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            await app.service('project-permission').create(
+            await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
-                userId: 'abcdefg'
+                userId: 'abcdefg' as UserID
               },
               params
             )
@@ -258,17 +273,13 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            try {
-              const res = await app.service('project-permission').create(
-                {
-                  projectId: project1.id,
-                  userId: user3.id
-                },
-                params
-              )
-            } catch (err) {
-              throw err
-            }
+            const res = await app.service(projectPermissionPath).create(
+              {
+                projectId: project1.id,
+                userId: user3.id
+              },
+              params
+            )
           },
           { message: 'You are not an owner of this project' }
         )
@@ -284,7 +295,7 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            await app.service('project-permission').create(
+            await app.service(projectPermissionPath).create(
               {
                 projectId: project1.id,
                 userId: user3.id
@@ -304,19 +315,20 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        project1Permission4 = (await app.service('project-permission').create(
+        project1Permission4 = await app.service(projectPermissionPath).create(
           {
             projectId: project1.id,
             userId: user4.id,
             type: 'owner'
           },
           params
-        )) as ProjectPermissionInterface
+        )
 
-        const permissions = await app.service('project-permission').Model.findAll({
-          where: {
+        const permissions = await app.service(projectPermissionPath)._find({
+          query: {
             projectId: project1.id
-          }
+          },
+          paginate: false
         })
         assert.ok(project1Permission4)
         assert.strictEqual(project1Permission4.userId, user4.id)
@@ -333,11 +345,11 @@ describe('project-permission.test', () => {
           },
           provider: 'rest'
         }
-        const update = await app.service('project-permission').patch(
+        const update = await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
             projectId: project1.id,
-            userId: 'abcdefg',
+            userId: 'abcdefg' as UserID,
             type: 'owner'
           },
           params
@@ -354,7 +366,7 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const update = await app.service('project-permission').patch(
+        const update = await app.service(projectPermissionPath).patch(
           project1Permission2.id,
           {
             projectId: project1.id,
@@ -377,11 +389,12 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            await app.service('project-permission').patch(
+            await app.service(projectPermissionPath).patch(
               project1Permission2.id,
               {
                 projectId: project1.id,
-                userId: user3.id
+                userId: user3.id,
+                type: ''
               },
               params
             )
@@ -398,18 +411,20 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        const permissions = await app.service('project-permission').Model.findAll({
-          where: {
+        const permissions = await app.service(projectPermissionPath)._find({
+          query: {
             projectId: project1.id
-          }
+          },
+          paginate: false
         })
         assert.rejects(
           async () => {
-            await app.service('project-permission').patch(
+            await app.service(projectPermissionPath).patch(
               project1Permission2.id,
               {
                 projectId: project1.id,
-                userId: user3.id
+                userId: user3.id,
+                type: ''
               },
               params
             )
@@ -430,7 +445,7 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            await app.service('project-permission').remove(project1Permission2.id, params)
+            await app.service(projectPermissionPath).remove(project1Permission2.id, params)
           },
           { message: 'You are not an owner of this project' }
         )
@@ -446,7 +461,7 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            await app.service('project-permission').remove(project1Permission2.id, params)
+            await app.service(projectPermissionPath).remove(project1Permission2.id, params)
           },
           { message: 'You are not an owner of this project' }
         )
@@ -460,13 +475,13 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await app.service('project-permission').remove(project1Permission4.id, params)
-        const permissions = (await app.service('project-permission').find({
+        await app.service(projectPermissionPath).remove(project1Permission4.id, params)
+        const permissions = (await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },
           ...params
-        })) as Paginated<ProjectPermissionInterface>
+        })) as Paginated<ProjectPermissionType>
         assert.strictEqual(permissions.total, 2)
       })
 
@@ -478,12 +493,13 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await app.service('project-permission').remove(project1Permission1.id, params)
-        const permissions = await app.service('project-permission').Model.findAll({
-          where: {
+        await app.service(projectPermissionPath).remove(project1Permission1.id, params)
+        const permissions = (await app.service(projectPermissionPath)._find({
+          query: {
             projectId: project1.id
-          }
-        })
+          },
+          paginate: false
+        })) as any as ProjectPermissionType[]
         assert.strictEqual(permissions.length, 1)
         assert.strictEqual(permissions[0].id, project1Permission2.id)
         assert.strictEqual(permissions[0].type, 'owner')
@@ -497,13 +513,13 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await app.service('project-permission').remove(project1Permission2.id, params)
-        const permissions = (await app.service('project-permission').find({
+        await app.service(projectPermissionPath).remove(project1Permission2.id, params)
+        const permissions = (await app.service(projectPermissionPath).find({
           query: {
             projectId: project1.id
           },
           ...params
-        })) as Paginated<ProjectPermissionInterface>
+        })) as Paginated<ProjectPermissionType>
         assert.strictEqual(permissions.total, 0)
       })
     })

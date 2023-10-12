@@ -39,21 +39,21 @@ import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/f
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorHistoryAction } from '../../services/EditorHistory'
-import { EditorAction } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
-import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import PropertyGroup from './PropertyGroup'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
@@ -68,8 +68,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const localTransformComponent = useOptionalComponent(props.entity, LocalTransformComponent)
 
   const onRelease = () => {
-    dispatchAction(EditorAction.sceneModified({ modified: true }))
-    dispatchAction(EditorHistoryAction.createSnapshot({}))
+    EditorControlFunctions.commitTransformSave(props.entity)
   }
 
   const onChangeDynamicLoad = (value) => {
@@ -83,6 +82,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const onChangePosition = (value: Vector3) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.positionObject(nodes, [value])
+    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
 
     const gizmoQuery = defineQuery([TransformGizmoComponent])
     for (const entity of gizmoQuery()) {
@@ -95,6 +95,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const onChangeRotation = (value: Euler) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateObject(nodes, [value])
+    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
 
     const gizmoQuery = defineQuery([TransformGizmoComponent])
     for (const entity of gizmoQuery()) {
@@ -107,13 +108,14 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const onChangeScale = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.Local, true)
+    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 
   //rendering editor view for Transform properties
   const transform = localTransformComponent ?? transformComponent!
 
   return (
-    <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
+    <PropertyGroup name={t('editor:properties.transform.title')}>
       <InputGroup name="Dynamically Load Children" label={t('editor:properties.lbl-dynamicLoad')}>
         <BooleanInput value={hasComponent(props.entity, SceneDynamicLoadTagComponent)} onChange={onChangeDynamicLoad} />
         {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
@@ -124,10 +126,11 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
             step={1}
             value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
             onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
+            onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
           />
         )}
       </InputGroup>
-      <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
+      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
           value={transform.position.value}
           smallStep={0.01}
@@ -151,7 +154,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           onRelease={onRelease}
         />
       </InputGroup>
-    </NodeEditor>
+    </PropertyGroup>
   )
 }
 

@@ -33,7 +33,7 @@ import ToolButton from '../toolbar/ToolButton'
 
 interface Command {
   name: string
-  action: Function
+  action: () => void
   hotkey?: string
 }
 

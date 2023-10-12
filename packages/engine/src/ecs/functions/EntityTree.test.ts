@@ -34,15 +34,15 @@ import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { destroyEngine, Engine } from '../classes/Engine'
+import { destroyEngine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import { createEntity } from '../functions/EntityFunctions'
 import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import {
+  EntityTreeComponent,
   addEntityNodeChild,
   destroyEntityTree,
-  EntityTreeComponent,
   findIndexOfEntityNode,
   getEntityNodeArrayFromEntities,
   initializeSceneEntity,
@@ -142,8 +142,9 @@ describe('EntityTreeComponent', () => {
     setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: 'test-uuid' as EntityUUID })
     removeComponent(entity, EntityTreeComponent)
 
-    assert.equal(getComponent(entity, UUIDComponent), undefined)
-    assert.equal(UUIDComponent.entitiesByUUID['test-uuid'], undefined)
+    // UUIDComponent should remain
+    assert.equal(getComponent(entity, UUIDComponent), 'test-uuid')
+    assert.equal(UUIDComponent.entitiesByUUID['test-uuid'], entity)
 
     const parentNode = getComponent(sceneEntity, EntityTreeComponent)
     assert.equal(parentNode.children.length, 0)

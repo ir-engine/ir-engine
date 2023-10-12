@@ -24,24 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { World } from '@dimforge/rapier3d-compat'
-import _ from 'lodash'
-import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
-import { Vector3 } from 'three'
+import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { V_000, V_010 } from '../../common/constants/MathConstants'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { InputState } from '../../input/state/InputState'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-const interactionGroups = getInteractionGroups(
+export const interactionGroups = getInteractionGroups(
   CollisionGroups.Avatars,
   CollisionGroups.Ground | CollisionGroups.Default
 )
@@ -59,11 +61,13 @@ export const autopilotSetPosition = (entity: Entity) => {
   const markerState = getMutableState(AutopilotMarker)
   if (avatarControllerComponent.gamepadLocalInput.lengthSq() > 0) return
 
-  const physicsWorld = Engine.instance.physicsWorld
+  const { physicsWorld } = getState(PhysicsState)
+
+  const pointerState = getState(InputState).pointerState
 
   const castedRay = Physics.castRayFromCamera(
-    Engine.instance.camera,
-    Engine.instance.pointerState.position,
+    getComponent(Engine.instance.cameraEntity, CameraComponent),
+    pointerState.position,
     physicsWorld,
     autopilotRaycastArgs
   )
@@ -100,7 +104,8 @@ const setupMarker = () => {
 
 export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
   const marker = getState(AutopilotMarker).markerObject!
-  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.elapsedSeconds))
+  const elapsedSeconds = getState(EngineState).elapsedSeconds
+  const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * elapsedSeconds))
   marker.scale.set(scalePulse, 1, scalePulse)
   marker.updateMatrixWorld()
 }

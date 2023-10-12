@@ -24,101 +24,43 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { Fragment } from 'react'
-import styled from 'styled-components'
 
 import CloseIcon from '@mui/icons-material/Close'
 
-// styled component used as root element for property group
-const StyledPropertyGroup = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  width: 100%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  border-top: 1px solid var(--border);
-`
+import './PropertyGroup.css'
 
-// PropertyGroupHeader used to provide styles for property group header
-const PropertyGroupHeader = (styled as any).div`
-  display: flex;
-  flex-direction: row;
-  align-items: left;
-  font-weight: bold;
-  color: var(--textColor);
-  padding: 0 8px;
-  height: 16px;
-  :last-child {
-    margin-left: auto;
-  }
-`
-
-// PropertyGroupDescription used to show the property group description
-const PropertyGroupDescription = (styled as any).div`
-  color: var(--textColor);
-  white-space: pre-wrap;
-  padding: 0 8px;
-`
-
-// component to contain content of property group
-const PropertyGroupContent = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-`
-
-// component to contain content of property group
-const PropertyCloseButton = styled.button`
-  display: flex;
-  flex-direction: row;
-  margin: auto;
-  margin-right: 0px;
-  font-size: 16px;
-  height: 16px;
-  background: none;
-  border: none;
-  color: var(--iconButtonColor);
-
-  &:hover {
-    font-size: 14px;
-    color: var(--iconButtonHoverColor);
-  }
-
-  &:active {
-    color: var(--iconButtonSelectedBackground);
-  }
-`
-
+// Import the external CSS file
 interface Props {
   name?: string
   description?: string
   onClose?: () => void
   children?: React.ReactNode
+  rest?: Record<string, unknown>
 }
 
-// function to create property group view
 const PropertyGroup = ({ name, description, children, onClose, ...rest }: Props) => {
   return (
-    <StyledPropertyGroup {...rest}>
-      <PropertyGroupHeader>
+    <div className="property-group" {...rest}>
+      <div className="property-group-header">
         {name}
         {onClose && (
-          <PropertyCloseButton onPointerUp={onClose}>
+          <button className="property-close-button" onPointerUp={onClose}>
             <CloseIcon fontSize="inherit" />
-          </PropertyCloseButton>
+          </button>
         )}
-      </PropertyGroupHeader>
+      </div>
       {description && (
-        <PropertyGroupDescription>
+        <div className="property-group-description">
           {description.split('\\n').map((line, i) => (
             <Fragment key={i}>
               {line}
               <br />
             </Fragment>
           ))}
-        </PropertyGroupDescription>
+        </div>
       )}
-      <PropertyGroupContent>{children}</PropertyGroupContent>
-    </StyledPropertyGroup>
+      <div className="property-group-content">{children}</div>
+    </div>
   )
 }
 

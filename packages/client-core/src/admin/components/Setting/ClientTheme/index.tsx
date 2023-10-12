@@ -125,7 +125,7 @@ const ClientTheme = () => {
       id
     )
 
-    const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
+    const currentTheme = getCurrentTheme(selfUser?.userSetting?.value?.themeModes)
 
     if (newThemeSettings[currentTheme]) {
       for (const variable of Object.keys(newThemeSettings[currentTheme])) {

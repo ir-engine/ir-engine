@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { BotCommands } from '@etherealengine/common/src/interfaces/AdminBot'
+import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -40,10 +40,10 @@ import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
 import styles from '../styles/admin.module.scss'
 
 interface Props {
-  command: BotCommands
+  command: BotCommandData
   handleChangeCommand: (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void
-  addCommandData: (command: BotCommands) => void
-  commandData: BotCommands[]
+  addCommandData: (command: BotCommandData) => void
+  commandData: BotCommandData[]
   removeCommand: (id: string) => void
 }
 

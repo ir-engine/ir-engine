@@ -23,10 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import styled from 'styled-components'
+import React from 'react'
 
-const Hidden = (styled as any).div`
-  display: none;
-`
+const hiddenStyles = {
+  display: 'none'
+}
+
+const Hidden = ({ as: Component = 'div' as keyof JSX.IntrinsicElements, ...rest }) => {
+  return (
+    <Component style={hiddenStyles} {...rest}>
+      {rest.children}
+    </Component>
+  )
+}
 
 export default Hidden

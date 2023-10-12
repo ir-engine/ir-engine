@@ -23,14 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-
-import { PopupMenuInline } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuInline'
+import React, { useEffect } from 'react'
 
 import { EditorNavbar } from '../components/projects/EditorNavbar'
 import Projects from '../components/projects/ProjectsPage'
 
+import { useRemoveEngineCanvas } from '@etherealengine/client-core/src/hooks/useRemoveEngineCanvas'
+import { EditorHistoryState } from '../services/EditorHistory'
+
 export const ProjectPage = () => {
+  useRemoveEngineCanvas()
+
+  useEffect(() => {
+    EditorHistoryState.unloadScene()
+  }, [])
+
   return (
     <>
       <EditorNavbar />

@@ -23,22 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import { defineActionQueue, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { defineActionQueue, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { getState } from '@etherealengine/hyperflux'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FlyControlComponent } from '../../avatar/components/FlyControlComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -49,7 +48,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
@@ -59,7 +58,7 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraComponent } from '../components/CameraComponent'
-import { coneDebugHelpers, debugRays, FollowCameraComponent } from '../components/FollowCameraComponent'
+import { FollowCameraComponent, coneDebugHelpers, debugRays } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { CameraFadeBlackEffectSystem } from './CameraFadeBlackEffectSystem'
@@ -112,7 +111,7 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
     return
   }
 
-  const delta = Engine.instance.deltaSeconds
+  const delta = getState(EngineState).deltaSeconds
   followCamera.phi = smoothDamp(followCamera.phi, target.phi, target.phiVelocity, target.time, delta)
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
@@ -225,13 +224,14 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
   // Zoom smoothing
   let smoothingSpeed = isInsideWall ? 0.1 : 0.3
+  const deltaSeconds = getState(EngineState).deltaSeconds
 
   followCamera.distance = smoothDamp(
     followCamera.distance,
     newZoomDistance,
     followCamera.zoomVelocity,
     smoothingSpeed,
-    Engine.instance.deltaSeconds
+    deltaSeconds
   )
 
   const theta = followCamera.theta
@@ -253,7 +253,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 }
 
 export function cameraSpawnReceptor(spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>) {
-  const entity = Engine.instance.getNetworkObject(spawnAction.$from, spawnAction.networkId)
+  const entity = NetworkObjectComponent.getNetworkObject(spawnAction.$from, spawnAction.networkId)
   if (!entity) return
 
   console.log('Camera Spawn Receptor Call', entity)
@@ -273,7 +273,7 @@ function CameraReactor() {
 
   useEffect(() => {
     if (!cameraSettings?.cameraNearClip) return
-    const camera = Engine.instance.camera as PerspectiveCamera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent) as PerspectiveCamera
     if (camera?.isPerspectiveCamera) {
       camera.near = cameraSettings.cameraNearClip.value
       camera.far = cameraSettings.cameraFarClip.value
@@ -290,7 +290,7 @@ const execute = () => {
 
   for (const action of spectateUserActions()) {
     const cameraEntity = Engine.instance.cameraEntity
-    if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
+    if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
     else
       setComponent(cameraEntity, FlyControlComponent, {
         boostSpeed: 4,
@@ -304,7 +304,6 @@ const execute = () => {
     const cameraEntity = Engine.instance.cameraEntity
     removeComponent(cameraEntity, SpectatorComponent)
     deleteSearchParams('spectate')
-    dispatchAction(EngineActions.leaveWorld({}))
   }
 
   for (const cameraEntity of followCameraQuery.enter()) {
@@ -320,7 +319,10 @@ const execute = () => {
   for (const cameraEntity of spectatorQuery.enter()) {
     const cameraTransform = getComponent(cameraEntity, TransformComponent)
     const spectator = getComponent(cameraEntity, SpectatorComponent)
-    const networkCameraEntity = Engine.instance.getOwnedNetworkObjectWithComponent(spectator.userId, CameraComponent)
+    const networkCameraEntity = NetworkObjectComponent.getOwnedNetworkObjectWithComponent(
+      spectator.userId,
+      CameraComponent
+    )
     const networkTransform = getComponent(networkCameraEntity, TransformComponent)
     setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
       cameraTransform.position.copy(networkTransform.position)

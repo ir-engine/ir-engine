@@ -23,19 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { InstanceAuthorizedUser as InstanceAuthorizedUserInterface } from '@etherealengine/common/src/interfaces/InstanceAuthorizedUser'
+import {
+  InstanceAuthorizedUserData,
+  InstanceAuthorizedUserPatch,
+  InstanceAuthorizedUserQuery,
+  InstanceAuthorizedUserType
+} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InstanceAuthorizedUserParams extends KnexAdapterParams<InstanceAuthorizedUserQuery> {}
 
-export type InstanceAuthorizedUserDataType = InstanceAuthorizedUserInterface
-
-export class InstanceAuthorizedUser<T = InstanceAuthorizedUserDataType> extends Service<T> {
-  app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class InstanceAuthorizedUserService<
+  T = InstanceAuthorizedUserType,
+  ServiceParams extends Params = InstanceAuthorizedUserParams
+> extends KnexService<
+  InstanceAuthorizedUserType,
+  InstanceAuthorizedUserData,
+  InstanceAuthorizedUserParams,
+  InstanceAuthorizedUserPatch
+> {}

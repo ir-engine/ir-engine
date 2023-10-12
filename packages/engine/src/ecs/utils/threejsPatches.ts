@@ -44,6 +44,7 @@ Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-loss-of-precision
 const opmu = 1.90110745351730037
 const u = new Float32Array(8)
 const v = new Float32Array(8)

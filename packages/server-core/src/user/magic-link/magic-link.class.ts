@@ -23,90 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
 
+import { emailPath } from '@etherealengine/engine/src/schemas/user/email.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginTokenPath } from '@etherealengine/engine/src/schemas/user/login-token.schema'
+import { smsPath } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import config from '../../appconfig'
-import Paginated from '../../types/PageObject'
-import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
-import { IdentityProvider } from '../identity-provider/identity-provider.class'
-
-interface Data {}
-
-interface ServiceOptions {}
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')
-export class Magiclink implements ServiceMethods<Data> {
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface MagicLinkParams extends KnexAdapterParams {}
+
+/**
+ * A class for Magic Link service
+ */
+export class MagicLinkService implements ServiceInterface<MagicLinkParams> {
   app: Application
-  options: ServiceOptions
-  docs: any
 
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
+  constructor(app: Application) {
     this.app = app
-  }
-
-  async setup() {}
-
-  /**
-   * A function which find magic link  and display it
-   *
-   * @param params
-   * @returns {@Array} all magic link
-   */
-  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
-    return []
-  }
-
-  /**
-   * A function which find specific magic link by id
-   *
-   * @param id of specific magic link
-   * @param params
-   * @returns {@Object} contains id of magic link and message
-   */
-  async get(id: Id, params?: Params): Promise<Data> {
-    return {
-      id,
-      text: `A new message with ID: ${id}!`
-    }
-  }
-  /**
-   * A function which is used to update magic link
-   *
-   * @param id
-   * @param data which will be used for updating magic link
-   * @param params
-   * @returns updated data
-   */
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  /**
-   * A function which is used to update magic link
-   *
-   * @param id
-   * @param data used to update
-   * @param params
-   * @returns data
-   */
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-  /**
-   * A function which is used to remove magic link
-   *
-   * @param id of magic link used to remove data
-   * @param params
-   * @returns id
-   */
-  async remove(id: NullableId, params?: Params): Promise<Data> {
-    return { id }
   }
 
   /**
@@ -114,38 +57,13 @@ export class Magiclink implements ServiceMethods<Data> {
    *
    * @param toEmail email of reciever
    * @param token generated token
-   * @param type of login
-   * @param identityProvider of user
-   * @param subscriptionId optional subscription ID
    * @returns {@function} sent email
    */
-  async sendEmail(
-    toEmail: string,
-    token: string,
-    type: 'connection' | 'login',
-    identityProvider: IdentityProvider,
-    subscriptionId?: string
-  ): Promise<void> {
-    const hashLink = getLink(type, token, subscriptionId ?? '')
-    let subscription
+  async sendEmail(toEmail: string, token: string): Promise<void> {
+    const hashLink = `${config.server.url}/login/${token}`
     let username
-    if (subscriptionId != null) {
-      subscription = await this.app.service('subscription' as any).find({
-        id: subscriptionId
-      })
 
-      if (subscription.total === 0) {
-        throw new BadRequest('Invalid subscription')
-      }
-
-      const subscriptionUser = await this.app.service('user').get(subscription.data[0].userId)
-
-      username = subscriptionUser.name
-    }
-    const templatePath =
-      subscriptionId == null
-        ? path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
-        : path.join(emailAccountTemplatesPath, 'magiclink-email-subscription.pug')
+    const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
 
     const compiledHTML = pug.compileFile(templatePath)({
       logo: config.client.logo,
@@ -161,7 +79,8 @@ export class Magiclink implements ServiceMethods<Data> {
       html: compiledHTML
     }
 
-    return await sendEmail(this.app, email)
+    email.html = email.html.replace(/&amp;/g, '&')
+    await this.app.service(emailPath).create(email)
   }
 
   /**
@@ -169,12 +88,11 @@ export class Magiclink implements ServiceMethods<Data> {
    *
    * @param mobile of receiver user
    * @param token generated token
-   * @param type of login
    * @returns {@function}  send sms
    */
 
-  async sendSms(mobile: string, token: string, type: 'connection' | 'login'): Promise<void> {
-    const hashLink = getLink(type, token, '')
+  async sendSms(mobile: string, token: string): Promise<void> {
+    const hashLink = `${config.server.url}/login/${token}`
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
     const compiledHTML = pug
       .compileFile(templatePath)({
@@ -187,18 +105,23 @@ export class Magiclink implements ServiceMethods<Data> {
       mobile,
       text: compiledHTML
     }
-    return await sendSms(this.app, sms)
+
+    await this.app
+      .service(smsPath)
+      .create(sms, null!)
+      .then(() => logger.info('Sent SMS'))
+      .catch((err: any) => logger.error(err, `Error sending SMS: ${err.message}`))
   }
   /**
    * A function which is used to create magic link
    *
    * @param data used create magic link
    * @param params contain user info
-   * @returns creted data
+   * @returns created data
    */
 
-  async create(data: any, params?: Params): Promise<Data> {
-    const identityProviderService = this.app.service('identity-provider')
+  async create(data: any, params?: MagicLinkParams) {
+    const identityProviderService = this.app.service(identityProviderPath)
 
     // check magiclink type
     let token = ''
@@ -220,29 +143,24 @@ export class Magiclink implements ServiceMethods<Data> {
         {
           token: token,
           type: data.type,
-          accountIdentifier: token
+          accountIdentifier: token,
+          userId: data.userId
         },
-        params
+        params as any
       )
     } else {
       identityProvider = identityProviders[0]
     }
 
     if (identityProvider) {
-      const loginToken = await this.app.service('login-token').create({
+      const loginToken = await this.app.service(loginTokenPath).create({
         identityProviderId: identityProvider.id
       })
 
       if (data.type === 'email') {
-        await this.sendEmail(
-          data.email,
-          loginToken.token,
-          data.userId ? 'connection' : 'login',
-          identityProvider,
-          data.subscriptionId
-        )
+        await this.sendEmail(data.email, loginToken.token)
       } else if (data.type === 'sms') {
-        await this.sendSms(data.mobile, loginToken.token, data.userId ? 'connection' : 'login')
+        await this.sendSms(data.mobile, loginToken.token)
       }
     }
     return data

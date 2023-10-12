@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+
 export interface LocationColumn {
-  id: 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'type' | 'tags' | 'videoEnabled' | 'action'
+  id: 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'locationType' | 'tags' | 'videoEnabled' | 'action'
   label: string
   minWidth?: number
   align?: 'right' | 'center'
@@ -44,7 +46,7 @@ export const locationColumns: LocationColumn[] = [
     align: 'center'
   },
   {
-    id: 'type',
+    id: 'locationType',
     label: 'Type',
     minWidth: 65,
     align: 'right'
@@ -77,6 +79,6 @@ export interface LocationData {
   status: string
   location: string
   inviteCode: string
-  instanceId: string
+  instanceId: InstanceID
   action: any
 }

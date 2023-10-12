@@ -23,20 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
-
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [authenticate()],
+    all: [],
     find: [],
     get: [],
-    create: [authenticate(), verifyScope('editor', 'write')],
-    update: [authenticate(), verifyScope('editor', 'write')],
-    patch: [authenticate(), verifyScope('editor', 'write')],
-    remove: [authenticate(), verifyScope('editor', 'write')]
+    create: [verifyScope('editor', 'write')],
+    update: [verifyScope('editor', 'write')],
+    patch: [verifyScope('editor', 'write')],
+    remove: [verifyScope('editor', 'write')]
   },
 
   after: {

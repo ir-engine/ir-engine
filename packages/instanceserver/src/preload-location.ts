@@ -35,7 +35,7 @@ export {}
 export default async function (locationName, app: Application) {
   await app.isSetup
   let service, serviceId
-  const locationResult = await app.service('location').find({
+  const locationResult = await app.service(locationPath).find({
     query: {
       slugifiedName: locationName
     }
@@ -49,7 +49,7 @@ export default async function (locationName, app: Application) {
   })
   if (scene == null) return
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-  const projectResult = await app.service('scene').get(scene.sid, null!)
+  const projectResult = await app.service(scenePath).get(scene.sid, null!)
   const projectUrl = projectResult.scene_url
   const regexResult = projectUrl.match(projectRegex)
   if (regexResult) {
@@ -84,23 +84,9 @@ export default async function (locationName, app: Application) {
     locationId: location.id
   } as any
   app.isMediaInstance = false
-  const instanceResult = await app.service('instance').create(newInstance)
+  const instanceResult = await app.service(instancePath).create(newInstance)
   app.instance = instanceResult
 
-  if (app.isSubdomainNumber != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: app.isSubdomainNumber
-      }
-    })) as any
-
-    if (gsSubProvision.total > 0) {
-      const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
-        instanceId: instanceResult.id
-      })
-    }
-  }
   console.log('Pre-loaded location', location.id)
 }
 */

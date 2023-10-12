@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'login-token': {
-      type: 'object',
-      properties: {
-        identityProviderId: {
-          type: 'string'
-        }
-      }
-    },
-    'login-token_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/login-token' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  loginTokenDataSchema,
+  loginTokenPatchSchema,
+  loginTokenQuerySchema,
+  loginTokenSchema
+} from '@etherealengine/engine/src/schemas/user/login-token.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    loginTokenDataSchema,
+    loginTokenPatchSchema,
+    loginTokenQuerySchema,
+    loginTokenSchema
+  },
+  docs: {
+    description: 'Login token service description',
+    securities: ['all']
   }
-}
+})

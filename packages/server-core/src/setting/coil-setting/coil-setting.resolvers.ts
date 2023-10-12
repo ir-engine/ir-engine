@@ -24,19 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { CoilSettingQuery, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const coilSettingResolver = resolve<CoilSettingType, HookContext>({})
+export const coilSettingResolver = resolve<CoilSettingType, HookContext>({
+  createdAt: virtual(async (coilSetting) => fromDateTimeSql(coilSetting.createdAt)),
+  updatedAt: virtual(async (coilSetting) => fromDateTimeSql(coilSetting.updatedAt))
+})
 
 const resolveForAdmin = async (value: string | undefined, query: CoilSettingType, context: HookContext) => {
-  const loggedInUser = context!.params.user as UserInterface
+  const loggedInUser = context!.params.user as UserType
   if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) {
     return undefined
   }

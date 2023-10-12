@@ -29,12 +29,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
-import {
-  DefaultUpdateSchedule,
-  ProjectInterface,
-  ProjectUpdateType
-} from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -44,17 +38,20 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { DefaultUpdateSchedule } from '@etherealengine/common/src/interfaces/ProjectPackageJsonType'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectBuilderTagsType } from '@etherealengine/engine/src/schemas/projects/project-builder-tags.schema'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
-import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
-import { AdminHelmSettingsState, HelmSettingService } from '../../services/Setting/HelmSettingService'
 import styles from '../../styles/admin.module.scss'
 import ProjectFields from './ProjectFields'
 
 interface Props {
   open: boolean
-  builderTags: BuilderTag[]
+  builderTags: ProjectBuilderTagsType[]
   onClose: () => void
 }
 
@@ -66,9 +63,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const projectsToUpdate = useHookstate(new Map())
   const submitDisabled = useHookstate(true)
   const processing = useHookstate(false)
-  const user = useHookstate(getMutableState(AuthState).user)
-  const helmSettingState = useHookstate(getMutableState(AdminHelmSettingsState))
-  const [helmSetting] = helmSettingState?.helmSettings?.get({ noproxy: true }) || []
+  const helmSetting = useFind(helmSettingPath).data.at(0)
 
   const adminProjectState = useHookstate(getMutableState(ProjectState))
   const adminProjects = adminProjectState.projects
@@ -82,7 +77,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     updateProjects.set(false)
     adminProjects.get({ noproxy: true }).forEach((adminProject) => {
       if (projectsToUpdate.get({ noproxy: true }).get(adminProject.name))
-        ProjectUpdateService.clearProjectUpdate(adminProject)
+        ProjectUpdateService.clearProjectUpdate(adminProject.name)
     })
     projectsToUpdate.set(new Map())
     processing.set(false)
@@ -122,7 +117,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
           reset: true,
           commitSHA: projectUpdateStatus[name].selectedSHA.value,
           sourceBranch: projectUpdateStatus[name].selectedBranch.value,
-          updateType: projectUpdateStatus[name].updateType.value || ('none' as ProjectUpdateType),
+          updateType: projectUpdateStatus[name].updateType.value || ('none' as ProjectType['updateType']),
           updateSchedule: projectUpdateStatus[name].updateSchedule.value || DefaultUpdateSchedule
         }
       })
@@ -131,16 +126,21 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     handleClose()
   }
 
-  const toggleProjectToUpdate = async (e: React.ChangeEvent<HTMLInputElement>, project: ProjectInterface) => {
+  const toggleProjectToUpdate = async (e: React.ChangeEvent<HTMLInputElement>, project: ProjectType) => {
     const thisProjectName = project.name
     const newProjects = new Map(projectsToUpdate.get({ noproxy: true }))
     if (newProjects.get(thisProjectName)) {
       newProjects.delete(thisProjectName)
-      ProjectUpdateService.clearProjectUpdate(project)
+      ProjectUpdateService.clearProjectUpdate(project.name)
     } else {
       newProjects.set(thisProjectName, true)
-      ProjectUpdateService.initializeProjectUpdate(project)
-      ProjectUpdateService.setTriggerSetDestination(project, project.repositoryPath)
+      ProjectUpdateService.initializeProjectUpdate(project.name)
+      ProjectUpdateService.setTriggerSetDestination(
+        project.name,
+        project.repositoryPath,
+        project.updateType,
+        project.updateSchedule
+      )
     }
     projectsToUpdate.set(newProjects)
   }
@@ -158,12 +158,6 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     if (open && engineCommit.value && matchingTag && selectedTag.value.length === 0) selectedTag.set(engineCommit.value)
   }, [open, engineCommit.value, builderTags])
 
-  useEffect(() => {
-    if (user?.id?.value != null && helmSettingState?.updateNeeded?.value) {
-      HelmSettingService.fetchHelmSetting()
-    }
-  }, [user?.id?.value, helmSettingState?.updateNeeded?.value])
-
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
@@ -179,12 +173,12 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
 
         <div className={styles.helmSubheader}>
           <div>{t('admin:components.setting.helm.mainHelmToDeploy')}</div>:
-          <a href="/admin/settings#helm">{helmSetting?.main.length > 0 ? helmSetting.main : 'Current Version'}</a>
+          <a href="/admin/settings#helm">{helmSetting?.main || 'Current Version'}</a>
         </div>
 
         <div className={styles.helmSubheader}>
           <div>{t('admin:components.setting.helm.builderHelmToDeploy')}</div>:
-          <a href="/admin/settings#helm">{helmSetting?.builder.length > 0 ? helmSetting.builder : 'Current Version'}</a>
+          <a href="/admin/settings#helm">{helmSetting?.builder || 'Current Version'}</a>
         </div>
 
         {

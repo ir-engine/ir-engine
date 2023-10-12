@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
 import { StringInputProps } from './StringInput'
 

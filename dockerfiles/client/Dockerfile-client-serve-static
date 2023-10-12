@@ -16,6 +16,8 @@ COPY patches/ ./patches/
 
 ARG NODE_ENV
 RUN npm install --loglevel notice --legacy-peer-deps --production
+# Hackfix for issue with broken installation of react-is
+RUN npm install react-is
 
 # copy then compile the code
 COPY . .

@@ -54,13 +54,13 @@ export const SidebarItems = (allowedRoutes) => [
     icon: <Icon type="NearMe" style={{ color: 'white' }} />
   },
   allowedRoutes.instance && {
-    name: 'user:dashboard.instance',
+    name: 'user:dashboard.instances',
     path: '/admin/instance',
     icon: <Icon type="DirectionsRun" style={{ color: 'white' }} />
   },
-  allowedRoutes.party && {
-    name: 'user:dashboard.parties',
-    path: '/admin/parties',
+  allowedRoutes.channel && {
+    name: 'user:dashboard.channels',
+    path: '/admin/channel',
     icon: <Icon type="CalendarViewDay" style={{ color: 'white' }} />
   },
   allowedRoutes.user && {
@@ -72,11 +72,6 @@ export const SidebarItems = (allowedRoutes) => [
     name: 'user:dashboard.invites',
     path: '/admin/invites',
     icon: <Icon type="PersonAdd" style={{ color: 'white' }} />
-  },
-  allowedRoutes.groups && {
-    name: 'user:dashboard.groups',
-    path: '/admin/groups',
-    icon: <Icon type="GroupAdd" style={{ color: 'white' }} />
   },
   allowedRoutes.globalAvatars && {
     name: 'user:dashboard.avatars',
@@ -101,7 +96,7 @@ export const SidebarItems = (allowedRoutes) => [
   allowedRoutes.bot && {
     name: 'user:dashboard.bots',
     path: '/admin/bots',
-    icon: <Icon type="Toys" style={{ color: 'white' }} />
+    icon: <Icon type="SmartToy" style={{ color: 'white' }} />
   },
   allowedRoutes.recording && {
     name: 'user:dashboard.recordings',

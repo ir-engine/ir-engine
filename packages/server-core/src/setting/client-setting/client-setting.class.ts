@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, PaginationOptions, Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 import path from 'path'
 
 import {
@@ -35,11 +35,12 @@ import {
   ClientSettingType
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import config from '../../appconfig'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

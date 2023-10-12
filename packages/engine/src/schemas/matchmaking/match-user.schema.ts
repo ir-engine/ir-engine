@@ -24,8 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { dataValidator, queryValidator } from '../validators'
 
 export const matchUserPath = 'match-user'
 
@@ -42,7 +45,7 @@ export const matchUserSchema = Type.Object(
     }),
     gameMode: Type.String(),
     connection: Type.String(),
-    userId: Type.String({
+    userId: TypedString<UserID>({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
@@ -75,3 +78,8 @@ export const matchUserQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type MatchUserQuery = Static<typeof matchUserQuerySchema>
+
+export const matchUserValidator = getValidator(matchUserSchema, dataValidator)
+export const matchUserDataValidator = getValidator(matchUserDataSchema, dataValidator)
+export const matchUserPatchValidator = getValidator(matchUserPatchSchema, dataValidator)
+export const matchUserQueryValidator = getValidator(matchUserQuerySchema, queryValidator)

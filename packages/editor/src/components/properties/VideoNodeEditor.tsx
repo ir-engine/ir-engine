@@ -23,18 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import {
-  defineQuery,
-  getComponent,
-  useComponent,
-  useQuery
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -46,7 +39,7 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { Vector2Input } from '../inputs/Vector2Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 const fitOptions = [
   { label: 'Cover', value: 'cover' },
@@ -68,9 +61,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const mediaEntities = useQuery([MediaComponent])
 
-  const mediaOptions = mediaEntities.map((entity) => {
-    return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
-  })
+  const mediaOptions = mediaEntities
+    .filter((entity) => entity !== props.entity)
+    .map((entity) => {
+      return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
+    })
   mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
 
   return (
@@ -86,7 +81,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       >
         <SelectInput
           value={video.mediaUUID.value}
-          onChange={updateProperty(VideoComponent, 'mediaUUID')}
+          onChange={commitProperty(VideoComponent, 'mediaUUID')}
           options={mediaOptions}
           isSearchable
         />
@@ -97,7 +92,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.video.lbl-size')}
         info={t('editor:properties.video.lbl-size-info')}
       >
-        <Vector2Input value={video.size.value} onChange={updateProperty(VideoComponent, 'size')} />
+        <Vector2Input
+          value={video.size.value}
+          onChange={updateProperty(VideoComponent, 'size')}
+          onRelease={commitProperty(VideoComponent, 'size')}
+        />
       </InputGroup>
 
       <InputGroup
@@ -105,7 +104,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.video.lbl-fit')}
         info={t('editor:properties.video.lbl-fit-info')}
       >
-        <SelectInput value={video.fit.value} onChange={updateProperty(VideoComponent, 'fit')} options={fitOptions} />
+        <SelectInput value={video.fit.value} onChange={commitProperty(VideoComponent, 'fit')} options={fitOptions} />
       </InputGroup>
     </NodeEditor>
   )

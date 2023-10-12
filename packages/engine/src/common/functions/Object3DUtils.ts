@@ -174,6 +174,30 @@ export class Object3DUtils {
     }
   }
 
+  static traverseAncestors(object: Object3D, callback) {
+    if (!object) return false
+
+    if (callback(object)) return true
+    const parent = object.parent
+
+    if (parent) {
+      if (Object3DUtils.traverseAncestors(parent, callback)) return true
+    }
+  }
+
+  static findAncestor(object: Object3D, callback) {
+    if (!object) return null
+
+    if (callback(object)) return object
+    const parent = object.parent
+
+    if (parent) {
+      return Object3DUtils.findAncestor(parent, callback)
+    }
+
+    return null
+  }
+
   /**
    * Finds the topmost object in the Object3D hierarchy
    * @param object

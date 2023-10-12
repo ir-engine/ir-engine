@@ -35,28 +35,52 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
+import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
+import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
-  AvatarInputSettingsAction,
   AvatarInputSettingsState
 } from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { UserSettingPatch } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
 import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
-import { userHasAccess } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
+import { userHasAccess } from '../../../userHasAccess'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
+
+export const ShadowMapResolutionOptions = [
+  {
+    label: '256px',
+    value: 256
+  },
+  {
+    label: '512px',
+    value: 512
+  },
+  {
+    label: '1024px',
+    value: 1024
+  },
+  {
+    label: '2048px',
+    value: 2048
+  },
+  {
+    label: '4096px (not recommended)',
+    value: 4096
+  }
+]
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
@@ -85,7 +109,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
-  const userSettings = selfUser.user_setting.value
+  const userSettings = selfUser.userSetting.value
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
@@ -103,16 +127,12 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     if (!userSettings) return
     const { name, value } = event.target
 
-    const settings = { themeModes: { ...themeModes, [name]: value } }
-    AuthService.updateUserSettings(userSettings.id as string, settings)
+    const settings: UserSettingPatch = { themeModes: { ...themeModes, [name]: value } }
+    AuthService.updateUserSettings(userSettings.id, settings)
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {
-    dispatchAction(
-      AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
-        invertRotationAndMoveSticks: !invertRotationAndMoveSticks
-      })
-    )
+    getMutableState(AvatarInputSettingsState).invertRotationAndMoveSticks.set((value) => !value)
   }
 
   useLayoutEffect(() => {
@@ -233,11 +253,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-left-control-scheme')}
                       value={leftAxesControlScheme}
                       menu={controlSchemesMenu}
-                      onChange={(event) => {
-                        dispatchAction(
-                          AvatarInputSettingsAction.setLeftAxesControlScheme({ scheme: event.target.value })
-                        )
-                      }}
+                      onChange={(event) =>
+                        getMutableState(AvatarInputSettingsState).leftAxesControlScheme.set(event.target.value)
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -245,11 +263,9 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       label={t('user:usermenu.setting.lbl-right-control-scheme')}
                       value={rightAxesControlScheme}
                       menu={controlSchemesMenu}
-                      onChange={(event) => {
-                        dispatchAction(
-                          AvatarInputSettingsAction.setRightAxesControlScheme({ scheme: event.target.value })
-                        )
-                      }}
+                      onChange={(event) =>
+                        getMutableState(AvatarInputSettingsState).rightAxesControlScheme.set(event.target.value)
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -258,7 +274,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
                       value={preferredHand}
                       menu={handOptionsMenu}
                       onChange={(event) =>
-                        dispatchAction(AvatarInputSettingsAction.setPreferredHand({ handdedness: event.target.value }))
+                        getMutableState(AvatarInputSettingsState).preferredHand.set(event.target.value)
                       }
                     />
                   </Grid>
@@ -352,7 +368,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               label={t('user:usermenu.setting.use-positional-media')}
               checked={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
-                dispatchAction(AudioSettingAction.setUsePositionalMedia({ value }))
+                getMutableState(AudioState).positionalMedia.set(value)
               }}
             />
 
@@ -364,7 +380,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.masterVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMasterVolume({ value }))
+                getMutableState(AudioState).masterVolume.set(value)
               }}
             />
 
@@ -376,7 +392,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.microphoneGain.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMicrophoneVolume({ value }))
+                getMutableState(AudioState).microphoneGain.set(value)
               }}
             />
 
@@ -400,7 +416,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.mediaStreamVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMediaStreamVolume({ value }))
+                getMutableState(AudioState).mediaStreamVolume.set(value)
               }}
             />
 
@@ -412,7 +428,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.notificationVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setNotificationVolume({ value }))
+                getMutableState(AudioState).notificationVolume.set(value)
               }}
             />
 
@@ -424,7 +440,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.soundEffectsVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value }))
+                getMutableState(AudioState).soundEffectsVolume.set(value)
               }}
             />
 
@@ -436,7 +452,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               step={0.01}
               value={audioState.backgroundMusicVolume.value}
               onChange={(value: number) => {
-                dispatchAction(AudioSettingAction.setMusicVolume({ value }))
+                getMutableState(AudioState).backgroundMusicVolume.set(value)
               }}
             />
             {/* </>
@@ -457,6 +473,17 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               sx={{ mt: 4 }}
               onChange={handleQualityLevelChange}
             />
+
+            <InputGroup
+              name="Shadow Map Resolution"
+              label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+            >
+              <SelectInput
+                options={ShadowMapResolutionOptions}
+                value={rendererState.shadowMapResolution.value}
+                onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
+              />
+            </InputGroup>
 
             <Grid container spacing={{ xs: 0, sm: 2 }}>
               <Grid item xs={12} sm={4}>

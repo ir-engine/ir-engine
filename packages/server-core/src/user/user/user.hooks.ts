@@ -23,22 +23,49 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
-import { iff, isProvider } from 'feathers-hooks-common'
+import {
+  UserID,
+  UserPatch,
+  UserType,
+  userDataValidator,
+  userPatchValidator,
+  userQueryValidator
+} from '@etherealengine/engine/src/schemas/user/user.schema'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
+import { discard, discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
-import addScopeToUser from '../../hooks/add-scope-to-user'
-import authenticate from '../../hooks/authenticate'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userSettingPath } from '@etherealengine/engine/src/schemas/user/user-setting.schema'
+import { HookContext } from '../../../declarations'
+import disallowNonId from '../../hooks/disallow-non-id'
+import persistData from '../../hooks/persist-data'
 import verifyScope from '../../hooks/verify-scope'
-import logger from '../../ServerLogger'
+import getFreeInviteCode from '../../util/get-free-invite-code'
+import { UserService } from './user.class'
+import {
+  userDataResolver,
+  userExternalResolver,
+  userPatchResolver,
+  userQueryResolver,
+  userResolver
+} from './user.resolvers'
 
-const restrictUserPatch = (context: HookContext) => {
+/**
+ * Restricts patching of user data to admins and the user itself
+ * @param context
+ * @returns
+ */
+const restrictUserPatch = (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
-  const loggedInUser = context.params.user as UserInterface
+  const loggedInUser = context.params.user as UserType
   if (
     loggedInUser.scopes &&
     loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
@@ -51,19 +78,28 @@ const restrictUserPatch = (context: HookContext) => {
     throw new Error("Must be an admin with user:write scope to patch another user's data")
 
   // If a user without admin and user:write scope is patching themself, only allow changes to avatarId and name
-  const data = {} as any
-  // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
-  if (typeof context.data.avatarId !== 'undefined') data.avatarId = context.data.avatarId
-  if (typeof context.data.name !== 'undefined') data.name = context.data.name
-  context.data = data
-  return context
+  const process = (item: UserType) => {
+    const data = {} as UserPatch
+    // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
+    if (typeof item.avatarId !== 'undefined') data.avatarId = item.avatarId
+    if (typeof item.name !== 'undefined') data.name = item.name
+
+    return data
+  }
+
+  context.data = Array.isArray(context.data) ? context.data.map(process) : process(context.data as UserType)
 }
 
-const restrictUserRemove = (context: HookContext) => {
+/**
+ * Restricts removing of user data to admins and the user itself
+ * @param context
+ * @returns
+ */
+const restrictUserRemove = (context: HookContext<UserService>) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
-  const loggedInUser = context.params.user as UserInterface
+  const loggedInUser = context.params.user as UserType
   if (
     loggedInUser.scopes &&
     loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
@@ -77,373 +113,188 @@ const restrictUserRemove = (context: HookContext) => {
   return context
 }
 
-const parseAllUserSettings = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { result } = context
-
-    for (const index in result.data) {
-      if (result.data[index].user_setting && result.data[index].user_setting.themeModes) {
-        let themeModes = JSON.parse(result.data[index].user_setting.themeModes)
-
-        if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
-
-        result.data[index].user_setting.themeModes = themeModes
+/**
+ * Removes the user's api key
+ * @param context
+ */
+const removeApiKey = async (context: HookContext<UserService>) => {
+  if (context.id) {
+    await context.app.service(userApiKeyPath).remove(null, {
+      query: {
+        userId: context.id as UserID
       }
-    }
-
-    return context
-  }
-}
-
-const parseUserSettings = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { result } = context
-
-    if (result.user_setting && result.user_setting.themeModes) {
-      let themeModes = JSON.parse(result.user_setting.themeModes)
-
-      if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
-
-      result.user_setting.themeModes = themeModes
-    }
-
-    return context
-  }
-}
-
-const addAvatarResources = () => {
-  return async (context: HookContext): Promise<HookContext> => {
-    const { app, result } = context
-
-    // if (!result.data) console.log('result.avatar', result, result.avatar, result.avatar?.dataValues, result.dataValues, result.dataValues?.avatar?.dataValues,)
-
-    if (result.dataValues?.avatar) {
-      if (result.dataValues?.avatar.modelResourceId)
-        try {
-          result.dataValues.avatar.modelResource = await app
-            .service('static-resource')
-            .get(result.dataValues.avatar.modelResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.dataValues?.avatar.dataValues?.modelResourceId)
-        try {
-          result.dataValues.avatar.dataValues.modelResource = await app
-            .service('static-resource')
-            .get(result.dataValues.avatar.dataValues.modelResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.dataValues?.avatar.thumbnailResourceId)
-        try {
-          result.dataValues.avatar.thumbnailResource = await app
-            .service('static-resource')
-            .get(result.dataValues.avatar.thumbnailResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.dataValues?.avatar.dataValues?.thumbnailResourceId)
-        try {
-          result.dataValues.avatar.dataValues.thumbnailResource = await app
-            .service('static-resource')
-            .get(result.dataValues.avatar.dataValues.thumbnailResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-    } else if (result.avatar) {
-      if (result.avatar.modelResourceId)
-        try {
-          result.avatar.modelResource = await app.service('static-resource').get(result.avatar.modelResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.avatar.dataValues?.modelResourceId)
-        try {
-          result.avatar.dataValues.modelResource = await app
-            .service('static-resource')
-            .get(result.avatar.dataValues.modelResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.avatar.thumbnailResourceId)
-        try {
-          result.avatar.thumbnailResource = await app.service('static-resource').get(result.avatar.thumbnailResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-      if (result.avatar.dataValues?.thumbnailResourceId)
-        try {
-          result.avatar.dataValues.thumbnailResource = await app
-            .service('static-resource')
-            .get(result.avatar.dataValues.thumbnailResourceId)
-        } catch (err) {
-          logger.error('error getting avatar model %o', err)
-        }
-    }
-
-    // if (result.data) {
-    //   const mappedUsers = result.data.map(user => {
-    //     return new Promise(async (resolve, reject) => {
-    //       if (user.avatar) {
-    //         if (user.avatar.modelResourceId)
-    //           try {
-    //             user.avatar.modelResource = await app.service('static-resource').get(user.avatar.modelResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         if (user.avatar.dataValues?.modelResourceId)
-    //           try {
-    //             user.avatar.dataValues.modelResource = await app
-    //                 .service('static-resource')
-    //                 .get(user.avatar.dataValues.modelResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         if (user.avatar.thumbnailResourceId)
-    //           try {
-    //             user.avatar.thumbnailResource = await app.service('static-resource').get(user.avatar.thumbnailResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         if (user.avatar.dataValues?.thumbnailResourceId)
-    //           try {
-    //             user.avatar.dataValues.thumbnailResource = await app
-    //                 .service('static-resource')
-    //                 .get(user.avatar.dataValues.thumbnailResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //       }
-    //       if (user.dataValues.avatar) {
-    //         if (user.dataValues.avatar.modelResourceId)
-    //           try {
-    //             user.dataValues.avatar.modelResource = await app.service('static-resource').get(user.dataValues.avatar.modelResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         try {
-    //           console.log('POPULATING MUTLI DATAVALUES MODELRESOURCE')
-    //           user.dataValues.avatar.dataValues.modelResource = await app
-    //               .service('static-resource')
-    //               .get(user.dataValues.avatar.dataValues.modelResourceId)
-    //           console.log('DONE POPULATED MUTLI DATAVALUES MODELRESOURCE', user, user.dataValues.avatar.dataValues)
-    //           resolve(user)
-    //         } catch (err) {
-    //           logger.error('error getting avatar model %o', err)
-    //           reject(err)
-    //         }
-    //         if (user.dataValues.avatar.thumbnailResourceId)
-    //           try {
-    //             user.dataValues.avatar.thumbnailResource = await app.service('static-resource').get(user.dataValues.avatar.thumbnailResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //         if (user.dataValues.avatar.dataValues?.thumbnailResourceId)
-    //           try {
-    //             user.dataValues.avatar.dataValues.thumbnailResource = await app
-    //                 .service('static-resource')
-    //                 .get(user.dataValues.avatar.dataValues.thumbnailResourceId)
-    //             resolve(user)
-    //           } catch (err) {
-    //             logger.error('error getting avatar model %o', err)
-    //             reject(err)
-    //           }
-    //       }
-    //     })
-    //   })
-    //   console.log('promises', mappedUsers)
-    //   await Promise.all(mappedUsers)
-    //   result.data = mappedUsers
-    // }
-
-    // if (!result.data) console.log('Returned result.avatar', result, result.avatar, result.avatar?.dataValues, result.dataValues?.avatar?.dataValues)
-    // if (result.data && result.total > 0) console.log('nested user', result.data[0].avatar.dataValues)
-    return context
+    })
   }
 }
 
 /**
- * This module used to declare and identify database relation
- * which will be used later in user service
+ * Removes existing scopes of user
+ * @param context
  */
+const removeUserScopes = async (context: HookContext<UserService>) => {
+  const data = Array.isArray(context.data) ? context.data : [context.data]
+
+  for (const item of data) {
+    if (item?.scopes) {
+      await context.app.service(scopePath).remove(null, {
+        query: {
+          userId: context.id as UserID
+        }
+      })
+    }
+  }
+}
+
+/**
+ * Adds new scopes to user
+ * @param useActualData
+ */
+const addUserScopes = (useActualData = false) => {
+  return async (context: HookContext<UserService>) => {
+    const dataKey = useActualData ? 'actualData' : 'data'
+    const data: UserType[] = Array.isArray(context[dataKey]) ? context[dataKey] : [context[dataKey]]
+
+    for (const item of data) {
+      if (item?.scopes) {
+        const scopeData = item.scopes.map((el) => {
+          return {
+            type: el.type,
+            userId: useActualData ? item.id : (context.id as UserID)
+          }
+        })
+        if (scopeData.length > 0) await context.app.service(scopePath).create(scopeData)
+      }
+    }
+  }
+}
+
+/**
+ * Updates the user's invite code if they don't have one
+ * @param context
+ */
+const updateInviteCode = async (context: HookContext<UserService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+
+  for (const item of result) {
+    if (!item.isGuest && !item.inviteCode) {
+      const code = await getFreeInviteCode(context.app)
+      await context.service._patch(item.id, {
+        inviteCode: code
+      })
+    }
+  }
+}
+
+/**
+ * Add the user's settings
+ * @param context
+ */
+const addUserSettings = async (context: HookContext<UserService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+
+  for (const item of result) {
+    await context.app.service(userSettingPath).create({
+      userId: item.id
+    })
+  }
+}
+
+/**
+ * Add the user's api key
+ * @param context
+ */
+const addApiKey = async (context: HookContext<UserService>) => {
+  const result = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
+
+  for (const item of result) {
+    if (!item.isGuest) {
+      await context.app.service(userApiKeyPath).create({
+        userId: item.id
+      })
+    }
+  }
+}
+
+/**
+ * Handle search query in find
+ * @param context
+ */
+const handleUserSearch = async (context: HookContext<UserService>) => {
+  if (context.params.query?.search) {
+    const search = context.params.query.search
+
+    const searchedIdentityProviders = (await context.app.service(identityProviderPath).find({
+      query: {
+        accountIdentifier: {
+          $like: `%${search}%`
+        }
+      },
+      paginate: false
+    })) as IdentityProviderType[]
+
+    context.params.query = {
+      ...context.params.query,
+      $or: [
+        ...(context.params?.query?.$or || []),
+        {
+          id: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          name: {
+            $like: `%${search}%`
+          }
+        },
+        {
+          id: {
+            $in: searchedIdentityProviders.map((ip) => ip.userId)
+          }
+        }
+      ]
+    }
+  }
+}
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(userExternalResolver), schemaHooks.resolveResult(userResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [() => schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
     find: [
-      addAssociations({
-        models: [
-          {
-            model: 'identity-provider'
-          },
-          {
-            model: 'user-api-key'
-          },
-          // {
-          //   model: 'subscription'
-          // },
-          {
-            model: 'location-admin'
-          },
-          {
-            model: 'location-ban'
-          },
-          {
-            model: 'user-settings'
-          },
-          {
-            model: 'instance-attendance',
-            as: 'instanceAttendance',
-            where: {
-              ended: false
-            },
-            required: false,
-            include: [
-              {
-                model: 'instance',
-                as: 'instance',
-                include: [
-                  {
-                    model: 'location',
-                    as: 'location'
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            model: 'scope'
-          },
-          {
-            model: 'party'
-          },
-          {
-            model: 'avatar'
-          }
-        ]
-      })
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'read'), handleUserSearch),
+      iff(isProvider('external'), discardQuery('search', '$sort.accountIdentifier'))
     ],
-    get: [
-      addAssociations({
-        models: [
-          {
-            model: 'identity-provider'
-          },
-          {
-            model: 'user-api-key'
-          },
-          // {
-          //   model: 'subscription'
-          // },
-          {
-            model: 'location-admin'
-          },
-          {
-            model: 'location-ban'
-          },
-          {
-            model: 'user-settings'
-          },
-          {
-            model: 'scope'
-          },
-          {
-            model: 'party'
-          },
-          {
-            model: 'avatar'
-          }
-        ]
-      }),
-      iff(
-        (context: HookContext) => context.params.user.id === context.arguments[0],
-        addAssociations({
-          models: [
-            {
-              model: 'instance-attendance',
-              as: 'instanceAttendance',
-              where: { ended: false },
-              required: false,
-              include: [
-                {
-                  model: 'instance',
-                  as: 'instance',
-                  include: [
-                    {
-                      model: 'location',
-                      as: 'location'
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        })
-      ),
-      iff(
-        (context: HookContext) => context.params.user.id !== context.arguments[0],
-        (context: HookContext) => {
-          if (!context.params.sequelize.attributes) context.params.sequelize.attributes = {}
-          context.params.sequelize.attributes.exclude = ['partyId']
-        }
-      )
+    get: [],
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
+      () => schemaHooks.validateData(userDataValidator),
+      schemaHooks.resolveData(userDataResolver),
+      persistData,
+      discard('scopes')
     ],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))],
     patch: [
-      iff(isProvider('external'), restrictUserPatch as any),
-      addAssociations({
-        models: [
-          {
-            model: 'identity-provider'
-          },
-          {
-            model: 'user-api-key'
-          },
-          // {
-          //   model: 'subscription'
-          // },
-          {
-            model: 'location-admin'
-          },
-          {
-            model: 'location-ban'
-          },
-          {
-            model: 'user-settings'
-          },
-          {
-            model: 'scope'
-          },
-          {
-            model: 'avatar'
-          }
-        ]
-      }),
-      addScopeToUser()
+      iff(isProvider('external'), restrictUserPatch),
+      () => schemaHooks.validateData(userPatchValidator),
+      schemaHooks.resolveData(userPatchResolver),
+      disallowNonId,
+      removeUserScopes,
+      addUserScopes(false),
+      discard('scopes')
     ],
-    remove: [iff(isProvider('external'), restrictUserRemove as any)]
+    remove: [iff(isProvider('external'), disallowNonId, restrictUserRemove), removeApiKey]
   },
 
   after: {
     all: [],
-    find: [parseAllUserSettings(), addAvatarResources()],
-    get: [parseUserSettings(), addAvatarResources()],
-    create: [parseUserSettings(), addAvatarResources()],
-    update: [parseUserSettings(), addAvatarResources()],
-    patch: [parseUserSettings(), addAvatarResources()],
+    find: [],
+    get: [],
+    create: [addUserSettings, addUserScopes(true), addApiKey, updateInviteCode],
+    update: [],
+    patch: [updateInviteCode],
     remove: []
   },
 

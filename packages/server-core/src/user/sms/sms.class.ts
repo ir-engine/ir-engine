@@ -23,60 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { ServiceInterface } from '@feathersjs/feathers'
 
+import { SmsData } from '@etherealengine/engine/src/schemas/user/sms.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import Paginated from '../../types/PageObject'
 import { sendSmsWithAWS } from './awssns'
 
-interface Data {}
-
-interface ServiceOptions {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface SmsParams extends KnexAdapterParams {}
 
 /**
- * A class for Sms service
+ * A class for Github Repo Access Webhook service
  */
-export class Sms implements ServiceMethods<Data> {
+export class SmsService implements ServiceInterface<SmsData, SmsData, SmsParams> {
   app: Application
-  options: ServiceOptions
-  docs: any
 
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
+  constructor(app: Application) {
     this.app = app
   }
 
-  async setup() {}
-
-  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
-    return []
-  }
-
-  async get(id: Id, params?: Params): Promise<Data> {
-    return {
-      id,
-      text: `A new message with ID: ${id}!`
-    }
-  }
-
-  async create(data: any, params?: Params): Promise<Data> {
-    if (Array.isArray(data)) {
-      return await Promise.all(data.map((current) => this.create(current, params)))
-    }
-
+  async create(data: SmsData, params?: SmsParams) {
     await sendSmsWithAWS(data.mobile, data.text)
     return data
-  }
-
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  async remove(id: NullableId, params?: Params): Promise<Data> {
-    return { id }
   }
 }

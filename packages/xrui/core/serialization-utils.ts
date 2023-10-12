@@ -30,6 +30,7 @@ import { WebLayer } from './WebLayer'
 import { WebRenderer } from './WebRenderer'
 
 function removeInvalidCharacters(content: string) {
+  // eslint-disable-next-line no-control-regex
   return content.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
 }
 
@@ -101,7 +102,7 @@ async function serializeTag(node: Element, options: Options) {
 }
 
 function serializeText(node: Text) {
-  var text = node.nodeValue || ''
+  const text = node.nodeValue || ''
   return serializeTextContent(text)
 }
 
@@ -210,8 +211,10 @@ export function getParentsHTML(
       (tag === 'html'
         ? ` ${WebRenderer.RENDERING_DOCUMENT_ATTRIBUTE}="" xmlns="http://www.w3.org/1999/xhtml"
                     style="${getPixelScaleStyling(textureWidth / fullWidth, textureHeight / fullHeight)} --x-width:${
-            metrics.bounds.width
-          }px; --x-height:${metrics.bounds.height}px; ${style} width:${fullWidth}px; height:${fullHeight}px;" `
+                      metrics.bounds.width
+                    }px; --x-height:${
+                      metrics.bounds.height
+                    }px; ${style} width:${fullWidth}px; height:${fullHeight}px;" `
         : ` style="${style}" ${WebRenderer.RENDERING_PARENT_ATTRIBUTE}="" `) +
       attributes +
       ' >'

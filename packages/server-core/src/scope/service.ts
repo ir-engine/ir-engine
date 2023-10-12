@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ScopeType from './scope-type/scope-type.service'
-import Scope from './scope/scope.service'
+import ScopeType from './scope-type/scope-type'
+import Scope from './scope/scope'
 
 export default [Scope, ScopeType]

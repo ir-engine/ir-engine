@@ -23,22 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ProjectType, projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { PROJECT_PAGE_LIMIT, ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
+import { userIsAdmin } from '../../../user/userHasAccess'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
@@ -70,37 +71,42 @@ const ProjectTable = ({ className }: Props) => {
   const { t } = useTranslation()
   const [processing, setProcessing] = useState(false)
   const [confirm, setConfirm] = useState({ ...defaultConfirm })
-  const [project, _setProject] = useState<ProjectInterface | undefined>()
+  const [project, _setProject] = useState<ProjectType | undefined>()
   const [showProjectFiles, setShowProjectFiles] = useState(false)
   const [openProjectDrawer, setOpenProjectDrawer] = useState(false)
   const [openUserPermissionDrawer, setOpenUserPermissionDrawer] = useState(false)
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
   const [changeDestination, setChangeDestination] = useState(false)
 
-  const projectState = useHookstate(getMutableState(ProjectState))
-  const adminProjects = projectState.projects
-  const adminProjectCount = adminProjects.value.length
+  const projects = useFind(projectPath, {
+    query: {
+      allowed: true,
+      $limit: 100,
+      $sort: {
+        name: 1
+      }
+    }
+  })
+
+  const projectsData = projects.data as ProjectType[]
+
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
 
   const projectRef = useRef(project)
 
-  const setProject = (project: ProjectInterface | undefined) => {
+  const setProject = (project: ProjectType | undefined) => {
     projectRef.current = project
     _setProject(project)
   }
 
-  ProjectService.useAPIListeners()
-
   useEffect(() => {
-    if (project) setProject(adminProjects.get({ noproxy: true }).find((proj) => proj.name === project.name)!)
-  }, [adminProjects])
+    if (project) setProject(projectsData.find((proj) => proj.name === project.name)!)
+  }, [projectsData])
 
   const handleRemoveProject = async () => {
     try {
       if (projectRef.current) {
-        const projectToRemove = adminProjects.get({ noproxy: true }).find((p) => p.name === projectRef.current?.name)!
+        const projectToRemove = projectsData.find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()
@@ -209,15 +215,6 @@ const ProjectTable = ({ className }: Props) => {
     setProject(undefined)
   }
 
-  const handlePageChange = (event: unknown, newPage: number) => {
-    setPage(newPage)
-  }
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
-  }
-
   const copyShaToClipboard = (sha: string) => {
     navigator.clipboard.writeText(sha)
     NotificationService.dispatchNotify(t('admin:components.project.commitSHACopied'), {
@@ -227,7 +224,7 @@ const ProjectTable = ({ className }: Props) => {
 
   const isAdmin = user.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
-  const createData = (el: ProjectInterface, name: string) => {
+  const createData = (el: ProjectType, name: string) => {
     const commitSHA = el.commitSHA
     return {
       el,
@@ -236,7 +233,7 @@ const ProjectTable = ({ className }: Props) => {
           <a href={`/studio/${name}`} className={`${el.needsRebuild ? styles.orangeColor : ''}`}>
             {name}
           </a>
-          {el.needsRebuild && (
+          {Boolean(el.needsRebuild) && (
             <Tooltip title={t('admin:components.project.outdatedBuild')} arrow>
               <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.orangeColor} />
             </Tooltip>
@@ -295,7 +292,7 @@ const ProjectTable = ({ className }: Props) => {
             <IconButton
               className={styles.iconButton}
               name="update"
-              disabled={!el.hasWriteAccess || !el.repositoryPath}
+              disabled={(!el.hasWriteAccess && !userIsAdmin()) || !el.repositoryPath}
               onClick={() => openPushConfirmation(el)}
               icon={<Icon type="Upload" />}
             />
@@ -364,22 +361,13 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
-  const rows = adminProjects.value?.map((el) => {
+  const rows = projectsData.map((el) => {
     return createData(el, el.name)
   })
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={true}
-        rows={rows}
-        column={projectsColumns}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        count={adminProjectCount}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={projects} rows={rows} column={projectsColumns} />
 
       {openProjectDrawer && project && (
         <ProjectDrawer

@@ -27,10 +27,10 @@ import appRootPath from 'app-root-path'
 import { execFileSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
-import { MathUtils } from 'three'
 
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 
+import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { Application } from '../../../declarations'
 
 declare module '@etherealengine/common/declarations' {
@@ -56,11 +56,11 @@ async function createKtx2(data: KTX2EncodeArguments): Promise<string | string[]>
     const fileName = /[^\\/]*$/.exec(outPath)![0]
     const args = `-ktx2${data.mode === 'UASTC' ? ' -uastc' : ''}${data.mipmaps ? ' -mipmap' : ''}${
       data.flipY ? ' -y_flip' : ''
-    }${data.linear ? ' -linear' : ''} -q ${data.quality} ${inPath}`
+    }${data.srgb ? ' -linear' : ''} -q ${data.quality} ${inPath}`
     console.log(args)
     console.log(execFileSync(BASIS_U, args.split(/\s+/)))
     console.log(execFileSync('mv', [fileName, outPath]))
-    const result = await this.app.service('file-browser').patch(null, {
+    const result = await this.app.service(fileBrowserPath).patch(null, {
       fileName,
       path: outURIDir,
       body: fs.readFileSync(outPath),

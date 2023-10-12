@@ -23,14 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import Multer from '@koa/multer'
 import { createHash } from 'crypto'
 import fs from 'fs'
 import path from 'path'
-import { Op } from 'sequelize'
 
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import {
   AdminAssetUploadArgumentsType,
   AssetUploadType,
@@ -40,6 +38,7 @@ import {
 import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
+import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
@@ -73,6 +72,9 @@ export interface ResourcePatchCreateInterface {
 export const getFileMetadata = async (data: { name?: string; file: UploadFile | string }) => {
   const { name, file } = data
 
+  const storageProvider = getStorageProvider()
+  const originURLs = storageProvider.originURLs
+
   let contentLength = 0
   let extension = ''
   let assetName = name!
@@ -81,7 +83,9 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   if (typeof file === 'string') {
     const url = file
     if (/http(s)?:\/\//.test(url)) {
-      const fileHead = await fetch(url, { method: 'HEAD' })
+      //If the file URL points to the cache domain, fetch it from the origin (S3) domain instead, to avoid cached
+      //information that might not be up-to-date
+      const fileHead = await fetch(url.replace(storageProvider.cacheDomain, originURLs[0]), { method: 'HEAD' })
       if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
       contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
       mimeType = fileHead.headers['content-type'] || fileHead.headers?.get('content-type')
@@ -140,22 +144,23 @@ export type UploadAssetArgs = {
 
 export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
   console.log('uploadAsset', args)
-  const { assetName, hash, mimeType } = await getFileMetadata({
+  const { hash } = await getFileMetadata({
     file: args.file,
     name: args.file.originalname
   })
 
-  const whereQuery = {
-    hash
+  const query = {
+    hash,
+    $limit: 1
   } as any
-  if (args.project) whereQuery.project = args.project
+  if (args.project) query.project = args.project
 
   /** @todo - if adding variants that already exist, we only return the first one */
-  const existingResource = (await app.service('static-resource').Model.findOne({
-    where: whereQuery
-  })) as StaticResourceInterface | null
+  const existingResource = (await app.service(staticResourcePath).find({
+    query
+  })) as Paginated<StaticResourceType>
 
-  if (existingResource) return existingResource
+  if (existingResource.data.length > 0) return existingResource.data[0]
 
   const key = args.path ?? `/temp/${hash}`
   return await addAssetAsStaticResource(app, args.file, {
@@ -200,10 +205,14 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   }
 }
 
-export const createStaticResourceHash = (file: Buffer | string, props: { name?: string; assetURL?: string }) => {
+export const createStaticResourceHash = (
+  file: Buffer | string,
+  props: { mimeType: string; name?: string; assetURL?: string }
+) => {
   return createHash('sha3-256')
     .update(typeof file === 'string' ? file : file.length.toString())
-    .update(props.name || props.assetURL!.split('/').pop()!.split('.')[0])
+    .update(props.name || props.assetURL!.split('/').pop()!)
+    .update(props.mimeType)
     .digest('hex')
 }
 
@@ -217,28 +226,42 @@ export const addAssetAsStaticResource = async (
   app: Application,
   file: UploadFile,
   args: AdminAssetUploadArgumentsType
-): Promise<StaticResourceInterface> => {
+): Promise<StaticResourceType> => {
   console.log('addAssetAsStaticResource', file, args)
   const provider = getStorageProvider()
 
+  const isFromOrigin = isFromOriginURL(args.path)
   const isExternalURL = args.path.startsWith('http')
 
-  // make userId optional and safe for feathers create
-  const primaryKey = isExternalURL ? args.path : processFileName(path.join(args.path, file.originalname))
-  const url = isExternalURL ? args.path : getCachedURL(primaryKey, provider.cacheDomain)
+  let primaryKey, url
+  if (isExternalURL && !isFromOrigin) {
+    primaryKey = args.path
+    url = args.path
+  } else if (isExternalURL && isFromOrigin) {
+    primaryKey = processFileName(args.path)
+    url = args.path
+    for (const originURL of provider.originURLs) {
+      url = url.replace(originURL, provider.cacheDomain)
+    }
+  } else {
+    primaryKey = processFileName(path.join(args.path, file.originalname))
+    url = getCachedURL(primaryKey, provider.cacheDomain)
+  }
 
-  const whereArgs = {
-    [Op.or]: [{ url }, { id: args.id ?? '' }]
+  const query = {
+    $limit: 1,
+    $or: [{ url: url }, { id: args.id || '' }]
   } as any
-  if (args.project) whereArgs.project = args.project
-  const existingAsset = (await app.service('static-resource').Model.findOne({
-    where: whereArgs
-  })) as StaticResourceInterface
+  if (args.project) query.project = args.project
+  const existingAsset = (await app.service(staticResourcePath).find({
+    query
+  })) as Paginated<StaticResourceType>
 
   const stats = await getStats(file.buffer, file.mimetype)
 
-  const hash = args.hash || createStaticResourceHash(file.buffer, { name: args.name, assetURL: url })
-  const body: Partial<StaticResourceInterface> = {
+  const hash =
+    args.hash || createStaticResourceHash(file.buffer, { mimeType: file.mimetype, name: args.name, assetURL: url })
+  const body: Partial<StaticResourceType> = {
     hash,
     url,
     key: primaryKey,
@@ -254,17 +277,15 @@ export const addAssetAsStaticResource = async (
 
   let resourceId = ''
 
-  if (existingAsset) {
-    await app.service('static-resource').patch(existingAsset.id, body, { isInternal: true })
-    resourceId = existingAsset.id
+  if (existingAsset.data.length > 0) {
+    resourceId = existingAsset.data[0].id
+    await app.service(staticResourcePath).patch(resourceId, body, { isInternal: true })
   } else {
-    const resource = (await app
-      .service('static-resource')
-      .create(body, { isInternal: true })) as StaticResourceInterface
+    const resource = await app.service(staticResourcePath).create(body, { isInternal: true })
     resourceId = resource.id
   }
 
-  return app.service('static-resource').get(resourceId)
+  return app.service(staticResourcePath).get(resourceId)
 }
 
 export default (app: Application): void => {
@@ -295,4 +316,13 @@ export default (app: Application): void => {
   const service = app.service('upload-asset')
 
   service.hooks(hooks)
+}
+
+const isFromOriginURL = (inputURL: string): boolean => {
+  const provider = getStorageProvider()
+  let returned = false
+  provider.originURLs.forEach((url) => {
+    if (new RegExp(url).exec(inputURL)) returned = true
+  })
+  return returned
 }

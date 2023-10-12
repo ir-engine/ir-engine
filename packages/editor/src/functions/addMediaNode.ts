@@ -24,15 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
-import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
+import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { updateProperties } from '../components/properties/Util'
+import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -42,40 +42,56 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  * @param before Newly created node will be set before this node in parent's children array
  * @returns Newly created media node
  */
-export async function addMediaNode(url: string, parent?: Entity | null, before?: Entity | null) {
+export async function addMediaNode(
+  url: string,
+  parent: Entity | null = null,
+  before: Entity | null = null,
+  extraComponentJson: ComponentJson[] = []
+) {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
 
-  let prefabType = ''
-  let updateFunc = null! as Function
-
-  let node: Entity | null = null
-
-  if (contentType.startsWith('prefab/')) {
-    prefabType = ScenePrefabs.prefab
-    updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node!])
-  } else if (contentType.startsWith('model/')) {
-    prefabType = ScenePrefabs.model
-    updateFunc = () => updateProperties(ModelComponent, { src: url }, [node!])
+  if (contentType.startsWith('model/')) {
+    EditorControlFunctions.createObjectFromSceneElement(
+      [{ name: ModelComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+      parent!,
+      before
+    )
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    prefabType = MediaPrefabs.video
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    EditorControlFunctions.createObjectFromSceneElement(
+      [
+        { name: VideoComponent.jsonID },
+        { name: MediaComponent.jsonID, props: { resources: [url] } },
+        ...extraComponentJson
+      ],
+      parent!,
+      before
+    )
   } else if (contentType.startsWith('image/')) {
-    prefabType = ScenePrefabs.image
-    updateFunc = () => updateProperties(ImageComponent, { source: url }, [node!])
+    EditorControlFunctions.createObjectFromSceneElement(
+      [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
+      parent!,
+      before
+    )
   } else if (contentType.startsWith('audio/')) {
-    prefabType = MediaPrefabs.audio
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    EditorControlFunctions.createObjectFromSceneElement(
+      [
+        { name: PositionalAudioComponent.jsonID },
+        { name: MediaComponent.jsonID, props: { resources: [url] } },
+        ...extraComponentJson
+      ],
+      parent!,
+      before
+    )
   } else if (url.includes('.uvol')) {
-    prefabType = MediaPrefabs.volumetric
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    EditorControlFunctions.createObjectFromSceneElement(
+      [
+        { name: VolumetricComponent.jsonID },
+        { name: MediaComponent.jsonID, props: { resources: [url] } },
+        ...extraComponentJson
+      ],
+      parent!,
+      before
+    )
   }
-
-  if (prefabType) {
-    node = EditorControlFunctions.createObjectFromPrefab(prefabType, parent, before!)
-
-    if (node) updateFunc()
-  }
-
-  return node
 }

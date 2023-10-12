@@ -23,46 +23,62 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { Knex } from 'knex'
 
-import { locationSettingsSeed } from '../location-settings/location-settings.seed'
+import { LocationDatabaseType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import appConfig from '@etherealengine/server-core/src/appconfig'
 
-export const locationSeed = {
-  path: 'location',
-  insertSingle: true,
-  templates: [
-    {
-      id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
-      name: 'Default',
-      slugifiedName: 'default',
-      maxUsersPerInstance: 30,
-      sceneId: 'default-project/default',
-      location_settings: locationSettingsSeed.templates.find(
-        (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60'
-      ),
-      isLobby: false
-    } as Location,
-    {
-      id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
-      name: 'Sky Station',
-      slugifiedName: 'sky-station',
-      maxUsersPerInstance: 30,
-      sceneId: 'default-project/sky-station',
-      location_settings: locationSettingsSeed.templates.find(
-        (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62'
-      ),
-      isLobby: false
-    } as Location,
-    {
-      id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
-      name: 'Apartment',
-      slugifiedName: 'apartment',
-      maxUsersPerInstance: 30,
-      sceneId: 'default-project/apartment',
-      location_settings: locationSettingsSeed.templates.find(
-        (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63'
-      ),
-      isLobby: false
-    } as Location
-  ]
+import { getDateTimeSql } from '../../util/datetime-sql'
+
+export async function seed(knex: Knex): Promise<void> {
+  const { testEnabled } = appConfig
+  const { forceRefresh } = appConfig.db
+
+  const seedData: LocationDatabaseType[] = await Promise.all(
+    [
+      {
+        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
+        name: 'Default',
+        slugifiedName: 'default',
+        maxUsersPerInstance: 30,
+        sceneId: 'default-project/default',
+        isFeatured: false,
+        isLobby: false
+      },
+      {
+        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
+        name: 'Sky Station',
+        slugifiedName: 'sky-station',
+        maxUsersPerInstance: 30,
+        sceneId: 'default-project/sky-station',
+        isFeatured: false,
+        isLobby: false
+      },
+      {
+        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
+        name: 'Apartment',
+        slugifiedName: 'apartment',
+        maxUsersPerInstance: 30,
+        sceneId: 'default-project/apartment',
+        isFeatured: false,
+        isLobby: false
+      }
+    ].map(async (item) => ({ ...item, createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
+  )
+
+  if (forceRefresh || testEnabled) {
+    // Deletes ALL existing entries
+    await knex(locationPath).del()
+
+    // Inserts seed entries
+    await knex(locationPath).insert(seedData)
+  } else {
+    const existingData = await knex(locationPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
+        await knex(locationPath).insert(item)
+      }
+    }
+  }
 }

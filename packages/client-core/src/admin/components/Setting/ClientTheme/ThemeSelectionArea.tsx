@@ -36,7 +36,7 @@ import styles from '../../../styles/settings.module.scss'
 interface ThemeSelectionAreaProps {
   themeModes: Record<string, string>
   colorModes: string[]
-  onChangeThemeMode: Function
+  onChangeThemeMode: (e: React.ChangeEvent<{ value: string }>) => void
 }
 
 const ThemeSelectionArea = ({ themeModes, colorModes, onChangeThemeMode }: ThemeSelectionAreaProps) => {

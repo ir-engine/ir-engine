@@ -23,24 +23,58 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Color, Mesh, PlaneGeometry, ShaderMaterial, Texture, Uniform, Vector2, Vector3 } from 'three'
+
+import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+
 import { useEffect } from 'react'
-import { Color, Mesh, PlaneGeometry, ShaderMaterial } from 'three'
-
-import { defineActionQueue, defineState, getState, removeActionQueue } from '@etherealengine/hyperflux'
-
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
+import { setVisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { CameraActions } from '../CameraState'
 
-const VERTEX_SHADER = 'void main() { vec3 newPosition = position * 2.0; gl_Position = vec4(newPosition, 1.0); }'
+const VERTEX_SHADER = `
+precision highp float;
 
-const FRAGMENT_SHADER =
-  'uniform vec3 color; uniform float intensity; void main() { gl_FragColor = vec4(color, intensity); }'
+void main() { 
+  vec3 newPosition = position * 2.0; 
+  gl_Position = vec4(newPosition, 1.0);
+}`
 
-const fadeActionQueue = defineActionQueue(CameraActions.fadeToBlack.matches)
+const FRAGMENT_SHADER = `
+precision highp float;
+
+uniform vec2 resolution;
+uniform vec3 color; 
+uniform float intensity; 
+#ifdef USE_GRAPHIC
+  uniform sampler2D graphicTexture;
+#endif
+void main() {
+  vec2 uv = gl_FragCoord.xy / resolution.xy;
+  vec4 baseColor = vec4(color, intensity);
+  #ifdef USE_GRAPHIC
+    if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
+      vec4 graphicColor = texture2D(graphicTexture, uv);
+      baseColor = graphicColor * baseColor;
+    } else {
+      baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+  #endif
+  gl_FragColor = baseColor; 
+}`
+
+const fadeToBlackQueue = defineActionQueue(CameraActions.fadeToBlack.matches)
 
 const CameraFadeBlackEffectSystemState = defineState({
   name: 'CameraFadeBlackEffectSystemState',
@@ -53,40 +87,63 @@ const CameraFadeBlackEffectSystemState = defineState({
       depthTest: false,
       uniforms: {
         color: { value: new Color('black') },
-        intensity: { value: 0 }
+        intensity: { value: 0 },
+        resolution: { value: new Vector2(window.outerWidth, window.outerHeight) }
       }
     })
+
     const mesh = new Mesh(geometry, material)
     mesh.name = 'Camera Fade Transition'
-    addObjectToGroup(Engine.instance.cameraEntity, mesh)
-    mesh.visible = false
-    mesh.layers.set(ObjectLayers.Camera)
+    const entity = createEntity()
+    addObjectToGroup(entity, mesh)
+    setObjectLayers(mesh, ObjectLayers.Scene)
     const transition = createTransitionState(0.25, 'OUT')
 
     return {
       transition,
-      mesh
+      mesh,
+      entity
     }
   }
 })
 
 const execute = () => {
-  const { transition, mesh } = getState(CameraFadeBlackEffectSystemState)
-  for (const action of fadeActionQueue()) {
+  const { transition, mesh, entity } = getState(CameraFadeBlackEffectSystemState)
+  for (const action of fadeToBlackQueue()) {
     transition.setState(action.in ? 'IN' : 'OUT')
+    if (action.in) {
+      setComponent(entity, LocalTransformComponent, {
+        position: new Vector3(0, 0, -0.1)
+      })
+      setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.cameraEntity })
+    } else removeComponent(entity, LocalTransformComponent)
+    if (action.graphicTexture) {
+      AssetLoader.load(action.graphicTexture, {}, (texture: Texture) => {
+        mesh.material.uniforms.graphicTexture = new Uniform(texture)
+        mesh.material.uniforms.color = new Uniform(new Color('white'))
+        mesh.material.defines.USE_GRAPHIC = true
+        mesh.material.needsUpdate = true
+      })
+    } else {
+      delete mesh.material.defines.USE_GRAPHIC
+      mesh.material.uniforms.color = new Uniform(new Color('black'))
+      mesh.material.needsUpdate = true
+    }
   }
-  transition.update(Engine.instance.deltaSeconds, (alpha) => {
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  transition.update(deltaSeconds, (alpha) => {
     mesh.material.uniforms.intensity.value = alpha
-    mesh.visible = alpha > 0
+    setVisibleComponent(entity, alpha > 0)
   })
 }
 
 const reactor = () => {
+  const outerWidth = useHookstate(window.outerWidth)
+  const outerHeight = useHookstate(window.outerHeight)
+  const { mesh } = useHookstate(getMutableState(CameraFadeBlackEffectSystemState))
   useEffect(() => {
-    return () => {
-      removeActionQueue(fadeActionQueue)
-    }
-  }, [])
+    mesh.material.uniforms.resolution.nested('value').set([outerWidth.value, outerHeight.value])
+  }, [outerWidth, outerHeight])
   return null
 }
 

@@ -67,10 +67,10 @@ const LoadingDetailView = () => {
   const { t } = useTranslation()
 
   const sceneLoaded = engineState.sceneLoaded.value
-  const joinedWorld = engineState.joinedWorld.value
+  const connectedWorld = engineState.connectedWorld.value
   const loadingDetails = !sceneLoaded
     ? t('common:loader.loadingObjects')
-    : !joinedWorld
+    : !connectedWorld
     ? t('common:loader.joiningWorld')
     : t('common:loader.loadingComplete')
 
@@ -88,7 +88,7 @@ const LoadingDetailView = () => {
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="2" xr-prerasterized="0-9">
             {`${engineState.loadingProgress.value}%`}
           </div>
-          <div id="progress-container" xr-layer="true" xr-scalable="true" xr-apply-dom-layout="once">
+          <div id="progress-container" xr-layer="true" xr-scalable="true">
             <ProgressBar
               bgColor={'#ffffff'}
               completed={100}

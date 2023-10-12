@@ -41,6 +41,50 @@ const options = cli.parse({
   releaseName: [true, 'Name of release', 'string']
 })
 
+const K8S_PAGE_LIMIT = 1
+const ECR_PAGE_LIMIT = 10
+
+const getAllPods = async(k8Client, continueValue, labelSelector, pods = []) => {
+  const matchingPods = await k8Client.listNamespacedPod(
+      'default',
+      'false',
+      false,
+      continueValue,
+      undefined,
+      labelSelector,
+      K8S_PAGE_LIMIT
+  )
+  if (matchingPods?.body?.items) pods = pods.concat(matchingPods.body.items)
+  if (matchingPods.body.metadata?._continue) return await getAllPods(k8Client, matchingPods.body.metadata._continue, labelSelector, pods)
+  else return pods
+}
+
+const getAllImages = async(ecr, repoName, token, images=[]) => {
+  const input = {
+    repositoryName: repoName,
+    maxResults: ECR_PAGE_LIMIT
+  }
+  if (token) input.nextToken = token
+  const command = new DescribeImagesCommand(input)
+  const response = await ecr.send(command)
+  if (response.imageDetails) images = images.concat(response.imageDetails)
+  if (response.nextToken) return await getAllImages(ecr, repoName, response.nextToken, images)
+  else return images
+}
+
+const deleteImages = async(ecr, toBeDeleted) => {
+  const thisDelete = toBeDeleted.length >= 100 ? toBeDeleted.slice(0, 100) : toBeDeleted
+  const deleteCommand = new BatchDeleteImageCommand({
+    imageIds: thisDelete.map((image) => {
+      return { imageDigest: image.imageDigest }
+    }),
+    repositoryName: options.repoName || 'etherealengine'
+  })
+  await ecr.send(deleteCommand)
+  if (toBeDeleted.length >= 100) return await deleteImages(ecr, toBeDeleted.slice(100))
+  else return Promise.resolve()
+}
+
 cli.main(async () => {
   try {
     let matchingPods,
@@ -51,36 +95,20 @@ cli.main(async () => {
       kc.loadFromDefault()
       const k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
       if (options.service === 'instanceserver') {
-        matchingPods = await k8DefaultClient.listNamespacedPod(
-          'default',
-          'false',
-          false,
-          undefined,
-          undefined,
-          `agones.dev/role=gameserver`
-        )
-        const regex = new RegExp(`${options.releaseName}-instanceserver`)
-        matchingPods.body.items = matchingPods.body.items.filter((item) =>
-          item.annotations.find((annotation) => regex.test(annotation))
-        )
+        matchingPods = await getAllPods(k8DefaultClient, undefined, `agones.dev/role=gameserver`, [])
+        const releaseAnnotation = `${options.releaseName}-instanceserver`
+        matchingPods = matchingPods.filter((item) => item.metadata.annotations['agones.dev/container'] === releaseAnnotation)
 
-        currentImages = matchingPods.body.items.map(
+        currentImages = matchingPods.map(
           (item) =>
-            item.template.spec.containers.find(
+            item.spec.containers.find(
               (container) => container.name === `${options.releaseName}-instanceserver`
             ).image
         )
       } else if (options.repoName !== 'root') {
-        matchingPods = await k8DefaultClient.listNamespacedPod(
-          'default',
-          'false',
-          false,
-          undefined,
-          undefined,
-          `app.kubernetes.io/instance=${options.releaseName},app.kubernetes.io/component=${options.service}`
-        )
+        matchingPods = await getAllPods(k8DefaultClient, undefined, `app.kubernetes.io/instance=${options.releaseName},app.kubernetes.io/component=${options.service}`, [])
 
-        currentImages = matchingPods.body.items.map(
+        currentImages = matchingPods.map(
           (item) => item.spec.containers.find((container) => container.name === 'etherealengine').image.split(':')[1]
         )
       }
@@ -91,13 +119,10 @@ cli.main(async () => {
         ? new ECRPUBLICClient({ region: 'us-east-1' })
         : new ECRClient({ region: options.region || 'us-east-1' })
     )
-    const input = { repositoryName: options.repoName || 'etherealengine' }
-    const command = new DescribeImagesCommand(input)
-    const response = await ecr.send(command)
-    const images = response.imageDetails
+    const images = await getAllImages(ecr, options.repoName || 'etherealengine', undefined, [])
     if (!images) return
     const latestImage = images.find(
-      (image) => image.imageTags && image.imageTags.indexOf(`latest_${options.releaseName}`) >= 0
+      (image) => image.imageTags && (image.imageTags.indexOf(`latest_${options.releaseName}`) >= 0 || image.imageTags.indexOf(`latest_${options.releaseName}_cache`) >= 0)
     )
     if (latestImage) {
       const latestImageTime = latestImage.imagePushedAt.getTime()
@@ -134,15 +159,9 @@ cli.main(async () => {
     }
     const withoutLatestOrCurrent = images.filter((image) => excludedImageDigests.indexOf(image.imageDigest) < 0)
     const sorted = withoutLatestOrCurrent.sort((a, b) => b.imagePushedAt.getTime() - a.imagePushedAt.getTime())
-    const toBeDeleted = sorted.slice(3)
+    let toBeDeleted = sorted.slice(9)
     if (toBeDeleted.length > 0) {
-      const deleteCommand = new BatchDeleteImageCommand({
-        imageIds: toBeDeleted.map((image) => {
-          return { imageDigest: image.imageDigest }
-        }),
-        repositoryName: options.repoName || 'etherealengine'
-      })
-      await ecr.send(deleteCommand)
+      await deleteImages(ecr, toBeDeleted)
       process.exit(0)
     } else process.exit(0)
   } catch (err) {

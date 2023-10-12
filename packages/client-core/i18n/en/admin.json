@@ -81,7 +81,9 @@
       "dailyUsers": "Daily Users",
       "dailyNewUsers": "Daily New Users",
       "usersToday": "Users Today",
-      "newUsersToday": "New Users Today"
+      "newUsersToday": "New Users Today",
+      "activity": "Activity",
+      "users": "Users"
     },
     "group": {
       "createGroup": "Create Group",
@@ -120,15 +122,14 @@
       "spawnPoint": "Spawn Point",
       "deleteSelected": "Delete selected invites"
     },
-    "party": {
-      "maxMembersRequired": "Atleast 2 members requires",
+    "channel": {
       "instanceRequired": "Instance is required",
       "instanceCantEmpty": "Instance can't be empty",
       "instance": "Instance",
-      "maxMembers": "Max Members",
       "createOne": "Create One",
-      "createParty": "Create Party",
-      "confirmPartyDelete": "Do you want to delete party?"
+      "createChannel": "Create Channel",
+      "confirmChannelDelete": "Do you want to delete channel?",
+      "name": "Channel Name"
     },
     "project": {
       "addProject": "Add Project",
@@ -252,7 +253,6 @@
       "twitter": "Twitter",
       "key": "Key",
       "callback": "Callback",
-      "appId": "App ID",
       "appTitle": "App Title",
       "appSubtitle": "App Subtitle",
       "appDescription": "App Description",
@@ -266,7 +266,6 @@
       "accessKeyId": "Access Key ID",
       "secretAccessKey": "Secret Access Key",
       "eks": "EKS",
-      "route53": "Route53",
       "hostedZoneId": "Hosted Zone ID",
       "s3": "S3",
       "endpoint": "Endpoint",
@@ -357,7 +356,8 @@
       "homepageLinkButtonEnabled": "Show link button on homepage",
       "homepageLinkButtonRedirect": "URL of homepage link button",
       "homepageLinkButtonText": "Text of homepage link button",
-      "taskServer" : {
+      "privacyPolicy": "Privacy Policy",
+      "taskServer": {
         "taskServer": "Task Server",
         "port": "Port",
         "processInterval": "Process Interval"

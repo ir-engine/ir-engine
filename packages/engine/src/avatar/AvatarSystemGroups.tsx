@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getMutableState, receiveActions, useState } from '@etherealengine/hyperflux'
+import { receiveActions } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { AvatarState, AvatarStateReactor } from './state/AvatarNetworkState'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
 import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
 import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
+import { AvatarIKTargetSystem } from './systems/AvatarIKTargetSystem'
 import { AvatarInputSystem } from './systems/AvatarInputSystem'
 import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
 import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
@@ -47,7 +47,7 @@ export const AvatarInputSystemGroup = defineSystem({
 export const AvatarSimulationSystemGroup = defineSystem({
   uuid: 'ee.engine.avatar.AvatarSimulationSystemGroup',
 
-  subSystems: [AvatarMovementSystem, AvatarAutopilotSystem],
+  subSystems: [AvatarMovementSystem, AvatarIKTargetSystem, AvatarAutopilotSystem],
 
   execute: () => {
     receiveActions(AvatarState)

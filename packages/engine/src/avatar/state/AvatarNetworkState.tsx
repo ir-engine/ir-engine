@@ -24,51 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, defineState, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
 
+import { Paginated } from '@feathersjs/feathers'
 import { isClient } from '../../common/functions/getEnvironment'
-import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
+import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { WorldState } from '../../networking/interfaces/WorldState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { changeAvatarAnimationState } from '../animation/AvatarAnimationGraph'
-import { AvatarStates, matchesAvatarState } from '../animation/Util'
+import { AvatarType, avatarPath } from '../../schemas/user/avatar.schema'
+import { userPath } from '../../schemas/user/user.schema'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
-
-export class AvatarNetworkAction {
-  static spawn = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar'
-  })
-
-  static setAnimationState = defineAction({
-    type: 'ee.engine.avatar.SET_ANIMATION_STATE',
-    entityUUID: matchesEntityUUID,
-    animationState: matchesAvatarState,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-
-  static setAvatarID = defineAction({
-    type: 'ee.engine.avatar.SET_AVATAR_ID',
-    entityUUID: matchesEntityUUID,
-    avatarID: matches.string,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-}
+import { AvatarNetworkAction } from './AvatarNetworkActions'
 
 export const AvatarState = defineState({
   name: 'ee.engine.avatar.AvatarState',
@@ -76,26 +48,12 @@ export const AvatarState = defineState({
   initial: {} as Record<
     EntityUUID,
     {
-      animationState: keyof typeof AvatarStates
       avatarID?: string
+      userAvatarDetails: AvatarType
     }
   >,
 
   receptors: [
-    [
-      AvatarNetworkAction.spawn,
-      (state, action: typeof AvatarNetworkAction.spawn.matches._TYPE) => {
-        state[action.entityUUID].merge({ animationState: AvatarStates.LOCOMOTION })
-      }
-    ],
-
-    [
-      AvatarNetworkAction.setAnimationState,
-      (state, action: typeof AvatarNetworkAction.setAnimationState.matches._TYPE) => {
-        state[action.entityUUID].merge({ animationState: action.animationState })
-      }
-    ],
-
     [
       AvatarNetworkAction.setAvatarID,
       (state, action: typeof AvatarNetworkAction.setAvatarID.matches._TYPE) => {
@@ -106,24 +64,43 @@ export const AvatarState = defineState({
     [
       WorldNetworkAction.destroyObject,
       (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
-        state[action.entityUUID].set(none)
-        /** @todo - This is a hack until all actions use event sourcing */
-
-        const cachedActionsToRemove = Engine.instance.store.actions.cached.filter(
-          (a) =>
-            (AvatarNetworkAction.setAvatarID.matches.test(a) ||
-              AvatarNetworkAction.setAnimationState.matches.test(a)) &&
-            a.entityUUID === action.entityUUID
+        const cachedActions = Engine.instance.store.actions.cached
+        const peerCachedActions = cachedActions.filter(
+          (cachedAction) =>
+            AvatarNetworkAction.setAvatarID.matches.test(cachedAction) && cachedAction.entityUUID === action.entityUUID
         )
-
-        if (cachedActionsToRemove) {
-          cachedActionsToRemove.forEach((a) =>
-            Engine.instance.store.actions.cached.splice(Engine.instance.store.actions.cached.indexOf(a), 1)
-          )
+        for (const cachedAction of peerCachedActions) {
+          cachedActions.splice(cachedActions.indexOf(cachedAction), 1)
         }
+
+        state[action.entityUUID].set(none)
       }
     ]
-  ]
+  ],
+
+  selectRandomAvatar() {
+    Engine.instance.api
+      .service(avatarPath)
+      .find({})
+      .then((avatars: Paginated<AvatarType>) => {
+        const randomAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
+        AvatarState.updateUserAvatarId(randomAvatar.id)
+      })
+  },
+
+  updateUserAvatarId(avatarId: string) {
+    Engine.instance.api
+      .service(userPath)
+      .patch(Engine.instance.userID, { avatarId: avatarId })
+      .then(() => {
+        dispatchAction(
+          AvatarNetworkAction.setAvatarID({
+            avatarID: avatarId,
+            entityUUID: Engine.instance.userID as any as EntityUUID
+          })
+        )
+      })
+  }
 })
 
 const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
@@ -140,30 +117,45 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     if (!networkObject) {
       return console.warn(`Avatar Entity for user id ${entityUUID} does not exist! You should probably reconnect...`)
     }
-
-    changeAvatarAnimationState(avatarEntity, state.animationState.value)
-  }, [state.animationState, entityUUID])
+  }, [entityUUID])
 
   useEffect(() => {
     if (!state.avatarID.value) return
 
+    let aborted = false
+
     Engine.instance.api
-      .service('avatar')
+      .service(avatarPath)
       .get(state.avatarID.value)
       .then((avatarDetails) => {
+        if (aborted) return
+
         if (!avatarDetails.modelResource?.url) return
 
-        if (avatarDetails.id !== state.avatarID.value) return
-
-        // backwards compat
-        getMutableState(WorldState).userAvatarDetails[entityUUID].set(avatarDetails)
-
-        if (!isClient) return
-
-        const entity = UUIDComponent.entitiesByUUID[entityUUID]
-        loadAvatarForUser(entity, avatarDetails.modelResource?.url)
+        state.userAvatarDetails.set(avatarDetails)
       })
+
+    return () => {
+      aborted = true
+    }
   }, [state.avatarID, entityUUID])
+
+  useEffect(() => {
+    if (!isClient) return
+
+    if (!state.userAvatarDetails.value) return
+
+    const url = state.userAvatarDetails.value.modelResource?.url
+    if (!url) return
+
+    const entity = UUIDComponent.entitiesByUUID[entityUUID]
+    if (!entity || !entityExists(entity)) return
+
+    loadAvatarForUser(entity, url).catch((e) => {
+      console.error('Failed to load avatar for user', e)
+      AvatarState.selectRandomAvatar()
+    })
+  }, [state.userAvatarDetails])
 
   return null
 })

@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /*
 CPAL-1.0 License
 
@@ -22,9 +23,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import React, { useImperativeHandle, useState } from 'react'
-import styled from 'styled-components'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
@@ -39,12 +38,12 @@ import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
 import { VideoPreviewPanel } from './AssetPreviewPanels/VideoPreviewPanel'
 
-const AssetHeading = (styled as any).div`
-  text-align: center;
-  font-size: 0.9rem;
-  padding-bottom: 10px;
-  color: #f1f1f1;
-`
+const assetHeadingStyles = {
+  textAlign: 'center',
+  fontSize: '0.9rem',
+  paddingBottom: '10px',
+  color: '#f1f1f1'
+}
 
 interface Props {
   hideHeading?: boolean
@@ -54,17 +53,17 @@ export type AssetSelectionChangePropsType = {
   resourceUrl: string
   name: string
   contentType: string
+  size: string | undefined
 }
 
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
  */
-
 export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref) => {
   useImperativeHandle(ref, () => ({ onSelectionChanged }))
   const [previewPanel, usePreviewPanel] = useState({
     PreviewSource: null as any,
-    resourceProps: { resourceUrl: '', name: '' }
+    resourceProps: { resourceUrl: '', name: '', size: '' }
   })
 
   const thumbnail = useHookstate('')
@@ -74,6 +73,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
     if (/ktx2$/.test(props.resourceUrl)) {
       const texture = await AssetLoader.loadAsync(props.resourceUrl)
       thumbnail.set((await createReadableTexture(texture, { url: true })) as string)
+      texture.dispose()
     } else {
       thumbnail.set('')
     }
@@ -92,7 +92,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case AssetType.FBX:
         const modelPreviewPanel = {
           PreviewSource: ModelPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(modelPreviewPanel)
         break
@@ -103,7 +103,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'jpg':
         const imagePreviewPanel = {
           PreviewSource: ImagePreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(imagePreviewPanel)
         break
@@ -111,7 +111,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'image/ktx2':
         const compImgPreviewPanel = {
           PreviewSource: ImagePreviewPanel,
-          resourceProps: { resourceUrl: thumbnail.value, name: props.name }
+          resourceProps: { resourceUrl: thumbnail.value, name: props.name, size: props.size }
         }
         usePreviewPanel(compImgPreviewPanel)
         break
@@ -121,7 +121,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'm3u8':
         const videoPreviewPanel = {
           PreviewSource: VideoPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(videoPreviewPanel)
         break
@@ -130,7 +130,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'mp3':
         const audioPreviewPanel = {
           PreviewSource: AudioPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(audioPreviewPanel)
         break
@@ -138,14 +138,14 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       case 'ts':
         const txtPreviewPanel = {
           PreviewSource: TxtPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(txtPreviewPanel)
         break
       case 'json':
         const jsonPreviewPanel = {
           PreviewSource: JsonPreviewPanel,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(jsonPreviewPanel)
         break
@@ -153,7 +153,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
       default:
         const unavailable = {
           PreviewSource: PreviewUnavailable,
-          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }
         }
         usePreviewPanel(unavailable)
         break
@@ -162,7 +162,11 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
 
   return (
     <>
-      {!hideHeading && <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>}
+      {!hideHeading && (
+        <div style={assetHeadingStyles as React.CSSProperties}>
+          {`${previewPanel.resourceProps.name} (${previewPanel.resourceProps.size})`}{' '}
+        </div>
+      )}
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>
   )

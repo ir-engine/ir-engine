@@ -25,16 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
-type NearbyUser = { id: UserId; distance: number }
+type NearbyUser = { id: UserID; distance: number }
 
 const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distance
 
@@ -45,12 +44,12 @@ const remoteAvatars = defineQuery([
   Not(LocalInputTagComponent)
 ])
 
-export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array<UserId> {
-  const userAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
+export function getNearbyUsers(userId: UserID, nonChannelUserIds: UserID[]): Array<UserID> {
+  const userAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
   if (!userAvatarEntity) return []
   const userPosition = getComponent(userAvatarEntity, TransformComponent).position
   if (!userPosition) return []
-  const userDistances = [] as Array<{ id: UserId; distance: number }>
+  const userDistances = [] as Array<{ id: UserID; distance: number }>
   for (const avatarEntity of remoteAvatars()) {
     if (userAvatarEntity === avatarEntity) continue
     const position = getComponent(avatarEntity, TransformComponent).position
@@ -61,7 +60,7 @@ export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array
     })
   }
   return userDistances
-    .filter((u) => nonPartyUserIds.indexOf(u.id) > -1)
+    .filter((u) => nonChannelUserIds.indexOf(u.id) > -1)
     .sort(compareDistance)
     .map((u) => u.id)
 }

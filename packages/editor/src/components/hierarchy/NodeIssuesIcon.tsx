@@ -23,66 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useContext, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled, { ThemeContext } from 'styled-components'
 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
 import Tooltip from '../layout/Tooltip'
 
-/**
- * IssuesTooltipContainer used to provide styles and showing issues list.
- *
- * @type {styled component}
- */
-const IssuesTooltipContainer = (styled as any).div`
-  display: inline-block;
-  pointer-events: none;
-  background-color: rgba(21, 23, 27, 0.9);
-  border-radius: 3px;
-  padding: 8px;
-  max-width: 320px;
-  overflow: hidden;
-  overflow-wrap: break-word;
-  user-select: none;
+const issuesTooltipContainerStyles = {
+  display: 'inline-block',
+  pointerEvents: 'none',
+  backgroundColor: 'rgba(21, 23, 27, 0.9)',
+  borderRadius: '3px',
+  padding: '8px',
+  maxWidth: '320px',
+  overflow: 'hidden',
+  overflowWrap: 'break-word',
+  userSelect: 'none'
+}
 
-  h6 {
-    font-size: 14px;
-  }
+const issueIconStyles = (color): React.CSSProperties => ({
+  width: '16px',
+  height: 'auto',
+  fontSize: 'inherit',
+  color: color
+})
 
-  ul {
-    margin-top: 4px;
-  }
-
-  li {
-    margin-bottom: 4px;
-    margin-left: 4px;
-    font-family: 'Lucida Console', Monaco, monospace;
-    font-size: 12px;
-  }
-`
-
-/**
- * IssueIcon used to provide styles to issue icon.
- *
- * @param {styled component} styled
- */
-const IssueIcon = (styled as any)(ErrorOutlineIcon)`
-  width: 16px;
-  height: auto;
-  font-size: inherit;
-  color: ${(props) => props.color};
-`
-
-/**
- * NodeIssuesIcon function component used to provide view of issues list.
- *
- * @param       {function component} node
- * @constructor
- */
 export function NodeIssuesIcon({ node }) {
-  const theme = useContext(ThemeContext) as any
+  const theme = useMemo(
+    () => ({
+      yellow: '#ffcc00',
+      red: '#ff0000'
+      // Add other theme colors here
+    }),
+    []
+  )
   const { t } = useTranslation()
 
   const severityToColor = useMemo(
@@ -93,25 +68,21 @@ export function NodeIssuesIcon({ node }) {
     [theme]
   )
 
-  /**
-   * renderInfo function used to return view.
-   *
-   * @type {function}
-   */
   const renderInfo = useCallback(() => {
     return (
-      <IssuesTooltipContainer>
+      <div style={issuesTooltipContainerStyles as React.CSSProperties}>
         <h6>{t('editor:hierarchy.isseus')}</h6>
         <ul>
           {node.map((issue, i) => {
             return (
               <li key={i}>
-                <IssueIcon size={12} color={severityToColor[issue.severity]} /> {issue.message}
+                <ErrorOutlineIcon style={issueIconStyles(severityToColor[issue.severity])} fontSize="small" />{' '}
+                {issue.message}
               </li>
             )
           })}
         </ul>
-      </IssuesTooltipContainer>
+      </div>
     )
   }, [node, severityToColor])
 
@@ -126,7 +97,7 @@ export function NodeIssuesIcon({ node }) {
 
   return (
     <Tooltip title={renderInfo()}>
-      <IssueIcon color={severityToColor[maxSeverity]} />
+      <ErrorOutlineIcon style={issueIconStyles(severityToColor[maxSeverity])} />
     </Tooltip>
   )
 }

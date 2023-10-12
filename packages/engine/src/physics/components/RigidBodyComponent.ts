@@ -26,10 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 
+import { getState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent,
+  useOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
+import { PhysicsState } from '../state/PhysicsState'
 
 const { f64 } = Types
 const Vector3Schema = { x: f64, y: f64, z: f64 }
@@ -73,7 +83,7 @@ export const RigidBodyComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    const world = Engine.instance.physicsWorld
+    const world = getState(PhysicsState).physicsWorld
     const rigidBody = component.body.value
     if (rigidBody) {
       const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
@@ -82,6 +92,18 @@ export const RigidBodyComponent = defineComponent({
       }
       removeComponent(entity, RigidBodyTypeTagComponent)
     }
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const isFixed = useOptionalComponent(entity, RigidBodyFixedTagComponent)
+
+    useEffect(() => {
+      if (isFixed) removeComponent(entity, BoundingBoxDynamicTag)
+      else setComponent(entity, BoundingBoxDynamicTag)
+    }, [isFixed])
+
+    return null
   }
 })
 

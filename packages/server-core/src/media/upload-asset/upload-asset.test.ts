@@ -31,6 +31,7 @@ import path from 'path'
 import { AdminAssetUploadArgumentsType, UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp } from '../../createApp'
@@ -87,7 +88,7 @@ describe('upload-asset', () => {
         mimetype: 'application/json',
         size: buffer.byteLength
       } as UploadFile
-      const hash = createStaticResourceHash(buffer, { name: 'test.json' })
+      const hash = createStaticResourceHash(buffer, { mimeType: 'application/json', name: 'test.json' })
 
       const args = {
         hash,
@@ -101,7 +102,7 @@ describe('upload-asset', () => {
       assert.equal(response.mimeType, 'application/json')
       assert.equal(response.project, testProject)
 
-      const staticResource = await app.service('static-resource').get(response.id)
+      const staticResource = await app.service(staticResourcePath).get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/test.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')
@@ -119,7 +120,7 @@ describe('upload-asset', () => {
       // todo - serve this file from a local server
       const assetPath = path.join(appRootPath.path, 'packages/projects/default-project/default.scene.json')
       const name = 'default.scene.json'
-      const hash = createStaticResourceHash(assetPath, { name })
+      const hash = createStaticResourceHash(assetPath, { mimeType: 'application/json', name })
 
       const file = await downloadResourceAndMetadata(assetPath, true)
       const args = {
@@ -134,7 +135,7 @@ describe('upload-asset', () => {
       assert.equal(response.mimeType, 'application/json')
       assert.equal(response.project, testProject)
 
-      const staticResource = await app.service('static-resource').get(response.id)
+      const staticResource = await app.service(staticResourcePath).get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/default.scene.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')
@@ -149,7 +150,7 @@ describe('upload-asset', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/default.scene.json', storageProvider.cacheDomain)
       const name = 'default.scene.json'
-      const hash = createStaticResourceHash(url, { name })
+      const hash = createStaticResourceHash(url, { mimeType: 'application/json', name })
 
       const file = await downloadResourceAndMetadata(url, true)
       const args = {
@@ -164,7 +165,7 @@ describe('upload-asset', () => {
       assert.equal(response.mimeType, 'application/json')
       assert.equal(response.project, testProject)
 
-      const staticResource = await app.service('static-resource').get(response.id)
+      const staticResource = await app.service(staticResourcePath).get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/default.scene.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')

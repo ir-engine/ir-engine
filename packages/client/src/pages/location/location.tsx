@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'

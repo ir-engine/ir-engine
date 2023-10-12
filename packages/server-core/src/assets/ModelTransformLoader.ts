@@ -23,20 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Document,
-  Extension,
-  ExtensionProperty,
-  IProperty,
-  NodeIO,
-  Nullable,
-  PropertyType,
-  ReaderContext,
-  Texture,
-  TextureInfo,
-  WebIO,
-  WriterContext
-} from '@gltf-transform/core'
+import { NodeIO } from '@gltf-transform/core'
 import {
   EXTMeshGPUInstancing,
   EXTMeshoptCompression,

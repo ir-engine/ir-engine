@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { FC, memo, useMemo } from 'react'
-import { Camera, Material, Mesh, Object3D } from 'three'
+import React, { FC, memo } from 'react'
+import { Camera, Object3D } from 'three'
 
 import { none } from '@etherealengine/hyperflux'
 
@@ -32,20 +32,18 @@ import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../commo
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
+  QueryComponents,
   defineComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
-  QueryComponents,
   removeComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 
@@ -58,13 +56,15 @@ export const GroupComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
+    // console.log(component.value)
     for (const obj of component.value) {
       obj.removeFromParent()
       // obj.traverse((mesh: Mesh) => {
+      //   console.log('removed mesh', mesh)
       //   if (Array.isArray(mesh.material)) {
-      //     mesh.material.forEach((material: Material) => material.dispose())
-      //   } else {
-      //     mesh.material?.dispose()
+      //     mesh.material.forEach(disposeMaterial)
+      //   } else if (mesh.material) {
+      //     disposeMaterial(mesh.material)
       //   }
       //   mesh.geometry?.dispose()
       // })
@@ -77,9 +77,9 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   const obj = object as Object3DWithEntity & Camera
   obj.entity = entity
 
-  if (!hasComponent(entity, GroupComponent)) addComponent(entity, GroupComponent, [])
+  if (!hasComponent(entity, GroupComponent)) setComponent(entity, GroupComponent, [])
   if (getComponent(entity, GroupComponent).includes(obj)) return // console.warn('[addObjectToGroup]: Tried to add an object that is already included', entity, object)
-  if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
+  if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
 
   getMutableComponent(entity, GroupComponent).merge([obj])
 

@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const clientSettingPath = 'client-setting'
 
@@ -113,6 +114,7 @@ export const clientSettingSchema = Type.Object(
     themeSettings: Type.Record(Type.String(), Type.Ref(clientThemeOptionsSchema)),
     themeModes: Type.Record(Type.String(), Type.String()),
     key8thWall: Type.String(),
+    privacyPolicy: Type.String(),
     homepageLinkButtonEnabled: Type.Boolean(),
     homepageLinkButtonRedirect: Type.String(),
     homepageLinkButtonText: Type.String(),
@@ -154,6 +156,7 @@ export const clientSettingDataSchema = Type.Pick(
     'themeSettings',
     'themeModes',
     'key8thWall',
+    'privacyPolicy',
     'homepageLinkButtonEnabled',
     'homepageLinkButtonRedirect',
     'homepageLinkButtonText'
@@ -194,6 +197,7 @@ export const clientSettingQueryProperties = Type.Pick(clientSettingSchema, [
   // 'themeSettings',
   // 'themeModes',
   'key8thWall',
+  'privacyPolicy',
   'homepageLinkButtonEnabled',
   'homepageLinkButtonRedirect',
   'homepageLinkButtonText'
@@ -207,3 +211,10 @@ export const clientSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type ClientSettingQuery = Static<typeof clientSettingQuerySchema>
+
+export const clientSocialLinkValidator = getValidator(clientSocialLinkSchema, dataValidator)
+export const clientThemeOptionsValidator = getValidator(clientThemeOptionsSchema, dataValidator)
+export const clientSettingValidator = getValidator(clientSettingSchema, dataValidator)
+export const clientSettingDataValidator = getValidator(clientSettingDataSchema, dataValidator)
+export const clientSettingPatchValidator = getValidator(clientSettingPatchSchema, dataValidator)
+export const clientSettingQueryValidator = getValidator(clientSettingQuerySchema, queryValidator)

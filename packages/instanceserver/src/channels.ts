@@ -30,33 +30,44 @@ import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import {
+  InstanceData,
+  InstanceID,
+  InstanceType,
+  instancePath
+} from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
+import { scenePath } from '@etherealengine/engine/src/schemas/projects/scene.schema'
+import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
+import { ChannelID, ChannelType, channelPath } from '@etherealengine/engine/src/schemas/social/channel.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { UserKickType, userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { State, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
-import config from '@etherealengine/server-core/src/appconfig'
-import { getProjectsList } from '@etherealengine/server-core/src/projects/project/project.service'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
+import config from '@etherealengine/server-core/src/appconfig'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
-
 import { InstanceServerState } from './InstanceServerState'
-import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
+import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
+import { SocketWebRTCServerNetwork, getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
-import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -67,7 +78,7 @@ interface PrimusConnectionType {
   socketQuery?: {
     sceneId: string
     locationId?: string
-    instanceId?: string
+    instanceID?: InstanceID
     channelId?: string
     roomCode?: string
     token: string
@@ -75,7 +86,9 @@ interface PrimusConnectionType {
     transport: string
     t: string
   }
-  instanceId?: string
+  /** @deprecated - @todo refactor */
+  instanceId?: InstanceID
+  /** @deprecated - @todo refactor */
   channelId?: string
 }
 
@@ -86,27 +99,19 @@ interface InstanceserverStatus {
   players: any
 }
 
-type InstanceMetadata = {
-  currentUsers: number
-  locationId: string
-  channelId: string
-  ipAddress: string
-}
-
 /**
  * Creates a new 'instance' entry based on a locationId or channelId
  * If it is a location instance, creates a 'channel' entry
  * @param app
  * @param newInstance
  */
-const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
+const createNewInstance = async (app: Application, newInstance: InstanceData) => {
   const { locationId, channelId } = newInstance
 
   logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
-  const instanceResult = (await app.service('instance').create(newInstance)) as Instance
+  const instanceResult = await app.service(instancePath).create(newInstance)
   if (!channelId) {
-    await app.service('channel').create({
-      channelType: 'instance',
+    await app.service(channelPath).create({
       instanceId: instanceResult.id
     })
   }
@@ -114,21 +119,6 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   const instanceServerState = getMutableState(InstanceServerState)
   await serverState.agonesSDK.allocate()
   instanceServerState.instance.set(instanceResult)
-
-  if (instanceServerState.isSubdomainNumber.value != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServerState.isSubdomainNumber.value
-      }
-    })) as any
-
-    if (gsSubProvision.total > 0) {
-      const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
-        instanceId: instanceResult.id
-      } as any)
-    }
-  }
 }
 
 /**
@@ -141,8 +131,8 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 
 const assignExistingInstance = async (
   app: Application,
-  existingInstance: Instance,
-  channelId: string,
+  existingInstance: InstanceType,
+  channelId: ChannelID,
   locationId: string
 ) => {
   const serverState = getState(ServerState)
@@ -150,7 +140,7 @@ const assignExistingInstance = async (
 
   await serverState.agonesSDK.allocate()
   instanceServerState.instance.set(existingInstance)
-  await app.service('instance').patch(existingInstance.id, {
+  await app.service(instancePath).patch(existingInstance.id, {
     currentUsers: existingInstance.currentUsers + 1,
     channelId: channelId,
     locationId: locationId,
@@ -158,21 +148,6 @@ const assignExistingInstance = async (
     assigned: false,
     assignedAt: null!
   })
-
-  if (instanceServerState.isSubdomainNumber.value != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServerState.isSubdomainNumber.value
-      }
-    })) as any
-
-    if (gsSubProvision.total > 0) {
-      const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
-        instanceId: existingInstance.id
-      } as any)
-    }
-  }
 }
 
 /**
@@ -190,8 +165,8 @@ const initializeInstance = async (
   app: Application,
   status: InstanceserverStatus,
   locationId: string,
-  channelId: string,
-  userId?: UserId
+  channelId: ChannelID,
+  userId?: UserID
 ) => {
   logger.info('Initializing new instance')
 
@@ -216,9 +191,9 @@ const initializeInstance = async (
    * here we check that this is the case, as it may be altered, for example by another service or an admin
    */
 
-  const existingInstanceResult = (await app.service('instance').find({
+  const existingInstanceResult = (await app.service(instancePath).find({
     query: existingInstanceQuery
-  })) as Paginated<Instance>
+  })) as Paginated<InstanceType>
   logger.info('existingInstanceResult: %o', existingInstanceResult.data)
 
   if (existingInstanceResult.total === 0) {
@@ -228,20 +203,19 @@ const initializeInstance = async (
       channelId: channelId,
       ipAddress: ipAddress,
       podName: config.kubernetes.enabled ? instanceServerState.instanceServer.value?.objectMeta?.name : 'local'
-    } as InstanceMetadata
+    } as InstanceData
     await createNewInstance(app, newInstance)
   } else {
     const instance = existingInstanceResult.data[0]
     if (locationId) {
-      const existingChannel = await app.service('channel').Model.findOne({
-        where: {
-          channelType: 'instance',
-          instanceId: instance.id
+      const existingChannel = (await app.service(channelPath).find({
+        query: {
+          instanceId: instance.id,
+          $limit: 1
         }
-      })
-      if (!existingChannel) {
-        await app.service('channel').create({
-          channelType: 'instance',
+      })) as Paginated<ChannelType>
+      if (existingChannel.total === 0) {
+        await app.service(channelPath).create({
           instanceId: instance.id
         })
       }
@@ -262,13 +236,13 @@ const initializeInstance = async (
 const loadEngine = async (app: Application, sceneId: string) => {
   const instanceServerState = getState(InstanceServerState)
 
-  const hostId = instanceServerState.instance.id as UserId
-  Engine.instance.userId = hostId
+  const hostId = instanceServerState.instance.id as UserID & InstanceID
+  Engine.instance.userID = hostId
   Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
-  await setupSubdomain()
-  const network = await initializeNetwork(app, hostId, topic)
+  await setupIPs()
+  const network = await initializeNetwork(app, hostId, hostId, topic)
 
   addNetwork(network)
 
@@ -281,27 +255,29 @@ const loadEngine = async (app: Application, sceneId: string) => {
     'server-' + hostId
   )
 
-  const projects = await getProjectsList()
+  const projects = await app.service(projectsPath).find()
 
   if (instanceServerState.isMediaInstance) {
-    getMutableState(NetworkState).hostIds.media.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.media.set(hostId)
     startMediaServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    getMutableState(NetworkState).hostIds.world.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.world.set(hostId)
 
     const [projectName, sceneName] = sceneId.split('/')
 
-    const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
+    const sceneResultPromise = app
+      .service(scenePath)
+      .get(null, { query: { project: projectName, name: sceneName, metadataOnly: false } })
 
     startWorldServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await sceneResultPromise).data
+      const sceneData = await sceneResultPromise
       getMutableState(SceneState).sceneData.set(sceneData)
       /** @todo - quick hack to wait until scene has loaded */
 
@@ -318,16 +294,19 @@ const loadEngine = async (app: Application, sceneId: string) => {
       const worldState = getMutableState(WorldState)
       if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
     }
-    app.service('scene').on('updated', sceneUpdatedListener)
-    app.service('user').on('patched', userUpdatedListener)
+    app.service(scenePath).on('updated', sceneUpdatedListener)
+    app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
   }
 
-  network.ready = true
+  const networkState = getMutableState(NetworkState).networks[network.id] as State<SocketWebRTCServerNetwork>
+  networkState.authenticated.set(true)
+  networkState.connected.set(true)
+  networkState.ready.set(true)
 
-  dispatchAction(EngineActions.joinedWorld({}))
+  getMutableState(EngineState).connectedWorld.set(true)
 }
 
 /**
@@ -336,10 +315,34 @@ const loadEngine = async (app: Application, sceneId: string) => {
  * @param userId
  */
 
-const handleUserAttendance = async (app: Application, userId: UserId) => {
+const handleUserAttendance = async (app: Application, userId: UserID) => {
   const instanceServerState = getState(InstanceServerState)
 
-  await app.service('instance-attendance').patch(
+  const channel = (await app.service(channelPath).find({
+    query: {
+      instanceId: instanceServerState.instance.id,
+      $limit: 1
+    }
+  })) as Paginated<ChannelType>
+
+  /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
+  if (channel.data.length > 0) {
+    const existingChannelUser = (await app.service(channelUserPath).find({
+      query: {
+        channelId: channel.data[0].id,
+        userId: userId
+      }
+    })) as Paginated<ChannelUserType>
+
+    if (!existingChannelUser.total) {
+      await app.service(channelUserPath).create({
+        channelId: channel.data[0].id,
+        userId: userId
+      })
+    }
+  }
+
+  await app.service(instanceAttendancePath).patch(
     null,
     {
       ended: true
@@ -359,10 +362,10 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
     userId: userId
   }
   if (!instanceServerState.isMediaInstance) {
-    const location = await app.service('location').get(instanceServerState.instance.locationId)
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!)
     ;(newInstanceAttendance as any).sceneId = location.sceneId
   }
-  await app.service('instance-attendance').create(newInstanceAttendance)
+  await app.service(instanceAttendancePath).create(newInstanceAttendance as any)
 }
 
 let instanceStarted = false
@@ -381,9 +384,9 @@ const createOrUpdateInstance = async (
   app: Application,
   status: InstanceserverStatus,
   locationId: string,
-  channelId: string,
+  channelId: ChannelID,
   sceneId: string,
-  userId?: UserId
+  userId?: UserID
 ) => {
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
@@ -402,19 +405,19 @@ const createOrUpdateInstance = async (
     await loadEngine(app, sceneId)
   } else {
     try {
-      if (!getState(EngineState).joinedWorld)
+      if (!getState(EngineState).connectedWorld)
         await new Promise<void>((resolve) => {
           const interval = setInterval(() => {
-            if (getState(EngineState).joinedWorld) {
+            if (getState(EngineState).connectedWorld) {
               clearInterval(interval)
               resolve()
             }
           }, 1000)
         })
-      const instance = await app.service('instance').get(instanceServerState.instance.id)
+      const instance = await app.service(instancePath).get(instanceServerState.instance.id)
       if (userId && !(await authorizeUserToJoinServer(app, instance, userId))) return
       await serverState.agonesSDK.allocate()
-      await app.service('instance').patch(instanceServerState.instance.id, {
+      await app.service(instancePath).patch(instanceServerState.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
         assigned: false,
         podName: config.kubernetes.enabled ? instanceServerState.instanceServer?.objectMeta?.name : 'local',
@@ -426,7 +429,7 @@ const createOrUpdateInstance = async (
   }
 }
 
-const shutdownServer = async (app: Application, instanceId: string) => {
+const shutdownServer = async (app: Application, instanceId: InstanceID) => {
   const instanceServer = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
@@ -435,26 +438,25 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
   logger.info('Deleting instance ' + instanceId)
   try {
-    await app.service('instance').patch(instanceId, {
+    await app.service(instancePath).patch(instanceId, {
       ended: true
     })
+    if (instanceServer.instance.locationId) {
+      const channel = (await app.service(channelPath).find({
+        query: {
+          instanceId: instanceServer.instance.id,
+          $limit: 1
+        }
+      })) as Paginated<ChannelType>
+      await app.service(channelPath).remove(channel.data[0].id)
+    }
   } catch (err) {
     logger.error(err)
-  }
-  if (instanceServer.isSubdomainNumber != null) {
-    const gsSubdomainProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServer.isSubdomainNumber
-      }
-    })) as any
-    await app.service('instanceserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-      allocated: false
-    })
   }
 
   // already shut down
   if (!instanceServer.instance) return
-  ;(instanceServer.instance as Instance).ended = true
+  ;(instanceServer.instance as InstanceType).ended = true
   if (config.kubernetes.enabled) {
     const instanceServerState = getMutableState(InstanceServerState)
     instanceServerState.instance.set(null!)
@@ -470,10 +472,10 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
-  const activeClients = getServerNetwork(app).peers
+const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
+  const activeClients = Object.entries(getServerNetwork(app).peers)
   const activeUsers = [...activeClients].filter(
-    ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
+    ([id, client]) => client.userId !== Engine.instance.userID && client.userId !== userToIgnore.id
   )
   return activeUsers.length
 }
@@ -481,57 +483,21 @@ const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
 const handleUserDisconnect = async (
   app: Application,
   connection: PrimusConnectionType,
-  user: UserInterface,
-  instanceId: string
+  user: UserType,
+  instanceId: InstanceID
 ) => {
   const instanceServerState = getState(InstanceServerState)
 
   try {
     const activeUsersCount = getActiveUsersCount(app, user)
-    await app.service('instance').patch(instanceId, {
+    await app.service(instancePath).patch(instanceId, {
       currentUsers: activeUsersCount
     })
   } catch (err) {
     logger.info('Failed to patch instance user count, likely because it was destroyed.')
   }
 
-  const userPatch = {} as any
-
-  if (user?.partyId && instanceServerState.isMediaInstance) {
-    const partyChannel = await app.service('channel').Model.findOne({
-      where: {
-        partyId: user.partyId
-      }
-    })
-    if (partyChannel?.id === instanceServerState.instance.channelId) {
-      userPatch.partyId = null
-      const partyUser = await app.service('party-user').find({
-        query: {
-          userId: user.id,
-          partyId: user.partyId
-        }
-      })
-      if (partyUser.total > 0) {
-        try {
-          await app.service('party-user').remove(partyUser.data[0].id)
-        } catch (err) {}
-      }
-    }
-  }
-  // Patch the user's (channel)instanceId to null if they're leaving this instance.
-  // But, don't change their (channel)instanceId if it's already something else.
-  const userPatchResult = await app
-    .service('user')
-    .patch(null, userPatch, {
-      query: {
-        id: user.id
-      }
-    })
-    .catch((err) => {
-      logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
-    })
-  logger.info('Patched disconnecting user to %o', userPatchResult)
-  await app.service('instance-attendance').patch(
+  await app.service(instanceAttendancePath).patch(
     null,
     {
       ended: true
@@ -553,25 +519,26 @@ const handleUserDisconnect = async (
 
   // check if there are no peers connected (1 being the server,
   // 0 if the serer was just starting when someone connected and disconnected)
-  if (network.peers.size <= 1) {
+  if (Object.keys(network.peers).length <= 1) {
     logger.info('Shutting down instance server as there are no users present.')
     await shutdownServer(app, instanceId)
   }
 }
 
-const handlePartyUserRemoved = (app: Application) => async (params) => {
+const handleChannelUserRemoved = (app: Application) => async (params) => {
   const instanceServerState = getState(InstanceServerState)
   if (!instanceServerState.isMediaInstance) return
   const instance = instanceServerState.instance
   if (!instance.channelId) return
-  const channel = await app.service('channel').Model.findOne({
-    where: {
-      id: instance.channelId
+  const channel = (await app.service(channelPath).find({
+    query: {
+      id: instance.channelId,
+      $limit: 1
     }
-  })
-  if (channel.channelType !== 'party') return
+  })) as Paginated<ChannelType>
+  if (channel.total === 0) return
   const network = getServerNetwork(app)
-  const matchingPeer = Array.from(network.peers.values()).find((peer) => peer.userId === params.userId)
+  const matchingPeer = Object.values(network.peers).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
     matchingPeer.spark?.end()
     NetworkPeerFunctions.destroyPeer(network, matchingPeer.peerID)
@@ -588,13 +555,14 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     { accessToken: connection.socketQuery.token },
     {}
   )
-  const identityProvider = authResult['identity-provider'] as IdentityProviderInterface
+  const identityProvider = authResult[identityProviderPath] as IdentityProviderType
   if (!identityProvider?.id) return
 
   const userId = identityProvider.userId
   let locationId = connection.socketQuery.locationId!
-  let channelId = connection.socketQuery.channelId!
+  let channelId = connection.socketQuery.channelId! as ChannelID
   let roomCode = connection.socketQuery.roomCode!
+  const instanceID = connection.socketQuery.instanceID!
 
   if (locationId === '') {
     locationId = undefined!
@@ -622,9 +590,10 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   const isLocalServerNeedingNewLocation =
     !config.kubernetes.enabled &&
     instanceServerState.instance &&
-    (instanceServerState.instance.locationId != locationId ||
+    (instanceServerState.instance.id != instanceID ||
+      instanceServerState.instance.locationId != locationId ||
       instanceServerState.instance.channelId != channelId ||
-      (roomCode && instanceServerState.instance.roomCode !== roomCode))
+      (roomCode && instanceServerState.instance.roomCode != roomCode))
 
   logger.info(
     `current id: ${instanceServerState.instance?.locationId ?? instanceServerState.instance?.channelId} and new id: ${
@@ -634,9 +603,16 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
   logger.info(`current room code: ${instanceServerState.instance?.roomCode} and new id: ${roomCode}`)
 
   if (isLocalServerNeedingNewLocation) {
-    await app.service('instance').patch(instanceServerState.instance.id, {
+    await app.service(instancePath).patch(instanceServerState.instance.id, {
       ended: true
     })
+    try {
+      if (instanceServerState.instance.channelId) {
+        await app.service(channelPath).remove(instanceServerState.instance.channelId)
+      }
+    } catch (e) {
+      //
+    }
     restartInstanceServer()
     return
   }
@@ -657,7 +633,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       return logger.warn('got a connection to the wrong room code', instanceServerState.instance.roomCode, roomCode)
   }
 
-  const sceneId = locationId ? (await app.service('location').get(locationId)).sceneId : ''
+  const sceneId = locationId ? (await app.service(locationPath).get(locationId)).sceneId : ''
 
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
@@ -686,19 +662,19 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   } catch (err) {
     if (err.code === 401 && err.data.name === 'TokenExpiredError') {
       const jwtDecoded = decode(token)!
-      const idProvider = await app.service('identity-provider').get(jwtDecoded.sub as string)
+      const idProvider = await app.service(identityProviderPath)._get(jwtDecoded.sub as string)
       authResult = {
-        'identity-provider': idProvider
+        [identityProviderPath]: idProvider
       }
     } else throw err
   }
 
   const instanceServerState = getState(InstanceServerState)
 
-  const identityProvider = authResult['identity-provider'] as IdentityProviderInterface
+  const identityProvider = authResult[identityProviderPath] as IdentityProviderType
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
-    const user = await app.service('user').get(userId)
+    const user = await app.service(userPath).get(userId)
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)
@@ -713,7 +689,8 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
       )
     }
     try {
-      instance = instanceServerState.instance && instanceId != null ? await app.service('instance').get(instanceId) : {}
+      instance =
+        instanceServerState.instance && instanceId != null ? await app.service(instancePath).get(instanceId) : {}
     } catch (err) {
       logger.warn('Could not get instance, likely because it is a local one that no longer exists.')
     }
@@ -752,28 +729,25 @@ export default (app: Application): void => {
     createOrUpdateInstance(app, status, locationId, null!, sceneId)
   })
 
-  const kickCreatedListener = async (data: UserKick) => {
+  const kickCreatedListener = async (data: UserKickType) => {
     // TODO: only run for instanceserver
-    if (!Engine.instance.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
+    if (!NetworkState.worldNetwork) return // many attributes (such as .peers) are undefined in mediaserver
 
     logger.info('kicking user id %s', data.userId)
 
-    const peerId = Engine.instance.worldNetwork.users.get(data.userId)
+    const peerId = NetworkState.worldNetwork.users[data.userId]
     if (!peerId || !peerId[0]) return
 
     logger.info('kicking peerId %o', peerId)
 
-    const peer = Engine.instance.worldNetwork.peers.get(peerId[0])
+    const peer = NetworkState.worldNetwork.peers[peerId[0]]
     if (!peer || !peer.spark) return
 
-    peer.spark.write({ type: MessageTypes.Kick.toString(), data: '' })
+    handleDisconnect(getServerNetwork(app), peer.peerID)
   }
 
-  app.service('user-kick').on('created', kickCreatedListener)
-
-  logger.info('registered kickCreatedListener')
-
-  app.service('party-user').on('removed', handlePartyUserRemoved(app))
+  app.service(userKickPath).on('created', kickCreatedListener)
+  app.service(channelUserPath).on('removed', handleChannelUserRemoved(app))
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

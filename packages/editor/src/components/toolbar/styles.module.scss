@@ -47,26 +47,62 @@
   }
 }
 
+.settingsContainer {
+  position: absolute;
+  top: 70px;
+  z-index: 1000;
+  right: 100px;
+  color: var(--white);
+  padding: 8px;
+  background-color: var(--popupBackground);
+  opacity: 0.88;
+  backdrop-filter: blur(1px);
+  border-radius: 4px;
+  width: 500px;
+
+  h3 {
+    font-size: 14px;
+  }
+
+  & > ul {
+    margin: 8px 4px;
+
+    & > li {
+      font: 12px;
+      color: var(--textColor);
+
+      & + li {
+        margin-top: 5px;
+      }
+
+      ul {
+        margin-left: 5px;
+        color: var(--white);
+      }
+    }
+  }
+}
+
 .toolbarNumericStepperInput {
   width: 120px;
 
   input {
-    border-width: 0;
-    border-radius: 4px;
-    background: var(--inputBackground);
+    border-width: 0 !important;
+    background: var(--inputBackground) !important;
 
     & + * {
-      background: transparent;
+      background: transparent !important;
     }
   }
 
   button {
-    border: none;
-    border-radius: 4px;
-    margin: 0 4px;
+    border: none !important;
+    border-radius: 4px !important;
+
+    // margin: 0 4px;
 
     &:hover {
-      background: var(--iconButtonHoverColor);
+      background: var(--iconButtonHoverColor) !important;
     }
   }
 }

@@ -37,14 +37,15 @@ import {
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   TransformAxis,
   TransformAxisType,
   TransformMode,
   TransformModeType
 } from '../../scene/constants/transformConstants'
-import cloneObject3D from '../../scene/functions/cloneObject3D'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 
@@ -100,12 +101,13 @@ export default class TransformGizmo extends Object3D {
   constructor() {
     super()
     this.name = 'TransformGizmo'
+    this.load()
   }
 
   async load() {
     gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH, { ignoreDisposeGeometry: true })
 
-    this.model = cloneObject3D(gizmoGltf.scene)
+    this.model = gizmoGltf.scene
     this.add(this.model)
     this.selectionColor = new Color().setRGB(1, 1, 1)
     this.previousColor = new Color()
@@ -335,7 +337,10 @@ export default class TransformGizmo extends Object3D {
     this.scaleXZPlane.visible = visible
   }
 
-  raycastAxis(target: Vector2, camera = Engine.instance.camera): Intersection<Object3D> | undefined {
+  raycastAxis(
+    target: Vector2,
+    camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  ): Intersection<Object3D> | undefined {
     if (!this.activeControls) return
 
     this.raycasterResults.length = 0
@@ -346,7 +351,10 @@ export default class TransformGizmo extends Object3D {
       .find((result) => (result.object as MeshWithAxisInfo).axisInfo !== undefined)
   }
 
-  selectAxisWithRaycaster(target: Vector2, camera = Engine.instance.camera): TransformAxisType | undefined {
+  selectAxisWithRaycaster(
+    target: Vector2,
+    camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  ): TransformAxisType | undefined {
     this.deselectAxis()
 
     const axisResult = this.raycastAxis(target, camera)
@@ -364,7 +372,7 @@ export default class TransformGizmo extends Object3D {
     return newAxisInfo.axis
   }
 
-  highlightHoveredAxis(target: Vector2, camera = Engine.instance.camera): void {
+  highlightHoveredAxis(target: Vector2, camera = getComponent(Engine.instance.cameraEntity, CameraComponent)): void {
     if (!this.activeControls) return
     if (this.hoveredAxis) this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5
 

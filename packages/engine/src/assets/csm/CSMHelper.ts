@@ -39,7 +39,7 @@ import {
   PlaneGeometry
 } from 'three'
 
-import type { CSM } from './CSM'
+import { CSM } from './CSM'
 
 class CSMHelper extends Group {
   private readonly csm: CSM
@@ -50,10 +50,12 @@ class CSMHelper extends Group {
   private cascadeLines: Box3Helper[] = []
   private cascadePlanes: Mesh[] = []
   private shadowLines: Group[] = []
+  paused = false
 
   public constructor(csm: CSM) {
     super()
     this.csm = csm
+    globalThis.csmHelper = this
 
     const indices = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7])
     const positions = new Float32Array(24)
@@ -89,6 +91,8 @@ class CSMHelper extends Group {
   }
 
   public update() {
+    if (this.paused) return
+
     const csm = this.csm
     const camera = csm.camera
     const cascades = csm.cascades
@@ -110,9 +114,9 @@ class CSMHelper extends Group {
     this.updateMatrixWorld(true)
 
     while (cascadeLines.length > cascades) {
-      this.remove(cascadeLines.pop() as any)
-      this.remove(cascadePlanes.pop() as any)
-      this.remove(shadowLines.pop() as any)
+      this.remove(cascadeLines.pop()!)
+      this.remove(cascadePlanes.pop()!)
+      this.remove(shadowLines.pop()!)
     }
 
     while (cascadeLines.length < cascades) {

@@ -29,16 +29,10 @@ import { useDrag } from 'react-dnd'
 
 import { pathResolver } from '@etherealengine/engine/src/assets/functions/pathResolver'
 import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
-import {
-  MaterialPrototypeComponent,
-  MaterialPrototypeComponentType
-} from '@etherealengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
+import { MaterialPrototypeComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialPrototypeComponent'
 import { MaterialSourceComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
-import {
-  entryId,
-  hashMaterialSource
-} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { entryId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -82,7 +76,7 @@ const nodeDisplayName = (node: MaterialLibraryEntryType) => {
       return (node.entry as MaterialComponentType).material.name
     case LibraryEntryType.MATERIAL_SOURCE:
       return (
-        pathResolver().exec((node.entry as MaterialSourceComponentType).src.path)?.[3] ??
+        pathResolver().exec((node.entry as MaterialSourceComponentType).src.path)?.[2] ??
         (node.entry as MaterialSourceComponentType).src.path
       )
     case LibraryEntryType.MATERIAL_PROTOTYPE:

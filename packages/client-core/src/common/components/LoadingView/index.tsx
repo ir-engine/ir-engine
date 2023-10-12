@@ -34,7 +34,8 @@ import { Variant } from '@mui/material/styles/createTypography'
 
 interface Props {
   className?: string
-  title?: string
+  title?: React.ReactNode
+  description?: string
   variant?: Variant
   titleColor?: string
   sx?: SxProps<Theme>
@@ -42,7 +43,16 @@ interface Props {
   flexDirection?: string
 }
 
-const LoadingView = ({ className, title, variant, titleColor, sx, fullHeight = true, flexDirection }: Props) => {
+const LoadingView = ({
+  className,
+  title,
+  description,
+  variant,
+  titleColor,
+  sx,
+  fullHeight = true,
+  flexDirection
+}: Props) => {
   if (!variant) {
     variant = 'h6'
   }
@@ -64,6 +74,11 @@ const LoadingView = ({ className, title, variant, titleColor, sx, fullHeight = t
       {title && (
         <Typography variant={variant} sx={{ color: titleColor ? titleColor : 'var(--textColor)' }}>
           {title}
+        </Typography>
+      )}
+      {description && (
+        <Typography variant={'body2'} sx={{ color: 'var(--textColor)', opacity: 0.65 }}>
+          {description}
         </Typography>
       )}
     </Box>

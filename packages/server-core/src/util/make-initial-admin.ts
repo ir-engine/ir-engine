@@ -23,26 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Application } from '../../declarations'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
 
-export default async (app: Application, userId: UserId) => {
-  const adminCount = await app.service('user').Model.count({
-    include: [
-      {
-        model: app.service('scope').Model,
-        where: {
-          type: 'admin:admin'
-        }
-      }
-    ]
-  })
-  if (adminCount === 0) {
-    const data = scopeTypeSeed.templates.map(({ type }) => {
+export default async (app: Application, userId: UserID) => {
+  const adminCount = (await app.service(scopePath).find({
+    query: {
+      $select: ['id'],
+      type: 'admin:admin'
+    },
+    paginate: false
+  })) as ScopeType[]
+
+  if (adminCount.length === 0) {
+    const data = scopeTypeSeed.map(({ type }) => {
       return { userId, type }
     })
-    await app.service('scope').create(data)
+    await app.service(scopePath).create(data)
   }
 }

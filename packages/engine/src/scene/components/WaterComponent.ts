@@ -23,7 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { addComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEffect } from 'react'
+import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Water } from '../classes/Water'
 import { setCallback } from './CallbackComponent'
 import { addObjectToGroup } from './GroupComponent'
@@ -35,15 +37,28 @@ export const WaterComponent = defineComponent({
 
   onInit(entity) {
     const water = new Water()
-    addObjectToGroup(entity, water)
-    setCallback(entity, UpdatableCallback, (dt: number) => {
-      water.update(dt)
-    })
-    addComponent(entity, UpdatableComponent, true)
     return water
+  },
+
+  onSet: (entity, _component, json) => {
+    if (!json) return
   },
 
   toJSON(entity, component) {
     return true
+  },
+  reactor: function () {
+    const entity = useEntityContext()
+    const water = useComponent(entity, WaterComponent)
+
+    useEffect(() => {
+      addObjectToGroup(entity, water.value)
+      setCallback(entity, UpdatableCallback, (dt: number) => {
+        water.value.update(dt)
+      })
+      setComponent(entity, UpdatableComponent, true)
+    }, [])
+
+    return null
   }
 })

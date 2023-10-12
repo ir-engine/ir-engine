@@ -28,41 +28,52 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { State, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { AdminServerInfoState } from '../../services/ServerInfoService'
-import { AdminServerLogsState, ServerLogsService } from '../../services/ServerLogsService'
+import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { podsPath } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 
-const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
+export type ServerLogsInputsType = { podName?: string; containerName?: string }
 
-const ServerLogs = () => {
+const ServerLogs = ({
+  podName,
+  containerName
+}: {
+  podName: State<ServerLogsInputsType['podName']>
+  containerName: State<ServerLogsInputsType['containerName']>
+}) => {
   const { t } = useTranslation()
   const logsEndRef = useRef(null)
   const autoRefresh = useHookstate('60')
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
-  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
-  const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
+
+  const serverInfo = useServerInfoFind().data
+  const serverLogsQuery = useGet(podsPath, `${podName.value}/${containerName.value}`)
+  const serverLogs = serverLogsQuery.data as string
 
   const scrollLogsToBottom = () => {
     ;(logsEndRef.current as any)?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // Scroll to bottom of logs
   useEffect(() => {
+    console.log('[ServerLogs]:', serverLogs)
     scrollLogsToBottom()
-  }, [serverLogs.logs.value])
+  }, [serverLogs])
 
   useEffect(() => {
     if (autoRefresh.value !== '0') {
-      const interval = setInterval(() => {
-        handleRefreshServerLogs()
-      }, parseInt(autoRefresh.value) * 1000)
+      const interval = setInterval(
+        () => {
+          handleRefreshServerLogs()
+        },
+        parseInt(autoRefresh.value) * 1000
+      )
       intervalTimer.set(interval)
       return () => {
         if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
@@ -74,41 +85,31 @@ const ServerLogs = () => {
   }, [autoRefresh.value])
 
   const handleRefreshServerLogs = () => {
-    logger.info('Refreshing server logs.')
-    ServerLogsService.fetchServerLogs(serverLogs.podName.value!, serverLogs.containerName.value!)
+    serverLogsQuery.refetch()
   }
 
   const handleAutoRefreshServerLogsChange = (e) => {
-    const { value } = e.target
-
-    autoRefresh.set(value)
+    autoRefresh.set(e.target.value)
   }
 
   const handleCloseServerLogs = () => {
-    ServerLogsService.resetServerLogs()
+    podName.set(undefined)
+    containerName.set(undefined)
   }
 
   const handleDownloadServerLogs = () => {
-    const blob = new Blob([serverLogs.value.logs], { type: 'text/plain;charset=utf-8' })
-    window.open(URL.createObjectURL(blob), `${serverLogs.value.logs}.log.txt`)
+    const blob = new Blob([serverLogs], { type: 'text/plain;charset=utf-8' })
+    window.open(URL.createObjectURL(blob), `${serverLogs}.log.txt`)
   }
 
-  const handleContainerServerLogsChange = (e) => {
-    const { value } = e.target
-
-    ServerLogsService.fetchServerLogs(serverLogs.podName.value!, value)
-  }
-
-  const containers = serverInfo.servers
-    .get({ noproxy: true })
-    .find((item) => item.id === 'all')
-    ?.pods.find((item) => item.name === serverLogs.podName.value!)
-  const containersMenu = containers?.containers.map((item) => {
-    return {
-      value: item.name,
-      label: item.name
-    } as InputMenuItem
-  })
+  const containers = serverInfo.find((item) => item.id === 'all')?.pods.find((item) => item.name === podName.value!)
+  const containersMenu =
+    containers?.containers.map((item) => {
+      return {
+        value: item.name,
+        label: item.name
+      } as InputMenuItem
+    }) ?? []
 
   const autoRefreshMenu: InputMenuItem[] = [
     {
@@ -137,7 +138,7 @@ const ServerLogs = () => {
     }
   ]
 
-  if (!serverLogs.value.fetched) {
+  if (typeof serverLogs !== 'string') {
     return (
       <LoadingView
         title={t('admin:components.server.loadingLogs')}
@@ -151,16 +152,16 @@ const ServerLogs = () => {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', margin: '15px 0' }}>
         <h5 style={{ fontSize: '18px' }}>
-          {t('admin:components.server.logs')}: {serverLogs.podName.value!}
+          {t('admin:components.server.logs')}: {podName.value!}
         </h5>
 
         <InputSelect
           name="autoRefresh"
           label={t('admin:components.server.container')}
-          value={serverLogs.containerName.value!}
+          value={containerName.value}
           menu={containersMenu!}
           sx={{ marginBottom: 0, width: '200px', marginRight: 1.5, marginLeft: 3 }}
-          onChange={handleContainerServerLogsChange}
+          onChange={(event) => containerName.set(event.target.value)}
         />
 
         <div style={{ flex: 1 }}></div>
@@ -172,7 +173,7 @@ const ServerLogs = () => {
           icon={<Icon type="Download" />}
         />
 
-        {serverLogs.value.retrieving === false && (
+        {serverLogsQuery.status !== 'pending' && (
           <IconButton
             title={t('admin:components.common.refresh')}
             className={styles.iconButton}
@@ -182,7 +183,7 @@ const ServerLogs = () => {
           />
         )}
 
-        {serverLogs.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
+        {serverLogsQuery.status === 'pending' && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
 
         <InputSelect
           name="autoRefresh"
@@ -201,7 +202,7 @@ const ServerLogs = () => {
         />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
-        <pre style={{ fontSize: '14px' }}>{serverLogs.value.logs}</pre>
+        <pre style={{ fontSize: '14px' }}>{serverLogs}</pre>
         <pre ref={logsEndRef} />
       </Box>
     </Box>

@@ -28,21 +28,22 @@ import { useEffect } from 'react'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { defineActionQueue, getMutableState, getState, none, removeActionQueue } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeQuery
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
+import {
+  BoundingBoxComponent,
+  BoundingBoxDynamicTag,
+  updateBoundingBoxAndHelper
+} from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
   RigidBodyComponent,
@@ -52,6 +53,10 @@ import {
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { XRState } from '../../xr/XRState'
+import { XRUIComponent } from '../../xrui/components/XRUIComponent'
+import { TransformSerialization } from '../TransformSerialization'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -59,7 +64,6 @@ import {
   FrustumCullCameraComponent
 } from '../components/DistanceComponents'
 import { LocalTransformComponent, TransformComponent } from '../components/TransformComponent'
-import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([
@@ -68,7 +72,7 @@ const nonDynamicLocalTransformQuery = defineQuery([
   Not(RigidBodyKinematicPositionBasedTagComponent),
   Not(RigidBodyKinematicVelocityBasedTagComponent)
 ])
-const rigidbodyTransformQuery = defineQuery([TransformComponent, RigidBodyComponent])
+const rigidbodyQuery = defineQuery([TransformComponent, RigidBodyComponent])
 const fixedRigidBodyQuery = defineQuery([TransformComponent, RigidBodyComponent, RigidBodyFixedTagComponent])
 const groupQuery = defineQuery([GroupComponent, TransformComponent])
 
@@ -140,16 +144,39 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
-  RigidBodyComponent.position.x[entity] = TransformComponent.position.x[entity]
-  RigidBodyComponent.position.y[entity] = TransformComponent.position.y[entity]
-  RigidBodyComponent.position.z[entity] = TransformComponent.position.z[entity]
-  RigidBodyComponent.rotation.x[entity] = TransformComponent.rotation.x[entity]
-  RigidBodyComponent.rotation.y[entity] = TransformComponent.rotation.y[entity]
-  RigidBodyComponent.rotation.z[entity] = TransformComponent.rotation.z[entity]
-  RigidBodyComponent.rotation.w[entity] = TransformComponent.rotation.w[entity]
+  RigidBodyComponent.position.x[entity] =
+    RigidBodyComponent.previousPosition.x[entity] =
+    RigidBodyComponent.targetKinematicPosition.x[entity] =
+      TransformComponent.position.x[entity]
+  RigidBodyComponent.position.y[entity] =
+    RigidBodyComponent.previousPosition.y[entity] =
+    RigidBodyComponent.targetKinematicPosition.y[entity] =
+      TransformComponent.position.y[entity]
+  RigidBodyComponent.position.z[entity] =
+    RigidBodyComponent.previousPosition.z[entity] =
+    RigidBodyComponent.targetKinematicPosition.z[entity] =
+      TransformComponent.position.z[entity]
+  RigidBodyComponent.rotation.x[entity] =
+    RigidBodyComponent.previousRotation.x[entity] =
+    RigidBodyComponent.targetKinematicRotation.x[entity] =
+      TransformComponent.rotation.x[entity]
+  RigidBodyComponent.rotation.y[entity] =
+    RigidBodyComponent.previousRotation.y[entity] =
+    RigidBodyComponent.targetKinematicRotation.y[entity] =
+      TransformComponent.rotation.y[entity]
+  RigidBodyComponent.rotation.z[entity] =
+    RigidBodyComponent.previousRotation.z[entity] =
+    RigidBodyComponent.targetKinematicRotation.z[entity] =
+      TransformComponent.rotation.z[entity]
+  RigidBodyComponent.rotation.w[entity] =
+    RigidBodyComponent.previousRotation.w[entity] =
+    RigidBodyComponent.targetKinematicRotation.w[entity] =
+      TransformComponent.rotation.w[entity]
   const rigidbody = getComponent(entity, RigidBodyComponent)
-  rigidbody.body.setTranslation(rigidbody.position, false)
-  rigidbody.body.setRotation(rigidbody.rotation, false)
+  rigidbody.body.setTranslation(rigidbody.position, true)
+  rigidbody.body.setRotation(rigidbody.rotation, true)
+  rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+  rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
 }
 
 const updateTransformFromLocalTransform = (entity: Entity) => {
@@ -158,8 +185,9 @@ const updateTransformFromLocalTransform = (entity: Entity) => {
     hasComponent(entity, RigidBodyDynamicTagComponent) ||
     hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) ||
     hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
-  const parentTransform = localTransform?.parentEntity
-    ? getOptionalComponent(localTransform.parentEntity, TransformComponent)
+  const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+  const parentTransform = entityTree?.parentEntity
+    ? getOptionalComponent(entityTree.parentEntity, TransformComponent)
     : undefined
   if (!localTransform || !parentTransform || isRigidbody) return false
   const transform = getComponent(entity, TransformComponent)
@@ -193,15 +221,12 @@ const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) =
 const _frustum = new Frustum()
 const _projScreenMatrix = new Matrix4()
 
-/** @deprecated */
-const modifyPropertyActionQueue = defineActionQueue(EngineActions.sceneObjectUpdate.matches)
-
 const originChildEntities = new Set<Entity>()
 
 /** get list of entities that are children of the world origin */
 const updateOriginChildEntities = (entity: Entity) => {
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
-  const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
   if (referenceEntity && (originChildEntities.has(referenceEntity) || referenceEntity === Engine.instance.originEntity))
     originChildEntities.add(referenceEntity)
@@ -215,7 +240,7 @@ const updateTransformDepth = (entity: Entity) => {
   if (transformDepths.has(entity)) return transformDepths.get(entity)
 
   const referenceEntity = getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity
-  const parentEntity = getOptionalComponent(entity, LocalTransformComponent)?.parentEntity
+  const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
 
   const referenceEntityDepth = referenceEntity ? updateTransformDepth(referenceEntity) : 0
   const parentEntityDepth = parentEntity ? updateTransformDepth(parentEntity) : 0
@@ -231,36 +256,27 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
-const traverseComputeBoundingBox = (mesh: Mesh) => {
-  if (mesh.isMesh) mesh.geometry.computeBoundingBox()
-}
-
-const computeBoundingBox = (entity: Entity) => {
-  const box = getComponent(entity, BoundingBoxComponent).box
-  const group = getComponent(entity, GroupComponent)
-
-  box.makeEmpty()
-
-  for (const obj of group) {
-    obj.traverse(traverseComputeBoundingBox)
-    box.expandByObject(obj)
-  }
-}
-
-const updateBoundingBox = (entity: Entity) => {
-  const box = getComponent(entity, BoundingBoxComponent).box
-  const group = getComponent(entity, GroupComponent)
-  box.makeEmpty()
-  for (const obj of group) box.expandByObject(obj)
-}
-
 const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
+
+// @todo: once all animations are entity-based, we no longer need to check for AnimationComponent
+// @todo: currently this assumes if not visible, it doesn't need to be updated.
+// This is not necessarily true (there might be reasons for updating invisible entities),
+// especially if they are referenced by visible objects
+const isDirtyOrAnimatingAndVisible = (entity: Entity) => {
+  return (
+    TransformComponent.dirtyTransforms[entity] ||
+    (hasComponent(entity, VisibleComponent) &&
+      (hasComponent(entity, AnimationComponent) || hasComponent(entity, XRUIComponent)))
+  )
+}
+
 const isDirtyNonKinematic = (entity: Entity) =>
   TransformComponent.dirtyTransforms[entity] &&
   !hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent) &&
   !hasComponent(entity, RigidBodyKinematicVelocityBasedTagComponent)
 
-const filterAwakeRigidbodies = (entity: Entity) => !getComponent(entity, RigidBodyComponent).body.isSleeping()
+const filterAwakeCleanRigidbodies = (entity: Entity) =>
+  !getComponent(entity, RigidBodyComponent).body.isSleeping() && !isDirty(entity)
 
 const filterSleepingRigidbodies = (entity: Entity) => getComponent(entity, RigidBodyComponent).body.isSleeping()
 
@@ -288,7 +304,7 @@ const execute = () => {
    * Sort transforms if needed
    */
   const engineState = getState(EngineState)
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
 
   let needsSorting = engineState.transformsNeedSorting
 
@@ -314,19 +330,23 @@ const execute = () => {
   /**
    * Update entity transforms
    */
-  const allRigidbodyEntities = rigidbodyTransformQuery()
-  const awakeRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeRigidbodies)
+  const allRigidbodyEntities = rigidbodyQuery()
+  const awakeCleanRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeCleanRigidbodies)
+  const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
 
-  // lerp awake rigidbody entities (and make their transforms dirty)
+  // if rigidbody transforms have been dirtied, teleport the rigidbody to the transform
+  for (const entity of dirtyRigidbodyEntities) copyTransformToRigidBody(entity)
+
+  // lerp awake clean rigidbody entities (and make their transforms dirty)
   const simulationRemainder = engineState.frameTime - engineState.simulationTime
   const alpha = Math.min(simulationRemainder / engineState.simulationTimestep, 1)
-  for (const entity of awakeRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
+  for (const entity of awakeCleanRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty
   for (const entity of transformQuery()) {
     const makeDirty =
       TransformComponent.dirtyTransforms[entity] ||
-      TransformComponent.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? -1] ||
+      TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
       TransformComponent.dirtyTransforms[
         getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? -1
       ] ||
@@ -336,17 +356,15 @@ const execute = () => {
 
   const dirtyNonDynamicLocalTransformEntities = nonDynamicLocalTransformQuery().filter(isDirty)
   const dirtySortedTransformEntities = sortedTransformEntities.filter(isDirty)
-  const dirtyGroupEntities = groupQuery().filter(isDirty)
-  const dirtyFixedRigidbodyEntities = fixedRigidBodyQuery().filter(isDirty)
 
   for (const entity of dirtyNonDynamicLocalTransformEntities) computeLocalTransformMatrix(entity)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
-  for (const entity of dirtyFixedRigidbodyEntities) copyTransformToRigidBody(entity)
-  for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
+  const dirtyOrAnimatingGroupEntities = groupQuery().filter(isDirtyOrAnimatingAndVisible)
+  for (const entity of dirtyOrAnimatingGroupEntities) updateGroupChildren(entity)
 
   if (!xrFrame) {
-    const camera = Engine.instance.camera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const viewCamera = camera.cameras[0]
     viewCamera.matrixWorld.copy(camera.matrixWorld)
     viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
@@ -356,36 +374,24 @@ const execute = () => {
 
   for (const entity in TransformComponent.dirtyTransforms) TransformComponent.dirtyTransforms[entity] = false
 
-  for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
-  for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
-
-  /** @todo - refactor */
-  for (const action of modifyPropertyActionQueue()) {
-    for (const entity of action.entities) {
-      if (
-        hasComponent(entity, BoundingBoxComponent) &&
-        hasComponent(entity, TransformComponent) &&
-        hasComponent(entity, GroupComponent)
-      )
-        updateBoundingBox(entity)
-    }
-  }
+  for (const entity of dynamicBoundingBoxQuery()) updateBoundingBoxAndHelper(entity)
 
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
     DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
   /** @todo expose the frustum in WebGLRenderer to not calculate this twice  */
-  _projScreenMatrix.multiplyMatrices(Engine.instance.camera.projectionMatrix, Engine.instance.camera.matrixWorldInverse)
+  _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
   _frustum.setFromProjectionMatrix(_projScreenMatrix)
 
-  for (const entity of frustumCulledQuery())
-    FrustumCullCameraComponent.isCulled[entity] = _frustum.containsPoint(
-      getComponent(entity, TransformComponent).position
-    )
-      ? 0
-      : 1
-
+  for (const entity of frustumCulledQuery()) {
+    const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)?.box
+    const cull = boundingBox
+      ? _frustum.intersectsBox(boundingBox)
+      : _frustum.containsPoint(getComponent(entity, TransformComponent).position)
+    FrustumCullCameraComponent.isCulled[entity] = cull ? 0 : 1
+  }
   if (localClientEntity) {
     const localClientPosition = getOptionalComponent(localClientEntity, TransformComponent)?.position
     if (localClientPosition) {
@@ -399,7 +405,7 @@ const execute = () => {
 
   /** for HMDs, only iterate priority queue entities to reduce matrix updates per frame. otherwise, this will be automatically run by threejs */
   /** @todo include in auto performance scaling metrics */
-  // if (Engine.instance.xrFrame) {
+  // if (getState(XRState).xrFrame) {
   //   /**
   //    * Update threejs skeleton manually
   //    *  - overrides default behaviour in WebGLRenderer.render, calculating mat4 multiplcation

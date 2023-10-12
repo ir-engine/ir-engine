@@ -178,7 +178,7 @@ export function applySkeletonPose(mesh: SkinnedMesh) {
 
   for (let i = 0; i < posAttr.count; i++) {
     target.fromBufferAttribute(posAttr, i)
-    mesh.boneTransform(i, target)
+    mesh.applyBoneTransform(i, target)
     posAttr.setXYZ(i, target.x, target.y, target.z)
 
     target.fromBufferAttribute(normalAttr, i)
@@ -205,10 +205,10 @@ export function boneNormalTransform(mesh: SkinnedMesh, index: number, target: Ve
   target.set(0, 0, 0)
 
   for (let i = 0; i < 4; i++) {
-    let weight = skinWeight.getComponent(i)
+    const weight = skinWeight.getComponent(i)
 
     if (weight !== 0) {
-      let boneIndex = skinIndex.getComponent(i)
+      const boneIndex = skinIndex.getComponent(i)
 
       matrix.multiplyMatrices(skeleton.bones[boneIndex].matrixWorld, skeleton.boneInverses[boneIndex])
 

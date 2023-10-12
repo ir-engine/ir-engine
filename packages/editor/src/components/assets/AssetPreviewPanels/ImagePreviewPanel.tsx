@@ -24,14 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
-const ImagePreview = styled.img`
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  max-height: 100%;
-`
+const imageStyles = {
+  display: 'block',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  maxHeight: '100%'
+}
 
 /**
  * @param props
@@ -39,5 +38,6 @@ const ImagePreview = styled.img`
 
 export const ImagePreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
-  return <ImagePreview src={url} alt="Photo" crossOrigin="anonymous" />
+
+  return <img src={url} alt="Photo" crossOrigin="anonymous" style={imageStyles} />
 }

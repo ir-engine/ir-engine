@@ -28,15 +28,15 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { act } from 'react-dom/test-utils'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { InstanceChat } from '.'
 import { createDOM } from '../../../tests/createDOM'
 import { createMockAPI } from '../../../tests/createMockAPI'
 import { API } from '../../API'
-import { ChatState } from '../../social/services/ChatService'
+import { ChannelState } from '../../social/services/ChannelService'
 
 describe('Instance Chat Component', () => {
   let rootContainer: HTMLDivElement
@@ -55,14 +55,13 @@ describe('Instance Chat Component', () => {
   })
 
   it('displays chat message', async () => {
-    getMutableState(ChatState).channels.channels.set([
+    getMutableState(ChannelState).channels.channels.set([
       {
         id: 'id',
-        channelType: 'instance',
         messages: [
           {
             id: 'message id',
-            senderId: 'senderId' as UserId,
+            senderId: 'senderId' as UserID,
             channelId: 'channelId',
             text: 'message text'
           }

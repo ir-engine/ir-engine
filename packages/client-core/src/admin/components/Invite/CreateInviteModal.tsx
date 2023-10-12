@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import classNames from 'classnames'
-import React, { useEffect } from 'react'
+import dayjs, { Dayjs } from 'dayjs'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -42,20 +42,20 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
 import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
-import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
-import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminInviteService } from '../../services/InviteService'
-import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
-import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -68,11 +68,11 @@ const INVITE_TYPE_TAB_MAP = {
   1: 'location',
   2: 'instance',
   3: 'friend',
-  4: 'group',
-  5: 'party'
+  4: 'channel'
 }
 
 const CreateInviteModal = ({ open, onClose }: Props) => {
+  const { t } = useTranslation()
   const inviteTypeTab = useHookstate(0)
   const textValue = useHookstate('')
   const makeAdmin = useHookstate(false)
@@ -84,28 +84,19 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const setSpawn = useHookstate(false)
   const spawnTypeTab = useHookstate(0)
   const timed = useHookstate(false)
-  const startTime = useHookstate<Date | null>(null)
-  const endTime = useHookstate<Date | null>(null)
-  const { t } = useTranslation()
-  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
-  const adminUserState = useHookstate(getMutableState(AdminUserState))
+  const startTime = useHookstate<Dayjs>(dayjs(null))
+  const endTime = useHookstate<Dayjs>(dayjs(null))
+
+  const adminInstances = useFind(instancePath).data
+  const adminUsers = useFind(userPath, { query: { isGuest: false } }).data
+  const adminLocations = useFind(locationPath).data
+
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
-  const adminLocations = adminLocationState.locations
-  const adminInstances = adminInstanceState.instances
-  const adminUsers = adminUserState.users
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
     ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-
-  useEffect(() => {
-    AdminLocationService.fetchAdminLocations()
-    AdminInstanceService.fetchAdminInstances()
-    AdminUserService.setSkipGuests(true)
-    AdminUserService.fetchUsersAsAdmin()
-  }, [])
 
   const handleChangeInviteTypeTab = (event: React.SyntheticEvent, newValue: number) => {
     inviteTypeTab.set(newValue)
@@ -115,26 +106,20 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     textValue.set((event.target as HTMLInputElement).value)
   }
 
-  const locationMenu: InputMenuItem[] = adminLocations.map((el) => {
-    return {
-      value: `${el.id.value}`,
-      label: `${el.name.value} (${el.sceneId.value})`
-    }
-  })
+  const locationMenu: InputMenuItem[] = adminLocations.map((el) => ({
+    value: `${el.id}`,
+    label: `${el.name} (${el.sceneId})`
+  }))
 
-  const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
-    return {
-      value: `${el.id.value}`,
-      label: `${el.id.value} (${el.location.name.value})`
-    }
-  })
+  const instanceMenu: InputMenuItem[] = adminInstances.map((el) => ({
+    value: `${el.id}`,
+    label: `${el.id} (${el.location?.name})`
+  }))
 
-  const userMenu: InputMenuItem[] = adminUsers.map((el) => {
-    return {
-      value: `${el.inviteCode.value}`,
-      label: `${el.name.value} (${el.inviteCode.value})`
-    }
-  })
+  const userMenu: InputMenuItem[] = adminUsers.map((el) => ({
+    value: `${el.inviteCode}`,
+    label: `${el.name} (${el.inviteCode})`
+  }))
 
   const spawnPointMenu: InputMenuItem[] = spawnPoints.map(([id, value]) => {
     const transform = value.components.find((component) => component.name === 'transform')
@@ -157,20 +142,20 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
 
   const handleLocationChange = (e) => {
     locationId.set(e.target.value)
-    const location = adminLocations.find((location) => location.id.value === e.target.value)
-    if (location && location.sceneId.value) {
-      const sceneName = location.sceneId.value.split('/')
+    const location = adminLocations.find((location) => location.id === e.target.value)
+    if (location && location.sceneId) {
+      const sceneName = location.sceneId.split('/')
       AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
     }
   }
 
   const handleInstanceChange = (e) => {
     instanceId.set(e.target.value)
-    const instance = adminInstances.find((instance) => instance.id.value === e.target.value)
+    const instance = adminInstances.find((instance) => instance.id === e.target.value)
     if (instance) {
-      const location = adminLocations.find((location) => location.id.value === instance.locationId.value)
+      const location = adminLocations.find((location) => location.id === instance.locationId)
       if (location) {
-        const sceneName = location.sceneId.value.split('/')
+        const sceneName = location.sceneId.split('/')
         AdminSceneService.fetchAdminScene(sceneName[0], sceneName[1])
       }
     }
@@ -191,15 +176,21 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         const inviteType = INVITE_TYPE_TAB_MAP[inviteTypeTab.value]
         const isPhone = PHONE_REGEX.test(target)
         const isEmail = EMAIL_REGEX.test(target)
+
+        let targetObjectId: string | null = null
+        targetObjectId = inviteType === INVITE_TYPE_TAB_MAP[1] ? locationId.value : targetObjectId
+        targetObjectId = inviteType === INVITE_TYPE_TAB_MAP[2] ? instanceId.value : targetObjectId
+
+        let inviteCode = ''
         const sendData = {
-          inviteType: inviteType,
-          token: target.length === 8 ? null : target,
-          inviteCode: target.length === 8 ? target : null,
+          inviteType,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
-          targetObjectId: instanceId.value || locationId.value || null,
+          targetObjectId,
           makeAdmin: makeAdmin.value,
           deleteOnUse: oneTimeUse.value
-        } as SendInvite
+        } as InviteData
+        if (target.length === 8) inviteCode = target
+        else sendData.token = target
         if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
           sendData.spawnDetails = { inviteCode: userInviteCode.value }
@@ -209,10 +200,10 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         }
         sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
         if (sendData.timed) {
-          sendData.startTime = startTime.value
-          sendData.endTime = endTime.value
+          sendData.startTime = toDateTimeSql(startTime.value?.toDate())
+          sendData.endTime = toDateTimeSql(endTime.value?.toDate())
         }
-        await InviteService.sendInvite(sendData)
+        await InviteService.sendInvite(sendData, inviteCode)
         instanceId.set('')
         locationId.set('')
         textValue.set('')
@@ -224,14 +215,13 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         spawnTypeTab.set(0)
         inviteTypeTab.set(0)
         timed.set(false)
-        startTime.set(null)
-        endTime.set(null)
+        startTime.set(dayjs(null))
+        endTime.set(dayjs(null))
         return
       } catch (err) {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
       }
     })
-    setTimeout(() => AdminInviteService.fetchAdminInvites(), 500)
     onClose()
   }
 
@@ -302,34 +292,28 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           />
           {timed.value && (
             <div className={styles.datePickerContainer}>
-              <LocalizationProvider dateAdapter={AdapterMoment}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <div className={styles.pickerControls}>
                   <DateTimePicker
                     label="Start Time"
                     value={startTime.value}
-                    onChange={(e) => startTime.set(e)}
-                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
+                    onChange={(e) => startTime.set(dayjs(e))}
                   />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => startTime.set(null)}
+                    onClick={() => startTime.set(dayjs(null))}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>
                 <div className={styles.pickerControls}>
-                  <DateTimePicker
-                    label="End Time"
-                    value={endTime.value}
-                    onChange={(e) => endTime.set(e)}
-                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
-                  />
+                  <DateTimePicker label="End Time" value={endTime.value} onChange={(e) => endTime.set(dayjs(e))} />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => endTime.set(null)}
+                    onClick={() => endTime.set(dayjs(null))}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>

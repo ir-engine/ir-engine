@@ -173,7 +173,7 @@ export const smoothDamp = (
   currentVelocity,
   smoothTime: number,
   deltaTime,
-  maxSpeed: number = Infinity
+  maxSpeed = Infinity
 ) => {
   // Based on Game Programming Gems 4 Chapter 1.10
   smoothTime = Math.max(0.0001, smoothTime)

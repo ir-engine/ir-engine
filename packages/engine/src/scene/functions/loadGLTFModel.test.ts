@@ -29,21 +29,20 @@ import { Group, Layers, Mesh, Scene } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
+import { destroyEngine } from '../../ecs/classes/Engine'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
-  addComponent,
-  createMappedComponent,
   defineComponent,
   defineQuery,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
-import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -79,8 +78,7 @@ describe('loadGLTFModel', () => {
 
     const entity = createEntity()
     addEntityNodeChild(entity, sceneEntity)
-    setLocalTransformComponent(entity, sceneEntity)
-    addComponent(entity, ModelComponent, {
+    setComponent(entity, ModelComponent, {
       ...mockComponentData
     })
     const entityName = 'entity name'

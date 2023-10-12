@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
-
 import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
 import { Engine } from './ecs/classes/Engine'
 

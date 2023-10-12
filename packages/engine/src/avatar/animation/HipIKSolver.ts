@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Group, MathUtils, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Group, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { V_001, V_100 } from '../../common/constants/MathConstants'
+import { V_100 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { solveTwoBoneIK } from './TwoBoneIKSolver'
 
@@ -152,16 +151,17 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   /** Solve IK */
   const rig = rigComponent.rig
 
-  // console.log(rig.Hips.name, rig.Hips.parent!.name, rig.Hips.parent!.parent!.name, rig.Hips.parent!.parent!.parent!.name)
-  // console.log('before', rig.Hips.getWorldPosition(_vec3).y, rig.Hips.parent!.getWorldPosition(_vec3).y, rig.Hips.parent!.parent!.getWorldPosition(_vec3).y, rig.Hips.parent!.parent!.parent!.getWorldPosition(_vec3).y)
+  // console.log(rig.hips.node.name, rig.hips.node.parent!.name, rig.hips.node.parent!.parent!.name, rig.hips.node.parent!.parent!.parent!.name)
+  // console.log('before', rig.hips.node.getWorldPosition(_vec3).y, rig.hips.node.parent!.getWorldPosition(_vec3).y, rig.hips.node.parent!.parent!.getWorldPosition(_vec3).y, rig.hips.node.parent!.parent!.parent!.getWorldPosition(_vec3).y)
 
   /** move hips to the new position */
   const hipDifference = fullLegLength - (footToKneeY + kneeToHipsY)
-  rig.Hips.position.y -= hipDifference
-  rig.Hips.position.z -= hipX
+  console.log(rig.hips.node.position.y)
+  //rig.hips.node.position.y -= hipDifference
+  //rig.hips.node.position.z -= hipX
 
   /** Update matrices */
-  rig.Hips.updateWorldMatrix(true, true)
+  rig.hips.node.updateWorldMatrix(true, true)
 
   /**
    * @todo
@@ -177,17 +177,17 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   const footKneeFlareRatio = 0.2
 
   /** copy foot world pose into target */
-  rig.LeftFoot.getWorldPosition(leftFootTarget.position) //.sub(body.position)
-  rig.RightFoot.getWorldPosition(rightFootTarget.position) //.sub(body.position)
+  rig.leftFoot.node.getWorldPosition(leftFootTarget.position) //.sub(body.position)
+  rig.rightFoot.node.getWorldPosition(rightFootTarget.position) //.sub(body.position)
 
   /** get original knee position in avatar local space */
-  rig.LeftLeg.getWorldPosition(originalLeftKneeOffset).sub(body.position)
+  rig.leftUpperLeg.node.getWorldPosition(originalLeftKneeOffset).sub(body.position)
   originalLeftKneeOffset.applyQuaternion(_quat.copy(body.rotation).invert())
-  const originalLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const originalLeftFootAngle = rig.leftFoot.node.getWorldQuaternion(_quat).angleTo(quatXforward0)
 
-  rig.RightLeg.getWorldPosition(originalRightKneeOffset).sub(body.position)
+  rig.rightUpperLeg.node.getWorldPosition(originalRightKneeOffset).sub(body.position)
   originalRightKneeOffset.applyQuaternion(_quat.copy(body.rotation).invert())
-  const originalRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const originalRightFootAngle = rig.rightFoot.node.getWorldQuaternion(_quat).angleTo(quatXforward0)
 
   /** calculate how much the knees should flare out based on the distance the knees move forward, adding to the original position (to preserve animations) */
   const leftKneeFlare = kneeFlareSeparation + kneeX * kneeFlareMultiplier
@@ -206,17 +206,20 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   leftFootTargetHint.position.set(kneeFlareSeparation + leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   leftFootTargetHint.position.applyQuaternion(body.rotation)
   leftFootTargetHint.position.add(leftFootTarget.position)
-  rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
+  rig.leftFoot.node.getWorldQuaternion(leftFootTarget.quaternion)
   leftFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(
-    rig.LeftUpLeg,
-    rig.LeftLeg,
-    rig.LeftFoot,
+    rig.leftUpperLeg.node,
+    rig.leftLowerLeg.node,
+    rig.leftFoot.node,
     leftFootTarget.position,
     leftFootTarget.quaternion,
     null,
-    leftFootTargetHint,
+    leftFootTargetHint.position,
+    null,
+    null,
+    null,
     1,
     0,
     1
@@ -236,25 +239,27 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   rightFootTargetHint.position.set(kneeFlareSeparation + rightKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   rightFootTargetHint.position.applyQuaternion(body.rotation)
   rightFootTargetHint.position.add(rightFootTarget.position)
-  rig.RightFoot.getWorldQuaternion(rightFootTarget.quaternion)
+  rig.rightFoot.node.getWorldQuaternion(rightFootTarget.quaternion)
   rightFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(
-    rig.RightUpLeg,
-    rig.RightLeg,
-    rig.RightFoot,
+    rig.rightUpperLeg.node,
+    rig.rightLowerLeg.node,
+    rig.rightFoot.node,
     rightFootTarget.position,
     rightFootTarget.quaternion,
     null,
-    rightFootTargetHint,
+    rightFootTargetHint.position,
+    null,
+    null,
+    null,
     1,
     0,
     1
   )
-
   /** Torso */
   /** Apply the hip internal angle we calculated previously */
-  rig.Spine.applyQuaternion(_quat.setFromAxisAngle(V_100, degtoRad90 - hipToHeadAngle))
+  rig.spine.node.applyQuaternion(_quat.setFromAxisAngle(V_100, degtoRad90 - hipToHeadAngle))
 
   /** Angle feet */
 
@@ -262,12 +267,12 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   /** get the difference between the two angles */
   /** apply the difference to the foot */
   /** left foot */
-  const currentLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const currentLeftFootAngle = rig.leftFoot.node.getWorldQuaternion(_quat).angleTo(quatXforward0)
   const leftFootAngleDifference = originalLeftFootAngle - currentLeftFootAngle
-  rig.LeftFoot.applyQuaternion(_quat.setFromAxisAngle(V_100, leftFootAngleDifference))
+  rig.leftFoot.node.applyQuaternion(_quat.setFromAxisAngle(V_100, leftFootAngleDifference))
 
   /** right foot */
-  const currentRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const currentRightFootAngle = rig.rightFoot.node.getWorldQuaternion(_quat).angleTo(quatXforward0)
   const rightFootAngleDifference = originalRightFootAngle - currentRightFootAngle
-  rig.RightFoot.applyQuaternion(_quat.setFromAxisAngle(V_100, rightFootAngleDifference))
+  rig.rightFoot.node.applyQuaternion(_quat.setFromAxisAngle(V_100, rightFootAngleDifference))
 }

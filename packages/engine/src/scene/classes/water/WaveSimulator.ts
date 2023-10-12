@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { WebGLRenderTarget } from 'three'
 import * as THREE from 'three'
+import { WebGLRenderTarget } from 'three'
 
 import dropFragmentShader from './shaders/waves/drop_fragment'
 import updateFragmentShader from './shaders/waves/update_fragment'

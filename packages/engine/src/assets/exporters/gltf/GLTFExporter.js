@@ -33,7 +33,7 @@ import {
 	Group,
 	InterpolateDiscrete,
 	InterpolateLinear,
-	LinearEncoding,
+	LinearSRGBColorSpace,
 	LinearFilter,
 	LinearMipmapLinearFilter,
 	LinearMipmapNearestFilter,
@@ -48,9 +48,10 @@ import {
 	RepeatWrapping,
 	Scene,
 	Source,
-	sRGBEncoding,
+	SRGBColorSpace,
 	Vector3,
-	Texture
+	Texture,
+	NoColorSpace
 } from 'three';
 
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
@@ -831,7 +832,7 @@ export class GLTFWriter {
 
 		function getEncodingConversion( map ) {
 
-			if ( map.encoding === sRGBEncoding ) {
+			if ( map.colorSpace === SRGBColorSpace ) {
 
 				return function SRGBToLinear( c ) {
 
@@ -906,7 +907,7 @@ export class GLTFWriter {
 		const texture = reference.clone();
 
 		texture.source = new Source( canvas );
-		texture.encoding = LinearEncoding;
+		texture.colorSpace = NoColorSpace
 
 		return texture;
 
@@ -1391,7 +1392,7 @@ export class GLTFWriter {
 			sampler: this.processSampler( map )
 		}
 
-		if ( mimeType === 'image/ktx2' ) {
+		if ( mimeType === 'image/ktx2' || map.isCompressedTexture ) {
 			//textureDef.source = this.processImage( map.mipmaps[0], map.format, map.flipY, mimeType )
 		} else {
 			textureDef.source = this.processImage( map.image, map.format, map.flipY, mimeType )
@@ -1642,7 +1643,7 @@ export class GLTFWriter {
 		// Conversion between attributes names in threejs and gltf spec
 		const nameConversion = {
 			uv: 'TEXCOORD_0',
-			uv2: 'TEXCOORD_1',
+			uv1: 'TEXCOORD_1',
 			color: 'COLOR_0',
 			skinWeight: 'WEIGHTS_0',
 			skinIndex: 'JOINTS_0'

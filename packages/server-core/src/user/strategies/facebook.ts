@@ -27,9 +27,11 @@ import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -44,19 +46,20 @@ export class FacebookStrategy extends CustomOAuthStrategy {
 
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
-    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-      { accessToken: params?.authentication?.accessToken },
-      {}
-    )
-    const identityProvider = authResult['identity-provider']
+    const authResult = entity
+      ? entity
+      : await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+          { accessToken: params?.authentication?.accessToken },
+          {}
+        )
+    const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
     return {
       ...baseData,
-      email: profile.email,
+      accountIdentifier: profile.name,
       type: 'facebook',
-      userId,
-      accountIdentifier: profile.name
+      userId
     }
   }
 
@@ -66,44 +69,46 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       {}
     )
     if (!entity.userId) {
-      const avatars = (await this.app.service('avatar').find({ isInternal: true })) as Paginated<AvatarInterface>
+      const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
       const code = await getFreeInviteCode(this.app)
-      const newUser = (await this.app.service('user').create({
+      const newUser = await this.app.service(userPath).create({
+        name: '',
         isGuest: false,
         inviteCode: code,
-        avatarId: avatars[random(avatars.total - 1)].id
-      })) as UserInterface
+        avatarId: avatars[random(avatars.total - 1)].id,
+        scopes: []
+      })
       entity.userId = newUser.id
-      await this.app.service('identity-provider').patch(entity.id, {
+      await this.app.service(identityProviderPath)._patch(entity.id, {
         userId: newUser.id
       })
     }
-    const identityProvider = authResult['identity-provider']
-    const user = await this.app.service('user').get(entity.userId)
+    const identityProvider = authResult[identityProviderPath]
+    const user = await this.app.service(userPath).get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
-      await this.app.service('user').patch(entity.userId, {
+      await this.app.service(userPath).patch(entity.userId, {
         isGuest: false
       })
-    const apiKey = await this.app.service('user-api-key').find({
+    const apiKey = (await this.app.service(userApiKeyPath).find({
       query: {
         userId: entity.userId
       }
-    })
-    if ((apiKey as any).total === 0)
-      await this.app.service('user-api-key').create({
+    })) as Paginated<UserApiKeyType>
+    if (apiKey.total === 0)
+      await this.app.service(userApiKeyPath).create({
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      await this.app.service('identity-provider').remove(identityProvider.id)
-      await this.app.service('user').remove(identityProvider.userId)
+      await this.app.service(identityProviderPath)._remove(identityProvider.id)
+      await this.app.service(userPath).remove(identityProvider.userId)
       return super.updateEntity(entity, profile, params)
     }
     const existingEntity = await super.findEntity(profile, params)
     if (!existingEntity) {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
+      if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) return existingEntity
     else {

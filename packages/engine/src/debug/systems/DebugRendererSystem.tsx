@@ -32,6 +32,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 import { Engine } from '../../ecs/classes/Engine'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { RaycastArgs } from '../../physics/classes/Physics'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
@@ -55,7 +56,7 @@ const visualizers = [] as MeshBVHVisualizer[]
 
 const DebugGroupChildReactor = (props: GroupReactorProps) => {
   const obj = props.obj
-  const debug = useHookstate(getMutableState(RendererState).debugEnable)
+  const debug = useHookstate(getMutableState(RendererState).physicsDebug)
 
   // add MeshBVHVisualizer to meshes when debugEnable is true
   useEffect(() => {
@@ -91,16 +92,18 @@ const DebugGroupChildReactor = (props: GroupReactorProps) => {
 }
 
 const execute = () => {
-  const enabled = getState(RendererState).debugEnable
+  const enabled = getState(RendererState).physicsDebug
 
   _lineSegments.visible = enabled
 
-  if (enabled && Engine.instance.physicsWorld) {
-    const debugRenderBuffer = Engine.instance.physicsWorld.debugRender()
+  const physicsWorld = getState(PhysicsState).physicsWorld
+
+  if (enabled && physicsWorld) {
+    const debugRenderBuffer = physicsWorld.debugRender()
     _lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
     _lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
 
-    for (const { raycastQuery, hits } of (Engine.instance.physicsWorld as any).raycastDebugs as RaycastDebugs[]) {
+    for (const { raycastQuery, hits } of (physicsWorld as any).raycastDebugs as RaycastDebugs[]) {
       const line = new Line(
         new BufferGeometry().setFromPoints([
           new Vector3(0, 0, 0),
@@ -136,7 +139,7 @@ const execute = () => {
     }
   }
 
-  if (Engine.instance.physicsWorld) (Engine.instance.physicsWorld as any).raycastDebugs = []
+  if (physicsWorld) (physicsWorld as any).raycastDebugs = []
 }
 
 const reactor = () => {

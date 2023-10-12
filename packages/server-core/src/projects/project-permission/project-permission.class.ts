@@ -24,83 +24,110 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Id, Paginated, Params } from '@feathersjs/feathers'
 
 import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
 
-export type ProjectPermissionsDataType = ProjectPermissionInterface
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 
-export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
+import {
+  ProjectPermissionData,
+  ProjectPermissionPatch,
+  ProjectPermissionQuery,
+  ProjectPermissionType
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ProjectPermissionParams extends KnexAdapterParams<ProjectPermissionQuery> {}
+
+/**
+ * A class for ProjectPermission service
+ */
+
+export class ProjectPermissionService<
+  T = ProjectPermissionType,
+  ServiceParams extends Params = ProjectPermissionParams
+> extends KnexAdapter<ProjectPermissionType, ProjectPermissionData, ProjectPermissionParams, ProjectPermissionPatch> {
   app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
   async makeRandomProjectOwnerIfNone(projectId) {
-    const projectOwners = await this.app.service('project-permission').Model.findAll({
-      paginate: false,
-      where: {
+    const projectOwners = (await super._find({
+      query: {
         projectId: projectId,
         type: 'owner'
-      }
-    })
+      },
+      paginate: false
+    })) as any as ProjectPermissionType[]
+
     if (projectOwners.length === 0) {
-      const newOwner = await this.app.service('project-permission').Model.findOne({
-        where: {
-          projectId: projectId
+      const newOwner = (await super._find({
+        query: {
+          projectId: projectId,
+          $limit: 1
         }
-      })
-      if (newOwner)
-        await super.patch(newOwner.id, {
+      })) as Paginated<ProjectPermissionType>
+      if (newOwner.data.length > 0)
+        await super._patch(newOwner.data[0].id, {
           type: 'owner'
         })
     }
   }
 
-  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
-    const loggedInUser = params!.user!
-    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return super.find(params)
-    if (params?.query?.projectId) {
-      const permissionStatus = await super.Model.findOne({
-        where: {
-          projectId: params.query.projectId,
-          userId: loggedInUser?.id
-        }
-      })
-      if (permissionStatus) return super.find(params)
-    }
+  async find(params?: ProjectPermissionParams) {
     if (!params) params = {}
     if (!params.query) params.query = {}
+
+    const loggedInUser = params.user
+
+    if (!loggedInUser) throw new BadRequest('User missing from request')
+
+    if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return super._find(params)
+
+    if (params.query.projectId) {
+      const permissionStatus = (await super._find({
+        query: {
+          projectId: params.query.projectId,
+          userId: loggedInUser.id,
+          $limit: 1
+        }
+      })) as Paginated<ProjectPermissionType>
+      if (permissionStatus.data.length > 0) return super._find(params)
+    }
+
     params.query.userId = loggedInUser.id
-    return super.find(params)
+    return super._find(params)
   }
 
-  async get(id: string, params?: UserParams): Promise<T> {
+  async get(id: Id, params?: ProjectPermissionParams) {
     const loggedInUser = params!.user!
-    const projectPermission = await super.get(id, params)
+    const projectPermission = await super._get(id, params)
     if (loggedInUser.scopes?.find((scope) => scope.type === 'admin:admin')) return projectPermission
     if (projectPermission.userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
     return projectPermission
   }
 
-  async create(data: any, params?: UserParams): Promise<T> {
+  async create(data: ProjectPermissionData, params?: ProjectPermissionParams) {
     const selfUser = params!.user!
-    if (USER_ID_REGEX.test(data.inviteCode)) {
-      data.userId = data.inviteCode
+    if (data.inviteCode && USER_ID_REGEX.test(data.inviteCode)) {
+      data.userId = data.inviteCode as UserID
       delete data.inviteCode
     }
-    if (INVITE_CODE_REGEX.test(data.userId)) {
+    if (data.userId && INVITE_CODE_REGEX.test(data.userId)) {
       data.inviteCode = data.userId
-      delete data.inviteCode
+      delete data.userId
     }
     try {
       const searchParam = data.inviteCode
@@ -110,36 +137,34 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
         : {
             id: data.userId
           }
-      const user = await this.app.service('user').Model.findOne({
-        where: searchParam
+      const users = await this.app.service(userPath).find({
+        query: searchParam
       })
-      if (!user) throw new BadRequest('Invalid user ID and/or user invite code')
-      const existing = (await super.find({
+      if (users.data.length === 0) throw new BadRequest('Invalid user ID and/or user invite code')
+      const existing = await super._find({
         query: {
           projectId: data.projectId,
-          userId: user.id
+          userId: users.data[0].id
         }
-      })) as Paginated<T>
+      })
       if (existing.total > 0) return existing.data[0]
-      const project = await this.app.service('project').Model.findOne({
-        where: {
-          id: data.projectId
-        }
-      })
+      const project = await this.app.service(projectPath).get(data.projectId!)
+
       if (!project) throw new BadRequest('Invalid project ID')
-      if (!user) throw new BadRequest('Invalid user ID')
-      const existingPermissionsCount = await super.Model.count({
-        where: {
+      const existingPermissionsCount = (await super._find({
+        query: {
           projectId: data.projectId
-        }
-      })
-      return super.create({
-        projectId: data.projectId,
-        userId: user.id,
+        },
+        paginate: false
+      })) as any as ProjectPermissionType[]
+      delete data.inviteCode
+      return super._create({
+        ...data,
+        userId: users.data[0].id,
         type:
           data.type === 'owner' ||
-          existingPermissionsCount === 0 ||
-          (selfUser.scopes?.find((scope) => scope.type === 'admin:admin') && selfUser.id === user.id)
+          existingPermissionsCount.length === 0 ||
+          (selfUser.scopes?.find((scope) => scope.type === 'admin:admin') && selfUser.id === users.data[0].id)
             ? 'owner'
             : 'user'
       })
@@ -149,8 +174,8 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
     }
   }
 
-  async patch(id: string, data: any, params?: Params): Promise<T> {
-    const result = await super.patch(id, {
+  async patch(id: Id, data: ProjectPermissionData, params?: ProjectPermissionParams) {
+    const result = await super._patch(id, {
       type: data.type === 'owner' ? 'owner' : 'user'
     })
 
@@ -158,8 +183,8 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
     return result
   }
 
-  async remove(id: string, params?: Params): Promise<T> {
-    const result = await super.remove(id, params)
+  async remove(id: Id, params?: ProjectPermissionParams) {
+    const result = await super._remove(id, params)
     if (id && result) await this.makeRandomProjectOwnerIfNone(result.projectId)
     return result
   }

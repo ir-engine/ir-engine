@@ -23,42 +23,46 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 import crypto from 'crypto'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import moment from 'moment'
-
-import { LoginTokenInterface } from '@etherealengine/common/src/dbmodels/LoginToken'
-
-import { Application } from '../../../declarations'
 import config from '../../appconfig'
 
-export type LoginTokenDataType = LoginTokenInterface & { identityProviderId: string }
+import {
+  LoginTokenData,
+  LoginTokenPatch,
+  LoginTokenQuery,
+  LoginTokenType
+} from '@etherealengine/engine/src/schemas/user/login-token.schema'
+
+import { KnexAdapterParams } from '@feathersjs/knex'
+import { Application } from '../../../declarations'
+import { toDateTimeSql } from '../../util/datetime-sql'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface LoginTokenParams extends KnexAdapterParams<LoginTokenQuery> {}
+
 /**
- * A class for Login Token service
+ * A class for LoginToken service
  */
 
-export class LoginToken<T = LoginTokenDataType> extends Service<T> {
+export class LoginTokenService<T = LoginTokenType, ServiceParams extends Params = LoginTokenParams> extends KnexAdapter<
+  LoginTokenType,
+  LoginTokenData,
+  LoginTokenParams,
+  LoginTokenPatch
+> {
   app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
-
-  /**
-   * A function which is used to create login token
-   *
-   * @param data with identityProviderId in it
-   * @returns {@Object} contains token
-   */
-  async create(data: any): Promise<T> {
-    const { identityProviderId } = data
+  async create(data: LoginTokenData, params?: LoginTokenParams) {
     const token = crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
-    const tokenData: any = {
-      identityProviderId: identityProviderId,
-      token: token,
-      expiresAt: moment().utc().add(2, 'days').toDate()
-    }
-    return (await super.create({ ...tokenData }, {})) as T
+
+    return await super._create({ ...data, token, expiresAt: toDateTimeSql(moment().utc().add(2, 'days').toDate()) })
   }
 }

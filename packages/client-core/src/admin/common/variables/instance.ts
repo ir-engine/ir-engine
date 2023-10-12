@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 
 export interface InstanceColumn {
-  id: 'id' | 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'podName' | 'action'
+  id: 'id' | 'ipAddress' | 'currentUsers' | 'locationName' | 'channelId' | 'podName' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
@@ -37,7 +37,7 @@ export const instanceColumns: InstanceColumn[] = [
   { id: 'ipAddress', label: 'IP Address', minWidth: 65 },
   { id: 'currentUsers', label: 'Current Users', minWidth: 65 },
   {
-    id: 'locationId',
+    id: 'locationName',
     label: 'Location',
     minWidth: 65,
     align: 'right'
@@ -63,11 +63,11 @@ export const instanceColumns: InstanceColumn[] = [
 ]
 
 export interface InstanceData {
-  el: Instance
+  el: InstanceType
   id: string
   ipAddress: string
-  currentUsers: Number
-  locationId: string
+  currentUsers: number
+  locationName: string
   channelId: string
   podName: string
   action: any

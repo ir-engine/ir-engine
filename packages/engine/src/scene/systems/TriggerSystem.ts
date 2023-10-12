@@ -23,10 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
@@ -36,26 +34,31 @@ import { UUIDComponent } from '../components/UUIDComponent'
 
 export const triggerEnter = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
-  if (!triggerComponent?.onEnter) return
-  if (triggerComponent.target && !UUIDComponent.entitiesByUUID[triggerComponent.target]) return
+  if (!Array.isArray(triggerComponent.triggers)) return
+  for (const trigger of triggerComponent.triggers) {
+    if (trigger.target && !UUIDComponent.entitiesByUUID[trigger.target]) return
 
-  const targetEntity = triggerComponent.target ? UUIDComponent.entitiesByUUID[triggerComponent.target] : triggerEntity
+    const targetEntity = trigger.target ? UUIDComponent.entitiesByUUID[trigger.target] : triggerEntity
 
-  if (targetEntity) {
-    const callbacks = getComponent(targetEntity, CallbackComponent)
-    callbacks.get(triggerComponent.onEnter)?.(triggerEntity)
+    if (targetEntity && trigger.onEnter) {
+      const callbacks = getComponent(targetEntity, CallbackComponent)
+      callbacks.get(trigger.onEnter)?.(triggerEntity)
+    }
   }
 }
 
 export const triggerExit = (entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
   const triggerComponent = getComponent(triggerEntity, ColliderComponent)
-  if (!triggerComponent?.onExit) return
-  if (triggerComponent.target && !UUIDComponent.entitiesByUUID[triggerComponent.target]) return
-  const targetEntity = triggerComponent.target ? UUIDComponent.entitiesByUUID[triggerComponent.target] : triggerEntity
+  if (!Array.isArray(triggerComponent.triggers)) return
+  for (const trigger of triggerComponent.triggers) {
+    if (!trigger?.onExit) return
+    if (trigger.target && !UUIDComponent.entitiesByUUID[trigger.target]) return
+    const targetEntity = trigger.target ? UUIDComponent.entitiesByUUID[trigger.target] : triggerEntity
 
-  if (targetEntity) {
-    const callbacks = getComponent(targetEntity, CallbackComponent)
-    callbacks.get(triggerComponent.onExit)?.(triggerEntity)
+    if (targetEntity && trigger.onExit) {
+      const callbacks = getComponent(targetEntity, CallbackComponent)
+      callbacks.get(trigger.onExit)?.(triggerEntity)
+    }
   }
 }
 

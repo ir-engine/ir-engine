@@ -26,13 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import { Relationship } from '@etherealengine/common/src/interfaces/Relationship'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import {
+  userRelationshipPath,
+  UserRelationshipType
+} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -42,60 +45,36 @@ const logger = multiLogger.child({ component: 'client-core:FriendService' })
 export const FriendState = defineState({
   name: 'FriendState',
   initial: () => ({
-    relationships: {
-      blocked: [] as Array<UserInterface>,
-      blocking: [] as Array<UserInterface>,
-      friend: [] as Array<UserInterface>,
-      requested: [] as Array<UserInterface>,
-      pending: [] as Array<UserInterface>
-    },
+    relationships: [] as UserRelationshipType[],
     isFetching: false,
     updateNeeded: true
   })
 })
 
-export const FriendServiceReceptor = (action) => {
-  const s = getMutableState(FriendState)
-  matches(action)
-    .when(FriendAction.fetchingFriendsAction.matches, () => {
-      return s.isFetching.set(true)
-    })
-    .when(FriendAction.loadedFriendsAction.matches, (action) => {
-      s.relationships.merge({
-        blocked: action.relationships.blocked,
-        blocking: action.relationships.blocking,
-        friend: action.relationships.friend,
-        requested: action.relationships.requested,
-        pending: action.relationships.pending
-      })
-      s.updateNeeded.set(false)
-      s.isFetching.set(false)
-      return
-    })
-}
-
 //Service
 export const FriendService = {
-  getUserRelationship: async (userId: string) => {
+  getUserRelationship: async (userId: UserID) => {
     try {
-      dispatchAction(FriendAction.fetchingFriendsAction({}))
+      getMutableState(FriendState).isFetching.set(true)
 
-      const relationships: Relationship = await Engine.instance.api.service('user-relationship').find({
+      const relationships = (await Engine.instance.api.service(userRelationshipPath).find({
         query: {
-          userId
+          userId,
+          $limit: 100
         }
-      })
-      dispatchAction(FriendAction.loadedFriendsAction({ relationships }))
+      })) as Paginated<UserRelationshipType>
+
+      getMutableState(FriendState).merge({ relationships: relationships.data, isFetching: false, updateNeeded: false })
     } catch (err) {
       logger.error(err)
     }
   },
-  requestFriend: (userId: string, relatedUserId: string) => {
+  requestFriend: (userId: UserID, relatedUserId: UserID) => {
     return createRelation(userId, relatedUserId, 'requested')
   },
-  acceptFriend: async (userId: string, relatedUserId: string) => {
+  acceptFriend: async (userId: UserID, relatedUserId: UserID) => {
     try {
-      await Engine.instance.api.service('user-relationship').patch(relatedUserId, {
+      await Engine.instance.api.service(userRelationshipPath).patch(relatedUserId, {
         userRelationshipType: 'friend'
       })
 
@@ -104,16 +83,16 @@ export const FriendService = {
       logger.error(err)
     }
   },
-  declineFriend: (userId: string, relatedUserId: string) => {
+  declineFriend: (userId: UserID, relatedUserId: UserID) => {
     return removeRelation(userId, relatedUserId)
   },
-  unfriend: (userId: string, relatedUserId: string) => {
+  unfriend: (userId: UserID, relatedUserId: UserID) => {
     return removeRelation(userId, relatedUserId)
   },
-  blockUser: async (userId: string, relatedUserId: string) => {
+  blockUser: async (userId: UserID, relatedUserId: UserID) => {
     return createRelation(userId, relatedUserId, 'blocking')
   },
-  unblockUser: (userId: string, relatedUserId: string) => {
+  unblockUser: (userId: UserID, relatedUserId: UserID) => {
     return removeRelation(userId, relatedUserId)
   },
   useAPIListeners: () => {
@@ -143,24 +122,25 @@ export const FriendService = {
         FriendService.getUserRelationship(selfUser.id)
       }
 
-      Engine.instance.api.service('user-relationship').on('created', userRelationshipCreatedListener)
-      Engine.instance.api.service('user-relationship').on('patched', userRelationshipPatchedListener)
-      Engine.instance.api.service('user-relationship').on('removed', userRelationshipRemovedListener)
+      Engine.instance.api.service(userRelationshipPath).on('created', userRelationshipCreatedListener)
+      Engine.instance.api.service(userRelationshipPath).on('patched', userRelationshipPatchedListener)
+      Engine.instance.api.service(userRelationshipPath).on('removed', userRelationshipRemovedListener)
 
       return () => {
-        Engine.instance.api.service('user-relationship').off('created', userRelationshipCreatedListener)
-        Engine.instance.api.service('user-relationship').off('patched', userRelationshipPatchedListener)
-        Engine.instance.api.service('user-relationship').off('removed', userRelationshipRemovedListener)
+        Engine.instance.api.service(userRelationshipPath).off('created', userRelationshipCreatedListener)
+        Engine.instance.api.service(userRelationshipPath).off('patched', userRelationshipPatchedListener)
+        Engine.instance.api.service(userRelationshipPath).off('removed', userRelationshipRemovedListener)
       }
     }, [])
   }
 }
 
-async function createRelation(userId: string, relatedUserId: string, type: 'requested' | 'blocking') {
+async function createRelation(userId: UserID, relatedUserId: UserID, type: 'requested' | 'blocking') {
   try {
-    await Engine.instance.api.service('user-relationship').create({
+    await Engine.instance.api.service(userRelationshipPath).create({
       relatedUserId,
-      userRelationshipType: type
+      userRelationshipType: type,
+      userId: '' as UserID
     })
 
     FriendService.getUserRelationship(userId)
@@ -169,24 +149,12 @@ async function createRelation(userId: string, relatedUserId: string, type: 'requ
   }
 }
 
-async function removeRelation(userId: string, relatedUserId: string) {
+async function removeRelation(userId: UserID, relatedUserId: UserID) {
   try {
-    await Engine.instance.api.service('user-relationship').remove(relatedUserId)
+    await Engine.instance.api.service(userRelationshipPath).remove(relatedUserId)
 
     FriendService.getUserRelationship(userId)
   } catch (err) {
     logger.error(err)
   }
-}
-
-//Action
-export class FriendAction {
-  static fetchingFriendsAction = defineAction({
-    type: 'ee.client.Friend.FETCHING_FRIENDS' as const
-  })
-
-  static loadedFriendsAction = defineAction({
-    type: 'ee.client.Friend.LOADED_FRIENDS' as const,
-    relationships: matches.object as Validator<unknown, Relationship>
-  })
 }

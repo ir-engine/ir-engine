@@ -27,9 +27,10 @@ import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
-import { checkProjectAutoUpdate } from '@etherealengine/server-core/src/projects/project/project-helper'
+import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 
 dotenv.config({
   path: appRootPath.path,
@@ -51,14 +52,28 @@ db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.ho
 cli.enable('status')
 
 const options = cli.parse({
-  projectName: [false, 'Name of project to update', 'string']
+  userId: [false, 'ID of user updating project', 'string'],
+  sourceURL: [false, 'Source URL of project to update', 'string'],
+  destinationURL: [false, 'Destination URL of project to update', 'string'],
+  name: [false, 'Name of project', 'string'],
+  needsRebuild: [false, 'Whether the project needs to be rebuilt', 'string'],
+  reset: [false, 'Whether to force reset the project', 'string'],
+  commitSHA: [false, 'Commit SHA to use for project', 'string'],
+  sourceBranch: [false, 'Branch to use for project source', 'string'],
+  updateType: [false, 'Type of updating for project', 'string'],
+  updateSchedule: [false, 'Schedule for auto-updating project', 'string'],
+  jobId: [false, 'ID of Job record', 'string']
 })
 
 cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
-    await checkProjectAutoUpdate(app, options.projectName)
+    const { userId, jobId, ...data } = options
+    data.reset = data.reset === 'true'
+    data.needsRebuild = data.needsRebuild === true
+    const user = await app.service(userPath).get(userId)
+    await app.service(projectPath).update(data, null, { user: user, isJob: true, jobId })
     cli.exit(0)
   } catch (err) {
     console.log(err)

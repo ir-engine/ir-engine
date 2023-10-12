@@ -23,14 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import type { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
-  convertSystemComponentJSON,
-  SystemComponent
+  SystemComponent,
+  convertSystemComponentJSON
 } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 export type SystemImportType = {
@@ -63,12 +64,13 @@ export const importSystem = async (
 ) => {
   console.info(`Getting system definition at ${data.filePath} from project ${project}`, data)
   const { filePath, insertUUID, insertOrder, args } = data
-  const pathname = new URL(filePath).pathname
+  const pathname = filePath.replace(config.client.fileServer!, '')
   const filePathRelative = pathname.replace(`/projects/${project}/src/systems/`, '')
   if (filePathRelative === pathname) {
     console.error(`[ProjectLoader]: File extension MUST end with '*System.ts', got ${filePathRelative} instead`)
     return null!
   }
+
   const module = await import(`./projects/${project}/src/systems/${filePathRelative.replace('System.ts', '')}System.ts`)
   const systemUUID = module.default as SystemUUID
 

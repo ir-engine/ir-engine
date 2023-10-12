@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const serverSettingPath = 'server-setting'
 
@@ -144,3 +145,9 @@ export const serverSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type ServerSettingQuery = Static<typeof serverSettingQuerySchema>
+
+export const serverHubValidator = getValidator(serverHubSchema, dataValidator)
+export const serverSettingValidator = getValidator(serverSettingSchema, dataValidator)
+export const serverSettingDataValidator = getValidator(serverSettingDataSchema, dataValidator)
+export const serverSettingPatchValidator = getValidator(serverSettingPatchSchema, dataValidator)
+export const serverSettingQueryValidator = getValidator(serverSettingQuerySchema, queryValidator)

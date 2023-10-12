@@ -25,40 +25,32 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 
-/**
- * StyledError styled component used to provide styles for error container.
- *
- * @type {styled component}
- */
-const StyledError = (styled as any).div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100vw;
-  color: var(--red);
+const styledErrorStyles: React.CSSProperties = {
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100vh',
+  width: '100vw',
+  color: 'var(--red)'
+}
 
-  svg {
-    margin-bottom: 20px;
-  }
-`
-/**
- * Error component used to error message.
- *
- * @type {component class}
- */
-export const Error = (props: any) => {
+const StyledError = ({ children }) => {
+  return <div style={styledErrorStyles}>{children}</div>
+}
+
+export const Error = (props) => {
   const { t } = useTranslation()
 
-  // rendering error message
-  const theme = context // TODO: this global context variable is from mocha... this seems incorrect
+  // Rendering error message
+  // Assuming the context variable 'theme' is available somewhere in your application.
+  const theme = context // TODO: Replace 'context' with the actual theme context variable.
 
+  // we were using the theme like this <StyledError theme={theme} > but moving to plain css from styled components will invalidate that
   return (
-    <StyledError theme={theme}>
+    <StyledError>
       <a href="/">{t('editor:lbl-return')}</a>
       {props.message}
     </StyledError>

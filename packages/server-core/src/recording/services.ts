@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import RecordingResource from './recording-resource/recording-resource.service'
-import Recording from './recording/recording.service'
+import RecordingResource from './recording-resource/recording-resource'
+import Recording from './recording/recording'
 
 export default [Recording, RecordingResource]

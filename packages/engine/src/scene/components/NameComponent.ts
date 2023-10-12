@@ -33,16 +33,16 @@ const entitiesByName = {} as Record<string, Entity[]>
 export const NameComponent = defineComponent({
   name: 'NameComponent',
 
-  onInit: () => undefined as any as string,
+  onInit: () => '' as string,
 
   onSet: (entity, component, name?: string) => {
     if (typeof name !== 'string') throw new Error('NameComponent expects a non-empty string')
     component.set(name)
     NameComponent.valueMap[entity] = name
-    const namedEntities = NameComponent.entitiesByNameState[name]
-    const exists = !!namedEntities.value
-    exists && namedEntities.set([...namedEntities.value!, entity])
-    !exists && namedEntities.set([entity])
+    const exists = NameComponent.entitiesByName[name]
+    const entitiesByNameState = NameComponent.entitiesByNameState
+    if (exists) entitiesByNameState.merge({ [name]: [...exists, entity] })
+    else entitiesByNameState.merge({ [name]: [entity] })
   },
 
   onRemove: (entity, component) => {

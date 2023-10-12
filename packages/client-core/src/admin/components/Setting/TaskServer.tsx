@@ -23,42 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthState } from '../../../user/services/AuthService'
-import {
-  AdminSettingTaskServerService,
-  AdminTaskServerSettingsState
-} from '../../services/Setting/TaskServerSettingsService'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { taskServerSettingPath } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const TaskServer = () => {
   const { t } = useTranslation()
-  const settingTaskServerState = useHookstate(getMutableState(AdminTaskServerSettingsState))
-  const settingTaskServer = settingTaskServerState.taskservers
-  const user = useHookstate(getMutableState(AuthState).user)
-  const isMounted = useRef(false)
-
-  useEffect(() => {
-    isMounted.current = true
-    return () => {
-      isMounted.current = false
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isMounted.current) return
-    if (user?.id?.value != null && settingTaskServerState?.updateNeeded?.value === true) {
-      AdminSettingTaskServerService.fetchSettingsTaskServer()
-    }
-  }, [user?.id?.value, settingTaskServerState?.updateNeeded?.value])
+  const settingTaskServer = useFind(taskServerSettingPath).data
 
   return (
     <Box>
@@ -70,7 +49,7 @@ const TaskServer = () => {
           <InputText
             name="port"
             label={t('admin:components.setting.taskServer.port')}
-            value={settingTaskServer.value.map((el) => el.port).join(', ')}
+            value={settingTaskServer.map((el) => el.port).join(', ')}
             disabled
           />
         </Grid>
@@ -78,7 +57,7 @@ const TaskServer = () => {
           <InputText
             name="processinterval"
             label={t('admin:components.setting.taskServer.processInterval')}
-            value={settingTaskServer.value.map((el) => el.processInterval).join(', ')}
+            value={settingTaskServer.map((el) => el.processInterval).join(', ')}
             disabled
           />
         </Grid>

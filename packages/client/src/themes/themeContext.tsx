@@ -31,14 +31,13 @@ import {
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import {
-  AppThemeServiceReceptor,
   AppThemeState,
   getAppTheme,
   useAppThemeName
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { addActionReceptor, getMutableState, NO_PROXY, removeActionReceptor } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState } from '@etherealengine/hyperflux'
 
 export interface ThemeContextProps {
   theme: string
@@ -63,19 +62,12 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   const currentThemeName = useAppThemeName()
 
   useEffect(() => {
-    addActionReceptor(AppThemeServiceReceptor)
-    return () => {
-      removeActionReceptor(AppThemeServiceReceptor)
-    }
-  }, [])
-
-  useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
       html.dataset.theme = currentThemeName
       updateTheme()
     }
-  }, [selfUser?.user_setting?.value])
+  }, [selfUser?.userSetting?.value])
 
   useEffect(() => {
     if (clientSetting) {

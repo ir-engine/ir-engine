@@ -24,31 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated } from '@feathersjs/feathers'
-import axios from 'axios'
-import i18n from 'i18next'
 
-import config from '@etherealengine/common/src/config'
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { NotificationService } from '../../common/services/NotificationService'
+import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { uploadToFeathersService } from '../../util/upload'
-import { AuthAction, AuthState } from './AuthService'
+
+import { AvatarState as AvatarNetworkState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 
 export const AVATAR_PAGE_LIMIT = 100
 
-// State
 export const AvatarState = defineState({
   name: 'AvatarState',
   initial: () => ({
-    avatarList: [] as Array<AvatarInterface>,
+    avatarList: [] as Array<AvatarType>,
     search: undefined as string | undefined,
     skip: 0,
     limit: AVATAR_PAGE_LIMIT,
@@ -56,24 +47,9 @@ export const AvatarState = defineState({
   })
 })
 
-export const AvatarServiceReceptor = (action) => {
-  const s = getMutableState(AvatarState)
-  matches(action)
-    .when(AvatarActions.updateAvatarListAction.matches, (action) => {
-      s.search.set(action.search ?? undefined)
-      s.skip.set(action.skip)
-      s.total.set(action.total)
-      return s.avatarList.set(action.avatarList)
-    })
-    .when(AvatarActions.updateAvatarAction.matches, (action) => {
-      const index = s.avatarList.findIndex((item) => item.id.value === action.avatar.id)
-      return s.avatarList[index].set(action.avatar)
-    })
-}
-
 export const AvatarService = {
   async createAvatar(model: File, thumbnail: File, avatarName: string, isPublic: boolean) {
-    const newAvatar = await Engine.instance.api.service('avatar').create({
+    const newAvatar = await Engine.instance.api.service(avatarPath).create({
       name: avatarName,
       isPublic
     })
@@ -81,30 +57,35 @@ export const AvatarService = {
     await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName, isPublic, newAvatar.id)
 
     if (!isPublic) {
-      const selfUser = getState(AuthState).user
-      const userId = selfUser.id!
-      await AvatarService.updateUserAvatarId(userId, newAvatar.id)
+      AvatarNetworkState.updateUserAvatarId(newAvatar.id)
     }
   },
 
   async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {
-    const skip = getState(AvatarState).skip
+    const avatarState = getMutableState(AvatarState)
+    const skip = avatarState.skip.value
     const newSkip =
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
-    const result = (await Engine.instance.api.service('avatar').find({
+    const result = (await Engine.instance.api.service(avatarPath).find({
       query: {
-        search,
+        name: {
+          $like: `%${search}%`
+        },
         $skip: newSkip,
         $limit: AVATAR_PAGE_LIMIT
       }
-    })) as Paginated<AvatarInterface>
-    dispatchAction(
-      AvatarActions.updateAvatarListAction({ avatarList: result.data, search, skip: result.skip, total: result.total })
-    )
+    })) as Paginated<AvatarType>
+
+    avatarState.merge({
+      search,
+      skip,
+      total: result.total,
+      avatarList: result.data
+    })
   },
 
   async patchAvatar(
-    originalAvatar: AvatarInterface,
+    originalAvatar: AvatarType,
     avatarName: string,
     updateModels: boolean,
     avatarFile?: File,
@@ -124,7 +105,8 @@ export const AvatarService = {
         originalAvatar.isPublic,
         originalAvatar.id
       )
-      const removalPromises = [] as any
+
+      const removalPromises: Promise<StaticResourceType>[] = []
       if (uploadResponse[0].id !== originalAvatar.modelResourceId)
         removalPromises.push(AvatarService.removeStaticResource(originalAvatar.modelResourceId))
       if (uploadResponse[1].id !== originalAvatar.thumbnailResourceId)
@@ -138,56 +120,21 @@ export const AvatarService = {
       }
     }
 
-    const avatar = await Engine.instance.api.service('avatar').patch(originalAvatar.id, payload)
-    dispatchAction(AvatarActions.updateAvatarAction({ avatar }))
+    const avatar = await Engine.instance.api.service(avatarPath).patch(originalAvatar.id, payload)
+    getMutableState(AvatarState).avatarList.set((prevAvatarList) => {
+      const index = prevAvatarList.findIndex((item) => item.id === avatar.id)
+      prevAvatarList[index] = avatar
+      return prevAvatarList
+    })
 
-    const authState = getState(AuthState)
-    const userAvatarId = authState.user?.avatarId
+    const userAvatarId = getState(AvatarNetworkState)[Engine.instance.userID]
     if (userAvatarId === avatar.id) {
-      const userId = authState.user?.id!
-      await AvatarService.updateUserAvatarId(userId, avatar.id)
+      AvatarNetworkState.updateUserAvatarId(avatar.id)
     }
   },
 
-  async removeAvatar(keys: string) {
-    await Engine.instance.api.service('avatar').remove('', { query: { keys } })
-    NotificationService.dispatchNotify(i18n.t('user:avatar.remove-success-msg'), { variant: 'success' })
-    return this.fetchAvatarList()
-  },
-
   async removeStaticResource(id: string) {
-    return Engine.instance.api.service('static-resource').remove(id)
-  },
-
-  async updateUserAvatarId(userId: UserId, avatarId: string) {
-    const res = await Engine.instance.api.service('user').patch(userId, { avatarId: avatarId })
-    // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-    dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
-    dispatchAction(
-      AvatarNetworkAction.setAvatarID({
-        avatarID: avatarId,
-        entityUUID: userId as string as EntityUUID
-      })
-    )
-  },
-
-  async uploadAvatar(data: any) {
-    const authState = getState(AuthState)
-    const token = authState.authUser.accessToken
-    const selfUser = authState.user
-    const res = await axios.post(`https://${config.client.serverHost}/upload`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: 'Bearer ' + token
-      }
-    })
-    const userId = selfUser.id ?? null
-    await Engine.instance.api.service('user').patch(userId, {
-      name: selfUser.name
-    })
-    const result = res.data
-    NotificationService.dispatchNotify('Avatar updated', { variant: 'success' })
-    dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
+    return Engine.instance.api.service(staticResourcePath).remove(id)
   },
 
   async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: string) {
@@ -198,28 +145,14 @@ export const AvatarService = {
         avatarId,
         isPublic
       }
-    }).promise as Promise<StaticResourceInterface[]>
+    }).promise as Promise<StaticResourceType[]>
   },
 
   async getAvatar(id: string) {
     try {
-      return Engine.instance.api.service('avatar').get(id)
+      return Engine.instance.api.service(avatarPath).get(id)
     } catch (err) {
       return null
     }
   }
-}
-
-export class AvatarActions {
-  static updateAvatarListAction = defineAction({
-    type: 'ee.client.avatar.AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>,
-    search: matches.string.optional(),
-    skip: matches.number,
-    total: matches.number
-  })
-  static updateAvatarAction = defineAction({
-    type: 'ee.client.avatar.AVATAR_UPDATED' as const,
-    avatar: matches.object as Validator<unknown, AvatarInterface>
-  })
 }

@@ -23,62 +23,81 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
-  Color,
-  DataTexture,
-  DoubleSide,
-  IntType,
+  Light,
   Material,
   Mesh,
-  MeshBasicMaterial,
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
-  RGBAFormat,
+  Object3D,
+  SkinnedMesh,
   Texture
 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
-import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeQuery,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { updateShadowMap } from '../../renderer/functions/RenderSettingsFunction'
-import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { applyBoxProjection, EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
+import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { getRGBArray } from '../constants/Util'
 import { EnvironmentSystem } from './EnvironmentSystem'
 import { FogSystem } from './FogSystem'
 import { ShadowSystem } from './ShadowSystem'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-export function setupObject(obj: Object3DWithEntity, force = false) {
+export const disposeMaterial = (material: Material) => {
+  for (const [key, val] of Object.entries(material) as [string, Texture][]) {
+    if (val && typeof val.dispose === 'function') {
+      val.dispose()
+    }
+  }
+  material.dispose()
+}
+
+export const disposeObject3D = (obj: Object3D) => {
+  const mesh = obj as Mesh<any, any>
+
+  if (mesh.material) {
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach(disposeMaterial)
+    } else {
+      disposeMaterial(mesh.material)
+    }
+  }
+
+  if (mesh.geometry) {
+    mesh.geometry.dispose()
+    for (const key in mesh.geometry.attributes) {
+      mesh.geometry.deleteAttribute(key)
+    }
+  }
+
+  const skinnedMesh = obj as SkinnedMesh
+  if (skinnedMesh.isSkinnedMesh) {
+    skinnedMesh.skeleton?.dispose()
+  }
+
+  const light = obj as Light // anything with dispose function
+  if (typeof light.dispose === 'function') light.dispose()
+}
+
+export function setupObject(obj: Object3DWithEntity, forceBasicMaterials = false) {
   const mesh = obj as any as Mesh<any, any>
   /** @todo do we still need this? */
   //Lambert shader needs an empty normal map to prevent shader errors
@@ -88,17 +107,18 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
       if (!child.userData) child.userData = {}
-      const shouldMakeSimple = (force || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-      if (!force && !isMobileXRHeadset && child.userData.lastMaterial) {
+      const shouldMakeBasic =
+        (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
+      if (!forceBasicMaterials && !isMobileXRHeadset && child.userData.lastMaterial) {
         child.material = child.userData.lastMaterial
         delete child.userData.lastMaterial
-      } else if (shouldMakeSimple && !child.userData.lastMaterial) {
+      } else if (shouldMakeBasic && !child.userData.lastMaterial) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
         const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
 
-        nuMaterial.normalMap = nuMaterial.normalMap //?? normalTexture
+        // nuMaterial.normalMap = nuMaterial.normalMap ?? normalTexture
         nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
 
         if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
@@ -110,7 +130,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
 
         child.material = nuMaterial
         child.userData.lastMaterial = prevMaterial
-        prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
+        prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src, prevMatEntry.parameters)
       }
       // normalTexture.dispose()
     }
@@ -118,7 +138,8 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
 }
 
 const groupQuery = defineQuery([GroupComponent])
-const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
+const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
+const spawnPointQuery = defineQuery([SpawnPointComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
   const { entity, obj } = props
@@ -134,6 +155,8 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
       for (const layer of layers) {
         if (layer.has(obj)) layer.delete(obj)
       }
+
+      obj.traverse(disposeObject3D)
     }
   }, [])
 
@@ -152,6 +175,15 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) 
         csm.setupMaterial(child)
       }
     })
+
+    return () => {
+      obj.traverse((child: Mesh<any, Material>) => {
+        if (!child.isMesh) return
+        if (csm) {
+          csm.teardownMaterial(child)
+        }
+      })
+    }
   }, [shadowComponent?.cast, shadowComponent?.receive, csm])
 
   return null
@@ -177,14 +209,14 @@ const execute = () => {
         FrustumCullCameraComponent.isCulled[entity] &&
         DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
       )
+
     for (const obj of group) obj.visible = visible
   }
+
+  for (const entity of spawnPointQuery()) getComponent(entity, SpawnPointComponent).helperBox?.update()
 }
 
 const reactor = () => {
-  useEffect(() => {
-    Engine.instance.gltfLoader = createGLTFLoader()
-  }, [])
   return <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
 }
 

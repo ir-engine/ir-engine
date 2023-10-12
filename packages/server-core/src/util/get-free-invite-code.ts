@@ -23,17 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import crypto from 'crypto'
 
 const getFreeInviteCode = async (app): Promise<string> => {
   const code = crypto.randomBytes(4).toString('hex')
-  const match = await app.service('user').find({
+  const users = await app.service(userPath).find({
     query: {
       inviteCode: code
     },
     isInternal: true
   })
-  return match.total === 0 ? code : await getFreeInviteCode(app)
+  return users.total === 0 ? code : await getFreeInviteCode(app)
 }
 
 export default getFreeInviteCode

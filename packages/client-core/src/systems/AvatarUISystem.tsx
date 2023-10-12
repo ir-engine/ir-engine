@@ -24,14 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
-import { Consumer } from 'mediasoup-client/lib/Consumer'
 import { useEffect } from 'react'
-import { Group, Matrix4, Vector3 } from 'three'
+import { Group, Vector3 } from 'three'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import multiLogger from '@etherealengine/common/src/logger'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import { easeOutElastic } from '@etherealengine/engine/src/common/functions/MathFunctions'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -39,10 +37,12 @@ import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
-import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkState, webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import {
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag
+} from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '@etherealengine/engine/src/physics/classes/Physics'
 import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@etherealengine/engine/src/physics/functions/getInteractionGroups'
@@ -50,13 +50,19 @@ import { SceneQueryType } from '@etherealengine/engine/src/physics/types/Physics
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { InputState } from '@etherealengine/engine/src/input/state/InputState'
+import { MediasoupMediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
+import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
+import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
+import { AvatarUIStateSystem } from './state/AvatarUIState'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
@@ -69,8 +75,8 @@ export const AvatarMenus = {
   AvatarContext: 'AvatarContext'
 }
 
-export const renderAvatarContextMenu = (userId: UserId, contextMenuEntity: Entity) => {
-  const userEntity = Engine.instance.getUserAvatarEntity(userId)
+export const renderAvatarContextMenu = (userId: UserID, contextMenuEntity: Entity) => {
+  const userEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
   if (!userEntity) return
 
   const contextMenuXRUI = getComponent(contextMenuEntity, XRUIComponent)
@@ -103,7 +109,8 @@ const onPrimaryClick = () => {
   const state = getMutableState(AvatarUIContextMenuState)
   if (state.id.value !== '') {
     const layer = getComponent(state.ui.entity.value, XRUIComponent)
-    const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
+    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
+    const hit = layer.hitTest(pointerScreenRaycaster.ray)
     if (!hit) {
       state.id.set('')
       setVisibleComponent(state.ui.entity.value, false)
@@ -121,10 +128,12 @@ const raycastComponentData = {
 } as RaycastArgs
 
 const onSecondaryClick = () => {
+  const { physicsWorld } = getState(PhysicsState)
+  const pointerState = getState(InputState).pointerState
   const hits = Physics.castRayFromCamera(
-    Engine.instance.camera,
-    Engine.instance.pointerState.position,
-    Engine.instance.physicsWorld,
+    getComponent(Engine.instance.cameraEntity, CameraComponent),
+    pointerState.position,
+    physicsWorld,
     raycastComponentData
   )
   const state = getMutableState(AvatarUIContextMenuState)
@@ -146,7 +155,6 @@ const onSecondaryClick = () => {
 
 const execute = () => {
   const engineState = getState(EngineState)
-  if (!engineState.isEngineInitialized) return
 
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
@@ -182,6 +190,7 @@ const execute = () => {
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
+  const mediaNetwork = NetworkState.mediaNetwork
 
   /** Render immersive media bubbles */
   for (const userEntity of userQuery()) {
@@ -201,8 +210,9 @@ const execute = () => {
     if (dist < 20) transition.setState('IN')
 
     let springAlpha = transition.alpha
+    const deltaSeconds = getState(EngineState).deltaSeconds
 
-    transition.update(Engine.instance.deltaSeconds, (alpha) => {
+    transition.update(deltaSeconds, (alpha) => {
       springAlpha = easeOutElastic(alpha)
     })
 
@@ -210,25 +220,26 @@ const execute = () => {
     xruiTransform.position.copy(_vector3)
     xruiTransform.rotation.copy(cameraTransform.rotation)
 
-    if (Engine.instance.mediaNetwork)
+    if (mediaNetwork)
       if (immersiveMedia && videoPreviewTimer === 0) {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
-        const peers = Engine.instance.mediaNetwork.peers ? Array.from(Engine.instance.mediaNetwork.peers.values()) : []
+        const peers = mediaNetwork.peers ? Object.values(mediaNetwork.peers) : []
         const peer = peers.find((peer) => {
           return peer.userId === ownerId
         })
-        const consumer = Engine.instance.mediaNetwork!.consumers.find(
-          (consumer) =>
-            consumer.appData.peerID === peer?.peerID && consumer.appData.mediaTag === webcamVideoDataChannelType
-        ) as Consumer
-        const paused = consumer && (consumer as any).producerPaused
+        const consumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+          mediaNetwork.id,
+          peer!.peerID,
+          webcamVideoDataChannelType
+        ) as any
+        const active = !consumer?.paused
         if (videoPreviewMesh.material.map) {
-          if (!consumer || paused) {
+          if (!active) {
             videoPreviewMesh.material.map = null!
             videoPreviewMesh.visible = false
           }
         } else {
-          if (consumer && !paused && !applyingVideo.has(ownerId)) {
+          if (active && !applyingVideo.has(ownerId)) {
             applyingVideo.set(ownerId, true)
             const track = (consumer as any).track
             const newVideoTrack = track.clone()
@@ -269,7 +280,7 @@ const execute = () => {
 
   // const state = getState(AvatarUIContextMenuState)
   // if (state.id !== '') {
-  //   renderAvatarContextMenu(state.id as UserId, state.ui.entity)
+  //   renderAvatarContextMenu(state.id as UserID, state.ui.entity)
   // }
 }
 
@@ -290,5 +301,6 @@ const reactor = () => {
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
   execute,
-  reactor
+  reactor,
+  subSystems: [AvatarUIStateSystem]
 })

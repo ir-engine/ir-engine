@@ -32,42 +32,47 @@ import HeightIcon from '@mui/icons-material/Height'
 import OpenWithIcon from '@mui/icons-material/OpenWith'
 import SyncIcon from '@mui/icons-material/Sync'
 
+import { useTranslation } from 'react-i18next'
 import { setTransformMode } from '../../../functions/transformFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const TransformTool = () => {
+  const { t } = useTranslation()
+
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const transformMode = editorHelperState.transformMode.value
 
   return (
-    <div className={styles.toolbarInputGroup}>
-      <InfoTooltip title="[T] Translate" placement="bottom">
-        <button
-          className={styles.toolButton + ' ' + (transformMode === TransformMode.Translate ? styles.selected : '')}
-          onClick={() => setTransformMode(TransformMode.Translate)}
-        >
-          <OpenWithIcon fontSize="small" />
-        </button>
-      </InfoTooltip>
-      <InfoTooltip title="[R] Rotate" placement="bottom">
-        <button
-          className={styles.toolButton + ' ' + (transformMode === TransformMode.Rotate ? styles.selected : '')}
-          onClick={() => setTransformMode(TransformMode.Rotate)}
-        >
-          <SyncIcon fontSize="small" />
-        </button>
-      </InfoTooltip>
-      <InfoTooltip title="[Y] Scale" placement="bottom">
-        <button
-          className={styles.toolButton + ' ' + (transformMode === TransformMode.Scale ? styles.selected : '')}
-          onClick={() => setTransformMode(TransformMode.Scale)}
-        >
-          <HeightIcon fontSize="small" />
-        </button>
-      </InfoTooltip>
-    </div>
+    <InfoTooltip title={t('editor:toolbar.gizmo.description')} placement="right">
+      <div className={styles.toolbarInputGroup}>
+        <InfoTooltip title={t('editor:toolbar.gizmo.translate')} placement="bottom">
+          <button
+            className={styles.toolButton + ' ' + (transformMode === TransformMode.Translate ? styles.selected : '')}
+            onClick={() => setTransformMode(TransformMode.Translate)}
+          >
+            <OpenWithIcon fontSize="small" />
+          </button>
+        </InfoTooltip>
+        <InfoTooltip title={t('editor:toolbar.gizmo.rotate')} placement="bottom">
+          <button
+            className={styles.toolButton + ' ' + (transformMode === TransformMode.Rotate ? styles.selected : '')}
+            onClick={() => setTransformMode(TransformMode.Rotate)}
+          >
+            <SyncIcon fontSize="small" />
+          </button>
+        </InfoTooltip>
+        <InfoTooltip title={t('editor:toolbar.gizmo.scale')} placement="bottom">
+          <button
+            className={styles.toolButton + ' ' + (transformMode === TransformMode.Scale ? styles.selected : '')}
+            onClick={() => setTransformMode(TransformMode.Scale)}
+          >
+            <HeightIcon fontSize="small" />
+          </button>
+        </InfoTooltip>
+      </div>
+    </InfoTooltip>
   )
 }
 

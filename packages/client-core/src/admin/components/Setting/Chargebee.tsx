@@ -23,31 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthState } from '../../../user/services/AuthService'
-import { AdminChargebeeSettingsState, ChargebeeSettingService } from '../../services/Setting/ChargebeeSettingService'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { chargebeeSettingPath } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const ChargeBee = () => {
   const { t } = useTranslation()
-  const chargeBeeSettingState = useHookstate(getMutableState(AdminChargebeeSettingsState))
-  const [chargebee] = chargeBeeSettingState?.chargebee.get({ noproxy: true }) || []
-  const user = useHookstate(getMutableState(AuthState).user)
-
-  useEffect(() => {
-    if (user?.id?.value != null && chargeBeeSettingState?.updateNeeded?.value) {
-      ChargebeeSettingService.fetchChargeBee()
-    }
-  }, [user?.id?.value, chargeBeeSettingState?.updateNeeded?.value])
+  const chargebee = useFind(chargebeeSettingPath).data.at(0)
 
   return (
     <Box>

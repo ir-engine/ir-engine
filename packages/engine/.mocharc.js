@@ -27,11 +27,10 @@ Ethereal Engine. All Rights Reserved.
 
 module.exports = {
   failZero: false,
-  parallel: false,
+  parallel: true,
   spec: ['**/*.test.ts'],
   require: [
     'tests/mocha.env', // init env here
-    'ts-node/register',
     'jsdom-global/register'
   ],
   extension: [

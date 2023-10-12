@@ -28,35 +28,40 @@ import React from 'react'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import IconButtonWithTooltip from '@etherealengine/ui/src/primitives/mui/IconButtonWithTooltip'
+import { useTranslation } from 'react-i18next'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { useFullscreen } from '../useFullscreen'
 import styles from './index.module.scss'
 
 export const Fullscreen = () => {
+  const { t } = useTranslation()
   const [fullScreenActive, setFullScreenActive] = useFullscreen()
   const { bottomShelfStyle } = useShelfStyles()
   return (
     <>
       {fullScreenActive ? (
-        <button
-          type="button"
-          className={`${styles.btn} ${styles.fullScreen} ${bottomShelfStyle} `}
+        <IconButtonWithTooltip
+          title={t('user:menu.exitFullScreen')}
+          className={`${styles.btn} ${bottomShelfStyle} `}
+          tooltipClassName={styles.fullScreen}
+          background="white"
           onClick={() => setFullScreenActive(false)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        >
-          <Icon type="FullscreenExit" />
-        </button>
+          icon={<Icon type="FullscreenExit" />}
+        />
       ) : (
-        <button
-          type="button"
-          className={`${styles.btn} ${styles.fullScreen} ${bottomShelfStyle} `}
+        <IconButtonWithTooltip
+          title={t('user:menu.enterFullScreen')}
+          className={`${styles.btn} ${bottomShelfStyle} `}
+          tooltipClassName={styles.fullScreen}
+          background="white"
           onClick={() => setFullScreenActive(true)}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-        >
-          <Icon type="ZoomOutMap" />
-        </button>
+          icon={<Icon type="ZoomOutMap" />}
+        />
       )}
     </>
   )

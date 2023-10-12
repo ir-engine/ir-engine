@@ -26,14 +26,19 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 
+import ClearIcon from '@mui/icons-material/Clear'
 import TimelineIcon from '@mui/icons-material/Timeline'
 
+import { Quaternion, Vector3 } from 'three'
 import { PropertiesPanelButton } from '../inputs/Button'
+import EulerInput from '../inputs/EulerInput'
+import InputGroup from '../inputs/InputGroup'
+import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, commitProperty } from './Util'
 
 /**
  * SplineNodeEditor used to create and customize splines in the scene.
@@ -44,16 +49,53 @@ import { EditorComponentType } from './Util'
 
 export const SplineNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-
-  const onAddNode = () => {
-    const obj3d = getComponent(props.entity, GroupComponent)[0]
-    const newSplineObject = obj3d.userData.helper.addPoint()
-    obj3d.add(newSplineObject)
-  }
-
+  const component = useComponent(props.entity, SplineComponent)
+  const elements = component.elements
   return (
     <NodeEditor description={t('editor:properties.spline.description')} {...props}>
-      <PropertiesPanelButton onClick={onAddNode}>{t('editor:properties.spline.lbl-addNode')}</PropertiesPanelButton>
+      <InputGroup name="Add Point">
+        <PropertiesPanelButton
+          onClick={() => {
+            const elem = { position: new Vector3(), quaternion: new Quaternion() }
+            const newElements = [...elements.value, elem]
+            commitProperty(SplineComponent, 'elements')(newElements)
+          }}
+        >
+          {t('editor:properties.spline.lbl-addNode')}
+        </PropertiesPanelButton>
+      </InputGroup>
+      {elements.map((elem, index) => (
+        <div key={index}>
+          <br />
+          <div style={{ display: 'flex-row' }}>
+            <ClearIcon
+              onClick={() => {
+                const newElements = [...elements.value].filter((_, i) => i !== index)
+                commitProperty(SplineComponent, 'elements')(newElements)
+              }}
+              style={{ color: 'white' }}
+            />
+            <InputGroup name="Position" label={`${t('editor:properties.transform.lbl-position')} ${index + 1}`}>
+              <Vector3Input
+                //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+                value={elem.position.value}
+                smallStep={0.01}
+                mediumStep={0.1}
+                largeStep={1}
+                onChange={commitProperty(SplineComponent, `elements.${index}.position` as any)}
+              />
+            </InputGroup>
+            <InputGroup name="Rotation" label={`${t('editor:properties.transform.lbl-rotation')} ${index + 1}`}>
+              <EulerInput
+                //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+                quaternion={elem.quaternion.value}
+                unit="°"
+                onChange={commitProperty(SplineComponent, `elements.${index}.quaternion` as any)}
+              />
+            </InputGroup>
+          </div>
+        </div>
+      ))}
     </NodeEditor>
   )
 }

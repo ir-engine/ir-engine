@@ -23,29 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
 import { useEffect } from 'react'
 import { VideoTexture } from 'three'
 
-import logger from '@etherealengine/common/src/logger'
-import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
-import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
+import { MediaComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
-import { defaultSpatialComponents } from '../../scene/systems/SceneObjectUpdateSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AudioSettingReceptor, AudioState } from '../AudioState'
+import { VolumetricComponent, endLoadingEffect } from '../../scene/components/VolumetricComponent'
+import { AudioState, useAudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
 export class AudioEffectPlayer {
@@ -69,7 +61,7 @@ export class AudioEffectPlayer {
 
   loadBuffer = async (path: string) => {
     const buffer = await AssetLoader.loadAsync(path)
-    this.bufferMap[path] = buffer
+    return buffer
   }
 
   // pool of elements
@@ -79,6 +71,7 @@ export class AudioEffectPlayer {
     if (this.#els.length) return
     for (let i = 0; i < 20; i++) {
       const audioElement = document.createElement('audio')
+      audioElement.crossOrigin = 'anonymous'
       audioElement.loop = false
       this.#els.push(audioElement)
     }
@@ -90,8 +83,8 @@ export class AudioEffectPlayer {
     if (!this.#els.length) return
 
     if (!this.bufferMap[sound]) {
-      logger.error('[AudioEffectPlayer]: Buffer not found for source: ', sound)
-      return
+      // create buffer if doesn't exist
+      this.bufferMap[sound] = await AudioEffectPlayer?.instance?.loadBuffer(sound)
     }
 
     const source = getState(AudioState).audioContext.createBufferSource()
@@ -107,15 +100,9 @@ export class AudioEffectPlayer {
 
 globalThis.AudioEffectPlayer = AudioEffectPlayer
 
-export const MediaPrefabs = {
-  audio: 'Audio' as const,
-  video: 'Video' as const,
-  volumetric: 'Volumetric' as const
-}
-
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
-const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
+const volumetricQuery = defineQuery([VolumetricComponent])
 const audioQuery = defineQuery([PositionalAudioComponent])
 
 const execute = () => {
@@ -125,10 +112,30 @@ const execute = () => {
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
   }
 
-  for (const entity of volumetricQuery.enter()) {
-    enterVolumetric(entity)
+  for (const entity of volumetricQuery()) {
+    const volumetric = getComponent(entity, VolumetricComponent)
+    const player = volumetric.player
+    if (player) {
+      player.update()
+      const height = volumetric.height
+      const step = volumetric.height / 150
+      if (volumetric.loadingEffectActive && player.mesh) {
+        if (volumetric.loadingEffectTime <= height) {
+          player.mesh.traverse((child: any) => {
+            if (child['material']) {
+              if (child.material.uniforms) {
+                child.material.uniforms.time = volumetric.loadingEffectTime
+              }
+            }
+          })
+          volumetric.loadingEffectTime += step
+        } else {
+          volumetric.loadingEffectActive = false
+          endLoadingEffect(entity, player.mesh)
+        }
+      }
+    }
   }
-  for (const entity of volumetricQuery()) updateVolumetric(entity)
   for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
 
   const videoPriorityQueue = getState(VideoTexturePriorityQueueState).queue
@@ -163,106 +170,32 @@ const reactor = () => {
       if (audioContext.state === 'suspended') audioContext.resume()
     }
 
-    if (isClient && !getState(EngineState).isEditor) {
+    if (isClient) {
       // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
       // in order to ensure media will play programmatically
-      const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
       const handleAutoplay = () => {
         enableAudioContext()
-        for (const entity of mediaQuery()) {
-          const mediaElement = getComponent(entity, MediaElementComponent)
-          const media = getComponent(entity, MediaComponent)
-          if (!media.paused && mediaElement?.element.paused) mediaElement.element.play()
-        }
+        window.removeEventListener('pointerup', handleAutoplay)
+        window.removeEventListener('keypress', handleAutoplay)
+        window.removeEventListener('touchend', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('pointerup', handleAutoplay)
+        EngineRenderer.instance.renderer.domElement.removeEventListener('touchend', handleAutoplay)
       }
       // TODO: add destroy callbacks
-      window.addEventListener('pointerdown', handleAutoplay)
+      window.addEventListener('pointerup', handleAutoplay)
       window.addEventListener('keypress', handleAutoplay)
-      window.addEventListener('touchstart', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
-      EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
+      window.addEventListener('touchend', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.addEventListener('pointerup', handleAutoplay)
+      EngineRenderer.instance.renderer.domElement.addEventListener('touchend', handleAutoplay)
     }
 
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] } },
-      { name: PositionalAudioComponent.jsonID }
-    ])
-
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.video, [
-      ...defaultSpatialComponents,
-      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleVideo.mp4'] } },
-      { name: PositionalAudioComponent.jsonID },
-      { name: VideoComponent.jsonID }
-    ])
-
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
-      ...defaultSpatialComponents,
-      { name: MediaComponent.jsonID },
-      { name: PositionalAudioComponent.jsonID },
-      { name: VolumetricComponent.jsonID }
-    ])
-
-    const audioState = getMutableState(AudioState)
-    const currentTime = audioState.audioContext.currentTime.value
-
-    audioState.cameraGainNode.gain.value.setTargetAtTime(audioState.masterVolume.value, currentTime, 0.01)
-
-    /** create gain nodes for mix buses */
-    audioState.gainNodeMixBuses.mediaStreams.set(audioContext.createGain())
-    audioState.gainNodeMixBuses.mediaStreams.value.connect(audioState.cameraGainNode.value)
-    audioState.gainNodeMixBuses.mediaStreams.value.gain.setTargetAtTime(
-      audioState.mediaStreamVolume.value,
-      currentTime,
-      0.01
-    )
-
-    audioState.gainNodeMixBuses.notifications.set(audioContext.createGain())
-    audioState.gainNodeMixBuses.notifications.value.connect(audioState.cameraGainNode.value)
-    audioState.gainNodeMixBuses.notifications.value.gain.setTargetAtTime(
-      audioState.notificationVolume.value,
-      currentTime,
-      0.01
-    )
-
-    audioState.gainNodeMixBuses.music.set(audioContext.createGain())
-    audioState.gainNodeMixBuses.music.value.connect(audioState.cameraGainNode.value)
-    audioState.gainNodeMixBuses.music.value.gain.setTargetAtTime(
-      audioState.backgroundMusicVolume.value,
-      currentTime,
-      0.01
-    )
-
-    audioState.gainNodeMixBuses.soundEffects.set(audioContext.createGain())
-    audioState.gainNodeMixBuses.soundEffects.value.connect(audioState.cameraGainNode.value)
-    audioState.gainNodeMixBuses.soundEffects.value.gain.setTargetAtTime(
-      audioState.soundEffectsVolume.value,
-      currentTime,
-      0.01
-    )
-
-    Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
-
-    addActionReceptor(AudioSettingReceptor)
-
     return () => {
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.audio)
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.video)
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.volumetric)
-
-      audioState.gainNodeMixBuses.mediaStreams.value.disconnect()
-      audioState.gainNodeMixBuses.mediaStreams.set(null!)
-      audioState.gainNodeMixBuses.notifications.value.disconnect()
-      audioState.gainNodeMixBuses.notifications.set(null!)
-      audioState.gainNodeMixBuses.music.value.disconnect()
-      audioState.gainNodeMixBuses.music.set(null!)
-      audioState.gainNodeMixBuses.soundEffects.value.disconnect()
-      audioState.gainNodeMixBuses.soundEffects.set(null!)
-
       for (const sound of Object.values(AudioEffectPlayer.SOUNDS)) delete AudioEffectPlayer.instance.bufferMap[sound]
     }
   }, [])
+
+  useAudioState()
+
   return null
 }
 

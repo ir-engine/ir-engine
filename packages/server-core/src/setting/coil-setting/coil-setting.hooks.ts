@@ -24,18 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  coilSettingDataSchema,
-  coilSettingPatchSchema,
-  coilSettingQuerySchema,
-  coilSettingSchema
+  coilSettingDataValidator,
+  coilSettingPatchValidator,
+  coilSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   coilSettingDataResolver,
@@ -45,12 +41,6 @@ import {
   coilSettingResolver
 } from './coil-setting.resolvers'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const coilSettingValidator = getValidator(coilSettingSchema, dataValidator)
-const coilSettingDataValidator = getValidator(coilSettingDataSchema, dataValidator)
-const coilSettingPatchValidator = getValidator(coilSettingPatchSchema, dataValidator)
-const coilSettingQueryValidator = getValidator(coilSettingQuerySchema, queryValidator)
-
 export default {
   around: {
     all: [schemaHooks.resolveExternal(coilSettingExternalResolver), schemaHooks.resolveResult(coilSettingResolver)]
@@ -58,7 +48,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(coilSettingQueryValidator),
       schemaHooks.resolveQuery(coilSettingQueryResolver)
     ],

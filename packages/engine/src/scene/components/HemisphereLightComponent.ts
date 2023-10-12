@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { Color, HemisphereLight } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
@@ -37,7 +37,6 @@ export const HemisphereLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new HemisphereLight()
-    addObjectToGroup(entity, light)
     return {
       light,
       skyColor: new Color(),
@@ -72,7 +71,9 @@ export const HemisphereLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const light = useComponent(entity, HemisphereLightComponent)
-
+    useEffect(() => {
+      addObjectToGroup(entity, light.light.value)
+    }, [])
     useEffect(() => {
       light.light.value.groundColor.set(light.groundColor.value)
     }, [light.groundColor])

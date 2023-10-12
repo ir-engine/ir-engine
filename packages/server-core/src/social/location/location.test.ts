@@ -27,6 +27,8 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -48,13 +50,27 @@ describe('location.test', () => {
 
   it('should create a new location', async () => {
     const name = `Test Location ${v1()}`
+    const sceneId = `test-scene-${v1()}`
 
-    const location_settings = await app.service('location-settings').create({})
-
-    const item = await app.service('location').create(
+    const item = await app.service(locationPath).create(
       {
         name,
-        location_settings
+        slugifiedName: '',
+        sceneId,
+        maxUsersPerInstance: 30,
+        locationSetting: {
+          id: '',
+          locationType: 'public',
+          audioEnabled: true,
+          videoEnabled: true,
+          faceStreamingEnabled: false,
+          screenSharingEnabled: false,
+          locationId: '',
+          createdAt: '',
+          updatedAt: ''
+        },
+        isLobby: false,
+        isFeatured: false
       },
       params
     )
@@ -65,7 +81,7 @@ describe('location.test', () => {
   })
 
   it('should get the new location', async () => {
-    const item = await app.service('location').get(locations[0].id)
+    const item = await app.service(locationPath).get(locations[0].id)
 
     assert.ok(item)
     assert.equal(item.name, locations[0].name)
@@ -75,10 +91,25 @@ describe('location.test', () => {
 
   it('should be able to update the location', async () => {
     const newName = `Update Test Location ${v1()}`
-    const location_settings = await app.service('location-settings').create({})
+    const locationSetting = await app.service(locationSettingPath).create({
+      locationType: 'public',
+      audioEnabled: true,
+      videoEnabled: true,
+      faceStreamingEnabled: false,
+      screenSharingEnabled: false,
+      locationId: locations[0].id
+    })
+
+    const locationData = JSON.parse(JSON.stringify(locations[0]))
+    delete locationData.locationBans
+    delete locationData.locationAuthorizedUsers
+    delete locationData.locationAdmin
+    delete locationData.createdAt
+    delete locationData.updatedAt
+
     const item = await app
-      .service('location')
-      .patch(locations[0].id, { ...locations[0], name: newName, location_settings })
+      .service(locationPath)
+      .patch(locations[0].id, { ...locationData, name: newName, locationSetting })
 
     assert.ok(item)
     assert.equal(item.name, newName)
@@ -87,14 +118,14 @@ describe('location.test', () => {
   })
 
   it('should not be able to make lobby if not admin', () => {
-    assert.rejects(() => app.service('location').patch(locations[0].id, { isLobby: true }))
+    assert.rejects(() => app.service(locationPath).patch(locations[0].id, { isLobby: true }))
   })
 
   it('should be able to delete the location', async () => {
-    await app.service('location').remove(locations[0].id)
+    await app.service(locationPath).remove(locations[0].id)
 
-    const item = await app.service('location').find({ query: { id: locations[0].id } })
+    const item = await app.service(locationPath).find({ query: { id: locations[0].id } })
 
-    assert.equal((item as any).total, 0)
+    assert.equal(item.total, 0)
   })
 })

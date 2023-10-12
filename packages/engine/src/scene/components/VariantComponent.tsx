@@ -23,25 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ReactElement, useEffect } from 'react'
-import React from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import matches from 'ts-matches'
 
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
-  getComponent,
-  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
-import { isMobileXRHeadset } from '../../xr/XRState'
 import { setModelVariant } from '../functions/loaders/VariantFunctions'
 import { ModelComponent } from './ModelComponent'
 
@@ -57,7 +52,8 @@ export const VariantComponent = defineComponent({
 
   onInit: (entity) => ({
     levels: [] as VariantLevel[],
-    heuristic: 'MANUAL' as 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE'
+    heuristic: 'MANUAL' as 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
+    calculated: false
   }),
 
   onSet: (entity, component, json) => {
@@ -77,6 +73,7 @@ export const VariantComponent = defineComponent({
     ) {
       component.levels.set(json.levels)
     }
+    if (typeof json.calculated === 'boolean') component.calculated.set(json.calculated)
   },
 
   toJSON: (entity, component) => ({

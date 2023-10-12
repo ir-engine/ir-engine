@@ -24,21 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
 import {
   defineComponent,
-  hasComponent,
-  useComponent
+  setComponent,
+  useComponent,
+  useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -72,6 +71,8 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, MediaComponent, {})
+
     if (!json) return
     if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)
@@ -109,12 +110,13 @@ export const PositionalAudioComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
     const audio = useComponent(entity, PositionalAudioComponent)
-    const mediaElement = useComponent(entity, MediaElementComponent)
+    const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
     useEffect(() => {
       if (
         debugEnabled.value &&
         !audio.helper.value &&
+        mediaElement &&
         mediaElement.element.value &&
         AudioNodeGroups.has(mediaElement.element.value)
       ) {

@@ -32,11 +32,10 @@ import { LoadingCircle } from '../components/LoadingCircle'
 const Avatars = lazy(() => import('./components/Avatars'))
 const Benchmarking = lazy(() => import('./components/Benchmarking'))
 const BotSetting = lazy(() => import('./components/Bots'))
-const Groups = lazy(() => import('./components/Group'))
 const Instance = lazy(() => import('./components/Instance'))
 const Invites = lazy(() => import('./components/Invite'))
 const Locations = lazy(() => import('./components/Location'))
-const Party = lazy(() => import('./components/Party'))
+const Channels = lazy(() => import('./components/Channels'))
 const Projects = lazy(() => import('./components/Project'))
 const Recordings = lazy(() => import('./components/Recordings'))
 const Resources = lazy(() => import('./components/Resources'))
@@ -48,12 +47,11 @@ const Users = lazy(() => import('./components/Users'))
 const availableRoutes = [
   { route: '/avatars', key: 'globalAvatars', component: Avatars, props: {} },
   { route: '/benchmarking', key: 'benchmarking', component: Benchmarking, props: {} },
-  { route: '/groups', key: 'groups', component: Groups, props: {} },
   { route: '/instance', key: 'instance', component: Instance, props: {} },
   { route: '/invites', key: 'invite', component: Invites, props: {} },
   { route: '/locations', key: 'location', component: Locations, props: {} },
   { route: '/routes', key: 'routes', component: RoutesComp, props: {} },
-  { route: '/parties', key: 'party', component: Party, props: {} },
+  { route: '/channel', key: 'channel', component: Channels, props: {} },
   { route: '/bots', key: 'bot', component: BotSetting, props: {} },
   { route: '/projects', key: 'projects', component: Projects, props: {} },
   { route: '/server', key: 'server', component: Server, props: {} },

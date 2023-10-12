@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
@@ -41,73 +41,57 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { AuthState } from '../../../services/AuthService'
-import { AvatarService, AvatarState } from '../../../services/AvatarService'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { debounce } from 'lodash'
 import { UserMenus } from '../../../UserUISystem'
-import styles from '../index.module.scss'
+import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
+
+const AVATAR_PAGE_LIMIT = 100
 
 const AvatarMenu = () => {
   const { t } = useTranslation()
   const authState = useHookstate(getMutableState(AuthState))
   const userId = authState.user?.id?.value
-  const userAvatarId = authState.user?.avatarId?.value
+  const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as EntityUUID)
 
-  const avatarState = useHookstate(getMutableState(AvatarState))
-  const { avatarList, search } = avatarState.value
+  const page = useHookstate(0)
+  const selectedAvatarId = useHookstate('')
+  const search = useHookstate({ local: '', query: '' })
 
-  const [page, setPage] = useState(0)
-  const [localSearchString, setLocalSearchString] = useState(search)
-  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>(userAvatarId)
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null)
-
-  const selectedAvatar = avatarList.find((item) => item.id === selectedAvatarId)
-
-  useEffect(() => {
-    AvatarService.fetchAvatarList()
-  }, [])
-
-  const setAvatar = (avatarId: string) => {
-    if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
-    if (authState.user?.value) {
-      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId)
+  const avatarsData = useFind(avatarPath, {
+    query: {
+      name: {
+        $like: `%${search.query.value}%`
+      },
+      $skip: page.value * AVATAR_PAGE_LIMIT,
+      $limit: AVATAR_PAGE_LIMIT
     }
-  }
+  }).data
+  const currentAvatar = avatarsData.find((item) => item.id === selectedAvatarId.value)
+
+  const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
 
   const handleConfirmAvatar = () => {
-    if (selectedAvatarId && selectedAvatar && userAvatarId !== selectedAvatarId) {
-      setAvatar(selectedAvatarId)
-      PopupMenuServices.showPopupMenu()
+    if (userAvatarId.value !== selectedAvatarId.value) {
+      if (!hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent) && authState.user?.value) {
+        AvatarState.updateUserAvatarId(selectedAvatarId.value)
+      }
     }
-    setSelectedAvatarId(undefined)
-  }
-
-  const handleNextAvatars = (e) => {
-    e.preventDefault()
-
-    setPage(page + 1)
-    AvatarService.fetchAvatarList(search, 'increment')
-  }
-
-  const handlePreviousAvatars = (e) => {
-    e.preventDefault()
-
-    setPage(page - 1)
-    AvatarService.fetchAvatarList(search, 'decrement')
+    selectedAvatarId.set('')
   }
 
   const handleSearch = async (searchString: string) => {
-    setLocalSearchString(searchString)
+    search.local.set(searchString)
 
-    if (searchTimeout) {
-      clearTimeout(searchTimeout)
+    if (searchTimeoutCancelRef.current) {
+      searchTimeoutCancelRef.current()
     }
-
-    const timeout = setTimeout(() => {
-      AvatarService.fetchAvatarList(searchString)
-    }, 1000)
-
-    setSearchTimeout(timeout)
+    searchTimeoutCancelRef.current = debounce(() => search.query.set(searchString), 1000).cancel
   }
 
   return (
@@ -117,7 +101,7 @@ const AvatarMenu = () => {
       actions={
         <Box display="flex" width="100%">
           <Button
-            disabled={!selectedAvatar || selectedAvatar.id === userAvatarId}
+            disabled={!currentAvatar || currentAvatar.id === userAvatarId.value}
             startIcon={<Icon type="Check" />}
             size="medium"
             type="gradientRounded"
@@ -135,13 +119,13 @@ const AvatarMenu = () => {
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
           <Grid item md={6} sx={{ width: '100%', mt: 1 }}>
-            <AvatarPreview fill avatarUrl={selectedAvatar?.modelResource?.url} />
+            <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
           </Grid>
 
           <Grid item md={6} sx={{ width: '100%' }}>
             <InputText
               placeholder={t('user:avatar.searchAvatar')}
-              value={localSearchString}
+              value={search.local.value}
               sx={{ mt: 1 }}
               onChange={(e) => handleSearch(e.target.value)}
             />
@@ -149,25 +133,25 @@ const AvatarMenu = () => {
             <IconButton
               icon={<Icon type="KeyboardArrowUp" />}
               sx={{ display: 'none' }}
-              onClick={handlePreviousAvatars}
+              onClick={() => page.set((prevPage) => prevPage - 1)}
             />
 
             <Grid container sx={{ height: '275px', gap: 1.5, overflowX: 'hidden', overflowY: 'auto' }}>
-              {avatarList.map((avatar) => (
+              {avatarsData.map((avatar) => (
                 <Grid item key={avatar.id} md={12} sx={{ pt: 0, width: '100%' }}>
                   <Avatar
                     imageSrc={avatar.thumbnailResource?.url || ''}
-                    isSelected={selectedAvatar && avatar.id === selectedAvatar.id}
+                    isSelected={currentAvatar && avatar.id === currentAvatar.id}
                     name={avatar.name}
                     showChangeButton={userId && avatar.userId === userId}
                     type="rectangle"
-                    onClick={() => setSelectedAvatarId(avatar.id)}
-                    onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })}
+                    onClick={() => selectedAvatarId.set(avatar.id)}
+                    onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { currentAvatar: avatar })}
                   />
                 </Grid>
               ))}
 
-              {avatarList.length === 0 && (
+              {avatarsData.length === 0 && (
                 <Text align="center" margin={'32px auto'} variant="body2">
                   {t('user:avatar.noAvatars')}
                 </Text>
@@ -178,7 +162,7 @@ const AvatarMenu = () => {
               <IconButton
                 icon={<Icon type="KeyboardArrowDown" />}
                 sx={{ display: 'none' }}
-                onClick={handleNextAvatars}
+                onClick={() => page.set((prevPage) => prevPage + 1)}
               />
             </Box>
             <Button

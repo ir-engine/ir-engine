@@ -43,6 +43,7 @@ import {
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { Physics } from '@etherealengine/engine/src/physics/classes/Physics'
+import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
@@ -107,7 +108,7 @@ const resaveAllProjects = async () => {
     cli.info(`Project: ${projectname}, Scene: ${sceneName}`)
 
     createEngine()
-    Engine.instance.physicsWorld = Physics.createWorld()
+    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     await loadEngineInjection(projects)
 
     getMutableState(EngineState).isEditor.set(true)

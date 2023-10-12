@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BufferGeometry, Mesh, PlaneGeometry, Scene } from 'three'
+import { BufferGeometry, Mesh, Scene } from 'three'
 
 import { MaterialComponentType } from '../../renderer/materials/components/MaterialComponent'
 import createGLTFExporter from './createGLTFExporter'

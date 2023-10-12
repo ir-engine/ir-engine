@@ -27,7 +27,6 @@ import BasisEncoderModuleSRC from './basis_encoder_low_memory/basis_encoder.js.t
 // @ts-ignore
 import BasisEncoderWASMBinary from './basis_encoder_low_memory/basis_encoder.wasm'
 import type { KTX2EncodeRequestData, KTX2EncodeResponseData } from './KTX2Encoder'
-
 ;(0, eval)(BasisEncoderModuleSRC)
 declare const BASIS: any
 
@@ -75,10 +74,10 @@ async function encodeKTX2BasisTexture(data: KTX2EncodeRequestData): Promise<Arra
     if (data.options.uastc) {
       basisEncoder.setKTX2UASTCSupercompression(data.options.uastcZstandard ?? false)
       basisEncoder.setPackUASTCFlags(data.options.uastcFlags ?? 2)
+    } else {
+      basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128)
+      basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2)
     }
-
-    basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128)
-    basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2)
 
     if (data.options.srgb) {
       basisEncoder.setPerceptual(true)

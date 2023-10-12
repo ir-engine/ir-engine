@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 
-import { authenticationSeed } from './authentication-setting/authentication.seed'
+import * as authenticationSeed from './authentication-setting/authentication-setting.seed'
 import * as awsSeed from './aws-setting/aws-setting.seed'
 import * as chargebeeSeed from './chargebee-setting/chargebee-setting.seed'
 import * as clientSeed from './client-setting/client-setting.seed'
@@ -38,11 +37,8 @@ import * as redisSeed from './redis-setting/redis-setting.seed'
 import * as serverSeed from './server-setting/server-setting.seed'
 import * as taskServerSeed from './task-server-setting/task-server-setting.seed'
 
-export const settingSequelizeSeeds: Array<ServicesSeedConfig> = [authenticationSeed]
-
-export default settingSequelizeSeeds
-
 export const settingSeeds: Array<KnexSeed> = [
+  authenticationSeed,
   clientSeed,
   serverSeed,
   chargebeeSeed,

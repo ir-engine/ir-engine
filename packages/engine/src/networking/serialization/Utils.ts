@@ -50,7 +50,7 @@ export type SerializationSchema = {
  * @param fn function to memoize inputs for
  * @returns {function}
  */
-const memoize = (fn: Function) => {
+const memoize = (fn: any) => {
   const cache = new Map()
   return (input: any) => {
     if (cache.has(input)) return cache.get(input)

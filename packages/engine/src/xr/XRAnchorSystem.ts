@@ -25,67 +25,46 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import {
-  AxesHelper,
   ConeGeometry,
   Group,
   MathUtils,
-  Matrix4,
   Mesh,
   MeshBasicMaterial,
-  MeshNormalMaterial,
   Plane,
   Quaternion,
-  Ray,
   RingGeometry,
   SphereGeometry,
   Vector3
 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import {
-  defineActionQueue,
-  defineState,
-  getMutableState,
-  getState,
-  removeActionQueue,
-  startReactor,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import {
   ComponentType,
   defineQuery,
   getComponent,
   getMutableComponent,
-  getOptionalComponent,
   removeComponent,
-  removeQuery,
   setComponent,
-  useComponent,
   useOptionalComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
+import { EntityTreeComponent } from '../ecs/functions/EntityTree'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
-} from '../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
-  const xrFrame = Engine.instance.xrFrame!
+  const xrFrame = getState(XRState).xrFrame!
   const hitTest = getMutableComponent(entity, XRHitTestComponent)
   const localTransform = getComponent(entity, LocalTransformComponent)
   const hitTestResults = (hitTest.source.value && xrFrame.getHitTestResults(hitTest.source.value!)) ?? []
@@ -93,15 +72,16 @@ export const updateHitTest = (entity: Entity) => {
   const space = ReferenceSpace.localFloor // xrFrame.session.interactionMode === 'world-space' ? ReferenceSpace.localFloor! : ReferenceSpace.viewer!
   const pose = space && hitTestResults?.length && hitTestResults[0].getPose(space)
   if (pose) {
-    localTransform.parentEntity =
+    const parentEntity =
       space === ReferenceSpace.localFloor ? Engine.instance.originEntity : Engine.instance.cameraEntity
+    setComponent(entity, EntityTreeComponent, { parentEntity })
     localTransform.position.copy(pose.transform.position as any)
     localTransform.rotation.copy(pose.transform.orientation as any)
   }
 }
 
 export const updateAnchor = (entity: Entity) => {
-  const xrFrame = Engine.instance.xrFrame!
+  const xrFrame = getState(XRState).xrFrame!
   const anchor = getComponent(entity, XRAnchorComponent).anchor
   const localTransform = getComponent(entity, LocalTransformComponent)
   const pose = ReferenceSpace.localFloor && xrFrame.getPose(anchor.anchorSpace, ReferenceSpace.localFloor)
@@ -128,7 +108,7 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 /** AR placement for immersive session */
 // export const getHitTestFromController = () => {
 //   const referenceSpace = ReferenceSpace.origin!
-//   const pose = Engine.instance.xrFrame!.getPose(Engine.instance.inputSources[0].targetRaySpace, referenceSpace)!
+//   const pose = getState(XRState).xrFrame!.getPose(Engine.instance.inputSources[0].targetRaySpace, referenceSpace)!
 //   const { position, orientation } = pose.transform
 
 //   pos.copy(position as any as Vector3)
@@ -163,12 +143,13 @@ const _quat180 = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 
 /** Swipe to rotate */
 // TODO; move into interactable after spatial input refactor
+// const deltaState = getState(EngineState).deltaSeconds
 // if (hitTestComponent?.hitTestResult) {
 //   const placementInputSource = xrState.scenePlacementMode.value!
 //   const swipe = placementInputSource.gamepad?.axes ?? []
 //   if (swipe.length) {
 //     const delta = swipe[0] - (lastSwipeValue ?? 0)
-//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (Engine.instance.deltaSeconds * 20)))
+//     if (lastSwipeValue) xrState.sceneRotationOffset.set((val) => (val += delta / (deltaSeconds * 20)))
 //     lastSwipeValue = swipe[0]
 //   } else {
 //     lastSwipeValue = null
@@ -187,7 +168,7 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
   const placing = xrState.scenePlacementMode === 'placing'
   if (!placing) return xrState.sceneScale
 
-  const xrFrame = Engine.instance.xrFrame
+  const xrFrame = getState(XRState).xrFrame
   if (!xrFrame) return 1
 
   const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
@@ -201,6 +182,8 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
   /**
    * Lock lifesize to 1:1, whereas dollhouse mode uses
    * the distance from the camera to the hit test plane.
+   *
+   * Miniature scale math shrinks exponentially from 20% to 1%, between 0.6 meters to 0.01 meters from the hit test plane
    */
   const minDollhouseScale = 0.01
   const maxDollhouseScale = 0.2
@@ -225,27 +208,26 @@ const getTargetWorldSize = (localTransform: ComponentType<typeof LocalTransformC
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   // assumes local transform is relative to origin
-  let localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
+  const localTransform = getComponent(scenePlacementEntity, LocalTransformComponent)
 
-  const xrFrame = Engine.instance.xrFrame
   const xrState = getState(XRState)
+  const xrFrame = xrState.xrFrame
   const xrSession = xrState.session
 
   if (!localTransform || !xrFrame || !xrSession) return
 
-  const lerpAlpha = smootheLerpAlpha(5, Engine.instance.deltaSeconds)
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  const lerpAlpha = smootheLerpAlpha(5, deltaSeconds)
 
   const targetScale = getTargetWorldSize(localTransform)
   if (targetScale !== xrState.sceneScale)
     getMutableState(XRState).sceneScale.set(MathUtils.lerp(xrState.sceneScale, targetScale, lerpAlpha))
 
-  const targetPosition = _vecPosition.copy(localTransform.position) //.multiplyScalar(1 / xrState.sceneScale)
+  const targetPosition = _vecPosition.copy(localTransform.position).multiplyScalar(1 / xrState.sceneScale)
   const targetRotation = localTransform.rotation.multiply(_quat.setFromAxisAngle(V_010, xrState.sceneRotationOffset))
 
   xrState.scenePosition.copy(targetPosition)
   xrState.sceneRotation.copy(targetRotation)
-  // xrState.scenePosition.value.lerp(targetPosition, lerpAlpha)
-  // xrState.sceneRotation.value.slerp(targetRotation, lerpAlpha)
 }
 
 const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
@@ -274,7 +256,8 @@ const XRAnchorSystemState = defineState({
   initial: () => {
     const scenePlacementEntity = createEntity()
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
-    setLocalTransformComponent(scenePlacementEntity, Engine.instance.originEntity)
+    setComponent(scenePlacementEntity, LocalTransformComponent)
+    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(scenePlacementEntity, VisibleComponent, true)
 
     // const originAxesHelper = new AxesHelper(10000)
@@ -294,14 +277,14 @@ const execute = () => {
 
   for (const action of xrSessionChangedQueue()) {
     if (!action.active) {
-      setTransformComponent(Engine.instance.originEntity) // reset world origin
+      setComponent(Engine.instance.originEntity, TransformComponent) // reset world origin
       getMutableState(XRState).scenePlacementMode.set('unplaced')
       for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
       for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
     }
   }
 
-  if (!Engine.instance.xrFrame) return
+  if (!getState(XRState).xrFrame) return
 
   for (const entity of xrAnchorQuery()) updateAnchor(entity)
   for (const entity of xrHitTestQuery()) updateHitTest(entity)
@@ -309,6 +292,9 @@ const execute = () => {
   if (xrState.scenePlacementMode !== 'unplaced') {
     updateScenePlacement(scenePlacementEntity)
     updateWorldOriginFromScenePlacement()
+
+    worldOriginPinpointAnchor.scale.setScalar(1 / xrState.sceneScale)
+    worldOriginPinpointAnchor.updateMatrixWorld(true)
   }
 }
 
@@ -354,7 +340,7 @@ const reactor = () => {
       const hitTestResult = hitTest?.results?.value?.[0]
       if (hitTestResult) {
         if (!hitTestResult.createAnchor) {
-          const xrFrame = Engine.instance.xrFrame
+          const xrFrame = getState(XRState).xrFrame
           const hitPose = ReferenceSpace.localFloor && hitTestResult.getPose(ReferenceSpace.localFloor)
           hitPose &&
             xrFrame?.createAnchor?.(hitPose.transform, ReferenceSpace.localFloor!)?.then((anchor) => {

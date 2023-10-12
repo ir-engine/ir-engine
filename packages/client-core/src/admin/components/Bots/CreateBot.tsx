@@ -29,9 +29,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { BotCommands, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
@@ -41,66 +40,59 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { BotData, botPath } from '@etherealengine/engine/src/schemas/bot/bot.schema'
+import { InstanceID, InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminBotService } from '../../services/BotsService'
-import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateBot = () => {
-  const command = useHookstate<BotCommands>({
+  const { t } = useTranslation()
+  const command = useHookstate<BotCommandData>({
     id: '',
     name: '',
     description: ''
   })
-  const commandData = useHookstate<BotCommands[]>([])
+  const commandData = useHookstate<BotCommandData[]>([])
 
   const formErrors = useHookstate({
     name: '',
     description: '',
     location: ''
   })
-  const currentInstance = useHookstate<Instance[]>([])
+  const currentInstance = useHookstate<InstanceType[]>([])
   const state = useHookstate({
     name: '',
     description: '',
-    instance: '',
+    instance: '' as InstanceID,
     location: ''
   })
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
   const user = useHookstate(getMutableState(AuthState).user)
-  const instanceData = adminInstanceState.instances
-  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
-  const locationData = adminLocationState.locations
-  const { t } = useTranslation()
 
-  useEffect(() => {
-    if (user?.id.value && adminInstanceState.updateNeeded.value) {
-      AdminInstanceService.fetchAdminInstances()
-    }
-  }, [user?.id?.value, adminInstanceState.updateNeeded.value])
+  const instanceQuery = useFind(instancePath)
+  const instanceData = instanceQuery.data
 
-  useEffect(() => {
-    if (user?.id.value && adminLocationState.updateNeeded.value) {
-      AdminLocationService.fetchAdminLocations()
-    }
-  }, [user?.id?.value, adminLocationState.updateNeeded.value])
+  const locationQuery = useFind(locationPath)
+  const locationData = locationQuery.data
+
+  const createBotData = useMutation(botPath).create
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
     command.merge({ id: uuidv4(), [name]: value })
   }
 
-  const addCommandData = (addCommand) => {
+  const addCommandData = (addCommand: BotCommandData) => {
     if (addCommand.name) {
       const found = commandData.get({ noproxy: true }).find((el) => el.name === addCommand.name)
       if (found) {
         NotificationService.dispatchNotify(t('admin:components.bot.uniqueCommand'), { variant: 'error' })
       } else {
-        commandData.merge([addCommand])
+        commandData.merge([JSON.parse(JSON.stringify(addCommand))])
         command.set({ id: '', name: '', description: '' })
       }
     } else {
@@ -108,26 +100,26 @@ const CreateBot = () => {
     }
   }
 
-  const data: Instance[] = instanceData.get({ noproxy: true }).map((element) => {
+  const data: InstanceType[] = instanceData.map((element) => {
     return element
   })
 
   useEffect(() => {
     const instanceFilter = data.filter((el) => el.locationId === state.location.value)
     if (instanceFilter.length > 0) {
-      state.merge({ instance: '' })
+      state.merge({ instance: '' as InstanceID })
       currentInstance.set(instanceFilter)
     } else {
       currentInstance.set([])
     }
-  }, [state.location.value, adminInstanceState.instances.value.length])
+  }, [state.location.value, instanceData])
 
   const handleSubmit = () => {
-    const data: CreateBotAsAdmin = {
+    const data: BotData = {
       name: state.name.value,
-      instanceId: state.instance.value || null,
+      instanceId: state.instance.value || ('' as InstanceID),
       userId: user.id.value,
-      command: commandData.get({ noproxy: true }),
+      botCommands: commandData.get({ noproxy: true }),
       description: state.description.value,
       locationId: state.location.value
     }
@@ -139,21 +131,13 @@ const CreateBot = () => {
     })
 
     if (validateForm(state.value, formErrors.value)) {
-      AdminBotService.createBotAsAdmin(data)
-      state.set({ name: '', description: '', instance: '', location: '' })
+      createBotData(data)
+      state.set({ name: '', description: '', instance: '' as InstanceID, location: '' })
       commandData.set([])
       currentInstance.set([])
     } else {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
-  }
-
-  const fetchAdminInstances = () => {
-    AdminInstanceService.fetchAdminInstances()
-  }
-
-  const fetchAdminLocations = () => {
-    AdminLocationService.fetchAdminLocations()
   }
 
   const removeCommand = (id: string) => {
@@ -168,7 +152,7 @@ const CreateBot = () => {
     state.merge({ [name]: value })
   }
 
-  const locationMenu: InputMenuItem[] = locationData.get({ noproxy: true }).map((el) => {
+  const locationMenu: InputMenuItem[] = locationData.map((el) => {
     return {
       value: el.id,
       label: el.name
@@ -226,7 +210,7 @@ const CreateBot = () => {
             onChange={handleInputChange}
             endControl={
               <IconButton
-                onClick={fetchAdminLocations}
+                onClick={locationQuery.refetch}
                 icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
               />
             }
@@ -241,7 +225,7 @@ const CreateBot = () => {
             onChange={handleInputChange}
             endControl={
               <IconButton
-                onClick={fetchAdminInstances}
+                onClick={instanceQuery.refetch}
                 icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
               />
             }

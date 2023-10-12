@@ -24,12 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 
-import Paginated from '../types/PageObject'
+import { invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -37,18 +40,18 @@ export default () => {
     let inviteIdentityProviderUser
     // Getting logged in user and attaching owner of user
     const { id, params, app } = context
-    const loggedInUser = params.user as UserInterface
-    const invite = await app.service('invite').get(id!)
+    const loggedInUser = params.user as UserType
+    const invite = await app.service(invitePath).get(id!)
     if (invite == null) {
       throw new BadRequest('Invalid invite ID')
     }
     if (invite.identityProviderType != null) {
-      const inviteeIdentityProviderResult = (await app.service('identity-provider').find({
+      const inviteeIdentityProviderResult = (await app.service(identityProviderPath).find({
         query: {
           type: invite.identityProviderType,
           token: invite.token
         }
-      })) as Paginated<IdentityProviderInterface>
+      })) as Paginated<IdentityProviderType>
       if (inviteeIdentityProviderResult.total > 0) {
         inviteIdentityProviderUser = inviteeIdentityProviderResult.data[0].userId
       }

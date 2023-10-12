@@ -23,92 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
+import {
+  StaticResourceData,
+  StaticResourcePatch,
+  StaticResourceQuery,
+  StaticResourceType
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface StaticResourceParams extends KnexAdapterParams<StaticResourceQuery> {}
 
-import { Application } from '../../../declarations'
-import verifyScope from '../../hooks/verify-scope'
-import { UserParams } from '../../user/user/user.class'
-import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
-import { getStorageProvider } from '../storageprovider/storageprovider'
-
-export class StaticResource extends Service<StaticResourceInterface> {
-  app: Application
-  public docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  // gets the static resource from the database, including the variants
-  async get(id: string, params?: Params): Promise<StaticResourceInterface> {
-    return super.Model.findOne({
-      where: { id }
-    })
-  }
-
-  async find(params?: Params): Promise<Paginated<StaticResourceInterface>> {
-    const search = params?.query?.search ?? ''
-    const key = params?.query?.key ?? ''
-    const mimeTypes = params?.query?.mimeTypes && params?.query?.mimeTypes.length > 0 ? params?.query?.mimeTypes : null
-
-    const sort = params?.query?.$sort
-    const order: any[] = []
-    if (sort != null) {
-      Object.keys(sort).forEach((name, val) => {
-        order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
-      })
-    }
-    const limit = params?.query?.$limit ?? 10
-    const skip = params?.query?.$skip ?? 0
-    const result = await super.Model.findAndCountAll({
-      limit: limit,
-      offset: skip,
-      select: params?.query?.$select,
-      order: order,
-      where: {
-        key: {
-          [Op.or]: {
-            [Op.like]: `%${search}%`,
-            [Op.eq]: key
-          }
-        },
-        mimeType: {
-          [Op.or]: mimeTypes
-        }
-      },
-      raw: true,
-      nest: true
-    })
-
-    return {
-      data: result.rows,
-      total: result.count,
-      skip: skip,
-      limit: limit
-    }
-  }
-
-  async remove(id: string, params?: UserParams): Promise<StaticResourceInterface> {
-    const resource = await super.get(id)
-
-    if (!resource) {
-      throw new NotFoundException('Unable to find specified resource id.')
-    }
-
-    if (!resource.userId) {
-      if (params?.provider) await verifyScope('admin', 'admin')({ app: this.app, params } as any)
-    } else if (params?.provider && resource.userId !== params?.user?.id)
-      throw new UnauthenticatedException('You are not the creator of this resource')
-
-    if (resource.key) {
-      const storageProvider = getStorageProvider(params?.query?.storageProviderName)
-      await storageProvider.deleteResources([resource.key])
-    }
-    return (await super.remove(id)) as StaticResourceInterface
-  }
-}
+export class StaticResourceService<
+  T = StaticResourceType,
+  ServiceParams extends Params = StaticResourceParams
+> extends KnexService<StaticResourceType, StaticResourceData, StaticResourceParams, StaticResourcePatch> {}

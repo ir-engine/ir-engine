@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import appRootPath from 'app-root-path'
 import cli from 'cli'
+import fs from 'fs'
 /* eslint-disable @typescript-eslint/no-var-requires */
 import dotenv from 'dotenv-flow'
-import fs from 'fs'
 import knex from 'knex'
 
 import { buildStatusPath, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'

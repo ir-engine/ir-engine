@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion } from 'three'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -47,16 +48,16 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { InputState } from '../../input/state/InputState'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { boxDynamicConfig } from '../../physics/functions/physicsObjectDebugFunctions'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { hasMovementControls, XRState } from '../../xr/XRState'
+import { getCameraMode, hasMovementControls } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -69,11 +70,7 @@ const _quat = new Quaternion()
  * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
  * On 'standard' mapping, get thumbstick input [0,1]
  */
-export function getThumbstickOrThumbpadAxes(
-  inputSource: XRInputSource,
-  thumstick: XRHandedness,
-  deadZone: number = 0.05
-) {
+export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, thumstick: XRHandedness, deadZone = 0.05) {
   const gamepad = inputSource.gamepad
   const axes = gamepad!.axes
   const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || thumstick === 'right' ? 2 : 0
@@ -148,23 +145,16 @@ const onInteract = (handedness: XRHandedness = 'none') => {
   )
 }
 
-const onKeyO = () => {
-  dispatchAction(
-    WorldNetworkAction.spawnDebugPhysicsObject({
-      config: boxDynamicConfig
-    })
-  )
-}
-
 const onKeyP = () => {
-  getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
+  getMutableState(RendererState).physicsDebug.set(!getMutableState(RendererState).physicsDebug.value)
 }
 
 const isAvatarClicked = () => {
+  const pointerState = getState(InputState).pointerState
   const hits = Physics.castRayFromCamera(
-    Engine.instance.camera,
-    Engine.instance.pointerState.position,
-    Engine.instance.physicsWorld,
+    getComponent(Engine.instance.cameraEntity, CameraComponent),
+    pointerState.position,
+    getState(PhysicsState).physicsWorld,
     raycastComponentData
   )
   if (hits.length) {
@@ -184,7 +174,9 @@ const secondClickTimeout = 0.2
 let secondClickTimer = 0
 
 const getAvatarDoubleClick = (buttons): boolean => {
-  if (getState(XRState).sessionActive) return false
+  const followComponent = getOptionalComponent(Engine.instance.cameraEntity, FollowCameraComponent)
+  if (followComponent && followComponent.zoomLevel < 1) return false
+
   if (buttons.PrimaryClick?.up) {
     if (!isAvatarClicked()) {
       clickCount = 0
@@ -223,24 +215,28 @@ const execute = () => {
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
   const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-  const firstWalkableEntityWithInput = walkableQuery().find(
-    (entity) => getComponent(entity, InputComponent)?.inputSources.length
-  )
+  const attachedMode = getCameraMode() === 'attached'
+  if (!attachedMode) {
+    const firstWalkableEntityWithInput = walkableQuery().find(
+      (entity) => getComponent(entity, InputComponent)?.inputSources.length
+    )
 
-  if (firstWalkableEntityWithInput) {
-    const inputComponent = getComponent(firstWalkableEntityWithInput, InputComponent)
-    const inputSourceEntity = inputComponent?.inputSources[0]
+    if (firstWalkableEntityWithInput) {
+      const inputComponent = getComponent(firstWalkableEntityWithInput, InputComponent)
+      const inputSourceEntity = inputComponent?.inputSources[0]
 
-    if (inputSourceEntity) {
-      const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
-      if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
-        const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
-        if (mouseMoved) mouseMovedDuringPrimaryClick = true
+      if (inputSourceEntity) {
+        const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+        if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
+          const pointerState = getState(InputState).pointerState
+          const mouseMoved = pointerState.movement.lengthSq() > 0
+          if (mouseMoved) mouseMovedDuringPrimaryClick = true
 
-        if (inputSourceComponent.buttons.PrimaryClick.up) {
-          if (!mouseMovedDuringPrimaryClick) {
-            autopilotSetPosition(Engine.instance.localClientEntity)
-          } else mouseMovedDuringPrimaryClick = false
+          if (inputSourceComponent.buttons.PrimaryClick.up) {
+            if (!mouseMovedDuringPrimaryClick) {
+              autopilotSetPosition(Engine.instance.localClientEntity)
+            } else mouseMovedDuringPrimaryClick = false
+          }
         }
       }
     }
@@ -279,14 +275,13 @@ const execute = () => {
     const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
 
     if (isDev) {
-      if (buttons.KeyO?.down) onKeyO()
       if (buttons.KeyP?.down) onKeyP()
     }
 
     if (!hasMovementControls()) return
     //** touch input (only for avatar jump)*/
 
-    const doubleClicked = getAvatarDoubleClick(buttons)
+    const doubleClicked = attachedMode ? false : getAvatarDoubleClick(buttons)
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =

@@ -23,43 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
 import { config } from '@etherealengine/common/src/config'
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import { AuthState } from '../services/AuthService'
+import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/default-project/assets/default-silhouette.svg`
 
-export const useUserAvatarThumbnail = (userID = '' as UserId) => {
-  const avatarState = useHookstate(DEFAULT_PROFILE_IMG_PLACEHOLDER)
-  const localUserAvatarState = useHookstate(getState(AuthState).user.avatar)
-  const userAvatarState = useHookstate(getMutableState(AvatarState)[userID as string as EntityUUID])
-
-  useEffect(() => {
-    if (!userAvatarState.avatarID?.value) return
-    Engine.instance.api
-      .service('avatar')
-      .get(userAvatarState.avatarID.value)
-      .then((avatarDetails) => {
-        avatarState.set(avatarDetails.thumbnailResource?.url ?? DEFAULT_PROFILE_IMG_PLACEHOLDER)
-      })
-  }, [userAvatarState.avatarID])
-
-  if (userID === Engine.instance.userId) {
-    return localUserAvatarState.thumbnailResource.ornull?.url.value ?? DEFAULT_PROFILE_IMG_PLACEHOLDER
-  }
-
-  return avatarState.value ?? DEFAULT_PROFILE_IMG_PLACEHOLDER
-}
-
-/** @deprecated */
-export const getUserAvatarThumbnail = (userID = '' as UserId) => {
-  return getState(WorldState).userAvatarDetails[userID]?.thumbnailResource?.url ?? DEFAULT_PROFILE_IMG_PLACEHOLDER
+export const useUserAvatarThumbnail = (userID?: UserID) => {
+  const user = useGet(userPath, userID)
+  const avatar = useGet(avatarPath, user.data?.avatarId)
+  return avatar.data?.thumbnailResource?.url ?? DEFAULT_PROFILE_IMG_PLACEHOLDER
 }

@@ -31,15 +31,13 @@ export class FontLoader extends Loader {
   }
 
   load(url, onLoad, onProgress?, onError?) {
-    const scope = this
-
     const loader = new FileLoader(this.manager)
     loader.setPath(this.path)
     loader.setRequestHeader(this.requestHeader)
-    loader.setWithCredentials(scope.withCredentials)
+    loader.setWithCredentials(this.withCredentials)
     loader.load(
       url,
-      function (text: string) {
+      (text: string) => {
         let json
 
         try {
@@ -49,7 +47,7 @@ export class FontLoader extends Loader {
           json = JSON.parse(text.substring(65, text.length - 2))
         }
 
-        const font = scope.parse(json)
+        const font = this.parse(json)
 
         if (onLoad) onLoad(font)
       },

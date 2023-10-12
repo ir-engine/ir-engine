@@ -23,107 +23,134 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const scopeTypeSeed = {
-  path: 'scope-type',
-  templates: [
-    {
-      type: 'admin:admin'
-    },
-    {
-      type: 'routes:read'
-    },
-    {
-      type: 'routes:write'
-    },
-    {
-      type: 'location:read'
-    },
-    {
-      type: 'location:write'
-    },
-    {
-      type: 'static_resource:read'
-    },
-    {
-      type: 'static_resource:write'
-    },
-    {
-      type: 'editor:write'
-    },
-    {
-      type: 'bot:read'
-    },
-    {
-      type: 'bot:write'
-    },
-    {
-      type: 'globalAvatars:read'
-    },
-    {
-      type: 'globalAvatars:write'
-    },
-    {
-      type: 'benchmarking:read'
-    },
-    {
-      type: 'benchmarking:write'
-    },
-    {
-      type: 'groups:read'
-    },
-    {
-      type: 'groups:write'
-    },
-    {
-      type: 'instance:read'
-    },
-    {
-      type: 'instance:write'
-    },
-    {
-      type: 'invite:read'
-    },
-    {
-      type: 'party:read'
-    },
-    {
-      type: 'party:write'
-    },
-    {
-      type: 'user:read'
-    },
-    {
-      type: 'user:write'
-    },
-    {
-      type: 'scene:read'
-    },
-    {
-      type: 'scene:write'
-    },
-    {
-      type: 'projects:read'
-    },
-    {
-      type: 'projects:write'
-    },
-    {
-      type: 'settings:read'
-    },
-    {
-      type: 'settings:write'
-    },
-    {
-      type: 'server:read'
-    },
-    {
-      type: 'server:write'
-    },
-    {
-      type: 'recording:read'
-    },
-    {
-      type: 'recording:write'
+import { Knex } from 'knex'
+
+import { scopeTypePath, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+
+import { getDateTimeSql } from '../../util/datetime-sql'
+
+export const scopeTypeSeed = [
+  {
+    type: 'admin:admin'
+  },
+  {
+    type: 'routes:read'
+  },
+  {
+    type: 'routes:write'
+  },
+  {
+    type: 'location:read'
+  },
+  {
+    type: 'location:write'
+  },
+  {
+    type: 'static_resource:read'
+  },
+  {
+    type: 'static_resource:write'
+  },
+  {
+    type: 'editor:write'
+  },
+  {
+    type: 'bot:read'
+  },
+  {
+    type: 'bot:write'
+  },
+  {
+    type: 'globalAvatars:read'
+  },
+  {
+    type: 'globalAvatars:write'
+  },
+  {
+    type: 'benchmarking:read'
+  },
+  {
+    type: 'benchmarking:write'
+  },
+  {
+    type: 'instance:read'
+  },
+  {
+    type: 'instance:write'
+  },
+  {
+    type: 'invite:read'
+  },
+  {
+    type: 'channel:read'
+  },
+  {
+    type: 'channel:write'
+  },
+  {
+    type: 'user:read'
+  },
+  {
+    type: 'user:write'
+  },
+  {
+    type: 'scene:read'
+  },
+  {
+    type: 'scene:write'
+  },
+  {
+    type: 'projects:read'
+  },
+  {
+    type: 'projects:write'
+  },
+  {
+    type: 'settings:read'
+  },
+  {
+    type: 'settings:write'
+  },
+  {
+    type: 'server:read'
+  },
+  {
+    type: 'server:write'
+  },
+  {
+    type: 'recording:read'
+  },
+  {
+    type: 'recording:write'
+  }
+]
+
+export async function seed(knex: Knex): Promise<void> {
+  const { testEnabled } = appConfig
+  const { forceRefresh } = appConfig.db
+
+  const seedData: ScopeTypeType[] = await Promise.all(
+    scopeTypeSeed.map(async (item) => ({
+      ...item,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
+
+  if (forceRefresh || testEnabled) {
+    // Deletes ALL existing entries
+    await knex(scopeTypePath).del()
+
+    // Inserts seed entries
+    await knex(scopeTypePath).insert(seedData)
+  } else {
+    const existingData = await knex(scopeTypePath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
+        await knex(scopeTypePath).insert(item)
+      }
     }
-  ]
+  }
 }

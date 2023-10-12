@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { PassThrough } from 'stream'
 
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { FileBrowserContentType } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 
 /**
  * Put object parameters interface for adding to storage.
@@ -59,6 +59,13 @@ export interface StorageObjectInterface {
   Metadata?: object
 }
 
+export interface StorageMultipartStartInterface {
+  Bucket: string
+  Key: string
+  ContentType: string
+  ContentEncoding?: string
+}
+
 export interface StorageObjectPutInterface extends Omit<StorageObjectInterface, 'Body'> {
   Body: Buffer | PassThrough
 }
@@ -82,7 +89,7 @@ export interface StorageListObjectInterface {
   /**
    * Metadata about each object returned.
    */
-  Contents: { Key: string }[]
+  Contents: { Key: string; Size: number }[]
   /**
    * All of the keys (up to 1,000) rolled up into a common prefix count as a single return when calculating the number of returns. A response can contain CommonPrefixes only if you specify a delimiter.  CommonPrefixes contains all (if there are any) keys between Prefix and the next occurrence of the string specified by a delimiter.  CommonPrefixes lists keys that act like subdirectories in the directory specified by Prefix. For example, if the prefix is notes/ and the delimiter is a slash (/) as in notes/summer/july, the common prefix is notes/summer/. All of the keys that roll up into a common prefix count as a single return when calculating the number of returns.
    */
@@ -161,11 +168,15 @@ export interface StorageProviderInterface {
    */
   cacheDomain: string
 
+  originURLs: string[]
+
   /**
    * Invalidate items in the storage provider.
    * @param invalidationItems List of keys.
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
+
+  getOriginURLs(): Promise<string[]>
 
   associateWithFunction(functionARN: string): Promise<any>
 
@@ -239,7 +250,7 @@ export interface StorageProviderInterface {
    * @param folderName Name of folder in the storage.
    * @param recursive If true it will list content from sub folders as well.
    */
-  listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]>
+  listFolderContent(folderName: string, recursive?: boolean): Promise<FileBrowserContentType[]>
 
   /**
    * Get a list of keys under a path.
@@ -266,4 +277,6 @@ export interface StorageProviderInterface {
    * @param params Parameters of the add request.
    */
   putObject(object: StorageObjectPutInterface, params?: PutObjectParams): Promise<any>
+
+  getFolderSize(folderName: string): Promise<number>
 }

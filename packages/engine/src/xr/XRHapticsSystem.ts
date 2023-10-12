@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
-import { Engine } from '../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'

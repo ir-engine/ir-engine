@@ -37,12 +37,13 @@ let uniqueId = 0
 
 interface Vector2InputProp {
   value?: any
-  onChange?: Function
+  onChange?: (value: Vector2) => void
+  onRelease?: (value: Vector2) => void
   uniformScaling?: boolean
   hideLabels?: boolean
 }
 
-export const Vector2Input = ({ value, onChange, uniformScaling, hideLabels, ...rest }: Vector2InputProp) => {
+export const Vector2Input = ({ value, onChange, onRelease, uniformScaling, hideLabels, ...rest }: Vector2InputProp) => {
   const id = uniqueId++
   const newValue = new Vector2()
   const [uniformEnabled, setUniformEnabled] = useState(uniformScaling)
@@ -81,9 +82,10 @@ export const Vector2Input = ({ value, onChange, uniformScaling, hideLabels, ...r
         {...rest}
         value={vx}
         onChange={onChangeX}
+        onRelease={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} axis="x">
+            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x">
               X
             </Vector3Scrubber>
           )
@@ -93,9 +95,10 @@ export const Vector2Input = ({ value, onChange, uniformScaling, hideLabels, ...r
         {...rest}
         value={vy}
         onChange={onChangeY}
+        onRelease={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} axis="y">
+            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y">
               Y
             </Vector3Scrubber>
           )

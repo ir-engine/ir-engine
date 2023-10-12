@@ -25,13 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   DefaultModelTransformParameters,
-  ImageTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -48,76 +46,21 @@ import { materialsFromSource } from '@etherealengine/engine/src/renderer/materia
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
-
-import { ToggleButton } from '@mui/material'
+import { getMutableState, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
-import NumericInput from '../inputs/NumericInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import ParameterInput from '../inputs/ParameterInput'
-import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
-import PaginatedList from '../layout/PaginatedList'
 import GLTFTransformProperties from './GLTFTransformProperties'
 import LightmapBakerProperties from './LightmapBakerProperties'
 
-const TransformContainer = (styled as any).div`
-  color: var(--textColor);
-  text-align: -webkit-center;
-  margin-top: 2em;
-  margin-bottom: 4em;
-  background-color: var(--background2);
-  overflow: scroll;
-`
-
-const FilterToggle = styled(ToggleButton)`
-  color: var(--textColor);
-`
-
-const OptimizeButton = styled(Button)`
-  @keyframes glowing {
-    0% {
-      background-color: #f00;
-      box-shadow: 0 0 5px #f00;
-    }
-    16% {
-      background-color: #ff0;
-      box-shadow: 0 0 20px #ff0;
-    }
-    33% {
-      background-color: #0f0;
-      box-shadow: 0 0 5px #0f0;
-    }
-    50% {
-      background-color: #0ff;
-      box-shadow: 0 0 20px #0ff;
-    }
-    66% {
-      background-color: #00f;
-      box-shadow: 0 0 5px #00f;
-    }
-    83% {
-      background-color: #f0f;
-      box-shadow: 0 0 20px #f0f;
-    }
-    100% {
-      background-color: #f00;
-      box-shadow: 0 0 5px #f00;
-    }
-  }
-  animation: glowing 5000ms infinite;
-
-  &:hover {
-    animation: glowing 250ms infinite;
-  }
-`
+import { modelTransformPath } from '@etherealengine/engine/src/schemas/assets/model-transform.schema'
+import './ModelTransformProperties.css'
 
 export default function ModelTransformProperties({
   modelState,
@@ -190,7 +133,7 @@ export default function ModelTransformProperties({
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      const nuPath = await Engine.instance.api.service('model-transform').create({
+      const nuPath = await Engine.instance.api.service(modelTransformPath).create({
         src: modelSrc,
         transformParameters: transformParms.value
       })
@@ -239,7 +182,7 @@ export default function ModelTransformProperties({
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await Engine.instance.api.service('model-transform').create({
+      const transformedPath = await Engine.instance.api.service(modelTransformPath).create({
         src: bakedPath,
         transformParameters: transformParms.value
       })
@@ -249,18 +192,29 @@ export default function ModelTransformProperties({
   }, [selectionState.selectedEntities])
 
   useEffect(() => {
+    const fullSrc = modelState.src.value
+    const fileName = fullSrc.split('/').pop()!.split('.').shift()!
+    const dst = `${fileName}-transformed`
+    transformParms.dst.set(dst)
+  }, [modelState.src])
+
+  useEffect(() => {
     transformParms.resources.set(getModelResources(modelState.value))
   }, [modelState.scene])
 
   return (
     <CollapsibleBlock label="Model Transform Properties">
-      <TransformContainer>
+      <div className="TransformContainer">
         <LightmapBakerProperties modelState={modelState} />
         <GLTFTransformProperties
           transformParms={transformParms}
           onChange={(transformParms: ModelTransformParameters) => {}}
         />
-        {!transforming.value && <OptimizeButton onClick={onTransformModel(modelState)}>Optimize</OptimizeButton>}
+        {!transforming.value && (
+          <button className="OptimizeButton button" onClick={onTransformModel(modelState)}>
+            Optimize
+          </button>
+        )}
         {transforming.value && <p>Transforming...</p>}
         {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
 
@@ -306,7 +260,7 @@ export default function ModelTransformProperties({
           <Button onClick={doVertexBake(modelState)}>Bake To Vertices</Button>
           <Button onClick={onBakeSelected}>Bake And Optimize</Button>
         </CollapsibleBlock>
-      </TransformContainer>
+      </div>
     </CollapsibleBlock>
   )
 }

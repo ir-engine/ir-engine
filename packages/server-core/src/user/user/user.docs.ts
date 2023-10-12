@@ -23,30 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    user: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          description: ''
-        },
-        avatarId: {
-          type: 'string',
-          description: ''
-        }
-      }
-    },
-    user_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/user' }
-    }
-  },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  userDataSchema,
+  userPatchSchema,
+  userQuerySchema,
+  userSchema
+} from '@etherealengine/engine/src/schemas/user/user.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: { userDataSchema, userPatchSchema, userQuerySchema, userSchema },
+  docs: {
+    description: 'User service description',
+    securities: ['all']
   }
-}
+})

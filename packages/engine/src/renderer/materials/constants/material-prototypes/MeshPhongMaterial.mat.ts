@@ -28,7 +28,7 @@ import { MeshPhongMaterial as Phong } from 'three'
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs, BumpMapArgs, DisplacementMapArgs, EmissiveMapArgs, EnvMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
+import { BoolArg, FloatArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   ...BasicArgs,

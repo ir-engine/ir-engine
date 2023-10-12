@@ -33,8 +33,7 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
-  RGBAFormat,
-  Uniform
+  RGBAFormat
 } from 'three'
 
 const _identityMatrix = new Matrix4()
@@ -403,6 +402,7 @@ class BatchedMesh extends Mesh {
 
   //@ts-ignore
   onBeforeRender(_renderer, _scene, _camera, _geometry, material, _group) {
+    if (!material.defines) return
     material.defines.BATCHING = true
 
     // @TODO: Implement frustum culling for each geometry
@@ -410,6 +410,7 @@ class BatchedMesh extends Mesh {
 
   //@ts-ignore
   onAfterRender(_renderer, _scene, _camera, _geometry, material, _group) {
+    if (!material.defines) return
     material.defines.BATCHING = false
   }
 }

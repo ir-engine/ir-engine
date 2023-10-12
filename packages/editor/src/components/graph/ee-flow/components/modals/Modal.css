@@ -1,0 +1,80 @@
+/* modal.css */
+
+/* Styles for the modal backdrop */
+.modal-backdrop {
+  z-index: 19;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+/* Styles for the modal container */
+.modal-container {
+  z-index: 20;
+  position: relative;
+  top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid #e2e8f0;
+  width: 24rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  font-size: 0.875rem;
+  border-radius: 0.375rem;
+}
+
+/* Styles for the modal header */
+.modal-header {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Styles for the modal title */
+.modal-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Styles for the modal content */
+.modal-content {
+  padding: 0.75rem;
+  color: black;
+}
+
+/* Styles for the modal actions container */
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Styles for the primary and secondary action buttons */
+.modal-action-btn {
+  color: #fff;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  cursor: pointer;
+}
+
+.modal-primary-action {
+  background-color: #38b2ac; /* Equivalent to 'bg-teal-400' */
+}
+
+.modal-secondary-action {
+  background-color: #a0aec0; /* Equivalent to 'bg-gray-400' */
+}
+
+/* Hover styles for primary and secondary action buttons */
+.modal-primary-action:hover {
+  background-color: #2c7a72; /* Equivalent to 'hover:bg-teal-500' */
+}
+
+.modal-secondary-action:hover {
+  background-color: #718096; /* Equivalent to 'hover:bg-gray-500' */
+}

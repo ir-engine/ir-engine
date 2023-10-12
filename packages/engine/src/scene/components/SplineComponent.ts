@@ -23,33 +23,140 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
+import {
+  ArrowHelper,
+  AxesHelper,
+  BufferAttribute,
+  BufferGeometry,
+  CatmullRomCurve3,
+  Color,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshBasicMaterial,
+  Quaternion,
+  SphereGeometry,
+  Vector3
+} from 'three'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEffect } from 'react'
 
-export type SplineComponentType = {
-  splinePositions: Vector3[]
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+
+const ARC_SEGMENTS = 200
+const _point = new Vector3()
+const lineGeometry = new BufferGeometry()
+lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
+
+export interface ISplineElement {
+  position: Vector3
+  quaternion: Quaternion
 }
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
   jsonID: 'spline',
 
-  onInit: () => {
+  onInit: (entity) => {
     return {
-      splinePositions: [] as Vector3[]
+      elements: [] as ISplineElement[],
+      // internal
+      curve: new CatmullRomCurve3([], true)
     }
+  },
+
+  onRemove: (entity, component) => {
+    // removeObjectFromGroup(entity, component.value.wrapper)
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.splinePositions !== 'undefined')
-      component.splinePositions.set(json.splinePositions.map((pos) => new Vector3(pos.x, pos.y, pos.z)))
+    json.elements && component.elements.set(json.elements)
   },
 
-  toJSON(entity, component) {
-    return {
-      splinePositions: component.splinePositions.value
-    }
+  toJSON: (entity, component) => {
+    return { elements: component.elements.get({ noproxy: true }) }
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const component = useComponent(entity, SplineComponent)
+    const elements = component.elements
+
+    useEffect(() => {
+      if (elements.length < 3) {
+        component.curve.set(new CatmullRomCurve3([], true))
+        return
+      }
+
+      const line = new Line(lineGeometry.clone(), new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 }))
+      line.layers.set(ObjectLayers.NodeHelper)
+      line.name = `${entity}-line`
+      addObjectToGroup(entity, line)
+      setObjectLayers(line, ObjectLayers.NodeHelper)
+
+      const geometry = new SphereGeometry(0.05, 4, 2)
+
+      if (elements.length > 0) {
+        const first = elements[0].value
+        const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'lightgreen', opacity: 0.2 }))
+        setObjectLayers(sphere, ObjectLayers.NodeHelper)
+        sphere.position.copy(first.position)
+        sphere.updateMatrixWorld(true)
+        line.add(sphere)
+      }
+
+      if (elements.length > 1) {
+        const last = elements[elements.length - 1].value
+        const sphere = new Mesh(geometry, new MeshBasicMaterial({ color: 'red', opacity: 0.2 }))
+        setObjectLayers(sphere, ObjectLayers.NodeHelper)
+        sphere.position.copy(last.position)
+        sphere.updateMatrixWorld(true)
+        line.add(sphere)
+      }
+
+      let id = 0
+      for (const elem of elements.value) {
+        const gizmo = new AxesHelper()
+        gizmo.name = `${entity}-gizmos-${++id}`
+        gizmo.add(new ArrowHelper(undefined, undefined, undefined, new Color('blue')))
+        setObjectLayers(gizmo, ObjectLayers.NodeHelper)
+        gizmo.position.copy(elem.position)
+        gizmo.quaternion.copy(elem.quaternion)
+        gizmo.updateMatrixWorld(true)
+        line.add(gizmo)
+      }
+
+      const curve = new CatmullRomCurve3(
+        elements.value.map((e) => e.position),
+        true
+      )
+      curve.curveType = 'catmullrom'
+      const positions = line.geometry.attributes.position
+      for (let i = 0; i < ARC_SEGMENTS; i++) {
+        const t = i / (ARC_SEGMENTS - 1)
+        curve.getPoint(t, _point)
+        positions.setXYZ(i, _point.x, _point.y, _point.z)
+      }
+      positions.needsUpdate = true
+      line.visible = true
+
+      component.curve.set(curve)
+
+      return () => {
+        line.children.forEach((child) => line.remove(child))
+        removeObjectFromGroup(entity, line)
+      }
+    }, [
+      elements.length,
+      // force a unique dep change upon any position or quaternion change
+      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.quaternion)})`).join('')
+    ])
+
+    return null
   }
 })

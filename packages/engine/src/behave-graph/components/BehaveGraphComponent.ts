@@ -23,15 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphJSON, Registry } from 'behave-graph'
 import matches, { Validator } from 'ts-matches'
 
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { GraphJSON } from '@behave-graph/core'
 
-import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { RuntimeGraphComponent } from './RuntimeGraphComponent'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useGraphRunner } from '../functions/useGraphRunner'
+import DefaultGraph from '../graph/default-graph.json'
+import { BehaveGraphState } from '../state/BehaveGraphState'
 
-export type GraphDomainID = OpaqueType<'GraphDomainID'> & string
+export enum BehaveGraphDomain {
+  'ECS' = 'ECS'
+}
 
 export const BehaveGraphComponent = defineComponent({
   name: 'EE_behaveGraph',
@@ -39,34 +46,59 @@ export const BehaveGraphComponent = defineComponent({
   jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
+    const domain = BehaveGraphDomain.ECS
+    const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
     return {
-      domain: 'ECS' as GraphDomainID,
-      graph: {} as GraphJSON
+      domain: domain,
+      graph: graph,
+      run: false,
+      disabled: false
     }
   },
 
   toJSON: (entity, component) => {
     return {
       domain: component.domain.value,
-      graph: component.graph.value
+      graph: cleanStorageProviderURLs(JSON.parse(JSON.stringify(component.graph.get({ noproxy: true })))),
+      run: false,
+      disabled: component.disabled.value
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    const domainValidator = matches.string as Validator<unknown, GraphDomainID>
+    if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
+    if (typeof json.run === 'boolean') component.run.set(json.run)
+    const domainValidator = matches.string as Validator<unknown, BehaveGraphDomain>
     if (domainValidator.test(json.domain)) {
-      component.domain.value !== json.domain && component.domain.set(json.domain)
+      component.domain.value !== json.domain && component.domain.set(json.domain!)
     }
     const graphValidator = matches.object as Validator<unknown, GraphJSON>
     if (graphValidator.test(json.graph)) {
-      component.graph.value !== json.graph && component.graph.set(json.graph)
+      component.graph.set(parseStorageProviderURLs(json.graph)!)
     }
   },
 
-  onRemove: (entity, component) => {
-    if (hasComponent(entity, RuntimeGraphComponent)) {
-      removeComponent(entity, RuntimeGraphComponent)
-    }
+  // we make reactor for each component handle the engine
+  reactor: () => {
+    const entity = useEntityContext()
+    const graph = useComponent(entity, BehaveGraphComponent)
+    const behaveGraph = useHookstate(getMutableState(BehaveGraphState))
+
+    const canPlay = graph.run && !graph.disabled
+    const registry = behaveGraph.registries[graph.domain.value].get({ noproxy: true })
+    const graphRunner = useGraphRunner({ graphJson: graph.graph.get({ noproxy: true }), autoRun: canPlay, registry })
+
+    useEffect(() => {
+      if (graph.disabled.value) return
+      graph.run.value ? graphRunner.play() : graphRunner.pause()
+    }, [graph.run])
+
+    useEffect(() => {
+      if (!graph.disabled.value) return
+      graph.run.set(false)
+    }, [graph.disabled])
+
+    return null
   }
 })

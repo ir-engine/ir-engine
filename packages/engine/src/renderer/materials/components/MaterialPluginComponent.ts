@@ -23,15 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
-
 import { PluginObjectType } from '../../../common/functions/OnBeforeCompilePlugin'
-import { defineComponent } from '../../../ecs/functions/ComponentFunctions'
-import { MaterialSource, SourceType } from './MaterialSource'
+import { MaterialSource } from './MaterialSource'
 
 export type MaterialPluginType = {
   plugin: PluginObjectType
   parameters: Record<string, any>
-  instances: Material[]
   src: MaterialSource
 }

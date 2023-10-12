@@ -30,8 +30,6 @@ import { useTranslation } from 'react-i18next'
 import { RenderInfoState } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import SsidChartIcon from '@mui/icons-material/SsidChart'
-
 import Stats from './stats'
 import styles from './styles.module.scss'
 

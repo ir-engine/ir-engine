@@ -52,6 +52,9 @@ const config: ProjectConfigInterface = {
     },
     '/capture': {
       component: () => import('@etherealengine/client/src/pages/capture')
+    },
+    '/chat': {
+      component: () => import('@etherealengine/client/src/pages/chat/chat')
     }
   }
 }

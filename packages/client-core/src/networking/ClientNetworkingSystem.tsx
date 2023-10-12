@@ -23,174 +23,75 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
 import React, { useEffect } from 'react'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { addActionReceptor, defineActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
+import { State, defineActionQueue, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { NetworkActions, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { MediasoupMediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediasoupMediaProducerConsumerState'
 import {
-  LocationInstanceConnectionService,
-  LocationInstanceConnectionServiceReceptor
-} from '../common/services/LocationInstanceConnectionService'
+  MediasoupTransportActions,
+  MediasoupTransportObjectsState,
+  MediasoupTransportState
+} from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { PeerMediaConsumers } from '../media/PeerMedia'
 import {
-  MediaInstanceConnectionService,
-  MediaInstanceConnectionServiceReceptor
-} from '../common/services/MediaInstanceConnectionService'
-import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
-import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
-import { DataChannels } from '../components/World/ProducersAndConsumers'
-import { PeerConsumers } from '../media/PeerMedia'
-import { ChatServiceReceptor, ChatState } from '../social/services/ChatService'
-import { FriendServiceReceptor } from '../social/services/FriendService'
-import { LocationState } from '../social/services/LocationService'
-import { WarningUIService } from '../systems/WarningUISystem'
-import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
-import { AuthState } from '../user/services/AuthService'
+  SocketWebRTCClientNetwork,
+  WebRTCTransportExtension,
+  onTransportCreated,
+  receiveConsumerHandler
+} from '../transports/SocketWebRTCClientFunctions'
+import { DataChannelSystem } from './DataChannelSystem'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
-const noWorldServersAvailableQueue = defineActionQueue(NetworkConnectionService.actions.noWorldServersAvailable.matches)
-const noMediaServersAvailableQueue = defineActionQueue(NetworkConnectionService.actions.noMediaServersAvailable.matches)
-const worldInstanceDisconnectedQueue = defineActionQueue(
-  NetworkConnectionService.actions.worldInstanceDisconnected.matches
-)
-const worldInstanceKickedQueue = defineActionQueue(NetworkConnectionService.actions.worldInstanceKicked.matches)
-const mediaInstanceDisconnectedQueue = defineActionQueue(
-  NetworkConnectionService.actions.mediaInstanceDisconnected.matches
-)
-const worldInstanceReconnectedQueue = defineActionQueue(
-  NetworkConnectionService.actions.worldInstanceReconnected.matches
-)
-const mediaInstanceReconnectedQueue = defineActionQueue(
-  NetworkConnectionService.actions.mediaInstanceReconnected.matches
-)
+const consumerCreatedQueue = defineActionQueue(MediasoupMediaConsumerActions.consumerCreated.matches)
+const transportCreatedActionQueue = defineActionQueue(MediasoupTransportActions.transportCreated.matches)
+const updatePeersActionQueue = defineActionQueue(NetworkActions.updatePeers.matches)
 
 const execute = () => {
-  const locationState = getState(LocationState)
-  const chatState = getState(ChatState)
-  const authState = getState(AuthState)
-  const engineState = getState(EngineState)
+  for (const action of consumerCreatedQueue()) receiveConsumerHandler(action)
+  for (const action of transportCreatedActionQueue()) onTransportCreated(action)
+  // TODO replace with event sourcing
+  for (const action of updatePeersActionQueue()) {
+    const network = getState(NetworkState).networks[action.$network] as SocketWebRTCClientNetwork
 
-  for (const action of noWorldServersAvailableQueue()) {
-    const currentLocationID = locationState.currentLocation.location.id
-    /** @todo - revisit reconnection UX */
-    // WarningUIService.openWarning({
-    //   title: t('common:instanceServer.noAvailableServers'),
-    //   body: t('common:instanceServer.noAvailableServersMessage'),
-    //   action: (timeout) => timeout && LocationInstanceConnectionService.provisionServer(currentLocationID)
-    // })
-    setTimeout(() => {
-      LocationInstanceConnectionService.provisionServer(currentLocationID)
-    }, 2000)
-  }
-
-  for (const action of noMediaServersAvailableQueue()) {
-    const channels = chatState.channels.channels
-    const partyChannel = Object.values(channels).find(
-      (channel) => channel.channelType === 'party' && channel.partyId === authState.user.partyId
-    )
-    const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
-
-    if (!partyChannel && !instanceChannel) {
-      // setTimeout(() => {
-      //   ChatService.getInstanceChannel()
-      //   updateWarningModal(WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED)
-      // }, 2000)
-    } else {
-      /** @todo - revisit reconnection UX */
-      const channelId = partyChannel ? partyChannel.id : instanceChannel!.id
-      // WarningUIService.openWarning({
-      //   title: t('common:instanceServer.noAvailableServers'),
-      //   body: t('common:instanceServer.noAvailableServersMessage'),
-      //   timeout: 15,
-      //   action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false)
-      // })
-      setTimeout(() => {
-        MediaInstanceConnectionService.provisionServer(channelId, false)
-      }, 2000)
+    for (const peer of action.peers) {
+      NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
     }
-  }
-
-  for (const action of worldInstanceDisconnectedQueue()) {
-    const transport = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-    if (engineState.isTeleporting || transport.reconnecting) continue
-
-    const currentLocationID = locationState.currentLocation.location.id
-    /** @todo - revisit reconnection UX */
-    // WarningUIService.openWarning({
-    //   title: t('common:instanceServer.worldDisconnected'),
-    //   body: t('common:instanceServer.worldDisconnectedMessage'),
-    //   // action: () => window.location.reload(),
-    //   timeout: 30
-    // })
-    setTimeout(() => {
-      LocationInstanceConnectionService.provisionServer(currentLocationID)
-    }, 2000)
-  }
-
-  for (const action of worldInstanceKickedQueue()) {
-    WarningUIService.openWarning({
-      title: t('common:instanceServer.youKickedFromWorld'),
-      body: `${t('common:instanceServer.youKickedFromWorldMessage')}: ${action.message}`
-    })
-  }
-
-  for (const action of mediaInstanceDisconnectedQueue()) {
-    const transport = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-    const mediaInstanceState = getState(MediaInstanceState)
-    if (transport?.reconnecting) continue
-
-    const channels = chatState.channels.channels
-    const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
-    const partyChannel = Object.values(channels).find(
-      (channel) => channel.channelType === 'party' && channel.partyId === authState.user.partyId
-    )
-    const channelId = partyChannel ? partyChannel.id : instanceChannel ? instanceChannel.id : null
-    if (channelId && !mediaInstanceState.joiningNewMediaChannel) {
-      /** @todo - revisit reconnection UX */
-      // WarningUIService.openWarning({
-      //   title: 'Media disconnected',
-      //   body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
-      //   action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false),
-      //   timeout: 15
-      // })
-      setTimeout(() => {
-        MediaInstanceConnectionService.provisionServer(channelId, false)
-      }, 2000)
-    }
-  }
-
-  for (const action of worldInstanceReconnectedQueue()) {
-    WarningUIService.closeWarning()
-  }
-
-  for (const action of mediaInstanceReconnectedQueue()) {
-    WarningUIService.closeWarning()
+    for (const [peerID, peer] of Object.entries(network.peers))
+      if (!action.peers.find((p) => p.peerID === peerID)) {
+        NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
+      }
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    addActionReceptor(LocationInstanceConnectionServiceReceptor)
-    addActionReceptor(MediaInstanceConnectionServiceReceptor)
-    addActionReceptor(FriendServiceReceptor)
-    addActionReceptor(ChatServiceReceptor)
+const NetworkConnectionReactor = (props: { networkID: InstanceID }) => {
+  const networkState = getMutableState(NetworkState).networks[props.networkID] as State<SocketWebRTCClientNetwork>
+  const transportState = useHookstate(getMutableState(MediasoupTransportObjectsState))
 
-    return () => {
-      // todo replace with subsystems
-      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
-      removeActionReceptor(MediaInstanceConnectionServiceReceptor)
-      removeActionReceptor(FriendServiceReceptor)
-      removeActionReceptor(ChatServiceReceptor)
-    }
-  }, [])
+  useEffect(() => {
+    const sendTransport = MediasoupTransportState.getTransport(props.networkID, 'send') as WebRTCTransportExtension
+    const recvTransport = MediasoupTransportState.getTransport(props.networkID, 'recv') as WebRTCTransportExtension
+    networkState.ready.set(!!recvTransport && !!sendTransport)
+  }, [transportState.keys])
+  // TODO - see why we have to use .value here instead of just the hookstate object
+
+  return null
+}
+
+const reactor = () => {
+  const networkIDs = Object.keys(useHookstate(getMutableState(NetworkState).networks).value)
 
   return (
     <>
-      <DataChannels />
-      <PeerConsumers />
+      {networkIDs.map((id: InstanceID) => (
+        <NetworkConnectionReactor key={id} networkID={id} />
+      ))}
+      <PeerMediaConsumers />
       <InstanceProvisioning />
     </>
   )
@@ -199,5 +100,6 @@ const reactor = () => {
 export const ClientNetworkingSystem = defineSystem({
   uuid: 'ee.client.ClientNetworkingSystem',
   execute,
-  reactor
+  reactor,
+  subSystems: [DataChannelSystem]
 })

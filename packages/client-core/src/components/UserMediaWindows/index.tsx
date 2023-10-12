@@ -27,11 +27,12 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { AuthState } from '../../user/services/AuthService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
@@ -46,12 +47,12 @@ const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
   return 0
 }
 
-export const UserMediaWindows = () => {
+export const useMediaWindows = () => {
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
-  const mediaNetworkInstanceState = useMediaInstance()
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetworkInstanceState = useMediaNetwork()
+  const mediaNetwork = NetworkState.mediaNetwork
   const selfUser = useHookstate(getMutableState(AuthState).user)
-  const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.connected?.value
+  const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
     PeerID,
@@ -59,14 +60,14 @@ export const UserMediaWindows = () => {
   ][]
 
   const selfPeerID = Engine.instance.peerID
-  const selfUserID = Engine.instance.userId
+  const selfUserID = Engine.instance.userID
 
   const camActive = (cam: PeerMediaStreamInterface) =>
     (cam.videoStream && !cam.videoProducerPaused && !cam.videoStreamPaused) ||
     (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused)
 
-  const userPeers: Array<[UserId, PeerID[]]> = mediaNetworkConnected
-    ? Array.from(mediaNetwork.users.entries())
+  const userPeers: Array<[UserID, PeerID[]]> = mediaNetworkConnected
+    ? (Object.entries(mediaNetwork.users) as Array<[UserID, PeerID[]]>)
     : [[selfUserID, [selfPeerID]]]
 
   // reduce all userPeers to an array 'windows' of { peerID, type } objects, displaying screens first, then cams. if a user has no cameras, only include one peerID for that user
@@ -96,8 +97,21 @@ export const UserMediaWindows = () => {
       return acc
     }, [] as WindowType[])
     .sort(sortScreensBeforeCameras)
+    .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
+  // if window doesnt exist for self, add it
+  if (mediaNetworkConnected && !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))) {
+    windows.unshift({ peerID: selfPeerID, type: 'cam' })
+  }
+
+  return windows
+}
+
+export const UserMediaWindows = () => {
   const { topShelfStyle } = useShelfStyles()
+  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
+
+  const windows = useMediaWindows()
 
   return (
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
@@ -125,7 +139,7 @@ export const UserMediaWindowsWidget = () => {
   const screens = consumers
     .filter(([peerID, { cam, screen }]) => screen?.videoStream)
     .map(([peerID]) => {
-      return { peerID, type: 'screen' as 'screen' }
+      return { peerID, type: 'screen' as const }
     })
 
   const cams = consumers
@@ -136,17 +150,17 @@ export const UserMediaWindowsWidget = () => {
           (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused))
     )
     .map(([peerID]) => {
-      return { peerID, type: 'cam' as 'cam' }
+      return { peerID, type: 'cam' as const }
     })
 
   windows.push(...screens, ...cams)
 
   const selfPeerID = Engine.instance.peerID
-  const selfUserID = Engine.instance.userId
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const selfUserID = Engine.instance.userID
+  const mediaNetwork = NetworkState.mediaNetwork
 
   // if window doesnt exist for self, add it
-  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers.get(peerID)?.userId === selfUserID)) {
+  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers[peerID]?.userId === selfUserID)) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 

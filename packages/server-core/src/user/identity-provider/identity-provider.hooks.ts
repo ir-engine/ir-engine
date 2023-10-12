@@ -23,45 +23,44 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import {
+  IdentityProviderType,
+  identityProviderDataValidator,
+  identityProviderPatchValidator,
+  identityProviderPath,
+  identityProviderQueryValidator
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
 
-import authenticate from '../../hooks/authenticate'
-import accountService from '../auth-management/auth-management.notifier'
-
-const isPasswordAccountType = () => {
-  return (context: HookContext): boolean => {
-    if (context.data.type === 'password') {
-      return true
-    }
-    return false
-  }
-}
-
-const sendVerifyEmail = () => {
-  return (context: any): Promise<HookContext> => {
-    accountService(context.app).notifier('resendVerifySignup', context.result)
-    return context
-  }
-}
+import {
+  identityProviderDataResolver,
+  identityProviderExternalResolver,
+  identityProviderPatchResolver,
+  identityProviderQueryResolver,
+  identityProviderResolver
+} from './identity-provider.resolvers'
 
 const checkIdentityProvider = (): any => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.id) {
       // If trying to CRUD a specific identity-provider, throw 404 if the user doesn't own it
-      const thisIdentityProvider = await (context.app.service('identity-provider') as any).Model.findByPk(context.id)
+      const thisIdentityProvider = (await context.app
+        .service(identityProviderPath)
+        .get(context.id)) as IdentityProviderType
       if (
-        context.params['identity-provider'] &&
-        context.params['identity-provider'].userId !== thisIdentityProvider.userId
+        !context.params.user ||
+        !thisIdentityProvider ||
+        (context.params.user && thisIdentityProvider && context.params.user.id !== thisIdentityProvider.userId)
       )
         throw new NotFound()
     } else {
       // If trying to CRUD multiple identity-providers, e.g. patch all IP's belonging to a user, make params.query.userId
       // the ID of the calling user, so no one can alter anyone else's IPs.
-      const userId = context.params['identity-provider']?.userId
+      const userId = context.params[identityProviderPath]?.userId
       if (!userId) throw new NotFound()
       if (!context.params.query) context.params.query = {}
       context.params.query.userId = userId
@@ -77,35 +76,53 @@ const checkOnlyIdentityProvider = () => {
       // do not allow to remove identity providers in bulk
       throw new MethodNotAllowed('Cannot remove multiple providers together')
     }
+    const thisIdentityProvider = (await context.app
+      .service(identityProviderPath)
+      .get(context.id)) as IdentityProviderType
 
-    const thisIdentityProvider = (await (context.app.service('identity-provider') as any).Model.findByPk(
-      context.id
-    )) as IdentityProviderInterface
+    if (!thisIdentityProvider) throw new Forbidden('You do not have any identity provider')
 
     // we only want to disallow removing the last identity provider if it is not a guest
     // since the guest user will be destroyed once they log in
     if (thisIdentityProvider.type === 'guest') return context
 
     const providers = await context.app
-      .service('identity-provider')
+      .service(identityProviderPath)
       .find({ query: { userId: thisIdentityProvider.userId } })
 
     if (providers.total <= 1) {
-      throw new MethodNotAllowed('Cannot remove the only provider')
+      throw new MethodNotAllowed('Cannot remove the only identity provider on a user')
     }
     return context
   }
 }
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(identityProviderExternalResolver),
+      schemaHooks.resolveResult(identityProviderResolver)
+    ]
+  },
+
   before: {
-    all: [],
-    find: [iff(isProvider('external'), authenticate() as any)],
-    get: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
-    create: [],
-    update: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
-    patch: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
-    remove: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider()), checkOnlyIdentityProvider()]
+    all: [
+      () => schemaHooks.validateQuery(identityProviderQueryValidator),
+      schemaHooks.resolveQuery(identityProviderQueryResolver)
+    ],
+    find: [],
+    get: [iff(isProvider('external'), checkIdentityProvider())],
+    create: [
+      () => schemaHooks.validateData(identityProviderDataValidator),
+      schemaHooks.resolveData(identityProviderDataResolver)
+    ],
+    update: [iff(isProvider('external'), checkIdentityProvider())],
+    patch: [
+      iff(isProvider('external'), checkIdentityProvider()),
+      () => schemaHooks.validateData(identityProviderPatchValidator),
+      schemaHooks.resolveData(identityProviderPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), checkIdentityProvider()), checkOnlyIdentityProvider()]
   },
   after: {
     all: [],

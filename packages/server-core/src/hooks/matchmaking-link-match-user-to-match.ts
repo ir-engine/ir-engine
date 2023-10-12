@@ -29,10 +29,13 @@ import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmakin
 import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
 import { MatchTicketAssignmentType } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 
+import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import logger from '../ServerLogger'
 
 interface AssignmentResponse extends MatchTicketAssignmentType {
-  instanceId: string
+  instanceId: InstanceID
   locationName: string
 }
 
@@ -40,7 +43,7 @@ export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const app = context.app
     const result: AssignmentResponse = context.result
-    const userId = context.params['identity-provider']?.userId
+    const userId = context.params[identityProviderPath]?.userId
 
     if (!result.connection) {
       // if connection is empty, match is not found yet
@@ -112,7 +115,7 @@ export default (): Hook => {
     }
 
     // add user to server instance
-    const existingInstanceAuthorizedUser = await app.service('instance-authorized-user').find({
+    const existingInstanceAuthorizedUser = await app.service(instanceAuthorizedUserPath).find({
       query: {
         userId: userId,
         instanceId: matchServerInstance.instanceServer,
@@ -120,7 +123,7 @@ export default (): Hook => {
       }
     })
     if (existingInstanceAuthorizedUser.total === 0) {
-      await app.service('instance-authorized-user').create({
+      await app.service(instanceAuthorizedUserPath).create({
         userId: userId,
         instanceId: matchServerInstance.instanceServer
       })

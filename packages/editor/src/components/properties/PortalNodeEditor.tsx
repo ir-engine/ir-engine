@@ -24,12 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { debounce } from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
-import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
 import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import {
@@ -41,20 +40,19 @@ import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDC
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
-import { Box } from '@mui/material'
 
+import { PortalType, portalPath } from '@etherealengine/engine/src/schemas/projects/portal.schema'
 import { getPreviewBakeTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
-import { AssetSelectionChangePropsType, AssetsPreviewPanel } from '../assets/AssetsPreviewPanel'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput, { ControlledStringInput } from '../inputs/StringInput'
+import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperties, updateProperty } from './Util'
 
 type PortalOptions = {
   name: string
@@ -92,7 +90,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     setBufferUrl(url)
   }
 
-  const updateCubeMapBakeDebounced = debounce(updateCubeMapBake, 500) //ms
+  const updateCubeMapBakeDebounced = useCallback(debounce(updateCubeMapBake, 500), []) //ms
 
   useEffect(() => {
     updateCubeMapBakeDebounced()
@@ -102,9 +100,11 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }, [transformComponent.position])
 
   const loadPortals = async () => {
-    const portalsDetail: PortalDetail[] = []
+    const portalsDetail: PortalType[] = []
     try {
-      portalsDetail.push(...(await API.instance.client.service('portal').find()).data)
+      portalsDetail.push(
+        ...((await API.instance.client.service(portalPath).find({ query: { paginate: false } })) as PortalType[])
+      )
       console.log('portalsDetail', portalsDetail, getComponent(props.entity, UUIDComponent))
     } catch (error) {
       throw new Error(error)
@@ -144,6 +144,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <ControlledStringInput
           value={portalComponent.location.value}
           onChange={updateProperty(PortalComponent, 'location')}
+          onRelease={commitProperty(PortalComponent, 'location')}
         />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
@@ -151,11 +152,11 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={portals}
           value={portalComponent.linkedPortalId.value}
-          onChange={updateProperty(PortalComponent, 'linkedPortalId')}
+          onChange={commitProperty(PortalComponent, 'linkedPortalId')}
         />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>
-        <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect.value} />
+        <BooleanInput onChange={commitProperty(PortalComponent, 'redirect')} value={portalComponent.redirect.value} />
       </InputGroup>
       <InputGroup name="Effect Type" label={t('editor:properties.portal.lbl-effectType')}>
         <SelectInput
@@ -164,7 +165,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
             return { value: val, label: val }
           })}
           value={portalComponent.effectType.value}
-          onChange={updateProperty(PortalComponent, 'effectType')}
+          onChange={commitProperty(PortalComponent, 'effectType')}
         />
       </InputGroup>
       <InputGroup name="Preview Type" label={t('editor:properties.portal.lbl-previewType')}>
@@ -181,6 +182,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <ControlledStringInput
           value={portalComponent.previewImageURL.value}
           onChange={updateProperty(PortalComponent, 'previewImageURL')}
+          onRelease={commitProperty(PortalComponent, 'previewImageURL')}
         />
       </InputGroup>
       <InputGroup name="Preview Image Bake" label={t('editor:properties.portal.lbl-previewImage')}>
@@ -212,6 +214,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <Vector3Input
           value={portalComponent.spawnPosition.value}
           onChange={updateProperty(PortalComponent, 'spawnPosition')}
+          onRelease={commitProperty(PortalComponent, 'spawnPosition')}
         />
       </InputGroup>
       <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>

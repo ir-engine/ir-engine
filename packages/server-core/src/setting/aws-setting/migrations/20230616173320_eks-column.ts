@@ -39,8 +39,8 @@ export async function up(knex: Knex): Promise<void> {
     })
     await knex.table(awsSettingPath).update({
       eks: JSON.stringify({
-        accessKeyId: process.env.EKS_AWS_ACCESS_KEY || process.env.AWS_ACCESS_KEY,
-        secretAccessKey: process.env.EKS_AWS_SECRET || process.env.AWS_SECRET
+        accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID || process.env.EKS_AWS_ACCESS_KEY || process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET || process.env.EKS_AWS_SECRET || process.env.AWS_SECRET
       })
     })
   }
@@ -65,11 +65,17 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const eksColumnExists = await knex.schema.hasColumn(awsSettingPath, 'eks')
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const eksColumnExists = await trx.schema.hasColumn(awsSettingPath, 'eks')
 
   if (eksColumnExists === true) {
-    await knex.schema.alterTable(awsSettingPath, async (table) => {
+    await trx.schema.alterTable(awsSettingPath, async (table) => {
       table.dropColumn('eks')
     })
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }

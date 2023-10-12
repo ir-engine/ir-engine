@@ -23,27 +23,109 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
+import {
+  ScopeData,
+  ScopeType,
+  scopeDataValidator,
+  scopePatchValidator,
+  scopePath,
+  scopeQueryValidator
+} from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
+import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
+import {
+  scopeDataResolver,
+  scopeExternalResolver,
+  scopePatchResolver,
+  scopeQueryResolver,
+  scopeResolver
+} from '../../scope/scope/scope.resolvers'
+import { ScopeService } from './scope.class'
+
+/**
+ * Check and maintain existing scopes
+ * @param context
+ * @returns
+ */
+const checkExistingScopes = async (context: HookContext<ScopeService>) => {
+  if (!context.data || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data: ScopeData[] = Array.isArray(context.data) ? context.data : [context.data]
+
+  const oldScopes = (await context.app.service(scopePath).find({
+    query: { userId: data[0].userId },
+    paginate: false
+  })) as any as ScopeType[]
+
+  const existingData: ScopeData[] = []
+  const createData: ScopeData[] = []
+
+  for (const item of data) {
+    const existingScope = oldScopes && oldScopes.find((el) => el.type === item.type)
+    if (existingScope) {
+      existingData.push(existingScope)
+    } else {
+      createData.push(item)
+    }
+  }
+
+  if (createData.length > 0) {
+    context.data = createData
+    context.existingData = existingData
+  } else {
+    context.result = existingData
+  }
+}
+
+/**
+ * Append existing scopes with the newly created scopes
+ * @param context
+ * @returns
+ */
+const addExistingScopes = async (context: HookContext<ScopeService>) => {
+  if (context.existingData?.length > 0) {
+    let result = (Array.isArray(context.result) ? context.result : [context.result]) as ScopeType[]
+    result = [...result, ...context.existingData]
+    context.result = result
+  }
+}
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(scopeExternalResolver), schemaHooks.resolveResult(scopeResolver)]
+  },
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    find: [iff(isProvider('external'), verifyScope('user', 'read') as any)],
-    get: [iff(isProvider('external'), verifyScope('user', 'read') as any)],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
+    all: [() => schemaHooks.validateQuery(scopeQueryValidator), schemaHooks.resolveQuery(scopeQueryResolver)],
+    find: [enableClientPagination(), iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
+    get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write')),
+      () => schemaHooks.validateData(scopeDataValidator),
+      schemaHooks.resolveData(scopeDataResolver),
+      checkExistingScopes
+    ],
     update: [disallow()],
-    patch: [disallow()],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)]
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(scopePatchValidator),
+      schemaHooks.resolveData(scopePatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('user', 'write'))]
   },
 
   after: {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addExistingScopes],
     update: [],
     patch: [],
     remove: []

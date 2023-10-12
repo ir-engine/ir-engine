@@ -23,14 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
+import { disallow } from 'feathers-hooks-common'
 
 export default {
   before: {
-    all: [authenticate()],
+    all: [],
     find: [],
     get: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/],
     create: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/],

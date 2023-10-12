@@ -23,34 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { defineActionQueue, dispatchAction } from '@etherealengine/hyperflux'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
-
+import { getState } from '@etherealengine/hyperflux'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../../camera/components/TargetCameraRotationComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkState } from '../../networking/NetworkState'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { XRAction } from '../../xr/XRState'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
 import { respawnAvatar } from '../functions/respawnAvatar'
-import { AvatarInputSettingsReceptor } from '../state/AvatarInputSettingsState'
 
 const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([AvatarControllerComponent])
@@ -85,13 +82,6 @@ const execute = () => {
       phi: targetCameraRotation.phi,
       theta: targetCameraRotation.theta
     })
-
-    // todo: this should be called when the avatar is spawned
-    dispatchAction(
-      WorldNetworkAction.spawnCamera({
-        entityUUID: ('camera_' + getComponent(avatarEntity, UUIDComponent)) as EntityUUID
-      })
-    )
   }
 
   for (const entity of controllerQuery()) {
@@ -114,10 +104,11 @@ const execute = () => {
        *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
        *    if detecting input on the other user #7263
        */
+      const deltaSeconds = getState(EngineState).deltaSeconds
       if (
         !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
-        Engine.instance.worldNetwork &&
-        controller.gamepadWorldMovement.lengthSq() > 0.1 * Engine.instance.deltaSeconds
+        NetworkState.worldNetwork &&
+        controller.gamepadWorldMovement.lengthSq() > 0.1 * deltaSeconds
       ) {
         const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
         dispatchAction(
@@ -136,18 +127,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    addActionReceptor(AvatarInputSettingsReceptor)
-    return () => {
-      removeActionReceptor(AvatarInputSettingsReceptor)
-    }
-  }, [])
-  return null
-}
-
 export const AvatarControllerSystem = defineSystem({
   uuid: 'ee.engine.AvatarControllerSystem',
-  execute,
-  reactor
+  execute
 })

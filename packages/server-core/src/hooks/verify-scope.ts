@@ -25,53 +25,33 @@ Ethereal Engine. All Rights Reserved.
 
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { Forbidden, NotAuthenticated, NotFound } from '@feathersjs/errors'
 import { Application } from '../../declarations'
-import { NotFoundException, UnauthenticatedException, UnauthorizedException } from '../util/exceptions/exception'
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
-    const loggedInUser = context.params.user as UserInterface
-    if (!loggedInUser || !loggedInUser.id) throw new UnauthenticatedException('No logged in user')
-    const scopes = await context.app.service('scope').Model.findAll({
-      where: {
+    const loggedInUser = context.params.user as UserType
+    if (!loggedInUser || !loggedInUser.id) throw new NotAuthenticated('No logged in user')
+    const scopes = (await context.app.service(scopePath).find({
+      query: {
         userId: loggedInUser.id
       },
-      raw: true,
-      nest: true
-    })
-    if (!scopes) throw new NotFoundException('No scope available for the current user.')
+      paginate: false
+    })) as ScopeType[]
+    if (!scopes || scopes.length === 0) throw new NotFound('No scope available for the current user.')
 
-    const currentScopes = scopes.reduce((result, sc) => {
+    const currentScopes = scopes.reduce<string[]>((result, sc) => {
       if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
       return result
     }, [])
     if (!currentScopes.includes(scopeToVerify)) {
-      if (scopeToVerify === 'admin') throw new UnauthorizedException('Must be admin to perform this action')
-      else throw new UnauthorizedException(`Unauthorized ${scopeToVerify} action on ${currentType}`)
+      if (scopeToVerify === 'admin') throw new Forbidden('Must be admin to perform this action')
+      else throw new Forbidden(`Unauthorized ${scopeToVerify} action on ${currentType}`)
     }
     return context
   }
-}
-
-export const checkScope = async (user: UserInterface, app: Application, currentType: string, scopeToVerify: string) => {
-  const scopes = await app.service('scope').Model.findAll({
-    where: {
-      userId: user.id
-    },
-    raw: true,
-    nest: true
-  })
-  if (!scopes) throw new NotFoundException('No scope available for the current user.')
-
-  const currentScopes = scopes.reduce((result, sc) => {
-    if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
-    return result
-  }, [])
-  if (!currentScopes.includes(scopeToVerify)) {
-    return false
-  }
-  return true
 }

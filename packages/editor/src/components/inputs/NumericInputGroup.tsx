@@ -28,7 +28,7 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 
 import { InfoTooltip } from '../layout/Tooltip'
-import { InputGroupContainer, InputGroupContent, InputGroupInfo } from './InputGroup'
+import { InputGroupContainer, InputGroupContent } from './InputGroup'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 
@@ -45,7 +45,7 @@ export interface NumericInputGroupProp {
   max?: number
   value: any
   onChange: (value: any) => void
-  onCommit?: (value: any) => void
+  onRelease?: (value: any) => void
   unit?: string
   convertFrom?: any
   convertTo?: any
@@ -54,13 +54,15 @@ export interface NumericInputGroupProp {
 }
 
 function BaseNumericInputGroup({ name, className, label, ...rest }: NumericInputGroupProp) {
-  const { displayPrecision, ...scrubberProps } = rest
+  const { displayPrecision, onChange, value, ...scrubberProps } = rest
   return (
     <InputGroupContainer>
       <Grid container spacing="10px">
         <Grid item xs={3} display="flex" alignItems="center" justifyContent="end">
           <InfoTooltip className="tooltip" title={label ?? name}>
-            <Scrubber {...scrubberProps}>{label}</Scrubber>
+            <Scrubber onChange={onChange} value={value} {...scrubberProps}>
+              {label}
+            </Scrubber>
           </InfoTooltip>
         </Grid>
         <Grid item xs={9}>

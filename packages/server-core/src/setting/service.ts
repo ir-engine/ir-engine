@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication.service'
+import Authentication from './authentication-setting/authentication-setting'
 import Aws from './aws-setting/aws-setting'
 import Chargebee from './chargebee-setting/chargebee-setting'
 import ClientSetting from './client-setting/client-setting'
@@ -31,7 +31,6 @@ import Coil from './coil-setting/coil-setting'
 import Email from './email-setting/email-setting'
 import Helm from './helm-setting/helm-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectSetting from './project-setting/project-setting.service'
 import RedisSetting from './redis-setting/redis-setting'
 import ServerSetting from './server-setting/server-setting'
 import TaskServer from './task-server-setting/task-server-setting'
@@ -47,6 +46,5 @@ export default [
   Coil,
   RedisSetting,
   TaskServer,
-  ProjectSetting,
   Helm
 ]

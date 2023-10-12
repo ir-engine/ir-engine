@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity } from '../ecs/classes/Entity'
 import { hasComponent } from '../ecs/functions/ComponentFunctions'
-import { checkBitflag, readCompressedRotation, readVector3, readVector4 } from '../networking/serialization/DataReader'
-import { writeCompressedRotation, writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
-import { readUint8, rewindViewCursor, spaceUint8, ViewCursor } from '../networking/serialization/ViewCursor'
+import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
+import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
+import { ViewCursor, readUint8, rewindViewCursor, spaceUint8 } from '../networking/serialization/ViewCursor'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { TransformComponent } from './components/TransformComponent'
 

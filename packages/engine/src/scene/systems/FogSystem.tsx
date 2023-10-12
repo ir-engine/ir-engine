@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
-import _ from 'lodash'
 import React, { useEffect } from 'react'
 import { Fog, FogExp2, Mesh, MeshStandardMaterial, Shader } from 'three'
 

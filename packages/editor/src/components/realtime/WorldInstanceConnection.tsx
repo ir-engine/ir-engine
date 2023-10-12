@@ -27,16 +27,18 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { useWorldNetwork } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import {
+  SocketWebRTCClientNetwork,
+  leaveNetwork
+} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import DirectionsRun from '@mui/icons-material/DirectionsRun'
 import DoneIcon from '@mui/icons-material/Done'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { EditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
 import { InfoTooltip } from '../layout/Tooltip'
@@ -67,24 +69,23 @@ export const WorldInstanceConnection = () => {
 
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
-      if (worldNetworkHostId) leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
+      if (worldNetworkHostId) leaveNetwork(NetworkState.worldNetwork as SocketWebRTCClientNetwork)
       return
     }
     const instance = activeInstanceState.activeInstances.value.find(({ id }) => id === selectedInstance)
     if (!instance) return
-    EditorActiveInstanceService.provisionServer(instance.location, instance.id, sceneId)
+    EditorActiveInstanceService.provisionServer(instance.locationId!, instance.id, sceneId)
   }
   // const decrementPage = () => { }
   // const incrementPage = () => { }
 
-  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
-  const currentLocationInstanceConnection = useWorldInstance()
+  const worldNetworkHostId = NetworkState.worldNetwork?.id
+  const networkState = useWorldNetwork()
 
   const getIcon = () => {
-    if (currentLocationInstanceConnection?.value) {
-      if (currentLocationInstanceConnection.connected) return <DoneIcon fontSize="small" />
-      if (currentLocationInstanceConnection.connecting)
-        return <LoadingCircle message={t('common:loader.connectingToWorld')} />
+    if (networkState?.value) {
+      if (networkState.connected.value) return <DoneIcon fontSize="small" />
+      if (!networkState.ready.value) return <LoadingCircle message={t('common:loader.connectingToWorld')} />
     }
     return <DirectionsRun fontSize="small" />
   }

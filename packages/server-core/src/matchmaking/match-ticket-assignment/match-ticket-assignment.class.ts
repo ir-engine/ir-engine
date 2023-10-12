@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { NotFound } from '@feathersjs/errors'
 import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter, KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex/lib'
+import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex/lib'
 
 import { getTicketsAssignment } from '@etherealengine/matchmaking/src/functions'
 import {
@@ -34,12 +34,13 @@ import {
 } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { emulate_getTicketsAssignment } from '../emulate'
 
-export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTicketAssignmentQuery> {
-  userId?: string
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTicketAssignmentQuery> {}
 
 /**
  * A class for MatchTicketAssignment service
@@ -59,7 +60,7 @@ export class MatchTicketAssignmentService<
     let assignment: MatchTicketAssignmentType
     try {
       if (config.server.matchmakerEmulationMode) {
-        assignment = await emulate_getTicketsAssignment(this.app, id, params['identity-provider'].userId)
+        assignment = await emulate_getTicketsAssignment(this.app, id, params[identityProviderPath].userId)
       } else {
         assignment = await getTicketsAssignment(String(id))
       }

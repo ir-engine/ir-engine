@@ -27,15 +27,23 @@ import React from 'react'
 
 import MaterialLibraryIcon from '@mui/icons-material/Yard'
 
+import { useTranslation } from 'react-i18next'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
+import { InfoTooltip } from '../layout/Tooltip'
 import styles from '../styles.module.scss'
 
 export const MaterialLibraryPanelTitle = () => {
+  const { t } = useTranslation()
+
   return (
     <div className={styles.dockableTab}>
       <PanelDragContainer>
         <PanelIcon as={MaterialLibraryIcon} size={12} />
-        <PanelTitle>Material Library</PanelTitle>
+        <PanelTitle>
+          <InfoTooltip title={t('editor:materialLibrary.info')}>
+            <span>{t('editor:materialLibrary.lbl')}</span>
+          </InfoTooltip>
+        </PanelTitle>
       </PanelDragContainer>
     </div>
   )

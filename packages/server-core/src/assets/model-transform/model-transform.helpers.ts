@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '@feathersjs/koa/lib'
 import {
-  Accessor,
   BufferUtils,
   Document,
   Format,
@@ -53,6 +52,7 @@ import {
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 
+import { fileBrowserPath } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
 import { getContentType } from '../../util/fileUtils'
 import { EEMaterial } from '../extensions/EE_MaterialTransformer'
 import { EEResourceID } from '../extensions/EE_ResourceIDTransformer'
@@ -155,18 +155,16 @@ const split = async (document: Document) => {
     const mesh = node.getMesh()!
     const nuNodes: Node[] = []
     mesh.listPrimitives().map((prim, primIdx) => {
-      if (primIdx > 0) {
-        if (!primMeshes.has(prim)) {
-          primMeshes.set(prim, document.createMesh(mesh.getName() + '-' + primIdx).addPrimitive(prim))
-        } else {
-          console.log('found cached prim')
-        }
-        const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
-        node.getSkin() && nuNode.setSkin(node.getSkin())
-        ;(node.getParentNode() ?? scene).addChild(nuNode)
-        nuNode.setMatrix(node.getMatrix())
-        nuNodes.push(nuNode)
+      if (!primMeshes.has(prim)) {
+        primMeshes.set(prim, document.createMesh(mesh.getName() + '-' + primIdx).addPrimitive(prim))
+      } else {
+        console.log('found cached prim')
       }
+      const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
+      node.getSkin() && nuNode.setSkin(node.getSkin())
+      ;(node.getParentNode() ?? scene).addChild(nuNode)
+      nuNode.setMatrix(node.getMatrix())
+      nuNodes.push(nuNode)
     })
     node.listChildren().map((child) => {
       nuNodes[0]?.addChild(child)
@@ -191,13 +189,16 @@ const myInstance = async (document: Document) => {
   const meshes = root.listMeshes()
   console.log('meshes:', meshes)
   const nodes = root.listNodes().filter((node) => node.getMesh())
-  const table = nodes.reduce((_table, node) => {
-    const mesh = node.getMesh()
-    const idx = meshes.findIndex((mesh2) => mesh?.equals(mesh2))
-    _table[idx] = _table[idx] ?? []
-    _table[idx].push(node)
-    return _table
-  }, {} as Record<number, any[]>)
+  const table = nodes.reduce(
+    (_table, node) => {
+      const mesh = node.getMesh()
+      const idx = meshes.findIndex((mesh2) => mesh?.equals(mesh2))
+      _table[idx] = _table[idx] ?? []
+      _table[idx].push(node)
+      return _table
+    },
+    {} as Record<number, any[]>
+  )
   console.log('table:', table)
   const modifiedNodes = new Set<Node>()
   Object.entries(table)
@@ -401,7 +402,31 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
   const { io } = await ModelTransformLoader()
 
-  const document = await io.read(args.src)
+  let initialSrc = args.src
+  /* Meshopt Compression */
+  if (args.parms.meshoptCompression.enabled) {
+    const segments = args.src.split('.')
+    const ext = segments.pop()
+    const base = segments.join('.')
+    initialSrc = `${base}-meshopt.${ext}`
+    let packArgs = `-i ${args.src} -o ${initialSrc} -noq `
+    if (!args.parms.meshoptCompression.options.mergeMaterials) {
+      packArgs += `-km `
+    }
+    if (!args.parms.meshoptCompression.options.mergeNodes) {
+      packArgs += `-kn `
+    }
+    if (args.parms.meshoptCompression.options.compression) {
+      packArgs += `-cc `
+    }
+    execFileSync(
+      GLTF_PACK,
+      packArgs.split(/\s+/).filter((x) => !!x)
+    )
+  }
+  /* /Meshopt Compression */
+
+  const document = await io.read(initialSrc)
 
   await MeshoptEncoder.ready
 
@@ -409,12 +434,12 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
   /* ID unnamed resources */
   unInstanceSingletons(document)
-  await split(document)
-  await combineMaterials(document)
+  args.parms.split && (await split(document))
+  args.parms.combineMaterials && (await combineMaterials(document))
   args.parms.instance && (await myInstance(document))
   args.parms.dedup && (await document.transform(dedup()))
   args.parms.flatten && (await document.transform(flatten()))
-  args.parms.join && (await document.transform(join(args.parms.join.options)))
+  args.parms.join.enabled && (await document.transform(join(args.parms.join.options)))
   if (args.parms.palette.enabled) {
     removeUVsOnUntexturedMeshes(document)
     await document.transform(palette(args.parms.palette.options))
@@ -444,9 +469,11 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     )
   }
 
+  /* Draco Compression */
   if (args.parms.dracoCompression.enabled) {
     await document.transform(draco(args.parms.dracoCompression.options))
   }
+  /* /Draco Compression */
 
   /* /PROCESS MESHES */
 
@@ -503,7 +530,10 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         const img = await sharp(oldPath)
         const metadata = await img.metadata()
         let resizedDimension = 2
-        while (resizedDimension * 2 < Math.min(mergedParms.maxTextureSize, Math.min(metadata.width, metadata.height))) {
+        while (
+          resizedDimension * 2 <=
+          Math.min(mergedParms.maxTextureSize, Math.max(metadata.width, metadata.height))
+        ) {
           resizedDimension *= 2
         }
         //resize the image to be no larger than the max texture size
@@ -524,7 +554,15 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         document.createExtension(KHRTextureBasisu).setRequired(true)
         const basisArgs = `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${
           mergedParms.textureCompressionType === 'uastc' ? '-uastc' : ''
-        } ${mergedParms.linear ? '-linear' : ''} ${mergedParms.flipY ? '-y_flip' : ''}`
+        } ${mergedParms.textureCompressionType === 'uastc' ? '-uastc_level ' + mergedParms.uastcLevel : ''} ${
+          mergedParms.textureCompressionType === 'etc1' ? '-comp_level ' + mergedParms.compLevel : ''
+        } ${
+          mergedParms.textureCompressionType === 'etc1' && mergedParms.maxCodebooks
+            ? '-max_endpoints 16128 -max_selectors 16128'
+            : ''
+        } ${mergedParms.linear ? '-linear' : ''} ${mergedParms.flipY ? '-y_flip' : ''} ${
+          mergedParms.mipmap ? '-mipmap' : ''
+        }`
           .split(/\s+/)
           .filter((x) => !!x)
         execFileSync(BASIS_U, basisArgs)
@@ -539,9 +577,9 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
   let result
   if (parms.modelFormat === 'glb') {
-    const data = await io.writeBinary(document)
+    const data = Buffer.from(await io.writeBinary(document))
     const [savePath, fileName] = fileUploadPath(args.dst)
-    result = await app.service('file-browser').patch(null, {
+    result = await app.service(fileBrowserPath).patch(null, {
       path: savePath,
       fileName,
       body: data,
@@ -572,7 +610,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     )
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     if (!fs.existsSync(resourcePath)) {
-      await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
+      await app.service(fileBrowserPath).create(resourcePath.replace(projectRoot, '') as any)
     }
     json.images?.map((image) => {
       const nuURI = path.join(
@@ -597,7 +635,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     })
     const doUpload = (uri, data) => {
       const [savePath, fileName] = fileUploadPath(uri)
-      return app.service('file-browser').patch(null, {
+      return app.service(fileBrowserPath).patch(null, {
         path: savePath,
         fileName,
         body: data,

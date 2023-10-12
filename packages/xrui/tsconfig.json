@@ -33,6 +33,7 @@
     "**/node_modules/**"
   ],
   "include": [
+    "../../__global.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
   ]

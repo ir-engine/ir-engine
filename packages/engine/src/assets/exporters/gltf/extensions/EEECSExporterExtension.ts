@@ -23,21 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Event, Object3D } from 'three'
-
-import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentMap,
   getComponent,
   getMutableComponent,
   hasComponent
 } from '../../../../ecs/functions/ComponentFunctions'
-import { ColliderComponent } from '../../../../scene/components/ColliderComponent'
 import { GLTFLoadedComponent } from '../../../../scene/components/GLTFLoadedComponent'
 import { Object3DWithEntity } from '../../../../scene/components/GroupComponent'
 import { NameComponent } from '../../../../scene/components/NameComponent'
-import { EE_ecs } from '../../../loaders/gltf/extensions/EEECSImporterExtension'
 import { GLTFExporterPlugin } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

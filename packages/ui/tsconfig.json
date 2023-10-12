@@ -29,16 +29,15 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client"]
+    "types": ["vite/client", "mocha", "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"],
   },
   "exclude": [
-    // ignore all packages in monorepo
-    "../../packages/**/src/**",
     "./node_modules/**",
+    "./src/**/*.test.ts*"
   ],
   "include": [
-    // allow everything in this package
-    "./**/**/*",
+    "../../__global.d.ts",
+    "../server-core/src/",
     "./src/**/*.ts",
     "./src/**/*.tsx"
   ]

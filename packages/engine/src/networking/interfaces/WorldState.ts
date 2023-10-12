@@ -23,18 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import matches from 'ts-matches'
-
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const WorldState = defineState({
   name: 'WorldState',
   initial: () => ({
     /** a history of user names - does not get cleaned up upon a user leaving the world */
-    userNames: {} as Record<UserId, string>,
-    /** @deprecated */
-    userAvatarDetails: {} as Record<UserId, AvatarInterface>
+    userNames: {} as Record<UserID, string>
   })
 })

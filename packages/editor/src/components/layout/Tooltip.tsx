@@ -28,7 +28,7 @@ import React from 'react'
 import { createStyles, Tooltip, TooltipProps } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-const useStyles = makeStyles<any, {}, any>((theme: any) => {
+const useStyles = makeStyles<any, any, any>((theme: any) => {
   return createStyles({
     tooltip: {
       background: theme.panel
@@ -37,19 +37,26 @@ const useStyles = makeStyles<any, {}, any>((theme: any) => {
 })
 
 /**
- *
- * @param {any} info
- * @param {any} children
- * @param {any} rest
- * @returns
+ * @param {Object} props
+ * @param {string} props.info additional info added to the tooltip label
  */
-export function InfoTooltip(props: TooltipProps) {
+export function InfoTooltip(props: TooltipProps & { info?: string }) {
   if (!props.title) return <>{props.children}</>
 
-  const styles = useStyles()
+  const title = props.info ? (
+    <p>
+      {props.title}
+      <hr />
+      {props.info}
+    </p>
+  ) : (
+    props.title
+  )
+
+  const styles = useStyles({})
 
   return (
-    <Tooltip {...props} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>
+    <Tooltip {...props} title={title} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>
       {/* Span is required to trigger events like hover in safari for disabled elements */}
       {props.children}
     </Tooltip>

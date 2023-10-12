@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VariantType } from 'notistack'
 
-import multiLogger from '@etherealengine/common/src/logger'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 

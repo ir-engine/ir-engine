@@ -24,15 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { RedisSettingQuery, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
-export const redisSettingResolver = resolve<RedisSettingType, HookContext>({})
+export const redisSettingResolver = resolve<RedisSettingType, HookContext>({
+  createdAt: virtual(async (redisSetting) => fromDateTimeSql(redisSetting.createdAt)),
+  updatedAt: virtual(async (redisSetting) => fromDateTimeSql(redisSetting.updatedAt))
+})
 
 export const redisSettingExternalResolver = resolve<RedisSettingType, HookContext>({})
 

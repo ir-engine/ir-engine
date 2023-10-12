@@ -27,12 +27,13 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha", "@types/offscreencanvas", "vite-plugin-pwa/client"]
+    "types": ["vite/client", "mocha", "@types/offscreencanvas", "vite-plugin-pwa/client",  "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"]
   },
   "exclude": [
     "**/node_modules/**",
   ],
   "include": [
+    "../../__global.d.ts",
     "../server-core/src/",
     "./**/*.ts",
     "./**/*.tsx"

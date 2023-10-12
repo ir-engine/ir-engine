@@ -28,235 +28,206 @@ import React, { useEffect } from 'react'
 import {
   LocationInstanceConnectionService,
   LocationInstanceState,
-  useWorldInstance
+  useWorldInstance,
+  useWorldNetwork
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
-  useMediaInstance
+  MediaInstanceState
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { ChatAction, ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Groups } from '@mui/icons-material'
 
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { useTranslation } from 'react-i18next'
 import { FriendService } from '../social/services/FriendService'
-import { PartyService, PartyState, PartySystem } from '../social/services/PartyService'
-import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
-import PartyMenu from '../user/components/UserMenu/menus/PartyMenu'
+import { connectToNetwork } from '../transports/SocketWebRTCClientFunctions'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
-import { AuthState } from '../user/services/AuthService'
+import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
+import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 
 export const WorldInstanceProvisioning = () => {
   const locationState = useHookstate(getMutableState(LocationState))
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useHookstate(getMutableState(EngineState))
 
-  const worldNetwork = Engine.instance.worldNetwork
-  const currentLocationInstanceConnection = useWorldInstance()
+  const worldNetwork = NetworkState.worldNetwork
+  const worldNetworkState = useWorldNetwork()
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
 
-  const locationInstance = useHookstate(getMutableState(LocationInstanceState))
+  ChannelService.useAPIListeners()
+
+  const locationInstances = useHookstate(getMutableState(LocationInstanceState).instances)
   const instance = useWorldInstance()
 
   // Once we have the location, provision the instance server
   useEffect(() => {
+    if (!engineState.sceneLoaded.value || locationInstances.keys.length) return
+
     const currentLocation = locationState.currentLocation.location
-    const isProvisioned = worldNetwork?.hostId && currentLocationInstanceConnection?.provisioned.value
+    const hasJoined = !!worldNetwork
 
-    if (currentLocation.id?.value) {
-      if (!isUserBanned && !isProvisioned) {
-        const search = window.location.search
-        let instanceId
-        let roomCode
+    if (
+      currentLocation.id?.value &&
+      !isUserBanned &&
+      !hasJoined &&
+      !Object.values(locationInstances).find((instance) => instance.locationId.value === currentLocation.id?.value)
+    ) {
+      const search = window.location.search
+      let instanceId
+      let roomCode
 
-        if (search != null) {
-          if (networkConfigState.instanceID.value)
-            instanceId = new URL(window.location.href).searchParams.get('instanceId')
-          if (networkConfigState.roomID.value) roomCode = new URL(window.location.href).searchParams.get('roomCode')
-        }
+      if (search != null) {
+        if (networkConfigState.instanceID.value)
+          instanceId = new URL(window.location.href).searchParams.get('instanceId')
+        if (networkConfigState.roomID.value) roomCode = new URL(window.location.href).searchParams.get('roomCode')
+      }
 
-        if (!networkConfigState.instanceID.value && networkConfigState.roomID.value) {
-          LocationInstanceConnectionService.provisionExistingServerByRoomCode(
-            currentLocation.id.value,
-            roomCode,
-            currentLocation.sceneId.value
-          )
-        } else {
-          LocationInstanceConnectionService.provisionServer(
-            currentLocation.id.value,
-            instanceId || undefined,
-            currentLocation.sceneId.value,
-            roomCode || undefined
-          )
-        }
+      if (!networkConfigState.instanceID.value && networkConfigState.roomID.value) {
+        LocationInstanceConnectionService.provisionExistingServerByRoomCode(
+          currentLocation.id.value,
+          roomCode,
+          currentLocation.sceneId.value
+        )
+      } else {
+        LocationInstanceConnectionService.provisionServer(
+          currentLocation.id.value,
+          instanceId || undefined,
+          currentLocation.sceneId.value,
+          roomCode || undefined
+        )
       }
     }
-  }, [locationState.currentLocation.location])
-
-  // Once scene is loaded and the server is provisioned, connect to the instance server
-  useEffect(() => {
-    if (
-      engineState.sceneLoaded.value &&
-      currentLocationInstanceConnection?.value &&
-      currentLocationInstanceConnection.provisioned.value &&
-      currentLocationInstanceConnection.readyToConnect.value &&
-      !currentLocationInstanceConnection.connecting.value &&
-      !currentLocationInstanceConnection.connected.value
-    )
-      LocationInstanceConnectionService.connectToServer(worldNetwork.hostId)
-  }, [
-    engineState.sceneLoaded,
-    currentLocationInstanceConnection?.connected,
-    currentLocationInstanceConnection?.readyToConnect,
-    currentLocationInstanceConnection?.provisioned,
-    currentLocationInstanceConnection?.connecting
-  ])
+  }, [engineState.sceneLoaded, locationState.currentLocation.location, locationInstances.keys])
 
   // Populate the URL with the room code and instance id
   useEffect(() => {
     if (!networkConfigState.roomID.value && !networkConfigState.instanceID.value) return
 
-    if (instance?.connected?.value) {
+    if (worldNetworkState?.connected?.value) {
       const parsed = new URL(window.location.href)
       const query = parsed.searchParams
 
-      if (networkConfigState.roomID.value) query.set('roomCode', instance.roomCode.value)
+      if (networkConfigState.roomID.value) query.set('roomCode', instance!.roomCode.value)
 
-      if (networkConfigState.instanceID.value) query.set('instanceId', worldNetwork.hostId)
+      if (networkConfigState.instanceID.value) query.set('instanceId', worldNetwork.id)
 
       parsed.search = query.toString()
       if (typeof history.pushState !== 'undefined') {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
-  }, [locationInstance.instances, instance, networkConfigState])
+  }, [worldNetworkState?.connected, locationInstances.keys.length, networkConfigState])
+
+  return (
+    <>
+      {Object.keys(locationInstances.value).map((instanceId: InstanceID) => (
+        <WorldInstance key={instanceId} id={instanceId} />
+      ))}
+    </>
+  )
+}
+
+export const WorldInstance = ({ id }: { id: InstanceID }) => {
+  const worldInstance = useHookstate(getMutableState(LocationInstanceState).instances[id])
+
+  useEffect(() => {
+    connectToNetwork(
+      id,
+      worldInstance.ipAddress.value,
+      worldInstance.port.value,
+      worldInstance.locationId.value,
+      undefined,
+      worldInstance.roomCode.value
+    )
+  }, [])
 
   return null
 }
 
 export const MediaInstanceProvisioning = () => {
-  const chatState = useHookstate(getMutableState(ChatState))
+  const channelState = useHookstate(getMutableState(ChannelState))
 
-  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
-
-  const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
-  const currentChannelInstanceConnection = useMediaInstance()
+  const worldNetworkId = NetworkState.worldNetwork?.id
+  const worldNetwork = useWorldNetwork()
 
   MediaInstanceConnectionService.useAPIListeners()
-  ChatService.useAPIListeners()
+  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances)
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (chatState.instanceChannelFetched.value) {
-      const channels = chatState.channels.channels.value
-      const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
-      if (!currentChannelInstanceConnection?.provisioned.value)
-        MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
-    }
-  }, [chatState.instanceChannelFetched])
-
-  // Once the media server is provisioned, connect to it
-  useEffect(() => {
-    if (
-      mediaNetworkHostId &&
-      currentChannelInstanceConnection?.get({ noproxy: true }) &&
-      currentChannelInstanceConnection.provisioned.value &&
-      currentChannelInstanceConnection.readyToConnect.value &&
-      !currentChannelInstanceConnection.connecting.value &&
-      !currentChannelInstanceConnection.connected.value
-    ) {
-      MediaInstanceConnectionService.connectToServer(
-        mediaNetworkHostId,
-        currentChannelInstanceConnection.channelId.value
-      )
+    if (mediaInstance.keys.length) return
+    if (channelState.channels.channels?.value.length) {
+      const currentChannel =
+        channelState.targetChannelId.value === ''
+          ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkId)?.id
+          : channelState.targetChannelId.value
+      if (currentChannel) MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
   }, [
-    currentChannelInstanceConnection?.connected,
-    currentChannelInstanceConnection?.readyToConnect,
-    currentChannelInstanceConnection?.provisioned,
-    currentChannelInstanceConnection?.connecting
+    channelState.channels.channels?.length,
+    worldNetwork?.connected,
+    mediaInstance.keys.length,
+    channelState.targetChannelId
   ])
+
+  return (
+    <>
+      {Object.keys(mediaInstance.value).map((instanceId: InstanceID) => (
+        <MediaInstance key={instanceId} id={instanceId} />
+      ))}
+    </>
+  )
+}
+
+export const MediaInstance = ({ id }: { id: InstanceID }) => {
+  const mediaInstance = useHookstate(getMutableState(MediaInstanceState).instances[id])
+
+  useEffect(() => {
+    connectToNetwork(
+      id,
+      mediaInstance.ipAddress.value,
+      mediaInstance.port.value,
+      undefined,
+      mediaInstance.channelId.value,
+      mediaInstance.roomCode.value
+    )
+  }, [])
 
   return null
 }
 
 export const SocialMenus = {
-  Party: 'Party',
-  Friends: 'Friends'
+  Friends: 'Friends',
+  Messages: 'Messages'
 }
 
-export const PartyInstanceProvisioning = () => {
-  const authState = useHookstate(getMutableState(AuthState))
-  const selfUser = authState.user
-  const chatState = useHookstate(getMutableState(ChatState))
-  const partyState = useHookstate(getMutableState(PartyState))
-
-  useSystem(PartySystem, { before: PresentationSystemGroup })
-
-  const currentChannelInstanceConnection = useMediaInstance()
+export const FriendMenus = () => {
+  const { t } = useTranslation()
+  FriendService.useAPIListeners()
 
   useEffect(() => {
     const menuState = getMutableState(PopupMenuState)
     menuState.menus.merge({
-      [SocialMenus.Party]: PartyMenu,
-      [SocialMenus.Friends]: FriendsMenu
+      [SocialMenus.Friends]: FriendsMenu,
+      [SocialMenus.Messages]: MessagesMenu
     })
     menuState.hotbar.merge({
-      [SocialMenus.Friends]: Groups
+      [SocialMenus.Friends]: { icon: <Groups />, tooltip: t('user:menu.friends') }
     })
 
     return () => {
-      menuState.menus[SocialMenus.Party].set(none)
       menuState.menus[SocialMenus.Friends].set(none)
+      menuState.menus[SocialMenus.Messages].set(none)
 
       menuState.hotbar[SocialMenus.Friends].set(none)
     }
   }, [])
-
-  FriendService.useAPIListeners()
-  PartyService.useAPIListeners()
-
-  // Once we have the world server, provision the party server
-  useEffect(() => {
-    if (selfUser?.partyId?.value && chatState.channels.channels?.get({ noproxy: true })) {
-      const partyChannel = Object.values(chatState.channels.channels.get({ noproxy: true })).find(
-        (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
-      )
-      const partyUser =
-        partyState.party?.partyUsers
-          ?.get({ noproxy: true })
-          ?.find((partyUser) => partyUser.userId === selfUser.id.value) || null
-      if (
-        chatState.partyChannelFetched?.value &&
-        partyChannel &&
-        currentChannelInstanceConnection?.channelId.value !== partyChannel.id &&
-        partyUser
-      )
-        MediaInstanceConnectionService.provisionServer(partyChannel?.id!, false)
-      else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
-        ChatService.getPartyChannel()
-    }
-  }, [
-    selfUser?.partyId?.value,
-    partyState.party?.id,
-    chatState.channels.channels?.get({ noproxy: true }),
-    chatState.partyChannelFetching?.value,
-    chatState.partyChannelFetched?.value
-  ])
-
-  useEffect(() => {
-    if (selfUser.partyId.value) dispatchAction(ChatAction.refetchPartyChannelAction({}))
-  }, [selfUser.partyId.value])
-
-  useEffect(() => {
-    if (partyState.updateNeeded.value) PartyService.getParty()
-  }, [partyState.updateNeeded.value])
 
   return null
 }
@@ -268,7 +239,7 @@ export const InstanceProvisioning = () => {
     <>
       {networkConfigState.world.value && <WorldInstanceProvisioning />}
       {networkConfigState.media.value && <MediaInstanceProvisioning />}
-      {networkConfigState.friends.value && <PartyInstanceProvisioning />}
+      {networkConfigState.friends.value && <FriendMenus />}
     </>
   )
 }

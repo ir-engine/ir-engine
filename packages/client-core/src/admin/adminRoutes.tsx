@@ -33,7 +33,6 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
-import { AdminSystem } from '../systems/AdminSystem'
 import { AuthState } from '../user/services/AuthService'
 import { UserUISystem } from '../user/UserUISystem'
 import Analytics from './components/Analytics'
@@ -41,7 +40,7 @@ import Analytics from './components/Analytics'
 const $allowed = lazy(() => import('@etherealengine/client-core/src/admin/allowedRoutes'))
 
 const AdminSystemInjection = () => {
-  startSystems([AdminSystem, UserUISystem], { after: PresentationSystemGroup })
+  startSystems([UserUISystem], { after: PresentationSystemGroup })
 }
 
 const AdminRoutes = () => {
@@ -54,8 +53,7 @@ const AdminRoutes = () => {
     user: false,
     bot: false,
     scene: false,
-    party: false,
-    groups: false,
+    channel: false,
     instance: false,
     invite: false,
     globalAvatars: false,

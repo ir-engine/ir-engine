@@ -15,6 +15,9 @@ until [ "${apiCount}" -ge 1 ]; do
     sleep 5
 
     apiCount=$(kubectl get deploy $apiName -o jsonpath='{.status.availableReplicas}')
+    if [ -z "$apiCount" ]; then
+        apiCount=0
+    fi
     echo "API ready count: $apiCount"
 done
 

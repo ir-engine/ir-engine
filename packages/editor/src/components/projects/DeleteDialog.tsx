@@ -36,7 +36,7 @@ import styles from './styles.module.scss'
 interface Props {
   open: boolean
   isProjectMenu?: boolean
-  onClose: (e: {}, reason: string) => void
+  onClose: (e: any, reason: string) => void
   onConfirm: MouseEventHandler<HTMLButtonElement>
   onCancel: MouseEventHandler<HTMLButtonElement>
 }

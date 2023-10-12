@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { Vector3 } from 'three'
 
 import {

@@ -28,20 +28,24 @@ import _ from 'lodash'
 
 import config from '@etherealengine/common/src/config'
 
-import { createDefaultStorageProvider, getStorageProvider } from '../../media/storageprovider/storageprovider'
 import {
-  cleanSceneDataCacheURLs,
-  parseSceneDataCacheURLs,
+  cleanStorageProviderURLs,
+  parseStorageProviderURLs,
   sceneCorsPathIdentifier,
   sceneRelativePathIdentifier
-} from './scene-parser'
+} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { createDefaultStorageProvider } from '../../media/storageprovider/storageprovider'
+import { StorageProviderInterface } from '../../media/storageprovider/storageprovider.interface'
 
 describe('Scene Helper Functions', () => {
   describe('should replace cache domain', () => {
-    const storageProvider = createDefaultStorageProvider()
     const mockValue = `abcdef2144536`
     const mockValue2 = `08723ikjbolicujhc0asc`
 
+    let storageProvider: StorageProviderInterface
+    let parsedMockData: any
     const savedMockData = {
       value: `${sceneRelativePathIdentifier}/${mockValue}`,
       property: {
@@ -49,20 +53,28 @@ describe('Scene Helper Functions', () => {
       }
     }
 
-    const parsedMockData = {
-      value: `https://${storageProvider.cacheDomain}/projects/${mockValue}`,
-      property: {
-        nestedValue: `https://${storageProvider.cacheDomain}/projects/${mockValue2}`
+    before(() => {
+      createEngine()
+      storageProvider = createDefaultStorageProvider()
+      parsedMockData = {
+        value: `https://${storageProvider.cacheDomain}/projects/${mockValue}`,
+        property: {
+          nestedValue: `https://${storageProvider.cacheDomain}/projects/${mockValue2}`
+        }
       }
-    }
+    })
+
+    after(() => {
+      destroyEngine()
+    })
 
     it('should parse saved data', async function () {
-      const parsedData = parseSceneDataCacheURLs(_.cloneDeep(savedMockData) as any, storageProvider.cacheDomain)
+      const parsedData = parseStorageProviderURLs(_.cloneDeep(savedMockData))
       assert.deepStrictEqual(parsedMockData, parsedData)
     })
 
     it('should unparse parsed data', async function () {
-      const unparsedData = cleanSceneDataCacheURLs(_.cloneDeep(parsedMockData) as any, storageProvider.cacheDomain)
+      const unparsedData = cleanStorageProviderURLs(_.cloneDeep(parsedMockData))
       assert.deepStrictEqual(savedMockData, unparsedData)
     })
   })
@@ -79,14 +91,12 @@ describe('Scene Helper Functions', () => {
     }
 
     it('should parse saved data', async function () {
-      const storageProvider = getStorageProvider()
-      const parsedData = parseSceneDataCacheURLs(_.cloneDeep(savedMockData) as any, storageProvider.cacheDomain)
+      const parsedData = parseStorageProviderURLs(_.cloneDeep(savedMockData))
       assert.deepStrictEqual(parsedMockData, parsedData)
     })
 
     it('should unparse parsed data', async function () {
-      const storageProvider = getStorageProvider()
-      const unparsedData = cleanSceneDataCacheURLs(_.cloneDeep(parsedMockData) as any, storageProvider.cacheDomain)
+      const unparsedData = cleanStorageProviderURLs(_.cloneDeep(parsedMockData))
       assert.deepStrictEqual(savedMockData, unparsedData)
     })
   })

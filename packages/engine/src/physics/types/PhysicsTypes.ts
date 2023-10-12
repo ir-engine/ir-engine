@@ -23,14 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import RAPIER, {
-  ActiveCollisionTypes,
-  ColliderHandle,
-  RigidBodyType,
-  ShapeType,
-  Vector
-} from '@dimforge/rapier3d-compat'
-import { Vector3 } from 'three'
+import RAPIER, { ActiveCollisionTypes, RigidBodyType, ShapeType, Vector } from '@dimforge/rapier3d-compat'
 
 import { Entity } from '../../ecs/classes/Entity'
 

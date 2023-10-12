@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Table from '@etherealengine/ui/src/primitives/mui/Table'
 import TableBody from '@etherealengine/ui/src/primitives/mui/TableBody'
 import TableCell from '@etherealengine/ui/src/primitives/mui/TableCell'
@@ -35,25 +34,21 @@ import TablePagination from '@etherealengine/ui/src/primitives/mui/TablePaginati
 import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 import TableSortLabel from '@etherealengine/ui/src/primitives/mui/TableSortLabel'
 
-import { visuallyHidden } from '@mui/utils'
-
+import { FeathersOrder, useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import styles from '../styles/table.module.scss'
 
+const SortDirection = {
+  '-1': 'desc',
+  0: 'asc',
+  1: 'asc'
+} as const
+
 interface Props {
+  query: ReturnType<typeof useFind>
   rows: any
   column: any
-  page: number
-  rowsPerPage: number
-  count: number
-  fieldOrder?: string
-  fieldOrderBy?: string
   allowSort?: boolean
-  setSortField?: (fueld: string) => void
-  setFieldOrder?: (order: string) => void
-  handlePageChange: (e: unknown, newPage: number) => void
-  handleRowsPerPageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
-type Order = 'asc' | 'desc'
 
 interface Data {
   calories: number
@@ -69,6 +64,7 @@ interface HeadCell {
   label: string
   align?: 'right'
   minWidth: any
+  sortable?: boolean
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -82,12 +78,10 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 }
 
 function getComparator<Key extends keyof any>(
-  order: Order,
+  order: FeathersOrder,
   orderBy: Key
 ): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy)
+  return order === -1 ? (a, b) => descendingComparator(a, b, orderBy) : (a, b) => -descendingComparator(a, b, orderBy)
 }
 
 function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
@@ -103,8 +97,8 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
 }
 
 interface EnhancedTableProps {
-  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void
-  order: Order
+  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data, order: FeathersOrder) => void
+  order: FeathersOrder
   orderBy: string
   rowCount: number
   columns: HeadCell[]
@@ -112,7 +106,7 @@ interface EnhancedTableProps {
 
 const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedTableProps) => {
   const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
-    onRequestSort(event, property)
+    onRequestSort(event, property, order)
   }
 
   return (
@@ -123,26 +117,28 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedT
             key={headCell.id}
             align={headCell.align}
             padding={headCell.disablePadding ? 'none' : 'normal'}
-            sortDirection={orderBy === headCell.id ? order : false}
+            sortDirection={orderBy === headCell.id ? SortDirection[order] : false}
             className={styles.tableCellHeader}
             style={{ minWidth: headCell.minWidth }}
           >
             {(headCell.id as any) === 'action' || (headCell.id as any) === 'select' ? (
               <span>{headCell.label} </span>
-            ) : (
+            ) : typeof headCell.sortable === 'undefined' || headCell.sortable === true ? (
               <TableSortLabel
                 active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : 'asc'}
+                direction={orderBy === headCell.id ? SortDirection[order] : 'asc'}
                 onClick={createSortHandler(headCell.id)}
                 classes={{ icon: styles.spanWhite, active: styles.spanWhite }}
               >
                 {headCell.label}
                 {orderBy === headCell.id ? (
-                  <Box component="span" sx={visuallyHidden}>
-                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </Box>
+                  <span style={{ display: 'none', border: 0, clip: 'rect(0 0 0 0)' }}>
+                    {order === -1 ? 'sorted descending' : 'sorted ascending'}
+                  </span>
                 ) : null}
               </TableSortLabel>
+            ) : (
+              <div className={styles.spanWhite}>{headCell.label}</div>
             )}
           </TableCell>
         ))}
@@ -151,28 +147,11 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedT
   )
 }
 
-const TableComponent = ({
-  rows,
-  column,
-  page,
-  rowsPerPage,
-  count,
-  fieldOrder,
-  fieldOrderBy,
-  allowSort,
-  setSortField,
-  setFieldOrder,
-  handlePageChange,
-  handleRowsPerPageChange
-}: Props) => {
-  const [order, setOrder] = React.useState<Order>(fieldOrder === 'desc' ? 'desc' : 'asc')
-  const [orderBy, setOrderBy] = React.useState<keyof Data>(fieldOrderBy ? fieldOrderBy : column[0].id)
-  const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
-    const isAsc = orderBy === property && order === 'asc'
-    setOrder(isAsc ? 'desc' : 'asc')
-    setSortField && setSortField(property)
-    setFieldOrder && setFieldOrder(order)
-    setOrderBy(property)
+const TableComponent = ({ rows, column, allowSort, query }: Props) => {
+  const [orderBy, order] = (Object.entries(query.sort)[0] as [keyof Data, FeathersOrder]) ?? []
+
+  const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data, order: FeathersOrder) => {
+    query.setSort({ [property]: order === 1 ? -1 : 1 })
   }
 
   return (
@@ -205,13 +184,16 @@ const TableComponent = ({
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[12]}
+        rowsPerPage={query.limit}
+        rowsPerPageOptions={[20]}
+        // rowsPerPageOptions={[10, 20, 50, 100]}
+        onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          query.setLimit(parseInt(event.target.value, 10))
+        }}
         component="div"
-        count={count}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
+        count={query.total}
+        page={query.page}
+        onPageChange={(event, page) => query.setPage(page)}
         className={styles.tableFooter}
       />
     </React.Fragment>

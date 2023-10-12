@@ -23,13 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
-import { changeState } from '../../avatar/animation/AnimationGraph'
-import { AvatarStates } from '../../avatar/animation/Util'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -44,15 +41,15 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { createInteractUI } from '../functions/interactUI'
@@ -86,9 +83,9 @@ const execute = () => {
   }
 
   for (const action of mountPointActionQueue()) {
-    if (action.$from !== Engine.instance.userId) continue
+    if (action.$from !== Engine.instance.userID) continue
     if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
-    const avatarEntity = Engine.instance.getUserAvatarEntity(action.$from)
+    const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
 
     const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
     if (mountPoint.type === MountPoint.seat) {
@@ -108,16 +105,16 @@ const execute = () => {
       )
       rigidBody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
       addComponent(avatarEntity, SittingComponent, {
-        mountPointEntity: action.targetEntity!,
-        state: AvatarStates.SIT_ENTER
+        mountPointEntity: action.targetEntity!
+        //state: AvatarStates.SIT_ENTER
       })
       const sitting = getComponent(avatarEntity, SittingComponent)
       getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
 
       const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
 
-      changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
-      sitting.state = AvatarStates.SIT_IDLE
+      // changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
+      //sitting.state = AvatarStates.SIT_IDLE
     }
   }
 
@@ -128,9 +125,9 @@ const execute = () => {
     const sitting = getComponent(entity, SittingComponent)
 
     if (controller.gamepadWorldMovement.lengthSq() > 0.1) {
-      sitting.state = AvatarStates.SIT_LEAVE
+      //sitting.state = AvatarStates.SIT_LEAVE
 
-      changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
+      // changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
 
       const avatarTransform = getComponent(entity, TransformComponent)
       const newPos = avatarTransform.position
@@ -145,7 +142,8 @@ const execute = () => {
         maxDistance: 2,
         groups: interactionGroups
       }
-      const hits = Physics.castRay(Engine.instance.physicsWorld, raycastComponentData)
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      const hits = Physics.castRay(physicsWorld, raycastComponentData)
 
       if (hits.length > 0) {
         const raycastHit = hits[0] as RaycastHit
@@ -160,30 +158,14 @@ const execute = () => {
       const rigidbody = getComponent(entity, RigidBodyComponent)
       rigidbody.body.setTranslation(newPos, true)
 
-      changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
+      // changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
       removeComponent(entity, SittingComponent)
       getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = true
     }
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.chair, [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: MountPointComponent.jsonID }
-    ])
-
-    return () => {
-      Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.chair)
-    }
-  }, [])
-  return null
-}
-
 export const MountPointSystem = defineSystem({
   uuid: 'ee.engine.MountPointSystem',
-  execute,
-  reactor
+  execute
 })

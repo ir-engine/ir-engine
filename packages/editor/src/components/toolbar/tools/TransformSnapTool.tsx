@@ -27,12 +27,13 @@ import React from 'react'
 
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 
+import { useTranslation } from 'react-i18next'
 import { toggleSnapMode } from '../../../functions/transformFunctions'
-import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -58,34 +59,36 @@ const rotationSnapOptions = [
 ]
 
 const TransformSnapTool = () => {
+  const { t } = useTranslation()
+
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   const onChangeTranslationSnap = (snapValue: number) => {
     InfiniteGridHelper.instance.setSize(snapValue)
-    dispatchAction(EditorHelperAction.changeTranslationSnap({ translationSnap: snapValue }))
+    getMutableState(EditorHelperState).translationSnap.set(snapValue)
 
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
+      getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
     }
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
-    dispatchAction(EditorHelperAction.changeRotationSnap({ rotationSnap: snapValue }))
+    getMutableState(EditorHelperState).rotationSnap.set(snapValue)
     if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-      dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
+      getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
     }
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
-  //   dispatchAction(EditorHelperAction.changeScaleSnap({ scaleSnap: snapValue }))
+  //   getMutableState(EditorHelperState).scaleSnap.set(snapValue)
   //   if (editorHelperState.snapMode.value !== SnapMode.Grid) {
-  //     dispatchAction(EditorHelperAction.changedSnapMode({ snapMode: SnapMode.Grid }))
+  //     getMutableState(EditorHelperState).snapMode.set(SnapMode.Grid)
   //   }
   // }
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-snap">
-      <InfoTooltip title="[C] Toggle Snap Mode">
+      <InfoTooltip title={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
         <button
           onClick={toggleSnapMode}
           className={
@@ -95,24 +98,32 @@ const TransformSnapTool = () => {
           <AttractionsIcon fontSize="small" />
         </button>
       </InfoTooltip>
-      <SelectInput
-        key={editorHelperState.translationSnap.value}
-        className={styles.selectInput}
-        onChange={onChangeTranslationSnap}
-        options={translationSnapOptions}
-        value={editorHelperState.translationSnap.value}
-        creatable={false}
-        isSearchable={false}
-      />
-      <SelectInput
-        key={editorHelperState.rotationSnap.value}
-        className={styles.selectInput}
-        onChange={onChangeRotationSnap}
-        options={rotationSnapOptions}
-        value={editorHelperState.rotationSnap.value}
-        creatable={false}
-        isSearchable={false}
-      />
+      <InfoTooltip title={t('editor:toolbar.transformSnapTool.info-translate')} placement="right">
+        <div>
+          <SelectInput
+            key={editorHelperState.translationSnap.value}
+            className={styles.selectInput}
+            onChange={onChangeTranslationSnap}
+            options={translationSnapOptions}
+            value={editorHelperState.translationSnap.value}
+            creatable={false}
+            isSearchable={false}
+          />
+        </div>
+      </InfoTooltip>
+      <InfoTooltip title={t('editor:toolbar.transformSnapTool.info-rotate')} placement="right">
+        <div>
+          <SelectInput
+            key={editorHelperState.rotationSnap.value}
+            className={styles.selectInput}
+            onChange={onChangeRotationSnap}
+            options={rotationSnapOptions}
+            value={editorHelperState.rotationSnap.value}
+            creatable={false}
+            isSearchable={false}
+          />
+        </div>
+      </InfoTooltip>
     </div>
   )
 }

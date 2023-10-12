@@ -2,7 +2,7 @@
 FROM node:18-buster-slim
 
 RUN apt-get update
-RUN apt-get install -y build-essential meson python3-testresources python3-venv python3-pip git procps
+RUN apt-get install -y build-essential meson python3-testresources python3-venv python3-pip git procps git-lfs
 # Create app directory
 WORKDIR /app
 
@@ -42,6 +42,8 @@ ARG MYSQL_PORT
 ARG MYSQL_USER
 ARG MYSQL_PASSWORD
 ARG MYSQL_DATABASE
+ARG SERVER_HOST
+ARG SERVER_PORT
 ARG VITE_APP_HOST
 ARG VITE_APP_PORT
 ARG VITE_SERVER_HOST
@@ -60,6 +62,8 @@ ENV MYSQL_PORT=$MYSQL_PORT
 ENV MYSQL_USER=$MYSQL_USER
 ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
 ENV MYSQL_DATABASE=$MYSQL_DATABASE
+ENV SERVER_HOST=$SERVER_HOST
+ENV SERVER_PORT=$SERVER_PORT
 ENV VITE_APP_HOST=$VITE_APP_HOST
 ENV VITE_APP_PORT=$VITE_APP_PORT
 ENV VITE_SERVER_HOST=$VITE_SERVER_HOST
@@ -79,6 +83,8 @@ RUN npx cross-env ts-node --swc scripts/check-db-exists.ts
 RUN npm run build-client
 
 RUN rm -r packages/client/public
+
+RUN bash ./scripts/setup_helm.sh
 
 ENV APP_ENV=production
 

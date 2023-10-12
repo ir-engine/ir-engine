@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { ServerInfoInterface } from '@etherealengine/common/src/interfaces/ServerInfo'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
 import CardActionArea from '@etherealengine/ui/src/primitives/mui/CardActionArea'
@@ -37,28 +36,24 @@ import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AdminServerInfoState, ServerInfoService } from '../../services/ServerInfoService'
+import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 import ServerTable from './ServerTable'
 
 import 'react-reflex/styles.css'
 
-import { AdminServerLogsState } from '../../services/ServerLogsService'
-import ServerLogs from './ServerLogs'
+import { PodsType } from '@etherealengine/engine/src/schemas/cluster/pods.schema'
+import ServerLogs, { ServerLogsInputsType } from './ServerLogs'
 
 const Server = () => {
   const { t } = useTranslation()
+
   const selectedCard = useHookstate('all')
-  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
-  const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
+  const serverLogsInputs = useHookstate({ podName: undefined, containerName: undefined } as ServerLogsInputsType)
 
-  let displayLogs = serverLogs.podName.value ? true : false
+  const serverInfo = useServerInfoFind().data
 
-  useEffect(() => {
-    if (serverInfo.updateNeeded.value) ServerInfoService.fetchServerInfo()
-  }, [serverInfo.updateNeeded.value])
-
-  if (!serverInfo.value.fetched) {
+  if (!serverInfo) {
     return (
       <LoadingView title={t('admin:components.server.loading')} variant="body2" sx={{ position: 'absolute', top: 0 }} />
     )
@@ -67,7 +62,7 @@ const Server = () => {
   return (
     <Box sx={{ height: 'calc(100% - 106px)' }}>
       <Grid container spacing={1} className={styles.mb10px}>
-        {serverInfo.servers.get({ noproxy: true }).map((item, index) => (
+        {serverInfo.map((item, index) => (
           <Grid item key={item.id} xs={12} sm={6} md={2}>
             <ServerItemCard
               key={index}
@@ -78,17 +73,19 @@ const Server = () => {
           </Grid>
         ))}
       </Grid>
-      {!displayLogs && <ServerTable selectedCard={selectedCard.value} />}
-      {displayLogs && (
+      {!serverLogsInputs.podName.value && (
+        <ServerTable selectedCard={selectedCard.value} setServerLogsInputs={serverLogsInputs.set} />
+      )}
+      {serverLogsInputs.podName.value && (
         <ReflexContainer orientation="horizontal">
           <ReflexElement flex={0.45} style={{ display: 'flex', flexDirection: 'column' }}>
-            <ServerTable selectedCard={selectedCard.value} />
+            <ServerTable selectedCard={selectedCard.value} setServerLogsInputs={serverLogsInputs.set} />
           </ReflexElement>
 
           <ReflexSplitter />
 
           <ReflexElement flex={0.55} style={{ overflow: 'hidden' }}>
-            <ServerLogs />
+            <ServerLogs podName={serverLogsInputs.podName} containerName={serverLogsInputs.containerName} />
           </ReflexElement>
         </ReflexContainer>
       )}
@@ -97,7 +94,7 @@ const Server = () => {
 }
 
 interface ServerItemProps {
-  data: ServerInfoInterface
+  data: PodsType
   isSelected: boolean
   onCardClick: (key: string) => void
 }

@@ -29,7 +29,7 @@ import { Color, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, PointLig
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
@@ -43,14 +43,12 @@ export const PointLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new PointLight()
-    if (!isMobileXRHeadset) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,
       range: 0,
       decay: 2,
       castShadow: false,
-      shadowMapResolution: 256,
       shadowBias: 0.5,
       shadowRadius: 1,
       light,
@@ -67,9 +65,6 @@ export const PointLightComponent = defineComponent({
     if (matches.number.test(json.decay)) component.decay.set(json.decay)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
-    if (matches.array.test(json.shadowMapResolution))
-      component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
-    if (matches.number.test(json.shadowMapResolution)) component.shadowMapResolution.set(json.shadowMapResolution)
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
   },
@@ -81,7 +76,6 @@ export const PointLightComponent = defineComponent({
       range: component.range.value,
       decay: component.decay.value,
       castShadow: component.castShadow.value,
-      shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value
     }
@@ -94,8 +88,13 @@ export const PointLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const renderState = useHookstate(getMutableState(RendererState))
+    const debugEnabled = renderState.nodeHelperVisibility
     const light = useComponent(entity, PointLightComponent)
+    useEffect(() => {
+      if (isMobileXRHeadset) return
+      addObjectToGroup(entity, light.light.value)
+    }, [])
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
@@ -126,14 +125,17 @@ export const PointLightComponent = defineComponent({
     }, [light.shadowRadius])
 
     useEffect(() => {
-      if (light.light.value.shadow.mapSize.x !== light.shadowMapResolution.value) {
-        light.light.value.shadow.mapSize.set(light.shadowMapResolution.value, light.shadowMapResolution.value)
+      if (light.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
+        light.light.value.shadow.mapSize.set(
+          renderState.shadowMapResolution.value,
+          renderState.shadowMapResolution.value
+        )
         light.light.value.shadow.map?.dispose()
         light.light.value.shadow.map = null as any
         light.light.value.shadow.camera.updateProjectionMatrix()
         light.light.value.shadow.needsUpdate = true
       }
-    }, [light.shadowMapResolution])
+    }, [renderState.shadowMapResolution])
 
     useEffect(() => {
       if (debugEnabled.value && !light.helper.value) {

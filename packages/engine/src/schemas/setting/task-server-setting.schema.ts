@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const taskServerSettingPath = 'task-server-setting'
 
@@ -69,3 +70,8 @@ export const taskServerSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type TaskServerSettingQuery = Static<typeof taskServerSettingQuerySchema>
+
+export const taskServerSettingValidator = getValidator(taskServerSettingSchema, dataValidator)
+export const taskServerSettingDataValidator = getValidator(taskServerSettingDataSchema, dataValidator)
+export const taskServerSettingPatchValidator = getValidator(taskServerSettingPatchSchema, dataValidator)
+export const taskServerSettingQueryValidator = getValidator(taskServerSettingQuerySchema, queryValidator)

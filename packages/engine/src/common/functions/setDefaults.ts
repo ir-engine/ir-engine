@@ -25,6 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import * as _ from 'lodash'
 
-export function setDefaults(options: {}, defaults: {}): {} {
+export function setDefaults(options: any, defaults: any): any {
   return _.defaults({}, _.clone(options), defaults)
 }

@@ -5,6 +5,20 @@ set -x
 TAG=$1
 CLEAN=$2
 
+if [ -z "$SERVER_HOST" ]
+then
+  SERVER_HOST=localhost
+else
+  SERVER_HOST=$SERVER_HOST
+fi
+
+if [ -z "$SERVER_PORT" ]
+then
+  SERVER_PORT=3030
+else
+  SERVER_PORT=$SERVER_PORT
+fi
+
 if [ -z "$REGISTRY_HOST" ]
 then
   REGISTRY_HOST=localhost
@@ -63,7 +77,7 @@ fi
 
 if [ -z "$VITE_FILE_SERVER" ]
 then
-  VITE_FILE_SERVER=https://localhost:8642
+  VITE_FILE_SERVER=https://localhost:9000/etherealengine-microk8s-static-resources
 else
   VITE_FILE_SERVER=$VITE_FILE_SERVER
 fi
@@ -128,13 +142,18 @@ echo "Tag is: $TAG"
 # docker tag $REGISTRY_HOST:32000/root-builder $REGISTRY_HOST:32000/root-builder:$TAG
 # docker push $REGISTRY_HOST:32000/root-builder:$TAG
 
-DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealengine \
+docker buildx build \
+  --network=host \
+  --cache-to type=inline \
+  -t $REGISTRY_HOST:32000/etherealengine \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
   --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \
   --build-arg MYSQL_USER=$MYSQL_USER \
   --build-arg MYSQL_DATABASE=$MYSQL_DATABASE \
+  --build-arg SERVER_HOST=$SERVER_HOST \
+  --build-arg SERVER_PORT=$SERVER_PORT \
   --build-arg VITE_APP_HOST=$VITE_APP_HOST \
   --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
   --build-arg VITE_FILE_SERVER=$VITE_FILE_SERVER \

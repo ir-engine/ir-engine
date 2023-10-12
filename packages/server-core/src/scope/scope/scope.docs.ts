@@ -23,34 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    scope: {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          description: ''
-        },
-        userId: {
-          type: 'string',
-          description: ''
-        },
-        groupId: {
-          type: 'string',
-          description: ''
-        }
-      }
-    },
-    scope_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/scope' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  scopeDataSchema,
+  scopePatchSchema,
+  scopeQuerySchema,
+  scopeSchema
+} from '@etherealengine/engine/src/schemas/scope/scope.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    scopeDataSchema,
+    scopePatchSchema,
+    scopeQuerySchema,
+    scopeSchema
+  },
+  docs: {
+    description: 'Scope service description',
+    securities: ['all']
   }
-  // securities: ['create', 'update', 'patch', 'remove'],
-  // operations: {
-  //   find: {
-  //     security: [{ bearer: [] }]
-  //   }
-  // }
-}
+})

@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'location-type': {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string'
-        }
-      }
-    },
-    'location-type_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/location-type' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  locationTypeDataSchema,
+  locationTypePatchSchema,
+  locationTypeQuerySchema,
+  locationTypeSchema
+} from '@etherealengine/engine/src/schemas/social/location-type.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    locationTypeDataSchema,
+    locationTypePatchSchema,
+    locationTypeQuerySchema,
+    locationTypeSchema
+  },
+  docs: {
+    description: 'Location type service description',
+    securities: ['all']
   }
-}
+})

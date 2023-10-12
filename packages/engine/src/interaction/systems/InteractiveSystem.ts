@@ -26,32 +26,26 @@ Ethereal Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
+import { getState } from '@etherealengine/hyperflux'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
   DistanceFromCameraComponent,
   setDistanceFromCameraComponent,
   setDistanceFromLocalClientComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
-import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
@@ -95,7 +89,8 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   if (transition.state === 'IN' && !inRange) {
     transition.setState('OUT')
   }
-  transition.update(Engine.instance.deltaSeconds, (opacity) => {
+  const deltaSeconds = getState(EngineState).deltaSeconds
+  transition.update(deltaSeconds, (opacity) => {
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
       mat.opacity = opacity
@@ -130,7 +125,7 @@ const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponen
 let gatherAvailableInteractablesTimer = 0
 
 const execute = () => {
-  gatherAvailableInteractablesTimer += Engine.instance.deltaSeconds
+  gatherAvailableInteractablesTimer += getState(EngineState).deltaSeconds
   // update every 0.3 seconds
   if (gatherAvailableInteractablesTimer > 0.1) gatherAvailableInteractablesTimer = 0
 

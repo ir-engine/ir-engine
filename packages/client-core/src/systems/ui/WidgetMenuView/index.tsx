@@ -26,18 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { createState, useHookstate } from '@etherealengine/hyperflux'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { ChatState } from '../../../social/services/ChatService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
@@ -79,19 +77,9 @@ const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps
 }
 
 const WidgetButtons = () => {
-  let activeChannel: Channel | null = null
-  const chatState = useHookstate(getMutableState(ChatState))
   const widgetMutableState = useHookstate(getMutableState(WidgetAppState))
-  const channelState = chatState.channels
-  const channels = channelState.channels.value as Channel[]
-  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-  if (activeChannelMatch && activeChannelMatch.length > 0) {
-    activeChannel = activeChannelMatch[1]
-  }
+  const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
   const mediaInstanceState = useMediaInstance()
-
-  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
@@ -124,7 +112,7 @@ const WidgetButtons = () => {
   const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
     id,
     ...widgetMutableState,
-    ...Engine.instance.widgets.get(id)!
+    ...RegisteredWidgets.get(id)!
   }))
 
   const toggleWidget = (toggledWidget) => () => {
@@ -152,7 +140,9 @@ const WidgetButtons = () => {
       <style>{styleString}</style>
       <div className="container" style={{ gridTemplateColumns }} xr-pixel-ratio="8" xr-layer="true">
         <WidgetButton icon="Refresh" toggle={handleRespawnAvatar} label={'Respawn'} />
-        <WidgetButton icon="Person" toggle={handleHeightAdjustment} label={'Reset Height'} />
+        {sessionMode.value !== 'none' && (
+          <WidgetButton icon="Person" toggle={handleHeightAdjustment} label={'Reset Height'} />
+        )}
         {mediaInstanceState?.value && (
           <WidgetButton
             icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}

@@ -32,36 +32,9 @@ import { Component, useComponent } from '@etherealengine/engine/src/ecs/function
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
-import SelectInput from '../inputs/SelectInput'
-import { updateProperties, updateProperty } from './Util'
+import { commitProperty, updateProperty } from './Util'
 
-/**
- *  Array containing options for shadow resolution
- */
-const ShadowMapResolutionOptions = [
-  {
-    label: '256px',
-    value: 256
-  },
-  {
-    label: '512px',
-    value: 512
-  },
-  {
-    label: '1024px',
-    value: 1024
-  },
-  {
-    label: '2048px',
-    value: 2048
-  },
-  {
-    label: '4096px (not recommended)',
-    value: 4096
-  }
-]
-
-//creating properties for LightShadowProperties component
+/**creating properties for LightShadowProperties component */
 type LightShadowPropertiesProps = {
   entity: Entity
   comp: Component<any, any>
@@ -70,30 +43,16 @@ type LightShadowPropertiesProps = {
 /**
  * OnChangeShadowMapResolution used to customize properties of LightShadowProperties
  * Used with LightNodeEditors.
- *
- * @type {[class component]}
  */
 export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
-
-  const changeShadowMapResolution = (resolution) => {
-    updateProperties(props.comp, { shadowMapResolution: resolution })
-  }
 
   const lightComponent = useComponent(props.entity, props.comp).value as any
 
   return (
     <>
       <InputGroup name="Cast Shadows" label={t('editor:properties.directionalLight.lbl-castShadows')}>
-        <BooleanInput value={lightComponent.castShadow} onChange={updateProperty(props.comp, 'castShadow')} />
-      </InputGroup>
-      <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
-        <SelectInput
-          key={props.entity}
-          options={ShadowMapResolutionOptions}
-          value={lightComponent.shadowMapResolution?.x}
-          onChange={changeShadowMapResolution}
-        />
+        <BooleanInput value={lightComponent.castShadow} onChange={commitProperty(props.comp, 'castShadow')} />
       </InputGroup>
       <NumericInputGroup
         name="Shadow Bias"
@@ -106,6 +65,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         displayPrecision={0.000001}
         value={lightComponent.shadowBias}
         onChange={updateProperty(props.comp, 'shadowBias')}
+        onRelease={commitProperty(props.comp, 'shadowBias')}
       />
       <NumericInputGroup
         name="Shadow Radius"
@@ -116,6 +76,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         displayPrecision={0.0001}
         value={lightComponent.shadowRadius}
         onChange={updateProperty(props.comp, 'shadowRadius')}
+        onRelease={commitProperty(props.comp, 'shadowRadius')}
       />
     </>
   )

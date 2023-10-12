@@ -224,7 +224,7 @@ type CPUResult = {
     }
     realityTexture: {
       name: number
-      drawCtx: {}
+      drawCtx: any
     }
     trackingStatus: string
     trackingReason: string

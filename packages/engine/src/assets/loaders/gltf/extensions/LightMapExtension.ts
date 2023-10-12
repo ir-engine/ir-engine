@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // https://github.com/mozilla/hubs/blob/27eb7f3d9eba3b938f1ca47ed5b161547b6fb3f2/src/components/gltf-model-plus.js
-import { Material, MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, Texture } from 'three'
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, Texture } from 'three'
 
-import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
+import iterateObject3D from '../../../../scene/util/iterateObject3D'
+import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export type MOZ_lightmap = {
@@ -61,7 +62,7 @@ export class HubsLightMapExtension extends ImporterExtension implements GLTFLoad
     return Promise.all(pending).then((results) => {
       const material: MeshStandardMaterial | MeshBasicMaterial = results[0]
       const lightMap: Texture = (results[1] as Texture).clone()
-
+      lightMap.channel = 1
       const transform = extensionDef.extensions ? extensionDef.extensions['KHR_texture_transform'] : undefined
       if (transform !== undefined) {
         lightMap.wrapS = RepeatWrapping
@@ -81,33 +82,46 @@ export class HubsLightMapExtension extends ImporterExtension implements GLTFLoad
       return material
     })
   }
+
+  afterRoot(result: GLTF): Promise<void> {
+    iterateObject3D(result.scene, (mesh: Mesh) => {
+      if (!mesh?.isMesh) return
+      const material = mesh.material as MeshStandardMaterial | MeshBasicMaterial
+      if (!material.lightMap) return
+      if (!mesh.geometry.hasAttribute('uv1')) {
+        console.warn('Mesh has lightmap but no uv2 attribute', mesh)
+        material.lightMap = null
+      }
+    })
+    return Promise.resolve()
+  }
   /*
   loadTexture( textureIndex ) {
 
-		const parser = this.parser;
-		const json = parser.json;
+    const parser = this.parser;
+    const json = parser.json;
     const name = this.name;
-		const textureDef = json.textures[ textureIndex ];
+    const textureDef = json.textures[ textureIndex ];
 
-		const source = textureDef.source
-		const loader = parser.options.ktx2Loader;
+    const source = textureDef.source
+    const loader = parser.options.ktx2Loader;
 
-		if ( ! loader ) {
+    if ( ! loader ) {
 
-			if ( json.extensionsRequired && json.extensionsRequired.indexOf( name ) >= 0 ) {
+      if ( json.extensionsRequired && json.extensionsRequired.indexOf( name ) >= 0 ) {
 
-				throw new Error( 'THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures' );
+        throw new Error( 'THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures' );
 
-			} else {
+      } else {
 
-				// Assumes that the extension is optional and that a fallback texture is present
-				return null;
+        // Assumes that the extension is optional and that a fallback texture is present
+        return null;
 
-			}
+      }
 
-		}
+    }
 
-		return parser.loadTextureImage( textureIndex, source, loader );
+    return parser.loadTextureImage( textureIndex, source, loader );
 
-	}*/
+  }*/
 }

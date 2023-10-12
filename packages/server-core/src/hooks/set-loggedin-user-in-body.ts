@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { HookContext } from '@feathersjs/feathers'
-
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default (propertyName: string) => {
   return (context: HookContext): HookContext => {
-    // console.log('\n\n\n', context)
     // Getting logged in user and attaching owner of user
-    const loggedInUser = context.params.user as UserInterface
+    if (!context.params.user) return context
+
+    const loggedInUser = context.params.user as UserType
     if (Array.isArray(context.data)) {
       context.data = context.data.map((item) => {
         return {

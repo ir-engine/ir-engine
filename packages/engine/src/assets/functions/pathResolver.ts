@@ -23,15 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { filter } from 'lodash'
-
-import { Engine } from '../../ecs/classes/Engine'
-
 export function pathResolver() {
-  //const hostPath = getState(EngineState).publicPath.replace(/:\d{4}$/, '')
-  //const cacheRe = new RegExp(`([^\\\/]+\/projects)\/([^\/]+)\/(.*$)`)
-  const cacheRe = new RegExp(`(https://[^\\/]+)/projects/([^/]+)/(.*$)`)
-  //                          1: project path -- 2: project name -- 3: internal path
+  //const cacheRe = new RegExp(`(https://[^\\/]+)/projects/([^/]+)/(.*$)`)
+  const cacheRe = new RegExp(`.*/(?:projects|static-resources)/([^/]*)/((?:assets/|).*)`)
+  //                          1: project name -- 2: internal path
   return cacheRe
 }
 
@@ -40,11 +35,11 @@ export function getFileName(path: string) {
 }
 
 export function getRelativeURI(path: string) {
-  return pathResolver().exec(path)?.[3] ?? ''
+  return pathResolver().exec(path)?.[2] ?? ''
 }
 
 export function getProjectName(path: string) {
-  return pathResolver().exec(path)?.[2] ?? ''
+  return pathResolver().exec(path)?.[1] ?? ''
 }
 
 export function modelResourcesPath(modelName: string) {

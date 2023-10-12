@@ -23,26 +23,49 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
+import {
+  githubRepoAccessDataValidator,
+  githubRepoAccessPatchValidator,
+  githubRepoAccessQueryValidator
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
-const isPasswordAccountType = () => {
-  return (context: HookContext): boolean => {
-    return context.data.type === 'password'
-  }
-}
+import verifyScope from '../../hooks/verify-scope'
+import {
+  githubRepoAccessDataResolver,
+  githubRepoAccessExternalResolver,
+  githubRepoAccessPatchResolver,
+  githubRepoAccessQueryResolver,
+  githubRepoAccessResolver
+} from './github-repo-access.resolvers'
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(githubRepoAccessExternalResolver),
+      schemaHooks.resolveResult(githubRepoAccessResolver)
+    ]
+  },
+
   before: {
-    all: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
+    all: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(githubRepoAccessQueryValidator),
+      schemaHooks.resolveQuery(githubRepoAccessQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [],
+    create: [
+      () => schemaHooks.validateData(githubRepoAccessDataValidator),
+      schemaHooks.resolveData(githubRepoAccessDataResolver)
+    ],
     update: [],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(githubRepoAccessPatchValidator),
+      schemaHooks.resolveData(githubRepoAccessPatchResolver)
+    ],
     remove: []
   },
   after: {

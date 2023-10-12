@@ -24,30 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
-import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { SpawnPoseComponent } from '@etherealengine/engine/src/avatar/components/SpawnPoseComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
-import { performance } from '@etherealengine/engine/src/common/functions/performance'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { updateNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
-import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig } from '@etherealengine/server-core/src/config'
@@ -55,16 +46,25 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
+import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { MediasoupTransportState } from '@etherealengine/engine/src/networking/systems/MediasoupTransportState'
+import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { inviteCodeLookupPath } from '@etherealengine/engine/src/schemas/social/invite-code-lookup.schema'
+import { messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { userKickPath } from '@etherealengine/engine/src/schemas/user/user-kick.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { toDateTimeSql } from '@etherealengine/server-core/src/util/datetime-sql'
 import { InstanceServerState } from './InstanceServerState'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
-import { closeTransport } from './WebRTCFunctions'
+import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:network' })
 const isNameRegex = /instanceserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
-export const setupSubdomain = async () => {
+export const setupIPs = async () => {
   const app = Engine.instance.api as Application
-  let stringSubdomainNumber: string
 
   const serverState = getState(ServerState)
   const instanceServerState = getMutableState(InstanceServerState)
@@ -72,33 +72,6 @@ export const setupSubdomain = async () => {
   if (config.kubernetes.enabled) {
     await cleanupOldInstanceservers(app)
     instanceServerState.instanceServer.set(await serverState.agonesSDK.getGameServer())
-
-    // We used to provision subdomains for instanceservers, e.g. 00001.instanceserver.domain.com
-    // This turned out to be unnecessary, and in fact broke Firefox's ability to connect via
-    // UDP, so the following was commented out.
-    // const name = app.instanceServer.objectMeta.name
-    // const isIdentifier = isNameRegex.exec(name)!
-    // stringSubdomainNumber = await getFreeSubdomain(isIdentifier[1], 0)
-    // app.isSubdomainNumber = stringSubdomainNumber
-    //
-    // const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
-    // const params = {
-    //   ChangeBatch: {
-    //     Changes: [
-    //       {
-    //         Action: 'UPSERT',
-    //         ResourceRecordSet: {
-    //           Name: `${stringSubdomainNumber}.${config.instanceserver.domain}`,
-    //           ResourceRecords: [{ Value: app.instanceserver.status.address }],
-    //           TTL: 0,
-    //           Type: 'A'
-    //         }
-    //       }
-    //     ]
-    //   },
-    //   HostedZoneId: config.aws.route53.hostedZoneId
-    // }
-    // if (config.instanceserver.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
   }
 
   // Set up our instanceserver according to our current environment
@@ -124,74 +97,18 @@ export const setupSubdomain = async () => {
     announcedIp
   }
 
-  localConfig.mediasoup.recording.ip = announcedIp
-}
-
-export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: number): Promise<string> {
-  const app = Engine.instance.api as Application
-
-  const stringSubdomainNumber = subdomainNumber.toString().padStart(config.instanceserver.identifierDigits, '0')
-  const subdomainResult = await app.service('instanceserver-subdomain-provision').find({
-    query: {
-      is_number: stringSubdomainNumber
-    }
-  })
-  if ((subdomainResult as any).total === 0) {
-    await app.service('instanceserver-subdomain-provision').create({
-      allocated: true,
-      is_number: stringSubdomainNumber,
-      is_id: isIdentifier
-    })
-
-    await new Promise((resolve) =>
-      setTimeout(async () => {
-        resolve(true)
-      }, 500)
-    )
-
-    const newSubdomainResult = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: stringSubdomainNumber
-      }
-    })) as any
-    if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
-    else return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
-  } else {
-    const subdomain = (subdomainResult as any).data[0]
-    if (subdomain.allocated === true || subdomain.allocated === 1) {
-      return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
-    }
-    await app.service('instanceserver-subdomain-provision').patch(subdomain.id, {
-      allocated: true,
-      is_id: isIdentifier
-    })
-
-    await new Promise((resolve) =>
-      setTimeout(async () => {
-        resolve(true)
-      }, 500)
-    )
-
-    const newSubdomainResult = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: stringSubdomainNumber
-      }
-    })) as any
-    if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
-    else return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
-  }
+  localConfig.mediasoup.recording.ip = config.kubernetes.enabled ? '127.0.0.1' : announcedIp
 }
 
 export async function cleanupOldInstanceservers(app: Application): Promise<void> {
   const serverState = getState(ServerState)
 
-  const instances = await app.service('instance').Model.findAndCountAll({
-    offset: 0,
-    limit: 1000,
-    where: {
+  const instances = (await app.service(instancePath)._find({
+    query: {
       ended: false
-    }
-  })
+    },
+    paginate: false
+  })) as any as InstanceType[]
   const instanceservers = await serverState.k8AgonesClient.listNamespacedCustomObject(
     'agones.dev',
     'v1',
@@ -200,7 +117,7 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
   )
 
   await Promise.all(
-    instances.rows.map((instance) => {
+    instances.map((instance) => {
       if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
       const match = (instanceservers?.body! as any).items.find((is) => {
@@ -209,7 +126,7 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
         return is.status.address === ip && inputPort.port.toString() === port
       })
       return match == null
-        ? app.service('instance').patch(instance.id, {
+        ? app.service(instancePath).patch(instance.id, {
             ended: true
           })
         : Promise.resolve()
@@ -219,21 +136,6 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
   const isIds = (instanceservers?.body! as any).items.map((is) =>
     isNameRegex.exec(is.metadata.name) != null ? isNameRegex.exec(is.metadata.name)![1] : null
   )
-
-  await app.service('instanceserver-subdomain-provision').patch(
-    null,
-    {
-      allocated: false
-    },
-    {
-      query: {
-        is_id: {
-          $nin: isIds
-        }
-      }
-    }
-  )
-
   return
 }
 
@@ -244,15 +146,15 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @param userId
  * @returns
  */
-export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserId) => {
-  const authorizedUsers = (await app.service('instance-authorized-user').find({
+export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, userId: UserID) => {
+  const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,
       $limit: 0
     }
   })) as any
   if (authorizedUsers.total > 0) {
-    const thisUserAuthorized = (await app.service('instance-authorized-user').find({
+    const thisUserAuthorized = (await app.service(instanceAuthorizedUserPath).find({
       query: {
         instanceId: instance.id,
         userId,
@@ -267,12 +169,12 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
 
   // check if user is not kicked in the instance for a duration
   const currentDate = new Date()
-  const userKick = (await app.service('user-kick').find({
+  const userKick = (await app.service(userKickPath).find({
     query: {
       userId,
       instanceId: instance.id,
       duration: {
-        $gt: currentDate
+        $gt: toDateTimeSql(currentDate)
       },
       $limit: 0
     }
@@ -286,131 +188,71 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
 }
 
 export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: PeerID) {
-  const client = Array.from(network.peers.values()).find((c) => c.peerID === peerID)
+  const client = Object.values(network.peers).find((c) => c.peerID === peerID)
   return client?.userId
 }
 
-export const handleConnectingPeer = async (
+export const handleConnectingPeer = (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
-  user: UserInterface
+  user: UserType,
+  inviteCode?: string
 ) => {
   const userId = user.id
 
   // Create a new client object
   // and add to the dictionary
-  const existingUser = Array.from(network.peers.values()).find((client) => client.userId === userId)
+  const existingUser = Object.values(network.peers).find((client) => client.userId === userId)
   const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
   const peerIndex = network.peerIndexCount++
 
-  network.peers.set(peerID, {
-    userId,
-    userIndex: userIndex,
-    spark: spark,
-    peerIndex,
-    peerID,
-    lastSeenTs: Date.now(),
-    joinTs: Date.now(),
-    media: {} as any,
-    consumerLayers: {},
-    stats: {},
-    incomingDataConsumers: new Map<DataChannelType, DataConsumer>(),
-    outgoingDataConsumers: new Map<DataChannelType, DataConsumer>(),
-    dataProducers: new Map<string, DataProducer>()
-  })
+  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, user.name)
 
-  if (!network.users.has(userId)) {
-    network.users.set(userId, [peerID])
-  } else {
-    network.users.get(userId)!.push(peerID)
-  }
-
-  const worldState = getMutableState(WorldState)
-  worldState.userNames[userId].set(user.name)
-
-  network.userIDToUserIndex.set(userId, userIndex)
-  network.userIndexToUserID.set(userIndex, userId)
-
-  //TODO: remove this once all network state properties are reactively set
-  updateNetwork(network)
-
-  const spectating = network.peers.get(peerID)!.spectating
-
-  const instanceServerState = getState(InstanceServerState)
-
-  const app = Engine.instance.api as Application
-
-  if (!instanceServerState.isMediaInstance)
-    app.service('message').create(
-      {
-        targetObjectId: instanceServerState.instance.id,
-        targetObjectType: 'instance',
-        text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
-        isNotification: true
-      },
-      {
-        'identity-provider': {
-          userId: userId
-        }
-      }
-    )
-}
-
-export async function handleJoinWorld(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data: JoinWorldRequestData,
-  messageId: string,
-  userId: UserId,
-  user: UserInterface
-) {
-  logger.info('Connect to world from ' + userId)
-
-  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId).map((action) => {
-    return _.cloneDeep(action)
+  const networkState = getMutableState(NetworkState).networks[network.id]
+  networkState.peers[peerID].merge({
+    spark,
+    media: {},
+    lastSeenTs: Date.now()
   })
 
   updatePeers(network)
 
-  spark.write({
-    type: MessageTypes.JoinWorld.toString(),
-    data: {
-      peerIndex: network.peerIDToPeerIndex.get(peerID)!,
-      routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
-      cachedActions
-    },
-    id: messageId
+  logger.info('Connect to world from ' + userId)
+
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForPeer(peerID).map((action) => {
+    return _.cloneDeep(action)
   })
 
   const instanceServerState = getState(InstanceServerState)
-  if (data.inviteCode && !instanceServerState.isMediaInstance)
-    await getUserSpawnFromInvite(network, user, data.inviteCode!)
+  if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
+
+  return {
+    routerRtpCapabilities: network.transport.routers[0].rtpCapabilities,
+    peerIndex: network.peerIDToPeerIndex[peerID]!,
+    cachedActions
+  }
 }
 
 const getUserSpawnFromInvite = async (
   network: SocketWebRTCServerNetwork,
-  user: UserInterface,
+  user: UserType,
   inviteCode: string,
   iteration = 0
 ) => {
   if (inviteCode) {
-    const app = Engine.instance.api as Application
-    const result = (await app.service('user').find({
+    const inviteCodeLookups = await Engine.instance.api.service(inviteCodeLookupPath).find({
       query: {
-        action: 'invite-code-lookup',
-        inviteCode: inviteCode
+        inviteCode
       }
-    })) as any
+    })
 
-    const users = result.data as UserInterface[]
-    if (users.length > 0) {
-      const inviterUser = users[0]
+    if (inviteCodeLookups.length > 0) {
+      const inviterUser = inviteCodeLookups[0]
       const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []
       const userInstanceAttendance = user.instanceAttendance || []
       let bothOnSameInstance = false
-      for (let instanceAttendance of inviterUserInstanceAttendance) {
+      for (const instanceAttendance of inviterUserInstanceAttendance) {
         if (
           !instanceAttendance.isChannel &&
           userInstanceAttendance.find(
@@ -420,7 +262,7 @@ const getUserSpawnFromInvite = async (
           bothOnSameInstance = true
       }
       if (bothOnSameInstance) {
-        const selfAvatarEntity = Engine.instance.getUserAvatarEntity(user.id as UserId)
+        const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserID)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -431,7 +273,7 @@ const getUserSpawnFromInvite = async (
           return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
         }
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = Engine.instance.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserID)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -451,9 +293,9 @@ const getUserSpawnFromInvite = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPoseComponent = getComponent(selfAvatarEntity, SpawnPoseComponent)
-          spawnPoseComponent?.position.copy(inviterUserObject3d.position)
-          spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
+          const spawnPose = getState(EntityNetworkState)[user.id as any as EntityUUID]
+          spawnPose.spawnPosition.copy(inviterUserObject3d.position)
+          spawnPose.spawnRotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
         }
       } else {
@@ -463,29 +305,9 @@ const getUserSpawnFromInvite = async (
   }
 }
 
-export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID, message) {
-  if (!message) return
-  const networkPeer = network.peers.get(peerID)
-  if (!networkPeer) return logger.error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
-
-  const actions = /*decode(n
-    ew Uint8Array(*/ message /*))*/ as Required<Action>[]
-  for (const a of actions) {
-    a.$from = networkPeer.userId
-    dispatchAction(a)
-  }
-  // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
-}
-
-export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
-  // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
-  if (network.peers.has(peerID)) network.peers.get(peerID)!.lastSeenTs = Date.now()
-}
-
-export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
-  const userId = getUserIdFromPeerID(network, peerID) as UserId
-  console.log('peers', network.peers)
-  const disconnectedClient = network.peers.get(peerID)
+export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerID: PeerID): Promise<any> {
+  const userId = getUserIdFromPeerID(network, peerID) as UserID
+  const disconnectedClient = network.peers[peerID]
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
@@ -498,44 +320,27 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
     const app = Engine.instance.api as Application
 
     if (!instanceServerState.isMediaInstance)
-      app.service('message').create(
+      app.service(messagePath).create(
         {
-          targetObjectId: instanceServerState.instance.id,
-          targetObjectType: 'instance',
+          instanceId: instanceServerState.instance.id,
           text: `${userName} left`,
           isNotification: true
         },
         {
-          'identity-provider': {
+          [identityProviderPath]: {
             userId: userId
           }
-        }
+        } as any
       )
 
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
-    if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
-    if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
-    if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close()
-    if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close()
+    const recvTransport = MediasoupTransportState.getTransport(network.id, 'recv', peerID) as WebRTCTransportExtension
+    const sendTransport = MediasoupTransportState.getTransport(network.id, 'send', peerID) as WebRTCTransportExtension
+    if (recvTransport) recvTransport.close()
+    if (sendTransport) sendTransport.close()
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }
-}
-
-export async function handleLeaveWorld(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data,
-  messageId: string
-): Promise<any> {
-  for (const [, transport] of Object.entries(network.mediasoupTransports))
-    if (transport.appData.peerID === peerID) await closeTransport(network, transport)
-  if (network.peers.has(peerID)) {
-    NetworkPeerFunctions.destroyPeer(network, peerID)
-    updatePeers(network)
-  }
-  spark.write({ type: MessageTypes.LeaveWorld.toString(), id: messageId })
 }

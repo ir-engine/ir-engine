@@ -40,7 +40,7 @@ import { useDefaultLocationSystems } from '@etherealengine/client-core/src/world
 import { AppLoadingState } from '@etherealengine/engine/src/common/AppLoadingService'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useLoadEngineWithScene, useOfflineScene, useOnlineInstance } from '../components/World/EngineHooks'
+import { useLoadEngineWithScene, useOfflineNetwork, useOnlineNetwork } from '../components/World/EngineHooks'
 
 type Props = {
   offline?: boolean
@@ -53,9 +53,9 @@ const LocationPage = ({ offline }: Props) => {
   useLoadLocationScene()
 
   if (offline) {
-    useOfflineScene()
+    useOfflineNetwork()
   } else {
-    useOnlineInstance()
+    useOnlineNetwork()
   }
 
   if (params.locationName) {

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { compress } from 'fflate'
 import {
   BackSide,
   ClampToEdgeWrapping,
@@ -34,13 +33,12 @@ import {
   LinearFilter,
   Mesh,
   MeshBasicMaterial,
-  Object3D,
   OrthographicCamera,
   PlaneGeometry,
-  PMREMGenerator,
   RawShaderMaterial,
   RGBAFormat,
   Scene,
+  SRGBColorSpace,
   Texture,
   Uniform,
   UnsignedByteType,
@@ -143,23 +141,21 @@ export const ScreenshotSettings = defineState({
   name: 'ScreenshotSettings',
   initial: {
     ktx2: {
-      srgb: false,
+      srgb: true,
       uastc: true,
       uastcZstandard: true,
-      qualityLevel: 256,
-      compressionLevel: 3
+      uastcFlags: UASTCFlags.UASTCLevelFastest
     } as KTX2EncodeOptions
   }
 })
 
 const ktx2write = new KTX2Encoder()
 
-export const convertCubemapToKTX2 = async (
+export const convertCubemapToImageData = (
   renderer: WebGLRenderer,
   source: CubeTexture,
   width: number,
-  height: number,
-  returnAsBlob: boolean
+  height: number
 ) => {
   const scene = new Scene()
   const material = new RawShaderMaterial({
@@ -186,25 +182,59 @@ export const convertCubemapToKTX2 = async (
     magFilter: LinearFilter,
     wrapS: ClampToEdgeWrapping,
     wrapT: ClampToEdgeWrapping,
+    colorSpace: SRGBColorSpace,
     format: RGBAFormat,
     type: UnsignedByteType
   })
 
+  const originalColorSpace = renderer.outputColorSpace
+  renderer.outputColorSpace = SRGBColorSpace
   renderer.setRenderTarget(renderTarget)
   quad.material.uniforms.map.value = source
+
   renderer.render(scene, camera)
   const pixels = new Uint8Array(4 * width * height)
   renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
-  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+  renderer.outputColorSpace = originalColorSpace
 
+  return new ImageData(new Uint8ClampedArray(pixels), width, height)
+}
+
+export const convertImageDataToKTX2Blob = async (imageData: ImageData) => {
   const ktx2texture = (await ktx2write.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
+  return new Blob([ktx2texture])
+}
 
-  if (returnAsBlob) {
-    return new Blob([ktx2texture])
+export const blurAndScaleImageData = (
+  imageData: ImageData,
+  width: number,
+  height: number,
+  blur = 0,
+  newSize = 0 // 0 is no scaling
+) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+  canvas.width = width
+  canvas.height = height
+  ctx.putImageData(imageData, 0, 0)
+
+  if (blur > 0) {
+    ctx.filter = `blur(${blur}px)`
+    ctx.drawImage(canvas, 0, 0)
   }
 
-  return ktx2texture
+  if (newSize > 0) {
+    const scaledCanvas = document.createElement('canvas')
+    const scaledCtx = scaledCanvas.getContext('2d') as CanvasRenderingContext2D
+    scaledCanvas.width = newSize
+    scaledCanvas.height = newSize
+    scaledCtx.drawImage(canvas, 0, 0, newSize, newSize)
+    return scaledCtx.getImageData(0, 0, newSize, newSize)
+  } else {
+    return ctx.getImageData(0, 0, width, height)
+  }
 }
 
 //convert Cubemap To Equirectangular map

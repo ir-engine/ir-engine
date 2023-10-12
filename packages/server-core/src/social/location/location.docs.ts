@@ -23,42 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    location: {
-      type: 'object',
-      required: ['name', 'slugifiedName', 'maxUsersPerInstance'],
-      properties: {
-        name: {
-          type: 'string'
-        },
-        sceneId: {
-          type: 'string'
-        },
-        locationSettingsId: {
-          type: 'string'
-        },
-        slugifiedName: {
-          type: 'string'
-        },
-        maxUsersPerInstance: {
-          type: 'integer',
-          default: 50
-        }
-      }
-    },
-    location_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/location' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  locationDataSchema,
+  locationPatchSchema,
+  locationQuerySchema,
+  locationSchema
+} from '@etherealengine/engine/src/schemas/social/location.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    locationDataSchema,
+    locationPatchSchema,
+    locationQuerySchema,
+    locationSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Location service description',
+    securities: ['all']
   }
-}
+})

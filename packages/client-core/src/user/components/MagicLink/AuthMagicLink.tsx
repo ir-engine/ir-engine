@@ -33,15 +33,14 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthService } from '../../services/AuthService'
-import { AuthState } from '../../services/AuthService'
-import { VerifyEmail } from '../Auth/VerifyEmail'
+import { InstanceID } from '@etherealengine/engine/src/schemas/networking/instance.schema'
+import { AuthService, AuthState } from '../../services/AuthService'
 
 interface Props {
   //auth: any
   type: string
   token: string
-  instanceId: string
+  instanceId: InstanceID
   path: string
 }
 
@@ -81,9 +80,6 @@ const AuthMagicLinkWrapper = (props: any): JSX.Element => {
   const path = search.get('path') as string
   const instanceId = search.get('instanceId') as string
 
-  if (type === 'verify') {
-    return <VerifyEmail {...props} type={type} token={token} />
-  }
   return <AuthMagicLink {...props} token={token} type={type} instanceId={instanceId} path={path} />
 }
 

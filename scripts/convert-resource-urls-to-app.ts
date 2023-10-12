@@ -25,12 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 import appRootPath from 'app-root-path'
+import knex from 'knex'
+/* eslint-disable @typescript-eslint/no-var-requires */
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
-import Sequelize, { DataTypes, Op } from 'sequelize'
 
-import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 
 dotenv.config({
   path: appRootPath.path,
@@ -57,59 +59,23 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
+    const knexClient = knex({
+      client: 'mysql',
+      connection: {
+        user: process.env.MYSQL_USER ?? 'server',
+        password: process.env.MYSQL_PASSWORD ?? 'password',
+        host: process.env.MYSQL_HOST ?? '127.0.0.1',
+        port: parseInt(process.env.MYSQL_PORT || '3306'),
+        database: process.env.MYSQL_DATABASE ?? 'xengine',
+        charset: 'utf8mb4'
+      }
+    })
+
     console.log('options', options)
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
 
-    // @ts-ignore
-    const sequelizeClient = new Sequelize({
-      ...db,
-      logging: console.log,
-      define: {
-        freezeTableName: true
-      }
-    })
-
-    await sequelizeClient.sync()
-
-    const StaticResource = sequelizeClient.define('static_resource', {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      sid: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      url: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true
-      },
-      name: DataTypes.STRING,
-      key: DataTypes.STRING,
-      mimeType: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
-      staticResourceType: {
-        type: DataTypes.STRING
-      },
-      metadata: {
-        type: DataTypes.JSON,
-        allowNull: true
-      },
-      LOD0_url: {
-        type: DataTypes.STRING,
-        allowNull: true
-      }
-    })
-
-    const staticResources = await StaticResource.findAll({
-      paginate: false
-    })
+    const staticResources = await knexClient.from<StaticResourceType>(staticResourcePath)
 
     console.log('static resources', staticResources)
 
@@ -120,16 +86,14 @@ cli.main(async () => {
         console.log('old URL', url)
         url = url.replace(options.subdomainFrom, options.subdomainTo)
         console.log('new URL', url)
-        await StaticResource.update(
-          {
-            url
-          },
-          {
-            where: {
-              id: resource.id
-            }
-          }
-        )
+        await knexClient
+          .from<StaticResourceType>(staticResourcePath)
+          .where({
+            id: resource.id
+          } as any)
+          .update({
+            url: url
+          })
       }
     }
     cli.ok(`All static resources updated with new subdomain`)

@@ -112,7 +112,7 @@ export function* traverseSceneItems(
 function createRendererTexture(
   atlasWidth: number,
   atlasHeight: number,
-  textureFilter: THREE.TextureFilter
+  textureFilter: THREE.MagnificationTextureFilter
 ): [THREE.Texture, Float32Array] {
   const atlasSize = atlasWidth * atlasHeight
   const data = new Float32Array(4 * atlasSize)
@@ -140,7 +140,7 @@ export interface WorkbenchSettings {
   emissiveMultiplier?: number
   bounceMultiplier?: number // crank up from 1 (default) to light up the corners
   lightMapSize?: number | [number, number]
-  textureFilter?: THREE.TextureFilter
+  textureFilter?: THREE.MagnificationTextureFilter
   texelsPerUnit?: number
   samplerSettings?: SamplerSettings
 }

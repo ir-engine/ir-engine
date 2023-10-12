@@ -238,9 +238,11 @@ export class WebRenderer {
         if (previousHash != window.location.hash) {
           if (window.location.hash) {
             try {
-              // @ts-ignore()
+              // @ts-ignore
               this.targetElement = rootNode.querySelector(window.location.hash)
-            } catch {}
+            } catch {
+              //
+            }
           }
         }
         previousHash = window.location.hash

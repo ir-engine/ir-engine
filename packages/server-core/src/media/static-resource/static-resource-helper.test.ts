@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
 
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp } from '../../createApp'
@@ -123,12 +123,13 @@ describe('audio-upload', () => {
     if (await storageProvider.doesExist('test.mp3', 'static-resources/test-project/'))
       await storageProvider.deleteResources(['static-resources/test-project/test.mp3'])
 
-    const existingResource = await app.service('static-resource').Model.findAll({
-      where: {
+    const existingResource = (await app.service(staticResourcePath).find({
+      query: {
         mimeType: 'audio/mpeg'
-      }
-    })
-    await Promise.all(existingResource.map((resource) => app.service('static-resource').remove(resource.id)))
+      },
+      paginate: false
+    })) as StaticResourceType[]
+    await Promise.all(existingResource.map((resource) => app.service(staticResourcePath).remove(resource.id)))
   })
 
   after(() => {
@@ -227,13 +228,13 @@ describe('audio-upload', () => {
       const response = await addAssetFromProject(app, url, 'default-project', false)
       const response2 = await addAssetFromProject(app, url, 'default-project', false)
 
-      const staticResources = await app.service('static-resource').Model.findAll({
-        where: {
+      const staticResources = (await app.service(staticResourcePath).find({
+        query: {
           url
         }
-      })
+      })) as Paginated<StaticResourceType>
 
-      assert.equal(staticResources.length, 1)
+      assert.equal(staticResources.data.length, 1)
       assert.equal(response.id, response2.id)
       assert.equal(response.url, response2.url)
       assert.equal(response.key, response2.key)
@@ -246,19 +247,19 @@ describe('audio-upload', () => {
       const response = await addAssetFromProject(app, url, 'default-project', true)
       const response2 = await addAssetFromProject(app, url, 'test-project', true)
 
-      const staticResources = await app.service('static-resource').Model.findAll({
-        where: {
+      const staticResources = (await app.service(staticResourcePath).find({
+        query: {
           url: response.url
         }
-      })
-      assert.equal(staticResources.length, 1)
+      })) as Paginated<StaticResourceType>
+      assert.equal(staticResources.data.length, 1)
 
-      const staticResources2 = await app.service('static-resource').Model.findAll({
-        where: {
+      const staticResources2 = (await app.service(staticResourcePath).find({
+        query: {
           url: response2.url
         }
-      })
-      assert.equal(staticResources2.length, 1)
+      })) as Paginated<StaticResourceType>
+      assert.equal(staticResources2.data.length, 1)
 
       assert.notEqual(response.id, response2.id)
       assert.notEqual(response.url, response2.url)
@@ -273,12 +274,12 @@ describe('audio-upload', () => {
       const response = await addAssetFromProject(app, url, 'default-project', false)
       const response2 = await addAssetFromProject(app, url, 'test-project', false)
 
-      const staticResources = await app.service('static-resource').Model.findAll({
-        where: {
+      const staticResources = (await app.service(staticResourcePath).find({
+        query: {
           url: response.url
         }
-      })
-      assert.equal(staticResources.length, 2)
+      })) as Paginated<StaticResourceType>
+      assert.equal(staticResources.data.length, 2)
 
       assert(response.id !== response2.id)
       assert.equal(response.url, response2.url)

@@ -23,40 +23,54 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import moment from 'moment'
-import React, { memo, useEffect } from 'react'
+import React, { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import LoadingView from '../../../common/components/LoadingView'
 import Card from './CardNumber'
 
-const AnalyticsService = ({ name, colors, fetch, data, refetch }: any) => {
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+
+export type AnalyticsQueryTypes =
+  | 'activeParties'
+  | 'activeInstances'
+  | 'activeLocations'
+  | 'activeScenes'
+  | 'channelUsers'
+  | 'instanceUsers'
+  | 'dailyUsers'
+  | 'dailyNewUsers'
+
+export type AnalyticsQueryMap = Record<AnalyticsQueryTypes, ReturnType<typeof useFind<typeof analyticsPath>>>
+
+const AnalyticsService = ({
+  name,
+  colors,
+  analyticsQueryMap
+}: {
+  name: AnalyticsQueryTypes
+  colors: string[]
+  analyticsQueryMap: AnalyticsQueryMap
+}) => {
   const { t } = useTranslation()
 
-  useEffect(() => {
-    if (refetch === true) {
-      fetch(moment().subtract(30, 'days').toDate(), moment()?.toDate())
-    }
-  }, [refetch, fetch])
-
-  const d = data.map((item) => {
+  const cardData = analyticsQueryMap[name].data.map((item) => {
     return [new Date(item.createdAt).getTime(), item.count]
   })
 
-  if (d) {
-    return (
-      <Card
-        data={{
-          number: d[d.length - 1] ? d[d.length - 1][1] : 0,
-          label: t(`admin:components.analytics.${name}`),
-          color1: colors[0],
-          color2: colors[1]
-        }}
-      />
-    )
-  } else {
-    return <LoadingView sx={{ height: '100vh' }} title={t(`admin:components.analytics.loading`)} />
-  }
+  return cardData ? (
+    <Card
+      data={{
+        number: cardData.at(-1) ? cardData.at(-1)![1] : 0,
+        label: t(`admin:components.analytics.${name}`),
+        color1: colors[0],
+        color2: colors[1]
+      }}
+    />
+  ) : (
+    <LoadingView sx={{ height: '100vh' }} title={t(`admin:components.analytics.loading`)} />
+  )
 }
 
 export default memo(AnalyticsService)

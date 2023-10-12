@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -35,9 +35,7 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
-
-export const serverSettingResolver = resolve<ServerSettingType, HookContext>({})
+import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
 
 export const serverDbToSchema = (rawData: ServerSettingDatabaseType): ServerSettingType => {
   let hub = JSON.parse(rawData.hub) as ServerHubType
@@ -54,8 +52,11 @@ export const serverDbToSchema = (rawData: ServerSettingDatabaseType): ServerSett
   }
 }
 
-export const serverSettingExternalResolver = resolve<ServerSettingType, HookContext>(
-  {},
+export const serverSettingResolver = resolve<ServerSettingType, HookContext>(
+  {
+    createdAt: virtual(async (serverSetting) => fromDateTimeSql(serverSetting.createdAt)),
+    updatedAt: virtual(async (serverSetting) => fromDateTimeSql(serverSetting.updatedAt))
+  },
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
@@ -63,6 +64,8 @@ export const serverSettingExternalResolver = resolve<ServerSettingType, HookCont
     }
   }
 )
+
+export const serverSettingExternalResolver = resolve<ServerSettingType, HookContext>({})
 
 export const serverSettingDataResolver = resolve<ServerSettingDatabaseType, HookContext>(
   {

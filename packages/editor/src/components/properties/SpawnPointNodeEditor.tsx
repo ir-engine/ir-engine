@@ -31,9 +31,8 @@ import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components
 
 import StreetviewIcon from '@mui/icons-material/Streetview'
 
-import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType } from './Util'
 
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
@@ -55,7 +54,7 @@ export const SpawnPointNodeEditor: EditorComponentType = (props) => {
         name="Users"
         prefix="User"
         values={spawnComponent.permissionedUsers}
-        onChange={updateProperty(SpawnPointComponent, 'permissionedUsers')}
+        onChange={commitProperty(SpawnPointComponent, 'permissionedUsers')}
         label={t('editor:properties.spawnPoint.users')}
       ></ArrayInputGroup> */}
     </NodeEditor>

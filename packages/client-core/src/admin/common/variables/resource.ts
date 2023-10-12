@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import i18n from 'i18next'
-
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 export interface ResourceColumn {
   id: 'id' | 'key' | 'mimeType' | 'project' | 'thumbnail' | 'action'
@@ -48,7 +47,7 @@ export const resourceColumns: ResourceColumn[] = [
 ]
 
 export interface ResourceData {
-  el: StaticResourceInterface
+  el: StaticResourceType
   id: string
   key: string
   mimeType: string

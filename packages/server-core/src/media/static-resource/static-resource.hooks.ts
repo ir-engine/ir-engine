@@ -22,28 +22,80 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { disallow } from 'feathers-hooks-common'
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-
+import {
+  staticResourceDataValidator,
+  staticResourcePatchValidator,
+  staticResourcePath,
+  staticResourceQueryValidator
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
-import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
-
-import addAssociations from '../../hooks/add-associations'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
+import { Forbidden } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
+import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
+import { getStorageProvider } from '../storageprovider/storageprovider'
+import { StaticResourceService } from './static-resource.class'
+import {
+  staticResourceDataResolver,
+  staticResourceExternalResolver,
+  staticResourcePatchResolver,
+  staticResourceQueryResolver,
+  staticResourceResolver
+} from './static-resource.resolvers'
+
+/**
+ * Ensure static-resource with the specified id exists and user is creator of the resource
+ * @param context
+ * @returns
+ */
+const ensureResource = async (context: HookContext<StaticResourceService>) => {
+  const resource = await context.app.service(staticResourcePath).get(context.id!)
+
+  if (!resource.userId) {
+    if (context.params?.provider) await verifyScope('admin', 'admin')(context as any)
+  } else if (context.params?.provider && resource.userId !== context.params?.user?.id)
+    throw new Forbidden('You are not the creator of this resource')
+
+  if (resource.key) {
+    const storageProvider = getStorageProvider()
+    await storageProvider.deleteResources([resource.key])
+  }
+}
+
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(staticResourceExternalResolver),
+      schemaHooks.resolveResult(staticResourceResolver)
+    ]
+  },
+
   before: {
-    all: [],
+    all: [
+      () => schemaHooks.validateQuery(staticResourceQueryValidator),
+      schemaHooks.resolveQuery(staticResourceQueryResolver)
+    ],
     find: [collectAnalytics()],
     get: [disallow('external')],
-    create: [authenticate(), verifyScope('admin', 'admin')],
-    update: [authenticate(), verifyScope('admin', 'admin')],
-    patch: [authenticate(), verifyScope('admin', 'admin')],
+    create: [
+      setLoggedinUserInBody('userId'),
+      verifyScope('admin', 'admin'),
+      () => schemaHooks.validateData(staticResourceDataValidator),
+      schemaHooks.resolveData(staticResourceDataResolver)
+    ],
+    update: [verifyScope('admin', 'admin')],
+    patch: [
+      verifyScope('admin', 'admin'),
+      () => schemaHooks.validateData(staticResourcePatchValidator),
+      schemaHooks.resolveData(staticResourcePatchResolver)
+    ],
     remove: [
-      authenticate(),
       // iff(isProvider('external'), verifyScope('admin', 'admin') as any),
-      attachOwnerIdInQuery('userId')
+      ensureResource
     ]
   },
 

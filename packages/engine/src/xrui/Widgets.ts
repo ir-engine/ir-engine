@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { dispatchAction } from '@etherealengine/hyperflux'
 
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { createXRUI } from './functions/createXRUI'
-import { WidgetAppActions } from './WidgetAppService'
+import { RegisteredWidgets, WidgetAppActions } from './WidgetAppService'
 
 /**
  * The widget interface.
@@ -67,7 +66,7 @@ export type Widget = {
 export const registerWidget = (xruiEntity: Entity, widget: Widget) => {
   const id = `${widget.label}-${xruiEntity}`
   dispatchAction(WidgetAppActions.registerWidget({ id }))
-  Engine.instance.widgets.set(id, widget)
+  RegisteredWidgets.set(id, widget)
   return id
 }
 

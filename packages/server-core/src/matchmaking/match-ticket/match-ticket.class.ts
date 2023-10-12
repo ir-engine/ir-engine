@@ -25,18 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter, KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex/lib'
+import { KnexAdapter, KnexAdapterOptions } from '@feathersjs/knex/lib'
 
 import { createTicket, deleteTicket, getTicket } from '@etherealengine/matchmaking/src/functions'
 import { MatchTicketData, MatchTicketQuery, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'
 
-export interface MatchTicketParams extends KnexAdapterParams<MatchTicketQuery> {
-  userId?: string
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface MatchTicketParams extends KnexAdapterParams<MatchTicketQuery> {}
 
 /**
  * A class for MatchTicket service
@@ -60,7 +60,7 @@ export class MatchTicketService<
     let ticket
     if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
-      ticket = await emulate_getTicket(this.app, id, params.userId)
+      ticket = await emulate_getTicket(this.app, id, params.user!.id)
     } else {
       ticket = getTicket(String(id))
     }

@@ -23,28 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    message: {
-      type: 'object',
-      properties: {
-        text: {
-          type: 'string'
-        }
-      }
-    },
-    message_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/message' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  messageDataSchema,
+  messagePatchSchema,
+  messageQuerySchema,
+  messageSchema
+} from '@etherealengine/engine/src/schemas/social/message.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    messageDataSchema,
+    messagePatchSchema,
+    messageQuerySchema,
+    messageSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Message service description',
+    securities: ['all']
   }
-}
+})

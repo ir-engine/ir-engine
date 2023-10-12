@@ -24,62 +24,59 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import * as chargebeeInst from 'chargebee'
+import chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
+import { oembedPath } from '@etherealengine/engine/src/schemas/media/oembed.schema'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { acceptInvitePath } from '@etherealengine/engine/src/schemas/user/accept-invite.schema'
+import { discordBotAuthPath } from '@etherealengine/engine/src/schemas/user/discord-bot-auth.schema'
+import { githubRepoAccessWebhookPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-webhook.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { loginPath } from '@etherealengine/engine/src/schemas/user/login.schema'
 import multiLogger from './ServerLogger'
-
-const { register } = require('trace-unhandled')
-register()
 
 const logger = multiLogger.child({ component: 'server-core:config' })
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
-// ensure process fails properly
-process.on('exit', async (code) => {
-  const message = `Server EXIT(${code}).`
-  if (code === 0) {
-    logger.info(message)
-  } else {
-    logger.fatal(message)
-  }
-})
+if (!testEnabled) {
+  const { register } = require('trace-unhandled')
+  register()
 
-process.on('SIGTERM', async (err) => {
-  logger.warn(err, 'Server SIGTERM.')
-  process.exit(1)
-})
-process.on('SIGINT', () => {
-  logger.warn('RECEIVED SIGINT.')
-  process.exit(1)
-})
+  // ensure process fails properly
+  process.on('exit', async (code) => {
+    const message = `Server EXIT(${code}).`
+    if (code === 0) {
+      logger.info(message)
+    } else {
+      logger.fatal(message)
+    }
+  })
 
-// emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  logger.fatal(err, 'UNCAUGHT EXCEPTION.')
-  process.exit(1)
-})
+  process.on('SIGTERM', async (err) => {
+    logger.warn(err, 'Server SIGTERM.')
+    process.exit(1)
+  })
+  process.on('SIGINT', () => {
+    logger.warn('RECEIVED SIGINT.')
+    process.exit(1)
+  })
 
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
-  process.exit(1)
-})
+  // emitted when an uncaught JavaScript exception bubbles
+  process.on('uncaughtException', (err) => {
+    logger.fatal(err, 'UNCAUGHT EXCEPTION.')
+    process.exit(1)
+  })
 
-if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
-  // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-
-  var fs = require('fs')
-  if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
-    var fromEnvPath = appRootPath.path + '/.env.local.default'
-    var toEnvPath = appRootPath.path + '/.env.local'
-    fs.copyFileSync(fromEnvPath, toEnvPath, fs.constants.COPYFILE_EXCL)
-  }
+  //emitted whenever a Promise is rejected and no error handler is attached to it
+  process.on('unhandledRejection', (reason, p) => {
+    logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
+    process.exit(1)
+  })
 }
 
 if (!kubernetesEnabled) {
@@ -87,6 +84,18 @@ if (!kubernetesEnabled) {
     path: appRootPath.path,
     silent: true
   })
+}
+
+if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
+  // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
+  const fs = require('fs')
+  if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
+    const fromEnvPath = appRootPath.path + '/.env.local.default'
+    const toEnvPath = appRootPath.path + '/.env.local'
+    fs.copyFileSync(fromEnvPath, toEnvPath, fs.constants.COPYFILE_EXCL)
+  }
 }
 
 /**
@@ -225,18 +234,22 @@ const email = {
     instance: 'Location invitation',
     login: 'Login link',
     friend: 'Friend request',
-    group: 'Group invitation',
-    party: 'Party invitation'
+    channel: 'Channel invitation'
   },
   smsNameCharacterLimit: 20
+}
+
+type WhiteListItem = {
+  path: string
+  methods: string[]
 }
 
 /**
  * Authentication
  */
 const authentication = {
-  service: 'identity-provider',
-  entity: 'identity-provider',
+  service: identityProviderPath,
+  entity: identityProviderPath,
   secret: process.env.AUTH_SECRET!,
   authStrategies: ['jwt', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   jwtOptions: {
@@ -245,6 +258,18 @@ const authentication = {
   bearerToken: {
     numBytes: 16
   },
+  whiteList: [
+    'auth',
+    'oauth/:provider',
+    'authentication',
+    oembedPath,
+    githubRepoAccessWebhookPath,
+    { path: identityProviderPath, methods: ['create'] },
+    { path: routePath, methods: ['find'] },
+    { path: acceptInvitePath, methods: ['get'] },
+    { path: discordBotAuthPath, methods: ['find'] },
+    { path: loginPath, methods: ['get'] }
+  ] as (string | WhiteListItem)[],
   callback: {
     discord: process.env.DISCORD_CALLBACK_URL || `${client.url}/auth/oauth/discord`,
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
@@ -275,10 +300,9 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
-      appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
-      scope: ['repo', 'user']
+      scope: ['repo', 'user', 'workflow']
     },
     google: {
       key: process.env.GOOGLE_CLIENT_ID!,
@@ -301,30 +325,28 @@ const authentication = {
  * AWS
  */
 const aws = {
-  route53: {
-    hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID!,
-    keys: {
-      accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET!
-    }
-  },
   s3: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
-    staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
+    staticResourceBucket: testEnabled
+      ? process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
+      : process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!
   },
   cloudfront: {
-    domain: process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER ? server.clientHost : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
+    domain:
+      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
+        ? server.clientHost
+        : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
   },
   eks: {
-    accessKeyId: process.env.EKS_AWS_ACCESS_KEY!,
-    secretAccessKey: process.env.EKS_AWS_SECRET!
+    accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET!
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID!,

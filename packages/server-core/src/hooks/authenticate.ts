@@ -24,61 +24,99 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as authentication from '@feathersjs/authentication'
-import { BadRequest } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, NextFunction, Paginated } from '@feathersjs/feathers'
 
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { AsyncLocalStorage } from 'async_hooks'
+import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'
 import { Application } from './../../declarations'
 
 const { authenticate } = authentication.hooks
 
-export default () => {
-  return async (context: HookContext<Application>): Promise<HookContext> => {
-    const { params } = context
+export const asyncLocalStorage = new AsyncLocalStorage<{ user: UserType }>()
 
-    if (!context.params) context.params = {}
-    const authHeader = params.headers?.authorization
-    let authSplit
-    if (authHeader) authSplit = authHeader.split(' ')
-    let token, user
-    if (authSplit) token = authSplit[1]
-    if (token) {
-      const key = await context.app.service('user-api-key').Model.findOne({
-        where: {
-          token: token
-        }
-      })
-      if (key != null)
-        user = await context.app.service('user').Model.findOne({
-          include: [
-            {
-              model: context.app.service('scope').Model
-            }
-          ],
-          where: {
-            id: key.userId
-          }
-        })
+/**
+ * https://github.com/feathersjs-ecosystem/dataloader/blob/main/docs/guide.md
+ */
+export default async (context: HookContext<Application>, next: NextFunction): Promise<HookContext> => {
+  const store = asyncLocalStorage.getStore()
+
+  // If user param is already stored then we don't need to
+  // authenticate. This is typically an internal service call.
+  if (store && store.user) {
+    if (!context.params.user) {
+      context.params.user = store.user
     }
-    if (user) {
-      context.params.user = user
-      return context
-    }
-    context = await authenticate('jwt')(context as any)
-    // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
-    context.params.user =
-      context.params[config.authentication.entity] && context.params[config.authentication.entity].userId
-        ? await context.app.service('user').Model.findOne({
-            include: [
-              {
-                model: context.app.service('scope').Model
-              }
-            ],
-            where: {
-              id: context.params[config.authentication.entity].userId
-            }
-          })
-        : {}
-    return context
+
+    return next()
   }
+
+  // No need to authenticate if it's an internal call.
+  const isInternal = isProvider('server')(context)
+  if (isInternal) {
+    return next()
+  }
+
+  // Ignore whitelisted services & methods
+  const isWhitelisted = checkWhitelist(context)
+  if (isWhitelisted) {
+    return next()
+  }
+
+  // Check authorization token in headers
+  const authHeader = context.params.headers?.authorization
+
+  let authSplit
+  if (authHeader) {
+    authSplit = authHeader.split(' ')
+  }
+
+  if (authSplit && authSplit.length > 1 && authSplit[1]) {
+    const key = (await context.app.service(userApiKeyPath).find({
+      query: {
+        token: authSplit[1]
+      }
+    })) as Paginated<UserApiKeyType>
+
+    if (key.data.length > 0) {
+      const user = await context.app.service(userPath).get(key.data[0].userId)
+      context.params.user = user
+      asyncLocalStorage.enterWith({ user })
+      return next()
+    }
+  }
+
+  // Check JWT token using feathers authentication.
+  // It will throw if authentication information is not set for external requests.
+  // https://feathersjs.com/api/authentication/hook.html#authenticate-hook
+  context = await authenticate('jwt')(context)
+
+  // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
+  if (context.params[config.authentication.entity]?.userId) {
+    const user = await context.app.service(userPath).get(context.params[config.authentication.entity].userId)
+    context.params.user = user
+    asyncLocalStorage.enterWith({ user })
+  }
+
+  return next()
+}
+
+/**
+ * A method to check if the service requesting is whitelisted.
+ * In that scenario we dont need to perform authentication check.
+ * @param context
+ * @returns
+ */
+const checkWhitelist = (context: HookContext<Application>): boolean => {
+  for (const item of config.authentication.whiteList) {
+    if (typeof item === 'string' && context.path === item) {
+      return true
+    } else if (typeof item === 'object' && context.path === item.path && item.methods.includes(context.method)) {
+      return true
+    }
+  }
+
+  return false
 }

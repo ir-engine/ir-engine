@@ -23,17 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import styled from 'styled-components'
+import React from 'react'
 
-const Well = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  padding: 4px;
-  margin: 8px;
-`
+const wellStyles = {
+  display: 'flex',
+  flexDirection: 'column',
+  backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  borderRadius: '6px',
+  padding: '4px',
+  margin: '8px'
+}
 
-Well.displayName = 'Well'
+const Well = ({ children }) => {
+  return <div style={wellStyles as React.CSSProperties}>{children}</div>
+}
 
 export default Well

@@ -28,10 +28,8 @@ import { useTranslation } from 'react-i18next'
 
 import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
-import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@etherealengine/common/src/constants/AvatarConstants'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import {
   AssetSelectionChangePropsType,
@@ -48,6 +46,7 @@ import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -62,7 +61,7 @@ export enum ResourceDrawerMode {
 interface Props {
   open: boolean
   mode: ResourceDrawerMode
-  selectedResource?: StaticResourceInterface
+  selectedResource?: StaticResourceType
   onClose: () => void
 }
 

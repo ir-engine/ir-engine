@@ -28,9 +28,9 @@ import { useTranslation } from 'react-i18next'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import { Button } from '@etherealengine/editor/src/components/inputs/Button'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { InviteService, InviteServiceReceptor, InviteState } from '../../social/services/InviteService'
+import { InviteService, InviteState } from '../../social/services/InviteService'
 import { AuthState } from '../../user/services/AuthService'
 import styles from './index.module.scss'
 
@@ -45,13 +45,6 @@ const InviteToast = () => {
     if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
       InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
   }, [inviteState.receivedUpdateNeeded.value, authState.isLoggedIn.value])
-
-  useEffect(() => {
-    addActionReceptor(InviteServiceReceptor)
-    return () => {
-      removeActionReceptor(InviteServiceReceptor)
-    }
-  }, [])
 
   const acceptInvite = (invite) => {
     InviteService.acceptInvite(invite)
@@ -73,10 +66,14 @@ const InviteToast = () => {
           </span>
         )}
         <div className={`${styles.btnContainer}`}>
-          <Button color="primary" className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
+          <Button style={{ color: 'primary' }} className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
             {t('social:invite.accept')}
           </Button>
-          <Button color="secondary" className={styles.declineBtn} onClick={() => declineInvite(newestInvite)}>
+          <Button
+            style={{ color: 'primary' }}
+            className={styles.declineBtn}
+            onClick={() => declineInvite(newestInvite)}
+          >
             {t('social:invite.decline')}
           </Button>
         </div>

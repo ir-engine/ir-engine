@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import assert from 'assert'
 import dotenv from 'dotenv-flow'
 
 // import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-// import { parseSceneDataCacheURLs } from '@etherealengine/server-core/src/projects/scene/scene-parser'
+// import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 
 // import sceneJson from '../../../projects/default-project/default.scene.json'
 
@@ -37,7 +36,7 @@ dotenv.config({
   silent: true
 })
 
-// const sceneData = parseSceneDataCacheURLs(sceneJson as unknown as SceneJson, process.env.LOCAL_STORAGE_PROVIDER!)
+// const sceneData = parseStorageProviderURLs(sceneJson as unknown as SceneJson)
 
 // TODO replace with inidivudal unit tests for relevant functions
 describe.skip('Portal', () => {

@@ -23,36 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Params, Query, ServiceMethods } from '@feathersjs/feathers'
+import { ServiceInterface } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import path from 'path'
 
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { Application } from '@etherealengine/server-core/declarations'
 
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { transformModel } from './model-transform.helpers'
 
-interface CreateParams {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ModelTransformParams extends KnexAdapterParams {
   src: string
   transformParameters: ModelTransformParameters
+  filter?: string
 }
 
-interface GetParams {
-  filter: string
-}
-
-export class ModelTransform implements ServiceMethods<any> {
+/**
+ * A class for Model Transform service
+ */
+export class ModelTransformService implements ServiceInterface<ModelTransformParams> {
   app: Application
-  docs: any
   rootPath: string
 
   constructor(app: Application) {
     this.app = app
     this.rootPath = path.join(appRootPath.path, 'packages/projects/projects')
-  }
-
-  patch(id: NullableId, data: Partial<any>, params?: Params<Query> | undefined): Promise<any> {
-    return Promise.resolve({})
   }
 
   processPath(inPath: string): [string, string] {
@@ -62,25 +59,7 @@ export class ModelTransform implements ServiceMethods<any> {
     return [path.join(this.rootPath, filePath), extension]
   }
 
-  async find(params?: Params): Promise<any> {
-    return {}
-  }
-
-  async get(id: Id, params?: Params): Promise<any> {
-    return {}
-  }
-
-  async update(id: Id, params?: Params): Promise<any> {
-    return {}
-  }
-
-  async remove(id: Id, params?: Params): Promise<any> {
-    return {}
-  }
-
-  async setup() {}
-
-  async create(createParams: CreateParams, params?: Params): Promise<any> {
+  async create(createParams: ModelTransformParams) {
     try {
       const transformParms = createParams.transformParameters
       const [commonPath, extension] = this.processPath(createParams.src)

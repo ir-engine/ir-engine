@@ -34,48 +34,72 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
-import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
+import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
+import { useTranslation } from 'react-i18next'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
+  const { t } = useTranslation()
+
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
   const authState = useHookstate(getMutableState(AuthState))
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded).value
 
   const onTogglePlayMode = () => {
     if (Engine.instance.localClientEntity) {
-      removeEntity(Engine.instance.localClientEntity)
+      dispatchAction(
+        WorldNetworkAction.destroyObject({ entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent) })
+      )
       const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeEntity(cameraComputed.referenceEntity)
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
-      dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: false }))
+      getMutableState(EditorHelperState).isPlayModeEnabled.set(false)
+      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
+      // stop all behave graph logic
     } else {
       const avatarDetails = authState.user.avatar.value
 
-      const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userId)
+      const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
 
       if (avatarDetails)
         spawnLocalAvatarInWorld({
           avatarSpawnPose,
-          avatarID: avatarDetails.id,
+          avatarID: avatarDetails.id!,
           name: authState.user.name.value
         })
-      dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
+
+      getMutableState(EditorHelperState).isPlayModeEnabled.set(true)
+      // run all behave graph logic
+      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
     }
   }
 
   return (
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
-      <InfoTooltip title={editorHelperState.isPlayModeEnabled.value ? 'Stop Previewing Scene' : 'Preview Scene'}>
+      <InfoTooltip
+        title={
+          editorHelperState.isPlayModeEnabled.value
+            ? t('editor:toolbar.command.lbl-stopPreview')
+            : t('editor:toolbar.command.lbl-playPreview')
+        }
+        info={
+          editorHelperState.isPlayModeEnabled.value
+            ? t('editor:toolbar.command.info-stopPreview')
+            : t('editor:toolbar.command.info-playPreview')
+        }
+      >
         <button
           disabled={!sceneLoaded}
           onClick={onTogglePlayMode}

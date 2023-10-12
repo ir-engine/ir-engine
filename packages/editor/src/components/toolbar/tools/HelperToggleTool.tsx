@@ -31,14 +31,17 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
 
+import { useTranslation } from 'react-i18next'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
+  const { t } = useTranslation()
+
   const rendererState = useHookstate(getMutableState(RendererState))
 
   const toggleDebug = () => {
-    rendererState.debugEnable.set(!rendererState.debugEnable.value)
+    rendererState.physicsDebug.set(!rendererState.physicsDebug.value)
   }
 
   const toggleNodeHelpers = () => {
@@ -48,17 +51,23 @@ export const HelperToggleTool = () => {
   return (
     <>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip title="Toggle Helpers">
+        <InfoTooltip
+          title={t('editor:toolbar.helpersToggle.lbl-helpers')}
+          info={t('editor:toolbar.helpersToggle.info-helpers')}
+        >
           <button
             onClick={toggleDebug}
-            className={styles.toolButton + ' ' + (rendererState.debugEnable.value ? styles.selected : '')}
+            className={styles.toolButton + ' ' + (rendererState.physicsDebug.value ? styles.selected : '')}
           >
             <SquareFootIcon fontSize="small" />
           </button>
         </InfoTooltip>
       </div>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip title="Toggle Node Helpers">
+        <InfoTooltip
+          title={t('editor:toolbar.helpersToggle.lbl-nodeHelpers')}
+          info={t('editor:toolbar.helpersToggle.info-nodeHelpers')}
+        >
           <button
             onClick={toggleNodeHelpers}
             className={styles.toolButton + ' ' + (rendererState.nodeHelperVisibility.value ? styles.selected : '')}

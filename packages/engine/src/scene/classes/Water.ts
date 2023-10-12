@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Mesh, PlaneGeometry, ShaderMaterial, sRGBEncoding, WebGLRenderTarget } from 'three'
-import { Vector3 } from 'three'
+import { Color, Mesh, PlaneGeometry, ShaderMaterial, SRGBColorSpace, Vector3, WebGLRenderTarget } from 'three'
 
 import { loadCubeMapTexture } from '../constants/Util'
 import fragmentShader from './water/shaders/surface/fragment'
@@ -67,12 +66,13 @@ export class Water extends Mesh {
   }
 
   setupRenderTarget() {
+    if (typeof window === 'undefined') return
     // Target for computing the water refraction
     this.refractionRT = new WebGLRenderTarget(window.innerWidth, window.innerHeight)
   }
 
   addRandomDrops(renderer) {
-    for (var i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) {
       this.waveSimulator.addDrop(renderer, Math.random() * 2 - 1, Math.random() * 2 - 1, 0.03, i & 1 ? 0.02 : -0.02)
     }
     this.firstRun = false
@@ -126,7 +126,7 @@ export class Water extends Mesh {
     loadCubeMapTexture(
       path,
       (texture) => {
-        texture.encoding = sRGBEncoding
+        texture.colorSpace = SRGBColorSpace
         this._material.uniforms.skybox.value = texture
       },
       undefined,

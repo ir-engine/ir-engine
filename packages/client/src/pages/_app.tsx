@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import {
@@ -48,6 +47,7 @@ import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjectio
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from '../themes/themeContext'
 
@@ -103,7 +103,7 @@ const AppPage = ({ route }: { route: string }) => {
       if (!fetchedProjectComponents) {
         setFetchedProjectComponents(true)
         Engine.instance.api
-          .service('projects')
+          .service(projectsPath)
           .find()
           .then((projects) => {
             loadWebappInjection(projects).then((result) => {
@@ -115,12 +115,8 @@ const AppPage = ({ route }: { route: string }) => {
   }, [selfUser, projectState.updateNeeded.value])
 
   useEffect(() => {
-    Engine.instance.userId = selfUser.id.value
+    Engine.instance.userID = selfUser.id.value
   }, [selfUser.id])
-
-  useEffect(() => {
-    authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
-  }, [authState.isLoggedIn])
 
   return (
     <>

@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { matchUserPath } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, result, data, params } = context
-    const loggedInUser = params.user as UserInterface
+    const loggedInUser = params.user as UserType
     await app.service(matchUserPath).create({
       ticketId: result.id,
       gameMode: data.gameMode,

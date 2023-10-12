@@ -35,19 +35,19 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
-import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
-import multiLogger from '@etherealengine/common/src/logger'
 import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { InviteData } from '@etherealengine/engine/src/schemas/social/invite.schema'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
@@ -84,16 +84,20 @@ export const useShareMenuHooks = ({ refLink }) => {
     const isEmail = EMAIL_REGEX.test(token)
     const isPhone = PHONE_REGEX.test(token)
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
+    let inviteCode = ''
+
     const sendData = {
       inviteType: 'instance',
       token: token.length === 8 ? null : token,
-      inviteCode: token.length === 8 ? token : null,
       identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
       targetObjectId: params.get('instanceId'),
-      inviteeId: null,
       deleteOnUse: true
-    } as SendInvite
+    } as InviteData
+
+    if (token.length === 8) {
+      inviteCode = token
+    }
 
     if (isSpectatorMode) {
       sendData.spawnType = 'spectate'
@@ -103,7 +107,7 @@ export const useShareMenuHooks = ({ refLink }) => {
       sendData.spawnDetails = { inviteCode: selfUser.inviteCode.value }
     }
 
-    InviteService.sendInvite(sendData)
+    InviteService.sendInvite(sendData, inviteCode)
     setToken('')
   }
 
@@ -113,7 +117,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const getInviteLink = () => {
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
     if (selfUser?.inviteCode.value != null) {
       params.set('inviteCode', selfUser.inviteCode.value)
       location.search = params.toString()
@@ -125,7 +129,7 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const getSpectateModeUrl = () => {
     const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
+    const params = new URLSearchParams(location.search)
     params.set('spectate', selfUser.id.value)
     params.delete('inviteCode')
     location.search = params.toString()
@@ -171,7 +175,7 @@ const ShareMenu = (): JSX.Element => {
   })
 
   // Ref: https://developer.oculus.com/documentation/web/web-launch
-  let questShareLink = new URL('https://oculus.com/open_url/')
+  const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
 
   const copyToClipboard = (text: string) => {

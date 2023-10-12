@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { TransportListenIp } from 'mediasoup/node/lib/Transport'
-import type { WebRtcTransportOptions } from 'mediasoup/node/lib/WebRtcTransport'
-
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'
 
@@ -194,12 +191,7 @@ export const localConfig = {
 
     recording: {
       // the internal IP of the local machine, not the public one - overridden upon instance server startup
-      ip: null! as string,
-      // FFmpeg's sdpdemux only supports RTCP = RTP + 1
-      audioPort: 5004,
-      audioPortRtcp: 5005,
-      videoPort: 5006,
-      videoPortRtcp: 5007
+      ip: null! as string
     }
   }
 }

@@ -23,47 +23,97 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
-import addAssociations from '../../hooks/add-associations'
-import authenticate from '../../hooks/authenticate'
+import {
+  recordingDataValidator,
+  recordingPatchValidator,
+  recordingPath,
+  recordingQueryValidator
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
+
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { NotFound } from '@feathersjs/errors'
+import { HookContext } from '../../../declarations'
+import isAction from '../../hooks/is-action'
+import setLoggedinUserInBody from '../../hooks/set-loggedin-user-in-body'
+import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 import verifyScope from '../../hooks/verify-scope'
+import { RecordingService } from './recording.class'
+import {
+  recordingDataResolver,
+  recordingExternalResolver,
+  recordingPatchResolver,
+  recordingQueryResolver,
+  recordingResolver
+} from './recording.resolvers'
+
+/**
+ * Sort result by user name
+ * @param context
+ * @returns
+ */
+const sortByUserName = async (context: HookContext<RecordingService>) => {
+  if (context.params.query?.$sort?.['user']) {
+    const sort = context.params.query.$sort['user']
+    delete context.params.query.$sort['user']
+
+    const query = context.service.createQuery(context.params)
+
+    query.join(userPath, `${userPath}.id`, `${recordingPath}.userId`)
+    query.orderBy(`${userPath}.name`, sort === 1 ? 'asc' : 'desc')
+    query.select(`${recordingPath}.*`)
+
+    context.params.knex = query
+  }
+}
+
+/**
+ * Ensure recording with the specified id exists
+ * @param context
+ * @returns
+ */
+const ensureRecording = async (context: HookContext<RecordingService>) => {
+  const recording = context.app.service(recordingPath).get(context.id!)
+  if (!recording) {
+    throw new NotFound('Unable to find recording with this id')
+  }
+}
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(recordingExternalResolver), schemaHooks.resolveResult(recordingResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [() => schemaHooks.validateQuery(recordingQueryValidator), schemaHooks.resolveQuery(recordingQueryResolver)],
     find: [
+      iff(isProvider('external'), verifyScope('recording', 'read')),
       iff(
         isProvider('external'),
-        verifyScope('recording', 'read'),
-        addAssociations({
-          models: [
-            {
-              model: 'user',
-              as: 'user'
-            }
-          ]
-        }) as any
-      )
+        iffElse(isAction('admin'), verifyScope('admin', 'admin'), setLoggedinUserInQuery('userId'))
+      ),
+      discardQuery('action'),
+      sortByUserName
     ],
-    get: [iff(isProvider('external'), verifyScope('recording', 'read') as any)],
+    get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
-      iff(
-        isProvider('external'),
-        verifyScope('recording', 'write'),
-        addAssociations({
-          models: [
-            {
-              model: 'user',
-              as: 'user'
-            }
-          ]
-        }) as any
-      )
+      setLoggedinUserInBody('userId'),
+      iff(isProvider('external'), verifyScope('recording', 'write')),
+      () => schemaHooks.validateData(recordingDataValidator),
+      schemaHooks.resolveData(recordingDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
-    patch: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
-    remove: [iff(isProvider('external'), verifyScope('recording', 'write') as any)]
+    update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
+    patch: [
+      iff(isProvider('external'), verifyScope('recording', 'write')),
+      () => schemaHooks.validateData(recordingPatchValidator),
+      schemaHooks.resolveData(recordingPatchResolver)
+    ],
+    remove: [
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('recording', 'write')),
+      ensureRecording
+    ]
   },
 
   after: {

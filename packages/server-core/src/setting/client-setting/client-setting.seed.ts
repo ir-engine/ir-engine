@@ -33,7 +33,7 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
-import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { getDateTimeSql } from '../../util/datetime-sql'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -59,7 +59,7 @@ export async function seed(knex: Knex): Promise<void> {
         icon192px: '/android-chrome-192x192.png',
         icon512px: '/android-chrome-512x512.png',
         appBackground: 'static/main-background.png',
-        appTitle: 'static/ethereal_mark.png',
+        appTitle: 'static/ethereal_watermark_small.png',
         appSubtitle: 'EtherealEngine.org',
         appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
         appSocialLinks: JSON.stringify([
@@ -69,6 +69,7 @@ export async function seed(knex: Knex): Promise<void> {
         themeSettings: JSON.stringify(defaultThemeSettings),
         themeModes: JSON.stringify(defaultThemeModes),
         key8thWall: process.env.VITE_8TH_WALL || '',
+        privacyPolicy: 'https://www.etherealengine.com/privacy',
         homepageLinkButtonEnabled: false,
         homepageLinkButtonRedirect: '',
         homepageLinkButtonText: '',
@@ -94,13 +95,18 @@ export async function seed(knex: Knex): Promise<void> {
     } else {
       // If data already exists, we need to make sure any newly added column i.e. appleTouchIcon, etc gets default value populated
       const existingRows = await knex(clientSettingPath).select<ClientSettingDatabaseType[]>()
-      console.log(existingRows)
 
       for (const item of existingRows) {
         if (!item.appleTouchIcon) {
           await knex(clientSettingPath).update({
             ...item,
             appleTouchIcon: seedData[0].appleTouchIcon
+          })
+        }
+        if (!item.privacyPolicy) {
+          await knex(clientSettingPath).update({
+            ...item,
+            privacyPolicy: seedData[0].privacyPolicy
           })
         }
       }

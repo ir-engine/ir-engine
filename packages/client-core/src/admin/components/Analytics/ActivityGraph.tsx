@@ -28,71 +28,37 @@ import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 import { useTranslation } from 'react-i18next'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { AnalyticsQueryMap, AnalyticsQueryTypes } from './AnalyticsService'
 
-import { AdminAnalyticsState } from '../../services/AnalyticsService'
-
-const ActivityGraph = ({ startDate, endDate }) => {
-  const analyticsState = useHookstate(getMutableState(AdminAnalyticsState))
+const ActivityGraph = ({
+  analyticsNames,
+  startDate,
+  endDate,
+  analyticsQueryMap
+}: {
+  analyticsNames: AnalyticsQueryTypes[]
+  startDate: Date
+  endDate: Date
+  analyticsQueryMap: AnalyticsQueryMap
+}) => {
   const { t } = useTranslation()
 
   let maxY = 0
-  let minX = new Date(startDate).getTime()
-  let maxX = new Date(endDate).getTime()
+  const minX = new Date(startDate).getTime()
+  const maxX = new Date(endDate).getTime()
 
-  const data = [
-    {
-      name: t('admin:components.analytics.activeParties'),
-      data: analyticsState.activeParties.value.map((item) => {
-        return [new Date(item.createdAt).getTime(), item.count]
-      })
-    },
-    {
-      name: t('admin:components.analytics.activeLocations'),
-      data: analyticsState.activeLocations.value.map((item) => {
-        return [new Date(item.createdAt).getTime(), item.count]
-      })
-    },
-    {
-      name: t('admin:components.analytics.activeInstances'),
-      data: analyticsState.activeInstances.value.map((item) => {
-        return [new Date(item.createdAt).getTime(), item.count]
-      })
-    },
-    {
-      name: t('admin:components.analytics.activeScenes'),
-      data: analyticsState.activeScenes.value.map((item) => {
-        return [new Date(item.createdAt).getTime(), item.count]
-      })
-    },
-    {
-      name: t('admin:components.analytics.instanceUsers'),
-      data: analyticsState.instanceUsers.value.map((item) => {
-        return [new Date(item.createdAt).getTime(), item.count]
-      })
-    },
-    {
-      name: t('admin:components.analytics.channelUsers'),
-      data: analyticsState.channelUsers.value.map((item) => {
-        return [new Date(item.createdAt).getTime(), item.count]
-      })
-    }
-  ]
+  const data = analyticsNames.map((analyticName) => ({
+    name: t(`admin:components.analytics.${analyticName}`),
+    data: analyticsQueryMap[analyticName].data.map((item) => [new Date(item.createdAt).getTime(), item.count])
+  }))
 
-  if (data) {
-    for (let analytic of data) {
-      if (analytic) {
-        for (let item of analytic.data) {
-          if (maxY < item[1]) {
-            maxY = item[1]
-          }
-        }
-      }
-    }
-  }
+  data.forEach((d) => {
+    d.data.forEach((item) => (maxY = Math.max(item[1], maxY)))
+  })
 
   const roundPower = Math.pow(10, Math.floor(Math.log10(maxY)))
   maxY = Math.ceil(maxY / roundPower) * roundPower
+
   const graphData = {
     series: data,
     options: {

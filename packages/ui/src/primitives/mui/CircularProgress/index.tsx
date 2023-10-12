@@ -27,7 +27,7 @@ import React from 'react'
 
 import { CircularProgressProps, CircularProgress as MuiCircularProgress } from '@mui/material'
 
-const CircularProgress = (props: CircularProgressProps & {}) => <MuiCircularProgress {...props} />
+const CircularProgress = (props: CircularProgressProps & any) => <MuiCircularProgress {...props} />
 
 CircularProgress.displayName = 'CircularProgress'
 

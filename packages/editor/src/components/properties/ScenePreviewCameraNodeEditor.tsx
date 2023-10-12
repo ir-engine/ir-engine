@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { debounce } from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, setComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -36,6 +36,8 @@ import {
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
+import { computeTransformMatrix } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { previewScreenshot } from '../../functions/takeScreenshot'
 import { PropertiesPanelButton } from '../inputs/Button'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
@@ -57,7 +59,9 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const transform = getComponent(props.entity, LocalTransformComponent)
     transform.position.copy(position)
     transform.rotation.copy(rotation)
-    LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
+    computeTransformMatrix(props.entity)
+
+    EditorControlFunctions.commitTransformSave(props.entity)
   }
 
   const updateScenePreview = async () => {
@@ -66,7 +70,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     setBufferUrl(url)
   }
 
-  const updateCubeMapBakeDebounced = debounce(updateScenePreview, 500) //ms
+  const updateCubeMapBakeDebounced = useCallback(debounce(updateScenePreview, 500), []) //ms
 
   useEffect(() => {
     updateCubeMapBakeDebounced()

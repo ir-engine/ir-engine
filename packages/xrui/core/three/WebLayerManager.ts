@@ -23,16 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  CanvasTexture,
-  ClampToEdgeWrapping,
-  CompressedTexture,
-  LinearFilter,
-  LinearMipmapLinearFilter,
-  sRGBEncoding,
-  Texture,
-  VideoTexture
-} from 'three'
+import { CanvasTexture, ClampToEdgeWrapping, CompressedTexture, LinearMipmapLinearFilter, SRGBColorSpace } from 'three'
 
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
@@ -62,7 +53,7 @@ export class WebLayerManager extends WebLayerManagerBase {
   }
 
   renderer!: THREE.WebGLRenderer
-  textureEncoding = sRGBEncoding
+  textureEncoding = SRGBColorSpace
   ktx2Loader = new KTX2Loader()
 
   texturesByHash = new Map<string, ThreeTextureData>()
@@ -94,7 +85,7 @@ export class WebLayerManager extends WebLayerManagerBase {
             t.wrapS = ClampToEdgeWrapping
             t.wrapT = ClampToEdgeWrapping
             t.minFilter = LinearMipmapLinearFilter
-            t.encoding = this.textureEncoding
+            t.colorSpace = this.textureEncoding
             this.texturesByHash.get(textureData.hash)!.compressedTexture = t
             resolve(undefined)
           },
@@ -121,7 +112,7 @@ export class WebLayerManager extends WebLayerManagerBase {
       t.wrapS = ClampToEdgeWrapping
       t.wrapT = ClampToEdgeWrapping
       t.minFilter = LinearMipmapLinearFilter
-      t.encoding = this.textureEncoding
+      t.colorSpace = this.textureEncoding
       t.flipY = false
       threeTextureData.canvasTexture = t
     }

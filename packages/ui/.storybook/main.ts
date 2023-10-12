@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { loadConfigFromFile, mergeConfig } from 'vite'
+import { mergeConfig } from 'vite'
 
 export default {
   // managerEntries: [require('path').resolve(__dirname, './addons/RegisterAddons')],
@@ -39,7 +39,7 @@ export default {
       path: '../../.env.local'
     }).parsed
   }),
-  stories: ['./**/*.stories.@(js|jsx|ts|tsx)', '../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
     '@storybook/addon-toolbars',
     '@storybook/manager-api',

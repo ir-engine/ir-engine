@@ -23,87 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ChangeEvent, useEffect } from 'react'
+import React from 'react'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import TableComponent from '../../common/Table'
 import { routeColumns } from '../../common/variables/route'
-import { AdminActiveRouteService, AdminActiveRouteState } from '../../services/ActiveRouteService'
-import { AdminRouteState, RouteService } from '../../services/RouteService'
 import styles from '../../styles/admin.module.scss'
-
-/**
- * Temporary
- */
-const ROUTE_PAGE_LIMIT = 1000
 
 interface Props {
   className?: string
 }
 
-/**
- *
- * @param props
- * @returns
- */
-
 const RouteTable = ({ className }: Props) => {
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(ROUTE_PAGE_LIMIT)
-
-  const authState = useHookstate(getMutableState(AuthState))
-  const user = authState.user
-  const adminRouteState = useHookstate(getMutableState(AdminRouteState))
-  const adminActiveRouteState = useHookstate(getMutableState(AdminActiveRouteState))
-  const activeRouteData = adminActiveRouteState.activeRoutes
-  const installedRouteData = adminRouteState.routes
-  const adminRouteCount = adminActiveRouteState.total
   const processing = useHookstate(false)
 
-  const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page.value < newPage ? 'increment' : 'decrement'
-    AdminActiveRouteService.fetchActiveRoutes(incDec)
-    RouteService.fetchInstalledRoutes(incDec)
-    page.set(newPage)
-  }
-
-  useEffect(() => {
-    if (user?.id?.value && adminRouteState.updateNeeded.value === true) {
-      AdminActiveRouteService.fetchActiveRoutes()
-      RouteService.fetchInstalledRoutes()
-    }
-  }, [authState.user?.id?.value, adminRouteState.updateNeeded.value])
-
-  useEffect(() => {
-    AdminActiveRouteService.fetchActiveRoutes()
-    RouteService.fetchInstalledRoutes()
-  }, [])
-
-  useEffect(() => {
-    // console.log('setting false', activeRouteData.value)
-    // setProcessing(false)
-  }, [activeRouteData.value])
-
-  const handleRowsPerPageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
+  const installedRouteData = useFind('routes-installed').data
+  const routesQuery = useFind(routePath, {
+    query: { $limit: 20 }
+  })
+  const routeActivateCreate = useMutation('route-activate').create
 
   const isRouteActive = (project: string, route: string) =>
-    activeRouteData.findIndex((a) => {
-      return a.project.value === project && a.route.value === route
+    routesQuery.data.findIndex((a) => {
+      return a.project === project && a.route === route
     }) !== -1
 
   const activateCallback = (project: string, route: string, checked: boolean) => {
-    // setProcessing(true)
-    // setTimeout(() => {
-    AdminActiveRouteService.setRouteActive(project, route, checked)
-    // }, 1000)
+    routeActivateCreate({ project, route, activate: checked })
   }
 
   const installedRoutes = installedRouteData
@@ -111,15 +63,15 @@ const RouteTable = ({ className }: Props) => {
       if (!el.routes?.length) return []
       return el.routes.map((route) => {
         return {
-          id: el.project.value + route.value,
-          project: el.project.value,
-          route: route.value,
+          id: el.project + route,
+          project: el.project,
+          route: route,
           action: (
             <Checkbox
               className={styles.checkboxContainer}
               classes={{ checked: styles.routeCheckedCheckbox }}
-              checked={isRouteActive(el.project.value, route.value)}
-              onChange={(ev, checked) => activateCallback(el.project.value, route.value, checked)}
+              checked={isRouteActive(el.project, route)}
+              onChange={(ev, checked) => activateCallback(el.project, route, checked)}
             />
           )
         }
@@ -129,16 +81,7 @@ const RouteTable = ({ className }: Props) => {
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={true}
-        rows={installedRoutes}
-        column={routeColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={adminRouteCount.value}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={routesQuery} allowSort={true} rows={installedRoutes} column={routeColumns} />
       {processing.value && (
         <div className={styles.progressBackground}>
           <CircularProgress className={styles.progress} />

@@ -29,7 +29,8 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as generateUUID } from 'uuid'
 
-import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { LocationData, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 
 function toCapitalCase(str: string) {
@@ -49,30 +50,32 @@ export const createLocations = async (app: Application, projectName: string) => 
         const settingsId = generateUUID()
         const sceneName = sceneJson.replace('.scene.json', '')
         const locationName = toCapitalCase(sceneName.replace('-', ' '))
-        const locationSettings = {
+        const locationSetting = {
           id: settingsId,
           locationId,
           locationType: 'public',
           audioEnabled: true,
           videoEnabled: true,
+          screenSharingEnabled: true,
           faceStreamingEnabled: true
-        }
+        } as LocationSettingType
         const location = {
           id: locationId,
           name: locationName,
           slugifiedName: sceneName,
           maxUsersPerInstance: 30,
           sceneId: `${projectName}/${sceneName}`,
-          location_settings: locationSettings,
-          isLobby: false
-        } as Location
+          locationSetting,
+          isLobby: false,
+          isFeatured: false
+        } as LocationData
 
-        const existingLocation = (await app.service('location').find({
+        const existingLocation = (await app.service(locationPath).find({
           query: {
             slugifiedName: sceneName
           }
-        })) as Paginated<Location>
-        if (existingLocation.total === 0) await app.service('location').create(location)
+        })) as Paginated<LocationType>
+        if (existingLocation.total === 0) await app.service(locationPath).create(location)
       })
   )
 }

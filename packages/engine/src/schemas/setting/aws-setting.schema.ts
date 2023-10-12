@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const awsSettingPath = 'aws-setting'
 
@@ -39,15 +40,6 @@ export const awsKeysSchema = Type.Object(
   { $id: 'AwsKeys', additionalProperties: false }
 )
 export type AwsKeysType = Static<typeof awsKeysSchema>
-
-export const awsRoute53Schema = Type.Object(
-  {
-    hostedZoneId: Type.String(),
-    keys: Type.Ref(awsKeysSchema)
-  },
-  { $id: 'AwsRoute53', additionalProperties: false }
-)
-export type AwsRoute53Type = Static<typeof awsRoute53Schema>
 
 export const awsEksSchema = Type.Object(
   {
@@ -101,7 +93,6 @@ export const awsSettingSchema = Type.Object(
       format: 'uuid'
     }),
     eks: Type.Ref(awsEksSchema),
-    route53: Type.Ref(awsRoute53Schema),
     s3: Type.Ref(awsS3Schema),
     cloudfront: Type.Ref(awsCloudFrontSchema),
     sms: Type.Ref(awsSmsSchema),
@@ -112,16 +103,15 @@ export const awsSettingSchema = Type.Object(
 )
 export type AwsSettingType = Static<typeof awsSettingSchema>
 
-export type AwsSettingDatabaseType = Omit<AwsSettingType, 'eks' | 'route53' | 's3' | 'cloudfront' | 'sms'> & {
+export type AwsSettingDatabaseType = Omit<AwsSettingType, 'eks' | 's3' | 'cloudfront' | 'sms'> & {
   eks: string
-  route53: string
   s3: string
   cloudfront: string
   sms: string
 }
 
 // Schema for creating new entries
-export const awsSettingDataSchema = Type.Pick(awsSettingSchema, ['eks', 'route53', 's3', 'cloudfront', 'sms'], {
+export const awsSettingDataSchema = Type.Pick(awsSettingSchema, ['eks', 's3', 'cloudfront', 'sms'], {
   $id: 'AwsSettingData'
 })
 export type AwsSettingData = Static<typeof awsSettingDataSchema>
@@ -136,7 +126,6 @@ export type AwsSettingPatch = Static<typeof awsSettingPatchSchema>
 export const awsSettingQueryProperties = Type.Pick(awsSettingSchema, [
   'id'
   // 'keys', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
-  // 'route53',
   // 's3',
   // 'cloudfront',
   // 'sms'
@@ -150,3 +139,13 @@ export const awsSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type AwsSettingQuery = Static<typeof awsSettingQuerySchema>
+
+export const awsKeysValidator = getValidator(awsKeysSchema, dataValidator)
+export const awsEksValidator = getValidator(awsEksSchema, dataValidator)
+export const awsS3Validator = getValidator(awsS3Schema, dataValidator)
+export const awsCloudFrontValidator = getValidator(awsCloudFrontSchema, dataValidator)
+export const awsSmsValidator = getValidator(awsSmsSchema, dataValidator)
+export const awsSettingValidator = getValidator(awsSettingSchema, dataValidator)
+export const awsSettingDataValidator = getValidator(awsSettingDataSchema, dataValidator)
+export const awsSettingPatchValidator = getValidator(awsSettingPatchSchema, dataValidator)
+export const awsSettingQueryValidator = getValidator(awsSettingQuerySchema, queryValidator)

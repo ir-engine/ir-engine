@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useDrop } from 'react-dnd'
 
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
 import { ControlledStringInput, StringInputProps } from './StringInput'
@@ -67,7 +65,7 @@ export function FileBrowserInput({
           url += item.fullName
         }
 
-        onChange?.(url, item)
+        onChange?.(url)
       } else {
         // https://github.com/react-dnd/react-dnd/issues/1345#issuecomment-538728576
         const dndItem: any = monitor.getItem()
@@ -76,7 +74,7 @@ export function FileBrowserInput({
         onUpload(entries).then((assets) => {
           if (assets) {
             for (let index = 0; index < assets.length; index++) {
-              onChange?.(assets[index], item)
+              onChange?.(assets[index])
             }
           }
         })
@@ -93,7 +91,7 @@ export function FileBrowserInput({
       <ControlledStringInput
         ref={dropRef}
         value={value}
-        onChange={(value, e) => onChange?.(value, {}, e)}
+        onChange={(value) => onChange?.(value)}
         error={isOver && !canDrop}
         canDrop={isOver && canDrop}
         {...rest}

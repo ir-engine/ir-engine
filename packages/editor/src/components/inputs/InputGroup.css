@@ -1,0 +1,88 @@
+.input-group-container {
+  display: flex;
+  flex-direction: row;
+  padding: 4px 8px;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  min-height: 24px;
+}
+
+.input-group-container.disabled {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.label {
+  color: var(--textColor);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.input-group-content {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 5px;
+}
+
+.input-group-content > *:first-child {
+  max-width: calc(100% - 2px);
+}
+
+.input-group-content > label {
+  display: block;
+  width: 35%;
+  color: var(--textColor);
+  padding-bottom: 2px;
+  padding-top: 4px;
+}
+
+.input-group-vertical-container.disabled {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.input-group-vertical-container > label {
+  display: block;
+  width: 35%;
+  color: var(--textColor);
+  padding-bottom: 2px;
+  padding-top: 4px;
+}
+
+.input-group-vertical-container-wide.disabled {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.input-group-vertical-container-wide > label {
+  display: block;
+  width: 100%;
+  color: var(--textColor);
+  padding-bottom: 2px;
+  padding-top: 4px;
+}
+
+.input-group-vertical-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-left: 8px;
+}
+
+.input-group-info-icon {
+  width: 18px;
+  display: flex;
+  margin-left: 5px;
+  color: var(--iconButtonColor);
+  cursor: pointer;
+  align-self: center;
+}
+
+.input-group-info-icon.info {
+  color: var(--textColor);
+  height: 16px;
+  width: auto;
+  margin-left: 5px;
+}
+

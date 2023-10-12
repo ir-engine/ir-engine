@@ -22,17 +22,43 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow } from 'feathers-hooks-common'
 
+import {
+  scopeTypeDataValidator,
+  scopeTypePatchValidator,
+  scopeTypeQueryValidator
+} from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+
+import {
+  scopeTypeDataResolver,
+  scopeTypeExternalResolver,
+  scopeTypePatchResolver,
+  scopeTypeQueryResolver,
+  scopeTypeResolver
+} from './scope-type.resolvers'
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(scopeTypeExternalResolver), schemaHooks.resolveResult(scopeTypeResolver)]
+  },
+
   before: {
-    all: [],
+    all: [() => schemaHooks.validateQuery(scopeTypeQueryValidator), schemaHooks.resolveQuery(scopeTypeQueryResolver)],
     find: [],
     get: [],
-    create: [disallow('external')],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(scopeTypeDataValidator),
+      schemaHooks.resolveData(scopeTypeDataResolver)
+    ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(scopeTypePatchValidator),
+      schemaHooks.resolveData(scopeTypePatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

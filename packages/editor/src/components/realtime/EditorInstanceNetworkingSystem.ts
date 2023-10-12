@@ -25,19 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { addActionReceptor, getMutableState, getState, removeActionReceptor } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { EditorState } from '../../services/EditorServices'
-import { EditorActiveInstanceService, EditorActiveInstanceServiceReceptor } from './EditorActiveInstanceService'
+import { EditorActiveInstanceService } from './EditorActiveInstanceService'
 
 let accumulator = 0
 
 const execute = () => {
   const editorState = getState(EditorState)
-  accumulator += Engine.instance.deltaSeconds
+  if (!editorState.projectName || !editorState.sceneName) return
+
+  accumulator += getState(EngineState).deltaSeconds
 
   if (accumulator > 5) {
     accumulator = 0
@@ -55,12 +57,6 @@ const reactor = () => {
       instanceID: false,
       roomID: false
     })
-
-    addActionReceptor(EditorActiveInstanceServiceReceptor)
-
-    return () => {
-      removeActionReceptor(EditorActiveInstanceServiceReceptor)
-    }
   }, [])
   return null
 }

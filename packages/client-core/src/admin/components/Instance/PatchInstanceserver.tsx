@@ -24,21 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useState } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
-import { InstanceserverService } from '../../services/InstanceserverService'
-import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -54,29 +53,15 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   })
 
   const { t } = useTranslation()
-  const user = useHookstate(getMutableState(AuthState).user)
-  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
-  const adminLocations = adminLocationState.locations
+  const adminLocations = useFind(locationPath).data
+  const patchInstanceserver = useMutation('instanceserver-provision').patch
 
-  useEffect(() => {
-    if (user?.id.value && adminLocationState.updateNeeded.value) {
-      AdminLocationService.fetchAdminLocations()
-    }
-  }, [user?.id?.value, adminLocationState.updateNeeded.value])
-
-  const locationsMenu: InputMenuItem[] = adminLocations.value.map((el) => {
+  const locationsMenu: InputMenuItem[] = adminLocations.map((el) => {
     return {
       label: el.name,
       value: el.id
     }
   })
-
-  useEffect(() => {
-    if (adminLocationState.created.value) {
-      onClose()
-      state.location.set('')
-    }
-  }, [adminLocationState.created.value])
 
   const handleChangeLocation = (e) => {
     const { value } = e.target
@@ -97,7 +82,11 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
       locationError = "Location can't be empty"
       state.locationError.set(locationError)
     } else {
-      InstanceserverService.patchInstanceserver(state.location.value, state.count.value)
+      patchInstanceserver({ locationId: state.location.value, count: state.count.value }).then((patchResponse) =>
+        NotificationService.dispatchNotify(patchResponse.message, {
+          variant: patchResponse.status ? 'success' : 'error'
+        })
+      )
       onClose()
     }
   }

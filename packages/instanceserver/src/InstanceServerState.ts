@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { defineState } from '@etherealengine/hyperflux'
 
 type AgonesGameServer = {
@@ -38,8 +38,7 @@ type AgonesGameServer = {
 export const InstanceServerState = defineState({
   name: 'InstanceServerState',
   initial: {
-    instance: null! as Instance, // todo: make type 'Instance'
-    isSubdomainNumber: null as string | null,
+    instance: null! as InstanceType,
     isMediaInstance: false,
     instanceServer: null! as AgonesGameServer
   }

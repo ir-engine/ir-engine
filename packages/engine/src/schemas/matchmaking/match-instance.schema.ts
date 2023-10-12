@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const matchInstancePath = 'match-instance'
 
@@ -79,3 +80,8 @@ export const matchInstanceQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type MatchInstanceQuery = Static<typeof matchInstanceQuerySchema>
+
+export const matchInstanceValidator = getValidator(matchInstanceSchema, dataValidator)
+export const matchInstanceDataValidator = getValidator(matchInstanceDataSchema, dataValidator)
+export const matchInstancePatchValidator = getValidator(matchInstancePatchSchema, dataValidator)
+export const matchInstanceQueryValidator = getValidator(matchInstanceQuerySchema, queryValidator)

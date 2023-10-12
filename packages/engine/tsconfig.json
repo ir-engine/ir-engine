@@ -26,14 +26,15 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha"]
+    "types": ["vite/client", "mocha",  "@pixiv/three-vrm", "@pixiv/types-vrmc-vrm-1.0"],
   },
   "exclude": [
     "../projects/projects/**",
     "**/node_modules/**"
   ],
   "include": [
-    "../server-core/src/",
+    "../../__global.d.ts",
+    "../server-core/**/*",
     "./**/*.ts",
     "./**/*.tsx"
   ]

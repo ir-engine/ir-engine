@@ -23,26 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    'scope-type': {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          description: ''
-        }
-      }
-    },
-    'scope-type_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/scope-type' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  scopeTypeDataSchema,
+  scopeTypePatchSchema,
+  scopeTypeQuerySchema,
+  scopeTypeSchema
+} from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    scopeTypeDataSchema,
+    scopeTypePatchSchema,
+    scopeTypeQuerySchema,
+    scopeTypeSchema
+  },
+  docs: {
+    description: 'Scope type service description',
+    securities: ['all']
   }
-  // securities: ['create', 'update', 'patch', 'remove'],
-  // operations: {
-  //   find: {
-  //     security: [{ bearer: [] }]
-  //   }
-  // }
-}
+})

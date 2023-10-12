@@ -23,20 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
 
+import {
+  projectPermissionDataValidator,
+  projectPermissionPatchValidator,
+  projectPermissionQueryValidator
+} from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
+import {
+  projectPermissionDataResolver,
+  projectPermissionExternalResolver,
+  projectPermissionPatchResolver,
+  projectPermissionQueryResolver,
+  projectPermissionResolver
+} from './project-permission.resolvers'
+
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(projectPermissionExternalResolver),
+      schemaHooks.resolveResult(projectPermissionResolver)
+    ]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      () => schemaHooks.validateQuery(projectPermissionQueryValidator),
+      schemaHooks.resolveQuery(projectPermissionQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), verifyProjectOwner() as any)],
+    create: [
+      iff(isProvider('external'), verifyProjectOwner()),
+      () => schemaHooks.validateData(projectPermissionDataValidator),
+      schemaHooks.resolveData(projectPermissionDataResolver)
+    ],
     update: [disallow()],
-    patch: [iff(isProvider('external'), verifyProjectOwner() as any)],
-    remove: [iff(isProvider('external'), verifyProjectOwner() as any)]
+    patch: [
+      iff(isProvider('external'), verifyProjectOwner()),
+      () => schemaHooks.validateData(projectPermissionPatchValidator),
+      schemaHooks.resolveData(projectPermissionPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyProjectOwner())]
   },
 
   after: {

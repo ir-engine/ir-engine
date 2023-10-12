@@ -31,13 +31,14 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { InstanceService } from '@etherealengine/client-core/src/common/services/InstanceService'
-import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
+
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
+
 import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
-import { XRAction } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
@@ -45,21 +46,13 @@ interface Props {
   location?: string
 }
 
-const roomCodeCharacters = '123456789'
-
-const numberize = (str: string) => {
-  const chars = str.split('')
-  const validChars = chars.map((char) => (roomCodeCharacters.includes(char) ? char : ''))
-  return validChars.join('')
-}
-
 const RoomMenu = ({ location }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const route = useRouter()
   const [locationName, setLocationName] = useState('')
   const [roomCode, setRoomCode] = useState('')
   const [source, setSource] = useState('create')
   const [error, setError] = useState('')
+  const roomsQuery = useFind(instancePath, { query: { roomCode, ended: false, locationId: { $ne: undefined } } })
 
   const handleSourceChange = (e) => {
     const { value } = e.target
@@ -67,11 +60,6 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
     setError('')
     setRoomCode('')
     setSource(value)
-  }
-
-  const handleRoomCode = async (e) => {
-    const number = numberize(e.target.value)
-    setRoomCode(number)
   }
 
   const handleLocationName = async (e) => {
@@ -90,12 +78,13 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
       return false
     }
 
-    const rooms = await InstanceService.checkRoom(roomCode)
+    const rooms = roomsQuery.data.at(0)
+
     if (!rooms) {
       setError(t('user:roomMenu.invalidRoomCode'))
       return
     }
-    route(`/location/${location ? location : locationName}?roomCode=${rooms.roomCode}`)
+    RouterState.navigate(`/location/${location ? location : locationName}?roomCode=${rooms.roomCode}`)
     requestXRSession()
   }
 
@@ -105,7 +94,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
       return false
     }
 
-    route(`/location/${location ? location : locationName}`)
+    RouterState.navigate(`/location/${location ? location : locationName}`)
     requestXRSession()
   }
 

@@ -29,28 +29,19 @@ import React, { useEffect, useRef, useState } from 'react'
 
 // import { useTranslation } from 'react-i18next'
 
-import { AuthSettingsServiceReceptor } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 // import { useLocation, useNavigate } from 'react-router-dom'
 
-import { AuthSettingsService } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
-import { ClientSettingsServiceReceptor } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
-import { RecordingServiceSystem } from '@etherealengine/client-core/src/recording/RecordingService'
-import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
-import { LocationAction } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
+import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
-import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { AudioEffectPlayer, MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -69,24 +60,25 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import Component from './index'
 
-import 'tailwindcss/tailwind.css'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
+import { projectsPath } from '@etherealengine/engine/src/schemas/projects/projects.schema'
 import 'daisyui/dist/full.css'
+import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
 
 const startCaptureSystems = () => {
   startSystem(MotionCaptureSystem, { with: InputSystemGroup })
   startSystem(MediaSystem, { before: PresentationSystemGroup })
-  startSystems([ClientNetworkingSystem, RecordingServiceSystem], { after: PresentationSystemGroup })
+  startSystems([ClientNetworkingSystem], { after: PresentationSystemGroup })
 }
 
 const initializeEngineForRecorder = async () => {
   // if (getMutableState(EngineState).isEngineInitialized.value) return
 
-  // const projects = API.instance.client.service('projects').find()
+  // const projects = API.instance.client.service(projectsPath).find()
 
   startCaptureSystems()
   // await loadEngineInjection(await projects)
@@ -134,12 +126,12 @@ const decorators = [
           // @ts-ignore
           Engine.instance.api
             // @ts-ignore
-            .service('projects')
+            .service(projectsPath)
             // @ts-ignore
             .find()
             .then((projects) => {
               loadEngineInjection(projects).then((result) => {
-                dispatchAction(LocationAction.setLocationName({ locationName }))
+                LocationState.setLocationName(locationName)
                 initializeEngineForRecorder()
                 setProjectComponents(result)
               })
@@ -149,27 +141,16 @@ const decorators = [
     }, [selfUser, projectState.updateNeeded.value])
 
     useEffect(() => {
-      Engine.instance.userId = selfUser.id.value
+      Engine.instance.userID = selfUser.id.value
     }, [selfUser.id])
 
     useEffect(() => {
-      authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
-    }, [authState.isLoggedIn])
-
-    useEffect(() => {
-      addActionReceptor(ClientSettingsServiceReceptor)
-      addActionReceptor(AuthSettingsServiceReceptor)
-      addActionReceptor(AuthServiceReceptor)
-      addActionReceptor(LocationServiceReceptor)
-      addActionReceptor(ProjectServiceReceptor)
-
       // Oauth callbacks may be running when a guest identity-provider has been deleted.
       // This would normally cause doLoginAuto to make a guest user, which we do not want.
       // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
       // The client and auth settigns will not be needed on these routes
       if (!/auth\/oauth/.test(location.pathname)) {
         AuthService.doLoginAuto()
-        AuthSettingsService.fetchAuthSetting()
       }
 
       getMutableState(NetworkState).config.set({
@@ -179,15 +160,6 @@ const decorators = [
         instanceID: true,
         roomID: false
       })
-
-      return () => {
-        // removeActionReceptor(RouterServiceReceptor)
-        removeActionReceptor(ClientSettingsServiceReceptor)
-        removeActionReceptor(AuthSettingsServiceReceptor)
-        removeActionReceptor(AuthServiceReceptor)
-        removeActionReceptor(LocationServiceReceptor)
-        removeActionReceptor(ProjectServiceReceptor)
-      }
     }, [])
 
     AuthService.useAPIListeners()

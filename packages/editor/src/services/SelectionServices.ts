@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useState } from '@hookstate/core'
-
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   hasComponent,
@@ -39,7 +37,6 @@ import { defineAction, defineActionQueue, defineState, getMutableState } from '@
 
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
-import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 
 const transformProps = ['position', 'rotation', 'scale', 'matrix']
 
@@ -64,7 +61,7 @@ export const SelectionState = defineState({
       sceneGraphChangeCounter: 1,
       propertyName: '',
       transformPropertyChanged: false
-    } as SelectionServiceStateType)
+    }) as SelectionServiceStateType
 })
 
 //Action
@@ -111,7 +108,6 @@ const execute = () => {
       selectedEntities: action.selectedEntities,
       selectedParentEntities: filterParentEntities(action.selectedEntities)
     })
-    updateOutlinePassSelection()
   }
   for (const action of changedObjectQueue())
     selectionState.merge({

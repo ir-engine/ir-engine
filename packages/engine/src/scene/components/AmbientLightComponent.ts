@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { AmbientLight, Color } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
@@ -37,7 +37,6 @@ export const AmbientLightComponent = defineComponent({
 
   onInit: (entity) => {
     const light = new AmbientLight()
-    addObjectToGroup(entity, light)
     return {
       light,
       // todo, maybe we want to reference light.color instead of creating a new Color?
@@ -67,6 +66,9 @@ export const AmbientLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const light = useComponent(entity, AmbientLightComponent)
+    useEffect(() => {
+      addObjectToGroup(entity, light.light.value)
+    }, [])
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)

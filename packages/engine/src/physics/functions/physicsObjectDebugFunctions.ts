@@ -23,42 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ActiveCollisionTypes,
-  ActiveEvents,
-  ColliderDesc,
-  RigidBodyDesc,
-  RigidBodyType,
-  ShapeType
-} from '@dimforge/rapier3d-compat'
-import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 // import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+
+import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '@etherealengine/engine/src/physics/types/PhysicsTypes'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { parseGLTFModel } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { createNewEditorNode } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import {
-  setTransformComponent,
-  TransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
+import { NetworkState } from '../../networking/NetworkState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { getInteractionGroups } from './getInteractionGroups'
+import { PhysicsState } from '../state/PhysicsState'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -92,7 +78,8 @@ export const PhysicsSimulationTestSystem = defineSystem({
   uuid: 'ee.test.PhysicsSimulationTestSystem',
   execute: () => {
     const isInitialized = getState(EngineState).isEngineInitialized
-    if (!isInitialized || !Engine.instance.physicsWorld || simulationObjectsGenerated) return
+    const physicsWorld = getState(PhysicsState).physicsWorld
+    if (!isInitialized || !physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }
@@ -172,7 +159,7 @@ export const generatePhysicsObject = (
   mesh.userData = config
 
   const entity = createEntity()
-  setTransformComponent(entity)
+  setComponent(entity, TransformComponent)
 
   // Add empty model node
   // const uuid = getUUID()
@@ -184,7 +171,8 @@ export const generatePhysicsObject = (
 
   addObjectToGroup(entity, mesh)
 
-  Physics.createRigidBodyForGroup(entity, Engine.instance.physicsWorld, mesh.userData)
+  const physicsWorld = getState(PhysicsState).physicsWorld
+  Physics.createRigidBodyForGroup(entity, physicsWorld, mesh.userData)
 
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
@@ -192,7 +180,7 @@ export const generatePhysicsObject = (
   const body = getComponent(entity, RigidBodyComponent).body
   body.setTranslation(transform.position, true)
 
-  if (isNetworkObject && Engine.instance.worldNetwork.isHosting) {
+  if (isNetworkObject && NetworkState.worldNetwork.isHosting) {
     // body.addTorque(defaultTorqueForce, true)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 

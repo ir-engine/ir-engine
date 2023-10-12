@@ -24,20 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
-  matchUserDataSchema,
-  matchUserPatchSchema,
-  matchUserQuerySchema,
-  matchUserSchema
+  matchUserDataValidator,
+  matchUserPatchValidator,
+  matchUserQueryValidator
 } from '@etherealengine/engine/src/schemas/matchmaking/match-user.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import setLoggedInUserInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
-import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
-import authenticate from '../../hooks/authenticate'
 import {
   matchUserDataResolver,
   matchUserExternalResolver,
@@ -46,27 +42,17 @@ import {
   matchUserResolver
 } from './match-user.resolvers'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const matchUserValidator = getValidator(matchUserSchema, dataValidator)
-const matchUserDataValidator = getValidator(matchUserDataSchema, dataValidator)
-const matchUserPatchValidator = getValidator(matchUserPatchSchema, dataValidator)
-const matchUserQueryValidator = getValidator(matchUserQuerySchema, queryValidator)
-
 export default {
   around: {
     all: [schemaHooks.resolveExternal(matchUserExternalResolver), schemaHooks.resolveResult(matchUserResolver)]
   },
 
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(matchUserQueryValidator),
-      schemaHooks.resolveQuery(matchUserQueryResolver)
-    ],
-    find: [iff(isProvider('external'), authenticate() as any, setLoggedInUserInQuery('userId') as any)],
+    all: [() => schemaHooks.validateQuery(matchUserQueryValidator), schemaHooks.resolveQuery(matchUserQueryResolver)],
+    find: [iff(isProvider('external'), setLoggedInUserInQuery('userId') as any)],
     get: [],
     create: [
-      iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
+      iff(isProvider('external'), setLoggedInUser('userId') as any),
       () => schemaHooks.validateData(matchUserDataValidator),
       schemaHooks.resolveData(matchUserDataResolver)
     ],

@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
-import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import {
   EmailSettingData,

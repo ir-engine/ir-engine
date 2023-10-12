@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '@etherealengine/engine/src/schemas/validators'
 import type { Static } from '@feathersjs/typebox'
+import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 
 export const matchTicketAssignmentPath = 'match-ticket-assignment'
 
@@ -60,3 +61,6 @@ export const matchTicketAssignmentQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type MatchTicketAssignmentQuery = Static<typeof matchTicketAssignmentQuerySchema>
+
+export const matchTicketAssignmentValidator = getValidator(matchTicketAssignmentSchema, dataValidator)
+export const matchTicketAssignmentQueryValidator = getValidator(matchTicketAssignmentQuerySchema, queryValidator)

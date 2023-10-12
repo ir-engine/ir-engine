@@ -26,10 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { Material } from 'three'
 
 import { Entity } from '../../../ecs/classes/Entity'
-import { defineComponent } from '../../../ecs/functions/ComponentFunctions'
 import { MaterialSource } from './MaterialSource'
 
 export type MaterialWithEntity = Material & { entity: Entity }
+
+export type MaterialStatus = 'LOADED' | 'MISSING' | 'UNLOADED'
 
 export type MaterialComponentType = {
   prototype: string
@@ -37,4 +38,5 @@ export type MaterialComponentType = {
   parameters: { [field: string]: any }
   plugins: string[]
   src: MaterialSource
+  status: MaterialStatus
 }

@@ -23,22 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactElement, useEffect } from 'react'
+import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { Location } from '@etherealengine/common/src/interfaces/Location'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
-import { AdminLocationService, AdminLocationState, LOCATION_PAGE_LIMIT } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import LocationDrawer, { LocationDrawerMode } from './LocationDrawer'
 
@@ -50,51 +49,32 @@ interface Props {
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
 const LocationTable = ({ className, search }: Props) => {
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(LOCATION_PAGE_LIMIT)
+  const { t } = useTranslation()
+
   const openConfirm = useHookstate(false)
   const locationId = useHookstate('')
   const locationName = useHookstate('')
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('name')
   const openLocationDrawer = useHookstate(false)
-  const locationAdmin = useHookstate<Location | undefined>(undefined)
-  const user = useHookstate(getMutableState(AuthState).user)
-  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
-  const adminLocations = adminLocationState.locations
-  const adminLocationCount = adminLocationState.total
+  const locationAdmin = useHookstate<LocationType | undefined>(undefined)
 
-  // Call custom hooks
-  const { t } = useTranslation()
-
-  useEffect(() => {
-    AdminLocationService.fetchAdminLocations(search, 0, sortField.value, fieldOrder.value)
-  }, [search, user?.id?.value, adminLocationState.updateNeeded.value])
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    //const incDec = page < newPage ? 'increment' : 'decrement'
-    AdminLocationService.fetchAdminLocations(search, newPage, sortField.value, fieldOrder.value)
-    page.set(newPage)
-  }
-
-  useEffect(() => {
-    if (adminLocationState.fetched.value) {
-      AdminLocationService.fetchAdminLocations(search, page.value, sortField.value, fieldOrder.value)
+  const adminLocations = useFind(locationPath, {
+    query: {
+      $sort: { name: 1 },
+      $limit: 20,
+      adminnedLocations: true,
+      search: search
     }
-  }, [fieldOrder.value])
+  })
+
+  const adminLocationMutation = useMutation(locationTypePath)
 
   const submitRemoveLocation = async () => {
-    await AdminLocationService.removeLocation(locationId.value)
+    adminLocationMutation.remove(locationId.value)
     openConfirm.set(false)
   }
 
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
-
   const handleOpenLocationDrawer =
-    (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (open: boolean, location: LocationType) => (event: React.KeyboardEvent | React.MouseEvent) => {
       event.preventDefault()
       if (
         event.type === 'keydown' &&
@@ -107,13 +87,13 @@ const LocationTable = ({ className, search }: Props) => {
     }
 
   const createData = (
-    el: Location,
+    el: LocationType,
     id: string,
     name: string,
     sceneId: string,
     maxUsersPerInstance: string,
     scene: string,
-    type: string,
+    locationType: string,
     tags: any,
     videoEnabled: ReactElement<any, any>
   ) => {
@@ -124,7 +104,7 @@ const LocationTable = ({ className, search }: Props) => {
       sceneId: <a href={`/studio/${sceneId}`}>{sceneId}</a>,
       maxUsersPerInstance,
       scene,
-      type,
+      locationType,
       tags,
       videoEnabled,
       action: (
@@ -147,7 +127,7 @@ const LocationTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = adminLocations.get({ noproxy: true }).map((el) => {
+  const rows = adminLocations.data.map((el) => {
     return createData(
       el,
       el.id,
@@ -156,7 +136,7 @@ const LocationTable = ({ className, search }: Props) => {
       el.maxUsersPerInstance.toString(),
       el.slugifiedName,
       //@ts-ignore
-      el.location_setting?.locationType,
+      el.locationSetting?.locationType,
       <div>
         {el.isFeatured && (
           <Chip
@@ -176,26 +156,14 @@ const LocationTable = ({ className, search }: Props) => {
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
+        {el.locationSetting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
       </div>
     )
   })
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={locationColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={adminLocationCount.value}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={adminLocations} rows={rows} column={locationColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.location.confirmLocationDelete')} '${locationName.value}'?`}

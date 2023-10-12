@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
+import { dataValidator, queryValidator } from '../validators'
 
 export const chargebeeSettingPath = 'chargebee-setting'
 
@@ -69,3 +70,8 @@ export const chargebeeSettingQuerySchema = Type.Intersect(
   { additionalProperties: false }
 )
 export type ChargebeeSettingQuery = Static<typeof chargebeeSettingQuerySchema>
+
+export const chargebeeSettingValidator = getValidator(chargebeeSettingSchema, dataValidator)
+export const chargebeeSettingDataValidator = getValidator(chargebeeSettingDataSchema, dataValidator)
+export const chargebeeSettingPatchValidator = getValidator(chargebeeSettingPatchSchema, dataValidator)
+export const chargebeeSettingQueryValidator = getValidator(chargebeeSettingQuerySchema, queryValidator)

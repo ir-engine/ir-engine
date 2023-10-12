@@ -37,7 +37,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
@@ -55,7 +55,11 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.directionalLight.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={updateProperty(DirectionalLightComponent, 'color')} />
+        <ColorInput
+          value={lightComponent.color}
+          onChange={updateProperty(DirectionalLightComponent, 'color')}
+          onRelease={commitProperty(DirectionalLightComponent, 'color')}
+        />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -66,12 +70,13 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         largeStep={0.1}
         value={lightComponent.intensity}
         onChange={updateProperty(DirectionalLightComponent, 'intensity')}
+        onRelease={commitProperty(DirectionalLightComponent, 'intensity')}
         unit="cd"
       />
       <InputGroup name="Use in CSM" label={t('editor:properties.directionalLight.lbl-useInCSM')}>
         <BooleanInput
           value={lightComponent.useInCSM}
-          onChange={updateProperty(DirectionalLightComponent, 'useInCSM')}
+          onChange={commitProperty(DirectionalLightComponent, 'useInCSM')}
         />
       </InputGroup>
       <LightShadowProperties entity={props.entity} comp={DirectionalLightComponent} />
@@ -84,6 +89,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         largeStep={1}
         value={lightComponent.cameraFar}
         onChange={updateProperty(DirectionalLightComponent, 'cameraFar')}
+        onRelease={commitProperty(DirectionalLightComponent, 'cameraFar')}
       />
     </NodeEditor>
   )

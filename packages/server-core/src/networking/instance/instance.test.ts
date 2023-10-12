@@ -27,10 +27,11 @@ import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 import { v1 } from 'uuid'
 
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { instanceActivePath } from '@etherealengine/engine/src/schemas/networking/instance-active.schema'
+import { InstanceID, instancePath, InstanceType } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -42,33 +43,57 @@ describe('instance.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
+    const name = `Test Location ${v1()}`
+    const sceneId = `test-scene-${v1()}`
+
+    testLocation = await app.service(locationPath).create(
+      {
+        name,
+        slugifiedName: '',
+        sceneId,
+        maxUsersPerInstance: 30,
+        locationSetting: {
+          id: '',
+          locationType: 'public',
+          audioEnabled: true,
+          videoEnabled: true,
+          faceStreamingEnabled: false,
+          screenSharingEnabled: false,
+          locationId: '',
+          createdAt: '',
+          updatedAt: ''
+        },
+        isLobby: false,
+        isFeatured: false
+      },
+      { ...params }
+    )
+
+    testInstance = {
+      id: '' as InstanceID,
+      locationId: testLocation.id,
+      roomCode: '',
+      currentUsers: 0,
+      ended: false,
+      createdAt: '',
+      updatedAt: '',
+      location: testLocation
+    }
   })
 
   after(() => {
     return destroyEngine()
   })
 
-  let testLocation: Location
-  let testInstance: Instance
-
-  before(async () => {
-    const name = `Test Location ${v1()}`
-    const sceneId = `test-scene-${v1()}`
-
-    const location_settings = await app.service('location-settings').create({})
-
-    testLocation = await app.service('location').create(
-      {
-        name,
-        sceneId,
-        location_settings
-      },
-      params
-    )
-  })
+  let testLocation: LocationType
+  let testInstance: InstanceType
 
   it('should create an instance', async () => {
-    const instance = (await app.service('instance').create({ locationId: testLocation.id })) as Instance
+    const instance = (await app.service(instancePath).create({
+      locationId: testLocation.id,
+      roomCode: testInstance.roomCode,
+      currentUsers: testInstance.currentUsers
+    })) as InstanceType
 
     assert.ok(instance)
     assert.equal(instance.locationId, testLocation.id)
@@ -79,7 +104,7 @@ describe('instance.test', () => {
   })
 
   it('should get that instance', async () => {
-    const instance = await app.service('instance').get(testInstance.id)
+    const instance = await app.service(instancePath)._get(testInstance.id)
 
     assert.ok(instance)
     assert.ok(instance.roomCode)
@@ -87,22 +112,33 @@ describe('instance.test', () => {
   })
 
   it('should find instances for admin', async () => {
-    const instances = (await app.service('instance').find({
+    const instances = (await app.service(instancePath).find({
       action: 'admin'
-    } as any)) as Paginated<Instance>
+    } as any)) as Paginated<InstanceType>
 
     assert.equal(instances.total, 1)
     assert.equal(instances.data[0].id, testInstance.id)
   })
 
+  it('should have "total" in find method', async () => {
+    const item = await app.service(instancePath).find({
+      action: 'admin'
+    } as any)
+
+    assert.ok('total' in item)
+  })
+
   it('should find active instances', async () => {
-    const activeInstances = await app
-      .service('instances-active')
-      .find({ query: { sceneId: testLocation.sceneId }, ...params })
+    const activeInstances = await app.service(instanceActivePath).find({
+      query: {
+        sceneId: testLocation.sceneId
+      },
+      ...params
+    })
 
     assert.equal(activeInstances.length, 1)
     assert.equal(activeInstances[0].id, testInstance.id)
     assert.equal(activeInstances[0].currentUsers, 0)
-    assert.equal(activeInstances[0].location, testLocation.id)
+    assert.equal(activeInstances[0].locationId, testLocation.id)
   })
 })

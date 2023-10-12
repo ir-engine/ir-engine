@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Quaternion, Vector3 } from 'three'
-import { number } from 'ts-matches'
 
 import { Entity } from '../../ecs/classes/Entity'
 

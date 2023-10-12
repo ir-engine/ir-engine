@@ -25,64 +25,47 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  ComponentJSONIDMap,
-  ComponentMap,
+  getComponent,
   hasComponent,
-  setComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import AddIcon from '@mui/icons-material/Add'
-
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import LockIcon from '@mui/icons-material/Lock'
+import UnlockIcon from '@mui/icons-material/LockOpen'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { EditorState } from '../../services/EditorServices'
-import { SelectionAction, SelectionState } from '../../services/SelectionServices'
-import MainMenu from '../dropDownMenu'
+import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import { PanelIcon } from '../layout/Panel'
 import NameInputGroup from './NameInputGroup'
-import { EditorComponentType } from './Util'
+import TransformPropertyGroup from './TransformPropertyGroup'
 
-/**
- * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
- */
-const PropertiesHeader = styled.div`
-  border: none !important;
-  padding-bottom: 0 !important;
-`
+const propertiesHeaderStyle = {
+  border: 'none !important',
+  paddingBottom: '0 !important'
+}
 
-/**
- * NameInputGroupContainer used to provides styles and contains NameInputGroup and VisibleInputGroup.
- *
- *  @type {Styled Component}
- */
-const NameInputGroupContainer = styled.div``
-/**
- * Styled component used to provide styles for visiblity checkbox.
- */
-const VisibleInputGroup = styled(InputGroup)`
-  & > label {
-    width: auto !important;
+const nameInputGroupContainerStyle = {}
+
+const visibleInputGroupStyle = {
+  '& > label': {
+    width: 'auto !important'
   }
-`
+}
 
-/**
- * CoreNodeEditor component is used to render editor view to customize properties.
- *
- * @type {class component}
- */
-export const CoreNodeEditor: EditorComponentType = (props) => {
+export const CoreNodeEditor = (props) => {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
+  const selectionState = useHookstate(getMutableState(SelectionState))
 
   useOptionalComponent(props.entity, VisibleComponent)
 
@@ -93,37 +76,56 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
     EditorControlFunctions.addOrRemoveComponent(nodes, VisibleComponent, value)
   }
 
-  const registeredComponents = Array.from(ComponentJSONIDMap.entries())
-
   return (
-    <PropertiesHeader>
-      <NameInputGroupContainer>
-        <NameInputGroup entity={props.entity} key={props.entity} />
+    <div style={propertiesHeaderStyle}>
+      <div
+        style={{
+          paddingRight: '1px',
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}
+      >
+        <button
+          onClick={() => {
+            const currentEntity = selectionState.selectedEntities.value[0]
+            const currentState = editorState.lockPropertiesPanel.value
+            if (currentState) {
+              getMutableState(EditorState).lockPropertiesPanel.set('' as EntityUUID)
+            } else {
+              if (currentEntity) {
+                getMutableState(EditorState).lockPropertiesPanel.set(
+                  typeof currentEntity === 'string'
+                    ? (currentEntity as EntityUUID)
+                    : getComponent(currentEntity, UUIDComponent)
+                )
+              }
+            }
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <PanelIcon as={editorState.lockPropertiesPanel.value ? LockIcon : UnlockIcon} size={20} />
+        </button>
+      </div>
+      <div style={nameInputGroupContainerStyle}>
+        <NameInputGroup entity={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (
           <>
-            <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
+            <InputGroup
+              name="Visible"
+              label={t('editor:properties.lbl-visible')}
+              {...{ style: { visibleInputGroupStyle } }}
+            >
               <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={onChangeVisible} />
-            </VisibleInputGroup>
+            </InputGroup>
           </>
         )}
-      </NameInputGroupContainer>
-
-      {/** @todo #7258 */}
-      {editorState.advancedMode.value && typeof props.entity === 'number' && (
-        <div style={{ pointerEvents: 'auto' }}>
-          <MainMenu
-            icon={AddIcon}
-            commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
-              name: component.name,
-              action: () => {
-                if (!ComponentMap.get(component.name)) return console.warn('could not find component', component.name)
-                setComponent(props.entity, ComponentMap.get(component.name)!)
-                dispatchAction(SelectionAction.forceUpdate({}))
-              }
-            }))}
-          />
-        </div>
-      )}
-    </PropertiesHeader>
+        <TransformPropertyGroup entity={props.entity} />
+      </div>
+    </div>
   )
 }

@@ -23,22 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'github-repo-access': {
-      type: 'object',
-      properties: {
-        token: {
-          type: 'string'
-        }
-      }
-    },
-    'github-repo-access_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/github-repo-access' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  githubRepoAccessDataSchema,
+  githubRepoAccessPatchSchema,
+  githubRepoAccessQuerySchema,
+  githubRepoAccessSchema
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    githubRepoAccessDataSchema,
+    githubRepoAccessPatchSchema,
+    githubRepoAccessQuerySchema,
+    githubRepoAccessSchema
+  },
+  docs: {
+    description: 'Github repo access service description',
+    securities: ['all']
   }
-}
+})

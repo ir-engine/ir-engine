@@ -23,37 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'instance-authorized-user': {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          required: true
-        },
-        instanceId: {
-          type: 'string',
-          required: true
-        },
-        userId: {
-          type: 'string',
-          required: true
-        }
-      }
-    },
-    'instance-provision_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/instance-provision' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  instanceAuthorizedUserDataSchema,
+  instanceAuthorizedUserPatchSchema,
+  instanceAuthorizedUserQuerySchema,
+  instanceAuthorizedUserSchema
+} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    instanceAuthorizedUserDataSchema,
+    instanceAuthorizedUserPatchSchema,
+    instanceAuthorizedUserQuerySchema,
+    instanceAuthorizedUserSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Instance authorized user service description',
+    securities: ['all']
   }
-}
+})

@@ -27,22 +27,27 @@ import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { defineActionQueue, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { MediaSettingsState } from '../../networking/MediaSettingsState'
-import { webcamAudioDataChannelType } from '../../networking/NetworkState'
-import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { NetworkState, webcamAudioDataChannelType } from '../../networking/NetworkState'
+import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import {
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState
+} from '../../networking/systems/MediasoupMediaProducerConsumerState'
+import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from '../../scene/components/MediaComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AudioSettingAction, AudioState } from '../AudioState'
-import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
+import { AudioState } from '../AudioState'
 import { addPannerNode, removePannerNode, updateAudioPanner } from '../PositionalAudioFunctions'
+import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
 const _vec3 = new Vector3()
 const _rot = new Vector3()
@@ -57,8 +62,6 @@ const positionalAudioQuery = defineQuery([PositionalAudioComponent, MediaElement
  */
 const networkedAvatarAudioQuery = defineQuery([AvatarComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)])
 
-const setMediaStreamVolumeActionQueue = defineActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
-
 /** Weak map entry is automatically GC'd when network object is removed */
 const avatarAudioStreams: WeakMap<ComponentType<typeof NetworkObjectComponent>, MediaStream> = new WeakMap()
 
@@ -66,7 +69,7 @@ const execute = () => {
   const audioState = getState(AudioState)
 
   const audioContext = audioState.audioContext
-  const network = Engine.instance.mediaNetwork
+  const network = NetworkState.mediaNetwork
   const mediaSettings = getState(MediaSettingsState)
   const immersiveMedia = mediaSettings.immersiveMedia
 
@@ -85,18 +88,24 @@ const execute = () => {
    */
   const networkedAvatarAudioEntities = networkedAvatarAudioQuery()
   for (const entity of networkedAvatarAudioEntities) {
+    if (!network) continue
     const networkObject = getComponent(entity, NetworkObjectComponent)
-    const peerID = networkObject.ownerId
-    const consumer = network?.consumers.find(
-      (c) =>
-        c.appData.mediaTag === webcamAudioDataChannelType &&
-        Array.from(network.peers.values()).find(
-          (peer) => c.appData.peerID === peer.peerID && peer.userId === networkObject.ownerId
-        )
+    const ownerID = networkObject.ownerId
+    const peers = Object.values(network.peers).filter((peer) => peer.userId === ownerID)
+    const consumers = getState(MediasoupMediaProducerConsumerState)[network.id]?.consumers
+
+    if (!consumers) continue
+
+    const consumerState = Object.values(consumers).find(
+      (c) => c.mediaTag === webcamAudioDataChannelType && peers.find((peer) => c.peerID === peer.peerID)
     )
 
+    const consumer =
+      consumerState &&
+      (getState(MediasoupMediaProducersConsumersObjectsState).consumers[consumerState.consumerID] as any)
+
     // avatar still exists but audio stream does not
-    if (!consumer) {
+    if (consumer) {
       if (avatarAudioStreams.has(networkObject)) avatarAudioStreams.delete(networkObject)
       continue
     }
@@ -114,7 +123,7 @@ const execute = () => {
     }
 
     // get existing stream - need to wait for UserWindowMedia to populate
-    const existingAudioObject = document.getElementById(`${peerID}_audio`)! as HTMLAudioElement
+    const existingAudioObject = document.getElementById(`${ownerID}_audio`)! as HTMLAudioElement
     if (!existingAudioObject) continue
 
     // mute existing stream
@@ -140,20 +149,7 @@ const execute = () => {
     avatarAudioStreams.set(networkObject, stream)
   }
 
-  /**
-   * Update avatar volume when the value is changed
-   */
-  for (const action of setMediaStreamVolumeActionQueue()) {
-    for (const entity of networkedAvatarAudioEntities) {
-      const networkObject = getComponent(entity, NetworkObjectComponent)
-      const audioObj = avatarAudioStreams.get(networkObject)!
-      if (!audioObj) continue
-      const gain = AudioNodeGroups.get(audioObj)?.gain!
-      if (gain) gain.gain.setTargetAtTime(action.value, audioContext.currentTime, 0.01)
-    }
-  }
-
-  const endTime = audioContext.currentTime + Engine.instance.deltaSeconds
+  const endTime = audioContext.currentTime + getState(EngineState).deltaSeconds
 
   /**
    * Update panner nodes
@@ -219,6 +215,23 @@ const PositionalAudioPanner = createQueryReactor(
 )
 
 const reactor = () => {
+  const mediaStreamVolume = useHookstate(getMutableState(AudioState).mediaStreamVolume)
+
+  /**
+   * Update avatar volume when the value is changed
+   */
+  useEffect(() => {
+    const audioContext = getState(AudioState).audioContext
+
+    for (const entity of networkedAvatarAudioQuery()) {
+      const networkObject = getComponent(entity, NetworkObjectComponent)
+      const audioObj = avatarAudioStreams.get(networkObject)!
+      if (!audioObj) continue
+      const gain = AudioNodeGroups.get(audioObj)?.gain!
+      if (gain) gain.gain.setTargetAtTime(mediaStreamVolume.value, audioContext.currentTime, 0.01)
+    }
+  }, [mediaStreamVolume])
+
   return <PositionalAudioPanner />
 }
 

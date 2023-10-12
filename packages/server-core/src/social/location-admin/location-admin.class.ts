@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { LocationAdmin as LocationAdminInterface } from '@etherealengine/common/src/interfaces/LocationAdmin'
+import {
+  LocationAdminData,
+  LocationAdminPatch,
+  LocationAdminQuery,
+  LocationAdminType
+} from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface LocationAdminParams extends KnexAdapterParams<LocationAdminQuery> {}
 
-export type LocationAdminDataType = LocationAdminInterface
-/**
- * A class for Location Admin service
- */
-export class LocationAdmin<T = LocationAdminDataType> extends Service<T> {
-  public docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export class LocationAdminService<
+  T = LocationAdminType,
+  ServiceParams extends Params = LocationAdminParams
+> extends KnexService<LocationAdminType, LocationAdminData, LocationAdminParams, LocationAdminPatch> {}

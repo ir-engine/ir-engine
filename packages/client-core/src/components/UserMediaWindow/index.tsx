@@ -42,24 +42,23 @@ import {
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { applyScreenshareToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { dispatchAction, getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
-import { AvatarState } from '../../user/services/AvatarService'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
@@ -108,16 +107,16 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
 
-  const mediaNetwork = Engine.instance.mediaNetwork
+  const mediaNetwork = NetworkState.mediaNetwork
   const isSelf =
     !mediaNetwork ||
     peerID === Engine.instance.peerID ||
     (mediaNetwork?.peers &&
-      Array.from(mediaNetwork.peers.values()).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
+      Object.values(mediaNetwork.peers).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
     peerID === 'self'
   const volume = isSelf ? audioState.microphoneGain.value : _volume.value
   const isScreen = type === 'screen'
-  const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.get(peerID!)?.userId
+  const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.[peerID]?.userId
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
@@ -139,13 +138,15 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       audioElement?.play()
       harkListener?.value?.resume()
     }
-    window.addEventListener('pointerdown', onUserInteraction)
+    window.addEventListener('pointerup', onUserInteraction)
     return () => {
-      window.removeEventListener('pointerdown', onUserInteraction)
+      window.removeEventListener('pointerup', onUserInteraction)
     }
   }, [videoElement, audioElement, harkListener?.value])
 
   useEffect(() => {
+    let unmounted = false
+    let newHark
     if (audioElement != null) {
       audioElement.id = `${peerID}_audio`
       audioElement.autoplay = true
@@ -160,11 +161,13 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
         const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
         audioTrackClones.set(updateAudioTrackClones)
         audioElement.srcObject = new MediaStream([newAudioTrack])
-        const newHark = hark(audioElement.srcObject, { play: false })
+        newHark = hark(audioElement.srcObject, { play: false })
         newHark.on('speaking', () => {
+          if (unmounted) return
           soundIndicatorOn.set(true)
         })
         newHark.on('stopped_speaking', () => {
+          if (unmounted) return
           soundIndicatorOn.set(false)
         })
         harkListener.set(newHark)
@@ -174,7 +177,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
     return () => {
       audioTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
-      if (harkListener?.value) (harkListener.value as any).stop()
+      unmounted = true
+      if (newHark) newHark.stop()
     }
   }, [audioTrackId.value])
 
@@ -253,17 +257,17 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleWebcamPaused()
     } else if (isSelf && isScreen) {
       toggleScreenshareVideoPaused()
     } else {
       if (!videoStreamPaused) {
-        await pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
         peerMediaChannelState.videoStreamPaused.set(true)
       } else {
-        await resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
         peerMediaChannelState.videoStreamPaused.set(false)
       }
     }
@@ -271,17 +275,17 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
       toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
       toggleScreenshareAudioPaused()
     } else {
       if (!audioStreamPaused) {
-        await pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
         peerMediaChannelState.audioStreamPaused.set(true)
       } else {
-        await resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
         peerMediaChannelState.audioStreamPaused.set(false)
       }
     }
@@ -289,20 +293,20 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     const audioStreamProducer = audioStream as ConsumerExtension
     if (!audioProducerGlobalMute) {
-      await globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
+      globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
       peerMediaChannelState.audioProducerGlobalMute.set(true)
     } else if (audioProducerGlobalMute) {
-      await globalUnmuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
+      globalUnmuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
       peerMediaChannelState.audioProducerGlobalMute.set(false)
     }
   }
 
   const adjustVolume = (e, value) => {
     if (isSelf) {
-      dispatchAction(AudioSettingAction.setMicrophoneVolume({ value }))
+      getMutableState(AudioState).microphoneGain.set(value)
     } else {
       audioElement!.volume = value
     }
@@ -433,7 +437,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
   useEffect(() => {
     if (!videoStream) return
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     const encodings = videoStream.rtpParameters.encodings
 
     const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia

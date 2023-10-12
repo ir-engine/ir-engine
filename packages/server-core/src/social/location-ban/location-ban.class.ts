@@ -23,20 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import { LocationBan as LocationBanInterface } from '@etherealengine/common/src/interfaces/LocationBan'
+import {
+  LocationBanData,
+  LocationBanPatch,
+  LocationBanQuery,
+  LocationBanType
+} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface LocationBanParams extends KnexAdapterParams<LocationBanQuery> {}
 
-export type LocationBanDataType = LocationBanInterface
-
-/**
- * A class for Location Ban service
- */
-export class LocationBan<T = LocationBanDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export class LocationBanService<
+  T = LocationBanType,
+  ServiceParams extends Params = LocationBanParams
+> extends KnexService<LocationBanType, LocationBanData, LocationBanParams, LocationBanPatch> {}

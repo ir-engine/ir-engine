@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
 import { InfoOutlined } from '@mui/icons-material'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
@@ -34,7 +33,9 @@ import makeStyles from '@mui/styles/makeStyles'
 
 import { InfoTooltip } from '../layout/Tooltip'
 
-const useStyles = makeStyles<any, {}, any>((theme: any) => {
+import './InputGroup.css'
+
+const useStyles = makeStyles<any, any, any>(() => {
   return createStyles({
     info: {
       color: 'var(--textColor)',
@@ -47,109 +48,37 @@ const useStyles = makeStyles<any, {}, any>((theme: any) => {
 
 /**
  * Used to provide styles for InputGroupContainer div.
- *
- * @type {Styled component}
  */
-export const InputGroupContainer = (styled as any).div`
-  display: flex;
-  flex-direction: row;
-  padding: 4px 8px;
-  flex: 1 1 auto;
-  flex-wrap: nowrap;
-  min-height: 24px;
-
-  ${(props) =>
-    props.disabled &&
-    `
-    pointer-events: none;
-    opacity: 0.3;
-  `}
-
-  .tooltip {
-    color: var(--textColor);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-`
+export const InputGroupContainer = ({ disabled = false, children, ...rest }) => (
+  <div className={`input-group-container ${disabled ? 'disabled' : ''}`} {...rest}>
+    {children}
+  </div>
+)
 
 /**
  * Used to provide styles for InputGroupContent div.
- *
- * @type {Styled component}
  */
-export const InputGroupContent = (styled as any).div`
-  display: flex;
-  justify-content: space-between;
-  margin-left: 5px;
+export const InputGroupContent = ({ extraClasses = '', children }) => (
+  <div className={`input-group-content ${extraClasses}`}>{children}</div>
+)
 
-  & > *:first-child {
-    max-width: calc(100% - 2px);
-  }
+export const InputGroupVerticalContainer = ({ disabled = false, children }) => (
+  <div className={`input-group-vertical-container ${disabled ? 'disabled' : ''}`}>{children}</div>
+)
 
-  & > label {
-    display: block;
-    width: 35%;
-    color: var(--textColor);
-    padding-bottom: 2px;
-    padding-top: 4px;
-  }
-`
+export const InputGroupVerticalContainerWide = ({ disabled = false, children }) => (
+  <div className={`input-group-vertical-container-wide ${disabled ? 'disabled' : ''}`}>{children}</div>
+)
 
-export const InputGroupVerticalContainer = (styled as any).div`
-  ${(props) =>
-    props.disabled &&
-    `
-    pointer-events: none;
-    opacity: 0.3;
-  `}
-
-  & > label {
-    display: block;
-    width: 35%;
-    color: var(--textColor);
-    padding-bottom: 2px;
-    padding-top: 4px;
-  }
-`
-
-export const InputGroupVerticalContainerWide = (styled as any).div`
-  ${(props) =>
-    props.disabled &&
-    `
-    pointer-events: none;
-    opacity: 0.3;
-  `}
-
-  & > label {
-    display: block;
-    width: 100%;
-    color: var(--textColor);
-    padding-bottom: 2px;
-    padding-top: 4px;
-  }
-`
-
-export const InputGroupVerticalContent = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding-left: 8px;
-`
-
+export const InputGroupVerticalContent = ({ children }) => (
+  <div className="input-group-vertical-content">{children}</div>
+)
 /**
  * Used to provide styles for InputGroupInfoIcon div.
- *
- *  @type {styled component}
  */
-export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
-  width: 18px;
-  display: flex;
-  margin-left: 5px;
-  color: var(--iconButtonColor);
-  cursor: pointer;
-  align-self: center;
-`
+export const InputGroupInfoIcon = ({ onClick = () => {} }) => (
+  <HelpOutlineIcon className="input-group-info-icon" onClick={onClick} />
+)
 
 interface InputGroupInfoProp {
   info: string | JSX.Element
@@ -157,9 +86,6 @@ interface InputGroupInfoProp {
 
 /**
  * Used to render InfoTooltip component.
- *
- * @param  {string} info
- * @constructor
  */
 export function InputGroupInfo({ info }: InputGroupInfoProp) {
   return (
@@ -171,8 +97,6 @@ export function InputGroupInfo({ info }: InputGroupInfoProp) {
 
 /**
  * Declaring proptypes for InputGroupInfo Component.
- *
- * @type {Object}
  */
 export type InputGroupProps = React.PropsWithChildren<
   {
@@ -180,30 +104,31 @@ export type InputGroupProps = React.PropsWithChildren<
     disabled?: boolean
     label?: string
     value?: any
+    labelClasses?: string
+    contentClasses?: string
   } & Partial<InputGroupInfoProp>
 >
 
 /**
  * InputGroup used to render the view of component.
- *
- * @param       {string} name
- * @param       {any} children
- * @param       {boolean} disabled
- * @param       {string} info
- * @param       {any} rest
- * @param       {string} label
- * @constructor
  */
-export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProps) {
-  const styles = useStyles()
+export function InputGroup({
+  name,
+  children,
+  disabled,
+  info,
+  label,
+  labelClasses,
+  contentClasses,
+  ...rest
+}: InputGroupProps) {
+  const styles = useStyles({})
 
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
       <Grid container>
         <Grid item xs={4} display="flex" alignItems="center" justifyContent="end">
-          <InfoTooltip className="tooltip" title={label ?? name}>
-            <label>{label}</label>
-          </InfoTooltip>
+          <label className={`label ${labelClasses}`}>{label}</label>
 
           {info && (
             <InfoTooltip title={info}>
@@ -212,7 +137,7 @@ export function InputGroup({ name, children, disabled, info, label, ...rest }: I
           )}
         </Grid>
         <Grid item xs={8}>
-          <InputGroupContent>{children}</InputGroupContent>
+          <InputGroupContent extraClasses={contentClasses}>{children}</InputGroupContent>
         </Grid>
       </Grid>
     </InputGroupContainer>

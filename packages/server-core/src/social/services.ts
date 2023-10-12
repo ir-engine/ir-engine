@@ -23,39 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Location from '../social/location/location.service'
-import ChannelType from './channel-type/channel-type.service'
-import Channel from './channel/channel.service'
-import GroupUserRank from './group-user-rank/group-user-rank.service'
-import GroupUser from './group-user/group-user.service'
-import Group from './group/group.service'
-import InviteType from './invite-type/invite-type.service'
-import Invite from './invite/invite.service'
-import LocationAdmin from './location-admin/location-admin.service'
-import LocationAuthorizedUser from './location-authorized-user/location-authorized-user.service'
-import LocationBan from './location-ban/location-ban.service'
-import LocationSettings from './location-settings/location-settings.service'
-import LocationType from './location-type/location-type.service'
-import MessageStatus from './message-status/message-status.service'
-import Message from './message/message.service'
-import PartyUser from './party-user/party-user.service'
-import Party from './party/party.service'
+import ChannelUser from './channel-user/channel-user'
+import Channel from './channel/channel'
+import InviteCodeLookup from './invite-code-lookup/invite-code-lookup'
+import InviteType from './invite-type/invite-type'
+import Invite from './invite/invite'
+import LocationAdmin from './location-admin/location-admin'
+import LocationAuthorizedUser from './location-authorized-user/location-authorized-user'
+import LocationBan from './location-ban/location-ban'
+import LocationSetting from './location-setting/location-setting'
+import LocationType from './location-type/location-type'
+import Location from './location/location'
+import Message from './message/message'
 
 export default [
-  ChannelType,
+  ChannelUser,
   InviteType,
   Channel,
   Location,
-  GroupUserRank,
-  Group,
   Invite,
-  Party,
-  PartyUser,
-  GroupUser,
+  InviteCodeLookup,
   Message,
-  MessageStatus,
   LocationType,
-  LocationSettings,
+  LocationSetting,
   LocationBan,
   LocationAdmin,
   LocationAuthorizedUser

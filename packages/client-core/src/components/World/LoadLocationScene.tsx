@@ -27,37 +27,35 @@ import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  LocationAction,
-  LocationService,
-  LocationState
-} from '@etherealengine/client-core/src/social/services/LocationService'
+import { LocationService, LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AppLoadingAction } from '@etherealengine/engine/src/common/AppLoadingService'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useRouter } from '../../common/services/RouterService'
+import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
-import { SceneService } from '../../world/services/SceneService'
 import { loadSceneJsonOffline } from '../../world/utils'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
-  const router = useRouter()
 
   useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName: props.locationName }))
+    LocationState.setLocationName(props.locationName)
   }, [])
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {
-      dispatchAction(AppLoadingAction.setLoadingState({ state: 'FAIL' }))
+      getMutableState(AppLoadingState).merge({
+        state: AppLoadingStates.FAIL,
+        loaded: false
+      })
       WarningUIService.openWarning({
         title: t('common:instanceServer.invalidLocation'),
         body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
           'common:instanceServer.misspelledOrNotExist'
         )}`,
-        action: () => router('/')
+        action: () => RouterState.navigate('/')
       })
     }
   }, [locationState.invalidLocation])
@@ -77,14 +75,14 @@ export const useLoadLocation = (props: { locationName: string }) => {
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value) {
       const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
-      SceneService.fetchCurrentScene(project, scene)
+      SceneServices.setCurrentScene(project, scene)
     }
   }, [locationState.currentLocation.location.sceneId])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
   useEffect(() => {
-    dispatchAction(LocationAction.setLocationName({ locationName: `${props.projectName}/${props.sceneName}` }))
+    LocationState.setLocationName(`${props.projectName}/${props.sceneName}`)
     loadSceneJsonOffline(props.projectName, props.sceneName)
   }, [])
 }
@@ -105,7 +103,7 @@ export const useLoadLocationScene = () => {
 
     const isUserBanned =
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
-    dispatchAction(LocationAction.socialSelfUserBanned({ banned: isUserBanned }))
+    LocationState.socialSelfUserBanned(isUserBanned)
 
     if (
       !isUserBanned &&

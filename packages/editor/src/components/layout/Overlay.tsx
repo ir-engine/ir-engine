@@ -23,15 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import styled from 'styled-components'
+import React from 'react'
 
-const Overlay = (styled as any).div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  pointer-events: ${(props) => props.pointerEvents || 'inherit'};
-`
+const overlayStyles = (pointerEvents) => ({
+  position: 'fixed',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  pointerEvents: pointerEvents || 'inherit'
+})
+
+const Overlay = ({ pointerEvents, children }) => {
+  const overlayStyle = overlayStyles(pointerEvents)
+  return <div style={overlayStyle as React.CSSProperties}>{children}</div>
+}
 
 export default Overlay

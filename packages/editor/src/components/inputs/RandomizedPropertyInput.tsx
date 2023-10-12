@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { Component, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 
 import { RandomizedProperty } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { State } from '@etherealengine/hyperflux'
@@ -35,15 +34,15 @@ import { Stack } from '@mui/material'
 import CompoundNumericInput from './CompoundNumericInput'
 import InputGroup from './InputGroup'
 
-const PropertyContainer = (styled as any).div`
-  display: flex;
-  width: 100%;
-  border-width: 2px;
-  border: solid;
-  border-color: #ffffff;
-  margin: 8px;
-  padding: 4px;
-`
+const PropertyContainerStyle = {
+  display: 'flex',
+  width: '100%',
+  borderWidth: '2px',
+  border: 'solid',
+  borderColor: '#ffffff',
+  margin: '8px',
+  padding: '4px'
+}
 
 export default function RandomizedPropertyInputGroup({
   name,
@@ -69,30 +68,15 @@ export default function RandomizedPropertyInputGroup({
     },
     [onChange, value]
   )
+
   return (
     <InputGroup name={name} label={label}>
-      <PropertyContainer>
+      <div style={PropertyContainerStyle}>
         <Stack>
-          <CompoundNumericInput
-            // name={`${name}-mu`}
-            // label={t('editor:properties.randomizedProperty.lbl-mu')}
-            value={prop.mu}
-            onChange={onChangeProp('mu')}
-            min={0.02}
-            max={1}
-            step={0.01}
-          />
-          <CompoundNumericInput
-            // name={`${name}-sigma`}
-            // label={t('editor:properties.randomizedProperty.lbl-sigma')}
-            value={prop.sigma}
-            onChange={onChangeProp('sigma')}
-            min={0.01}
-            max={1}
-            step={0.01}
-          />
+          <CompoundNumericInput value={prop.mu} onChange={onChangeProp('mu')} min={0.02} max={1} step={0.01} />
+          <CompoundNumericInput value={prop.sigma} onChange={onChangeProp('sigma')} min={0.01} max={1} step={0.01} />
         </Stack>
-      </PropertyContainer>
+      </div>
     </InputGroup>
   )
 }

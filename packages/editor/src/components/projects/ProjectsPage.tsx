@@ -28,14 +28,10 @@ import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
-import { ProjectUpdateSystem } from '@etherealengine/client-core/src/systems/ProjectUpdateSystem'
+import { RouterState } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
-import multiLogger from '@etherealengine/common/src/logger'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import multiLogger from '@etherealengine/engine/src/common/functions/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -66,8 +62,9 @@ import {
   Paper
 } from '@mui/material'
 
+import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
+import { ProjectType } from '@etherealengine/engine/src/schemas/projects/project.schema'
 import { getProjects } from '../../functions/projectFunctions'
-import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
@@ -95,7 +92,7 @@ const OfficialProjectData = [
     id: '1570ae12-889a-11ec-886e-b126f7590685',
     name: 'ee-productivity',
     repositoryPath: 'https://github.com/etherealengine/ee-productivity',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'Utility and productivity tools for Virtual and Augmented Reality',
     needsRebuild: true
   },
@@ -103,7 +100,7 @@ const OfficialProjectData = [
     id: '1570ae00-889a-11ec-886e-b126f7590685',
     name: 'ee-development-test-suite',
     repositoryPath: 'https://github.com/etherealengine/ee-development-test-suite',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'Assets and tests for Ethereal Engine core development',
     needsRebuild: true
   },
@@ -111,7 +108,7 @@ const OfficialProjectData = [
     id: '1570ae01-889a-11ec-886e-b126f7590685',
     name: 'ee-i18n',
     repositoryPath: 'https://github.com/etherealengine/ee-i18n',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'Complete language translations in over 100 languages',
     needsRebuild: true
   },
@@ -119,7 +116,7 @@ const OfficialProjectData = [
     id: '1570ae02-889a-11ec-886e-b126f7590685',
     name: 'ee-bot',
     repositoryPath: 'https://github.com/etherealengine/ee-bot',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'A test bot using puppeteer',
     needsRebuild: true
   },
@@ -127,7 +124,7 @@ const OfficialProjectData = [
     id: '1570ae11-889a-11ec-886e-b126f7590685',
     name: 'ee-maps  ',
     repositoryPath: 'https://github.com/etherealengine/ee-maps',
-    thumbnail: '/static/etherealengine.png',
+    thumbnail: '/static/etherealengine_thumbnail.jpg',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
     needsRebuild: true
   }
@@ -135,18 +132,12 @@ const OfficialProjectData = [
   //   id: '1570ae12-889a-11ec-886e-b126f7590685',
   //   name: 'Inventory',
   //   repositoryPath: 'https://github.com/etherealengine/ee-inventory',
-  //   thumbnail: '/static/etherealengine.png',
+  //   thumbnail: '/static/etherealengine_thumbnail.jpg',
   //   description:
   //     'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
   //   needsRebuild: true
   // },
 ]
-
-const ProjectUpdateSystemInjection = {
-  uuid: 'core.admin.ProjectUpdateSystem',
-  type: 'PRE_RENDER',
-  systemLoader: () => Promise.resolve({ default: ProjectUpdateSystem })
-} as const
 
 const CommunityProjectData = [] as any
 
@@ -172,10 +163,10 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
 }
 
 const ProjectsPage = () => {
-  const installedProjects = useHookstate<ProjectInterface[]>([]) // constant projects initialized with an empty array.
-  const officialProjects = useHookstate<ProjectInterface[]>([])
-  const communityProjects = useHookstate<ProjectInterface[]>([])
-  const activeProject = useHookstate<ProjectInterface | null>(null)
+  const installedProjects = useHookstate<ProjectType[]>([]) // constant projects initialized with an empty array.
+  const officialProjects = useHookstate<ProjectType[]>([])
+  const communityProjects = useHookstate<ProjectType[]>([])
+  const activeProject = useHookstate<ProjectType | null>(null)
   const loading = useHookstate(false)
   const error = useHookstate<Error | null>(null)
   const query = useHookstate('')
@@ -190,6 +181,9 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
+  const isAdmin = userIsAdmin()
+  const hasProjectWriteAccess = activeProject.value?.hasWriteAccess || isAdmin
+
   const authState = useHookstate(getMutableState(AuthState))
   const projectState = useHookstate(getMutableState(ProjectState))
   const authUser = authState.authUser
@@ -198,7 +192,6 @@ const ProjectsPage = () => {
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
   const { t } = useTranslation()
-  const route = useRouter()
 
   const fetchInstalledProjects = async () => {
     loading.set(true)
@@ -206,7 +199,7 @@ const ProjectsPage = () => {
       const data = await getProjects()
       installedProjects.set(data.sort(sortAlphabetical) ?? [])
       if (activeProject.value)
-        activeProject.set(data.find((item) => item.id === activeProject.value?.id) as ProjectInterface | null)
+        activeProject.set(data.find((item) => item.id === activeProject.value?.id) as ProjectType | null)
     } catch (error) {
       logger.error(error)
       error.set(error)
@@ -224,7 +217,7 @@ const ProjectsPage = () => {
       ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
       console.log(OfficialProjectData, installedProjects, data)
-      officialProjects.set((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
+      officialProjects.set((data.sort(sortAlphabetical) as ProjectType[]) ?? [])
     } catch (error) {
       logger.error(error)
       error.set(error)
@@ -259,8 +252,6 @@ const ProjectsPage = () => {
     fetchInstalledProjects()
   }
 
-  useSystems([ProjectUpdateSystem], { before: PresentationSystemGroup })
-
   useEffect(() => {
     if (!authUser || !user) return
     if (authUser.accessToken.value == null || authUser.accessToken.value.length <= 0 || user.id.value == null) return
@@ -278,10 +269,7 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-
-    dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
-    dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
-    route(`/studio/${project.name}`)
+    RouterState.navigate(`/studio/${project.name}`)
   }
 
   const onCreateProject = async (name) => {
@@ -340,7 +328,7 @@ const ProjectsPage = () => {
     uploadingProject.set(false)
   }
 
-  const isInstalled = (project: ProjectInterface | null) => {
+  const isInstalled = (project: ProjectType | null) => {
     if (!project) return false
 
     for (const installedProject of installedProjects.value) {
@@ -350,7 +338,7 @@ const ProjectsPage = () => {
     return false
   }
 
-  const hasRepo = (project: ProjectInterface | null) => {
+  const hasRepo = (project: ProjectType | null) => {
     if (!project) return false
 
     return project.repositoryPath && project.repositoryPath.length > 0
@@ -360,6 +348,7 @@ const ProjectsPage = () => {
     query.set(e.target.value)
 
     if (filter.value.installed) {
+      // todo
     }
     if (filter.value.official) fetchOfficialProjects(e.target.value)
     if (filter.value.community) fetchCommunityProjects(e.target.value)
@@ -370,7 +359,7 @@ const ProjectsPage = () => {
   const closeFilterMenu = () => filterAnchorEl.set(null)
   const toggleFilter = (type: string) => filter.set({ ...filter.value, [type]: !filter.value[type] })
 
-  const openProjectContextMenu = (event: MouseEvent, project: ProjectInterface) => {
+  const openProjectContextMenu = (event: MouseEvent, project: ProjectType) => {
     event.preventDefault()
     event.stopPropagation()
 
@@ -380,12 +369,12 @@ const ProjectsPage = () => {
 
   const closeProjectContextMenu = () => projectAnchorEl.set(null)
 
-  const renderProjectList = (projects: ProjectInterface[], areInstalledProjects?: boolean) => {
+  const renderProjectList = (projects: ProjectType[], areInstalledProjects?: boolean) => {
     if (!projects || projects.length <= 0) return <></>
 
     return (
       <ul className={styles.listContainer}>
-        {projects.map((project: ProjectInterface, index) => (
+        {projects.map((project: ProjectType, index) => (
           <li className={styles.itemContainer} key={index}>
             <a
               onClick={(e) => {
@@ -448,7 +437,9 @@ const ProjectsPage = () => {
     <main className={styles.projectPage}>
       <style>
         {`
-        #menu-projectURL,
+        #menu-projectURL {
+          z-index: 1500;
+        },
         #menu-branchData,
         #menu-commitData {
           z-index: 1500;
@@ -584,7 +575,7 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             hasRepo(activeProject.value) &&
-            activeProject.value.hasWriteAccess && (
+            hasProjectWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
                 <Download />
                 {t(`editor.projects.updateFromGithub`)}
@@ -593,7 +584,7 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             !hasRepo(activeProject.value) &&
-            activeProject.value.hasWriteAccess && (
+            hasProjectWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
                 <Link />
                 {t(`editor.projects.link`)}
@@ -602,13 +593,13 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             hasRepo(activeProject.value) &&
-            activeProject.value.hasWriteAccess && (
+            hasProjectWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
                 <LinkOff />
                 {t(`editor.projects.unlink`)}
               </MenuItem>
             )}
-          {activeProject.value?.hasWriteAccess && hasRepo(activeProject.value) && (
+          {hasProjectWriteAccess && hasRepo(activeProject.value) && (
             <MenuItem
               classes={{ root: styles.filterMenuItem }}
               onClick={() => activeProject?.value?.id && pushProject(activeProject.value.id)}
@@ -617,7 +608,7 @@ const ProjectsPage = () => {
               {t(`editor.projects.pushToGithub`)}
             </MenuItem>
           )}
-          {isInstalled(activeProject.value) && activeProject.value?.hasWriteAccess && (
+          {isInstalled(activeProject.value) && hasProjectWriteAccess && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
               {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
               {t(`editor.projects.uninstall`)}
@@ -632,12 +623,12 @@ const ProjectsPage = () => {
         </Menu>
       )}
       <CreateProjectDialog open={isCreateDialogOpen.value} onSuccess={onCreateProject} onClose={closeCreateDialog} />
-      {activeProject.value && activeProject.value.project_permissions && (
+      {activeProject.value && activeProject.value.projectPermissions && (
         <EditPermissionsDialog
           open={editPermissionsDialogOpen.value}
           onClose={closeEditPermissionsDialog}
           project={activeProject.value}
-          projectPermissions={activeProject.value.project_permissions}
+          projectPermissions={activeProject.value.projectPermissions}
           addPermission={onCreatePermission}
           patchPermission={onPatchPermission}
           removePermission={onRemovePermission}

@@ -1,0 +1,25 @@
+.node-container {
+  border-radius: 0.25rem;
+  color: var(--textColor);
+  font-size: small;
+  background-color:  var(--panelBackground);
+  min-width: 120px;
+}
+
+.node-title {
+  background-color:  #748eba; 
+  color: var(--textColor);
+  padding: 0.25rem 0.5rem;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+.node-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-color:  #a0aec0;
+}
+

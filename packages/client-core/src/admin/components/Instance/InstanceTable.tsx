@@ -27,16 +27,15 @@ import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { Location } from '@etherealengine/common/src/interfaces/Location'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { InstanceType, instancePath } from '@etherealengine/engine/src/schemas/networking/instance.schema'
 import TableComponent from '../../common/Table'
-import { instanceColumns, InstanceData } from '../../common/variables/instance'
-import { AdminInstanceService, AdminInstanceState, INSTANCE_PAGE_LIMIT } from '../../services/InstanceService'
+import { InstanceData, instanceColumns } from '../../common/variables/instance'
 import styles from '../../styles/admin.module.scss'
 import InstanceDrawer from './InstanceDrawer'
 
@@ -45,49 +44,32 @@ interface Props {
   search: string
 }
 
-/**
- * JSX used to display table of instance
- *
- * @param props
- * @returns DOM Element
- */
+const INSTANCE_PAGE_LIMIT = 100
+
 const InstanceTable = ({ className, search }: Props) => {
-  const page = useHookstate(0)
-  const rowsPerPage = useHookstate(INSTANCE_PAGE_LIMIT)
+  const { t } = useTranslation()
   const refetch = useHookstate(false)
   const openConfirm = useHookstate(false)
   const instanceId = useHookstate('')
   const instanceName = useHookstate('')
-  const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('createdAt')
-  const instanceAdmin = useHookstate<Instance | undefined>(undefined)
+  const instanceAdmin = useHookstate<InstanceType | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)
-  const { t } = useTranslation()
 
-  const user = useHookstate(getMutableState(AuthState).user)
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
-  const adminInstances = adminInstanceState
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    AdminInstanceService.fetchAdminInstances(search, newPage, sortField.value, fieldOrder.value)
-    page.set(newPage)
-  }
-
-  useEffect(() => {
-    if (adminInstanceState.fetched.value) {
-      AdminInstanceService.fetchAdminInstances(search, page.value, sortField.value, fieldOrder.value)
+  const instancesQuery = useFind(instancePath, {
+    query: {
+      $sort: { createdAt: 1 },
+      $limit: 20,
+      action: 'admin',
+      search
     }
-  }, [fieldOrder.value])
+  })
+  const removeInstance = useMutation(instancePath).remove
 
   const submitRemoveInstance = async () => {
-    await AdminInstanceService.removeInstance(instanceId.value)
+    await removeInstance(instanceId.value)
     openConfirm.set(false)
   }
 
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    rowsPerPage.set(+event.target.value)
-    page.set(0)
-  }
   const isMounted = useRef(false)
 
   const fetchTick = () => {
@@ -99,7 +81,7 @@ const InstanceTable = ({ className, search }: Props) => {
   }
 
   const handleOpenInstanceDrawer =
-    (open: boolean, instance: Instance) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (open: boolean, instance: InstanceType) => (event: React.KeyboardEvent | React.MouseEvent) => {
       event.preventDefault()
       if (
         event.type === 'keydown' &&
@@ -119,29 +101,21 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }, [])
 
-  useEffect(() => {
-    if (!isMounted.current) return
-    if ((user.id.value && adminInstances.updateNeeded.value) || refetch.value) {
-      AdminInstanceService.fetchAdminInstances(search, page.value, sortField.value, fieldOrder.value)
-    }
-    refetch.set(false)
-  }, [user, adminInstanceState.updateNeeded.value, refetch.value])
-
   const createData = (
-    el: Instance,
+    el: InstanceType,
     id: string,
     ipAddress: string,
-    currentUsers: Number,
+    currentUsers: number,
     channelId: string,
     podName: string,
-    locationId?: Location
+    location?: LocationType
   ): InstanceData => {
     return {
       el,
       id,
       ipAddress,
       currentUsers,
-      locationId: locationId?.name || '',
+      locationName: location?.name || '',
       channelId,
       podName,
       action: (
@@ -164,25 +138,21 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }
 
-  const rows = adminInstances.instances.value.map((el: Instance) =>
-    createData({ ...el }, el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
+  const rows = instancesQuery.data.map((el: InstanceType) =>
+    createData(
+      { ...el },
+      el.id,
+      el.ipAddress || '',
+      el.currentUsers,
+      el.channelId || '',
+      el.podName || '',
+      el.location as LocationType
+    )
   )
 
   return (
     <Box className={className}>
-      <TableComponent
-        allowSort={false}
-        fieldOrder={fieldOrder.value}
-        setSortField={sortField.set}
-        setFieldOrder={fieldOrder.set}
-        rows={rows}
-        column={instanceColumns}
-        page={page.value}
-        rowsPerPage={rowsPerPage.value}
-        count={adminInstances.total.value}
-        handlePageChange={handlePageChange}
-        handleRowsPerPageChange={handleRowsPerPageChange}
-      />
+      <TableComponent query={instancesQuery} rows={rows} column={instanceColumns} />
       <ConfirmDialog
         open={openConfirm.value}
         description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName.value}'?`}
