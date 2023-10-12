@@ -138,10 +138,9 @@ export const start = async (): Promise<Application> => {
 
   // http redirects for development
   if (useSSL) {
-    app.use(async (ctx, next) => {
+    app.use(async (ctx) => {
       if (ctx.secure) {
         // request was via https, so do no special handling
-        await next()
       } else {
         // request was via http, so redirect to https
         ctx.redirect('https://' + ctx.headers.host + ctx.url)

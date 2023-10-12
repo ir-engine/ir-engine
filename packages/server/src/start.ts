@@ -62,9 +62,7 @@ export const start = async (): Promise<void> => {
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
-    const processList = await (
-      await psList()
-    ).filter((e) => {
+    const processList = (await psList()).filter((e) => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi
       return e[key]?.match(regexp)
     })
@@ -89,6 +87,7 @@ export const start = async (): Promise<void> => {
 
   const useSSL = !config.noSSL && (config.localBuild || !config.kubernetes.enabled) && fs.existsSync(certKeyPath)
 
+  // If useSSL skipped due to config.kuber.enabled no need to manually set certs since helm has its own way of dealing with ssl
   const certOptions = {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
@@ -103,10 +102,9 @@ export const start = async (): Promise<void> => {
 
   // http redirects for development
   if (useSSL) {
-    app.use(async (ctx, next) => {
+    app.use(async (ctx) => {
       if (ctx.secure) {
         // request was via https, so do no special handling
-        await next()
       } else {
         // request was via http, so redirect to https
         ctx.redirect('https://' + ctx.headers.host + ctx.url)

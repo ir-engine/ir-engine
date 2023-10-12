@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import knex from 'knex'
 import { nanoid } from 'nanoid'
 import { v4 } from 'uuid'
-import { staticResourcePath } from '../../engine/src/schemas/media/static-resource.schema'
 dotenv.config()
 
 // TODO: check for existing avatar on S3
