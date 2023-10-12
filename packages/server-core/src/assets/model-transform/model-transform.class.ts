@@ -71,7 +71,8 @@ export class ModelTransformService implements ServiceInterface<void> {
       const jobLabelSelector = `etherealengine/jobName=${jobBody.metadata!.name},etherealengine/release=${
         process.env.RELEASE_NAME
       },etherealengine/modelTransformer=true`
-      const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, 600)
+      const jobId = `model-transform-${inPath}-${outPath}-${resourceUri}`
+      const jobFinishedPromise = createExecutorJob(this.app, jobBody, jobLabelSelector, 600, jobId)
       await jobFinishedPromise
       return
     } catch (e) {
