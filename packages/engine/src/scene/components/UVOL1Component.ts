@@ -55,6 +55,7 @@ import { useExecute } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
 import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
 
@@ -158,6 +159,9 @@ function UVOL1Reactor() {
     if (volumetric.useLoadingEffect.value) {
       setComponent(entity, UVOLDissolveComponent)
     }
+    const shadow = getMutableComponent(entity, ShadowComponent)
+    shadow.cast.set(true)
+    shadow.receive.set(true)
 
     video.src = component.manifestPath.value.replace('.manifest', '.mp4')
     video.load()

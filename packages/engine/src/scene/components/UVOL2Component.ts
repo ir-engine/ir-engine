@@ -65,6 +65,7 @@ import {
 import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { MediaElementComponent } from './MediaComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
 import { VolumetricComponent, handleAutoplay } from './VolumetricComponent'
 
@@ -330,6 +331,16 @@ function UVOL2Reactor() {
 
     manifest.current = calculatePriority(component.data.get({ noproxy: true }))
     component.data.set(manifest.current)
+    const shadow = getMutableComponent(entity, ShadowComponent)
+    if (manifest.current.type === UVOL_TYPE.UNIFORM_SOLVE_WITH_COMPRESSED_TEXTURE) {
+      // TODO: Cast shadows properly with uniform solve
+      shadow.cast.set(false)
+      shadow.receive.set(false)
+    } else {
+      shadow.cast.set(true)
+      shadow.receive.set(true)
+    }
+
     geometryTargets.current = Object.keys(manifest.current.geometry.targets)
     geometryTargets.current.sort((a, b) => {
       return manifest.current.geometry.targets[a].priority - manifest.current.geometry.targets[b].priority
