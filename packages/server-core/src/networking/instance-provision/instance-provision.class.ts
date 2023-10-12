@@ -41,8 +41,8 @@ import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/s
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
 import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
@@ -385,7 +385,7 @@ export async function checkForDuplicatedAssignments({
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InstanceProvisionParams extends RootParams {}
+export interface InstanceProvisionParams extends KnexAdapterParams {}
 
 /**
  * A class for Instance Provision service

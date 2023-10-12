@@ -32,7 +32,6 @@ import {
   clientSettingQueryValidator
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   clientSettingDataResolver,
@@ -55,25 +54,17 @@ export default {
     find: [],
     get: [],
     create: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(clientSettingDataValidator),
       schemaHooks.resolveData(clientSettingDataResolver)
     ],
-    update: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))
-    ],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))],
     patch: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
       () => schemaHooks.validateData(clientSettingPatchValidator),
       schemaHooks.resolveData(clientSettingPatchResolver)
     ],
-    remove: [
-      authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))
-    ]
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))]
   },
 
   after: {

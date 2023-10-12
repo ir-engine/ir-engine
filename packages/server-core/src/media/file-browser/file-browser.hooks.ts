@@ -31,12 +31,11 @@ import {
   fileBrowserPatchValidator,
   fileBrowserUpdateValidator
 } from '@etherealengine/engine/src/schemas/media/file-browser.schema'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write'))],
+    all: [iff(isProvider('external'), verifyScope('editor', 'write'))],
     find: [],
     get: [],
     create: [

@@ -48,12 +48,12 @@ import {
   LocationAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import logger from '../../ServerLogger'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LocationParams extends RootParams<LocationQuery> {}
+export interface LocationParams extends KnexAdapterParams<LocationQuery> {}
 
 /**
  * A class for Location service

@@ -24,14 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
 import { UserData, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import { RootParams } from '../../api/root-params'
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UserParams extends RootParams<UserQuery> {}
+export interface UserParams extends KnexAdapterParams<UserQuery> {}
 
 /**
  * A class for User service

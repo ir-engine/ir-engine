@@ -44,12 +44,12 @@ import { scopePath, ScopeType } from '@etherealengine/engine/src/schemas/scope/s
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
-export interface IdentityProviderParams extends RootParams<IdentityProviderQuery> {
+export interface IdentityProviderParams extends KnexAdapterParams<IdentityProviderQuery> {
   authentication?: any
 }
 
