@@ -84,8 +84,10 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                 mediumStep={0.1}
                 largeStep={1}
                 onChange={(position) => {
-                  const changePosition = commitProperty(SplineComponent, `elements.${index}.position` as any)
-                  changePosition(new Vector3(position.x, position.y, position.z))
+                  commitProperty(
+                    SplineComponent,
+                    `elements.${index}.position` as any
+                  )(new Vector3(position.x, position.y, position.z))
                 }}
               />
             </InputGroup>
@@ -95,8 +97,10 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                 quaternion={elem.quaternion.value}
                 unit="°"
                 onChange={(euler) => {
-                  const changeEuler = commitProperty(SplineComponent, `elements.${index}.quaternion` as any)
-                  changeEuler(new Quaternion().setFromEuler(euler))
+                  commitProperty(
+                    SplineComponent,
+                    `elements.${index}.quaternion` as any
+                  )(new Quaternion().setFromEuler(euler))
                 }}
               />
             </InputGroup>

@@ -40,7 +40,7 @@ import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import { Vector3Scrubber } from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, commitProperty } from './Util'
+import { EditorComponentType, commitProperty, updateProperty } from './Util'
 
 /**
  * SplineTrackNodeEditor adds rotation editing to splines.
@@ -83,13 +83,13 @@ export const SplineTrackNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Velocity" label={t('editor:properties.splinetrack.lbl-velocity')}>
         <NumericInput
           value={velocity.value}
-          onChange={commitProperty(SplineTrackComponent, 'velocity')}
+          onChange={updateProperty(SplineTrackComponent, 'velocity')}
           onRelease={commitProperty(SplineTrackComponent, 'velocity')}
           prefix={
             <Vector3Scrubber
               tag="div"
               value={velocity.value}
-              onChange={commitProperty(SplineTrackComponent, 'velocity')}
+              onChange={updateProperty(SplineTrackComponent, 'velocity')}
               onPointerUp={commitProperty(SplineTrackComponent, 'velocity')}
             />
           }
