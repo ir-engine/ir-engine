@@ -28,7 +28,6 @@ import React, { useEffect } from 'react'
 import { Color, CompressedTexture, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -158,20 +157,20 @@ function LoadingReactor() {
         (texture: Texture | CompressedTexture) => {
           mesh.material.map = texture
 
-          const compressedTexture = texture as CompressedTexture
-          if (compressedTexture.isCompressedTexture) {
-            try {
-              createReadableTexture(compressedTexture).then((texture: Texture) => {
-                // setColors(texture)
-                texture.dispose()
-              })
-            } catch (e) {
-              console.error(e)
-              setDefaultPalette()
-            }
-          } else {
-            // setColors(texture)
-          }
+          // const compressedTexture = texture as CompressedTexture
+          // if (compressedTexture.isCompressedTexture) {
+          //   try {
+          //     createReadableTexture(compressedTexture).then((texture: Texture) => {
+          //       // setColors(texture)
+          //       texture.dispose()
+          //     })
+          //   } catch (e) {
+          //     console.error(e)
+          //     setDefaultPalette()
+          //   }
+          // } else {
+          //   // setColors(texture)
+          // }
         },
         undefined,
         (error: ErrorEvent) => {
