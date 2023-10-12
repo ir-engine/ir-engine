@@ -29,6 +29,8 @@ import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants
 
 import { isDev } from '@etherealengine/common/src/config'
 
+import { createErrorBoundary } from '@etherealengine/common/src/utils/createErrorBoundary'
+
 import { HyperFlux } from './StoreFunctions'
 
 const ReactorReconciler = Reconciler({
@@ -89,6 +91,19 @@ const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
 export function useReactorRootContext(): ReactorRoot {
   return React.useContext(ReactorRootContext)
 }
+
+const ReactorErrorBoundary = createErrorBoundary(function error(props, error?: Error) {
+  if (error) {
+    return (
+      <div className="error-screen">
+        <h2>An error has occured</h2>
+        <h4>{error.message}</h4>
+      </div>
+    )
+  } else {
+    return <React.Fragment>{props.children}</React.Fragment>
+  }
+})
 
 export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
