@@ -77,9 +77,11 @@ ReactorReconciler.injectIntoDevTools({
   version: '18.2.0'
 })
 
-export interface ReactorRoot {
+export type ReactorRoot = {
   fiber: any
   isRunning: boolean
+  Reactor: React.FC
+  error: Error | null
   promise: Promise<void>
   cleanupFunctions: Set<() => void>
   run: (force?: boolean) => Promise<void>
@@ -92,18 +94,17 @@ export function useReactorRootContext(): ReactorRoot {
   return React.useContext(ReactorRootContext)
 }
 
-const ReactorErrorBoundary = createErrorBoundary(function error(props, error?: Error) {
-  if (error) {
-    return (
-      <div className="error-screen">
-        <h2>An error has occured</h2>
-        <h4>{error.message}</h4>
-      </div>
-    )
-  } else {
-    return <React.Fragment>{props.children}</React.Fragment>
+export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactNode; reactorRoot: ReactorRoot }>(
+  function error(props, error?: Error) {
+    if (error) {
+      props.reactorRoot.error = error
+      props.reactorRoot.stop()
+      return null
+    } else {
+      return <React.Fragment>{props.children}</React.Fragment>
+    }
   }
-})
+)
 
 export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
@@ -128,6 +129,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     fiber: fiberRoot,
     isRunning: false,
     Reactor,
+    error: null as Error | null,
     promise: null! as Promise<void>,
     run() {
       if (reactorRoot.isRunning) return Promise.resolve()
@@ -136,7 +138,9 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
         HyperFlux.store.activeReactors.add(reactorRoot)
         ReactorReconciler.updateContainer(
           <ReactorRootContext.Provider value={reactorRoot}>
-            <Reactor />
+            <ReactorErrorBoundary key="reactor-error-boundary" reactorRoot={reactorRoot}>
+              <Reactor />
+            </ReactorErrorBoundary>
           </ReactorRootContext.Provider>,
           fiberRoot,
           null,
