@@ -67,6 +67,10 @@ async function generateEmail(
   inviterUsername: string,
   targetObjectId?: string
 ): Promise<void> {
+  if (config.testEnabled) {
+    return
+  }
+
   let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode!)
 
@@ -116,6 +120,10 @@ async function generateSMS(
   inviterUsername: string,
   targetObjectId?: string
 ): Promise<void> {
+  if (config.testEnabled) {
+    return
+  }
+
   let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode!)
   if (inviteType === 'channel') {

@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { inviteTypes } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 import { InviteType, invitePath } from '@etherealengine/engine/src/schemas/social/invite.schema'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 import { v1 } from 'uuid'
 import { Application } from '../../../declarations'
@@ -36,6 +36,7 @@ import { createFeathersKoaApp } from '../../createApp'
 describe('invite.service', () => {
   let app: Application
   let testUser: UserType
+  let testLocation: LocationType
   let invites: InviteType[] = []
 
   before(async () => {
@@ -57,6 +58,29 @@ describe('invite.service', () => {
       isGuest: false,
       scopes: []
     })
+
+    testLocation = await app.service(locationPath).create(
+      {
+        name: `test-location-name-${v1()}`,
+        slugifiedName: '',
+        sceneId: `test-invite-scene-${v1()}`,
+        maxUsersPerInstance: 30,
+        locationSetting: {
+          id: '',
+          locationType: 'public',
+          audioEnabled: true,
+          videoEnabled: true,
+          faceStreamingEnabled: false,
+          screenSharingEnabled: false,
+          locationId: '',
+          createdAt: '',
+          updatedAt: ''
+        },
+        isLobby: false,
+        isFeatured: false
+      },
+      { isInternal: true }
+    )
   })
 
   inviteTypes.forEach((inviteType) => {
@@ -65,13 +89,17 @@ describe('invite.service', () => {
       const token = `${v1()}@etherealengine.io`
       const identityProviderType = 'email'
 
-      const createdInvite = await app.service(invitePath).create({
-        inviteType,
-        token,
-        targetObjectId: testUser.id,
-        identityProviderType,
-        deleteOnUse: true
-      })
+      const createdInvite = await app.service(invitePath).create(
+        {
+          inviteType,
+          token,
+          targetObjectId: testLocation.id,
+          identityProviderType,
+          deleteOnUse: true,
+          inviteeId: testUser.id
+        },
+        { user: testUser }
+      )
 
       invites.push(createdInvite)
 
@@ -79,46 +107,79 @@ describe('invite.service', () => {
       assert.ok(createdInvite.passcode)
       assert.equal(createdInvite.inviteType, inviteType)
       assert.equal(createdInvite.token, token)
-      assert.equal(createdInvite.targetObjectId, testUser.id)
+      assert.equal(createdInvite.targetObjectId, testLocation.id)
+      assert.equal(createdInvite.inviteeId, testUser.id)
       assert.equal(createdInvite.identityProviderType, identityProviderType)
     })
   })
 
-  it('should find invites with empty search string', async () => {
-    const items = await app.service(invitePath).find({ query: { search: '' }, isInternal: true })
-    assert.ok(items)
-    assert.equal((items as Paginated<InviteType>).data.length, invites.length)
-  })
+  it('should find invites by searching', async () => {
+    const lastInvite = invites.at(-1)!
+    const foundInvites = await app.service(invitePath).find({
+      query: {
+        $or: [
+          {
+            inviteType: {
+              $like: '%' + lastInvite.passcode + '%'
+            }
+          },
+          {
+            passcode: {
+              $like: '%' + lastInvite.passcode + '%'
+            }
+          }
+        ]
+      },
+      isInternal: true
+    })
 
-  it('should find invites with search string present', async () => {
-    const lastInvite = invites.at(-1)
-    const item = await app.service(invitePath).find({ query: { search: lastInvite?.passcode }, isInternal: true })
-
-    assert.equal((item as Paginated<InviteType>).data[0].passcode, lastInvite?.passcode)
+    assert.equal(foundInvites.data[0].passcode, lastInvite?.passcode)
   })
 
   it('should find received invites', async () => {
     const receivedInvites = await app.service(invitePath).find({
       query: {
-        type: 'received',
-        userId: testUser.id
+        action: 'received'
       },
-      isInternal: true
+      user: testUser
     })
 
-    assert.ok(receivedInvites.data.length > 0)
+    assert.ok(receivedInvites.total > 0)
   })
 
   it('should find sent invites', async () => {
     const sentInvites = await app.service(invitePath).find({
       query: {
-        type: 'sent',
-        userId: testUser.id
+        action: 'sent'
       },
-      isInternal: true
+      user: testUser
     })
 
-    assert.ok(sentInvites.data.length > 0)
+    assert.ok(sentInvites.total > 0)
+  })
+
+  it('should find invites by searching and query action present', async () => {
+    const secondLastInvite = invites.at(-2)!
+    const foundInvites = await app.service(invitePath).find({
+      query: {
+        action: 'sent',
+        $or: [
+          {
+            inviteType: {
+              $like: '%' + secondLastInvite.passcode + '%'
+            }
+          },
+          {
+            passcode: {
+              $like: '%' + secondLastInvite.passcode + '%'
+            }
+          }
+        ]
+      },
+      user: testUser
+    })
+
+    assert.equal(foundInvites.data[0].passcode, secondLastInvite?.passcode)
   })
 
   it('should have "total" in find method', async () => {

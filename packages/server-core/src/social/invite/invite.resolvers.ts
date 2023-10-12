@@ -61,10 +61,10 @@ export const inviteDbToSchema = (rawData: InviteDatabaseType): InviteType => {
 
 export const inviteResolver = resolve<InviteType, HookContext>(
   {
-    createdAt: virtual(async (invite) => fromDateTimeSql(invite.createdAt)),
-    updatedAt: virtual(async (invite) => fromDateTimeSql(invite.updatedAt)),
     startTime: virtual(async (invite) => (invite.startTime ? fromDateTimeSql(invite.startTime) : '')),
-    endTime: virtual(async (invite) => (invite.endTime ? fromDateTimeSql(invite.endTime) : ''))
+    endTime: virtual(async (invite) => (invite.endTime ? fromDateTimeSql(invite.endTime) : '')),
+    createdAt: virtual(async (invite) => fromDateTimeSql(invite.createdAt)),
+    updatedAt: virtual(async (invite) => fromDateTimeSql(invite.updatedAt))
   },
   {
     // Convert the raw data into a new structure before running property resolvers
@@ -87,7 +87,7 @@ export const inviteExternalResolver = resolve<InviteType, HookContext>({
         }
       })) as Paginated<IdentityProviderType>
       if (identityProvider.data.length > 0) {
-        invite.invitee = await context.app.service(userPath).get(identityProvider.data[0].userId)
+        return await context.app.service(userPath).get(identityProvider.data[0].userId)
       }
     }
   }),
@@ -108,11 +108,11 @@ export const inviteDataResolver = resolve<InviteType, HookContext>(
     id: async () => {
       return v4()
     },
-    createdAt: getDateTimeSql,
-    updatedAt: getDateTimeSql,
     passcode: async () => {
       return crypto.randomBytes(8).toString('hex')
-    }
+    },
+    createdAt: getDateTimeSql,
+    updatedAt: getDateTimeSql
   },
   {
     // Convert the raw data into a new structure before running property resolvers

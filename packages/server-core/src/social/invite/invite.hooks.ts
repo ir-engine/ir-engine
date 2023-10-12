@@ -54,30 +54,6 @@ import {
   inviteResolver
 } from './invite.resolvers'
 
-async function addSearch(context: HookContext<InviteService>) {
-  if (!context.params.query || !context.params.query.search) {
-    return
-  }
-
-  const search = context.params.query.search
-
-  context.params.query = {
-    ...context.params.query,
-    $or: [
-      {
-        inviteType: {
-          $like: '%' + search + '%'
-        }
-      },
-      {
-        passcode: {
-          $like: '%' + search + '%'
-        }
-      }
-    ]
-  }
-}
-
 async function handleInvitee(context: HookContext<InviteService>) {
   const identityProviders = (await context.app.service(identityProviderPath).find({
     query: {
@@ -86,18 +62,22 @@ async function handleInvitee(context: HookContext<InviteService>) {
   })) as Paginated<IdentityProviderType>
   const identityProviderTokens = identityProviders.data.map((provider) => provider.token)
 
+  const inviteeQuery = [
+    {
+      inviteeId: context.params.user!.id
+    },
+    {
+      token: {
+        $in: identityProviderTokens
+      }
+    }
+  ]
+
+  const $or = context.params.query?.$or ? [...context.param.query.$or, ...inviteeQuery] : inviteeQuery
+
   context.params.query = {
     ...context.params.query,
-    $or: [
-      {
-        inviteeId: context.params.user!.id
-      },
-      {
-        token: {
-          $in: identityProviderTokens
-        }
-      }
-    ]
+    $or
   }
 }
 
@@ -118,8 +98,6 @@ export default {
   before: {
     all: [() => schemaHooks.validateQuery(inviteQueryValidator), schemaHooks.resolveQuery(inviteQueryResolver)],
     find: [
-      addSearch,
-      discardQuery('search'),
       iffElse(
         (context) => !!context.params.query?.action,
         [iff(isAction('received'), handleInvitee), iff(isAction('sent'), attachOwnerIdInQuery('userId'))],
