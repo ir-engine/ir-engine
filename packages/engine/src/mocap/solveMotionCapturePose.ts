@@ -245,9 +245,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
   solveHand(
     entity,
     lowestWorldY,
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
-    landmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
+    screenlandmarks[POSE_LANDMARKS_LEFT.LEFT_WRIST],
+    screenlandmarks[POSE_LANDMARKS_LEFT.LEFT_PINKY],
+    screenlandmarks[POSE_LANDMARKS_LEFT.LEFT_INDEX],
     false,
     VRMHumanBoneName.RightLowerArm,
     VRMHumanBoneName.RightHand
@@ -255,9 +255,9 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
   solveHand(
     entity,
     lowestWorldY,
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
-    landmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
+    screenlandmarks[POSE_LANDMARKS_RIGHT.RIGHT_WRIST],
+    screenlandmarks[POSE_LANDMARKS_RIGHT.RIGHT_PINKY],
+    screenlandmarks[POSE_LANDMARKS_RIGHT.RIGHT_INDEX],
     true,
     VRMHumanBoneName.LeftLowerArm,
     VRMHumanBoneName.LeftHand
@@ -570,7 +570,7 @@ export const solveHand = (
   const ref2Point = new Vector3(ref2.x, lowestWorldY - ref2.y, ref2.z)
 
   plane.setFromCoplanarPoints(ref1Point, ref2Point, startPoint)
-  directionVector.addVectors(ref1Point, ref2Point).multiplyScalar(0.5).sub(startPoint).normalize()
+  directionVector.addVectors(ref1Point, ref2Point).multiplyScalar(0.5).sub(startPoint).normalize() // Calculate direction between wrist and center of tip of hand
   const orthogonalVector = plane.normal
   if (invertAxis) {
     directionVector.negate()
