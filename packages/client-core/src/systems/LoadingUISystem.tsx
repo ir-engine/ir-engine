@@ -182,6 +182,7 @@ function LoadingReactor() {
         undefined,
         (error: ErrorEvent) => {
           console.error(error)
+          mesh.material.map = new Texture()
           setDefaultPalette()
         }
       )
@@ -250,12 +251,14 @@ const execute = () => {
 
   // mainThemeColor.set(ui.state.colors.alternate.value)
 
+  if (!mesh.material.map) return
+
   transition.update(engineState.deltaSeconds, (opacity) => {
     getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
   })
 
   setVisibleComponent(ui.entity, false)
-  const opacity = mesh.material.map ? getState(LoadingSystemState).loadingScreenOpacity : 0
+  const opacity = getState(LoadingSystemState).loadingScreenOpacity
   const ready = opacity > 0
 
   mesh.material.opacity = opacity
