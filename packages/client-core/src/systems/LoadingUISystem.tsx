@@ -255,7 +255,7 @@ const execute = () => {
   })
 
   setVisibleComponent(ui.entity, false)
-  const opacity = getState(LoadingSystemState).loadingScreenOpacity
+  const opacity = mesh.material.map ? getState(LoadingSystemState).loadingScreenOpacity : 0
   const ready = opacity > 0
 
   mesh.material.opacity = opacity
