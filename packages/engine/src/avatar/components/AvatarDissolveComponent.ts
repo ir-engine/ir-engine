@@ -119,7 +119,7 @@ export const AvatarDissolveComponent = defineComponent({
     `
 
     const fragmentColorShader = `
-      #include <output_fragment>
+      #include <opaque_fragment>
       float offset = vPosition - time;
       if(offset > (-0.01 - rand(time) * 0.3)){
       gl_FragColor = vec4(color.r, color.g, color.b, 1.0);
@@ -138,7 +138,7 @@ export const AvatarDissolveComponent = defineComponent({
     }
 
     const fragmentTextureShader = `
-      #include <output_fragment>
+      #include <opaque_fragment>
       float offset = vPosition - time;
       vec4 textureColor = texture2D(origin_texture, vUv3);
       ${textureShader}
@@ -175,7 +175,7 @@ export const AvatarDissolveComponent = defineComponent({
     vertexShader = vertexShader.replace('#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
     fragmentShader = fragmentShader.replace('#include <clipping_planes_pars_fragment>', fragmentHeaderShader)
     fragmentShader = fragmentShader.replace(
-      '#include <output_fragment>',
+      '#include <opaque_fragment>',
       hasTexture ? fragmentTextureShader : fragmentColorShader
     )
 
