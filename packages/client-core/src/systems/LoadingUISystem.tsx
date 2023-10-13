@@ -105,8 +105,10 @@ function LoadingReactor() {
   /** Handle loading state changes */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING && transition.state === 'OUT')
+    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING && transition.state === 'OUT') {
+      mesh.material.map = null
       return transition.setState('IN')
+    }
 
     if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN')
       return transition.setState('OUT')
@@ -145,11 +147,16 @@ function LoadingReactor() {
   /** Scene data changes */
   useEffect(() => {
     if (!sceneData.value) return
-    const envmapURL = sceneData.value.thumbnailUrl.split('/').slice(0, -1).join('/') + '/loadingscreen.ktx2'
+    const [, , projectName, asset] = new URL(sceneData.value.thumbnailUrl).pathname.split('/')
+    const envmapURL =
+      projectName.includes('magentaverse') && !asset.includes('1_start_line')
+        ? sceneData.value.thumbnailUrl.split('/').slice(0, -1).join('/') + '/loadingscreen.ktx2'
+        : sceneData.value.thumbnailUrl.replace('thumbnail.ktx2', 'envmap.ktx2')
     if (envmapURL && mesh.userData.url !== envmapURL) {
       mesh.userData.url = envmapURL
       setDefaultPalette()
 
+      mesh.material.map = null
       /** Load envmap and parse colours */
       AssetLoader.load(
         envmapURL,
@@ -248,11 +255,11 @@ const execute = () => {
   })
 
   setVisibleComponent(ui.entity, false)
-  // const opacity = getState(LoadingSystemState).loadingScreenOpacity
-  // const ready = opacity > 0
+  const opacity = getState(LoadingSystemState).loadingScreenOpacity
+  const ready = opacity > 0
 
-  // mesh.material.opacity = opacity
-  // mesh.visible = ready
+  mesh.material.opacity = opacity
+  mesh.visible = ready
 
   // xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
   //   const mat = layer.contentMesh.material as MeshBasicMaterial
