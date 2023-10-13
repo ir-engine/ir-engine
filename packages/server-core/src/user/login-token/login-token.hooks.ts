@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   loginTokenDataValidator,
@@ -32,6 +32,10 @@ import {
   loginTokenQueryValidator
 } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
+import moment from 'moment'
+import { toDateTimeSql } from '../../util/datetime-sql'
 import {
   loginTokenDataResolver,
   loginTokenExternalResolver,
@@ -39,6 +43,14 @@ import {
   loginTokenQueryResolver,
   loginTokenResolver
 } from './login-token.resolvers'
+
+const checkIdentityProvider = async (context: HookContext): Promise<HookContext> => {
+  const { data, params } = context
+  if (!params.user || params.user.isGuest) throw new BadRequest('Can only generate a login link for a non-guest user')
+  data.identityProviderId = params.user.identityProviders[0].id
+  data.expiresAt = toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+  return context
+}
 
 export default {
   around: {
@@ -50,7 +62,7 @@ export default {
     find: [disallow('external')],
     get: [disallow('external')],
     create: [
-      disallow('external'),
+      iff(isProvider('external'), checkIdentityProvider),
       () => schemaHooks.validateData(loginTokenDataValidator),
       schemaHooks.resolveData(loginTokenDataResolver)
     ],

@@ -40,7 +40,7 @@ import { TwitterIcon } from '@etherealengine/client-core/src/common/components/I
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -80,6 +80,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
+  const loginLink = useHookstate('')
 
   const authSetting = useFind(authenticationSettingPath).data.at(0)
   const clientSetting = useFind(clientSettingPath).data.at(0)
@@ -301,6 +302,10 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     AuthService.updateApiKey()
   }
 
+  const createLoginLink = () => {
+    AuthService.createLoginToken().then((token) => loginLink.set(`${config.client.serverUrl}/login/${token.token}`))
+  }
+
   const getConnectText = () => {
     if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.connectPhoneEmail')
@@ -368,6 +373,12 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
             {selfUser?.inviteCode.value && (
               <Text mt={1} variant="body2">
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
+              </Text>
+            )}
+
+            {!selfUser?.isGuest.value && (
+              <Text mt={1} variant="body2" onClick={() => createLoginLink()}>
+                {t('user:usermenu.profile.createLoginLink')}
               </Text>
             )}
 
@@ -451,6 +462,24 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
             onEndIconClick={() => {
               navigator.clipboard.writeText(apiKey)
               NotificationService.dispatchNotify(t('user:usermenu.profile.apiKeyCopied'), {
+                variant: 'success'
+              })
+            }}
+          />
+        )}
+
+        {loginLink.value.length > 0 && (
+          <InputText
+            label={t('user:usermenu.profile.loginLink')}
+            value={loginLink.value}
+            sx={{ mt: 2 }}
+            endIcon={<Icon type="ContentCopy" />}
+            startIcon={<Icon type="Refresh" />}
+            startIconTitle={t('user:usermenu.profile.createLoginLink')}
+            onStartIconClick={createLoginLink}
+            onEndIconClick={() => {
+              navigator.clipboard.writeText(loginLink.value)
+              NotificationService.dispatchNotify(t('user:usermenu.profile.loginLinkCopied'), {
                 variant: 'success'
               })
             }}
