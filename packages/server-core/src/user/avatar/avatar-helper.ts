@@ -27,6 +27,7 @@ import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -171,8 +172,7 @@ export const uploadAvatarStaticResource = async (
   params?: AvatarParams
 ) => {
   console.log('uploadAvatarStaticResource', data)
-  const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
-
+  const name = data.avatarName ? data.avatarName : 'Avatar-' + uuidv4()
   const staticResourceKey = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
   const isFromProject = !!data.project && !!data.path && isAssetFromProject(data.path, data.project)
   const path = isFromProject ? data.path! : staticResourceKey

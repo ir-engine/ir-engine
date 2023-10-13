@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import AgonesSDK from '@google-cloud/agones-sdk'
 import fs from 'fs'
 import https from 'https'
-import psList from 'ps-list'
+import psList, { ProcessDescriptor } from 'ps-list'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
 import { getMutableState } from '@etherealengine/hyperflux'
@@ -95,12 +95,16 @@ export const start = async (): Promise<Application> => {
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
-    const processList = await (
-      await psList()
-    ).filter((e) => {
-      const regexp = /docker-compose up|docker-proxy|mysql/gi
-      return e[key]?.match(regexp)
-    })
+    let processList: ProcessDescriptor[] = []
+    try {
+      processList = (await psList()).filter((e) => {
+        const regexp = /docker-compose up|docker-proxy|mysql/gi
+        return e[key]?.match(regexp)
+      })
+    } catch (err) {
+      console.error('Error fetching process list:', err)
+    }
+
     const dockerProcess = processList.find((c) => c[key]?.match(/docker-compose/))
     const dockerProxy = processList.find((c) => c[key]?.match(/docker-proxy/))
     const processMysql = processList.find((c) => c[key]?.match(/mysql/))
@@ -128,34 +132,22 @@ export const start = async (): Promise<Application> => {
     cert: useSSL ? fs.readFileSync(certPath) : null
   } as any
   const port = Number(config.instanceserver.port)
-  if (useSSL) {
-    logger.info(`Starting instanceserver with HTTPS on port ${port}.`)
-  } else {
-    logger.info(
-      `Starting instanceserver with NO HTTPS on ${port}, if you meant to use HTTPS try 'sudo bash generate-certs'`
-    )
-  }
+  const server = useSSL ? https.createServer(certOptions, app.callback()).listen(port) : await app.listen(port)
 
   // http redirects for development
   if (useSSL) {
+    logger.info(`Starting instanceserver with HTTPS on port ${port}.`)
     app.use(async (ctx) => {
-      if (ctx.secure) {
-        // request was via https, so do no special handling
-      } else {
+      if (!ctx.secure) {
         // request was via http, so redirect to https
         ctx.redirect('https://' + ctx.headers.host + ctx.url)
       }
     })
-  }
-
-  // const server = useSSL
-  //   ? https.createServer(certOptions, app as any).listen(port)
-  //   : app.listen(port);
-
-  const server = useSSL ? https.createServer(certOptions, app.callback()).listen(port) : await app.listen(port)
-
-  if (useSSL) {
     app.setup(server)
+  } else {
+    logger.info(
+      `Starting instanceserver with NO HTTPS on ${port}, if you meant to use HTTPS try 'sudo bash generate-certs'`
+    )
   }
 
   // if (config.instanceserver.locationName != null) {
@@ -181,14 +173,18 @@ export const start = async (): Promise<Application> => {
   server.on('listening', () =>
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
-  await new Promise((resolve) => {
-    const primusWaitInterval = setInterval(() => {
-      if (app.primus) {
-        clearInterval(primusWaitInterval)
-        resolve(null)
-      }
-    }, 100)
-  })
+  try {
+    await new Promise((resolve) => {
+      const primusWaitInterval = setInterval(() => {
+        if (app.primus) {
+          clearInterval(primusWaitInterval)
+          resolve(null)
+        }
+      }, 100)
+    })
+  } catch (error) {
+    console.error('An error occurred:', error)
+  }
   app.primus.on('connection', async (spark) => setupSocketFunctions(app, spark))
   return app
 }
