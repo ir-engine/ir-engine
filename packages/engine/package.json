@@ -57,7 +57,7 @@
     "node-cache": "^5.1.2",
     "node-schedule": "^2.1.1",
     "noisejs": "2.1.0",
-    "postprocessing": "6.32.2",
+    "postprocessing": "6.33.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "realism-effects": "1.1.2",
