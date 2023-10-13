@@ -32,7 +32,6 @@ import {
   buildStatusQueryValidator
 } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
   buildStatusDataResolver,
@@ -49,7 +48,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
       () => schemaHooks.validateQuery(buildStatusQueryValidator),
       schemaHooks.resolveQuery(buildStatusQueryResolver)

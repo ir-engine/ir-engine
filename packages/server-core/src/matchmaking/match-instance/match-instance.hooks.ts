@@ -33,7 +33,6 @@ import {
 } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
-import authenticate from '../../hooks/authenticate'
 import createInstance from '../../hooks/matchmaking-create-instance'
 import {
   matchInstanceDataResolver,
@@ -54,7 +53,7 @@ export default {
       schemaHooks.resolveQuery(matchInstanceQueryResolver)
     ],
     find: [],
-    get: [iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId'))],
+    get: [iff(isProvider('external'), setLoggedInUser('userId'))],
     create: [
       iff(isProvider('external'), disallow()),
       () => schemaHooks.validateData(matchInstanceDataValidator),

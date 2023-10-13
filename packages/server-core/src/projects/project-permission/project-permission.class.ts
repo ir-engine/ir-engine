@@ -43,10 +43,10 @@ import {
 } from '@etherealengine/engine/src/schemas/projects/project-permission.schema'
 
 import { projectPath } from '@etherealengine/engine/src/schemas/projects/project.schema'
-import { RootParams } from '../../api/root-params'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProjectPermissionParams extends RootParams<ProjectPermissionQuery> {}
+export interface ProjectPermissionParams extends KnexAdapterParams<ProjectPermissionQuery> {}
 
 /**
  * A class for ProjectPermission service

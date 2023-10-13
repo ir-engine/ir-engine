@@ -111,6 +111,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.media.seektime')}
         value={media.seekTime.value}
         onChange={updateProperty(MediaComponent, 'seekTime')}
+        onRelease={commitProperty(MediaComponent, 'seekTime')}
       />
       <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
         <BooleanInput value={media.isMusic.value} onChange={commitProperty(MediaComponent, 'isMusic')} />

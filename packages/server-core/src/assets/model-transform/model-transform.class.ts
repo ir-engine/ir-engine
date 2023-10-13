@@ -25,14 +25,23 @@ Ethereal Engine. All Rights Reserved.
 
 import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { Application } from '@etherealengine/server-core/declarations'
-import { ServiceInterface } from '@feathersjs/feathers'
+import { ServiceInterface } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import path from 'path'
 import config from '../../appconfig'
 
-import { BadRequest } from '@feathersjs/errors'
 import { createExecutorJob } from '../../projects/project/project-helper'
 import { getModelTransformJobBody, transformModel } from './model-transform.helpers'
+
+import { BadRequest } from '@feathersjs/errors/lib'
+import { KnexAdapterParams } from '@feathersjs/knex/lib'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ModelTransformParams extends KnexAdapterParams {
+  src: string
+  transformParameters: ModelTransformParameters
+  filter?: string
+}
 
 /**
  * A class for Model Transform service

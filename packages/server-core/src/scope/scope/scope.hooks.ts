@@ -36,7 +36,6 @@ import {
 } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import verifyScope from '../../hooks/verify-scope'
 import verifyScopeAllowingSelf from '../../hooks/verify-scope-allowing-self'
@@ -104,11 +103,7 @@ export default {
     all: [schemaHooks.resolveExternal(scopeExternalResolver), schemaHooks.resolveResult(scopeResolver)]
   },
   before: {
-    all: [
-      authenticate(),
-      () => schemaHooks.validateQuery(scopeQueryValidator),
-      schemaHooks.resolveQuery(scopeQueryResolver)
-    ],
+    all: [() => schemaHooks.validateQuery(scopeQueryValidator), schemaHooks.resolveQuery(scopeQueryResolver)],
     find: [enableClientPagination(), iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     get: [iff(isProvider('external'), verifyScopeAllowingSelf('user', 'read'))],
     create: [

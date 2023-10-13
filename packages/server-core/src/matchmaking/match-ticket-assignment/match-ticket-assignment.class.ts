@@ -35,12 +35,12 @@ import {
 import config from '@etherealengine/server-core/src/appconfig'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 import { emulate_getTicketsAssignment } from '../emulate'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface MatchTicketAssignmentParams extends RootParams<MatchTicketAssignmentQuery> {}
+export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTicketAssignmentQuery> {}
 
 /**
  * A class for MatchTicketAssignment service

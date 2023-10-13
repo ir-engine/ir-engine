@@ -32,7 +32,6 @@ import {
   staticResourceQueryValidator
 } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
-import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 import { Forbidden } from '@feathersjs/errors'
@@ -83,21 +82,18 @@ export default {
     find: [collectAnalytics()],
     get: [disallow('external')],
     create: [
-      authenticate(),
       setLoggedinUserInBody('userId'),
       verifyScope('admin', 'admin'),
       () => schemaHooks.validateData(staticResourceDataValidator),
       schemaHooks.resolveData(staticResourceDataResolver)
     ],
-    update: [authenticate(), verifyScope('admin', 'admin')],
+    update: [verifyScope('admin', 'admin')],
     patch: [
-      authenticate(),
       verifyScope('admin', 'admin'),
       () => schemaHooks.validateData(staticResourcePatchValidator),
       schemaHooks.resolveData(staticResourcePatchResolver)
     ],
     remove: [
-      authenticate(),
       // iff(isProvider('external'), verifyScope('admin', 'admin') as any),
       ensureResource
     ]
