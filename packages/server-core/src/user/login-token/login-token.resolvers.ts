@@ -30,7 +30,10 @@ import { v4 } from 'uuid'
 import { LoginTokenQuery, LoginTokenType } from '@etherealengine/engine/src/schemas/user/login-token.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
+import crypto from 'crypto'
+import moment from 'moment'
+import config from '../../appconfig'
+import { fromDateTimeSql, getDateTimeSql, toDateTimeSql } from '../../util/datetime-sql'
 
 export const loginTokenResolver = resolve<LoginTokenType, HookContext>({
   expiresAt: virtual(async (loginToken) => fromDateTimeSql(loginToken.expiresAt)),
@@ -43,6 +46,13 @@ export const loginTokenExternalResolver = resolve<LoginTokenType, HookContext>({
 export const loginTokenDataResolver = resolve<LoginTokenType, HookContext>({
   id: async () => {
     return v4()
+  },
+  token: async () => {
+    return crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
+  },
+  expiresAt: async (value, message, context) => {
+    console.log('expiresAt context', context)
+    return context.data.expiresAt ? context.data.expiresAt : toDateTimeSql(moment().utc().add(2, 'days').toDate())
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
