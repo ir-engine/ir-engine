@@ -250,7 +250,7 @@ const execute = () => {
 
       if (getState(XRState).sessionActive) rig.hips.node.position.applyMatrix4(transform.matrixInverse)
 
-      if (ikDataByName[ikTargets.rightHand]) {
+      if (ikDataByName[ikTargets.rightHand] && ikDataByName[ikTargets.rightHand].blendWeight > 0) {
         solveTwoBoneIK(
           rig.rightUpperArm.node,
           rig.rightLowerArm.node,
@@ -269,7 +269,7 @@ const execute = () => {
         )
       }
 
-      if (ikDataByName[ikTargets.leftHand]) {
+      if (ikDataByName[ikTargets.leftHand] && ikDataByName[ikTargets.leftHand].blendWeight > 0) {
         solveTwoBoneIK(
           rig.leftUpperArm.node,
           rig.leftLowerArm.node,
@@ -292,7 +292,7 @@ const execute = () => {
         footRaycastTimer = 0
       }
 
-      if (ikDataByName[ikTargets.rightFoot]) {
+      if (ikDataByName[ikTargets.rightFoot] && ikDataByName[ikTargets.rightFoot].blendWeight > 0) {
         solveTwoBoneIK(
           rig.rightUpperLeg.node,
           rig.rightLowerLeg.node,
@@ -311,7 +311,7 @@ const execute = () => {
         )
       }
 
-      if (ikDataByName[ikTargets.leftFoot]) {
+      if (ikDataByName[ikTargets.leftFoot] && ikDataByName[ikTargets.leftFoot].blendWeight > 0) {
         solveTwoBoneIK(
           rig.leftUpperLeg.node,
           rig.leftLowerLeg.node,
