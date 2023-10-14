@@ -39,7 +39,7 @@ import { NormalizedLandmarkList } from '@mediapipe/pose'
 
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/systems/DataChannelRegistry'
 
-import { getState } from '@etherealengine/hyperflux'
+import { getState, receiveActions } from '@etherealengine/hyperflux'
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import {
   BufferAttribute,
@@ -62,6 +62,7 @@ import { NetworkState } from '../networking/NetworkState'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { MotionCaptureState } from './MotionCaptureActions'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
 
@@ -119,6 +120,8 @@ const timeSeriesMocapData = new Map<
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
+  receiveActions(MotionCaptureState)
+
   // for now, it is unnecessary to compute anything on the server
   if (!isClient) return
   const network = NetworkState.worldNetwork

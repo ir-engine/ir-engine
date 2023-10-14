@@ -30,7 +30,6 @@ import { v4 } from 'uuid'
 import { ChannelUserType, channelUserPath } from '@etherealengine/engine/src/schemas/social/channel-user.schema'
 import { ChannelID, ChannelQuery, ChannelType } from '@etherealengine/engine/src/schemas/social/channel.schema'
 import { MessageType, messagePath } from '@etherealengine/engine/src/schemas/social/message.schema'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 import { Paginated } from '@feathersjs/feathers'
 import { fromDateTimeSql, getDateTimeSql } from '../../util/datetime-sql'
@@ -55,8 +54,6 @@ export const channelExternalResolver = resolve<ChannelType, HookContext>({
   }),
   messages: virtual(async (channel, context) => {
     if (context.method === 'find' && context.params.user) {
-      const loggedInUser = context.params.user as UserType
-
       const messages = (await context.app.service(messagePath).find({
         query: {
           channelId: channel.id,
@@ -64,8 +61,7 @@ export const channelExternalResolver = resolve<ChannelType, HookContext>({
           $sort: {
             createdAt: -1
           }
-        },
-        user: loggedInUser
+        }
       })) as Paginated<MessageType>
 
       return messages.data

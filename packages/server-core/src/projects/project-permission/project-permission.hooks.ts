@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
 import verifyProjectOwner from '../../hooks/verify-project-owner'
 
 import {
@@ -52,7 +51,6 @@ export default {
 
   before: {
     all: [
-      authenticate(),
       () => schemaHooks.validateQuery(projectPermissionQueryValidator),
       schemaHooks.resolveQuery(projectPermissionQueryResolver)
     ],

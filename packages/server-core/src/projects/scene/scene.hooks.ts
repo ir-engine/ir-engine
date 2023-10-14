@@ -25,14 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
-    all: [authenticate()],
+    all: [],
     find: [],
     get: [],
     create: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))],

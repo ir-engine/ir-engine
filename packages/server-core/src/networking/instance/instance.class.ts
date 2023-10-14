@@ -35,8 +35,8 @@ import {
 
 import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Forbidden } from '@feathersjs/errors'
+import { KnexAdapterParams } from '@feathersjs/knex'
 import { Application } from '../../../declarations'
-import { RootParams } from '../../api/root-params'
 
 const roomCodeCharacters = '123456789'
 
@@ -47,7 +47,7 @@ const generateRoomCode = () => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InstanceParams extends RootParams<InstanceQuery> {}
+export interface InstanceParams extends KnexAdapterParams<InstanceQuery> {}
 
 /**
  * A class for Instance service

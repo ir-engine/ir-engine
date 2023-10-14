@@ -23,13 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction } from '@etherealengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { defineAction, defineState } from '@etherealengine/hyperflux'
 import matches from 'ts-matches'
+import { ikTargets } from '../avatar/animation/Util'
+import { AvatarIKTargetComponent } from '../avatar/components/AvatarIKComponents'
+import { setComponent } from '../ecs/functions/ComponentFunctions'
+import { NetworkState } from '../networking/NetworkState'
+import { NetworkTopics } from '../networking/classes/Network'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
 
 export class MotionCaptureAction {
   static trackingScopeChanged = defineAction({
     type: 'ee.mocap.trackLowerBody' as const,
     trackingLowerBody: matches.boolean,
-    $cache: { removePrevious: true }
+    $topic: NetworkTopics.world
   })
 }
+
+export const MotionCaptureState = defineState({
+  name: 'MotionCaptureState',
+  initial: {},
+  receptors: [
+    [
+      //make this mutate data of the ik targets
+      MotionCaptureAction.trackingScopeChanged,
+      (state, action: typeof MotionCaptureAction.trackingScopeChanged.matches._TYPE) => {
+        const userID = Object.values(NetworkState.mediaNetwork.peers).find((peer) => peer.peerID === action.$peer)
+          ?.userId!
+        const leftFootUUID = (userID + ikTargets.leftFoot) as EntityUUID
+        const rightFootUUID = (userID + ikTargets.rightFoot) as EntityUUID
+        const leftFootEntity = UUIDComponent.entitiesByUUID[leftFootUUID]
+        const rightFootEntity = UUIDComponent.entitiesByUUID[rightFootUUID]
+        setComponent(leftFootEntity, AvatarIKTargetComponent, { blendWeight: 1 })
+        setComponent(rightFootEntity, AvatarIKTargetComponent, { blendWeight: 1 })
+      }
+    ]
+  ]
+})
