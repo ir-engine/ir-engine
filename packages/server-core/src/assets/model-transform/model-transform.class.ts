@@ -36,11 +36,8 @@ import { getModelTransformJobBody, transformModel } from './model-transform.help
 import { BadRequest } from '@feathersjs/errors/lib'
 import { KnexAdapterParams } from '@feathersjs/knex/lib'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ModelTransformParams extends KnexAdapterParams {
-  src: string
   transformParameters: ModelTransformParameters
-  filter?: string
 }
 
 /**

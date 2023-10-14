@@ -76,6 +76,7 @@ export default function ModelTransformProperties({
 
   const transformParms = useHookstate<ModelTransformParameters>({
     ...DefaultModelTransformParameters,
+    src: modelState.src.value,
     modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
   })
 
