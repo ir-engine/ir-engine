@@ -33,7 +33,7 @@ import { QuaternionSchema, Vector3Schema } from '../transform/components/Transfo
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
-
+  onInit: () => true,
   schema: {
     rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
       VRMHumanBoneName,

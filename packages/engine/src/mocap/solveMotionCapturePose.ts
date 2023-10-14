@@ -45,7 +45,7 @@ import { Entity } from '../ecs/classes/Entity'
 
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import {
   NormalizedLandmark,
   NormalizedLandmarkList,
@@ -59,7 +59,6 @@ import { V_010, V_100, V_111 } from '../common/constants/MathConstants'
 import { RendererState } from '../renderer/RendererState'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
-import { MotionCaptureAction } from './MotionCaptureActions'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
 const grey = new Color(0.5, 0.5, 0.5)
@@ -225,14 +224,11 @@ export function solveMotionCapturePose(landmarks: NormalizedLandmarkList, screen
     )
     //check state, if we are still not set to track lower body, update that
     if (!MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: true }))
-
       MotionCaptureRigComponent.solvingLowerBody[entity] = 1
     }
   } else {
     if (MotionCaptureRigComponent.solvingLowerBody[entity]) {
-      dispatchAction(MotionCaptureAction.trackingScopeChanged({ trackingLowerBody: false }))
-      //very quick dirty reset of legs
+      //quick dirty reset of legs
       resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.LeftUpperLeg, VRMHumanBoneName.LeftLowerLeg)
       resetLimb(entity, VRMHumanBoneName.Hips, VRMHumanBoneName.RightUpperLeg, VRMHumanBoneName.RightLowerLeg)
       resetBone(entity, VRMHumanBoneName.LeftFoot)
